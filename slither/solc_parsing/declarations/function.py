@@ -10,12 +10,11 @@ from slither.core.declarations.function import (
     FunctionType,
 )
 from slither.core.declarations.function_contract import FunctionContract
-
 from slither.core.expressions import AssignmentOperation
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
-
 from slither.solc_parsing.cfg.node import NodeSolc
+from slither.solc_parsing.exceptions import ParsingError
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from slither.solc_parsing.variables.local_variable_init_from_tuple import (
@@ -26,13 +25,11 @@ from slither.solc_parsing.yul.parse_yul import YulBlock
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
-from slither.solc_parsing.exceptions import ParsingError
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
-    from slither.core.slither_core import SlitherCore
     from slither.core.compilation_unit import SlitherCompilationUnit
 
 
@@ -1012,6 +1009,15 @@ class FunctionSolc:
             node = self._parse_try_catch(statement, node)
         # elif name == 'TryCatchClause':
         #     self._parse_catch(statement, node)
+        elif name == "RevertStatement":
+            if self.is_compact_ast:
+                expression = statement[self.get_children("errorCall")]
+            else:
+                expression = statement[self.get_children("errorCall")][0]
+            new_node = self._new_node(NodeType.EXPRESSION, statement["src"], scope)
+            new_node.add_unparsed_expression(expression)
+            link_underlying_nodes(node, new_node)
+            node = new_node
         else:
             raise ParsingError("Statement not parsed %s" % name)
 

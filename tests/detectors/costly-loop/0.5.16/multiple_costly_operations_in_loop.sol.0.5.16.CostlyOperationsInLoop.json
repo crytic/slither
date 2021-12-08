@@ -4,9 +4,146 @@
             "elements": [
                 {
                     "type": "function",
+                    "name": "bad_base",
+                    "source_mapping": {
+                        "start": 102,
+                        "length": 389,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5,
+                            6,
+                            7,
+                            8,
+                            9
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 4
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "CostlyOperationsInLoopBase",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 494,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad_base()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "state_variable_base ++",
+                    "source_mapping": {
+                        "start": 271,
+                        "length": 21,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 7,
+                        "ending_column": 28
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad_base",
+                            "source_mapping": {
+                                "start": 102,
+                                "length": 389,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "CostlyOperationsInLoopBase",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 494,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad_base()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "CostlyOperationsInLoopBase.bad_base() (tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#5-9) has costly operations inside a loop:\n\t- state_variable_base ++ (tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#7)\n",
+            "markdown": "[CostlyOperationsInLoopBase.bad_base()](tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L5-L9) has costly operations inside a loop:\n\t- [state_variable_base ++](tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L7)\n",
+            "first_markdown_element": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L5-L9",
+            "id": "37bb0ca67ffcfb1625ffbea095bba93ea031ed6f483bb80a976c7c68309872dd",
+            "check": "costly-loop",
+            "impact": "Informational",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
                     "name": "bad",
                     "source_mapping": {
-                        "start": 255,
+                        "start": 754,
                         "length": 373,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
@@ -14,11 +151,11 @@
                         "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
                         "is_dependency": false,
                         "lines": [
-                            10,
-                            11,
-                            12,
-                            13,
-                            14
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
                         ],
                         "starting_column": 3,
                         "ending_column": 4
@@ -28,24 +165,14 @@
                             "type": "contract",
                             "name": "CostlyOperationsInLoop",
                             "source_mapping": {
-                                "start": 29,
-                                "length": 1081,
+                                "start": 496,
+                                "length": 1899,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
                                     13,
                                     14,
                                     15,
@@ -68,7 +195,36 @@
                                     32,
                                     33,
                                     34,
-                                    35
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -81,7 +237,7 @@
                     "type": "node",
                     "name": "state_variable ++",
                     "source_mapping": {
-                        "start": 413,
+                        "start": 912,
                         "length": 16,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
@@ -89,7 +245,7 @@
                         "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
                         "is_dependency": false,
                         "lines": [
-                            12
+                            22
                         ],
                         "starting_column": 7,
                         "ending_column": 23
@@ -99,7 +255,7 @@
                             "type": "function",
                             "name": "bad",
                             "source_mapping": {
-                                "start": 255,
+                                "start": 754,
                                 "length": 373,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
@@ -107,11 +263,11 @@
                                 "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24
                                 ],
                                 "starting_column": 3,
                                 "ending_column": 4
@@ -121,24 +277,14 @@
                                     "type": "contract",
                                     "name": "CostlyOperationsInLoop",
                                     "source_mapping": {
-                                        "start": 29,
-                                        "length": 1081,
+                                        "start": 496,
+                                        "length": 1899,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
                                         "is_dependency": false,
                                         "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
                                             13,
                                             14,
                                             15,
@@ -161,7 +307,36 @@
                                             32,
                                             33,
                                             34,
-                                            35
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -173,10 +348,450 @@
                     }
                 }
             ],
-            "description": "CostlyOperationsInLoop.bad() (tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#10-14) has costly operations inside a loop:\n\t- state_variable ++ (tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#12)\n",
-            "markdown": "[CostlyOperationsInLoop.bad()](tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L10-L14) has costly operations inside a loop:\n\t- [state_variable ++](tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L12)\n",
-            "first_markdown_element": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L10-L14",
-            "id": "1496f0664c18be47e9b27df825eb148e11f5458abbe2c0b8758c0645a220d802",
+            "description": "CostlyOperationsInLoop.bad() (tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#20-24) has costly operations inside a loop:\n\t- state_variable ++ (tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#22)\n",
+            "markdown": "[CostlyOperationsInLoop.bad()](tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L20-L24) has costly operations inside a loop:\n\t- [state_variable ++](tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L22)\n",
+            "first_markdown_element": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L20-L24",
+            "id": "94a7ffd0d3ada78ae8ace1304b276d677415a08dcdff51fc05889122e14633da",
+            "check": "costly-loop",
+            "impact": "Informational",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad2",
+                    "source_mapping": {
+                        "start": 1131,
+                        "length": 343,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26,
+                            27,
+                            28,
+                            29,
+                            30,
+                            31,
+                            32,
+                            33
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 4
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "CostlyOperationsInLoop",
+                            "source_mapping": {
+                                "start": 496,
+                                "length": 1899,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad2()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "state_variable ++",
+                    "source_mapping": {
+                        "start": 1363,
+                        "length": 16,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            31
+                        ],
+                        "starting_column": 7,
+                        "ending_column": 23
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad2",
+                            "source_mapping": {
+                                "start": 1131,
+                                "length": 343,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "CostlyOperationsInLoop",
+                                    "source_mapping": {
+                                        "start": 496,
+                                        "length": 1899,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad2()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "CostlyOperationsInLoop.bad2() (tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#26-33) has costly operations inside a loop:\n\t- state_variable ++ (tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#31)\n",
+            "markdown": "[CostlyOperationsInLoop.bad2()](tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L26-L33) has costly operations inside a loop:\n\t- [state_variable ++](tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L31)\n",
+            "first_markdown_element": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L26-L33",
+            "id": "c0c91898e5b5af12af49b6aefdc4790190101774bffad8e446ba9c857ff86525",
+            "check": "costly-loop",
+            "impact": "Informational",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad3_internal",
+                    "source_mapping": {
+                        "start": 1855,
+                        "length": 60,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            41,
+                            42,
+                            43
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 4
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "CostlyOperationsInLoop",
+                            "source_mapping": {
+                                "start": 496,
+                                "length": 1899,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad3_internal()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "state_variable ++",
+                    "source_mapping": {
+                        "start": 1894,
+                        "length": 16,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            42
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 21
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad3_internal",
+                            "source_mapping": {
+                                "start": 1855,
+                                "length": 60,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    41,
+                                    42,
+                                    43
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "CostlyOperationsInLoop",
+                                    "source_mapping": {
+                                        "start": 496,
+                                        "length": 1899,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad3_internal()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "CostlyOperationsInLoop.bad3_internal() (tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#41-43) has costly operations inside a loop:\n\t- state_variable ++ (tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#42)\n",
+            "markdown": "[CostlyOperationsInLoop.bad3_internal()](tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L41-L43) has costly operations inside a loop:\n\t- [state_variable ++](tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L42)\n",
+            "first_markdown_element": "tests/detectors/costly-loop/0.5.16/multiple_costly_operations_in_loop.sol#L41-L43",
+            "id": "6ebf2ecedb330a477079a9b72f1ba6ffc5717e08017f700538ec42d3eeab355b",
             "check": "costly-loop",
             "impact": "Informational",
             "confidence": "Medium"
