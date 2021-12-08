@@ -1432,7 +1432,7 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
             for import_statement in contract.file_scope.imports:
                 if import_statement.alias and import_statement.alias == ir.contract_name:
                     imported_scope = contract.compilation_unit.get_scope(import_statement.filename)
-                    candidates += imported_scope.functions
+                    candidates += list(imported_scope.functions)
 
         func = _find_function_from_parameter(ir, candidates)
 

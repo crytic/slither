@@ -384,7 +384,9 @@ def find_variable(
     # get's AST will say that the ref declaration for _f() is A._f(), but in the context of B, its not
 
     ret = _find_variable_from_ref_declaration(
-        referenced_declaration, list(current_scope.contracts.values()), current_scope.functions
+        referenced_declaration,
+        list(current_scope.contracts.values()),
+        list(current_scope.functions),
     )
     if ret:
         return ret, False

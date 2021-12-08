@@ -263,7 +263,7 @@ def parse_type(
         enums_direct_access = []
         all_enums = scope.enums.values()
         contracts = scope.contracts.values()
-        functions = scope.functions
+        functions = list(scope.functions)
     elif isinstance(caller_context, (ContractSolc, FunctionSolc)):
         if isinstance(caller_context, FunctionSolc):
             underlying_func = caller_context.underlying_function

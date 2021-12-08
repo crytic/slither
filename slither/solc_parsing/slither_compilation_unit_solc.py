@@ -186,10 +186,10 @@ class SlitherCompilationUnitSolc:
             elif top_level_data[self.get_key()] == "PragmaDirective":
                 if self._is_compact_ast:
                     pragma = Pragma(top_level_data["literals"], scope)
-                    scope.pragmas.append(pragma)
+                    scope.pragmas.add(pragma)
                 else:
                     pragma = Pragma(top_level_data["attributes"]["literals"], scope)
-                    scope.pragmas.append(pragma)
+                    scope.pragmas.add(pragma)
                 pragma.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.pragma_directives.append(pragma)
             elif top_level_data[self.get_key()] == "ImportDirective":
@@ -200,7 +200,7 @@ class SlitherCompilationUnitSolc:
                         ),
                         scope,
                     )
-                    scope.imports.append(import_directive)
+                    scope.imports.add(import_directive)
                     # TODO investigate unitAlias in version < 0.7 and legacy ast
                     if "unitAlias" in top_level_data:
                         import_directive.alias = top_level_data["unitAlias"]
@@ -211,7 +211,7 @@ class SlitherCompilationUnitSolc:
                         ),
                         scope,
                     )
-                    scope.imports.append(import_directive)
+                    scope.imports.add(import_directive)
                     # TODO investigate unitAlias in version < 0.7 and legacy ast
                     if (
                         "attributes" in top_level_data
@@ -248,7 +248,7 @@ class SlitherCompilationUnitSolc:
             elif top_level_data[self.get_key()] == "FunctionDefinition":
                 scope = self.compilation_unit.get_scope(filename)
                 func = FunctionTopLevel(self._compilation_unit, scope)
-                scope.functions.append(func)
+                scope.functions.add(func)
                 func.set_offset(top_level_data["src"], self._compilation_unit)
                 func_parser = FunctionSolc(func, top_level_data, None, self)
 
@@ -262,7 +262,7 @@ class SlitherCompilationUnitSolc:
                 custom_error.set_offset(top_level_data["src"], self._compilation_unit)
 
                 custom_error_parser = CustomErrorSolc(custom_error, top_level_data, self)
-                scope.custom_errors.append(custom_error)
+                scope.custom_errors.add(custom_error)
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
 

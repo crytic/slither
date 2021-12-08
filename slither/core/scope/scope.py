@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Optional, Union
+from typing import List, Any, Dict, Optional, Union, Set
 from crytic_compile.utils.naming import Filename
 
 from slither.core.declarations import Contract, Import, Pragma
@@ -7,6 +7,15 @@ from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.slithir.variables import Constant
+
+
+def _dict_contain(d1: Dict, d2: Dict) -> bool:
+    """
+    Return true if d1 is included in d2
+    """
+    d2_keys = d2.keys()
+    return all(item in d2_keys for item in d1.keys())
+
 
 # pylint: disable=too-many-instance-attributes
 class FileScope:
@@ -18,40 +27,50 @@ class FileScope:
         # Custom error are a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
-        self.custom_errors: List[CustomErrorTopLevel] = []
+        self.custom_errors: Set[CustomErrorTopLevel] = set()
         self.enums: Dict[str, EnumTopLevel] = dict()
         # Functions is a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
-        self.functions: List[FunctionTopLevel] = []
-        self.imports: List[Import] = []
-        self.pragmas: List[Pragma] = []
+        self.functions: Set[FunctionTopLevel] = set()
+        self.imports: Set[Import] = set()
+        self.pragmas: Set[Pragma] = set()
         self.structures: Dict[str, StructureTopLevel] = dict()
 
-        self.accessible_scope_done = False
-
     def add_accesible_scopes(self) -> bool:
-        if self.accessible_scope_done:
-            return True
+        """
+        Add information from accessible scopes. Return true if new information was obtained
 
-        if not self.accessible_scopes:
-            self.accessible_scope_done = True
-            return True
+        :return:
+        :rtype:
+        """
 
-        if any(not new_scope.accessible_scope_done for new_scope in self.accessible_scopes):
-            return False
+        learn_something = False
 
         for new_scope in self.accessible_scopes:
-            self.contracts.update(new_scope.contracts)
-            self.custom_errors += new_scope.custom_errors
-            self.enums.update(new_scope.enums)
-            self.functions += new_scope.functions
-            self.imports += new_scope.imports
-            self.pragmas += new_scope.pragmas
-            self.structures.update(new_scope.structures)
+            if not _dict_contain(new_scope.contracts, self.contracts):
+                self.contracts.update(new_scope.contracts)
+                learn_something = True
+            if not new_scope.custom_errors.issubset(self.custom_errors):
+                self.custom_errors |= new_scope.custom_errors
+                learn_something = True
+            if not _dict_contain(new_scope.enums, self.enums):
+                self.enums.update(new_scope.enums)
+                learn_something = True
+            if not new_scope.functions.issubset(self.functions):
+                self.functions |= new_scope.functions
+                learn_something = True
+            if not new_scope.imports.issubset(self.imports):
+                self.imports |= new_scope.imports
+                learn_something = True
+            if not new_scope.pragmas.issubset(self.pragmas):
+                self.pragmas |= new_scope.pragmas
+                learn_something = True
+            if not _dict_contain(new_scope.structures, self.structures):
+                self.structures.update(new_scope.structures)
+                learn_something = True
 
-        self.accessible_scope_done = True
-        return True
+        return learn_something
 
     def get_contract_from_name(self, name: Union[str, Constant]) -> Optional[Contract]:
         if isinstance(name, Constant):

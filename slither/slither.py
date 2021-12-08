@@ -1,10 +1,11 @@
 import logging
-from typing import Union, List
+from typing import Union, List, ValuesView
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
 # pylint: disable= no-name-in-module
 from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.core.scope.scope import FileScope
 from slither.core.slither_core import SlitherCore
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.exceptions import SlitherError
@@ -29,6 +30,21 @@ def _check_common_things(thing_name, cls, base_cls, instances_list):
 
     if any(type(obj) == cls for obj in instances_list):  # pylint: disable=unidiomatic-typecheck
         raise Exception("You can't register {!r} twice.".format(cls))
+
+
+def _update_file_scopes(candidates: ValuesView[FileScope]):
+    """
+    Because solc's import allows cycle in the import
+    We iterate until we aren't adding new information to the scope
+
+    """
+    learned_something = False
+    while True:
+        for candidate in candidates:
+            learned_something |= candidate.add_accesible_scopes()
+        if not learned_something:
+            break
+        learned_something = False
 
 
 class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
@@ -81,11 +97,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
                 parser.parse_top_level_from_loaded_json(ast, path)
                 self.add_source_code(path)
 
-            candidates = list(compilation_unit_slither.scopes.values())
-            while candidates:
-                candidate = candidates.pop(0)
-                if not candidate.add_accesible_scopes():
-                    candidates.append(candidate)
+            _update_file_scopes(compilation_unit_slither.scopes.values())
 
         if kwargs.get("generate_patches", False):
             self.generate_patches = True
