@@ -1149,7 +1149,7 @@ ALL_TESTS = [
         "write-after-write.sol",
         "0.8.0",
     ),
-        Test(
+    Test(
         all_detectors.MsgValueInLoop,
         "msg_value_loop.sol",
         "0.4.25",
