@@ -23,7 +23,6 @@ from slither.slithir.operations import (
     Index,
     Member,
     Length,
-    Balance,
     Binary,
     Unary,
     Condition,
@@ -150,8 +149,6 @@ def encode_ir(ir):  # pylint: disable=too-many-branches
         return "member"  # .format(ntype(ir._type))
     if isinstance(ir, Length):
         return "length"
-    if isinstance(ir, Balance):
-        return "balance"
     if isinstance(ir, Binary):
         return "binary({})".format(str(ir.type))
     if isinstance(ir, Unary):

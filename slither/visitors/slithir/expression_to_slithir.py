@@ -17,6 +17,7 @@ from slither.core.expressions import (
 from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
@@ -31,6 +32,7 @@ from slither.slithir.operations import (
     Unary,
     Unpack,
     Return,
+    SolidityCall,
 )
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
@@ -207,12 +209,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
         if expression.type in _signed_to_unsigned:
             new_left = TemporaryVariable(self._node)
             conv_left = TypeConversion(new_left, left, ElementaryType("int256"))
+            new_left.set_type(ElementaryType("int256"))
             conv_left.set_expression(expression)
             self._result.append(conv_left)
 
             if expression.type != BinaryOperationType.RIGHT_SHIFT_ARITHMETIC:
                 new_right = TemporaryVariable(self._node)
                 conv_right = TypeConversion(new_right, right, ElementaryType("int256"))
+                new_right.set_type(ElementaryType("int256"))
                 conv_right.set_expression(expression)
                 self._result.append(conv_right)
             else:
@@ -224,6 +228,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
 
             conv_final = TypeConversion(val, new_final, ElementaryType("uint256"))
+            val.set_type(ElementaryType("uint256"))
             conv_final.set_expression(expression)
             self._result.append(conv_final)
         else:
@@ -274,6 +279,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             elif called.name == "selfbalance()":
                 val = TemporaryVariable(self._node)
                 var = TypeConversion(val, SolidityVariable("this"), ElementaryType("address"))
+                val.set_type(ElementaryType("address"))
                 self._result.append(var)
 
                 val1 = ReferenceVariable(self._node)
@@ -283,6 +289,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             elif called.name == "address()":
                 val = TemporaryVariable(self._node)
                 var = TypeConversion(val, SolidityVariable("this"), ElementaryType("address"))
+                val.set_type(ElementaryType("address"))
                 self._result.append(var)
                 set_val(expression, val)
             elif called.name == "callvalue()":
@@ -385,6 +392,27 @@ class ExpressionToSlithIR(ExpressionVisitor):
                     set_val(expression, val)
                     return
 
+        # This does not support solidity 0.4 contract_name.balance
+        if (
+            isinstance(expr, Variable)
+            and expr.type == ElementaryType("address")
+            and expression.member_name in ["balance", "code", "codehash"]
+        ):
+            val = TemporaryVariable(self._node)
+            name = expression.member_name + "(address)"
+            sol_func = SolidityFunction(name)
+            s = SolidityCall(
+                sol_func,
+                1,
+                val,
+                sol_func.return_type,
+            )
+            s.set_expression(expression)
+            s.arguments.append(expr)
+            self._result.append(s)
+            set_val(expression, val)
+            return
+
         val = ReferenceVariable(self._node)
         member = Member(expr, Constant(expression.member_name), val)
         member.set_expression(expression)
@@ -432,6 +460,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         expr = get(expression.expression)
         val = TemporaryVariable(self._node)
         operation = TypeConversion(val, expr, expression.type)
+        val.set_type(expression.type)
         operation.set_expression(expression)
         self._result.append(operation)
         set_val(expression, val)

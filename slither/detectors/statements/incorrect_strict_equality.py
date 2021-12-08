@@ -9,10 +9,10 @@ from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
     Assignment,
-    Balance,
     Binary,
     BinaryType,
     HighLevelCall,
+    SolidityCall,
 )
 
 from slither.core.solidity_types import MappingType, ElementaryType
@@ -21,6 +21,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.core.declarations.solidity_variables import (
     SolidityVariable,
     SolidityVariableComposed,
+    SolidityFunction,
 )
 
 
@@ -78,7 +79,9 @@ contract Crowdsale{
         for func in functions:
             for node in func.nodes:
                 for ir in node.irs_ssa:
-                    if isinstance(ir, Balance):
+                    if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
+                        "balance(address)"
+                    ):
                         taints.append(ir.lvalue)
                     if isinstance(ir, HighLevelCall):
                         # print(ir.function.full_name)

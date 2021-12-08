@@ -20,6 +20,7 @@ SOLIDITY_VARIABLES = {
 }
 
 SOLIDITY_VARIABLES_COMPOSED = {
+    "block.basefee": "uint",
     "block.coinbase": "address",
     "block.difficulty": "uint256",
     "block.gaslimit": "uint256",
@@ -69,10 +70,15 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "abi.encodePacked()": ["bytes"],
     "abi.encodeWithSelector()": ["bytes"],
     "abi.encodeWithSignature()": ["bytes"],
+    "bytes.concat()": ["bytes"],
     # abi.decode returns an a list arbitrary types
     "abi.decode()": [],
     "type(address)": [],
     "type()": [],  # 0.6.8 changed type(address) to type()
+    # The following are conversion from address.something
+    "balance(address)": ["uint256"],
+    "code(address)": ["bytes"],
+    "codehash(address)": ["bytes32"],
 }
 
 
