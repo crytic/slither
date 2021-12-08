@@ -39,7 +39,6 @@ from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
-    Balance,
     Binary,
     BinaryType,
     Call,
@@ -605,15 +604,32 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     length.lvalue.points_to = ir.variable_left
                     length.set_node(ir.node)
                     return length
+                # This only happen for .balance/code/codehash access on a variable for which we dont know at
+                # early parsing time the type
+                # Like
+                # function return_addr() internal returns(addresss)
+                #
+                # return_addr().balance
+                # Here slithIR will incorrectly create a REF variable instead of a Temp variable
+                # However this pattern does not appear so often
                 if (
-                    ir.variable_right == "balance"
+                    ir.variable_right.name in ["balance", "code", "codehash"]
                     and not isinstance(ir.variable_left, Contract)
                     and isinstance(ir.variable_left.type, ElementaryType)
                 ):
-                    b = Balance(ir.variable_left, ir.lvalue)
-                    b.set_expression(ir.expression)
-                    b.set_node(ir.node)
-                    return b
+                    name = ir.variable_right.name + "(address)"
+                    sol_func = SolidityFunction(name)
+                    s = SolidityCall(
+                        sol_func,
+                        1,
+                        ir.lvalue,
+                        sol_func.return_type,
+                    )
+                    s.arguments.append(ir.variable_left)
+                    s.set_expression(ir.expression)
+                    s.lvalue.set_type(sol_func.return_type)
+                    s.set_node(ir.node)
+                    return s
                 if (
                     ir.variable_right == "codesize"
                     and not isinstance(ir.variable_left, Contract)
@@ -916,6 +932,18 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             internalcall.function_candidates = top_level_function_targets
             return internalcall
 
+        if ins.ori.variable_left == ElementaryType("bytes") and ins.ori.variable_right == Constant(
+            "concat"
+        ):
+            s = SolidityCall(
+                SolidityFunction("bytes.concat()"),
+                ins.nbr_arguments,
+                ins.lvalue,
+                ins.type_call,
+            )
+            s.set_expression(ins.expression)
+            return s
+
         msgcall = HighLevelCall(
             ins.ori.variable_left,
             ins.ori.variable_right,
@@ -940,15 +968,6 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
     if isinstance(ins.called, SolidityVariableComposed):
         if str(ins.called) == "block.blockhash":
             ins.called = SolidityFunction("blockhash(uint256)")
-        elif str(ins.called) == "this.balance":
-            s = SolidityCall(
-                SolidityFunction("this.balance()"),
-                ins.nbr_arguments,
-                ins.lvalue,
-                ins.type_call,
-            )
-            s.set_expression(ins.expression)
-            return s
 
     if isinstance(ins.called, SolidityFunction):
         s = SolidityCall(ins.called, ins.nbr_arguments, ins.lvalue, ins.type_call)

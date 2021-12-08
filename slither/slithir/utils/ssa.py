@@ -15,7 +15,6 @@ from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
     Assignment,
-    Balance,
     Binary,
     Condition,
     Delete,
@@ -670,10 +669,6 @@ def copy_ir(ir, *instances):
         rvalue = get_variable(ir, lambda x: x.rvalue, *instances)
         variable_return_type = ir.variable_return_type
         return Assignment(lvalue, rvalue, variable_return_type)
-    if isinstance(ir, Balance):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        value = get_variable(ir, lambda x: x.value, *instances)
-        return Balance(value, lvalue)
     if isinstance(ir, Binary):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         variable_left = get_variable(ir, lambda x: x.variable_left, *instances)

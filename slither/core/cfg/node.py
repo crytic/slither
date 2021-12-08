@@ -16,7 +16,6 @@ from slither.core.variables.variable import Variable
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.convert import convert_expression
 from slither.slithir.operations import (
-    Balance,
     HighLevelCall,
     Index,
     InternalCall,
@@ -875,7 +874,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                         self._vars_read.append(origin)
 
             if isinstance(ir, OperationWithLValue):
-                if isinstance(ir, (Index, Member, Length, Balance)):
+                if isinstance(ir, (Index, Member, Length)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
                 if isinstance(var, ReferenceVariable):
@@ -959,7 +958,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                         self._ssa_vars_read.append(origin)
 
             if isinstance(ir, OperationWithLValue):
-                if isinstance(ir, (Index, Member, Length, Balance)):
+                if isinstance(ir, (Index, Member, Length)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
                 if isinstance(var, ReferenceVariable):
