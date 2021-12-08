@@ -37,6 +37,7 @@ def test_collision():
 
     _run_all_detectors(slither)
 
+
 def test_cycle():
     slither = Slither("./tests/test_cyclic_import/a.sol")
     _run_all_detectors(slither)
