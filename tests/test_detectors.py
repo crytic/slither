@@ -1173,6 +1173,7 @@ ALL_TESTS = [
         all_detectors.MsgValueInLoop,
         "msg_value_loop.sol",
         "0.8.0",
+    ),
     Test(
         all_detectors.DelegatecallInLoop,
         "delegatecall_loop.sol",
