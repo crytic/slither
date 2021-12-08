@@ -79,6 +79,7 @@ from .statements.unary import IncorrectUnaryExpressionDetection
 from .operations.missing_zero_address_validation import MissingZeroAddressValidation
 from .functions.dead_code import DeadCode
 from .statements.write_after_write import WriteAfterWrite
+from .statements.msg_value_in_loop import MsgValueInLoop
 
 #
 #

@@ -1149,6 +1149,31 @@ ALL_TESTS = [
         "write-after-write.sol",
         "0.8.0",
     ),
+        Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.8.0",
+    ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
 
