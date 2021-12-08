@@ -6,11 +6,11 @@ import sys
 from collections import namedtuple
 from distutils.version import StrictVersion
 from typing import List, Dict
+from deepdiff import DeepDiff
 
 import pytest
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
-from deepdiff import DeepDiff
 
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
@@ -26,7 +26,7 @@ ALL_04 = range(0, 27)
 ALL_05 = range(0, 18)
 ALL_06 = range(0, 13)
 ALL_07 = range(0, 7)
-ALL_08 = range(0, 7)
+ALL_08 = range(0, 11)
 
 # these are tests that are currently failing right now
 XFAIL = (
@@ -67,13 +67,6 @@ XFAIL = (
     + [f"variabledeclaration_0.7.{ver}_legacy" for ver in ALL_07]
     + [f"variabledeclaration_0.8.{ver}_legacy" for ver in ALL_08]
     + [f"variabledeclaration_0.4.{ver}_compact" for ver in range(12, 27)]
-    + [f"top-level_0.7.{ver}_legacy" for ver in ALL_07]
-    + [f"top-level_0.7.{ver}_compact" for ver in ALL_07]
-    + [f"top-level_0.8.{ver}_legacy" for ver in ALL_08]
-    + [f"top-level_0.8.{ver}_compact" for ver in ALL_08]
-    + [f"top-level-import_0.7.{ver}_legacy" for ver in range(1, 7)]
-    + [f"top-level-import_0.7.{ver}_compact" for ver in range(1, 7)]
-    + [f"top-level-import_0.8.{ver}_compact" for ver in ALL_08]
 )
 
 
@@ -281,14 +274,16 @@ def _generate_test(test_item: Item, skip_existing=False):
         return
     # set_solc(test_item)
     try:
+        cc = load_from_zip(test_file)[0]
         sl = Slither(
-            test_file,
+            cc,
             solc_force_legacy_json=test_item.is_legacy,
             disallow_partial=True,
             skip_analyze=True,
         )
     # pylint: disable=broad-except
-    except Exception:
+    except Exception as e:
+        print(e)
         print(test_item)
         print(f"{expected_file} failed")
         return

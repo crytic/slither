@@ -46,3 +46,18 @@ please submit a PR with the relevant information.
 [AlphaHomoraV2](https://certificate.quantstamp.com/full/alpha-homora-v-2) | Dangerous divide before multiply operations | Jan 2021
 [Mimo Defi](https://certificate.quantstamp.com/full/ten-x-titan) | Lack of return value check | Jan 2021
 [OriginTrail](https://certificate.quantstamp.com/full/origin-trail-starfleet-staking) | Lack of return value check | Feb 2021
+[charmfinance](https://github.com/charmfinance/cube-protocol/commit/2f1dd9c7bf6ced3c99332bbe0ff50030efece44a) | Lack of return value check | Mar 2021
+[VoyagerToken](https://certificate.quantstamp.com/full/voyager-token) | Lack of return value check | Apr 2021
+[holdmybeer](https://github.com/hodlmybeer/hodl/pull/4) | Reentrancies | Jun 2021
+
+## Slither Rekt
+The following lists security incidents that could have been prevented using Slither.
+
+| Project | Vulnerability | Value loss | Date
+|--|--|--| -- |
+Dforce | [Reentrancy](https://peckshield.medium.com/uniswap-lendf-me-hacks-root-cause-and-loss-analysis-50f3263dcc09) | $25m (recovered) | Apr 2020
+Lendf.me | [Incorrect self-transfer](https://bzx.network/blog/incident) ([slither-prop](https://github.com/crytic/slither/wiki/Property-generation)) | $8m | Sep 2020
+Akropolis | [Reentrancy](https://blog.peckshield.com/2020/11/13/akropolis/) | $2m | Nov 2020
+OUSD | [Reentrancy](https://blog.originprotocol.com/urgent-ousd-has-hacked-and-there-has-been-a-loss-of-funds-7b8c4a7d534c?gi=fcb8badacf40) | $7m | Nov 2020
+Furucombo | [Arbitrary delegatecall](https://medium.com/furucombo/furucombo-post-mortem-march-2021-ad19afd415e) | $15m | Mar 2021
+ForceDAO | [Lack of return value check](https://blog.forcedao.com/xforce-exploit-post-mortem-7fa9dcba2ac3) | $10m ($9.6m recovered) | Apr 2021

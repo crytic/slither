@@ -10,5 +10,5 @@ class Expression(SourceMapping):
     def is_lvalue(self) -> bool:
         return self._is_lvalue
 
-    def set_lvalue(self):
+    def set_lvalue(self) -> None:
         self._is_lvalue = True

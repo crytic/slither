@@ -473,6 +473,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ConstCandidateStateVars,
+        "immutable.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.ExternalFunction,
         "external_function.sol",
         "0.4.25",
