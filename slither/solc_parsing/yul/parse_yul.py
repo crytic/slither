@@ -223,7 +223,7 @@ class YulFunction(YulScope):
             func.set_contract(root.contract)
             func.set_contract_declarer(root.contract)
         func.compilation_unit = root.compilation_unit
-        func.scope = root.id
+        func.internal_scope = root.id
         func.is_implemented = True
         self.node_scope = node_scope
 
@@ -359,8 +359,14 @@ def convert_yul_function_definition(
     while not isinstance(top_node_scope, Function):
         top_node_scope = top_node_scope.father
 
-    assert isinstance(top_node_scope, (FunctionTopLevel, FunctionContract))
-    func = type(top_node_scope)(root.compilation_unit)
+    if isinstance(top_node_scope, FunctionTopLevel):
+        scope = root.contract.file_scope
+        func = FunctionTopLevel(root.compilation_unit, scope)
+        # Note: we do not add the function in the scope
+        # While its a top level function, it is not accessible outside of the function definition
+        # In practice we should probably have a specific function type for function defined within a function
+    else:
+        func = FunctionContract(root.compilation_unit)
     func.function_language = FunctionLanguage.Yul
     yul_function = YulFunction(func, root, ast, node_scope)
 

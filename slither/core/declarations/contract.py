@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from slither.core.variables.state_variable import StateVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.declarations.custom_error_contract import CustomErrorContract
+    from slither.core.scope.scope import FileScope
 
 
 LOGGER = logging.getLogger("Contract")
@@ -49,7 +50,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     Contract class
     """
 
-    def __init__(self, compilation_unit: "SlitherCompilationUnit"):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope"):
         super().__init__()
 
         self._name: Optional[str] = None
@@ -69,7 +70,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._modifiers: Dict[str, "Modifier"] = {}
         self._functions: Dict[str, "FunctionContract"] = {}
         self._linearizedBaseContracts: List[int] = []
-        self._custom_errors: Dict[str:"CustomErrorContract"] = {}
+        self._custom_errors: Dict[str, "CustomErrorContract"] = {}
 
         # The only str is "*"
         self._using_for: Dict[Union[str, Type], List[str]] = {}
@@ -92,6 +93,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._all_functions_called: Optional[List["InternalCallType"]] = None
 
         self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
+        self.file_scope: "FileScope" = scope
 
     ###################################################################################
     ###################################################################################
@@ -1086,7 +1088,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             self._is_upgradeable = False
             if self.is_upgradeable_proxy:
                 return False
-            initializable = self.compilation_unit.get_contract_from_name("Initializable")
+            initializable = self.file_scope.get_contract_from_name("Initializable")
             if initializable:
                 if initializable in self.inheritance:
                     self._is_upgradeable = True
@@ -1224,7 +1226,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         )
 
         # Function uses to create node for state variable declaration statements
-        node = Node(NodeType.OTHER_ENTRYPOINT, counter, scope)
+        node = Node(NodeType.OTHER_ENTRYPOINT, counter, scope, func.file_scope)
         node.set_offset(variable.source_mapping, self.compilation_unit)
         node.set_function(func)
         func.add_node(node)

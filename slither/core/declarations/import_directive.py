@@ -1,14 +1,18 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 
+if TYPE_CHECKING:
+    from slither.core.scope.scope import FileScope
+
 
 class Import(SourceMapping):
-    def __init__(self, filename: Path):
+    def __init__(self, filename: Path, scope: "FileScope"):
         super().__init__()
         self._filename: Path = filename
         self._alias: Optional[str] = None
+        self.scope: "FileScope" = scope
 
     @property
     def filename(self) -> str:

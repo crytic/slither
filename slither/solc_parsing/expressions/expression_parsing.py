@@ -33,8 +33,9 @@ from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
 )
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
-from slither.solc_parsing.expressions.find_variable import CallerContext, find_variable
+from slither.solc_parsing.expressions.find_variable import find_variable
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 
 if TYPE_CHECKING:
@@ -196,7 +197,7 @@ def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
 
 
 def _parse_elementary_type_name_expression(
-    expression: Dict, is_compact_ast: bool, caller_context
+    expression: Dict, is_compact_ast: bool, caller_context: CallerContextExpression
 ) -> ElementaryTypeNameExpression:
     # nop exression
     # uint;
@@ -216,7 +217,12 @@ def _parse_elementary_type_name_expression(
     return e
 
 
-def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expression":
+if TYPE_CHECKING:
+
+    from slither.core.scope.scope import FileScope
+
+
+def parse_expression(expression: Dict, caller_context: CallerContextExpression) -> "Expression":
     # pylint: disable=too-many-nested-blocks,too-many-statements
     """
 
@@ -246,6 +252,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
     #    | Expression ('=' | '|=' | '^=' | '&=' | '<<=' | '>>=' | '+=' | '-=' | '*=' | '/=' | '%=') Expression
     #    | PrimaryExpression
     # The AST naming does not follow the spec
+    assert isinstance(caller_context, CallerContextExpression)
     name = expression[caller_context.get_key()]
     is_compact_ast = caller_context.is_compact_ast
     src = expression["src"]

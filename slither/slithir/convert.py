@@ -527,7 +527,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     # UserdefinedType
                     t_type = t.type
                     if isinstance(t_type, Contract):
-                        contract = node.compilation_unit.get_contract_from_name(t_type.name)
+                        contract = node.file_scope.get_contract_from_name(t_type.name)
                         return convert_type_of_high_and_internal_level_call(ir, contract)
 
                 # Convert HighLevelCall to LowLevelCall
@@ -729,7 +729,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
-                contract = node.compilation_unit.get_contract_from_name(ir.contract_name)
+                contract = node.file_scope.get_contract_from_name(ir.contract_name)
                 ir.lvalue.set_type(UserDefinedType(contract))
             elif isinstance(ir, NewElementaryType):
                 ir.lvalue.set_type(ir.type)
@@ -1287,7 +1287,7 @@ def convert_to_pop(ir, node):
 
 def look_for_library(contract, ir, using_for, t):
     for destination in using_for[t]:
-        lib_contract = contract.compilation_unit.get_contract_from_name(str(destination))
+        lib_contract = contract.file_scope.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
                 lib_contract,
@@ -1434,7 +1434,7 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
 def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Optional[Contract]):
     func = None
     if isinstance(ir, InternalCall):
-
+        candidates: List[Function]
         if ir.function_candidates:
             # This path is taken only for SolidityImportPlaceHolder
             # Here we have already done a filtering on the potential targets
@@ -1447,6 +1447,12 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
                 and f.contract_declarer.name == ir.contract_name
                 and len(f.parameters) == len(ir.arguments)
             ]
+
+            for import_statement in contract.file_scope.imports:
+                if import_statement.alias and import_statement.alias == ir.contract_name:
+                    imported_scope = contract.compilation_unit.get_scope(import_statement.filename)
+                    candidates += list(imported_scope.functions)
+
         func = _find_function_from_parameter(ir, candidates)
 
         if not func:

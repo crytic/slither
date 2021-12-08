@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.slithir.operations import Operation
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.scope.scope import FileScope
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -117,7 +118,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
     def __init__(self, compilation_unit: "SlitherCompilationUnit"):
         super().__init__()
-        self._scope: List[str] = []
+        self._internal_scope: List[str] = []
         self._name: Optional[str] = None
         self._view: bool = False
         self._pure: bool = False
@@ -216,6 +217,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         # Assume we are analyzing Solidty by default
         self.function_language: FunctionLanguage = FunctionLanguage.Solidity
 
+        self._id: Optional[str] = None
+
     ###################################################################################
     ###################################################################################
     # region General properties
@@ -244,18 +247,18 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._name = new_name
 
     @property
-    def scope(self) -> List[str]:
+    def internal_scope(self) -> List[str]:
         """
         Return a list of name representing the scope of the function
         This is used to model nested functions declared in YUL
 
         :return:
         """
-        return self._scope
+        return self._internal_scope
 
-    @scope.setter
-    def scope(self, new_scope: List[str]):
-        self._scope = new_scope
+    @internal_scope.setter
+    def internal_scope(self, new_scope: List[str]):
+        self._internal_scope = new_scope
 
     @property
     def full_name(self) -> str:
@@ -265,7 +268,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._full_name is None:
             name, parameters, _ = self.signature
-            full_name = ".".join(self._scope + [name]) + "(" + ",".join(parameters) + ")"
+            full_name = ".".join(self._internal_scope + [name]) + "(" + ",".join(parameters) + ")"
             self._full_name = full_name
         return self._full_name
 
@@ -333,6 +336,26 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
 
         return self.compilation_unit.solc_version >= "0.8.0"
+
+    @property
+    def id(self) -> Optional[str]:
+        """
+        Return the ID of the funciton. For Solidity with compact-AST the ID is the reference ID
+        For other, the ID is None
+
+        :return:
+        :rtype:
+        """
+        return self._id
+
+    @id.setter
+    def id(self, new_id: str):
+        self._id = new_id
+
+    @property
+    @abstractmethod
+    def file_scope(self) -> "FileScope":
+        pass
 
     # endregion
     ###################################################################################
@@ -1552,7 +1575,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ) -> "Node":
         from slither.core.cfg.node import Node
 
-        node = Node(node_type, self._counter_nodes, scope)
+        node = Node(node_type, self._counter_nodes, scope, self.file_scope)
         node.set_offset(src, self.compilation_unit)
         self._counter_nodes += 1
         node.set_function(self)
