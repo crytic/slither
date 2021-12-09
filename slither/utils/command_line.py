@@ -338,7 +338,7 @@ def output_printers_json(printer_classes):
 def check_and_sanitize_markdown_root(markdown_root: str) -> str:
     # Regex to check whether the markdown_root is a GitHub URL
     match = re.search(
-        r"(https://)github.com/([a-zA-z-]+)([:/][A-Za-z0-9_.-]+[:/]?)([A-Za-z0-9_.-]*)(.*)",
+        r"(https://)github.com/([a-zA-Z-]+)([:/][A-Za-z0-9_.-]+[:/]?)([A-Za-z0-9_.-]*)(.*)",
         markdown_root,
     )
     if match:
