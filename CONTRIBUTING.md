@@ -56,3 +56,11 @@ To see the tests coverage, run `pytest  tests/test_detectors.py  --cov=slither/d
 - Run `pytest ./tests/test_ast_parsing.py` and check that everything worked.
 
 To see the tests coverage, run `pytest  tests/test_ast_parsing.py  --cov=slither/solc_parsing --cov-branch --cov-report html`
+
+### Synchronization with crytic-compile
+By default, `slither` follows either the latest version of crytic-compile in pip, or `crytic-compile@master` (look for dependencies in [`setup.py`](./setup.py). If crytic-compile development comes with breaking changes, the process to update `slither` is:
+- Update `slither/setup.py` to point to the related crytic-compile's branch
+- Create a PR in `slither` and ensure it passes the CI
+- Once the development branch is merged in `crytic-compile@master`, ensure `slither` follows the `master` branch
+
+The `slither`'s PR can either be merged while using a crytic-compile non-`master` branch, or kept open until the breaking changes are available in `crytic-compile@master`.
