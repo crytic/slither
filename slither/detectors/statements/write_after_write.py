@@ -13,7 +13,7 @@ from slither.slithir.operations import (
     LowLevelCall,
     Operation,
 )
-from slither.slithir.variables import ReferenceVariable, TemporaryVariable
+from slither.slithir.variables import ReferenceVariable, TemporaryVariable, TupleVariable
 from slither.slithir.variables.variable import SlithIRVariable
 
 
@@ -59,7 +59,7 @@ def _handle_ir(
         if (
             ir.lvalue
             and isinstance(ir.lvalue.type, ElementaryType)
-            and not isinstance(ir.lvalue, (ReferenceVariable, TemporaryVariable))
+            and not isinstance(ir.lvalue, (ReferenceVariable, TemporaryVariable, TupleVariable))
         ):
             if ir.lvalue.name == "_":
                 return
