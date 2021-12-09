@@ -200,6 +200,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._external_calls_as_expressions: List[Expression] = []
         self._internal_calls_as_expressions: List[Expression] = []
         self._irs: List[Operation] = []
+        self._all_slithir_operations: Optional[List[Operation]] = None
         self._irs_ssa: List[Operation] = []
 
         self._state_vars_written: List[StateVariable] = []
@@ -721,11 +722,13 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._find_read_write_call()
 
     def all_slithir_operations(self) -> List[Operation]:
-        irs = self.irs
-        for ir in irs:
-            if isinstance(ir, InternalCall):
-                irs += ir.function.all_slithir_operations()
-        return irs
+        if self._all_slithir_operations is None:
+            irs = list(self.irs)
+            for ir in self.irs:
+                if isinstance(ir, InternalCall):
+                    irs += ir.function.all_slithir_operations()
+            self._all_slithir_operations = irs
+        return self._all_slithir_operations
 
     @staticmethod
     def _is_non_slithir_var(var: Variable):
