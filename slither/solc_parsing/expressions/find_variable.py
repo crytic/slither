@@ -158,7 +158,7 @@ def _find_in_contract(
             ).values()
         }
     else:
-        functions = contract.available_functions_as_dict()
+        functions = {f.full_name: f for f in contract.functions if not f.is_shadowed}
     if var_name in functions:
         return functions[var_name]
 
