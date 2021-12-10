@@ -43,6 +43,7 @@ Deploy with any of the following Solidity versions:
 - 0.5.16 - 0.5.17
 - 0.6.11 - 0.6.12
 - 0.7.5 - 0.7.6
+- 0.8.4 - 0.8.7
 Use a simple pragma version that allows any of these versions.
 Consider using the latest version of Solidity for testing."""
     # endregion wiki_recommendation
