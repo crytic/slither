@@ -473,6 +473,14 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         action="store_true",
         default=False,
     )
+    
+    group_misc.add_argument(
+        "--solc-bin",
+        help="Provide a specific solidity compiler binary",
+        action="store",
+        dest="solc",
+        default="solc",
+    )
 
     group_misc.add_argument(
         "--generate-patches",
