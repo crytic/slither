@@ -65,10 +65,10 @@ def _check_signature(erc_function, contract, ret):
     if function_return_type:
         function_return_type = ",".join([str(x) for x in function_return_type])
         if function_return_type == return_type:
-            txt = f"\t[✓] {sig} -> () (correct return value)"
+            txt = f"\t[✓] {sig} -> ({function_return_type}) (correct return type)"
             logger.info(txt)
         else:
-            txt = f"\t[ ] {sig} -> () should return {return_type}"
+            txt = f"\t[ ] {sig} -> ({function_return_type}) should return {return_type}"
             logger.info(txt)
 
             incorrect_return = output.Output(
