@@ -89,7 +89,7 @@ def main():
         contract = contracts[0]
         # First elem is the function, second is the event
         erc = ERCS[args.erc.upper()]
-        generic_erc_checks(contract, erc[0], erc[1], ret)
+        generic_erc_checks(contract, *erc[0:2:1], ret)
 
         if args.erc.upper() in ADDITIONAL_CHECKS:
             ADDITIONAL_CHECKS[args.erc.upper()](contract, ret)
