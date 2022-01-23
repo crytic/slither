@@ -7,6 +7,7 @@ from slither.core.declarations import Structure, Enum
 from slither.core.solidity_types import ArrayType, MappingType, UserDefinedType
 from slither.core.variables.state_variable import StateVariable
 
+
 def is_array(variable: StateVariable) -> bool:
     """Returns whether variable is an array."""
     return isinstance(variable, ArrayType)
@@ -32,7 +33,6 @@ def is_user_defined_type(variable: StateVariable) -> bool:
     return isinstance(variable, UserDefinedType)
 
 
-
 def get_offset_value(hex_bytes: HexBytes, offset: int, size: int) -> HexBytes:
     """
     Trims slot data to only contain the target variable's.
@@ -49,6 +49,7 @@ def get_offset_value(hex_bytes: HexBytes, offset: int, size: int) -> HexBytes:
         start = size + offset
         value = hex_bytes[-start:-offset]
     return value
+
 
 def coerce_type(solidity_type: str, value: bytes) -> Union[int, bool, str, ChecksumAddress, hex]:
     """
@@ -73,6 +74,7 @@ def coerce_type(solidity_type: str, value: bytes) -> Union[int, bool, str, Check
         converted_value = value.hex()
 
     return converted_value
+
 
 def get_storage_data(web3, checksum_address: ChecksumAddress, slot: bytes) -> HexBytes:
     """

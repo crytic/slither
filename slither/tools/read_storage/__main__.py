@@ -10,16 +10,18 @@ from slither.tools.read_storage.read_storage import get_storage_layout, get_stor
 
 
 def parse_args():
-    """ Parse the underlying arguments for the program.
+    """Parse the underlying arguments for the program.
     Returns:
         The arguments for the program.
     """
     parser = argparse.ArgumentParser(
         description="Read a variable's value from storage for a deployed contract",
-        usage=("\nTo retrieve a single variable's value:\n" +
-            "\tslither-read-storage [codebase] address --variable-name NAME\n" +
-            "To retrieve a contract's storage layout and values:\n" + 
-            "\tslither-read-storage [codebase] address --contract-name NAME --layout\n")
+        usage=(
+            "\nTo retrieve a single variable's value:\n"
+            + "\tslither-read-storage [codebase] address --variable-name NAME\n"
+            + "To retrieve a contract's storage layout and values:\n"
+            + "\tslither-read-storage [codebase] address --contract-name NAME --layout\n"
+        ),
     )
 
     parser.add_argument(
@@ -66,7 +68,11 @@ def parse_args():
         default=None,
     )
 
-    parser.add_argument("--layout", action="store_true", help="Toggle used to write a JSON file with the entire storage layout")
+    parser.add_argument(
+        "--layout",
+        action="store_true",
+        help="Toggle used to write a JSON file with the entire storage layout",
+    )
 
     cryticparser.init(parser)
 
@@ -78,11 +84,11 @@ def main():
     assert args.rpc_url
     if len(args.contract_source) == 2:
         # Source code is file .sol, project directory
-        source_code, target = args.contract_source 
+        source_code, target = args.contract_source
         slither = Slither(source_code, **vars(args))
     else:
         # Source code is published and retrieved via etherscan
-        target = args.contract_source[0]  
+        target = args.contract_source[0]
         slither = Slither(target, **vars(args))
 
     if args.contract_name:
@@ -91,7 +97,7 @@ def main():
         contracts = slither.contracts
 
     # Remove target prefix e.g. rinkeby:0x0 -> 0x0
-    address = target[target.find(":") + 1 :]  
+    address = target[target.find(":") + 1 :]
 
     if args.layout:
         get_storage_layout(contracts, address, args.rpc_url)

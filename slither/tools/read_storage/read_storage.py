@@ -16,7 +16,7 @@ except ImportError:
     print("$ pip3 install web3 --user\n")
     sys.exit(-1)
 
-from slither.core.declarations import Contract
+from slither.core.declarations import Contract, StructureContract
 from slither.core.solidity_types.type import Type
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
@@ -31,7 +31,30 @@ class SlitherReadStorageException(Exception):
     pass
 
 
-def get_storage_layout(contracts: List[Contract], address: str, rpc_url: str, storage_address: str = None):
+def _all_struct_variables(var, contracts, address, var_name, rpc_url, storage_address, key=None):
+    if isinstance(var.type.type, StructureContract):
+        struct_elems = var.type.type.elems_ordered
+    else:
+        struct_elems = var.type.type.type.elems_ordered
+    data = {}
+    for j in range(len(struct_elems)):
+        slot, val, type_string = get_storage_slot_and_val(
+            contracts,
+            address,
+            var_name,
+            rpc_url,
+            storage_address,
+            key=key,
+            struct_var=struct_elems[j].name,
+        )
+        data[struct_elems[j].name] = {"slot": slot, "value": val, "type_string": type_string}
+
+    return data
+
+
+def get_storage_layout(
+    contracts: List[Contract], address: str, rpc_url: str, storage_address: str = None
+):
     """Retrieves the storage layout of a contract and writes it to a JSON file.
     Args:
         contracts (List[`Contract`]): List of contracts from a slither analyzer object.
@@ -44,60 +67,74 @@ def get_storage_layout(contracts: List[Contract], address: str, rpc_url: str, st
     for state_var in _all_storage_variables(contracts):
 
         tmp = {}
-        for contract, var, type_ in state_var:
+        for contract, var in state_var:
+            var_name = var.name
+            type_ = var.type
             slot, val, type_string = get_storage_slot_and_val(
-                contracts, address, var, rpc_url, storage_address)
-            
-            tmp[var] = {"slot": slot, "value": val, "type_string": type_string}
+                contracts, address, var_name, rpc_url, storage_address
+            )
+
+            tmp[var_name] = {"slot": slot, "value": val, "type_string": type_string}
+
+            if is_user_defined_type(type_) and is_struct(type_.type):
+                tmp[var_name]["elems"] = _all_struct_variables(
+                    var, contracts, address, var_name, rpc_url, storage_address
+                )
+                continue
 
             if is_array(type_):
                 if type_.is_fixed_array:  # arr[i]
                     val = int(str(type_.length))
-                if isinstance(val, str):  # arr[i][]
+
+                if isinstance(val, str):  # arr[] or arr[i][]
                     # The length of dynamic arrays is stored at the starting slot
-                    val = int(
-                        val, 16
-                    )  
+                    val = int(val, 16)
 
                 elems = {}
-                for i in range(val):
-                    slot, val, type_string = get_storage_slot_and_val(
-                        contracts,
-                        address,
-                        var,
-                        rpc_url,
-                        storage_address,
-                        key=str(i),
-                    )
-                    elems[i] = {"slot": slot, "value": val, "type_string": type_string}
+                if is_user_defined_type(type_.type):
+                    for i in range(5):
+                        elems[i] = _all_struct_variables(
+                            var, contracts, address, var_name, rpc_url, storage_address, key=str(i)
+                        )
+                        continue
 
-                    if is_array(type_.type):
-                        if type_.type.is_fixed_array:  # arr[i][]
-                            val = int(str(type_.type.length))
-                        if isinstance(val, str):  # arr[][i]
-                            # The length of dynamic arrays is stored at the starting slot
-                            val = int(
-                                val, 16
-                            )  
+                else:
+                    for i in range(val):
+                        slot, val, type_string = get_storage_slot_and_val(
+                            contracts,
+                            address,
+                            var_name,
+                            rpc_url,
+                            storage_address,
+                            key=str(i),
+                        )
+                        elems[i] = {"slot": slot, "value": val, "type_string": type_string}
 
-                        elems[i]["elems"] = {}
-                        for j in range(val):
-                            slot, value, type_string = get_storage_slot_and_val(
-                                contracts,
-                                address,
-                                var,
-                                rpc_url,
-                                storage_address,
-                                key=str(i), 
-                                deep_key=str(j)
-                            )
-                            elems[i]["elems"][j] = {
-                                "slot": slot,
-                                "value": value,
-                                "type_string": type_string,
-                            }
+                        if is_array(type_.type):
+                            if type_.type.is_fixed_array:  # arr[i][]
+                                val = int(str(type_.type.length))
+                            if isinstance(val, str):  # arr[][i]
+                                # The length of dynamic arrays is stored at the starting slot
+                                val = int(val, 16)
 
-                tmp[var]["elems"] = elems
+                            elems[i]["elems"] = {}
+                            for j in range(val):
+                                slot, value, type_string = get_storage_slot_and_val(
+                                    contracts,
+                                    address,
+                                    var_name,
+                                    rpc_url,
+                                    storage_address,
+                                    key=str(i),
+                                    deep_key=str(j),
+                                )
+                                elems[i]["elems"][j] = {
+                                    "slot": slot,
+                                    "value": value,
+                                    "type_string": type_string,
+                                }
+
+                tmp[var_name]["elems"] = elems
 
         data[contract] = tmp
 
@@ -106,14 +143,19 @@ def get_storage_layout(contracts: List[Contract], address: str, rpc_url: str, st
 
 
 def get_storage_slot_and_val(
-    contracts: List[Contract], address: str, variable_name: str, rpc_url: str, storage_address: str = None, **kwargs
+    contracts: List[Contract],
+    address: str,
+    var_name: str,
+    rpc: str,
+    storage_address: str = None,
+    **kwargs,
 ) -> Tuple[bytes, Any]:
     """Finds the storage slot of a variable in a contract by its name and retrieves the slot and data.
     Args:
         contracts (List[`Contract`]): List of contracts from a slither analyzer object.
         address (str): The address of the implementation contract.
-        variable_name (str): The variable to retrieve the slot and data for.
-        rpc_url (str): HTTP url to establish web3 provider.
+        var_name (str): The variable to retrieve the slot and data for.
+        rpc (str): HTTP url to establish web3 provider.
         storage_address (str, optional): The address of the storage contract (if a proxy pattern is used).
     **kwargs:
         key (str): Key of a mapping or index position if an array.
@@ -126,25 +168,25 @@ def get_storage_slot_and_val(
         SlitherReadStorageException: if the variable is not found.
     """
 
-    if ":" in address:
-        address = address[address.find(":") + 1 :]  # Remove target prefix e.g. rinkeby:0x0 -> 0x0
     if not storage_address:
-        storage_address = address  # Default to implementation address unless a storage address is given
-        
+        storage_address = (
+            address  # Default to implementation address unless a storage address is given
+        )
+
     contract_name = kwargs.get("contract_name", None)
     key = kwargs.get("key", None)
     deep_key = kwargs.get("deep_key", None)
     struct_var = kwargs.get("struct_var", None)
 
     found = False
-    var_log_name = variable_name
+    var_log_name = var_name
 
     for contract in contracts:
         # Find all instances of the variable in the target contract(s)
-        if variable_name in contract.variables_as_dict:
+        if var_name in contract.variables_as_dict:
             contract_name = contract.name
             found = True
-            target_variable = contract.variables_as_dict[variable_name]
+            target_variable = contract.variables_as_dict[var_name]
 
             if (
                 target_variable.is_constant or target_variable.is_immutable
@@ -154,7 +196,7 @@ def get_storage_slot_and_val(
                 )
                 continue
 
-            web3: Web3 = Web3(Web3.HTTPProvider(rpc_url))
+            web3: Web3 = Web3(Web3.HTTPProvider(rpc))
             checksum_address: ChecksumAddress = web3.toChecksumAddress(storage_address)
             type_to = str(target_variable.type)
             log = ""
@@ -172,7 +214,7 @@ def get_storage_slot_and_val(
                     f"\nContract '{contract_name}'\n{target_variable.canonical_name} with type {target_variable.type} evaluated to:\n{(hex_bytes.hex())}\nSlot: {slot_int}\n"
                 )
 
-            except KeyError:  
+            except KeyError:
                 # Only the child contract of a parent contract will show up in the storage layout when inheritance is used
                 logger.info(
                     f"Contract {contract} not found in storage layout. It is possibly a parent contract"
@@ -183,7 +225,7 @@ def get_storage_slot_and_val(
             if is_array(target_variable.type):
                 if key:
                     info, type_to, slot, size, offset = _find_array_slot(
-                        target_variable, slot, key, deep_key=deep_key
+                        target_variable, slot, key, deep_key=deep_key, struct_var=struct_var
                     )
                     log += info
                 else:
@@ -227,9 +269,7 @@ def get_storage_slot_and_val(
 
             hex_bytes = get_storage_data(web3, checksum_address, slot)
             # Account for storage packing
-            offset_hex_bytes = get_offset_value(
-                hex_bytes, offset, size
-            )  
+            offset_hex_bytes = get_offset_value(hex_bytes, offset, size)
             value = coerce_type(type_to, offset_hex_bytes)
 
             log += f"\nName: {var_log_name}\nType: {type_to}\nValue: {value}\nSlot: {int.from_bytes(slot, byteorder='big')}\n"
@@ -238,7 +278,7 @@ def get_storage_slot_and_val(
             return int.from_bytes(slot, byteorder="big"), value, type_to
 
     if not found:
-        raise SlitherReadStorageException("%s was not found in %s" % (variable_name, address))
+        raise SlitherReadStorageException("%s was not found in %s" % (var_name, address))
 
 
 def _find_struct_var_slot(
@@ -274,7 +314,11 @@ def _find_struct_var_slot(
 
 
 def _find_array_slot(
-    target_variable: StateVariable, slot: bytes, key: int, deep_key: int = None, struct_var: str = None
+    target_variable: StateVariable,
+    slot: bytes,
+    key: int,
+    deep_key: int = None,
+    struct_var: str = None,
 ) -> Tuple[str, str, bytes]:
     """Finds the slot of array's index.
     Args:
@@ -290,7 +334,6 @@ def _find_array_slot(
     """
     info = f"\nKey: {key}"
     offset = 0
-    print(dir(target_variable.type.type), target_variable.type.is_fixed_array)
     if is_array(
         target_variable.type.type
     ):  # multidimensional array uint[i][], , uint[][i], or uint[][]
@@ -298,16 +341,13 @@ def _find_array_slot(
         type_to = target_variable.type.type.type.name
 
         if target_variable.type.is_fixed_array:  # uint[][i]
-            print("here")
             slot_int = int.from_bytes(slot, "big") + int(key)
         else:
-            print("here2")
             slot = keccak(slot)
             key = int(key)
             if target_variable.type.type.is_fixed_array:  # arr[i][]
                 key *= int(str(target_variable.type.type.length))
-                print(key)
-            slot_int = int.from_bytes(slot, "big") + key 
+            slot_int = int.from_bytes(slot, "big") + key
 
         if not deep_key:
             return info, type_to, int.to_bytes(slot_int, 32, "big"), size, offset
@@ -323,14 +363,12 @@ def _find_array_slot(
 
     elif target_variable.type.is_fixed_array:
         slot_int = int.from_bytes(slot, "big") + int(key)
-        print(is_user_defined_type(target_variable.type.type))
-        print(is_struct(target_variable.type.type))
         if is_user_defined_type(target_variable.type.type):  # struct[i]
-            size = 32
+            size = 256
             type_to = target_variable.type.type.type.name
             if not struct_var:
                 return info, type_to, int.to_bytes(slot_int, 32, "big"), size, offset
-            elems = target_variable.type.type.elems_ordered
+            elems = target_variable.type.type.type.elems_ordered
             slot = int.to_bytes(slot_int, 32, byteorder="big")
             info_tmp, type_to, slot, size, offset = _find_struct_var_slot(elems, slot, struct_var)
             slot_int = int.from_bytes(slot, "big")
@@ -352,7 +390,11 @@ def _find_array_slot(
 
 
 def _find_mapping_slot(
-    target_variable: StateVariable, slot: bytes, key: Union[int, str], deep_key: Union[int, str] = None, struct_var: str = None
+    target_variable: StateVariable,
+    slot: bytes,
+    key: Union[int, str],
+    deep_key: Union[int, str] = None,
+    struct_var: str = None,
 ) -> Tuple[str, str, bytes, int, int]:
     """Finds the data slot of a target variable within a mapping.
         target_variable (`StateVariable`): The array that contains the target variable.
@@ -396,10 +438,8 @@ def _find_mapping_slot(
             deep_key = int(deep_key)
 
         # If deep map, will be keccak256(abi.encode(key1, keccak256(abi.encode(key0, uint(slot)))))
-        slot = keccak(
-            encode_abi([deep_key_type, "bytes32"], [deep_key, slot])
-        )  
-        
+        slot = keccak(encode_abi([deep_key_type, "bytes32"], [deep_key, slot]))
+
         # mapping(elem => mapping(elem => elem))
         type_to = target_variable.type.type_to.type_to.type
         byte_size, _ = target_variable.type.type_to.type_to.storage_size
@@ -424,20 +464,20 @@ def _find_mapping_slot(
 
 
 def _all_storage_variables(contracts: List[Contract]) -> List[Tuple[str, str, Type]]:
-    """ Fetches all storage variables from a list of contracts.
+    """Fetches all storage variables from a list of contracts.
     Args:
         contracts (List[`Contract`]): The contract from which to retrieve storage variables.
     Returns:
-        List of tuples contain state variable info (contract_name, var_name, var_type).
+        List of tuples contain state variable info (contract_name, var).
     """
     storage_variables = []
     for contract in contracts:
-        storage_variables.append([(contract.name, var.name, var.type)
-            for var in contract.variables
-            if not var.is_constant and not var.is_immutable
-        ])
-        
+        storage_variables.append(
+            [
+                (contract.name, var)
+                for var in contract.variables
+                if not var.is_constant and not var.is_immutable
+            ]
+        )
+
     return storage_variables
-
-
-
