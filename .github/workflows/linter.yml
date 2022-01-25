@@ -36,7 +36,7 @@ jobs:
           cp pyproject.toml .github/linters
 
       - name: Lint everything else
-        uses: docker://github/super-linter:v3
+        uses: docker://github/super-linter:v4
         if: always()
         env:
           # run linter on everything to catch preexisting problems
