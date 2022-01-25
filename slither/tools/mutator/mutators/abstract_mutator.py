@@ -41,33 +41,33 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
 
         if not self.NAME:
             raise IncorrectMutatorInitialization(
-                "NAME is not initialized {}".format(self.__class__.__name__)
+                f"NAME is not initialized {self.__class__.__name__}"
             )
 
         if not self.HELP:
             raise IncorrectMutatorInitialization(
-                "HELP is not initialized {}".format(self.__class__.__name__)
+                f"HELP is not initialized {self.__class__.__name__}"
             )
 
         if self.FAULTCLASS == FaulClass.Undefined:
             raise IncorrectMutatorInitialization(
-                "FAULTCLASS is not initialized {}".format(self.__class__.__name__)
+                f"FAULTCLASS is not initialized {self.__class__.__name__}"
             )
 
         if self.FAULTNATURE == FaultNature.Undefined:
             raise IncorrectMutatorInitialization(
-                "FAULTNATURE is not initialized {}".format(self.__class__.__name__)
+                f"FAULTNATURE is not initialized {self.__class__.__name__}"
             )
 
         if rate < 0 or rate > 100:
             raise IncorrectMutatorInitialization(
-                "rate must be between 0 and 100 {}".format(self.__class__.__name__)
+                f"rate must be between 0 and 100 {self.__class__.__name__}"
             )
 
     @abc.abstractmethod
     def _mutate(self) -> Dict:
         """TODO Documentation"""
-        return dict()
+        return {}
 
     def mutate(self) -> None:
         all_patches = self._mutate()

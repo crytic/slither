@@ -109,7 +109,7 @@ def add_ssa_ir(function, all_state_variables_instances):
     if not function.is_implemented:
         return
 
-    init_definition = dict()
+    init_definition = {}
     for v in function.parameters:
         if v.name:
             init_definition[v.name] = (v, function.entry_point)
@@ -127,7 +127,7 @@ def add_ssa_ir(function, all_state_variables_instances):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
-    add_phi_origins(function.entry_point, init_definition, dict())
+    add_phi_origins(function.entry_point, init_definition, {})
 
     for node in function.nodes:
         for (variable, nodes) in node.phi_origins_local_variables.values():
@@ -143,7 +143,7 @@ def add_ssa_ir(function, all_state_variables_instances):
             #    continue
             node.add_ssa_ir(Phi(StateIRVariable(variable), nodes))
 
-    init_local_variables_instances = dict()
+    init_local_variables_instances = {}
     for v in function.parameters:
         if v.name:
             new_var = LocalIRVariable(v)
@@ -232,9 +232,9 @@ def generate_ssa_irs(
 
     # these variables are lived only during the liveness of the block
     # They dont need phi function
-    temporary_variables_instances = dict()
-    reference_variables_instances = dict()
-    tuple_variables_instances = dict()
+    temporary_variables_instances = {}
+    reference_variables_instances = {}
+    tuple_variables_instances = {}
 
     for ir in node.irs:
         new_ir = copy_ir(

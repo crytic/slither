@@ -1093,9 +1093,11 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 if initializable in self.inheritance:
                     self._is_upgradeable = True
             else:
-                for c in self.inheritance + [self]:
+                for contract in self.inheritance + [self]:
                     # This might lead to false positive
-                    lower_name = c.name.lower()
+                    # Not sure why pylint is having a trouble here
+                    # pylint: disable=no-member
+                    lower_name = contract.name.lower()
                     if "upgradeable" in lower_name or "upgradable" in lower_name:
                         self._is_upgradeable = True
                         break
@@ -1257,7 +1259,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         from slither.slithir.variables import StateIRVariable
 
-        all_ssa_state_variables_instances = dict()
+        all_ssa_state_variables_instances = {}
 
         for contract in self.inheritance:
             for v in contract.state_variables_declared:
@@ -1275,8 +1277,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             func.generate_slithir_ssa(all_ssa_state_variables_instances)
 
     def fix_phi(self):
-        last_state_variables_instances = dict()
-        initial_state_variables_instances = dict()
+        last_state_variables_instances = {}
+        initial_state_variables_instances = {}
         for v in self._initial_state_variables:
             last_state_variables_instances[v.canonical_name] = []
             initial_state_variables_instances[v.canonical_name] = v

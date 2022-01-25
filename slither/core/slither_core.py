@@ -254,7 +254,7 @@ class SlitherCore(Context):
         filename = self._previous_results_filename
         try:
             if os.path.isfile(filename):
-                with open(filename) as f:
+                with open(filename, encoding="utf8") as f:
                     self._previous_results = json.load(f)
                     if self._previous_results:
                         for r in self._previous_results:

@@ -102,10 +102,10 @@ class PrinterInheritanceGraph(AbstractPrinter):
         if len(contract.immediate_inheritance) == 1:
             ret += "%s -> %s;\n" % (contract.name, contract.immediate_inheritance[0])
         else:
-            for i in range(0, len(contract.immediate_inheritance)):
+            for i, immediate_inheritance in enumerate(contract.immediate_inheritance):
                 ret += '%s -> %s [ label="%s" ];\n' % (
                     contract.name,
-                    contract.immediate_inheritance[i],
+                    immediate_inheritance,
                     i + 1,
                 )
 

@@ -882,7 +882,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         from slither.slithir.variables import Constant
 
         if self._return_values is None:
-            return_values = list()
+            return_values = []
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
             [  # pylint: disable=expression-not-assigned
                 return_values.extend(ir.values)
@@ -903,7 +903,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         from slither.slithir.variables import Constant
 
         if self._return_values_ssa is None:
-            return_values_ssa = list()
+            return_values_ssa = []
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
             [  # pylint: disable=expression-not-assigned
                 return_values_ssa.extend(ir.values)
@@ -1599,16 +1599,16 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         from slither.core.cfg.node import NodeType
 
         if not self.is_implemented:
-            return dict()
+            return {}
 
         if self._entry_point is None:
-            return dict()
+            return {}
         # node, values
-        to_explore: List[Tuple["Node", Dict]] = [(self._entry_point, dict())]
+        to_explore: List[Tuple["Node", Dict]] = [(self._entry_point, {})]
         # node -> values
-        explored: Dict = dict()
+        explored: Dict = {}
         # name -> instances
-        ret: Dict = dict()
+        ret: Dict = {}
 
         while to_explore:
             node, values = to_explore[0]

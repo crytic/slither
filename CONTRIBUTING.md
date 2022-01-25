@@ -37,7 +37,7 @@ To run them locally in the root dir of the repository:
 - `pylint slither tests --rcfile pyproject.toml`
 - `black . --config pyproject.toml`
 
-We use pylint `2.8.2` black `21.10b0`.
+We use pylint `2.12.2` black `21.10b0`.
 ### Detectors tests
 
 For each new detector, at least one regression tests must be present.
