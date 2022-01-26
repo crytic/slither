@@ -107,7 +107,7 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
 
         tests[test_name].append(test_ver)
 
-    for key, test in tests.values():
+    for key, test in tests.items():
         if len(test) > 1:
             tests[key] = sorted(test, key=StrictVersion)
 
@@ -244,9 +244,13 @@ def test_parsing(test_item: Item):
         for change in diff.get("values_changed", []):
             path_list = re.findall(r"\['(.*?)'\]", change.path())
             path = "_".join(path_list)
-            with open(f"test_artifacts/{id_test(test_item)}_{path}_expected.dot", "w", encoding="utf8") as f:
+            with open(
+                f"test_artifacts/{id_test(test_item)}_{path}_expected.dot", "w", encoding="utf8"
+            ) as f:
                 f.write(change.t1)
-            with open(f"test_artifacts/{id_test(test_item)}_{path}_actual.dot", "w", encoding="utf8") as f:
+            with open(
+                f"test_artifacts/{id_test(test_item)}_{path}_actual.dot", "w", encoding="utf8"
+            ) as f:
                 f.write(change.t2)
 
     assert not diff, diff.pretty()
