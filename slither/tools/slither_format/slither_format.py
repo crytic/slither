@@ -72,7 +72,7 @@ def slither_format(slither, **kwargs):  # pylint: disable=too-many-locals
             filename = f"fix_{counter}.patch"
             path = Path(export_result, filename)
             logger.info(f"\t- {filename}")
-            with open(path, "w") as f:
+            with open(path, "w", encoding="utf8") as f:
                 f.write(diff)
             counter += 1
 
@@ -90,10 +90,10 @@ def choose_detectors(detectors_to_run, detectors_to_exclude):
     cls_detectors_to_run = []
     exclude = detectors_to_exclude.split(",")
     if detectors_to_run == "all":
-        for d in all_detectors:
-            if d in exclude:
+        for key, detector in all_detectors.items():
+            if key in exclude:
                 continue
-            cls_detectors_to_run.append(all_detectors[d])
+            cls_detectors_to_run.append(detector)
     else:
         exclude = detectors_to_exclude.split(",")
         for d in detectors_to_run.split(","):

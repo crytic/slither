@@ -173,13 +173,11 @@ def get_detectors_and_printers():
         detector = None
         if not all(issubclass(detector, AbstractDetector) for detector in plugin_detectors):
             raise Exception(
-                "Error when loading plugin %s, %r is not a detector" % (entry_point, detector)
+                f"Error when loading plugin {entry_point}, {detector} is not a detector"
             )
         printer = None
         if not all(issubclass(printer, AbstractPrinter) for printer in plugin_printers):
-            raise Exception(
-                "Error when loading plugin %s, %r is not a printer" % (entry_point, printer)
-            )
+            raise Exception(f"Error when loading plugin {entry_point}, {printer} is not a printer")
 
         # We convert those to lists in case someone returns a tuple
         detectors += list(plugin_detectors)
@@ -253,7 +251,7 @@ def choose_printers(args, all_printer_classes):
         if printer in printers:
             printers_to_run.append(printers[printer])
         else:
-            raise Exception("Error: {} is not a printer".format(printer))
+            raise Exception(f"Error: {printer} is not a printer")
     return printers_to_run
 
 
@@ -303,7 +301,7 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     group_detector.add_argument(
         "--detect",
         help="Comma-separated list of detectors, defaults to all, "
-        "available detectors: {}".format(", ".join(d.ARGUMENT for d in detector_classes)),
+        f"available detectors: {', '.join(d.ARGUMENT for d in detector_classes)}",
         action="store",
         dest="detectors_to_run",
         default=defaults_flag_in_config["detectors_to_run"],
@@ -312,7 +310,7 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     group_printer.add_argument(
         "--print",
         help="Comma-separated list fo contract information printers, "
-        "available printers: {}".format(", ".join(d.ARGUMENT for d in printer_classes)),
+        f"available printers: {', '.join(d.ARGUMENT for d in printer_classes)}",
         action="store",
         dest="printers_to_run",
         default=defaults_flag_in_config["printers_to_run"],
@@ -657,7 +655,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     outputting_sarif = args.sarif is not None
     outputting_sarif_stdout = args.sarif == "-"
     outputting_zip = args.zip is not None
-    if args.zip_type not in ZIP_TYPES_ACCEPTED.keys():
+    if args.zip_type not in ZIP_TYPES_ACCEPTED:
         to_log = f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
         logger.error(to_log)
 

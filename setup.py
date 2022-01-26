@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r", encoding="utf-8") as f:
+    long_description = f.read()
+
 setup(
     name="slither-analyzer",
     description="Slither is a Solidity static analysis framework written in Python 3.",
@@ -16,7 +19,7 @@ setup(
     ],
     # dependency_links=["git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile"],
     license="AGPL-3.0",
-    long_description=open("README.md", "r", encoding="utf-8").read(),
+    long_description=long_description,
     entry_points={
         "console_scripts": [
             "slither = slither.__main__:main",

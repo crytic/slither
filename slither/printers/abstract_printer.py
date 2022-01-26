@@ -21,17 +21,17 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
 
         if not self.HELP:
             raise IncorrectPrinterInitialization(
-                "HELP is not initialized {}".format(self.__class__.__name__)
+                f"HELP is not initialized {self.__class__.__name__}"
             )
 
         if not self.ARGUMENT:
             raise IncorrectPrinterInitialization(
-                "ARGUMENT is not initialized {}".format(self.__class__.__name__)
+                f"ARGUMENT is not initialized {self.__class__.__name__}"
             )
 
         if not self.WIKI:
             raise IncorrectPrinterInitialization(
-                "WIKI is not initialized {}".format(self.__class__.__name__)
+                f"WIKI is not initialized {self.__class__.__name__}"
             )
 
     def info(self, info):
