@@ -177,7 +177,7 @@ git clone https://github.com/crytic/slither.git && cd slither
 python3 setup.py install
 ```
 
-We recommend using an Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
+We recommend using a Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
 
 ### Using Docker
 

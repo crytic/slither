@@ -83,8 +83,8 @@ class FunctionSolc(CallerContextExpression):
 
         self._analyze_type()
 
-        self._node_to_nodesolc: Dict[Node, NodeSolc] = dict()
-        self._node_to_yulobject: Dict[Node, YulBlock] = dict()
+        self._node_to_nodesolc: Dict[Node, NodeSolc] = {}
+        self._node_to_yulobject: Dict[Node, YulBlock] = {}
 
         self._local_variables_parser: List[
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]

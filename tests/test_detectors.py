@@ -1280,7 +1280,7 @@ def _generate_test(test_item: Test, skip_existing=False):
         )
 
     results = json.loads(results_as_string)
-    with open(expected_result_path, "w") as f:
+    with open(expected_result_path, "w", encoding="utf8") as f:
         f.write(json.dumps(results, indent=4))
 
 

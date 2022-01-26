@@ -26,7 +26,7 @@ ALL_04 = range(0, 27)
 ALL_05 = range(0, 18)
 ALL_06 = range(0, 13)
 ALL_07 = range(0, 7)
-ALL_08 = range(0, 11)
+ALL_08 = range(0, 12)
 
 # these are tests that are currently failing right now
 XFAIL = (
@@ -107,9 +107,9 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
 
         tests[test_name].append(test_ver)
 
-    for key in tests:
-        if len(tests[key]) > 1:
-            tests[key] = sorted(tests[key], key=StrictVersion)
+    for key, test in tests.items():
+        if len(test) > 1:
+            tests[key] = sorted(test, key=StrictVersion)
 
     # validate tests
     for test, vers in tests.items():
@@ -232,7 +232,7 @@ def test_parsing(test_item: Item):
     actual = generate_output(sl)
 
     try:
-        with open(expected_file, "r") as f:
+        with open(expected_file, "r", encoding="utf8") as f:
             expected = json.load(f)
     except OSError:
         pytest.xfail("the file for this test was not generated")
@@ -244,9 +244,13 @@ def test_parsing(test_item: Item):
         for change in diff.get("values_changed", []):
             path_list = re.findall(r"\['(.*?)'\]", change.path())
             path = "_".join(path_list)
-            with open(f"test_artifacts/{id_test(test_item)}_{path}_expected.dot", "w") as f:
+            with open(
+                f"test_artifacts/{id_test(test_item)}_{path}_expected.dot", "w", encoding="utf8"
+            ) as f:
                 f.write(change.t1)
-            with open(f"test_artifacts/{id_test(test_item)}_{path}_actual.dot", "w") as f:
+            with open(
+                f"test_artifacts/{id_test(test_item)}_{path}_actual.dot", "w", encoding="utf8"
+            ) as f:
                 f.write(change.t2)
 
     assert not diff, diff.pretty()
@@ -290,7 +294,7 @@ def _generate_test(test_item: Item, skip_existing=False):
 
     actual = generate_output(sl)
     print(f"Generate {expected_file}")
-    with open(expected_file, "w") as f:
+    with open(expected_file, "w", encoding="utf8") as f:
         json.dump(actual, f, indent="  ")
 
 

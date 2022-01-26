@@ -37,7 +37,7 @@ class SlitherCompilationUnitSolc:
         self._parsed = False
         self._analyzed = False
 
-        self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = dict()
+        self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = {}
         self._structures_top_level_parser: List[StructureTopLevelSolc] = []
         self._custom_error_parser: List[CustomErrorSolc] = []
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
@@ -636,7 +636,7 @@ Please rename it, this name is reserved for Slither's internals"""
 
         for func in self._compilation_unit.functions_top_level:
             func.generate_slithir_and_analyze()
-            func.generate_slithir_ssa(dict())
+            func.generate_slithir_ssa({})
         self._compilation_unit.propagate_function_calls()
         for contract in self._compilation_unit.contracts:
             contract.fix_phi()

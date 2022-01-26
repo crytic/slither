@@ -23,19 +23,19 @@ class FileScope:
         self.filename = filename
         self.accessible_scopes: List[FileScope] = []
 
-        self.contracts: Dict[str, Contract] = dict()
+        self.contracts: Dict[str, Contract] = {}
         # Custom error are a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
         self.custom_errors: Set[CustomErrorTopLevel] = set()
-        self.enums: Dict[str, EnumTopLevel] = dict()
+        self.enums: Dict[str, EnumTopLevel] = {}
         # Functions is a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
         self.functions: Set[FunctionTopLevel] = set()
         self.imports: Set[Import] = set()
         self.pragmas: Set[Pragma] = set()
-        self.structures: Dict[str, StructureTopLevel] = dict()
+        self.structures: Dict[str, StructureTopLevel] = {}
 
     def add_accesible_scopes(self) -> bool:
         """

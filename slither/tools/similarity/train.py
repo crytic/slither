@@ -24,7 +24,7 @@ def train(args):  # pylint: disable=too-many-locals
         contracts = load_contracts(dirname, **vars(args))
         logger.info("Saving extracted data into %s", last_data_train_filename)
         cache = []
-        with open(last_data_train_filename, "w") as f:
+        with open(last_data_train_filename, "w", encoding="utf8") as f:
             for filename in contracts:
                 # cache[filename] = dict()
                 for (filename_inner, contract, function), ir in encode_contract(

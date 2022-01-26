@@ -284,8 +284,8 @@ def compute_dependency_contract(contract, compilation_unit: "SlitherCompilationU
     if KEY_SSA in contract.context:
         return
 
-    contract.context[KEY_SSA] = dict()
-    contract.context[KEY_SSA_UNPROTECTED] = dict()
+    contract.context[KEY_SSA] = {}
+    contract.context[KEY_SSA_UNPROTECTED] = {}
 
     for function in contract.functions + contract.modifiers:
         compute_dependency_function(function)
@@ -365,8 +365,8 @@ def compute_dependency_function(function):
     if KEY_SSA in function.context:
         return
 
-    function.context[KEY_SSA] = dict()
-    function.context[KEY_SSA_UNPROTECTED] = dict()
+    function.context[KEY_SSA] = {}
+    function.context[KEY_SSA_UNPROTECTED] = {}
 
     is_protected = function.is_protected()
     for node in function.nodes:
@@ -417,7 +417,7 @@ def convert_variable_to_non_ssa(v):
 
 def convert_to_non_ssa(data_depencies):
     # Need to create new set() as its changed during iteration
-    ret = dict()
+    ret = {}
     for (k, values) in data_depencies.items():
         var = convert_variable_to_non_ssa(k)
         if not var in ret:

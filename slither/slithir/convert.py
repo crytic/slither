@@ -490,7 +490,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
     using_for = (
-        node_function.contract.using_for if isinstance(node_function, FunctionContract) else dict()
+        node_function.contract.using_for if isinstance(node_function, FunctionContract) else {}
     )
     if isinstance(ir, OperationWithLValue):
         # Force assignment in case of missing previous correct type
@@ -853,7 +853,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             # }
             node_func = ins.node.function
             using_for = (
-                node_func.contract.using_for if isinstance(node_func, FunctionContract) else dict()
+                node_func.contract.using_for if isinstance(node_func, FunctionContract) else {}
             )
 
             targeted_libraries = (

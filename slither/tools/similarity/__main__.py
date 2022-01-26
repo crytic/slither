@@ -95,7 +95,7 @@ def main():
     elif mode == "plot":
         plot(args)
     else:
-        to_log = "Invalid mode!. It should be one of these: %s" % ", ".join(modes)
+        to_log = f"Invalid mode!. It should be one of these: {', '.join(modes)}"
         logger.error(to_log)
         sys.exit(-1)
 
