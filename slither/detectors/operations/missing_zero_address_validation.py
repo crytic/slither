@@ -7,8 +7,10 @@ from collections import defaultdict
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.slithir.operations import Send, Transfer, LowLevelCall
+from slither.slithir.operations import Send, Transfer, LowLevelCall, HighLevelCall
 from slither.slithir.operations import Call
+from slither.core.declarations import Contract
+from slither.core.solidity_types import UserDefinedType
 
 
 class MissingZeroAddressValidation(AbstractDetector):
@@ -98,12 +100,18 @@ Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership
                 sv_addrs_written = [
                     sv
                     for sv in node.state_variables_written
-                    if sv.type == ElementaryType("address")
+                    if (
+                        sv.type == ElementaryType("address")
+                        or (
+                            isinstance(sv.type, UserDefinedType)
+                            and isinstance(sv.type.type, Contract)
+                        )
+                    )
                 ]
 
                 addr_calls = False
                 for ir in node.irs:
-                    if isinstance(ir, (Send, Transfer, LowLevelCall)):
+                    if isinstance(ir, (Send, Transfer, LowLevelCall, HighLevelCall)):
                         addr_calls = True
 
                 # Continue if no address-typed state variables are written and if no send/transfer/call
@@ -113,9 +121,13 @@ Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership
                 # Check local variables used in such nodes
                 for var in node.local_variables_read:
                     # Check for address types that are tainted but not by msg.sender
-                    if var.type == ElementaryType("address") and is_tainted(
-                        var, function, ignore_generic_taint=True
-                    ):
+                    if (
+                        var.type == ElementaryType("address")
+                        or (
+                            isinstance(var.type, UserDefinedType)
+                            and isinstance(var.type.type, Contract)
+                        )
+                    ) and is_tainted(var, function, ignore_generic_taint=True):
                         # Check for zero address validation of variable
                         # in the context of modifiers used or prior function context
                         if not (
