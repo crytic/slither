@@ -75,7 +75,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership
         if node.contains_if():
             if var in node.variables_read:
                 return True
-            #check dependant variables
+            # check dependant variables
         if node.contains_require_or_assert():
             for v in node.variables_read:
                 if is_dependent(var, v, node.function) or is_dependent(v, var, node.function):
@@ -88,8 +88,8 @@ Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership
         return False
 
     def _zero_address_validation_icalls(self, var, node) -> bool:
-        """ Check if the interesting variable `var` is checked inside any `Call` expression
-            in this `node`
+        """Check if the interesting variable `var` is checked inside any `Call` expression
+        in this `node`
         """
         if node.type == node.type.EXPRESSION:
             for ir in node.irs:
@@ -98,7 +98,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership
                     # the interesting variable is passed to something
                     if var in args:
                         if self._zero_address_validation(
-                                ir.function.parameters[args.index(var)], ir.function.nodes[-1], []
+                            ir.function.parameters[args.index(var)], ir.function.nodes[-1], []
                         ):
                             return True
         return False
