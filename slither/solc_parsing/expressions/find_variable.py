@@ -19,6 +19,7 @@ from slither.core.solidity_types import (
     FunctionType,
     MappingType,
 )
+from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
@@ -98,7 +99,9 @@ def _find_variable_in_function_parser(
 
 def _find_top_level(
     var_name: str, scope: "FileScope"
-) -> Tuple[Optional[Union[Enum, Structure, SolidityImportPlaceHolder, CustomError]], bool]:
+) -> Tuple[
+    Optional[Union[Enum, Structure, SolidityImportPlaceHolder, CustomError, TopLevelVariable]], bool
+]:
     """
     Return the top level variable use, and a boolean indicating if the variable returning was cretead
     If the variable was created, it has no source_mapping
@@ -125,6 +128,9 @@ def _find_top_level(
     for custom_error in scope.custom_errors:
         if custom_error.solidity_signature == var_name:
             return custom_error, False
+
+    if var_name in scope.variables:
+        return scope.variables[var_name], False
 
     return None, False
 
@@ -210,6 +216,8 @@ def _find_variable_init(
 ) -> Tuple[List[Contract], List["Function"], FileScope,]:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
+    from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
     direct_contracts: List[Contract]
     direct_functions_parser: List[Function]
@@ -244,6 +252,14 @@ def _find_variable_init(
         else:
             assert isinstance(underlying_function, FunctionContract)
             scope = underlying_function.contract.file_scope
+    elif isinstance(caller_context, StructureTopLevelSolc):
+        direct_contracts = []
+        direct_functions_parser = []
+        scope = caller_context.underlying_structure.file_scope
+    elif isinstance(caller_context, TopLevelVariableSolc):
+        direct_contracts = []
+        direct_functions_parser = []
+        scope = caller_context.underlying_variable.file_scope
     else:
         raise SlitherError(
             f"{type(caller_context)} ({caller_context} is not valid for find_variable"
