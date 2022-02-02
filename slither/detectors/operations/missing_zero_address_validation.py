@@ -5,7 +5,7 @@ Module detecting missing zero address validation
 from collections import defaultdict
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.analyses.data_dependency.data_dependency import is_tainted
+from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations import Send, Transfer, LowLevelCall
 from slither.slithir.operations import Call
@@ -72,15 +72,35 @@ Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership
 
         # Heuristic: Assume zero address checked if variable is used within conditional or require/assert
         # TBD: Actually check for zero address in predicate
-        if (node.contains_if() or node.contains_require_or_assert()) and (
-            var in node.variables_read
-        ):
-            return True
+        if node.contains_if():
+            if var in node.variables_read:
+                return True
+            #check dependant variables
+        if node.contains_require_or_assert():
+            for v in node.variables_read:
+                if is_dependent(var, v, node.function) or is_dependent(v, var, node.function):
+                    return True
 
         # Check recursively in all the parent nodes
         for father in node.fathers:
             if self._zero_address_validation(var, father, explored):
                 return True
+        return False
+
+    def _zero_address_validation_icalls(self, var, node) -> bool:
+        """ Check if the interesting variable `var` is checked inside any `Call` expression
+            in this `node`
+        """
+        if node.type == node.type.EXPRESSION:
+            for ir in node.irs:
+                if isinstance(ir, Call):
+                    args = ir.arguments
+                    # the interesting variable is passed to something
+                    if var in args:
+                        if self._zero_address_validation(
+                                ir.function.parameters[args.index(var)], ir.function.nodes[-1], []
+                        ):
+                            return True
         return False
 
     def _detect_missing_zero_address_validation(self, contract):
@@ -116,6 +136,8 @@ Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership
                     if var.type == ElementaryType("address") and is_tainted(
                         var, function, ignore_generic_taint=True
                     ):
+                        if self._zero_address_validation_icalls(var, node):
+                            continue
                         # Check for zero address validation of variable
                         # in the context of modifiers used or prior function context
                         if not (

@@ -6,7 +6,12 @@ contract C {
       _;
     }
   }
-  
+
+  function check_addr_call(address _addr) pure internal returns(address){
+    require (_addr != address(0));
+    return _addr;
+  }
+
   function bad0_set_owner(address new_owner) payable public{
     owner = new_owner; // No check before use
   }
@@ -67,5 +72,9 @@ contract C {
   function good7_transfer_msg_sender() payable public {
     address payable addr = msg.sender;
     addr.transfer(msg.value); // msg.sender does not need to be zero validated
+  }
+
+  function good8_set_owner(address new_owner) payable public{
+    owner = check_addr_call(new_owner);
   }
 }
