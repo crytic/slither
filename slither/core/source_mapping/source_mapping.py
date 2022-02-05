@@ -128,9 +128,9 @@ class SourceMapping(Context):
         if not lines:
             lines = ""
         elif len(lines) == 1:
-            lines = "#{}{}".format(line_descr, lines[0])
+            lines = ":{}{}".format(line_descr, lines[0])
         else:
-            lines = f"#{line_descr}{lines[0]}-{line_descr}{lines[-1]}"
+            lines = f":{line_descr}{lines[0]}-{line_descr}{lines[-1]}"
         return lines
 
     def source_mapping_to_markdown(self, markdown_root: str) -> str:
