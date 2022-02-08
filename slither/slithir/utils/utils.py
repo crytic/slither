@@ -2,6 +2,7 @@ from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 
 from slither.core.declarations.solidity_variables import SolidityVariable
+from slither.core.variables.top_level_variable import TopLevelVariable
 
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.constant import Constant
@@ -15,6 +16,7 @@ def is_valid_rvalue(v):
         (
             StateVariable,
             LocalVariable,
+            TopLevelVariable,
             TemporaryVariable,
             Constant,
             SolidityVariable,

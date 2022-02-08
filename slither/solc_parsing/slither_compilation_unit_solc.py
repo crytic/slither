@@ -239,12 +239,13 @@ class SlitherCompilationUnitSolc:
                 self._parse_enum(top_level_data, filename)
 
             elif top_level_data[self.get_key()] == "VariableDeclaration":
-                var = TopLevelVariable()
-                var_parser = TopLevelVariableSolc(var, top_level_data)
+                var = TopLevelVariable(scope)
+                var_parser = TopLevelVariableSolc(var, top_level_data, self)
                 var.set_offset(top_level_data["src"], self._compilation_unit)
 
                 self._compilation_unit.variables_top_level.append(var)
                 self._variables_top_level_parser.append(var_parser)
+                scope.variables[var.name] = var
             elif top_level_data[self.get_key()] == "FunctionDefinition":
                 scope = self.compilation_unit.get_scope(filename)
                 func = FunctionTopLevel(self._compilation_unit, scope)
@@ -495,6 +496,7 @@ Please rename it, this name is reserved for Slither's internals"""
         for lib in libraries:
             self._analyze_struct_events(lib)
 
+        self._analyze_top_level_variables()
         self._analyze_top_level_structures()
 
         # Start with the contracts without inheritance
@@ -580,9 +582,9 @@ Please rename it, this name is reserved for Slither's internals"""
     def _analyze_top_level_variables(self):
         try:
             for var in self._variables_top_level_parser:
-                var.analyze(self)
+                var.analyze(var)
         except (VariableNotFound, KeyError) as e:
-            raise SlitherException(f"Missing struct {e} during top level structure analyze") from e
+            raise SlitherException(f"Missing {e} during variable analyze") from e
 
     def _analyze_params_top_level_function(self):
         for func_parser in self._functions_top_level_parser:

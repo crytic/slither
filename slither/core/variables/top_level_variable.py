@@ -5,12 +5,14 @@ from slither.core.variables.variable import Variable
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
+    from slither.core.scope.scope import FileScope
 
 
 class TopLevelVariable(TopLevel, Variable):
-    def __init__(self):
+    def __init__(self, scope: "FileScope"):
         super().__init__()
         self._node_initialization: Optional["Node"] = None
+        self.file_scope = scope
 
     # endregion
     ###################################################################################
