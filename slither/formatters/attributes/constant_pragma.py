@@ -34,7 +34,7 @@ def custom_format(slither, result):
 
 
 def _analyse_versions(used_solc_versions):
-    replace_solc_versions = list()
+    replace_solc_versions = []
     for version in used_solc_versions:
         replace_solc_versions.append(_determine_solc_version_replacement(version))
     if not all(version == replace_solc_versions[0] for version in replace_solc_versions):

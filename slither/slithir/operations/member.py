@@ -1,5 +1,8 @@
 from slither.core.declarations import Contract, Function
+from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum import Enum
+from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
+from slither.core.solidity_types import ElementaryType
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue
 from slither.slithir.variables.constant import Constant
@@ -19,9 +22,12 @@ class Member(OperationWithLValue):
         #         f.h(1);
         #     }
         # }
+        # Can be an ElementaryType because of bytes.concat
         assert is_valid_rvalue(variable_left) or isinstance(
-            variable_left, (Contract, Enum, Function)
+            variable_left,
+            (Contract, Enum, Function, CustomError, SolidityImportPlaceHolder, ElementaryType),
         )
+
         assert isinstance(variable_right, Constant)
         assert isinstance(result, ReferenceVariable)
         super().__init__()

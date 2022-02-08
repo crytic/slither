@@ -21,6 +21,8 @@ class Suicidal(AbstractDetector):
 
     WIKI_TITLE = "Suicidal"
     WIKI_DESCRIPTION = "Unprotected call to a function executing `selfdestruct`/`suicide`."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Suicidal{
@@ -30,6 +32,7 @@ contract Suicidal{
 }
 ```
 Bob calls `kill` and destructs the contract."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Protect access to all sensitive functions."
 

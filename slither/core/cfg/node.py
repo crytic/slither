@@ -16,7 +16,6 @@ from slither.core.variables.variable import Variable
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.convert import convert_expression
 from slither.slithir.operations import (
-    Balance,
     HighLevelCall,
     Index,
     InternalCall,
@@ -55,6 +54,7 @@ if TYPE_CHECKING:
         LowLevelCallType,
     )
     from slither.core.cfg.scope import Scope
+    from slither.core.scope.scope import FileScope
 
 
 # pylint: disable=too-many-lines,too-many-branches,too-many-instance-attributes
@@ -153,7 +153,13 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     """
 
-    def __init__(self, node_type: NodeType, node_id: int, scope: Union["Scope", "Function"]):
+    def __init__(
+        self,
+        node_type: NodeType,
+        node_id: int,
+        scope: Union["Scope", "Function"],
+        file_scope: "FileScope",
+    ):
         super().__init__()
         self._node_type = node_type
 
@@ -194,6 +200,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._external_calls_as_expressions: List[Expression] = []
         self._internal_calls_as_expressions: List[Expression] = []
         self._irs: List[Operation] = []
+        self._all_slithir_operations: Optional[List[Operation]] = None
         self._irs_ssa: List[Operation] = []
 
         self._state_vars_written: List[StateVariable] = []
@@ -221,7 +228,8 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
         self._asm_source_code: Optional[Union[str, Dict]] = None
 
-        self.scope = scope
+        self.scope: Union["Scope", "Function"] = scope
+        self.file_scope: "FileScope" = file_scope
 
     ###################################################################################
     ###################################################################################
@@ -714,11 +722,13 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._find_read_write_call()
 
     def all_slithir_operations(self) -> List[Operation]:
-        irs = self.irs
-        for ir in irs:
-            if isinstance(ir, InternalCall):
-                irs += ir.function.all_slithir_operations()
-        return irs
+        if self._all_slithir_operations is None:
+            irs = list(self.irs)
+            for ir in self.irs:
+                if isinstance(ir, InternalCall):
+                    irs += ir.function.all_slithir_operations()
+            self._all_slithir_operations = irs
+        return self._all_slithir_operations
 
     @staticmethod
     def _is_non_slithir_var(var: Variable):
@@ -875,7 +885,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                         self._vars_read.append(origin)
 
             if isinstance(ir, OperationWithLValue):
-                if isinstance(ir, (Index, Member, Length, Balance)):
+                if isinstance(ir, (Index, Member, Length)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
                 if isinstance(var, ReferenceVariable):
@@ -903,7 +913,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                     except AttributeError as error:
                         #  pylint: disable=raise-missing-from
                         raise SlitherException(
-                            f"Function not found on {ir}. Please try compiling with a recent Solidity version. {error}"
+                            f"Function not found on IR: {ir}.\nNode: {self} ({self.source_mapping_str})\nFunction: {self.function}\nPlease try compiling with a recent Solidity version. {error}"
                         )
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
@@ -959,7 +969,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                         self._ssa_vars_read.append(origin)
 
             if isinstance(ir, OperationWithLValue):
-                if isinstance(ir, (Index, Member, Length, Balance)):
+                if isinstance(ir, (Index, Member, Length)):
                     continue  # Don't consider Member and Index operations -> ReferenceVariable
                 var = ir.lvalue
                 if isinstance(var, ReferenceVariable):

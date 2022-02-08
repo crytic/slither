@@ -22,6 +22,8 @@ class UncheckedTransfer(UnusedReturnValues):
 
     WIKI_TITLE = "Unchecked transfer"
     WIKI_DESCRIPTION = "The return value of an external transfer/transferFrom call is not checked"
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Token {
@@ -37,6 +39,7 @@ contract MyBank{
 }
 ```
 Several tokens do not revert in case of failure and return false. If one of these tokens is used in `MyBank`, `deposit` will not revert if the transfer fails, and an attacker can call `deposit` for free.."""
+    # endregion wiki_exploit_scenariox
 
     WIKI_RECOMMENDATION = (
         "Use `SafeERC20`, or ensure that the transfer/transferFrom return value is checked."

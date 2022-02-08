@@ -19,6 +19,8 @@ class PredeclarationUsageLocal(AbstractDetector):
 
     WIKI_TITLE = "Pre-declaration usage of local variables"
     WIKI_DESCRIPTION = "Detects the possible usage of a variable before the declaration is stepped over (either because it is later declared, or declared in another scope)."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract C {
@@ -42,6 +44,7 @@ contract C {
 ```
 In the case above, the variable `x` is used before its declaration, which may result in unintended consequences. 
 Additionally, the for-loop uses the variable `max`, which is declared in a previous scope that may not always be reached. This could lead to unintended consequences if the user mistakenly uses a variable prior to any intended declaration assignment. It also may indicate that the user intended to reference a different variable."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Move all variable declarations prior to any usage of the variable, and ensure that reaching a variable declaration does not depend on some conditional if it is used unconditionally."
 

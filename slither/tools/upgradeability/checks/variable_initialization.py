@@ -12,10 +12,13 @@ class VariableWithInit(AbstractCheck):
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#state-variable-initialized"
     WIKI_TITLE = "State variable initialized"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect state variables that are initialized.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
@@ -24,10 +27,13 @@ contract Contract{
 ```
 Using `Contract` will the delegatecall proxy pattern will lead `variable` to be 0 when called through the proxy.
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Using initialize functions to write initial values in state variables.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
 

@@ -19,6 +19,8 @@ class UninitializedLocalVars(AbstractDetector):
 
     WIKI_TITLE = "Uninitialized local variables"
     WIKI_DESCRIPTION = "Uninitialized local variables."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Uninitialized is Owner{
@@ -29,6 +31,7 @@ contract Uninitialized is Owner{
 }
 ```
 Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is lost."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero to improve code readability."
 

@@ -47,10 +47,14 @@ class FunctionInitializedState(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#function-initializing-state-variables"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#function-initializing-state"
+    )
 
     WIKI_TITLE = "Function Initializing State"
     WIKI_DESCRIPTION = "Detects the immediate initialization of state variables through function calls that are not pure/constant, or that use non-constant state variable."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract StateVarInitFromFunction {
@@ -79,6 +83,7 @@ In this case, users might intend a function to return a value a state variable c
 In the example above, the same function sets two different values for state variables because it checks a state variable that is not yet initialized in one case, and is initialized in the other. 
 Special care must be taken when initializing state variables from an immediate function call so as not to incorrectly assume the state is initialized.
 """
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Remove any initialization of state variables via non-constant state variables or function calls. If variables must be set upon contract deployment, locate initialization in the constructor instead."
 

@@ -2,11 +2,12 @@
 from typing import List, Dict, Union, TYPE_CHECKING
 
 from slither.core.context.context import Context
+from slither.core.declarations.custom_error import CustomError
 from slither.core.solidity_types import ElementaryType, TypeInformation
 from slither.exceptions import SlitherException
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Import
+    pass
 
 SOLIDITY_VARIABLES = {
     "now": "uint256",
@@ -19,6 +20,7 @@ SOLIDITY_VARIABLES = {
 }
 
 SOLIDITY_VARIABLES_COMPOSED = {
+    "block.basefee": "uint",
     "block.coinbase": "address",
     "block.difficulty": "uint256",
     "block.gaslimit": "uint256",
@@ -42,6 +44,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "require(bool,string)": [],
     "revert()": [],
     "revert(string)": [],
+    "revert ": [],
     "addmod(uint256,uint256,uint256)": ["uint256"],
     "mulmod(uint256,uint256,uint256)": ["uint256"],
     "keccak256()": ["bytes32"],
@@ -67,10 +70,15 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "abi.encodePacked()": ["bytes"],
     "abi.encodeWithSelector()": ["bytes"],
     "abi.encodeWithSignature()": ["bytes"],
+    "bytes.concat()": ["bytes"],
     # abi.decode returns an a list arbitrary types
     "abi.decode()": [],
     "type(address)": [],
     "type()": [],  # 0.6.8 changed type(address) to type()
+    # The following are conversion from address.something
+    "balance(address)": ["uint256"],
+    "code(address)": ["bytes"],
+    "codehash(address)": ["bytes32"],
 }
 
 
@@ -186,35 +194,18 @@ class SolidityFunction:
         return hash(self.name)
 
 
-class SolidityImportPlaceHolder(SolidityVariable):
-    """
-    Placeholder for import on top level objects
-    See the example at https://blog.soliditylang.org/2020/09/02/solidity-0.7.1-release-announcement/
-    In the long term we should remove this and better integrate import aliases
-    """
-
-    def __init__(self, import_directive: "Import"):
-        assert import_directive.alias is not None
-        super().__init__(import_directive.alias)
-        self._import_directive = import_directive
-
-    def _check_name(self, name: str):
-        return True
-
-    @property
-    def type(self) -> ElementaryType:
-        return ElementaryType("string")
+class SolidityCustomRevert(SolidityFunction):
+    def __init__(self, custom_error: CustomError):  # pylint: disable=super-init-not-called
+        self._name = "revert " + custom_error.solidity_signature
+        self._custom_error = custom_error
+        self._return_type: List[Union[TypeInformation, ElementaryType]] = []
 
     def __eq__(self, other):
         return (
             self.__class__ == other.__class__
             and self.name == other.name
-            and self._import_directive.filename == self._import_directive.filename
+            and self._custom_error == other._custom_error
         )
 
-    @property
-    def import_directive(self) -> "Import":
-        return self._import_directive
-
     def __hash__(self):
-        return hash(str(self.import_directive))
+        return hash(hash(self.name) + hash(self._custom_error))

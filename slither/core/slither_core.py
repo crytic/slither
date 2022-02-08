@@ -110,9 +110,7 @@ class SlitherCore(Context):
         """
         contracts = []
         for compilation_unit in self._compilation_units:
-            contract = compilation_unit.get_contract_from_name(contract_name)
-            if contract:
-                contracts.append(contract)
+            contracts += compilation_unit.get_contract_from_name(contract_name)
         return contracts
 
     ###################################################################################
@@ -123,7 +121,7 @@ class SlitherCore(Context):
 
     @property
     def source_code(self) -> Dict[str, str]:
-        """ {filename: source_code (str)}: source code """
+        """{filename: source_code (str)}: source code"""
         return self._raw_source_code
 
     @property
@@ -256,7 +254,7 @@ class SlitherCore(Context):
         filename = self._previous_results_filename
         try:
             if os.path.isfile(filename):
-                with open(filename) as f:
+                with open(filename, encoding="utf8") as f:
                     self._previous_results = json.load(f)
                     if self._previous_results:
                         for r in self._previous_results:

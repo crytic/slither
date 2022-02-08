@@ -13,6 +13,7 @@ from slither.core.declarations import (
     SolidityVariableComposed,
     Structure,
 )
+from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import Index, OperationWithLValue, InternalCall
 from slither.slithir.variables import (
@@ -37,7 +38,12 @@ if TYPE_CHECKING:
 ###################################################################################
 
 
-def is_dependent(variable, source, context, only_unprotected=False):
+def is_dependent(
+    variable: Variable,
+    source: Variable,
+    context: Union[Contract, Function],
+    only_unprotected: bool = False,
+) -> bool:
     """
     Args:
         variable (Variable)
@@ -52,17 +58,22 @@ def is_dependent(variable, source, context, only_unprotected=False):
         return False
     if variable == source:
         return True
-    context = context.context
+    context_dict = context.context
 
     if only_unprotected:
         return (
-            variable in context[KEY_NON_SSA_UNPROTECTED]
-            and source in context[KEY_NON_SSA_UNPROTECTED][variable]
+            variable in context_dict[KEY_NON_SSA_UNPROTECTED]
+            and source in context_dict[KEY_NON_SSA_UNPROTECTED][variable]
         )
-    return variable in context[KEY_NON_SSA] and source in context[KEY_NON_SSA][variable]
+    return variable in context_dict[KEY_NON_SSA] and source in context_dict[KEY_NON_SSA][variable]
 
 
-def is_dependent_ssa(variable, source, context, only_unprotected=False):
+def is_dependent_ssa(
+    variable: Variable,
+    source: Variable,
+    context: Union[Contract, Function],
+    only_unprotected: bool = False,
+) -> bool:
     """
     Args:
         variable (Variable)
@@ -73,17 +84,17 @@ def is_dependent_ssa(variable, source, context, only_unprotected=False):
         bool
     """
     assert isinstance(context, (Contract, Function))
-    context = context.context
+    context_dict = context.context
     if isinstance(variable, Constant):
         return False
     if variable == source:
         return True
     if only_unprotected:
         return (
-            variable in context[KEY_SSA_UNPROTECTED]
-            and source in context[KEY_SSA_UNPROTECTED][variable]
+            variable in context_dict[KEY_SSA_UNPROTECTED]
+            and source in context_dict[KEY_SSA_UNPROTECTED][variable]
         )
-    return variable in context[KEY_SSA] and source in context[KEY_SSA][variable]
+    return variable in context_dict[KEY_SSA] and source in context_dict[KEY_SSA][variable]
 
 
 GENERIC_TAINT = {
@@ -273,8 +284,8 @@ def compute_dependency_contract(contract, compilation_unit: "SlitherCompilationU
     if KEY_SSA in contract.context:
         return
 
-    contract.context[KEY_SSA] = dict()
-    contract.context[KEY_SSA_UNPROTECTED] = dict()
+    contract.context[KEY_SSA] = {}
+    contract.context[KEY_SSA_UNPROTECTED] = {}
 
     for function in contract.functions + contract.modifiers:
         compute_dependency_function(function)
@@ -354,8 +365,8 @@ def compute_dependency_function(function):
     if KEY_SSA in function.context:
         return
 
-    function.context[KEY_SSA] = dict()
-    function.context[KEY_SSA_UNPROTECTED] = dict()
+    function.context[KEY_SSA] = {}
+    function.context[KEY_SSA_UNPROTECTED] = {}
 
     is_protected = function.is_protected()
     for node in function.nodes:
@@ -398,6 +409,7 @@ def convert_variable_to_non_ssa(v):
             Structure,
             Function,
             Type,
+            SolidityImportPlaceHolder,
         ),
     )
     return v
@@ -405,7 +417,7 @@ def convert_variable_to_non_ssa(v):
 
 def convert_to_non_ssa(data_depencies):
     # Need to create new set() as its changed during iteration
-    ret = dict()
+    ret = {}
     for (k, values) in data_depencies.items():
         var = convert_variable_to_non_ssa(k)
         if not var in ret:

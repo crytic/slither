@@ -237,6 +237,89 @@ ERC777 = [
 ]
 ERC777_signatures = erc_to_signatures(ERC777)
 
+# Final
+# https://eips.ethereum.org/EIPS/eip-1155
+# Must have ERC165
+
+ERC1155_transfersingle_event = ERC_EVENT(
+    "TransferSingle",
+    ["address", "address", "address", "uint256", "uint256"],
+    [True, True, True, False, False],
+)
+
+ERC1155_transferbatch_event = ERC_EVENT(
+    "TransferBatch",
+    ["address", "address", "address", "uint256[]", "uint256[]"],
+    [True, True, True, False, False],
+)
+
+ERC1155_approvalforall_event = ERC_EVENT(
+    "ApprovalForAll",
+    ["address", "address", "bool"],
+    [True, True, False],
+)
+
+ERC1155_uri_event = ERC_EVENT(
+    "URI",
+    ["string", "uint256"],
+    [False, True],
+)
+
+ERC1155_EVENTS = [
+    ERC1155_transfersingle_event,
+    ERC1155_transferbatch_event,
+    ERC1155_approvalforall_event,
+    ERC1155_uri_event,
+]
+
+ERC1155 = [
+    ERC(
+        "safeTransferFrom",
+        ["address", "address", "uint256", "uint256", "bytes"],
+        "",
+        False,
+        True,
+        [ERC1155_transfersingle_event],
+    ),
+    ERC(
+        "safeBatchTransferFrom",
+        ["address", "address", "uint256[]", "uint256[]", "bytes"],
+        "",
+        False,
+        True,
+        [],
+    ),
+    ERC("balanceOf", ["address", "uint256"], "uint256", True, True, []),
+    ERC("balanceOfBatch", ["address[]", "uint256[]"], "uint256[]", True, True, []),
+    ERC("setApprovalForAll", ["address", "bool"], "", False, True, [ERC1155_approvalforall_event]),
+    ERC("isApprovedForAll", ["address", "address"], "bool", True, True, []),
+] + ERC165
+
+ERC1155_TOKEN_RECEIVER = [
+    ERC(
+        "onERC1155Received",
+        ["address", "address", "uint256", "uint256", "bytes"],
+        "bytes4",
+        False,
+        False,
+        [],
+    ),
+    ERC(
+        "onERC1155BatchReceived",
+        ["address", "address", "uint256[]", "uint256[]", "bytes"],
+        "bytes4",
+        False,
+        False,
+        [],
+    ),
+]
+
+ERC1155_METADATA = [ERC("uri", ["uint256"], "string", True, False, [])]
+
+ERC1155 = ERC1155 + ERC1155_TOKEN_RECEIVER + ERC1155_METADATA
+
+ERC1155_signatures = erc_to_signatures(ERC1155)
+
 ERCS = {
     "ERC20": (ERC20, ERC20_EVENTS),
     "ERC223": (ERC223, ERC223_EVENTS),
@@ -244,4 +327,5 @@ ERCS = {
     "ERC721": (ERC721, ERC721_EVENTS),
     "ERC1820": (ERC1820, ERC1820_EVENTS),
     "ERC777": (ERC777, ERC777_EVENTS),
+    "ERC1155": (ERC1155, ERC1155_EVENTS),
 }

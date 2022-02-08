@@ -48,6 +48,8 @@ class EnumConversion(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-enum-conversion"
     WIKI_TITLE = "Dangerous enum conversion"
     WIKI_DESCRIPTION = "Detect out-of-range `enum` conversion (`solc` < `0.4.5`)."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     pragma solidity 0.4.2;
@@ -61,6 +63,7 @@ class EnumConversion(AbstractDetector):
 }
 ```
 Attackers can trigger unexpected behaviour by calling `bug(1)`."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Use a recent compiler version. If `solc` <`0.4.5` is required, check the `enum` conversion range."
 

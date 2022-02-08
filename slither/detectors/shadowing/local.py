@@ -19,6 +19,8 @@ class LocalShadowing(AbstractDetector):
 
     WIKI_TITLE = "Local variable shadowing"
     WIKI_DESCRIPTION = "Detection of shadowing using local variables."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 pragma solidity ^0.4.24;
@@ -39,6 +41,7 @@ contract Bug {
 }
 ```
 `sensitive_function.owner` shadows `Bug.owner`. As a result, the use of `owner` in `sensitive_function` might be incorrect."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Rename the local variables that shadow another component."
 

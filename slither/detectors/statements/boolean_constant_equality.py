@@ -24,6 +24,8 @@ class BooleanEquality(AbstractDetector):
 
     WIKI_TITLE = "Boolean equality"
     WIKI_DESCRIPTION = """Detects the comparison to boolean constants."""
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A {
@@ -37,6 +39,7 @@ contract A {
 }
 ```
 Boolean constants can be used directly and do not need to be compare to `true` or `false`."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = """Remove the equality to the boolean constant."""
 

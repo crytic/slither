@@ -473,6 +473,11 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ConstCandidateStateVars,
+        "immutable.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.ExternalFunction,
         "external_function.sol",
         "0.4.25",
@@ -848,7 +853,7 @@ ALL_TESTS = [
     Test(
         all_detectors.ABIEncoderV2Array,
         "storage_ABIEncoderV2_array.sol",
-        "0.5.11",
+        "0.5.9",
     ),
     Test(
         all_detectors.ArrayByReference,
@@ -1258,6 +1263,55 @@ ALL_TESTS = [
         all_detectors.SimilarVarsDetection,
         "similar_variables.sol",
         "0.7.6",
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.DelegatecallInLoop,
+        "delegatecall_loop.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.DelegatecallInLoop,
+        "delegatecall_loop.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.DelegatecallInLoop,
+        "delegatecall_loop.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.DelegatecallInLoop,
+        "delegatecall_loop.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.DelegatecallInLoop,
+        "delegatecall_loop.sol",
+        "0.8.0",
     ),
 ]
 GENERIC_PATH = "/GENERIC_PATH"
@@ -1340,7 +1394,7 @@ def _generate_test(test_item: Test, skip_existing=False):
         )
 
     results = json.loads(results_as_string)
-    with open(expected_result_path, "w") as f:
+    with open(expected_result_path, "w", encoding="utf8") as f:
         f.write(json.dumps(results, indent=4))
 
 

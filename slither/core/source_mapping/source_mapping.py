@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class SourceMapping(Context):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         # TODO create a namedtuple for the source mapping rather than a dict
         self._source_mapping: Optional[Dict] = None

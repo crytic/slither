@@ -11,7 +11,7 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
 
     def _mutate(self):
 
-        result = dict()
+        result = {}
 
         for contract in self.slither.contracts:
 

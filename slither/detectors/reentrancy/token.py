@@ -46,9 +46,14 @@ class TokenReentrancy(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#token-reentrant"
 
     WIKI_TITLE = "Token reentrant"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
     Tokens that allow arbitrary external call on transfer/transfer (such as ERC223/ERC777) can be exploited on third
     party through a reentrancy."""
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
     ```solidity
 contract MyToken{
@@ -70,9 +75,12 @@ contract MyDefi{
 
     `MyDefi` has a reentrancy, but its developers did not think transferFrom could be reentrancy.
     `MyToken` is used in MyDefi. As a result an attacker can exploit the reentrancy."""
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """Avoid to have external calls in `transfer`/`transferFrom`.
 If you do, ensure your users are aware of the potential issues."""
+    # endregion wiki_recommendation
 
     def _detect(self):
         results = []

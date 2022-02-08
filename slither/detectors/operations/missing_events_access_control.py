@@ -22,6 +22,8 @@ class MissingEventsAccessControl(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#missing-events-access-control"
     WIKI_TITLE = "Missing events access control"
     WIKI_DESCRIPTION = "Detect missing events for critical access control parameters"
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract C {
@@ -38,6 +40,7 @@ contract C {
 ```
 `updateOwner()` has no event, so it is difficult to track off-chain owner changes.
 """
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Emit an event for critical parameter changes."
 

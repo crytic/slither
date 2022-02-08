@@ -23,7 +23,6 @@ from slither.slithir.operations import (
     Index,
     Member,
     Length,
-    Balance,
     Binary,
     Unary,
     Condition,
@@ -76,7 +75,7 @@ def parse_target(target):
 
 
 def load_and_encode(infile, vmodel, ext=None, nsamples=None, **kwargs):
-    r = dict()
+    r = {}
     if infile.endswith(".npz"):
         r = load_cache(infile, nsamples=nsamples)
     else:
@@ -150,8 +149,6 @@ def encode_ir(ir):  # pylint: disable=too-many-branches
         return "member"  # .format(ntype(ir._type))
     if isinstance(ir, Length):
         return "length"
-    if isinstance(ir, Balance):
-        return "balance"
     if isinstance(ir, Binary):
         return "binary({})".format(str(ir.type))
     if isinstance(ir, Unary):
@@ -225,7 +222,7 @@ def encode_ir(ir):  # pylint: disable=too-many-branches
 
 
 def encode_contract(cfilename, **kwargs):
-    r = dict()
+    r = {}
 
     # Init slither
     try:
