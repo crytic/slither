@@ -120,7 +120,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership
 
                 # Check local variables used in such nodes
                 for var in node.local_variables_read:
-                    # Check for address types that are tainted but not by msg.sender
+                    # Check for address, and contract types that are tainted but not by msg.sender
                     if (
                         var.type == ElementaryType("address")
                         or (
