@@ -72,7 +72,9 @@ def read_config_file(args):
             )
     else:
         logger.error(
-            red("File {} is not a file or does not exist".format(args.config_file)),
+            red("File {} is not a file or does not exist".format(args.config_file))
+        )
+        logger.error(
             yellow("Falling back to the default settings...")
         )
 
