@@ -20,12 +20,14 @@ def _can_be_destroyed(contract) -> List[Function]:
                 break
     return targets
 
+
 def _has_initializer_modifier(functions: List[Function]) -> bool:
     for f in functions:
         for m in f.modifiers:
             if m.name == "initializer":
                 return True
     return False
+
 
 def _has_protected_initialize(functions: List[Function]) -> bool:
     for f in functions:
@@ -34,6 +36,7 @@ def _has_protected_initialize(functions: List[Function]) -> bool:
                 if m.name == "initializer":
                     return True
     return False
+
 
 class UnprotectedUpgradeable(AbstractDetector):
 
@@ -75,10 +78,14 @@ class UnprotectedUpgradeable(AbstractDetector):
 
         for contract in self.compilation_unit.contracts_derived:
             if contract.is_upgradeable:
-                if not _has_initializer_modifier(contract.constructors) or not _has_protected_initialize(contract.functions):
+                if not _has_initializer_modifier(
+                    contract.constructors
+                ) or not _has_protected_initialize(contract.functions):
                     functions_that_can_destroy = _can_be_destroyed(contract)
                     if functions_that_can_destroy:
-                        initiliaze_functions = [f for f in contract.functions if f.name == "initialize"]
+                        initiliaze_functions = [
+                            f for f in contract.functions if f.name == "initialize"
+                        ]
 
                         vars_init_ = [
                             init.all_state_variables_written() for init in initiliaze_functions
