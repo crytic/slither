@@ -75,36 +75,36 @@ class UnprotectedUpgradeable(AbstractDetector):
 
         for contract in self.compilation_unit.contracts_derived:
             if contract.is_upgradeable:
-                    if not _has_initializer_modifier(contract.constructors) or not _has_protected_initialize(contract.functions):
-                        functions_that_can_destroy = _can_be_destroyed(contract)
-                        if functions_that_can_destroy:
-                            initiliaze_functions = [f for f in contract.functions if f.name == "initialize"]
+                if not _has_initializer_modifier(contract.constructors) or not _has_protected_initialize(contract.functions):
+                    functions_that_can_destroy = _can_be_destroyed(contract)
+                    if functions_that_can_destroy:
+                        initiliaze_functions = [f for f in contract.functions if f.name == "initialize"]
 
-                            vars_init_ = [
-                                init.all_state_variables_written() for init in initiliaze_functions
-                            ]
-                            vars_init = [item for sublist in vars_init_ for item in sublist]
+                        vars_init_ = [
+                            init.all_state_variables_written() for init in initiliaze_functions
+                        ]
+                        vars_init = [item for sublist in vars_init_ for item in sublist]
 
-                            vars_init_in_constructors_ = [
-                                f.all_state_variables_written() for f in contract.constructors
-                            ]
-                            vars_init_in_constructors = [
-                                item for sublist in vars_init_in_constructors_ for item in sublist
-                            ]
-                            if vars_init and (set(vars_init) - set(vars_init_in_constructors)):
-                                info = (
-                                    [
-                                        contract,
-                                        " is an upgradeable contract that does not protect its initiliaze functions: ",
-                                    ]
-                                    + initiliaze_functions
-                                    + [
-                                        ". Anyone can delete the contract with: ",
-                                    ]
-                                    + functions_that_can_destroy
-                                )
+                        vars_init_in_constructors_ = [
+                            f.all_state_variables_written() for f in contract.constructors
+                        ]
+                        vars_init_in_constructors = [
+                            item for sublist in vars_init_in_constructors_ for item in sublist
+                        ]
+                        if vars_init and (set(vars_init) - set(vars_init_in_constructors)):
+                            info = (
+                                [
+                                    contract,
+                                    " is an upgradeable contract that does not protect its initiliaze functions: ",
+                                ]
+                                + initiliaze_functions
+                                + [
+                                    ". Anyone can delete the contract with: ",
+                                ]
+                                + functions_that_can_destroy
+                            )
 
-                                res = self.generate_result(info)
-                                results.append(res)
+                            res = self.generate_result(info)
+                            results.append(res)
 
         return results
