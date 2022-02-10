@@ -6,7 +6,7 @@
                     "type": "function",
                     "name": "bad0",
                     "source_mapping": {
-                        "start": 87,
+                        "start": 383,
                         "length": 188,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -14,14 +14,14 @@
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                         "is_dependency": false,
                         "lines": [
-                            6,
-                            7,
-                            8,
-                            9,
-                            10,
-                            11,
-                            12,
-                            13
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -31,18 +31,14 @@
                             "type": "contract",
                             "name": "ReentrancyWrite",
                             "source_mapping": {
-                                "start": 28,
-                                "length": 610,
+                                "start": 82,
+                                "length": 852,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    3,
-                                    4,
-                                    5,
-                                    6,
                                     7,
                                     8,
                                     9,
@@ -67,7 +63,21 @@
                                     28,
                                     29,
                                     30,
-                                    31
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -80,7 +90,7 @@
                     "type": "node",
                     "name": "(success) = msg.sender.call()",
                     "source_mapping": {
-                        "start": 148,
+                        "start": 444,
                         "length": 37,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -88,7 +98,7 @@
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                         "is_dependency": false,
                         "lines": [
-                            8
+                            22
                         ],
                         "starting_column": 9,
                         "ending_column": 46
@@ -98,7 +108,7 @@
                             "type": "function",
                             "name": "bad0",
                             "source_mapping": {
-                                "start": 87,
+                                "start": 383,
                                 "length": 188,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -106,14 +116,14 @@
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -123,18 +133,14 @@
                                     "type": "contract",
                                     "name": "ReentrancyWrite",
                                     "source_mapping": {
-                                        "start": 28,
-                                        "length": 610,
+                                        "start": 82,
+                                        "length": 852,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "is_dependency": false,
                                         "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
                                             7,
                                             8,
                                             9,
@@ -159,7 +165,21 @@
                                             28,
                                             29,
                                             30,
-                                            31
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -177,7 +197,7 @@
                     "type": "node",
                     "name": "notCalled = false",
                     "source_mapping": {
-                        "start": 251,
+                        "start": 547,
                         "length": 17,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -185,7 +205,7 @@
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                         "is_dependency": false,
                         "lines": [
-                            12
+                            26
                         ],
                         "starting_column": 9,
                         "ending_column": 26
@@ -195,7 +215,7 @@
                             "type": "function",
                             "name": "bad0",
                             "source_mapping": {
-                                "start": 87,
+                                "start": 383,
                                 "length": 188,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -203,14 +223,14 @@
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -220,18 +240,14 @@
                                     "type": "contract",
                                     "name": "ReentrancyWrite",
                                     "source_mapping": {
-                                        "start": 28,
-                                        "length": 610,
+                                        "start": 82,
+                                        "length": 852,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "is_dependency": false,
                                         "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
                                             7,
                                             8,
                                             9,
@@ -256,7 +272,21 @@
                                             28,
                                             29,
                                             30,
-                                            31
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -272,10 +302,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in ReentrancyWrite.bad0() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#6-13):\n\tExternal calls:\n\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#8)\n\tState variables written after the call(s):\n\t- notCalled = false (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#12)\n",
-            "markdown": "Reentrancy in [ReentrancyWrite.bad0()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L6-L13):\n\tExternal calls:\n\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L8)\n\tState variables written after the call(s):\n\t- [notCalled = false](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L12)\n",
-            "first_markdown_element": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L6-L13",
-            "id": "10fd7c0322e6af411a40589a36dd17ec3e91b73cb56a6757dd9b192bcc2b6955",
+            "description": "Reentrancy in ReentrancyWrite.bad0() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#20-27):\n\tExternal calls:\n\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#22)\n\tState variables written after the call(s):\n\t- notCalled = false (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#26)\n",
+            "markdown": "Reentrancy in [ReentrancyWrite.bad0()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L20-L27):\n\tExternal calls:\n\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L22)\n\tState variables written after the call(s):\n\t- [notCalled = false](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L26)\n",
+            "first_markdown_element": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L20-L27",
+            "id": "ef995e89d54c7b577af2ca26540e01da65ac0e2466d6d7a58e4d11e9211b12a4",
             "check": "reentrancy-no-eth",
             "impact": "Medium",
             "confidence": "Medium"
@@ -286,7 +316,7 @@
                     "type": "function",
                     "name": "bad1",
                     "source_mapping": {
-                        "start": 281,
+                        "start": 577,
                         "length": 161,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -294,12 +324,12 @@
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                         "is_dependency": false,
                         "lines": [
-                            15,
-                            16,
-                            17,
-                            18,
-                            19,
-                            20
+                            29,
+                            30,
+                            31,
+                            32,
+                            33,
+                            34
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -309,18 +339,14 @@
                             "type": "contract",
                             "name": "ReentrancyWrite",
                             "source_mapping": {
-                                "start": 28,
-                                "length": 610,
+                                "start": 82,
+                                "length": 852,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    3,
-                                    4,
-                                    5,
-                                    6,
                                     7,
                                     8,
                                     9,
@@ -345,7 +371,21 @@
                                     28,
                                     29,
                                     30,
-                                    31
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -358,7 +398,7 @@
                     "type": "node",
                     "name": "(success) = msg.sender.call()",
                     "source_mapping": {
-                        "start": 356,
+                        "start": 652,
                         "length": 37,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -366,7 +406,7 @@
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                         "is_dependency": false,
                         "lines": [
-                            17
+                            31
                         ],
                         "starting_column": 9,
                         "ending_column": 46
@@ -376,7 +416,7 @@
                             "type": "function",
                             "name": "bad1",
                             "source_mapping": {
-                                "start": 281,
+                                "start": 577,
                                 "length": 161,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -384,12 +424,12 @@
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -399,18 +439,14 @@
                                     "type": "contract",
                                     "name": "ReentrancyWrite",
                                     "source_mapping": {
-                                        "start": 28,
-                                        "length": 610,
+                                        "start": 82,
+                                        "length": 852,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "is_dependency": false,
                                         "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
                                             7,
                                             8,
                                             9,
@@ -435,7 +471,21 @@
                                             28,
                                             29,
                                             30,
-                                            31
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -453,7 +503,7 @@
                     "type": "node",
                     "name": "bad0()",
                     "source_mapping": {
-                        "start": 429,
+                        "start": 725,
                         "length": 6,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -461,7 +511,7 @@
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                         "is_dependency": false,
                         "lines": [
-                            19
+                            33
                         ],
                         "starting_column": 9,
                         "ending_column": 15
@@ -471,7 +521,7 @@
                             "type": "function",
                             "name": "bad1",
                             "source_mapping": {
-                                "start": 281,
+                                "start": 577,
                                 "length": 161,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -479,12 +529,12 @@
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -494,18 +544,14 @@
                                     "type": "contract",
                                     "name": "ReentrancyWrite",
                                     "source_mapping": {
-                                        "start": 28,
-                                        "length": 610,
+                                        "start": 82,
+                                        "length": 852,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "is_dependency": false,
                                         "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
                                             7,
                                             8,
                                             9,
@@ -530,7 +576,21 @@
                                             28,
                                             29,
                                             30,
-                                            31
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -548,7 +608,7 @@
                     "type": "node",
                     "name": "(success) = msg.sender.call()",
                     "source_mapping": {
-                        "start": 148,
+                        "start": 444,
                         "length": 37,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -556,7 +616,7 @@
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                         "is_dependency": false,
                         "lines": [
-                            8
+                            22
                         ],
                         "starting_column": 9,
                         "ending_column": 46
@@ -566,7 +626,7 @@
                             "type": "function",
                             "name": "bad0",
                             "source_mapping": {
-                                "start": 87,
+                                "start": 383,
                                 "length": 188,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -574,14 +634,14 @@
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -591,18 +651,14 @@
                                     "type": "contract",
                                     "name": "ReentrancyWrite",
                                     "source_mapping": {
-                                        "start": 28,
-                                        "length": 610,
+                                        "start": 82,
+                                        "length": 852,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "is_dependency": false,
                                         "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
                                             7,
                                             8,
                                             9,
@@ -627,7 +683,21 @@
                                             28,
                                             29,
                                             30,
-                                            31
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -645,7 +715,7 @@
                     "type": "node",
                     "name": "bad0()",
                     "source_mapping": {
-                        "start": 429,
+                        "start": 725,
                         "length": 6,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -653,7 +723,7 @@
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                         "is_dependency": false,
                         "lines": [
-                            19
+                            33
                         ],
                         "starting_column": 9,
                         "ending_column": 15
@@ -663,7 +733,7 @@
                             "type": "function",
                             "name": "bad1",
                             "source_mapping": {
-                                "start": 281,
+                                "start": 577,
                                 "length": 161,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -671,12 +741,12 @@
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -686,18 +756,14 @@
                                     "type": "contract",
                                     "name": "ReentrancyWrite",
                                     "source_mapping": {
-                                        "start": 28,
-                                        "length": 610,
+                                        "start": 82,
+                                        "length": 852,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "is_dependency": false,
                                         "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
                                             7,
                                             8,
                                             9,
@@ -722,7 +788,21 @@
                                             28,
                                             29,
                                             30,
-                                            31
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -741,7 +821,7 @@
                     "type": "node",
                     "name": "notCalled = false",
                     "source_mapping": {
-                        "start": 251,
+                        "start": 547,
                         "length": 17,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -749,7 +829,7 @@
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                         "is_dependency": false,
                         "lines": [
-                            12
+                            26
                         ],
                         "starting_column": 9,
                         "ending_column": 26
@@ -759,7 +839,7 @@
                             "type": "function",
                             "name": "bad0",
                             "source_mapping": {
-                                "start": 87,
+                                "start": 383,
                                 "length": 188,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
@@ -767,14 +847,14 @@
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -784,18 +864,14 @@
                                     "type": "contract",
                                     "name": "ReentrancyWrite",
                                     "source_mapping": {
-                                        "start": 28,
-                                        "length": 610,
+                                        "start": 82,
+                                        "length": 852,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol",
                                         "is_dependency": false,
                                         "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
                                             7,
                                             8,
                                             9,
@@ -820,7 +896,21 @@
                                             28,
                                             29,
                                             30,
-                                            31
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -836,10 +926,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in ReentrancyWrite.bad1(address) (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#15-20):\n\tExternal calls:\n\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#17)\n\t- bad0() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#19)\n\t\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#8)\n\tState variables written after the call(s):\n\t- bad0() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#19)\n\t\t- notCalled = false (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#12)\n",
-            "markdown": "Reentrancy in [ReentrancyWrite.bad1(address)](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L15-L20):\n\tExternal calls:\n\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L17)\n\t- [bad0()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L19)\n\t\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L8)\n\tState variables written after the call(s):\n\t- [bad0()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L19)\n\t\t- [notCalled = false](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L12)\n",
-            "first_markdown_element": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L15-L20",
-            "id": "a9d96103d5786a77ba0de28c96dc94a27ea5acda47af8fef59a80327925a286b",
+            "description": "Reentrancy in ReentrancyWrite.bad1(address) (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#29-34):\n\tExternal calls:\n\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#31)\n\t- bad0() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#33)\n\t\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#22)\n\tState variables written after the call(s):\n\t- bad0() (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#33)\n\t\t- notCalled = false (tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#26)\n",
+            "markdown": "Reentrancy in [ReentrancyWrite.bad1(address)](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L29-L34):\n\tExternal calls:\n\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L31)\n\t- [bad0()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L33)\n\t\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L22)\n\tState variables written after the call(s):\n\t- [bad0()](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L33)\n\t\t- [notCalled = false](tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L26)\n",
+            "first_markdown_element": "tests/detectors/reentrancy-no-eth/0.7.6/reentrancy-write.sol#L29-L34",
+            "id": "11273f8e5ccbb848ea0de9b7c15e3fb66deb7c061265f88b8aa7646eed935c0e",
             "check": "reentrancy-no-eth",
             "impact": "Medium",
             "confidence": "Medium"
