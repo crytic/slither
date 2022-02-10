@@ -208,6 +208,26 @@ Feel free to stop by our [Slack channel](https://empireslacking.herokuapp.com) (
 
 * The [SlithIR documentation](https://github.com/trailofbits/slither/wiki/SlithIR) describes the SlithIR intermediate representation.
 
+# FAQ
+
+* How do I exclude mocks or tests?
+
+    You can use regex to exclude directories:
+    ```
+    slither . --filter-paths tests
+    ```
+    Filter mutliple paths: 
+    ```
+    slither . --filter-paths tests|mocks
+    ```
+* How do I fix "unknown file" or compilation issues?
+    
+    Because slither requires the solc AST, it must have all dependencies available. If a contract has dependencies, `slither contract.sol` will fail. Instead, use `slither .` in the parent directory of `contracts/` (you should see `contracts/` when you run `ls`). If you have a `node_modules/` folder, it must be in the same directory as `contracts/`. To verify that this issue is related to slither, run the compilation command for the framework you are using e.g `npx hardhat compile`. That must work successfully; otherwise, slither's compilation engine, crytic-compile, cannot generate the AST. 
+
+* Why does slither detect reentrancy on functions with the `nonReentrant` modifier?
+
+    Slither is a static analysis tool and does not have the same information as a state machine, namely whether a mutex is locked or unlocked. Additionally, reentrant calls can enter *other* functions that lack the `nonReentrant` modifier, so these results should be carefully reviewed before marking them as false positives. 
+
 ## License
 
 Slither is licensed and distributed under the AGPLv3 license. [Contact us](mailto:opensource@trailofbits.com) if you're looking for an exception to the terms.
