@@ -52,6 +52,12 @@ defaults_flag_in_config = {
 
 
 def read_config_file(args):
+    # No config file was provided as an argument
+    if args.config_file == None:
+        # Check wether the default config file is present
+        if not os.path.exists("slither.config.json"):
+            return
+
     if os.path.isfile(args.config_file):
         try:
             with open(args.config_file, encoding="utf8") as f:
