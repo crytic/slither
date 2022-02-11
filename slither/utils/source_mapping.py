@@ -44,6 +44,7 @@ def get_definition(target: SourceMapping, crytic_compile: CryticCompile) -> Sour
     s.starting_column = starting_column
     s.ending_column = ending_column
     s.end = s.start + s.length
+    s.compilation_unit = target.compilation_unit
 
     return s
 
