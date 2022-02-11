@@ -1,7 +1,8 @@
-import os
 import json
+import os
 import subprocess
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
+
 from slither import Slither
 
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -31,11 +31,13 @@ contract StorageLayout {
     uint256[3][] dynamicArrayOfFixedArrays;
     uint[][3] fixedArrayofDynamicArrays;
     uint[][] multidimensionalArray;
+    PackedStruct[] dynamicArrayOfStructs;
+    PackedStruct[3] fixedArrayOfStructs;
 
-    constructor() {
-        _address = address(this);
-    }
     function store() external {
+        require(_address == address(0));
+        _address = msg.sender;
+
         mappingPackedStruct[packedUint] = _packedStruct; 
 
         deepMappingPackedStruct[_address][packedUint] = _packedStruct;
@@ -59,5 +61,9 @@ contract StorageLayout {
         multidimensionalArray.push([14, 15]);
         multidimensionalArray.push([16, 17, 18]);
 
+        dynamicArrayOfStructs.push(_packedStruct);
+        dynamicArrayOfStructs.push(PackedStruct(false, 10));
+        fixedArrayOfStructs[0] = _packedStruct;
+        fixedArrayOfStructs[1] = PackedStruct(false, 10);
     }
 }
