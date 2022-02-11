@@ -3,8 +3,8 @@ from slither.utils.source_mapping import get_definition, get_implementation, get
 
 
 class Declaration(AbstractPrinter):
-    ARGUMENT = "decl"
-    HELP = "TODO"
+    ARGUMENT = "declaration"
+    HELP = "Prototype showing the source code declaration, implementation and references of the contracts objects"
 
     WIKI = "TODO"
 
