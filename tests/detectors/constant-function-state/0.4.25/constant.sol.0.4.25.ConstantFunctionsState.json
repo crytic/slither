@@ -4,147 +4,6 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "test_view_bug",
-                    "source_mapping": {
-                        "start": 45,
-                        "length": 58,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/constant-function-state/0.4.25/constant.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/constant-function-state/0.4.25/constant.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            5,
-                            6,
-                            7
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Constant",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 392,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/constant-function-state/0.4.25/constant.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/constant-function-state/0.4.25/constant.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24,
-                                    25
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "test_view_bug()"
-                    }
-                },
-                {
-                    "type": "variable",
-                    "name": "a",
-                    "source_mapping": {
-                        "start": 28,
-                        "length": 6,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/constant-function-state/0.4.25/constant.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/constant-function-state/0.4.25/constant.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            3
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 11
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Constant",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 392,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/constant-function-state/0.4.25/constant.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/constant-function-state/0.4.25/constant.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24,
-                                    25
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "Constant.test_view_bug() (tests/detectors/constant-function-state/0.4.25/constant.sol#5-7) is declared view but changes state variables:\n\t- Constant.a (tests/detectors/constant-function-state/0.4.25/constant.sol#3)\n",
-            "markdown": "[Constant.test_view_bug()](tests/detectors/constant-function-state/0.4.25/constant.sol#L5-L7) is declared view but changes state variables:\n\t- [Constant.a](tests/detectors/constant-function-state/0.4.25/constant.sol#L3)\n",
-            "first_markdown_element": "tests/detectors/constant-function-state/0.4.25/constant.sol#L5-L7",
-            "id": "4dee61d8835d20c6f1f7c195d8bd1e9de5dbcc096396a5b8db391136f9f5fdf1",
-            "additional_fields": {
-                "contains_assembly": false
-            },
-            "check": "constant-function-state",
-            "impact": "Medium",
-            "confidence": "Medium"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
                     "name": "test_constant_bug",
                     "source_mapping": {
                         "start": 113,
@@ -275,6 +134,147 @@
             "markdown": "[Constant.test_constant_bug()](tests/detectors/constant-function-state/0.4.25/constant.sol#L9-L11) is declared view but changes state variables:\n\t- [Constant.a](tests/detectors/constant-function-state/0.4.25/constant.sol#L3)\n",
             "first_markdown_element": "tests/detectors/constant-function-state/0.4.25/constant.sol#L9-L11",
             "id": "145e2d34dfc5b932c8d67d480c0eaec9baa8c728e2a310529572c0c4a5c6046a",
+            "additional_fields": {
+                "contains_assembly": false
+            },
+            "check": "constant-function-state",
+            "impact": "Medium",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "test_view_bug",
+                    "source_mapping": {
+                        "start": 45,
+                        "length": 58,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/constant-function-state/0.4.25/constant.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/constant-function-state/0.4.25/constant.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5,
+                            6,
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Constant",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 392,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/constant-function-state/0.4.25/constant.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/constant-function-state/0.4.25/constant.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "test_view_bug()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "a",
+                    "source_mapping": {
+                        "start": 28,
+                        "length": 6,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/constant-function-state/0.4.25/constant.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/constant-function-state/0.4.25/constant.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 11
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Constant",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 392,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/constant-function-state/0.4.25/constant.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/constant-function-state/0.4.25/constant.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Constant.test_view_bug() (tests/detectors/constant-function-state/0.4.25/constant.sol#5-7) is declared view but changes state variables:\n\t- Constant.a (tests/detectors/constant-function-state/0.4.25/constant.sol#3)\n",
+            "markdown": "[Constant.test_view_bug()](tests/detectors/constant-function-state/0.4.25/constant.sol#L5-L7) is declared view but changes state variables:\n\t- [Constant.a](tests/detectors/constant-function-state/0.4.25/constant.sol#L3)\n",
+            "first_markdown_element": "tests/detectors/constant-function-state/0.4.25/constant.sol#L5-L7",
+            "id": "4dee61d8835d20c6f1f7c195d8bd1e9de5dbcc096396a5b8db391136f9f5fdf1",
             "additional_fields": {
                 "contains_assembly": false
             },

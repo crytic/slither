@@ -4,215 +4,6 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "sumAsm",
-                    "source_mapping": {
-                        "start": 574,
-                        "length": 254,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            14,
-                            15,
-                            16,
-                            17,
-                            18,
-                            19,
-                            20
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "VectorSum",
-                            "source_mapping": {
-                                "start": 72,
-                                "length": 1602,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24,
-                                    25,
-                                    26,
-                                    27,
-                                    28,
-                                    29,
-                                    30,
-                                    31,
-                                    32,
-                                    33,
-                                    34,
-                                    35,
-                                    36,
-                                    37,
-                                    38,
-                                    39,
-                                    40,
-                                    41,
-                                    42,
-                                    43,
-                                    44,
-                                    45,
-                                    46
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "sumAsm(uint256[])"
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "",
-                    "source_mapping": {
-                        "start": 708,
-                        "length": 104,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            16,
-                            17,
-                            18
-                        ],
-                        "starting_column": 13,
-                        "ending_column": 14
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "sumAsm",
-                            "source_mapping": {
-                                "start": 574,
-                                "length": 254,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "VectorSum",
-                                    "source_mapping": {
-                                        "start": 72,
-                                        "length": 1602,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19,
-                                            20,
-                                            21,
-                                            22,
-                                            23,
-                                            24,
-                                            25,
-                                            26,
-                                            27,
-                                            28,
-                                            29,
-                                            30,
-                                            31,
-                                            32,
-                                            33,
-                                            34,
-                                            35,
-                                            36,
-                                            37,
-                                            38,
-                                            39,
-                                            40,
-                                            41,
-                                            42,
-                                            43,
-                                            44,
-                                            45,
-                                            46
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 2
-                                    }
-                                },
-                                "signature": "sumAsm(uint256[])"
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "VectorSum.sumAsm(uint256[]) (tests/detectors/assembly/0.7.6/inline_assembly_library.sol#14-20) uses assembly\n\t- INLINE ASM (tests/detectors/assembly/0.7.6/inline_assembly_library.sol#16-18)\n",
-            "markdown": "[VectorSum.sumAsm(uint256[])](tests/detectors/assembly/0.7.6/inline_assembly_library.sol#L14-L20) uses assembly\n\t- [INLINE ASM](tests/detectors/assembly/0.7.6/inline_assembly_library.sol#L16-L18)\n",
-            "first_markdown_element": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol#L14-L20",
-            "id": "a83582beb2c0460617fa82fbdfc38a050004e285749b17141b63e8051062248b",
-            "check": "assembly",
-            "impact": "Informational",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
                     "name": "sumPureAsm",
                     "source_mapping": {
                         "start": 911,
@@ -464,6 +255,215 @@
             "markdown": "[VectorSum.sumPureAsm(uint256[])](tests/detectors/assembly/0.7.6/inline_assembly_library.sol#L23-L45) uses assembly\n\t- [INLINE ASM](tests/detectors/assembly/0.7.6/inline_assembly_library.sol#L24-L44)\n",
             "first_markdown_element": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol#L23-L45",
             "id": "5cafb3e9d7d87c17203cf2c296eeec7de6b774b2a8d71908f8cfc9b8d916cb4b",
+            "check": "assembly",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "sumAsm",
+                    "source_mapping": {
+                        "start": 574,
+                        "length": 254,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "VectorSum",
+                            "source_mapping": {
+                                "start": 72,
+                                "length": 1602,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "sumAsm(uint256[])"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "",
+                    "source_mapping": {
+                        "start": 708,
+                        "length": 104,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 14
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "sumAsm",
+                            "source_mapping": {
+                                "start": 574,
+                                "length": 254,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "VectorSum",
+                                    "source_mapping": {
+                                        "start": 72,
+                                        "length": 1602,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "sumAsm(uint256[])"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "VectorSum.sumAsm(uint256[]) (tests/detectors/assembly/0.7.6/inline_assembly_library.sol#14-20) uses assembly\n\t- INLINE ASM (tests/detectors/assembly/0.7.6/inline_assembly_library.sol#16-18)\n",
+            "markdown": "[VectorSum.sumAsm(uint256[])](tests/detectors/assembly/0.7.6/inline_assembly_library.sol#L14-L20) uses assembly\n\t- [INLINE ASM](tests/detectors/assembly/0.7.6/inline_assembly_library.sol#L16-L18)\n",
+            "first_markdown_element": "tests/detectors/assembly/0.7.6/inline_assembly_library.sol#L14-L20",
+            "id": "a83582beb2c0460617fa82fbdfc38a050004e285749b17141b63e8051062248b",
             "check": "assembly",
             "impact": "Informational",
             "confidence": "High"
