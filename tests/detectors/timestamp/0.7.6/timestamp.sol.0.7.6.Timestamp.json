@@ -4,6 +4,157 @@
             "elements": [
                 {
                     "type": "function",
+                    "name": "bad2",
+                    "source_mapping": {
+                        "start": 231,
+                        "length": 79,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/timestamp/0.7.6/timestamp.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/timestamp/0.7.6/timestamp.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13,
+                            14,
+                            15
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Timestamp",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 402,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/timestamp/0.7.6/timestamp.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/timestamp/0.7.6/timestamp.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad2()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "block.timestamp > 0",
+                    "source_mapping": {
+                        "start": 279,
+                        "length": 24,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/timestamp/0.7.6/timestamp.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/timestamp/0.7.6/timestamp.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 33
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad2",
+                            "source_mapping": {
+                                "start": 231,
+                                "length": 79,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/timestamp/0.7.6/timestamp.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/timestamp/0.7.6/timestamp.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Timestamp",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 402,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/timestamp/0.7.6/timestamp.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/timestamp/0.7.6/timestamp.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad2()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Timestamp.bad2() (tests/detectors/timestamp/0.7.6/timestamp.sol#13-15) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- block.timestamp > 0 (tests/detectors/timestamp/0.7.6/timestamp.sol#14)\n",
+            "markdown": "[Timestamp.bad2()](tests/detectors/timestamp/0.7.6/timestamp.sol#L13-L15) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- [block.timestamp > 0](tests/detectors/timestamp/0.7.6/timestamp.sol#L14)\n",
+            "first_markdown_element": "tests/detectors/timestamp/0.7.6/timestamp.sol#L13-L15",
+            "id": "11b3472709ff3f3a4b3ec47abaa5a62f8dbfcd3b0b6bea0972f5b3d790049130",
+            "check": "timestamp",
+            "impact": "Low",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
                     "name": "bad0",
                     "source_mapping": {
                         "start": 47,
@@ -300,157 +451,6 @@
             "markdown": "[Timestamp.bad1()](tests/detectors/timestamp/0.7.6/timestamp.sol#L8-L11) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- [require(bool)(time == 0)](tests/detectors/timestamp/0.7.6/timestamp.sol#L10)\n",
             "first_markdown_element": "tests/detectors/timestamp/0.7.6/timestamp.sol#L8-L11",
             "id": "fc05e44a41cc99fb6e68c9d8bfc8cbc97377f3327ed7a3c75ba170c9e75394d1",
-            "check": "timestamp",
-            "impact": "Low",
-            "confidence": "Medium"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
-                    "name": "bad2",
-                    "source_mapping": {
-                        "start": 231,
-                        "length": 79,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/timestamp/0.7.6/timestamp.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/timestamp/0.7.6/timestamp.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            13,
-                            14,
-                            15
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Timestamp",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 402,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/timestamp/0.7.6/timestamp.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/timestamp/0.7.6/timestamp.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "bad2()"
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "block.timestamp > 0",
-                    "source_mapping": {
-                        "start": 279,
-                        "length": 24,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/timestamp/0.7.6/timestamp.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/timestamp/0.7.6/timestamp.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            14
-                        ],
-                        "starting_column": 9,
-                        "ending_column": 33
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "bad2",
-                            "source_mapping": {
-                                "start": 231,
-                                "length": 79,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/timestamp/0.7.6/timestamp.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/timestamp/0.7.6/timestamp.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    13,
-                                    14,
-                                    15
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "Timestamp",
-                                    "source_mapping": {
-                                        "start": 0,
-                                        "length": 402,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/timestamp/0.7.6/timestamp.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/timestamp/0.7.6/timestamp.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            1,
-                                            2,
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19,
-                                            20
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 2
-                                    }
-                                },
-                                "signature": "bad2()"
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "Timestamp.bad2() (tests/detectors/timestamp/0.7.6/timestamp.sol#13-15) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- block.timestamp > 0 (tests/detectors/timestamp/0.7.6/timestamp.sol#14)\n",
-            "markdown": "[Timestamp.bad2()](tests/detectors/timestamp/0.7.6/timestamp.sol#L13-L15) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- [block.timestamp > 0](tests/detectors/timestamp/0.7.6/timestamp.sol#L14)\n",
-            "first_markdown_element": "tests/detectors/timestamp/0.7.6/timestamp.sol#L13-L15",
-            "id": "11b3472709ff3f3a4b3ec47abaa5a62f8dbfcd3b0b6bea0972f5b3d790049130",
             "check": "timestamp",
             "impact": "Low",
             "confidence": "Medium"

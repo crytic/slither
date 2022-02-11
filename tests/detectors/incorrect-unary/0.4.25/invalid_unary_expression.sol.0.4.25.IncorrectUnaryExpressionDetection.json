@@ -3,69 +3,6 @@
         {
             "elements": [
                 {
-                    "type": "variable",
-                    "name": "c",
-                    "source_mapping": {
-                        "start": 42,
-                        "length": 13,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            4
-                        ],
-                        "starting_column": 3,
-                        "ending_column": 16
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "C",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 204,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "C.c (tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol#4) uses an dangerous unary operator: (b = + 1)\n",
-            "markdown": "[C.c](tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol#L4) uses an dangerous unary operator: (b = + 1)\n",
-            "first_markdown_element": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol#L4",
-            "id": "98d05a4acbe13ff0e6fa795af35dc2002541cc7607f3f4d7ffb356f9d33681bd",
-            "check": "incorrect-unary",
-            "impact": "Low",
-            "confidence": "Medium"
-        },
-        {
-            "elements": [
-                {
                     "type": "function",
                     "name": "f",
                     "source_mapping": {
@@ -530,6 +467,69 @@
             "markdown": "[C.slitherConstructorVariables()](tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol#L1-L15) uses an dangerous unary operator: [c = (b = + 1)](tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol#L4)\n",
             "first_markdown_element": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol#L1-L15",
             "id": "985ddf90b5ace46a66272275a4c46e1a8964ba0adbb8223a6c19506145ed2f8c",
+            "check": "incorrect-unary",
+            "impact": "Low",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "c",
+                    "source_mapping": {
+                        "start": 42,
+                        "length": 13,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 16
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 204,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.c (tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol#4) uses an dangerous unary operator: (b = + 1)\n",
+            "markdown": "[C.c](tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol#L4) uses an dangerous unary operator: (b = + 1)\n",
+            "first_markdown_element": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol#L4",
+            "id": "98d05a4acbe13ff0e6fa795af35dc2002541cc7607f3f4d7ffb356f9d33681bd",
             "check": "incorrect-unary",
             "impact": "Low",
             "confidence": "Medium"
