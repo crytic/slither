@@ -57,6 +57,9 @@ def read_config_file(args):
         # Check wether the default config file is present
         if not os.path.exists("slither.config.json"):
             return
+        # The default file exists, use it
+        else:
+            args.config_file = "slither.config.json"
 
     if os.path.isfile(args.config_file):
         try:
