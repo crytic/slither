@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 256,
                         "length": 354,
-                        "filename_used": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                         "filename_relative": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unused-return/0.7.6/unused_return.sol",
@@ -38,7 +37,6 @@
                             "source_mapping": {
                                 "start": 206,
                                 "length": 406,
-                                "filename_used": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                 "filename_relative": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unused-return/0.7.6/unused_return.sol",
@@ -76,7 +74,6 @@
                     "source_mapping": {
                         "start": 370,
                         "length": 8,
-                        "filename_used": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                         "filename_relative": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unused-return/0.7.6/unused_return.sol",
@@ -94,7 +91,6 @@
                             "source_mapping": {
                                 "start": 256,
                                 "length": 354,
-                                "filename_used": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                 "filename_relative": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unused-return/0.7.6/unused_return.sol",
@@ -124,7 +120,6 @@
                                     "source_mapping": {
                                         "start": 206,
                                         "length": 406,
-                                        "filename_used": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                         "filename_relative": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/unused-return/0.7.6/unused_return.sol",
@@ -175,7 +170,6 @@
                     "source_mapping": {
                         "start": 256,
                         "length": 354,
-                        "filename_used": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                         "filename_relative": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unused-return/0.7.6/unused_return.sol",
@@ -205,7 +199,6 @@
                             "source_mapping": {
                                 "start": 206,
                                 "length": 406,
-                                "filename_used": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                 "filename_relative": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unused-return/0.7.6/unused_return.sol",
@@ -243,7 +236,6 @@
                     "source_mapping": {
                         "start": 296,
                         "length": 5,
-                        "filename_used": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                         "filename_relative": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unused-return/0.7.6/unused_return.sol",
@@ -261,7 +253,6 @@
                             "source_mapping": {
                                 "start": 256,
                                 "length": 354,
-                                "filename_used": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                 "filename_relative": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unused-return/0.7.6/unused_return.sol",
@@ -291,7 +282,6 @@
                                     "source_mapping": {
                                         "start": 206,
                                         "length": 406,
-                                        "filename_used": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                         "filename_relative": "tests/detectors/unused-return/0.7.6/unused_return.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/unused-return/0.7.6/unused_return.sol",

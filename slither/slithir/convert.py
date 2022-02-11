@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from typing import List, TYPE_CHECKING, Union, Optional
 
 # pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
@@ -12,7 +13,10 @@ from slither.core.declarations import (
     SolidityVariableComposed,
     Structure,
 )
+from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
+from slither.core.declarations.solidity_variables import SolidityCustomRevert
 from slither.core.expressions import Identifier, Literal
 from slither.core.solidity_types import (
     ArrayType,
@@ -35,7 +39,6 @@ from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
-    Balance,
     Binary,
     BinaryType,
     Call,
@@ -386,7 +389,11 @@ def propagate_type_and_convert_call(result, node):
         ins = result[idx]
 
         if isinstance(ins, TmpCall):
-            new_ins = extract_tmp_call(ins, node.function.contract)
+            # If the node.function is a FunctionTopLevel, then it does not have a contract
+            contract = (
+                node.function.contract if isinstance(node.function, FunctionContract) else None
+            )
+            new_ins = extract_tmp_call(ins, contract)
             if new_ins:
                 new_ins.set_node(ins.node)
                 ins = new_ins
@@ -483,7 +490,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
     using_for = (
-        node_function.contract.using_for if isinstance(node_function, FunctionContract) else dict()
+        node_function.contract.using_for if isinstance(node_function, FunctionContract) else {}
     )
     if isinstance(ir, OperationWithLValue):
         # Force assignment in case of missing previous correct type
@@ -520,7 +527,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     # UserdefinedType
                     t_type = t.type
                     if isinstance(t_type, Contract):
-                        contract = node.compilation_unit.get_contract_from_name(t_type.name)
+                        contract = node.file_scope.get_contract_from_name(t_type.name)
                         return convert_type_of_high_and_internal_level_call(ir, contract)
 
                 # Convert HighLevelCall to LowLevelCall
@@ -558,7 +565,11 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
             elif isinstance(ir, InternalCall):
                 # if its not a tuple, return a singleton
                 if ir.function is None:
-                    convert_type_of_high_and_internal_level_call(ir, node.function.contract)
+                    func = node.function
+                    function_contract = (
+                        func.contract if isinstance(func, FunctionContract) else None
+                    )
+                    convert_type_of_high_and_internal_level_call(ir, function_contract)
                 return_type = ir.function.return_type
                 if return_type:
                     if len(return_type) == 1:
@@ -593,15 +604,32 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     length.lvalue.points_to = ir.variable_left
                     length.set_node(ir.node)
                     return length
+                # This only happen for .balance/code/codehash access on a variable for which we dont know at
+                # early parsing time the type
+                # Like
+                # function return_addr() internal returns(addresss)
+                #
+                # return_addr().balance
+                # Here slithIR will incorrectly create a REF variable instead of a Temp variable
+                # However this pattern does not appear so often
                 if (
-                    ir.variable_right == "balance"
+                    ir.variable_right.name in ["balance", "code", "codehash"]
                     and not isinstance(ir.variable_left, Contract)
                     and isinstance(ir.variable_left.type, ElementaryType)
                 ):
-                    b = Balance(ir.variable_left, ir.lvalue)
-                    b.set_expression(ir.expression)
-                    b.set_node(ir.node)
-                    return b
+                    name = ir.variable_right.name + "(address)"
+                    sol_func = SolidityFunction(name)
+                    s = SolidityCall(
+                        sol_func,
+                        1,
+                        ir.lvalue,
+                        sol_func.return_type,
+                    )
+                    s.arguments.append(ir.variable_left)
+                    s.set_expression(ir.expression)
+                    s.lvalue.set_type(sol_func.return_type)
+                    s.set_node(ir.node)
+                    return s
                 if (
                     ir.variable_right == "codesize"
                     and not isinstance(ir.variable_left, Contract)
@@ -611,7 +639,19 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     b.set_expression(ir.expression)
                     b.set_node(ir.node)
                     return b
-                if ir.variable_right == "selector" and isinstance(ir.variable_left.type, Function):
+                if ir.variable_right == "selector" and isinstance(ir.variable_left, (CustomError)):
+                    assignment = Assignment(
+                        ir.lvalue,
+                        Constant(str(get_function_id(ir.variable_left.solidity_signature))),
+                        ElementaryType("bytes4"),
+                    )
+                    assignment.set_expression(ir.expression)
+                    assignment.set_node(ir.node)
+                    assignment.lvalue.set_type(ElementaryType("bytes4"))
+                    return assignment
+                if ir.variable_right == "selector" and isinstance(
+                    ir.variable_left.type, (Function)
+                ):
                     assignment = Assignment(
                         ir.lvalue,
                         Constant(str(get_function_id(ir.variable_left.type.full_name))),
@@ -689,7 +729,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
-                contract = node.compilation_unit.get_contract_from_name(ir.contract_name)
+                contract = node.file_scope.get_contract_from_name(ir.contract_name)
                 ir.lvalue.set_type(UserDefinedType(contract))
             elif isinstance(ir, NewElementaryType):
                 ir.lvalue.set_type(ir.type)
@@ -735,7 +775,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
     return None
 
 
-def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
+def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: disable=too-many-locals
     assert isinstance(ins, TmpCall)
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
         # If the call is made to a variable member, where the member is this
@@ -749,7 +789,7 @@ def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
             return call
     if isinstance(ins.ori, Member):
         # If there is a call on an inherited contract, it is an internal call or an event
-        if ins.ori.variable_left in contract.inheritance + [contract]:
+        if contract and ins.ori.variable_left in contract.inheritance + [contract]:
             if str(ins.ori.variable_right) in [f.name for f in contract.functions]:
                 internalcall = InternalCall(
                     (ins.ori.variable_right, ins.ori.variable_left.name),
@@ -813,7 +853,7 @@ def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
             # }
             node_func = ins.node.function
             using_for = (
-                node_func.contract.using_for if isinstance(node_func, FunctionContract) else dict()
+                node_func.contract.using_for if isinstance(node_func, FunctionContract) else {}
             )
 
             targeted_libraries = (
@@ -865,6 +905,45 @@ def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
             to_log = "Slither does not support dynamic functions to libraries if functions have the same name"
             to_log += f"{[candidate.full_name for candidate in candidates]}"
             raise SlithIRError(to_log)
+        if isinstance(ins.ori.variable_left, SolidityImportPlaceHolder):
+            # For top level import, where the import statement renames the filename
+            # See https://blog.soliditylang.org/2020/09/02/solidity-0.7.1-release-announcement/
+
+            current_path = Path(ins.ori.variable_left.source_mapping.filename.absolute).parent
+            target = str(
+                Path(current_path, ins.ori.variable_left.import_directive.filename).absolute()
+            )
+            top_level_function_targets = [
+                f
+                for f in ins.compilation_unit.functions_top_level
+                if f.source_mapping.filename.absolute == target
+                and f.name == ins.ori.variable_right
+                and len(f.parameters) == ins.nbr_arguments
+            ]
+
+            internalcall = InternalCall(
+                (ins.ori.variable_right, ins.ori.variable_left.name),
+                ins.nbr_arguments,
+                ins.lvalue,
+                ins.type_call,
+            )
+            internalcall.set_expression(ins.expression)
+            internalcall.call_id = ins.call_id
+            internalcall.function_candidates = top_level_function_targets
+            return internalcall
+
+        if ins.ori.variable_left == ElementaryType("bytes") and ins.ori.variable_right == Constant(
+            "concat"
+        ):
+            s = SolidityCall(
+                SolidityFunction("bytes.concat()"),
+                ins.nbr_arguments,
+                ins.lvalue,
+                ins.type_call,
+            )
+            s.set_expression(ins.expression)
+            return s
+
         msgcall = HighLevelCall(
             ins.ori.variable_left,
             ins.ori.variable_right,
@@ -889,18 +968,15 @@ def extract_tmp_call(ins, contract):  # pylint: disable=too-many-locals
     if isinstance(ins.called, SolidityVariableComposed):
         if str(ins.called) == "block.blockhash":
             ins.called = SolidityFunction("blockhash(uint256)")
-        elif str(ins.called) == "this.balance":
-            s = SolidityCall(
-                SolidityFunction("this.balance()"),
-                ins.nbr_arguments,
-                ins.lvalue,
-                ins.type_call,
-            )
-            s.set_expression(ins.expression)
-            return s
 
     if isinstance(ins.called, SolidityFunction):
         s = SolidityCall(ins.called, ins.nbr_arguments, ins.lvalue, ins.type_call)
+        s.set_expression(ins.expression)
+        return s
+
+    if isinstance(ins.called, CustomError):
+        sol_function = SolidityCustomRevert(ins.called)
+        s = SolidityCall(sol_function, ins.nbr_arguments, ins.lvalue, ins.type_call)
         s.set_expression(ins.expression)
         return s
 
@@ -1211,7 +1287,7 @@ def convert_to_pop(ir, node):
 
 def look_for_library(contract, ir, using_for, t):
     for destination in using_for[t]:
-        lib_contract = contract.compilation_unit.get_contract_from_name(str(destination))
+        lib_contract = contract.file_scope.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
                 lib_contract,
@@ -1355,22 +1431,36 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
     return [return_type.type]
 
 
-def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Contract):
+def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Optional[Contract]):
     func = None
     if isinstance(ir, InternalCall):
-        candidates = [
-            f
-            for f in contract.functions
-            if f.name == ir.function_name
-            and f.contract_declarer.name == ir.contract_name
-            and len(f.parameters) == len(ir.arguments)
-        ]
+        candidates: List[Function]
+        if ir.function_candidates:
+            # This path is taken only for SolidityImportPlaceHolder
+            # Here we have already done a filtering on the potential targets
+            candidates = ir.function_candidates
+        else:
+            candidates = [
+                f
+                for f in contract.functions
+                if f.name == ir.function_name
+                and f.contract_declarer.name == ir.contract_name
+                and len(f.parameters) == len(ir.arguments)
+            ]
+
+            for import_statement in contract.file_scope.imports:
+                if import_statement.alias and import_statement.alias == ir.contract_name:
+                    imported_scope = contract.compilation_unit.get_scope(import_statement.filename)
+                    candidates += list(imported_scope.functions)
+
         func = _find_function_from_parameter(ir, candidates)
 
         if not func:
+            assert contract
             func = contract.get_state_variable_from_name(ir.function_name)
     else:
         assert isinstance(ir, HighLevelCall)
+        assert contract
 
         candidates = [
             f

@@ -40,7 +40,7 @@ contract C {
   }
 }
 ```
-Bob calls `updateOwner` without specifying the `newOwner`, soBob loses ownership of the contract.
+Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownership of the contract.
 """
     # endregion wiki_exploit_scenario
 

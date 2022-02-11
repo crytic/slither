@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 804,
                         "length": 133,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -29,7 +28,6 @@
                             "source_mapping": {
                                 "start": 629,
                                 "length": 1754,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -117,7 +115,6 @@
                     "source_mapping": {
                         "start": 839,
                         "length": 51,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -135,7 +132,6 @@
                             "source_mapping": {
                                 "start": 804,
                                 "length": 133,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -156,7 +152,6 @@
                                     "source_mapping": {
                                         "start": 629,
                                         "length": 1754,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -257,7 +252,6 @@
                     "source_mapping": {
                         "start": 1203,
                         "length": 170,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -280,7 +274,6 @@
                             "source_mapping": {
                                 "start": 629,
                                 "length": 1754,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -368,7 +361,6 @@
                     "source_mapping": {
                         "start": 1291,
                         "length": 19,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -386,7 +378,6 @@
                             "source_mapping": {
                                 "start": 1203,
                                 "length": 170,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -409,7 +400,6 @@
                                     "source_mapping": {
                                         "start": 629,
                                         "length": 1754,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -510,7 +500,6 @@
                     "source_mapping": {
                         "start": 528,
                         "length": 97,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -530,7 +519,6 @@
                             "source_mapping": {
                                 "start": 182,
                                 "length": 445,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -569,7 +557,6 @@
                     "source_mapping": {
                         "start": 579,
                         "length": 39,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -587,7 +574,6 @@
                             "source_mapping": {
                                 "start": 528,
                                 "length": 97,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -607,7 +593,6 @@
                                     "source_mapping": {
                                         "start": 182,
                                         "length": 445,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -659,7 +644,6 @@
                     "source_mapping": {
                         "start": 2964,
                         "length": 71,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -679,7 +663,6 @@
                             "source_mapping": {
                                 "start": 2385,
                                 "length": 798,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -736,7 +719,6 @@
                     "source_mapping": {
                         "start": 2998,
                         "length": 30,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -754,7 +736,6 @@
                             "source_mapping": {
                                 "start": 2964,
                                 "length": 71,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -774,7 +755,6 @@
                                     "source_mapping": {
                                         "start": 2385,
                                         "length": 798,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -844,7 +824,6 @@
                     "source_mapping": {
                         "start": 1555,
                         "length": 179,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -867,7 +846,6 @@
                             "source_mapping": {
                                 "start": 629,
                                 "length": 1754,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -955,7 +933,6 @@
                     "source_mapping": {
                         "start": 1652,
                         "length": 19,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -973,7 +950,6 @@
                             "source_mapping": {
                                 "start": 1555,
                                 "length": 179,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -996,7 +972,6 @@
                                     "source_mapping": {
                                         "start": 629,
                                         "length": 1754,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1097,7 +1072,6 @@
                     "source_mapping": {
                         "start": 1379,
                         "length": 170,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1120,7 +1094,6 @@
                             "source_mapping": {
                                 "start": 629,
                                 "length": 1754,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1208,7 +1181,6 @@
                     "source_mapping": {
                         "start": 1467,
                         "length": 19,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1226,7 +1198,6 @@
                             "source_mapping": {
                                 "start": 1379,
                                 "length": 170,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1249,7 +1220,6 @@
                                     "source_mapping": {
                                         "start": 629,
                                         "length": 1754,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1350,7 +1320,6 @@
                     "source_mapping": {
                         "start": 1073,
                         "length": 124,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1371,7 +1340,6 @@
                             "source_mapping": {
                                 "start": 629,
                                 "length": 1754,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1459,7 +1427,6 @@
                     "source_mapping": {
                         "start": 1108,
                         "length": 42,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1477,7 +1444,6 @@
                             "source_mapping": {
                                 "start": 1073,
                                 "length": 124,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1498,7 +1464,6 @@
                                     "source_mapping": {
                                         "start": 629,
                                         "length": 1754,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1599,7 +1564,6 @@
                     "source_mapping": {
                         "start": 3113,
                         "length": 67,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1619,7 +1583,6 @@
                             "source_mapping": {
                                 "start": 2385,
                                 "length": 798,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1676,7 +1639,6 @@
                     "source_mapping": {
                         "start": 3147,
                         "length": 26,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1694,7 +1656,6 @@
                             "source_mapping": {
                                 "start": 3113,
                                 "length": 67,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1714,7 +1675,6 @@
                                     "source_mapping": {
                                         "start": 2385,
                                         "length": 798,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1784,7 +1744,6 @@
                     "source_mapping": {
                         "start": 421,
                         "length": 101,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1804,7 +1763,6 @@
                             "source_mapping": {
                                 "start": 182,
                                 "length": 445,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1843,7 +1801,6 @@
                     "source_mapping": {
                         "start": 472,
                         "length": 43,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1861,7 +1818,6 @@
                             "source_mapping": {
                                 "start": 421,
                                 "length": 101,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1881,7 +1837,6 @@
                                     "source_mapping": {
                                         "start": 182,
                                         "length": 445,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1933,7 +1888,6 @@
                     "source_mapping": {
                         "start": 3041,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -1953,7 +1907,6 @@
                             "source_mapping": {
                                 "start": 2385,
                                 "length": 798,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2010,7 +1963,6 @@
                     "source_mapping": {
                         "start": 3075,
                         "length": 25,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2028,7 +1980,6 @@
                             "source_mapping": {
                                 "start": 3041,
                                 "length": 66,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2048,7 +1999,6 @@
                                     "source_mapping": {
                                         "start": 2385,
                                         "length": 798,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2118,7 +2068,6 @@
                     "source_mapping": {
                         "start": 665,
                         "length": 133,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2139,7 +2088,6 @@
                             "source_mapping": {
                                 "start": 629,
                                 "length": 1754,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2227,7 +2175,6 @@
                     "source_mapping": {
                         "start": 700,
                         "length": 51,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2245,7 +2192,6 @@
                             "source_mapping": {
                                 "start": 665,
                                 "length": 133,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2266,7 +2212,6 @@
                                     "source_mapping": {
                                         "start": 629,
                                         "length": 1754,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2367,7 +2312,6 @@
                     "source_mapping": {
                         "start": 943,
                         "length": 124,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2388,7 +2332,6 @@
                             "source_mapping": {
                                 "start": 629,
                                 "length": 1754,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2476,7 +2419,6 @@
                     "source_mapping": {
                         "start": 978,
                         "length": 42,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2494,7 +2436,6 @@
                             "source_mapping": {
                                 "start": 943,
                                 "length": 124,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
@@ -2515,7 +2456,6 @@
                                     "source_mapping": {
                                         "start": 629,
                                         "length": 1754,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-equality/0.7.6/incorrect_equality.sol",

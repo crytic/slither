@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 461,
                         "length": 70,
-                        "filename_used": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                         "filename_relative": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
@@ -28,7 +27,6 @@
                             "source_mapping": {
                                 "start": 330,
                                 "length": 1456,
-                                "filename_used": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                 "filename_relative": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
@@ -101,7 +99,6 @@
                     "source_mapping": {
                         "start": 493,
                         "length": 31,
-                        "filename_used": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                         "filename_relative": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
@@ -119,7 +116,6 @@
                             "source_mapping": {
                                 "start": 461,
                                 "length": 70,
-                                "filename_used": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                 "filename_relative": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
@@ -139,7 +135,6 @@
                                     "source_mapping": {
                                         "start": 330,
                                         "length": 1456,
-                                        "filename_used": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                         "filename_relative": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
@@ -225,7 +220,6 @@
                     "source_mapping": {
                         "start": 1043,
                         "length": 90,
-                        "filename_used": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                         "filename_relative": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
@@ -245,7 +239,6 @@
                             "source_mapping": {
                                 "start": 330,
                                 "length": 1456,
-                                "filename_used": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                 "filename_relative": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
@@ -318,7 +311,6 @@
                     "source_mapping": {
                         "start": 1076,
                         "length": 50,
-                        "filename_used": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                         "filename_relative": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
@@ -336,7 +328,6 @@
                             "source_mapping": {
                                 "start": 1043,
                                 "length": 90,
-                                "filename_used": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                 "filename_relative": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
@@ -356,7 +347,6 @@
                                     "source_mapping": {
                                         "start": 330,
                                         "length": 1456,
-                                        "filename_used": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                         "filename_relative": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/unchecked-transfer/0.7.6/unused_return_transfers.sol",

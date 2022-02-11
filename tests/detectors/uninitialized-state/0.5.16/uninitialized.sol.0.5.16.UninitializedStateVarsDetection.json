@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 729,
                         "length": 15,
-                        "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 675,
                                 "length": 373,
-                                "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -62,7 +60,6 @@
                     "source_mapping": {
                         "start": 916,
                         "length": 129,
-                        "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -83,7 +80,6 @@
                             "source_mapping": {
                                 "start": 675,
                                 "length": 373,
-                                "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -131,7 +127,6 @@
                     "source_mapping": {
                         "start": 199,
                         "length": 34,
-                        "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -149,7 +144,6 @@
                             "source_mapping": {
                                 "start": 179,
                                 "length": 349,
-                                "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -182,7 +176,6 @@
                     "source_mapping": {
                         "start": 372,
                         "length": 154,
-                        "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -203,7 +196,6 @@
                             "source_mapping": {
                                 "start": 179,
                                 "length": 349,
-                                "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -248,7 +240,6 @@
                     "source_mapping": {
                         "start": 782,
                         "length": 6,
-                        "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -266,7 +257,6 @@
                             "source_mapping": {
                                 "start": 675,
                                 "length": 373,
-                                "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -302,7 +292,6 @@
                     "source_mapping": {
                         "start": 851,
                         "length": 59,
-                        "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -322,7 +311,6 @@
                             "source_mapping": {
                                 "start": 675,
                                 "length": 373,
-                                "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -370,7 +358,6 @@
                     "source_mapping": {
                         "start": 57,
                         "length": 27,
-                        "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -388,7 +375,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 148,
-                                "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -416,7 +402,6 @@
                     "source_mapping": {
                         "start": 91,
                         "length": 82,
-                        "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
@@ -436,7 +421,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 148,
-                                "filename_used": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_relative": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-state/0.5.16/uninitialized.sol",

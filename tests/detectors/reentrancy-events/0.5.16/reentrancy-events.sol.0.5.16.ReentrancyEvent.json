@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 86,
                         "length": 68,
-                        "filename_used": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                         "filename_relative": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
@@ -29,7 +28,6 @@
                             "source_mapping": {
                                 "start": 51,
                                 "length": 193,
-                                "filename_used": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                                 "filename_relative": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
@@ -63,7 +61,6 @@
                     "source_mapping": {
                         "start": 120,
                         "length": 5,
-                        "filename_used": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                         "filename_relative": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
@@ -81,7 +78,6 @@
                             "source_mapping": {
                                 "start": 86,
                                 "length": 68,
-                                "filename_used": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                                 "filename_relative": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
@@ -102,7 +98,6 @@
                                     "source_mapping": {
                                         "start": 51,
                                         "length": 193,
-                                        "filename_used": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                                         "filename_relative": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
@@ -141,7 +136,6 @@
                     "source_mapping": {
                         "start": 135,
                         "length": 8,
-                        "filename_used": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                         "filename_relative": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
@@ -159,7 +153,6 @@
                             "source_mapping": {
                                 "start": 86,
                                 "length": 68,
-                                "filename_used": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                                 "filename_relative": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
@@ -180,7 +173,6 @@
                                     "source_mapping": {
                                         "start": 51,
                                         "length": 193,
-                                        "filename_used": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                                         "filename_relative": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-events/0.5.16/reentrancy-events.sol",

@@ -32,7 +32,7 @@ jobs:
                "slither_config",
                "truffle",
                "upgradability",
-               "prop",
+               # "prop",
                "flat"]
     steps:
     - uses: actions/checkout@v1
@@ -55,4 +55,4 @@ jobs:
         TEST_TYPE: ${{ matrix.type }}
         GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
       run: |
-        bash scripts/ci_test_${TEST_TYPE}.sh
+        bash "scripts/ci_test_${TEST_TYPE}.sh"

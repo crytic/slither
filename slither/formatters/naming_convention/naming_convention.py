@@ -1,6 +1,8 @@
 import re
 import logging
 
+from typing import List
+
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.slithir.operations import (
     Send,
@@ -10,6 +12,7 @@ from slither.slithir.operations import (
     LowLevelCall,
     InternalCall,
     InternalDynamicCall,
+    Operation,
 )
 from slither.core.declarations import Modifier
 from slither.core.solidity_types import UserDefinedType, MappingType
@@ -201,8 +204,9 @@ conventions = {
 
 
 def _get_from_contract(compilation_unit: SlitherCompilationUnit, element, name, getter):
+    scope = compilation_unit.get_scope(element["source_mapping"]["filename_absolute"])
     contract_name = element["type_specific_fields"]["parent"]["name"]
-    contract = compilation_unit.get_contract_from_name(contract_name)
+    contract = scope.get_contract_from_name(contract_name)
     return getattr(contract, getter)(name)
 
 
@@ -215,8 +219,10 @@ def _get_from_contract(compilation_unit: SlitherCompilationUnit, element, name, 
 
 
 def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
+    scope = compilation_unit.get_scope(element["source_mapping"]["filename_absolute"])
+
     if _target == "contract":
-        target = compilation_unit.get_contract_from_name(element["name"])
+        target = scope.get_contract_from_name(element["name"])
 
     elif _target == "structure":
         target = _get_from_contract(
@@ -250,7 +256,7 @@ def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
             "signature"
         ]
         param_name = element["name"]
-        contract = compilation_unit.get_contract_from_name(contract_name)
+        contract = scope.get_contract_from_name(contract_name)
         function = contract.get_function_from_signature(function_sig)
         target = function.get_local_variable_from_name(param_name)
 
@@ -264,7 +270,7 @@ def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
                 "signature"
             ]
             var_name = element["name"]
-            contract = compilation_unit.get_contract_from_name(contract_name)
+            contract = scope.get_contract_from_name(contract_name)
             function = contract.get_function_from_signature(function_sig)
             target = function.get_local_variable_from_name(var_name)
         # State variable
@@ -547,7 +553,7 @@ def get_ir_variables(ir):
     return [v for v in all_vars if v]
 
 
-def _explore_irs(slither, irs, result, target, convert):
+def _explore_irs(slither, irs: List[Operation], result, target, convert):
     # pylint: disable=too-many-locals
     if irs is None:
         return
@@ -559,9 +565,9 @@ def _explore_irs(slither, irs, result, target, convert):
                 and v.canonical_name == target.canonical_name
             ):
                 source_mapping = ir.expression.source_mapping
-                filename_source_code = source_mapping["filename_absolute"]
-                full_txt_start = source_mapping["start"]
-                full_txt_end = full_txt_start + source_mapping["length"]
+                filename_source_code = source_mapping.filename.absolute
+                full_txt_start = source_mapping.start
+                full_txt_end = full_txt_start + source_mapping.length
                 full_txt = slither.source_code[filename_source_code].encode("utf8")[
                     full_txt_start:full_txt_end
                 ]

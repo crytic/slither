@@ -8,9 +8,10 @@ from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 from crytic_compile.platform import Type as PlatformType
 
 from slither.core.cfg.scope import Scope
-from slither.core.declarations.function import Function, FunctionType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
+
+from slither.core.declarations.function import Function, FunctionType, FunctionLanguage
 from slither.utils.erc import (
     ERC20_signatures,
     ERC165_signatures,
@@ -37,6 +38,8 @@ if TYPE_CHECKING:
     from slither.core.variables.variable import Variable
     from slither.core.variables.state_variable import StateVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.declarations.custom_error_contract import CustomErrorContract
+    from slither.core.scope.scope import FileScope
 
 
 LOGGER = logging.getLogger("Contract")
@@ -47,7 +50,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     Contract class
     """
 
-    def __init__(self, compilation_unit: "SlitherCompilationUnit"):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope"):
         super().__init__()
 
         self._name: Optional[str] = None
@@ -67,6 +70,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._modifiers: Dict[str, "Modifier"] = {}
         self._functions: Dict[str, "FunctionContract"] = {}
         self._linearizedBaseContracts: List[int] = []
+        self._custom_errors: Dict[str, "CustomErrorContract"] = {}
 
         # The only str is "*"
         self._using_for: Dict[Union[str, Type], List[str]] = {}
@@ -89,6 +93,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._all_functions_called: Optional[List["InternalCallType"]] = None
 
         self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
+        self.file_scope: "FileScope" = scope
 
     ###################################################################################
     ###################################################################################
@@ -240,6 +245,38 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def using_for(self) -> Dict[Union[str, Type], List[str]]:
         return self._using_for
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Custom Errors
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def custom_errors(self) -> List["CustomErrorContract"]:
+        """
+        list(CustomErrorContract): List of the contract's custom errors
+        """
+        return list(self._custom_errors.values())
+
+    @property
+    def custom_errors_inherited(self) -> List["CustomErrorContract"]:
+        """
+        list(CustomErrorContract): List of the inherited custom errors
+        """
+        return [s for s in self.custom_errors if s.contract != self]
+
+    @property
+    def custom_errors_declared(self) -> List["CustomErrorContract"]:
+        """
+        list(CustomErrorContract): List of the custom errors declared within the contract (not inherited)
+        """
+        return [s for s in self.custom_errors if s.contract == self]
+
+    @property
+    def custom_errors_as_dict(self) -> Dict[str, "CustomErrorContract"]:
+        return self._custom_errors
 
     # endregion
     ###################################################################################
@@ -505,7 +542,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def available_elements_from_inheritances(
         self,
         elements: Dict[str, "Function"],
-        getter_available: Callable[["Contract"], List["Function"]],
+        getter_available: Callable[["Contract"], List["FunctionContract"]],
     ) -> Dict[str, "Function"]:
         """
 
@@ -516,14 +553,16 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         # keep track of the contracts visited
         # to prevent an ovveride due to multiple inheritance of the same contract
         # A is B, C, D is C, --> the second C was already seen
-        inherited_elements: Dict[str, "Function"] = {}
+        inherited_elements: Dict[str, "FunctionContract"] = {}
         accessible_elements = {}
         contracts_visited = []
         for father in self.inheritance_reverse:
-            functions: Dict[str, "Function"] = {
+            functions: Dict[str, "FunctionContract"] = {
                 v.full_name: v
                 for v in getter_available(father)
                 if v.contract not in contracts_visited
+                and v.function_language
+                != FunctionLanguage.Yul  # Yul functions are not propagated in the inheritance
             }
             contracts_visited.append(father)
             inherited_elements.update(functions)
@@ -1049,14 +1088,16 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             self._is_upgradeable = False
             if self.is_upgradeable_proxy:
                 return False
-            initializable = self.compilation_unit.get_contract_from_name("Initializable")
+            initializable = self.file_scope.get_contract_from_name("Initializable")
             if initializable:
                 if initializable in self.inheritance:
                     self._is_upgradeable = True
             else:
-                for c in self.inheritance + [self]:
+                for contract in self.inheritance + [self]:
                     # This might lead to false positive
-                    lower_name = c.name.lower()
+                    # Not sure why pylint is having a trouble here
+                    # pylint: disable=no-member
+                    lower_name = contract.name.lower()
                     if "upgradeable" in lower_name or "upgradable" in lower_name:
                         self._is_upgradeable = True
                         break
@@ -1187,7 +1228,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         )
 
         # Function uses to create node for state variable declaration statements
-        node = Node(NodeType.OTHER_ENTRYPOINT, counter, scope)
+        node = Node(NodeType.OTHER_ENTRYPOINT, counter, scope, func.file_scope)
         node.set_offset(variable.source_mapping, self.compilation_unit)
         node.set_function(func)
         func.add_node(node)
@@ -1218,7 +1259,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         from slither.slithir.variables import StateIRVariable
 
-        all_ssa_state_variables_instances = dict()
+        all_ssa_state_variables_instances = {}
 
         for contract in self.inheritance:
             for v in contract.state_variables_declared:
@@ -1236,8 +1277,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             func.generate_slithir_ssa(all_ssa_state_variables_instances)
 
     def fix_phi(self):
-        last_state_variables_instances = dict()
-        initial_state_variables_instances = dict()
+        last_state_variables_instances = {}
+        initial_state_variables_instances = {}
         for v in self._initial_state_variables:
             last_state_variables_instances[v.canonical_name] = []
             initial_state_variables_instances[v.canonical_name] = v

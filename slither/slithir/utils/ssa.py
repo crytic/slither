@@ -9,12 +9,13 @@ from slither.core.declarations import (
     SolidityVariable,
     Structure,
 )
+from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import (
     Assignment,
-    Balance,
     Binary,
     Condition,
     Delete,
@@ -109,7 +110,7 @@ def add_ssa_ir(function, all_state_variables_instances):
     if not function.is_implemented:
         return
 
-    init_definition = dict()
+    init_definition = {}
     for v in function.parameters:
         if v.name:
             init_definition[v.name] = (v, function.entry_point)
@@ -127,7 +128,7 @@ def add_ssa_ir(function, all_state_variables_instances):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
-    add_phi_origins(function.entry_point, init_definition, dict())
+    add_phi_origins(function.entry_point, init_definition, {})
 
     for node in function.nodes:
         for (variable, nodes) in node.phi_origins_local_variables.values():
@@ -143,7 +144,7 @@ def add_ssa_ir(function, all_state_variables_instances):
             #    continue
             node.add_ssa_ir(Phi(StateIRVariable(variable), nodes))
 
-    init_local_variables_instances = dict()
+    init_local_variables_instances = {}
     for v in function.parameters:
         if v.name:
             new_var = LocalIRVariable(v)
@@ -232,9 +233,9 @@ def generate_ssa_irs(
 
     # these variables are lived only during the liveness of the block
     # They dont need phi function
-    temporary_variables_instances = dict()
-    reference_variables_instances = dict()
-    tuple_variables_instances = dict()
+    temporary_variables_instances = {}
+    reference_variables_instances = {}
+    tuple_variables_instances = {}
 
     for ir in node.irs:
         new_ir = copy_ir(
@@ -283,7 +284,13 @@ def generate_ssa_irs(
                         if isinstance(new_ir.rvalue, ReferenceVariable):
                             refers_to = new_ir.rvalue.points_to_origin
                             new_ir.lvalue.add_refers_to(refers_to)
-                        else:
+                        # Discard Constant
+                        # This can happen on yul, like
+                        # assembly { var.slot = some_value }
+                        # Here we do not keep track of the references as we do not track
+                        # such low level manipulation
+                        # However we could extend our storage model to do so in the future
+                        elif not isinstance(new_ir.rvalue, Constant):
                             new_ir.lvalue.add_refers_to(new_ir.rvalue)
 
     for succ in node.dominator_successors:
@@ -610,6 +617,8 @@ def get(
             Structure,
             Function,
             Type,
+            SolidityImportPlaceHolder,
+            TopLevelVariable,
         ),
     )  # type for abi.decode(.., t)
     return variable
@@ -662,10 +671,6 @@ def copy_ir(ir, *instances):
         rvalue = get_variable(ir, lambda x: x.rvalue, *instances)
         variable_return_type = ir.variable_return_type
         return Assignment(lvalue, rvalue, variable_return_type)
-    if isinstance(ir, Balance):
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        value = get_variable(ir, lambda x: x.value, *instances)
-        return Balance(value, lvalue)
     if isinstance(ir, Binary):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         variable_left = get_variable(ir, lambda x: x.variable_left, *instances)

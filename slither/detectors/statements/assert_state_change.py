@@ -48,7 +48,7 @@ class AssertStateChange(AbstractDetector):
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#assert-state-change"
-    WIKI_TITLE = "Assert state shange"
+    WIKI_TITLE = "Assert state change"
     WIKI_DESCRIPTION = """Incorrect use of `assert()`. See Solidity best [practices](https://solidity.readthedocs.io/en/latest/control-structures.html#id4)."""
 
     # region wiki_exploit_scenario

@@ -194,7 +194,7 @@ class ElementaryType(Type):
 
     @property
     def storage_size(self) -> Tuple[int, bool]:
-        if self._type == "string" or self._type == "bytes":
+        if self._type in ["string", "bytes"]:
             return 32, True
         if self.size is None:
             return 32, True

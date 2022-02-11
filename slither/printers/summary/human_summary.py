@@ -308,7 +308,7 @@ class PrinterHumanSummary(AbstractPrinter):
             "number_lines_assembly": 0,
             "standard_libraries": [],
             "ercs": [],
-            "number_findings": dict(),
+            "number_findings": {},
             "detectors": [],
         }
 

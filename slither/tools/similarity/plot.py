@@ -50,8 +50,8 @@ def plot(args):  # pylint: disable=too-many-locals
         logger.info("Loading data..")
         cache = load_and_encode(infile, **vars(args))
 
-        data = list()
-        fs = list()
+        data = []
+        fs = []
 
         logger.info("Procesing data..")
         for (f, c, n), y in cache.items():

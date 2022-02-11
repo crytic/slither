@@ -6,6 +6,7 @@ import sys
 from collections import namedtuple
 from distutils.version import StrictVersion
 from typing import List, Dict
+from deepdiff import DeepDiff
 
 import pytest
 from deepdiff import DeepDiff
@@ -26,7 +27,7 @@ ALL_04 = range(0, 27)
 ALL_05 = range(0, 18)
 ALL_06 = range(0, 13)
 ALL_07 = range(0, 7)
-ALL_08 = range(0, 7)
+ALL_08 = range(0, 12)
 
 # these are tests that are currently failing right now
 XFAIL = (
@@ -67,13 +68,6 @@ XFAIL = (
     + [f"variabledeclaration_0.7.{ver}_legacy" for ver in ALL_07]
     + [f"variabledeclaration_0.8.{ver}_legacy" for ver in ALL_08]
     + [f"variabledeclaration_0.4.{ver}_compact" for ver in range(12, 27)]
-    + [f"top-level_0.7.{ver}_legacy" for ver in ALL_07]
-    + [f"top-level_0.7.{ver}_compact" for ver in ALL_07]
-    + [f"top-level_0.8.{ver}_legacy" for ver in ALL_08]
-    + [f"top-level_0.8.{ver}_compact" for ver in ALL_08]
-    + [f"top-level-import_0.7.{ver}_legacy" for ver in range(1, 7)]
-    + [f"top-level-import_0.7.{ver}_compact" for ver in range(1, 7)]
-    + [f"top-level-import_0.8.{ver}_compact" for ver in ALL_08]
 )
 
 
@@ -114,9 +108,9 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
 
         tests[test_name].append(test_ver)
 
-    for key in tests:
-        if len(tests[key]) > 1:
-            tests[key] = sorted(tests[key], key=StrictVersion)
+    for key, test in tests.items():
+        if len(test) > 1:
+            tests[key] = sorted(test, key=StrictVersion)
 
     # validate tests
     for test, vers in tests.items():
@@ -239,7 +233,7 @@ def test_parsing(test_item: Item):
     actual = generate_output(sl)
 
     try:
-        with open(expected_file, "r") as f:
+        with open(expected_file, "r", encoding="utf8") as f:
             expected = json.load(f)
     except OSError:
         pytest.xfail("the file for this test was not generated")
@@ -251,9 +245,13 @@ def test_parsing(test_item: Item):
         for change in diff.get("values_changed", []):
             path_list = re.findall(r"\['(.*?)'\]", change.path())
             path = "_".join(path_list)
-            with open(f"test_artifacts/{id_test(test_item)}_{path}_expected.dot", "w") as f:
+            with open(
+                f"test_artifacts/{id_test(test_item)}_{path}_expected.dot", "w", encoding="utf8"
+            ) as f:
                 f.write(change.t1)
-            with open(f"test_artifacts/{id_test(test_item)}_{path}_actual.dot", "w") as f:
+            with open(
+                f"test_artifacts/{id_test(test_item)}_{path}_actual.dot", "w", encoding="utf8"
+            ) as f:
                 f.write(change.t2)
 
     assert not diff, diff.pretty()
@@ -281,21 +279,23 @@ def _generate_test(test_item: Item, skip_existing=False):
         return
     # set_solc(test_item)
     try:
+        cc = load_from_zip(test_file)[0]
         sl = Slither(
-            test_file,
+            cc,
             solc_force_legacy_json=test_item.is_legacy,
             disallow_partial=True,
             skip_analyze=True,
         )
     # pylint: disable=broad-except
-    except Exception:
+    except Exception as e:
+        print(e)
         print(test_item)
         print(f"{expected_file} failed")
         return
 
     actual = generate_output(sl)
     print(f"Generate {expected_file}")
-    with open(expected_file, "w") as f:
+    with open(expected_file, "w", encoding="utf8") as f:
         json.dump(actual, f, indent="  ")
 
 

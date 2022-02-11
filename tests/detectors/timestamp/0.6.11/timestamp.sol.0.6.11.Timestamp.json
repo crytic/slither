@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 126,
                         "length": 96,
-                        "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -29,7 +28,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 402,
-                                "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -69,7 +67,6 @@
                     "source_mapping": {
                         "start": 197,
                         "length": 18,
-                        "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -87,7 +84,6 @@
                             "source_mapping": {
                                 "start": 126,
                                 "length": 96,
-                                "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -108,7 +104,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 402,
-                                        "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                         "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -161,7 +156,6 @@
                     "source_mapping": {
                         "start": 231,
                         "length": 79,
-                        "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -181,7 +175,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 402,
-                                "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -221,7 +214,6 @@
                     "source_mapping": {
                         "start": 279,
                         "length": 24,
-                        "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -239,7 +231,6 @@
                             "source_mapping": {
                                 "start": 231,
                                 "length": 79,
-                                "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -259,7 +250,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 402,
-                                        "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                         "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -312,7 +302,6 @@
                     "source_mapping": {
                         "start": 47,
                         "length": 70,
-                        "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -332,7 +321,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 402,
-                                "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -372,7 +360,6 @@
                     "source_mapping": {
                         "start": 81,
                         "length": 29,
-                        "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -390,7 +377,6 @@
                             "source_mapping": {
                                 "start": 47,
                                 "length": 70,
-                                "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",
@@ -410,7 +396,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 402,
-                                        "filename_used": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                         "filename_relative": "tests/detectors/timestamp/0.6.11/timestamp.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/timestamp/0.6.11/timestamp.sol",

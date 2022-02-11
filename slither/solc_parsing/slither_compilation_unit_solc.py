@@ -2,11 +2,13 @@ import json
 import logging
 import os
 import re
+from pathlib import Path
 from typing import List, Dict
 
 from slither.analyses.data_dependency.data_dependency import compute_dependency
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
+from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
@@ -15,6 +17,7 @@ from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.exceptions import SlitherException
 from slither.solc_parsing.declarations.contract import ContractSolc
+from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
@@ -34,8 +37,9 @@ class SlitherCompilationUnitSolc:
         self._parsed = False
         self._analyzed = False
 
-        self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = dict()
+        self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = {}
         self._structures_top_level_parser: List[StructureTopLevelSolc] = []
+        self._custom_error_parser: List[CustomErrorSolc] = []
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
         self._functions_top_level_parser: List[FunctionSolc] = []
 
@@ -116,7 +120,7 @@ class SlitherCompilationUnitSolc:
                 return True
             return False
 
-    def _parse_enum(self, top_level_data: Dict):
+    def _parse_enum(self, top_level_data: Dict, filename: str):
         if self.is_compact_ast:
             name = top_level_data["name"]
             canonicalName = top_level_data["canonicalName"]
@@ -139,13 +143,15 @@ class SlitherCompilationUnitSolc:
             else:
                 values.append(child["attributes"][self.get_key()])
 
-        enum = EnumTopLevel(name, canonicalName, values)
+        scope = self.compilation_unit.get_scope(filename)
+        enum = EnumTopLevel(name, canonicalName, values, scope)
+        scope.enums[name] = enum
         enum.set_offset(top_level_data["src"], self._compilation_unit)
         self._compilation_unit.enums_top_level.append(enum)
 
     def parse_top_level_from_loaded_json(
         self, data_loaded: Dict, filename: str
-    ):  # pylint: disable=too-many-branches,too-many-statements
+    ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
@@ -163,10 +169,15 @@ class SlitherCompilationUnitSolc:
             logger.error("solc version is not supported")
             return
 
+        if self.get_children() not in data_loaded:
+            return
+        scope = self.compilation_unit.get_scope(filename)
+
         for top_level_data in data_loaded[self.get_children()]:
             if top_level_data[self.get_key()] == "ContractDefinition":
-                contract = Contract(self._compilation_unit)
+                contract = Contract(self._compilation_unit, scope)
                 contract_parser = ContractSolc(self, contract, top_level_data)
+                scope.contracts[contract.name] = contract
                 if "src" in top_level_data:
                     contract.set_offset(top_level_data["src"], self._compilation_unit)
 
@@ -174,48 +185,87 @@ class SlitherCompilationUnitSolc:
 
             elif top_level_data[self.get_key()] == "PragmaDirective":
                 if self._is_compact_ast:
-                    pragma = Pragma(top_level_data["literals"])
+                    pragma = Pragma(top_level_data["literals"], scope)
+                    scope.pragmas.add(pragma)
                 else:
-                    pragma = Pragma(top_level_data["attributes"]["literals"])
+                    pragma = Pragma(top_level_data["attributes"]["literals"], scope)
+                    scope.pragmas.add(pragma)
                 pragma.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.pragma_directives.append(pragma)
             elif top_level_data[self.get_key()] == "ImportDirective":
                 if self.is_compact_ast:
-                    import_directive = Import(top_level_data["absolutePath"])
+                    import_directive = Import(
+                        Path(
+                            top_level_data["absolutePath"],
+                        ),
+                        scope,
+                    )
+                    scope.imports.add(import_directive)
                     # TODO investigate unitAlias in version < 0.7 and legacy ast
                     if "unitAlias" in top_level_data:
                         import_directive.alias = top_level_data["unitAlias"]
                 else:
-                    import_directive = Import(top_level_data["attributes"].get("absolutePath", ""))
+                    import_directive = Import(
+                        Path(
+                            top_level_data["attributes"].get("absolutePath", ""),
+                        ),
+                        scope,
+                    )
+                    scope.imports.add(import_directive)
+                    # TODO investigate unitAlias in version < 0.7 and legacy ast
+                    if (
+                        "attributes" in top_level_data
+                        and "unitAlias" in top_level_data["attributes"]
+                    ):
+                        import_directive.alias = top_level_data["attributes"]["unitAlias"]
                 import_directive.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.import_directives.append(import_directive)
 
+                get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
+                scope.accessible_scopes.append(get_imported_scope)
+
             elif top_level_data[self.get_key()] == "StructDefinition":
-                st = StructureTopLevel()
+                scope = self.compilation_unit.get_scope(filename)
+                st = StructureTopLevel(self.compilation_unit, scope)
                 st.set_offset(top_level_data["src"], self._compilation_unit)
                 st_parser = StructureTopLevelSolc(st, top_level_data, self)
+                scope.structures[st.name] = st
 
                 self._compilation_unit.structures_top_level.append(st)
                 self._structures_top_level_parser.append(st_parser)
 
             elif top_level_data[self.get_key()] == "EnumDefinition":
                 # Note enum don't need a complex parser, so everything is directly done
-                self._parse_enum(top_level_data)
+                self._parse_enum(top_level_data, filename)
 
             elif top_level_data[self.get_key()] == "VariableDeclaration":
-                var = TopLevelVariable()
-                var_parser = TopLevelVariableSolc(var, top_level_data)
+                var = TopLevelVariable(scope)
+                var_parser = TopLevelVariableSolc(var, top_level_data, self)
                 var.set_offset(top_level_data["src"], self._compilation_unit)
 
                 self._compilation_unit.variables_top_level.append(var)
                 self._variables_top_level_parser.append(var_parser)
+                scope.variables[var.name] = var
             elif top_level_data[self.get_key()] == "FunctionDefinition":
-                func = FunctionTopLevel(self._compilation_unit)
+                scope = self.compilation_unit.get_scope(filename)
+                func = FunctionTopLevel(self._compilation_unit, scope)
+                scope.functions.add(func)
+                func.set_offset(top_level_data["src"], self._compilation_unit)
                 func_parser = FunctionSolc(func, top_level_data, None, self)
 
                 self._compilation_unit.functions_top_level.append(func)
                 self._functions_top_level_parser.append(func_parser)
                 self.add_function_or_modifier_parser(func_parser)
+
+            elif top_level_data[self.get_key()] == "ErrorDefinition":
+                scope = self.compilation_unit.get_scope(filename)
+                custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
+                custom_error.set_offset(top_level_data["src"], self._compilation_unit)
+
+                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, self)
+                scope.custom_errors.add(custom_error)
+                self._compilation_unit.custom_errors.append(custom_error)
+                self._custom_error_parser.append(custom_error_parser)
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
@@ -291,17 +341,8 @@ class SlitherCompilationUnitSolc:
 Please rename it, this name is reserved for Slither's internals"""
                     # endregion multi-line
                 )
-            if contract.name in self._compilation_unit.contracts_as_dict:
-                if contract.id != self._compilation_unit.contracts_as_dict[contract.name].id:
-                    self._compilation_unit.contract_name_collisions[contract.name].append(
-                        contract.source_mapping_str
-                    )
-                    self._compilation_unit.contract_name_collisions[contract.name].append(
-                        self._compilation_unit.contracts_as_dict[contract.name].source_mapping_str
-                    )
-            else:
-                self._contracts_by_id[contract.id] = contract
-                self._compilation_unit.contracts_as_dict[contract.name] = contract
+            self._contracts_by_id[contract.id] = contract
+            self._compilation_unit.contracts.append(contract)
 
         # Update of the inheritance
         for contract_parser in self._underlying_contract_to_parser.values():
@@ -316,7 +357,10 @@ Please rename it, this name is reserved for Slither's internals"""
             for i in contract_parser.linearized_base_contracts[1:]:
                 if i in contract_parser.remapping:
                     ancestors.append(
-                        self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
+                        contract_parser.underlying_contract.file_scope.get_contract_from_name(
+                            contract_parser.remapping[i]
+                        )
+                        # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
                     )
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
@@ -327,7 +371,10 @@ Please rename it, this name is reserved for Slither's internals"""
             for i in contract_parser.baseContracts:
                 if i in contract_parser.remapping:
                     fathers.append(
-                        self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
+                        contract_parser.underlying_contract.file_scope.get_contract_from_name(
+                            contract_parser.remapping[i]
+                        )
+                        # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
                     )
                 elif i in self._contracts_by_id:
                     fathers.append(self._contracts_by_id[i])
@@ -338,7 +385,10 @@ Please rename it, this name is reserved for Slither's internals"""
             for i in contract_parser.baseConstructorContractsCalled:
                 if i in contract_parser.remapping:
                     father_constructors.append(
-                        self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
+                        contract_parser.underlying_contract.file_scope.get_contract_from_name(
+                            contract_parser.remapping[i]
+                        )
+                        # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
                     )
                 elif i in self._contracts_by_id:
                     father_constructors.append(self._contracts_by_id[i])
@@ -446,6 +496,7 @@ Please rename it, this name is reserved for Slither's internals"""
         for lib in libraries:
             self._analyze_struct_events(lib)
 
+        self._analyze_top_level_variables()
         self._analyze_top_level_structures()
 
         # Start with the contracts without inheritance
@@ -504,6 +555,7 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.parse_state_variables()
         contract.parse_modifiers()
         contract.parse_functions()
+        contract.parse_custom_errors()
         contract.set_is_analyzed(True)
 
     def _analyze_struct_events(self, contract: ContractSolc):
@@ -516,6 +568,7 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.analyze_events()
 
         contract.analyze_using_for()
+        contract.analyze_custom_errors()
 
         contract.set_is_analyzed(True)
 
@@ -529,14 +582,18 @@ Please rename it, this name is reserved for Slither's internals"""
     def _analyze_top_level_variables(self):
         try:
             for var in self._variables_top_level_parser:
-                var.analyze(self)
+                var.analyze(var)
         except (VariableNotFound, KeyError) as e:
-            raise SlitherException(f"Missing struct {e} during top level structure analyze") from e
+            raise SlitherException(f"Missing {e} during variable analyze") from e
 
     def _analyze_params_top_level_function(self):
         for func_parser in self._functions_top_level_parser:
             func_parser.analyze_params()
             self._compilation_unit.add_function(func_parser.underlying_function)
+
+    def _analyze_params_custom_error(self):
+        for custom_error_parser in self._custom_error_parser:
+            custom_error_parser.analyze_params()
 
     def _analyze_content_top_level_function(self):
         try:
@@ -551,6 +608,7 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.analyze_params_modifiers()
         contract.analyze_params_functions()
         self._analyze_params_top_level_function()
+        self._analyze_params_custom_error()
 
         contract.analyze_state_variables()
 
@@ -580,7 +638,7 @@ Please rename it, this name is reserved for Slither's internals"""
 
         for func in self._compilation_unit.functions_top_level:
             func.generate_slithir_and_analyze()
-            func.generate_slithir_ssa(dict())
+            func.generate_slithir_ssa({})
         self._compilation_unit.propagate_function_calls()
         for contract in self._compilation_unit.contracts:
             contract.fix_phi()

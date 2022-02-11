@@ -57,6 +57,7 @@ def _extract_evm_info(slither):
     return evm_info
 
 
+# pylint: disable=too-many-locals
 class PrinterEVM(AbstractPrinter):
     ARGUMENT = "evm"
     HELP = "Print the evm instructions of nodes in functions"
@@ -84,7 +85,8 @@ class PrinterEVM(AbstractPrinter):
             contract_file = self.slither.source_code[
                 contract.source_mapping.filename.absolute
             ].encode("utf-8")
-            contract_file_lines = open(contract.source_mapping.filename.absolute, "r").readlines()
+            with open(contract.source_mapping.filename.absolute, "r", encoding="utf8") as f:
+                contract_file_lines = f.readlines()
 
             contract_pcs = {}
             contract_cfg = {}

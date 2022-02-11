@@ -1,16 +1,6 @@
 [
     [
         {
-            "elements": [],
-            "description": "solc-0.5.14 is not recommended for deployment\n",
-            "markdown": "solc-0.5.14 is not recommended for deployment\n",
-            "first_markdown_element": "",
-            "id": "839b9aa9c05b3f4bfeb7aefa9b7a69d82a322bf527f21bbf7080a7855f003803",
-            "check": "solc-version",
-            "impact": "Informational",
-            "confidence": "High"
-        },
-        {
             "elements": [
                 {
                     "type": "pragma",
@@ -18,7 +8,6 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 23,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/solc-version/0.5.14/static.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/solc-version/0.5.14/static.sol",
@@ -42,6 +31,16 @@
             "markdown": "Pragma version[0.5.14](tests/detectors/solc-version/0.5.14/static.sol#L1) is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)\n",
             "first_markdown_element": "tests/detectors/solc-version/0.5.14/static.sol#L1",
             "id": "cf9412fdac7f959dea885dbcebb2f9cfb0f3b0ca55f8fc84ebdc51e09eaf6957",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "solc-0.5.14 is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)",
+            "markdown": "solc-0.5.14 is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)",
+            "first_markdown_element": "",
+            "id": "d29c07fc4fd9f7602b9f99b17646c6ce1a1c10740d60888a7a706f2537f6e59d",
             "check": "solc-version",
             "impact": "Informational",
             "confidence": "High"

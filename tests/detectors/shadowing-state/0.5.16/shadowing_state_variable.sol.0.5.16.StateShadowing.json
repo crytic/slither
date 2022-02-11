@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 172,
                         "length": 13,
-                        "filename_used": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
                         "filename_relative": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 126,
                                 "length": 227,
-                                "filename_used": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
                                 "filename_relative": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
@@ -56,7 +54,6 @@
                     "source_mapping": {
                         "start": 27,
                         "length": 13,
-                        "filename_used": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
                         "filename_relative": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
@@ -74,7 +71,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 124,
-                                "filename_used": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
                                 "filename_relative": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-state/0.5.16/shadowing_state_variable.sol",

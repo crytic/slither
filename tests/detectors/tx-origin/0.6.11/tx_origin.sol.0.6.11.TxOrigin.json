@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 130,
                         "length": 66,
-                        "filename_used": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                         "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
@@ -28,7 +27,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 442,
-                                "filename_used": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                 "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
@@ -72,7 +70,6 @@
                     "source_mapping": {
                         "start": 162,
                         "length": 27,
-                        "filename_used": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                         "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
@@ -90,7 +87,6 @@
                             "source_mapping": {
                                 "start": 130,
                                 "length": 66,
-                                "filename_used": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                 "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
@@ -110,7 +106,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 442,
-                                        "filename_used": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                         "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
@@ -167,7 +162,6 @@
                     "source_mapping": {
                         "start": 202,
                         "length": 95,
-                        "filename_used": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                         "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
@@ -189,7 +183,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 442,
-                                "filename_used": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                 "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
@@ -233,7 +226,6 @@
                     "source_mapping": {
                         "start": 238,
                         "length": 18,
-                        "filename_used": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                         "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
@@ -251,7 +243,6 @@
                             "source_mapping": {
                                 "start": 202,
                                 "length": 95,
-                                "filename_used": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                 "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
@@ -273,7 +264,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 442,
-                                        "filename_used": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                         "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",

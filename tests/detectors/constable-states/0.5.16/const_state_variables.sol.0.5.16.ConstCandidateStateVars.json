@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 132,
                         "length": 76,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 441,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -74,7 +72,6 @@
                     "source_mapping": {
                         "start": 237,
                         "length": 20,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -92,7 +89,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 441,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -140,7 +136,6 @@
                     "source_mapping": {
                         "start": 841,
                         "length": 33,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -158,7 +153,6 @@
                             "source_mapping": {
                                 "start": 746,
                                 "length": 342,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -202,7 +196,6 @@
                     "source_mapping": {
                         "start": 496,
                         "length": 76,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -220,7 +213,6 @@
                             "source_mapping": {
                                 "start": 473,
                                 "length": 271,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -264,7 +256,6 @@
                     "source_mapping": {
                         "start": 793,
                         "length": 42,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -282,7 +273,6 @@
                             "source_mapping": {
                                 "start": 746,
                                 "length": 342,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -326,7 +316,6 @@
                     "source_mapping": {
                         "start": 333,
                         "length": 20,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
@@ -344,7 +333,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 441,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/constable-states/0.5.16/const_state_variables.sol",

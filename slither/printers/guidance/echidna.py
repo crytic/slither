@@ -27,7 +27,6 @@ from slither.slithir.operations import (
     InternalDynamicCall,
     InternalCall,
     TypeConversion,
-    Balance,
 )
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
@@ -288,7 +287,9 @@ def _use_balance(slither: SlitherCore) -> Dict[str, List[str]]:
     for contract in slither.contracts:
         for function in contract.functions_entry_points:
             for ir in function.all_slithir_operations():
-                if isinstance(ir, Balance):
+                if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
+                    "balance(address)"
+                ):
                     ret[contract.name].append(_get_name(function))
         if contract.name in ret:
             ret[contract.name] = list(set(ret[contract.name]))
@@ -390,6 +391,7 @@ class Echidna(AbstractPrinter):
             "have_external_calls": external_calls,
             "call_a_parameter": call_parameters,
             "use_balance": use_balance,
+            "solc_versions": [unit.solc_version for unit in self.slither.compilation_units],
         }
 
         self.info(json.dumps(d, indent=4))

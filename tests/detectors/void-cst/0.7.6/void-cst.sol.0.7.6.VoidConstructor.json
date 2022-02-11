@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 41,
                         "length": 32,
-                        "filename_used": "tests/detectors/void-cst/0.7.6/void-cst.sol",
                         "filename_relative": "tests/detectors/void-cst/0.7.6/void-cst.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/void-cst/0.7.6/void-cst.sol",
@@ -28,7 +27,6 @@
                             "source_mapping": {
                                 "start": 19,
                                 "length": 57,
-                                "filename_used": "tests/detectors/void-cst/0.7.6/void-cst.sol",
                                 "filename_relative": "tests/detectors/void-cst/0.7.6/void-cst.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/void-cst/0.7.6/void-cst.sol",
@@ -55,7 +53,6 @@
                     "source_mapping": {
                         "start": 62,
                         "length": 3,
-                        "filename_used": "tests/detectors/void-cst/0.7.6/void-cst.sol",
                         "filename_relative": "tests/detectors/void-cst/0.7.6/void-cst.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/void-cst/0.7.6/void-cst.sol",
@@ -73,7 +70,6 @@
                             "source_mapping": {
                                 "start": 41,
                                 "length": 32,
-                                "filename_used": "tests/detectors/void-cst/0.7.6/void-cst.sol",
                                 "filename_relative": "tests/detectors/void-cst/0.7.6/void-cst.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/void-cst/0.7.6/void-cst.sol",
@@ -93,7 +89,6 @@
                                     "source_mapping": {
                                         "start": 19,
                                         "length": 57,
-                                        "filename_used": "tests/detectors/void-cst/0.7.6/void-cst.sol",
                                         "filename_relative": "tests/detectors/void-cst/0.7.6/void-cst.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/void-cst/0.7.6/void-cst.sol",

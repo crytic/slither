@@ -4,30 +4,31 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import create_patch
 
 
-def custom_format(comilation_unit: SlitherCompilationUnit, result):
-    elements = result["elements"]
-    for element in elements:
-        target_contract = comilation_unit.get_contract_from_name(
-            element["type_specific_fields"]["parent"]["name"]
-        )
-        if target_contract:
-            function = target_contract.get_function_from_signature(
-                element["type_specific_fields"]["signature"]
+def custom_format(compilation_unit: SlitherCompilationUnit, result):
+    for file_scope in compilation_unit.scopes.values():
+        elements = result["elements"]
+        for element in elements:
+            target_contract = file_scope.get_contract_from_name(
+                element["type_specific_fields"]["parent"]["name"]
             )
-            if function:
-                _patch(
-                    comilation_unit,
-                    result,
-                    element["source_mapping"]["filename_absolute"],
-                    int(function.parameters_src().source_mapping.start),
-                    int(function.returns_src().source_mapping.start),
+            if target_contract:
+                function = target_contract.get_function_from_signature(
+                    element["type_specific_fields"]["signature"]
                 )
+                if function:
+                    _patch(
+                        file_scope,
+                        result,
+                        element["source_mapping"]["filename_absolute"],
+                        int(function.parameters_src().source_mapping.start),
+                        int(function.returns_src().source_mapping.start),
+                    )
 
 
 def _patch(
-    comilation_unit: SlitherCompilationUnit, result, in_file, modify_loc_start, modify_loc_end
+    compilation_unit: SlitherCompilationUnit, result, in_file, modify_loc_start, modify_loc_end
 ):
-    in_file_str = comilation_unit.core.source_code[in_file].encode("utf8")
+    in_file_str = compilation_unit.core.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Search for 'public' keyword which is in-between the function name and modifier name (if present)
     # regex: 'public' could have spaces around or be at the end of the line

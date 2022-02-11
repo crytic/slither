@@ -6,6 +6,7 @@ import zipfile
 from collections import OrderedDict
 from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING
 from zipfile import ZipFile
+from pkg_resources import require
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma
@@ -17,6 +18,7 @@ from slither.utils.myprettytable import MyPrettyTable
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.detectors.abstract_detector import AbstractDetector
 
 logger = logging.getLogger("Slither")
 
@@ -28,7 +30,7 @@ logger = logging.getLogger("Slither")
 ###################################################################################
 
 
-def output_to_json(filename: str, error, results: Dict):
+def output_to_json(filename: Optional[str], error, results: Dict) -> None:
     """
 
     :param filename: Filename where the json will be written. If None or "-", write to stdout
@@ -54,6 +56,127 @@ def output_to_json(filename: str, error, results: Dict):
         else:
             with open(filename, "w", encoding="utf8") as f:
                 json.dump(json_result, f, indent=2)
+
+
+def _output_result_to_sarif(
+    detector: Dict, detectors_classes: List["AbstractDetector"], sarif: Dict
+) -> None:
+    confidence = "very-high"
+    if detector["confidence"] == "Medium":
+        confidence = "high"
+    elif detector["confidence"] == "Low":
+        confidence = "medium"
+    elif detector["confidence"] == "Informational":
+        confidence = "low"
+
+    risk = "0.0"
+    if detector["impact"] == "High":
+        risk = "8.0"
+    elif detector["impact"] == "Medium":
+        risk = "4.0"
+    elif detector["impact"] == "Low":
+        risk = "3.0"
+
+    detector_class = next((d for d in detectors_classes if d.ARGUMENT == detector["check"]))
+    check_id = (
+        str(detector_class.IMPACT.value)
+        + "-"
+        + str(detector_class.CONFIDENCE.value)
+        + "-"
+        + detector["check"]
+    )
+
+    rule = {
+        "id": check_id,
+        "name": detector["check"],
+        "properties": {"precision": confidence, "security-severity": risk},
+        "shortDescription": {"text": detector_class.WIKI_TITLE},
+        "help": {"text": detector_class.WIKI_RECOMMENDATION},
+    }
+    # Add the rule if does not exist yet
+    if len([x for x in sarif["runs"][0]["tool"]["driver"]["rules"] if x["id"] == check_id]) == 0:
+        sarif["runs"][0]["tool"]["driver"]["rules"].append(rule)
+
+    if not detector["elements"]:
+        logger.info(yellow("Cannot generate Github security alert for finding without location"))
+        logger.info(yellow(detector["description"]))
+        logger.info(yellow("This will be supported in a future Slither release"))
+        return
+
+    # From 3.19.10 (http://docs.oasis-open.org/sarif/sarif/v2.0/csprd01/sarif-v2.0-csprd01.html)
+    # The locations array SHALL NOT contain more than one element unless the condition indicated by the result,
+    # if any, can only be corrected by making a change at every location specified in the array.
+    finding = detector["elements"][0]
+    path = finding["source_mapping"]["filename_relative"]
+    start_line = finding["source_mapping"]["lines"][0]
+    end_line = finding["source_mapping"]["lines"][-1]
+
+    sarif["runs"][0]["results"].append(
+        {
+            "ruleId": check_id,
+            "message": {"text": detector["description"], "markdown": detector["markdown"]},
+            "level": "warning",
+            "locations": [
+                {
+                    "physicalLocation": {
+                        "artifactLocation": {"uri": path},
+                        "region": {"startLine": start_line, "endLine": end_line},
+                    }
+                }
+            ],
+            "partialFingerprints": {"id": detector["id"]},
+        }
+    )
+
+
+def output_to_sarif(
+    filename: Optional[str], results: Dict, detectors_classes: List["AbstractDetector"]
+) -> None:
+    """
+
+    :param filename:
+    :type filename:
+    :param results:
+    :type results:
+    :return:
+    :rtype:
+    """
+
+    sarif: Dict[str, Any] = {
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "Slither",
+                        "informationUri": "https://github.com/crytic/slither",
+                        "version": require("slither-analyzer")[0].version,
+                        "rules": [],
+                    }
+                },
+                "results": [],
+            }
+        ],
+    }
+
+    for detector in results["detectors"]:
+        _output_result_to_sarif(detector, detectors_classes, sarif)
+
+    if filename == "-":
+        filename = None
+
+    # Determine if we should output to stdout
+    if filename is None:
+        # Write json to console
+        print(json.dumps(sarif))
+    else:
+        # Write json to file
+        if os.path.isfile(filename):
+            logger.info(yellow(f"{filename} exists already, the overwrite is prevented"))
+        else:
+            with open(filename, "w", encoding="utf8") as f:
+                json.dump(sarif, f, indent=2)
 
 
 # https://docs.python.org/3/library/zipfile.html#zipfile-objects
@@ -215,6 +338,7 @@ def _create_parent_element(element):
 
 
 SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node]
+AllSupportedOutput = Union[str, SupportedOutput]
 
 
 class Output:

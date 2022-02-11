@@ -14,7 +14,9 @@ def test_functions():
     # pylint: disable=too-many-statements
     slither = Slither("tests/test_function.sol")
     compilation_unit = slither.compilation_units[0]
-    functions = compilation_unit.contracts_as_dict["TestFunction"].available_functions_as_dict()
+    functions = compilation_unit.get_contract_from_name("TestFunction")[
+        0
+    ].available_functions_as_dict()
 
     f = functions["external_payable(uint256)"]
     assert f.name == "external_payable"
@@ -245,8 +247,8 @@ def test_functions():
 def test_function_can_send_eth():
     slither = Slither("tests/test_function.sol")
     compilation_unit = slither.compilation_units[0]
-    functions = compilation_unit.contracts_as_dict[
-        "TestFunctionCanSendEth"
+    functions = compilation_unit.get_contract_from_name("TestFunctionCanSendEth")[
+        0
     ].available_functions_as_dict()
 
     assert functions["send_direct()"].can_send_eth() is True

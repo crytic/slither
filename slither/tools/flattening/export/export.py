@@ -37,7 +37,7 @@ def save_to_disk(files: List[Export]):
     Save projects to a zip
     """
     for file in files:
-        with open(file.filename, "w") as f:
+        with open(file.filename, "w", encoding="utf8") as f:
             logger.info(f"Export {file.filename}")
             f.write(file.content)
 
@@ -53,5 +53,5 @@ def export_as_json(files: List[Export], filename: str):
         print(json.dumps(files_as_dict))
     else:
         logger.info(f"Export {filename}")
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding="utf8") as f:
             json.dump(files_as_dict, f)

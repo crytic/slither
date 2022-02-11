@@ -71,7 +71,7 @@ Consider using a `Initializable` contract to follow [standard practice](https://
     # endregion wiki_recommendation
 
     def _check(self):
-        initializable = self.contract.compilation_unit.get_contract_from_name("Initializable")
+        initializable = self.contract.file_scope.get_contract_from_name("Initializable")
         if initializable is None:
             info = [
                 "Initializable contract not found, the contract does not follow a standard initalization schema.\n"
@@ -104,7 +104,7 @@ Review manually the contract's initialization. Consider inheriting `Initializabl
     REQUIRE_CONTRACT = True
 
     def _check(self):
-        initializable = self.contract.compilation_unit.get_contract_from_name("Initializable")
+        initializable = self.contract.file_scope.get_contract_from_name("Initializable")
         # See InitializablePresent
         if initializable is None:
             return []
@@ -138,7 +138,7 @@ Review manually the contract's initialization. Consider inheriting a `Initializa
     REQUIRE_CONTRACT = True
 
     def _check(self):
-        initializable = self.contract.compilation_unit.get_contract_from_name("Initializable")
+        initializable = self.contract.file_scope.get_contract_from_name("Initializable")
         # See InitializablePresent
         if initializable is None:
             return []
@@ -191,7 +191,7 @@ Use `Initializable.initializer()`.
     REQUIRE_CONTRACT = True
 
     def _check(self):
-        initializable = self.contract.compilation_unit.get_contract_from_name("Initializable")
+        initializable = self.contract.file_scope.get_contract_from_name("Initializable")
         # See InitializablePresent
         if initializable is None:
             return []

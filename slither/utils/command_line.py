@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import logging
 from collections import defaultdict
 from crytic_compile.cryticparser.defaults import (
@@ -34,6 +35,7 @@ defaults_flag_in_config = {
     "exclude_medium": False,
     "exclude_high": False,
     "json": None,
+    "sarif": None,
     "json-types": ",".join(DEFAULT_JSON_OUTPUT_TYPES),
     "disable_color": False,
     "filter_paths": None,
@@ -52,7 +54,7 @@ defaults_flag_in_config = {
 def read_config_file(args):
     if os.path.isfile(args.config_file):
         try:
-            with open(args.config_file) as f:
+            with open(args.config_file, encoding="utf8") as f:
                 config = json.load(f)
                 for key, elem in config.items():
                     if key not in defaults_flag_in_config:
@@ -68,6 +70,9 @@ def read_config_file(args):
             logger.error(
                 red("Impossible to read {}, please check the file {}".format(args.config_file, e))
             )
+    else:
+        logger.error(red("File {} is not a file or does not exist".format(args.config_file)))
+        logger.error(yellow("Falling back to the default settings..."))
 
 
 def output_to_markdown(detector_classes, printer_classes, filter_wiki):
@@ -331,3 +336,29 @@ def output_printers_json(printer_classes):
         table.append({"index": idx, "check": argument, "title": help_info})
         idx = idx + 1
     return table
+
+
+def check_and_sanitize_markdown_root(markdown_root: str) -> str:
+    # Regex to check whether the markdown_root is a GitHub URL
+    match = re.search(
+        r"(https://)github.com/([a-zA-Z-]+)([:/][A-Za-z0-9_.-]+[:/]?)([A-Za-z0-9_.-]*)(.*)",
+        markdown_root,
+    )
+    if match:
+        if markdown_root[-1] != "/":
+            logger.warning("Appending '/' in markdown_root url for better code referencing")
+            markdown_root = markdown_root + "/"
+
+        if not match.group(4):
+            logger.warning(
+                "Appending 'master/tree/' in markdown_root url for better code referencing"
+            )
+            markdown_root = markdown_root + "master/tree/"
+        elif match.group(4) == "tree":
+            logger.warning(
+                "Replacing 'tree' with 'blob' in markdown_root url for better code referencing"
+            )
+            positions = match.span(4)
+            markdown_root = f"{markdown_root[:positions[0]]}blob{markdown_root[positions[1]:]}"
+
+    return markdown_root

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-instance-attributes
 class Source:
-    def __init__(self):
+    def __init__(self) -> None:
         self.start: int = 0
         self.length: int = 0
         self.filename: Filename = Filename("", "", "", "")
@@ -32,7 +32,10 @@ class Source:
         return {
             "start": self.start,
             "length": self.length,
-            "filename_used": self.filename.used,
+            # TODO investigate filename_used usecase
+            # It creates non-deterministic result
+            # As it sometimes refer to the relative and sometimes to the absolute
+            # "filename_used": self.filename.used,
             "filename_relative": self.filename.relative,
             "filename_absolute": self.filename.absolute,
             "filename_short": self.filename.short,
@@ -94,10 +97,10 @@ def _compute_line(
 
     Not done in an efficient way
     """
-    start_line, starting_column = compilation_unit.core.crytic_compile.get_line_and_character_from_offset(
+    start_line, starting_column = compilation_unit.core.crytic_compile.get_line_from_offset(
         filename, start
     )
-    end_line, ending_column = compilation_unit.core.crytic_compile.get_line_and_character_from_offset(
+    end_line, ending_column = compilation_unit.core.crytic_compile.get_line_from_offset(
         filename, start + length
     )
     return list(range(start_line, end_line + 1)), starting_column, ending_column
@@ -105,7 +108,7 @@ def _compute_line(
 
 def _convert_source_mapping(
     offset: str, compilation_unit: "SlitherCompilationUnit"
-):  # pylint: disable=too-many-locals
+) -> Source:  # pylint: disable=too-many-locals
     """
     Convert a text offset to a real offset
     see https://solidity.readthedocs.io/en/develop/miscellaneous.html#source-mappings

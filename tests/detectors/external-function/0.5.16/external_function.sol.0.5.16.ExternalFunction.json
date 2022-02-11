@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 259,
                         "length": 41,
-                        "filename_used": "tests/detectors/external-function/0.5.16/external_function.sol",
                         "filename_relative": "tests/detectors/external-function/0.5.16/external_function.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.5.16/external_function.sol",
@@ -28,7 +27,6 @@
                             "source_mapping": {
                                 "start": 213,
                                 "length": 258,
-                                "filename_used": "tests/detectors/external-function/0.5.16/external_function.sol",
                                 "filename_relative": "tests/detectors/external-function/0.5.16/external_function.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.5.16/external_function.sol",
@@ -78,7 +76,6 @@
                     "source_mapping": {
                         "start": 306,
                         "length": 41,
-                        "filename_used": "tests/detectors/external-function/0.5.16/external_function.sol",
                         "filename_relative": "tests/detectors/external-function/0.5.16/external_function.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.5.16/external_function.sol",
@@ -98,7 +95,6 @@
                             "source_mapping": {
                                 "start": 213,
                                 "length": 258,
-                                "filename_used": "tests/detectors/external-function/0.5.16/external_function.sol",
                                 "filename_relative": "tests/detectors/external-function/0.5.16/external_function.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.5.16/external_function.sol",
@@ -148,7 +144,6 @@
                     "source_mapping": {
                         "start": 353,
                         "length": 40,
-                        "filename_used": "tests/detectors/external-function/0.5.16/external_function.sol",
                         "filename_relative": "tests/detectors/external-function/0.5.16/external_function.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.5.16/external_function.sol",
@@ -168,7 +163,6 @@
                             "source_mapping": {
                                 "start": 213,
                                 "length": 258,
-                                "filename_used": "tests/detectors/external-function/0.5.16/external_function.sol",
                                 "filename_relative": "tests/detectors/external-function/0.5.16/external_function.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.5.16/external_function.sol",
@@ -218,7 +212,6 @@
                     "source_mapping": {
                         "start": 1420,
                         "length": 81,
-                        "filename_used": "tests/detectors/external-function/0.5.16/external_function.sol",
                         "filename_relative": "tests/detectors/external-function/0.5.16/external_function.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.5.16/external_function.sol",
@@ -238,7 +231,6 @@
                             "source_mapping": {
                                 "start": 1381,
                                 "length": 234,
-                                "filename_used": "tests/detectors/external-function/0.5.16/external_function.sol",
                                 "filename_relative": "tests/detectors/external-function/0.5.16/external_function.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.5.16/external_function.sol",
@@ -280,7 +272,6 @@
                     "source_mapping": {
                         "start": 554,
                         "length": 325,
-                        "filename_used": "tests/detectors/external-function/0.5.16/external_function.sol",
                         "filename_relative": "tests/detectors/external-function/0.5.16/external_function.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.5.16/external_function.sol",
@@ -305,7 +296,6 @@
                             "source_mapping": {
                                 "start": 473,
                                 "length": 408,
-                                "filename_used": "tests/detectors/external-function/0.5.16/external_function.sol",
                                 "filename_relative": "tests/detectors/external-function/0.5.16/external_function.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.5.16/external_function.sol",

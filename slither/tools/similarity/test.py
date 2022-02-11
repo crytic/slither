@@ -34,7 +34,7 @@ def test(args):
         cache = load_and_encode(infile, model, **vars(args))
         # save_cache("cache.npz", cache)
 
-        r = dict()
+        r = {}
         for x, y in cache.items():
             r[x] = similarity(fvector, y)
 

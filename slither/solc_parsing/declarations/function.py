@@ -10,13 +10,13 @@ from slither.core.declarations.function import (
     FunctionType,
 )
 from slither.core.declarations.function_contract import FunctionContract
-
 from slither.core.expressions import AssignmentOperation
 from slither.core.source_mapping.source_mapping import Source
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
-
 from slither.solc_parsing.cfg.node import NodeSolc
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
+from slither.solc_parsing.exceptions import ParsingError
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from slither.solc_parsing.variables.local_variable_init_from_tuple import (
@@ -27,13 +27,11 @@ from slither.solc_parsing.yul.parse_yul import YulBlock
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
-from slither.solc_parsing.exceptions import ParsingError
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
-    from slither.core.slither_core import SlitherCore
     from slither.core.compilation_unit import SlitherCompilationUnit
 
 
@@ -47,7 +45,7 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
 # pylint: disable=too-many-lines,too-many-branches,too-many-locals,too-many-statements,too-many-instance-attributes
 
 
-class FunctionSolc:
+class FunctionSolc(CallerContextExpression):
 
     # elems = [(type, name)]
 
@@ -63,11 +61,9 @@ class FunctionSolc:
         self._function = function
 
         # Only present if compact AST
-        self._referenced_declaration: Optional[int] = None
         if self.is_compact_ast:
             self._function.name = function_data["name"]
             if "id" in function_data:
-                self._referenced_declaration = function_data["id"]
                 self._function.id = function_data["id"]
         else:
             self._function.name = function_data["attributes"][self.get_key()]
@@ -88,8 +84,8 @@ class FunctionSolc:
 
         self._analyze_type()
 
-        self._node_to_nodesolc: Dict[Node, NodeSolc] = dict()
-        self._node_to_yulobject: Dict[Node, YulBlock] = dict()
+        self._node_to_nodesolc: Dict[Node, NodeSolc] = {}
+        self._node_to_yulobject: Dict[Node, YulBlock] = {}
 
         self._local_variables_parser: List[
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
@@ -128,13 +124,6 @@ class FunctionSolc:
     @property
     def is_compact_ast(self):
         return self._slither_parser.is_compact_ast
-
-    @property
-    def referenced_declaration(self) -> Optional[str]:
-        """
-        Return the compact AST referenced declaration id (None for legacy AST)
-        """
-        return self._referenced_declaration
 
     # endregion
     ###################################################################################
@@ -1013,6 +1002,15 @@ class FunctionSolc:
             node = self._parse_try_catch(statement, node)
         # elif name == 'TryCatchClause':
         #     self._parse_catch(statement, node)
+        elif name == "RevertStatement":
+            if self.is_compact_ast:
+                expression = statement[self.get_children("errorCall")]
+            else:
+                expression = statement[self.get_children("errorCall")][0]
+            new_node = self._new_node(NodeType.EXPRESSION, statement["src"], scope)
+            new_node.add_unparsed_expression(expression)
+            link_underlying_nodes(node, new_node)
+            node = new_node
         else:
             raise ParsingError("Statement not parsed %s" % name)
 

@@ -5,6 +5,7 @@ from slither.core.declarations import (
     SolidityFunction,
     Structure,
 )
+from slither.core.declarations.custom_error import CustomError
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.lvalue import OperationWithLValue
 
@@ -20,6 +21,7 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
                 SolidityFunction,
                 Structure,
                 Event,
+                CustomError,
             ),
         )
         super().__init__()

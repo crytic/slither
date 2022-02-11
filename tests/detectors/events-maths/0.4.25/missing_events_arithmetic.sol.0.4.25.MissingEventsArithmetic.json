@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 392,
                         "length": 71,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
@@ -28,7 +27,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 1522,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
@@ -120,7 +118,6 @@
                     "source_mapping": {
                         "start": 442,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
@@ -138,7 +135,6 @@
                             "source_mapping": {
                                 "start": 392,
                                 "length": 71,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
@@ -158,7 +154,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1522,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
@@ -263,7 +258,6 @@
                     "source_mapping": {
                         "start": 535,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
@@ -283,7 +277,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 1522,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
@@ -375,7 +368,6 @@
                     "source_mapping": {
                         "start": 585,
                         "length": 17,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
@@ -393,7 +385,6 @@
                             "source_mapping": {
                                 "start": 535,
                                 "length": 72,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
@@ -413,7 +404,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1522,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/events-maths/0.4.25/missing_events_arithmetic.sol",

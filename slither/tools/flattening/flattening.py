@@ -88,7 +88,7 @@ class Flattening:
         :return:
         """
         src_mapping = contract.source_mapping
-        content = self._slither.source_code[src_mapping["filename_absolute"]].encode("utf8")
+        content = self._slither.source_code[src_mapping["filename_absolute"]]
         start = src_mapping["start"]
         end = src_mapping["start"] + src_mapping["length"]
 
@@ -171,7 +171,7 @@ class Flattening:
             index = index - start
             if patch_type == "public_to_external":
                 content = content[:index] + "public" + content[index + len("external") :]
-            if patch_type == "private_to_internal":
+            elif patch_type == "private_to_internal":
                 content = content[:index] + "internal" + content[index + len("private") :]
             elif patch_type == "calldata_to_memory":
                 content = content[:index] + "memory" + content[index + len("calldata") :]
@@ -179,7 +179,7 @@ class Flattening:
                 assert patch_type == "line_removal"
                 content = content[:index] + " // " + content[index:]
 
-        self._source_codes[contract] = content.decode("utf8")
+        self._source_codes[contract] = content
 
     def _pragmas(self) -> str:
         """

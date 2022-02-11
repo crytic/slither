@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 109,
                         "length": 739,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -36,7 +35,6 @@
                     "source_mapping": {
                         "start": 723,
                         "length": 48,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -54,7 +52,6 @@
                             "source_mapping": {
                                 "start": 109,
                                 "length": 739,
-                                "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -96,7 +93,6 @@
                     "source_mapping": {
                         "start": 109,
                         "length": 739,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -124,7 +120,6 @@
                     "source_mapping": {
                         "start": 549,
                         "length": 78,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -142,7 +137,6 @@
                             "source_mapping": {
                                 "start": 109,
                                 "length": 739,
-                                "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -184,7 +178,6 @@
                     "source_mapping": {
                         "start": 109,
                         "length": 739,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -212,7 +205,6 @@
                     "source_mapping": {
                         "start": 351,
                         "length": 96,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -230,7 +222,6 @@
                             "source_mapping": {
                                 "start": 109,
                                 "length": 739,
-                                "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -272,7 +263,6 @@
                     "source_mapping": {
                         "start": 109,
                         "length": 739,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -300,7 +290,6 @@
                     "source_mapping": {
                         "start": 140,
                         "length": 44,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -318,7 +307,6 @@
                             "source_mapping": {
                                 "start": 109,
                                 "length": 739,
-                                "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -360,7 +348,6 @@
                     "source_mapping": {
                         "start": 109,
                         "length": 739,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -388,7 +375,6 @@
                     "source_mapping": {
                         "start": 189,
                         "length": 44,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -406,7 +392,6 @@
                             "source_mapping": {
                                 "start": 109,
                                 "length": 739,
-                                "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -448,7 +433,6 @@
                     "source_mapping": {
                         "start": 109,
                         "length": 739,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -476,7 +460,6 @@
                     "source_mapping": {
                         "start": 452,
                         "length": 92,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -494,7 +477,6 @@
                             "source_mapping": {
                                 "start": 109,
                                 "length": 739,
-                                "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -536,7 +518,6 @@
                     "source_mapping": {
                         "start": 109,
                         "length": 739,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -564,7 +545,6 @@
                     "source_mapping": {
                         "start": 50,
                         "length": 56,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -582,7 +562,6 @@
                             "source_mapping": {
                                 "start": 26,
                                 "length": 82,
-                                "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -616,7 +595,6 @@
                     "source_mapping": {
                         "start": 109,
                         "length": 739,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -644,7 +622,6 @@
                     "source_mapping": {
                         "start": 632,
                         "length": 86,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -662,7 +639,6 @@
                             "source_mapping": {
                                 "start": 109,
                                 "length": 739,
-                                "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -704,7 +680,6 @@
                     "source_mapping": {
                         "start": 109,
                         "length": 739,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -732,7 +707,6 @@
                     "source_mapping": {
                         "start": 238,
                         "length": 108,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -750,7 +724,6 @@
                             "source_mapping": {
                                 "start": 109,
                                 "length": 739,
-                                "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -792,7 +765,6 @@
                     "source_mapping": {
                         "start": 109,
                         "length": 739,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -820,7 +792,6 @@
                     "source_mapping": {
                         "start": 776,
                         "length": 70,
-                        "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
@@ -838,7 +809,6 @@
                             "source_mapping": {
                                 "start": 109,
                                 "length": 739,
-                                "filename_used": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_relative": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc721-interface/0.4.25/incorrect_erc721_interface.sol",

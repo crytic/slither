@@ -10,7 +10,9 @@ from slither.core.declarations import (
     SolidityFunction,
     Contract,
 )
+from slither.core.declarations.function import FunctionLanguage
 from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.expressions import (
     Literal,
     AssignmentOperation,
@@ -137,7 +139,7 @@ class YulScope(metaclass=abc.ABCMeta):
 
     @property
     def compilation_unit(self) -> SlitherCompilationUnit:
-        return self._contract.compilation_unit
+        return self._parent_func.compilation_unit
 
     @property
     def parent_func(self) -> Optional[Function]:
@@ -221,7 +223,7 @@ class YulFunction(YulScope):
             func.set_contract(root.contract)
             func.set_contract_declarer(root.contract)
         func.compilation_unit = root.compilation_unit
-        func.scope = root.id
+        func.internal_scope = root.id
         func.is_implemented = True
         self.node_scope = node_scope
 
@@ -353,7 +355,19 @@ def convert_yul_block(
 def convert_yul_function_definition(
     root: YulScope, parent: YulNode, ast: Dict, node_scope: Union[Function, Scope]
 ) -> YulNode:
-    func = FunctionContract(root.compilation_unit)
+    top_node_scope = node_scope
+    while not isinstance(top_node_scope, Function):
+        top_node_scope = top_node_scope.father
+
+    if isinstance(top_node_scope, FunctionTopLevel):
+        scope = root.contract.file_scope
+        func = FunctionTopLevel(root.compilation_unit, scope)
+        # Note: we do not add the function in the scope
+        # While its a top level function, it is not accessible outside of the function definition
+        # In practice we should probably have a specific function type for function defined within a function
+    else:
+        func = FunctionContract(root.compilation_unit)
+    func.function_language = FunctionLanguage.Yul
     yul_function = YulFunction(func, root, ast, node_scope)
 
     root.contract.add_function(func)
@@ -707,6 +721,15 @@ def parse_yul_function_call(root: YulScope, node: YulNode, ast: Dict) -> Optiona
     raise SlitherException(f"unexpected function call target type {str(type(ident.value))}")
 
 
+def _check_for_state_variable_name(root: YulScope, potential_name: str) -> Optional[Identifier]:
+    root_function = root.function
+    if isinstance(root_function, FunctionContract):
+        var = root_function.contract.get_state_variable_from_name(potential_name)
+        if var:
+            return Identifier(var)
+    return None
+
+
 def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     name = ast["name"]
 
@@ -714,14 +737,16 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         return Identifier(YulBuiltin(name))
 
     # check function-scoped variables
-    if root.parent_func:
-        variable = root.parent_func.get_local_variable_from_name(name)
+    parent_func = root.parent_func
+    if parent_func:
+        variable = parent_func.get_local_variable_from_name(name)
         if variable:
             return Identifier(variable)
 
-        variable = root.parent_func.contract.get_state_variable_from_name(name)
-        if variable:
-            return Identifier(variable)
+        if isinstance(parent_func, FunctionContract):
+            variable = parent_func.contract.get_state_variable_from_name(name)
+            if variable:
+                return Identifier(variable)
 
     # check yul-scoped variable
     variable = root.get_yul_local_variable_from_name(name)
@@ -737,17 +762,17 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     # check for magic suffixes
     if name.endswith("_slot") or name.endswith(".slot"):
         potential_name = name[:-5]
-        var = root.function.contract.get_state_variable_from_name(potential_name)
-        if var:
-            return Identifier(var)
+        variable_found = _check_for_state_variable_name(root, potential_name)
+        if variable_found:
+            return variable_found
         var = root.function.get_local_variable_from_name(potential_name)
         if var and var.is_storage:
             return Identifier(var)
     if name.endswith("_offset") or name.endswith(".offset"):
         potential_name = name[:-7]
-        var = root.function.contract.get_state_variable_from_name(potential_name)
-        if var:
-            return Identifier(var)
+        variable_found = _check_for_state_variable_name(root, potential_name)
+        if variable_found:
+            return variable_found
 
     raise SlitherException(f"unresolved reference to identifier {name}")
 

@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 157,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 116,
                                 "length": 1575,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
@@ -101,7 +99,6 @@
                     "source_mapping": {
                         "start": 842,
                         "length": 23,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
@@ -119,7 +116,6 @@
                             "source_mapping": {
                                 "start": 116,
                                 "length": 1575,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
@@ -194,7 +190,6 @@
                     "source_mapping": {
                         "start": 268,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
@@ -212,7 +207,6 @@
                             "source_mapping": {
                                 "start": 116,
                                 "length": 1575,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
@@ -287,7 +281,6 @@
                     "source_mapping": {
                         "start": 357,
                         "length": 26,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
@@ -305,7 +298,6 @@
                             "source_mapping": {
                                 "start": 116,
                                 "length": 1575,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
@@ -380,7 +372,6 @@
                     "source_mapping": {
                         "start": 453,
                         "length": 35,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
@@ -398,7 +389,6 @@
                             "source_mapping": {
                                 "start": 116,
                                 "length": 1575,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/function-init-state/0.6.11/function_init_state_variables.sol",
