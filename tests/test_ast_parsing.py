@@ -9,9 +9,9 @@ from typing import List, Dict
 from deepdiff import DeepDiff
 
 import pytest
-from deepdiff import DeepDiff
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
+
 
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna

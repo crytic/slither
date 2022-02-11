@@ -27,11 +27,11 @@ def get_definition(target: SourceMapping, crytic_compile: CryticCompile) -> Sour
 
     start_offset = txt.find(pattern) + 1  # remove the space
 
-    starting_line, starting_column = crytic_compile.get_line_and_character_from_offset(
+    starting_line, starting_column = crytic_compile.get_line_from_offset(
         target.source_mapping.filename, target.source_mapping.start + start_offset
     )
 
-    ending_line, ending_column = crytic_compile.get_line_and_character_from_offset(
+    ending_line, ending_column = crytic_compile.get_line_from_offset(
         target.source_mapping.filename, target.source_mapping.start + start_offset + len(pattern)
     )
 
