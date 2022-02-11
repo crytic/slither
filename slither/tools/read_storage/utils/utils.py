@@ -33,13 +33,15 @@ def is_user_defined_type(variable: StateVariable) -> bool:
     return isinstance(variable, UserDefinedType)
 
 
-def get_offset_value(hex_bytes: HexBytes, offset: int, size: int) -> HexBytes:
+def get_offset_value(hex_bytes: HexBytes, offset: int, size: int) -> bytes:
     """
     Trims slot data to only contain the target variable's.
-    :param hex_bytes: String representation of type
-    :param offset: The size (in bits) of other variables that share the same slot.
-    :param size: The size (in bits) of the target variable.
-    :return: The target variable's data.
+    Args:
+        hex_bytes (HexBytes): String representation of type
+        offset (int): The size (in bits) of other variables that share the same slot.
+        size (int): The size (in bits) of the target variable.
+    Returns:
+        (bytes): The target variable's trimmed data.
     """
     size = int(size / 8)
     offset = int(offset / 8)
@@ -54,9 +56,11 @@ def get_offset_value(hex_bytes: HexBytes, offset: int, size: int) -> HexBytes:
 def coerce_type(solidity_type: str, value: bytes) -> Union[int, bool, str, ChecksumAddress, hex]:
     """
     Converts input to the indicated type.
-    :param solidity_type: String representation of type.
-    :param value: The value to be converted.
-    :return: Returns the type representation of the value.
+    Args:
+        solidity_type (str): String representation of type.
+        value (bytes): The value to be converted.
+    Returns:
+        (Union[int, bool, str, ChecksumAddress, hex]): The type representation of the value.
     """
     if "int" in solidity_type:
         converted_value = to_int(value)
@@ -79,9 +83,13 @@ def coerce_type(solidity_type: str, value: bytes) -> Union[int, bool, str, Check
 def get_storage_data(web3, checksum_address: ChecksumAddress, slot: bytes) -> HexBytes:
     """
     Retrieves the storage data from the blockchain at target address and slot.
-    :param web3: Web3 instance provider.
-    :param checksum_address: The address to query.
-    :param slot: The slot to retrieve data from.
-    :return: Returns the slot's storage data.
+    Args:
+        web3: Web3 instance provider.
+        checksum_address (ChecksumAddress): The address to query.
+        slot (bytes): The slot to retrieve data from.
+    Returns:
+        (HexBytes): The slot's storage data.
     """
-    return web3.eth.get_storage_at(checksum_address, slot)
+    return bytes(web3.eth.get_storage_at(checksum_address, slot)).rjust(
+        32, bytes(1)
+    )  # pad to 32 bytes

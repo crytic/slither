@@ -32,6 +32,7 @@ class SlitherReadStorageException(Exception):
 
 
 def _all_struct_variables(var, contracts, address, var_name, rpc_url, storage_address, key=None):
+    """Retrieves all members of a struct."""
     if isinstance(var.type.type, StructureContract):
         struct_elems = var.type.type.elems_ordered
     else:
@@ -53,13 +54,18 @@ def _all_struct_variables(var, contracts, address, var_name, rpc_url, storage_ad
 
 
 def get_storage_layout(
-    contracts: List[Contract], address: str, rpc_url: str, storage_address: str = None
+    contracts: List[Contract],
+    address: str,
+    rpc_url: str,
+    max_depth: int,
+    storage_address: str = None,
 ):
     """Retrieves the storage layout of a contract and writes it to a JSON file.
     Args:
         contracts (List[`Contract`]): List of contracts from a slither analyzer object.
         address (str): The address of the implementation contract.
         rpc_url (str): HTTP url to establish web3 provider.
+        max_depth (int): The maximum depth to search through a data structure.
         storage_address (str, optional): The address of the storage contract (if a proxy pattern is used).
     """
 
@@ -92,14 +98,14 @@ def get_storage_layout(
 
                 elems = {}
                 if is_user_defined_type(type_.type):
-                    for i in range(5):
+                    for i in range(min(val, max_depth)):
                         elems[i] = _all_struct_variables(
                             var, contracts, address, var_name, rpc_url, storage_address, key=str(i)
                         )
                         continue
 
                 else:
-                    for i in range(val):
+                    for i in range(min(val, max_depth)):
                         slot, val, type_string = get_storage_slot_and_val(
                             contracts,
                             address,
@@ -118,7 +124,7 @@ def get_storage_layout(
                                 val = int(val, 16)
 
                             elems[i]["elems"] = {}
-                            for j in range(val):
+                            for j in range(min(val, max_depth)):
                                 slot, value, type_string = get_storage_slot_and_val(
                                     contracts,
                                     address,
@@ -136,7 +142,7 @@ def get_storage_layout(
 
                 tmp[var_name]["elems"] = elems
 
-        data[contract] = tmp
+            data[contract] = tmp
 
     with open(f"{address}_storage_layout.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
@@ -377,6 +383,19 @@ def _find_array_slot(
         else:
             type_to = target_variable.type.type.name
             size = target_variable.type.type.size  # bits
+
+    elif is_user_defined_type(target_variable.type.type):  # struct[]
+        slot = keccak(slot)
+        slot_int = int.from_bytes(slot, "big") + int(key)
+        size = 256
+        type_to = target_variable.type.type.type.name
+        if not struct_var:
+            return info, type_to, int.to_bytes(slot_int, 32, "big"), size, offset
+        elems = target_variable.type.type.type.elems_ordered
+        slot = int.to_bytes(slot_int, 32, byteorder="big")
+        info_tmp, type_to, slot, size, offset = _find_struct_var_slot(elems, slot, struct_var)
+        slot_int = int.from_bytes(slot, "big")
+        info += info_tmp
 
     else:
         slot = keccak(slot)

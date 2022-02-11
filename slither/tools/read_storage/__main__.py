@@ -74,6 +74,8 @@ def parse_args():
         help="Toggle used to write a JSON file with the entire storage layout",
     )
 
+    parser.add_argument("--max-depth", help="Max depth to search in data structure", default=20)
+
     cryticparser.init(parser)
 
     return parser.parse_args()
@@ -100,7 +102,7 @@ def main():
     address = target[target.find(":") + 1 :]
 
     if args.layout:
-        get_storage_layout(contracts, address, args.rpc_url)
+        get_storage_layout(contracts, address, args.rpc_url, args.max_depth, args.storage_address)
     else:
         assert args.variable_name
         get_storage_slot_and_val(contracts, address, args.variable_name, args.rpc_url, **vars(args))
