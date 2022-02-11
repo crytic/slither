@@ -70,6 +70,9 @@ def read_config_file(args):
             logger.error(
                 red("Impossible to read {}, please check the file {}".format(args.config_file, e))
             )
+    else:
+        logger.error(red("File {} is not a file or does not exist".format(args.config_file)))
+        logger.error(yellow("Falling back to the default settings..."))
 
 
 def output_to_markdown(detector_classes, printer_classes, filter_wiki):
