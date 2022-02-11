@@ -19,15 +19,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Install ganache
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
         with:
           node-version: '14'
-          cache: 'npm'
-      - run: npm install -g ganache
+
+      - name: Install ganache
+        run: npm install --global ganache
 
       - name: Set up Python 3.6
         uses: actions/setup-python@v2
@@ -36,9 +35,10 @@ jobs:
 
       - name: Install python dependencies
         run: |
-          pip install .
-          pip install web3
-
+          python3 setup.py install
+          pip install web3 pytest deepdiff solc-select
+          solc-select install 0.8.1
+          solc-select use 0.8.1
 
       - name: Run tests
         run: |

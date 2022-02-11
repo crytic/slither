@@ -10,7 +10,15 @@ try:
     from eth_typing.evm import ChecksumAddress
     from eth_abi import decode_single, encode_abi
     from eth_utils import keccak
-    from .utils import *
+    from .utils import (
+        is_array,
+        is_mapping,
+        is_struct,
+        is_user_defined_type,
+        get_offset_value,
+        get_storage_data,
+        coerce_type,
+    )
 except ImportError:
     print("ERROR: in order to use slither-read-storage, you need to install web3")
     print("$ pip3 install web3 --user\n")
@@ -31,28 +39,30 @@ class SlitherReadStorageException(Exception):
     pass
 
 
-def _all_struct_variables(var, contracts, address, var_name, rpc_url, storage_address, key=None):
+# pylint: disable=too-many-arguments
+def _all_struct_variables(var, contracts, address, rpc_url, storage_address=None, key=None):
     """Retrieves all members of a struct."""
     if isinstance(var.type.type, StructureContract):
         struct_elems = var.type.type.elems_ordered
     else:
         struct_elems = var.type.type.type.elems_ordered
     data = {}
-    for j in range(len(struct_elems)):
+    for _, elem in enumerate(struct_elems):
         slot, val, type_string = get_storage_slot_and_val(
             contracts,
             address,
-            var_name,
+            var.name,
             rpc_url,
             storage_address,
             key=key,
-            struct_var=struct_elems[j].name,
+            struct_var=elem.name,
         )
-        data[struct_elems[j].name] = {"slot": slot, "value": val, "type_string": type_string}
+        data[elem.name] = {"slot": slot, "value": val, "type_string": type_string}
 
     return data
 
 
+# pylint: disable=too-many-branches,too-many-locals,too-many-nested-blocks
 def get_storage_layout(
     contracts: List[Contract],
     address: str,
@@ -84,7 +94,7 @@ def get_storage_layout(
 
             if is_user_defined_type(type_) and is_struct(type_.type):
                 tmp[var_name]["elems"] = _all_struct_variables(
-                    var, contracts, address, var_name, rpc_url, storage_address
+                    var, contracts, address, rpc_url, storage_address
                 )
                 continue
 
@@ -100,7 +110,7 @@ def get_storage_layout(
                 if is_user_defined_type(type_.type):
                     for i in range(min(val, max_depth)):
                         elems[i] = _all_struct_variables(
-                            var, contracts, address, var_name, rpc_url, storage_address, key=str(i)
+                            var, contracts, address, rpc_url, storage_address, key=str(i)
                         )
                         continue
 
@@ -148,6 +158,7 @@ def get_storage_layout(
         json.dump(data, f, indent=4)
 
 
+# pylint: disable=too-many-statements,too-many-branches,inconsistent-return-statements
 def get_storage_slot_and_val(
     contracts: List[Contract],
     address: str,
@@ -155,7 +166,7 @@ def get_storage_slot_and_val(
     rpc: str,
     storage_address: str = None,
     **kwargs,
-) -> Tuple[bytes, Any]:
+) -> Tuple[int, Any, str]:
     """Finds the storage slot of a variable in a contract by its name and retrieves the slot and data.
     Args:
         contracts (List[`Contract`]): List of contracts from a slither analyzer object.
@@ -168,8 +179,9 @@ def get_storage_slot_and_val(
         deep_key (str): Key of a mapping embedded within another mapping or secondary index if array.
         struct_var (str): Structure variable name.
     Returns:
-        slot (bytes): The storage location of the variable.
+        slot (int): The storage location of the variable.
         value (Any): The type representation of the variable's data.
+        type_to (str): What type the variable is.
     Raises:
         SlitherReadStorageException: if the variable is not found.
     """
@@ -179,7 +191,6 @@ def get_storage_slot_and_val(
             address  # Default to implementation address unless a storage address is given
         )
 
-    contract_name = kwargs.get("contract_name", None)
     key = kwargs.get("key", None)
     deep_key = kwargs.get("deep_key", None)
     struct_var = kwargs.get("struct_var", None)
@@ -235,25 +246,28 @@ def get_storage_slot_and_val(
                     )
                     log += info
                 else:
+                    value = get_storage_data(web3, checksum_address, slot).hex()
+                    int_slot = int.from_bytes(slot, byteorder="big")
                     return (
-                        int.from_bytes(slot, byteorder="big"),
-                        get_storage_data(web3, checksum_address, slot).hex(),
+                        int_slot,
+                        value,
                         type_to,
                     )
 
             elif is_user_defined_type(target_variable.type):
                 if struct_var:
                     var_log_name = struct_var
-                    type_to = target_variable.type.type.name
                     elems = target_variable.type.type.elems_ordered
                     info, type_to, slot, size, offset = _find_struct_var_slot(
                         elems, slot, struct_var
                     )
                     log += info
                 else:
+                    value = get_storage_data(web3, checksum_address, slot).hex()
+                    int_slot = int.from_bytes(slot, byteorder="big")
                     return (
-                        int.from_bytes(slot, byteorder="big"),
-                        get_storage_data(web3, checksum_address, slot).hex(),
+                        int_slot,
+                        value,
                         type_to,
                     )
 
@@ -264,9 +278,11 @@ def get_storage_slot_and_val(
                     )
                     log += info
                 else:
+                    value = get_storage_data(web3, checksum_address, slot).hex()
+                    int_slot = int.from_bytes(slot, byteorder="big")
                     return (
-                        int.from_bytes(slot, byteorder="big"),
-                        get_storage_data(web3, checksum_address, slot).hex(),
+                        int_slot,
+                        value,
                         type_to,
                     )
 
@@ -274,6 +290,8 @@ def get_storage_slot_and_val(
                 type_to = target_variable.type.name
 
             hex_bytes = get_storage_data(web3, checksum_address, slot)
+            int_slot = int.from_bytes(slot, byteorder="big")
+
             # Account for storage packing
             offset_hex_bytes = get_offset_value(hex_bytes, offset, size)
             value = coerce_type(type_to, offset_hex_bytes)
@@ -281,7 +299,7 @@ def get_storage_slot_and_val(
             log += f"\nName: {var_log_name}\nType: {type_to}\nValue: {value}\nSlot: {int.from_bytes(slot, byteorder='big')}\n"
             logger.info(log)
 
-            return int.from_bytes(slot, byteorder="big"), value, type_to
+            return int_slot, value, type_to
 
     if not found:
         raise SlitherReadStorageException("%s was not found in %s" % (var_name, address))
@@ -319,6 +337,7 @@ def _find_struct_var_slot(
     return info, type_to, slot, size, offset
 
 
+# pylint: disable=too-many-statements,too-many-branches
 def _find_array_slot(
     target_variable: StateVariable,
     slot: bytes,

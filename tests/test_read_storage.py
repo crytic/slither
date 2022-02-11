@@ -2,13 +2,13 @@ import re
 import os
 import sys
 import json
-import pytest
 import shutil
 import subprocess
 from time import sleep
 from typing import Generator
+
+import pytest
 from deepdiff import DeepDiff
-from dataclasses import dataclass
 from slither import Slither
 from slither.tools.read_storage import get_storage_layout
 
@@ -22,22 +22,22 @@ except ImportError:
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STORAGE_TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "storage-layout")
 
-
-@dataclass
+# pylint: disable=too-few-public-methods
 class GanacheInstance:
-    provider: str
-    eth_address: str
-    eth_privkey: str
+    def __init__(self, provider: str, eth_address: str, eth_privkey: str):
+        self.provider = provider
+        self.eth_address = eth_address
+        self.eth_privkey = eth_privkey
 
 
-@pytest.fixture(scope="module")
-def web3(ganache: GanacheInstance):
+@pytest.fixture(scope="module", name="web3")
+def fixture_web3(ganache: GanacheInstance):
     w3 = Web3(Web3.HTTPProvider(ganache.provider, request_kwargs={"timeout": 30}))
     return w3
 
 
-@pytest.fixture(scope="module")
-def ganache() -> Generator[GanacheInstance, None, None]:
+@pytest.fixture(scope="module", name="ganache")
+def fixture_ganache() -> Generator[GanacheInstance, None, None]:
     """Fixture that runs ganache"""
     if not shutil.which("ganache"):
         raise Exception(
@@ -49,7 +49,7 @@ def ganache() -> Generator[GanacheInstance, None, None]:
     eth_privkey = "0xe48ba530a63326818e116be262fd39ae6dcddd89da4b1f578be8afd4e8894b8d"
     eth = int(1e18 * 1e6)
     port = 8545
-    p = subprocess.Popen(
+    with subprocess.Popen(
         f"""ganache
         --port {port}
         --chain.networkId 1
@@ -59,16 +59,16 @@ def ganache() -> Generator[GanacheInstance, None, None]:
             "\n", " "
         ),
         shell=True,
-    )
+    ) as p:
 
-    sleep(3)
-    yield GanacheInstance(f"http://127.0.0.1:{port}", eth_address, eth_privkey)
-    p.kill()
-    p.wait()
+        sleep(3)
+        yield GanacheInstance(f"http://127.0.0.1:{port}", eth_address, eth_privkey)
+        p.kill()
+        p.wait()
 
 
 def get_source_file(file_path):
-    with open(file_path, "r") as f:
+    with open(file_path, "r", encoding="utf8") as f:
         source = f.read()
 
     return source
@@ -76,7 +76,6 @@ def get_source_file(file_path):
 
 def deploy_contract(w3, ganache, contract_bin, contract_abi):
     """Deploy contract to the local ganache network"""
-    print("balance", w3.eth.get_balance(ganache.eth_address))
     signed_txn = w3.eth.account.sign_transaction(
         dict(
             nonce=w3.eth.get_transaction_count(ganache.eth_address),
@@ -95,14 +94,15 @@ def deploy_contract(w3, ganache, contract_bin, contract_abi):
     return contract
 
 
+# pylint: disable=too-many-locals
 @pytest.mark.usefixtures("web3", "ganache")
 def test_read_storage(web3, ganache):
     assert web3.isConnected()
     bin_path = os.path.join(STORAGE_TEST_ROOT, "StorageLayout.bin")
     abi_path = os.path.join(STORAGE_TEST_ROOT, "StorageLayout.abi")
-    bin = get_source_file(bin_path)
+    bytecode = get_source_file(bin_path)
     abi = get_source_file(abi_path)
-    contract = deploy_contract(web3, ganache, bin, abi)
+    contract = deploy_contract(web3, ganache, bytecode, abi)
     contract.functions.store().transact({"from": ganache.eth_address})
     address = contract.address
 
@@ -113,9 +113,9 @@ def test_read_storage(web3, ganache):
     expected_file = os.path.join(STORAGE_TEST_ROOT, "TEST_storage_layout.json")
     actual_file = os.path.join(SLITHER_ROOT, f"{address}_storage_layout.json")
 
-    with open(expected_file, "r") as f:
+    with open(expected_file, "r", encoding="utf8") as f:
         expected = json.load(f)
-    with open(actual_file, "r") as f:
+    with open(actual_file, "r", encoding="utf8") as f:
         actual = json.load(f)
 
     diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
@@ -123,9 +123,9 @@ def test_read_storage(web3, ganache):
         for change in diff.get("values_changed", []):
             path_list = re.findall(r"\['(.*?)'\]", change.path())
             path = "_".join(path_list)
-            with open(f"{path}_expected.txt", "w") as f:
+            with open(f"{path}_expected.txt", "w", encoding="utf8") as f:
                 f.write(change.t1)
-            with open(f"{path}_actual.txt", "w") as f:
+            with open(f"{path}_actual.txt", "w", encoding="utf8") as f:
                 f.write(change.t2)
 
     assert not diff
