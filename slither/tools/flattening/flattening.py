@@ -88,9 +88,9 @@ class Flattening:
         :return:
         """
         src_mapping = contract.source_mapping
-        content = self._slither.source_code[src_mapping["filename_absolute"]]
-        start = src_mapping["start"]
-        end = src_mapping["start"] + src_mapping["length"]
+        content = self._slither.source_code[src_mapping.filename.absolute]
+        start = src_mapping.start
+        end = src_mapping.start + src_mapping.length
 
         to_patch = []
         # interface must use external
