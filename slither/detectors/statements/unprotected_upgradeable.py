@@ -29,15 +29,6 @@ def _has_initializer_modifier(functions: List[Function]) -> bool:
     return False
 
 
-def _has_protected_initialize(functions: List[Function]) -> bool:
-    for f in functions:
-        if f.name == "initialize":
-            for m in f.modifiers:
-                if m.name == "initializer":
-                    return True
-    return False
-
-
 class UnprotectedUpgradeable(AbstractDetector):
 
     ARGUMENT = "unprotected-upgrade"
@@ -78,9 +69,7 @@ class UnprotectedUpgradeable(AbstractDetector):
 
         for contract in self.compilation_unit.contracts_derived:
             if contract.is_upgradeable:
-                if not _has_initializer_modifier(
-                    contract.constructors
-                ) or not _has_protected_initialize(contract.functions):
+                if not _has_initializer_modifier(contract.constructors):
                     functions_that_can_destroy = _can_be_destroyed(contract)
                     if functions_that_can_destroy:
                         initiliaze_functions = [
