@@ -228,14 +228,14 @@ def _convert_to_description(d):
 
     if isinstance(d, Node):
         if d.expression:
-            return f"{d.expression} ({d.source_mapping_str})"
-        return f"{str(d)} ({d.source_mapping_str})"
+            return f"{d.expression} ({d.source_mapping})"
+        return f"{str(d)} ({d.source_mapping})"
 
     if hasattr(d, "canonical_name"):
-        return f"{d.canonical_name} ({d.source_mapping_str})"
+        return f"{d.canonical_name} ({d.source_mapping})"
 
     if hasattr(d, "name"):
-        return f"{d.name} ({d.source_mapping_str})"
+        return f"{d.name} ({d.source_mapping})"
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
@@ -249,14 +249,14 @@ def _convert_to_markdown(d, markdown_root):
 
     if isinstance(d, Node):
         if d.expression:
-            return f"[{d.expression}]({d.source_mapping_to_markdown(markdown_root)})"
-        return f"[{str(d)}]({d.source_mapping_to_markdown(markdown_root)})"
+            return f"[{d.expression}]({d.source_mapping.to_markdown(markdown_root)})"
+        return f"[{str(d)}]({d.source_mapping.to_markdown(markdown_root)})"
 
     if hasattr(d, "canonical_name"):
-        return f"[{d.canonical_name}]({d.source_mapping_to_markdown(markdown_root)})"
+        return f"[{d.canonical_name}]({d.source_mapping.to_markdown(markdown_root)})"
 
     if hasattr(d, "name"):
-        return f"[{d.name}]({d.source_mapping_to_markdown(markdown_root)})"
+        return f"[{d.name}]({d.source_mapping.to_markdown(markdown_root)})"
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
@@ -275,11 +275,11 @@ def _convert_to_id(d):
 
     if isinstance(d, Node):
         if d.expression:
-            return f"{d.expression} ({d.source_mapping_str})"
-        return f"{str(d)} ({d.source_mapping_str})"
+            return f"{d.expression} ({d.source_mapping})"
+        return f"{str(d)} ({d.source_mapping})"
 
     if isinstance(d, Pragma):
-        return f"{d} ({d.source_mapping_str})"
+        return f"{d} ({d.source_mapping})"
 
     if hasattr(d, "canonical_name"):
         return f"{d.canonical_name}"
@@ -380,7 +380,7 @@ class Output:
 
     def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None):
         if not self._data["first_markdown_element"]:
-            self._data["first_markdown_element"] = add.source_mapping_to_markdown(
+            self._data["first_markdown_element"] = add.source_mapping.to_markdown(
                 self._markdown_root
             )
         if isinstance(add, Variable):

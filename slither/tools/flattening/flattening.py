@@ -159,7 +159,7 @@ class Flattening:
                         ):
                             to_patch.append(Patch(node.source_mapping.start, "line_removal"))
                             logger.info(
-                                f"Code commented: {node.expression} ({node.source_mapping_str})"
+                                f"Code commented: {node.expression} ({node.source_mapping})"
                             )
 
         to_patch.sort(key=lambda x: x.index, reverse=True)

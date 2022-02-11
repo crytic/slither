@@ -79,6 +79,11 @@ class SlitherCore(Context):
         self._offset_to_implementations: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
         self._offset_to_definitions: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
 
+        # Line prefix is used during the source mapping generation
+        # By default we generate file.sol#1
+        # But we allow to alter this (ex: file.sol:1) for vscode integration
+        self.line_prefix: str = "#"
+
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
         return list(self._compilation_units)

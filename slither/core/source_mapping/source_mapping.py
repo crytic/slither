@@ -1,6 +1,6 @@
 import re
 from abc import ABCMeta
-from typing import Dict, Union, List, Tuple, TYPE_CHECKING
+from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional
 
 from crytic_compile.utils.naming import Filename
 
@@ -27,6 +27,7 @@ class Source:
         self.starting_column: int = 0
         self.ending_column: int = 0
         self.end: int = 0
+        self.compilation_unit: Optional["SlitherCompilationUnit"] = None
 
     def to_json(self) -> Dict:
         return {
@@ -45,25 +46,32 @@ class Source:
             "ending_column": self.ending_column,
         }
 
-    def _get_lines_str(self, line_descr=""):
-        lines = self.lines
-        if not lines:
-            lines = ""
-        elif len(lines) == 1:
-            lines = "#{}{}".format(line_descr, lines[0])
-        else:
-            lines = f"#{line_descr}{lines[0]}-{line_descr}{lines[-1]}"
-        return lines
-
-    def source_mapping_to_markdown(self, markdown_root: str) -> str:
+    def to_markdown(self, markdown_root: str) -> str:
         lines = self._get_lines_str(line_descr="L")
         filename_relative: str = self.filename.relative if self.filename.relative else ""
         return f"{markdown_root}{filename_relative}{lines}"
 
-    def detailled_str(self) -> str:
+    def to_detailled_str(self) -> str:
         lines = self._get_lines_str()
         filename_short: str = self.filename.short if self.filename.short else ""
         return f"{filename_short}{lines} ({self.starting_column} - {self.ending_column})"
+
+    def _get_lines_str(self, line_descr=""):
+
+        # If the compilation unit was not initialized, it means that the set_offset was never called
+        # on the corresponding object, which should not happen
+        assert self.compilation_unit is not None
+
+        line_prefix = self.compilation_unit.core.line_prefix
+
+        lines = self.lines
+        if not lines:
+            lines = ""
+        elif len(lines) == 1:
+            lines = f"{line_prefix}{line_descr}{lines[0]}"
+        else:
+            lines = f"{line_prefix}{line_descr}{lines[0]}-{line_descr}{lines[-1]}"
+        return lines
 
     def __str__(self) -> str:
         lines = self._get_lines_str()
@@ -172,31 +180,7 @@ class SourceMapping(Context, metaclass=ABCMeta):
             self.source_mapping.end = offset.end
         else:
             self.source_mapping = _convert_source_mapping(offset, compilation_unit)
-
-    def _get_lines_str(self, line_descr=""):
-        lines = self.source_mapping.lines
-        if not lines:
-            lines = ""
-        elif len(lines) == 1:
-            lines = "#{}{}".format(line_descr, lines[0])
-        else:
-            lines = f"#{line_descr}{lines[0]}-{line_descr}{lines[-1]}"
-        return lines
-
-    def source_mapping_to_markdown(self, markdown_root: str) -> str:
-        lines = self._get_lines_str(line_descr="L")
-        filename_relative: str = (
-            self.source_mapping.filename.relative if self.source_mapping.filename.relative else ""
-        )
-        return f"{markdown_root}{filename_relative}{lines}"
-
-    @property
-    def source_mapping_str(self) -> str:
-        lines = self._get_lines_str()
-        filename_short: str = (
-            self.source_mapping.filename.short if self.source_mapping.filename.short else ""
-        )
-        return f"{filename_short}{lines}"
+        self.source_mapping.compilation_unit = compilation_unit
 
     def add_reference_from_raw_source(
         self, offset: str, compilation_unit: "SlitherCompilationUnit"

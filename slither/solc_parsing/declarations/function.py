@@ -1348,7 +1348,7 @@ class FunctionSolc(CallerContextExpression):
                     condition = st.condition
                     if not condition:
                         raise ParsingError(
-                            f"Incorrect ternary conversion {node.expression} {node.source_mapping_str}"
+                            f"Incorrect ternary conversion {node.expression} {node.source_mapping}"
                         )
                     true_expr = st.true_expression
                     false_expr = st.false_expression
