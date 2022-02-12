@@ -773,6 +773,14 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         variable_found = _check_for_state_variable_name(root, potential_name)
         if variable_found:
             return variable_found
+        var = root.function.get_local_variable_from_name(potential_name)
+        if var and var.location == "calldata":
+            return Identifier(var)
+    if name.endswith(".length"):
+        potential_name = name[:-7]
+        var = root.function.get_local_variable_from_name(potential_name)
+        if var and var.location == "calldata":
+            return Identifier(var)
 
     raise SlitherException(f"unresolved reference to identifier {name}")
 
