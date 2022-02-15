@@ -462,7 +462,7 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         help="Provide a config file (default: slither.config.json)",
         action="store",
         dest="config_file",
-        default="slither.config.json",
+        default=None,
     )
 
     group_misc.add_argument(
