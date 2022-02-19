@@ -1,0 +1,130 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "test",
+                    "source_mapping": {
+                        "start": 21,
+                        "length": 46,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/external-function/0.4.25/external_function_3.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/external-function/0.4.25/external_function_3.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Test",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 134,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/external-function/0.4.25/external_function_3.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/external-function/0.4.25/external_function_3.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "test(bytes)"
+                    }
+                }
+            ],
+            "description": "test(bytes) should be declared external:\n\t- Test.test(bytes) (tests/detectors/external-function/0.4.25/external_function_3.sol#3-5)\n",
+            "markdown": "test(bytes) should be declared external:\n\t- [Test.test(bytes)](tests/detectors/external-function/0.4.25/external_function_3.sol#L3-L5)\n",
+            "first_markdown_element": "tests/detectors/external-function/0.4.25/external_function_3.sol#L3-L5",
+            "id": "058fd57c313c645eff4b4e53234ca0f73ca3362bd28d3fdc90e0219a32099592",
+            "check": "external-function",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "test2",
+                    "source_mapping": {
+                        "start": 73,
+                        "length": 54,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/external-function/0.4.25/external_function_3.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/external-function/0.4.25/external_function_3.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7,
+                            8,
+                            9
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Test",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 134,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/external-function/0.4.25/external_function_3.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/external-function/0.4.25/external_function_3.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "test2(bytes)"
+                    }
+                }
+            ],
+            "description": "test2(bytes) should be declared external:\n\t- Test.test2(bytes) (tests/detectors/external-function/0.4.25/external_function_3.sol#7-9)\n",
+            "markdown": "test2(bytes) should be declared external:\n\t- [Test.test2(bytes)](tests/detectors/external-function/0.4.25/external_function_3.sol#L7-L9)\n",
+            "first_markdown_element": "tests/detectors/external-function/0.4.25/external_function_3.sol#L7-L9",
+            "id": "a5b4753f43bb5a2a669ecbf4ce6ab1aaff060454657b16b5ed8cc9c34b521c79",
+            "check": "external-function",
+            "impact": "Optimization",
+            "confidence": "High"
+        }
+    ]
+]
