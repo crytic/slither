@@ -109,7 +109,7 @@ class ExternalFunction(AbstractDetector):
         results = []
 
         # After solc 0.6.9, calldata arguments are allowed in public functions
-        if self.compilation_unit.solc_version >= "0.6.9":
+        if self.compilation_unit.solc_version >= "0.7." or self.compilation_unit.solc_version in ["0.6.9","0.6.10","0.6.11"]:
             return []
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be
