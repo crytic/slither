@@ -90,8 +90,8 @@ def detect_arbitrary_send(contract: Contract):
     return ret
 
 
-class ArbitrarySend(AbstractDetector):
-    ARGUMENT = "arbitrary-send"
+class ArbitrarySendEth(AbstractDetector):
+    ARGUMENT = "arbitrary-send-eth"
     HELP = "Functions that send Ether to arbitrary destinations"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
@@ -104,7 +104,7 @@ class ArbitrarySend(AbstractDetector):
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
-contract ArbitrarySend{
+contract ArbitrarySendEth{
     address destination;
     function setDestination(){
         destination = msg.sender;
