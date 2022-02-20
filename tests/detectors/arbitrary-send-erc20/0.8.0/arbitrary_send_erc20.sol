@@ -66,4 +66,12 @@ contract C {
         SafeERC20.safeTransferFrom(erc20, from, to, amount);
     }
 
+    function good5(address to, uint256 amount) external {
+        SafeERC20.safeTransferFrom(erc20, address(this), to, amount);
+    }
+
+    function good6(address from, address to, uint256 amount) external {
+        erc20.safeTransferFrom(address(this), to, amount);
+    }
+
 }

@@ -27,7 +27,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 402,
-                                "length": 1437,
+                                "length": 1710,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -86,7 +86,15 @@
                                     66,
                                     67,
                                     68,
-                                    69
+                                    69,
+                                    70,
+                                    71,
+                                    72,
+                                    73,
+                                    74,
+                                    75,
+                                    76,
+                                    77
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -138,7 +146,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 402,
-                                        "length": 1437,
+                                        "length": 1710,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -197,7 +205,15 @@
                                             66,
                                             67,
                                             68,
-                                            69
+                                            69,
+                                            70,
+                                            71,
+                                            72,
+                                            73,
+                                            74,
+                                            75,
+                                            76,
+                                            77
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -244,7 +260,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 402,
-                                "length": 1437,
+                                "length": 1710,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -303,7 +319,15 @@
                                     66,
                                     67,
                                     68,
-                                    69
+                                    69,
+                                    70,
+                                    71,
+                                    72,
+                                    73,
+                                    74,
+                                    75,
+                                    76,
+                                    77
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -355,7 +379,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 402,
-                                        "length": 1437,
+                                        "length": 1710,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -414,7 +438,15 @@
                                             66,
                                             67,
                                             68,
-                                            69
+                                            69,
+                                            70,
+                                            71,
+                                            72,
+                                            73,
+                                            74,
+                                            75,
+                                            76,
+                                            77
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -461,7 +493,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 402,
-                                "length": 1437,
+                                "length": 1710,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -520,7 +552,15 @@
                                     66,
                                     67,
                                     68,
-                                    69
+                                    69,
+                                    70,
+                                    71,
+                                    72,
+                                    73,
+                                    74,
+                                    75,
+                                    76,
+                                    77
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -572,7 +612,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 402,
-                                        "length": 1437,
+                                        "length": 1710,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -631,7 +671,15 @@
                                             66,
                                             67,
                                             68,
-                                            69
+                                            69,
+                                            70,
+                                            71,
+                                            72,
+                                            73,
+                                            74,
+                                            75,
+                                            76,
+                                            77
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2

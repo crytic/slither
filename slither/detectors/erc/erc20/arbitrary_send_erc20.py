@@ -1,5 +1,6 @@
 from typing import List
 from slither.core.cfg.node import Node
+from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.slithir.operations import HighLevelCall, LibraryCall
 from slither.core.declarations import Contract, Function, SolidityVariableComposed
 from slither.analyses.data_dependency.data_dependency import is_dependent
@@ -7,6 +8,8 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 
 
 class ArbitrarySendErc20:
+    """Detects instances where ERC20 can be sent from an arbitrary from address."""
+
     def __init__(self, compilation_unit: SlitherCompilationUnit):
         self._compilation_unit = compilation_unit
         self._no_permit_results: List[Node] = []
@@ -44,17 +47,26 @@ class ArbitrarySendErc20:
                 else:
                     self._arbitrary_from(f.nodes, self._no_permit_results)
 
+    @classmethod
     def _arbitrary_from(self, nodes: List[Node], results: List[Node]):
+        """Finds instances of (safe)transferFrom that do not use msg.sender or address(this) as from parameter."""
         for node in nodes:
             for ir in node.irs:
                 if (
                     isinstance(ir, HighLevelCall)
                     and isinstance(ir.function, Function)
                     and ir.function.solidity_signature == "transferFrom(address,address,uint256)"
-                    and not is_dependent(
-                        ir.arguments[0],
-                        SolidityVariableComposed("msg.sender"),
-                        node.function.contract,
+                    and not (
+                        is_dependent(
+                            ir.arguments[0],
+                            SolidityVariableComposed("msg.sender"),
+                            node.function.contract,
+                        )
+                        or is_dependent(
+                            ir.arguments[0],
+                            SolidityVariable("this"),
+                            node.function.contract,
+                        )
                     )
                 ):
                     results.append(ir.node)
@@ -62,10 +74,17 @@ class ArbitrarySendErc20:
                     isinstance(ir, LibraryCall)
                     and ir.function.solidity_signature
                     == "safeTransferFrom(address,address,address,uint256)"
-                    and not is_dependent(
-                        ir.arguments[1],
-                        SolidityVariableComposed("msg.sender"),
-                        node.function.contract,
+                    and not (
+                        is_dependent(
+                            ir.arguments[1],
+                            SolidityVariableComposed("msg.sender"),
+                            node.function.contract,
+                        )
+                        or is_dependent(
+                            ir.arguments[1],
+                            SolidityVariable("this"),
+                            node.function.contract,
+                        )
                     )
                 ):
                     results.append(ir.node)
