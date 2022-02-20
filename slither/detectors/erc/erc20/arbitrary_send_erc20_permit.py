@@ -26,7 +26,6 @@ class ArbitrarySendErc20Permit(AbstractDetector):
         erc20.permit(from, address(this), value, deadline, v, r, s);
         erc20.transferFrom(from, to, value);
     }
-}
 ```
 If an ERC20 token does not implement permit and has a fallback function e.g. WETH, transferFrom allows an attacker to transfer all tokens approved for this contract."""
 
@@ -42,7 +41,12 @@ Ensure that the underlying ERC20 token correctly implements a permit function.
         arbitrary_sends._detect()
         for node in arbitrary_sends.permit_results:
             func = node.function
-            info = [func, " uses arbitrary from in transferFrom in combination with permit: ", node, "\n"]
+            info = [
+                func,
+                " uses arbitrary from in transferFrom in combination with permit: ",
+                node,
+                "\n",
+            ]
             res = self.generate_result(info)
             results.append(res)
 
