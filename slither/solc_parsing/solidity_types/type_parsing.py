@@ -261,8 +261,10 @@ def parse_type(
                 scope = custom_error.contract.file_scope
 
         next_context = caller_context.slither_parser
-        structures_direct_access = []
-        all_structures = scope.structures.values()
+        structures_direct_access = list(scope.structures.values())
+        all_structuress = [c.structures for c in scope.contracts.values()]
+        all_structures = [item for sublist in all_structuress for item in sublist]
+        all_structures += structures_direct_access
         enums_direct_access = []
         all_enums = scope.enums.values()
         contracts = scope.contracts.values()
