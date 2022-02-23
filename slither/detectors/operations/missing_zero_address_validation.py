@@ -2,77 +2,134 @@
 Module detecting missing zero address validation
 
 """
-from typing import List, Set
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.function_contract import FunctionContract
-from slither.core.variables.variable import Variable
+from typing import List, Optional, Dict
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.analyses.data_dependency.data_dependency import is_dependent
+from slither.core.declarations import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.variables.variable import Variable
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.slithir.operations import Operation
 from slither.slithir.operations.binary import Binary, BinaryType
-from slither.slithir.operations.internal_call import InternalCall
 from slither.slithir.operations.library_call import LibraryCall
 from slither.slithir.operations.type_conversion import TypeConversion
 from slither.slithir.variables.constant import Constant
 from slither.utils.output import Output
 
-def _collect(contract: Contract, targets: List[Variable], zero_addresses: List[Variable]) -> None:
+
+def _get_zero_addresses(function: Function) -> List[Variable]:
     """
-        TODO: Add description
+    Look for all the zero address (0, or address(0))
+
+    Args:
+        function (Function):
+
+    Returns:
+        List[Variable]: list of zero addresses
     """
-
-    for function in contract.functions:
-        for ir in function.slithir_operations:
-            if isinstance(ir, TypeConversion) and ir.type == ElementaryType("address") and ir.variable == Constant("0"):
-                if ir.lvalue not in zero_addresses:
-                    zero_addresses.append(ir.lvalue)
-
-        for param in function.parameters:
-            if param.type == ElementaryType("address") and param not in targets:
-                targets.append(param)
-
-        # We also need to check the modifiers
-        for mod in function.modifiers:
-            for param in mod.parameters:
-                if param.type == ElementaryType("address") and param not in targets:
-                    targets.append(param)
-
-            for ir in mod.all_slithir_operations():
-                if isinstance(ir, TypeConversion) and ir.type == ElementaryType("address") and ir.variable == Constant("0"):
-                    if ir.lvalue not in zero_addresses:
-                        zero_addresses.append(ir.lvalue)
-
-def _performs_address_check(function: FunctionContract, targets: List[Variable], zero_addresses: List[Variable], removed: List[Variable]) -> bool:
-    """
-        TODO: Add description
-    """
-
-    performs_check: bool = False
+    zero_addresses: List[Variable] = [Constant("0")]
 
     for ir in function.all_slithir_operations():
-        # If it is a binary operation
-        if isinstance(ir, Binary):
-            if ir.type == BinaryType.EQUAL or ir.type == BinaryType.NOT_EQUAL:
-                if ir.variable_left in targets and (ir.variable_right in zero_addresses or ir.variable_right == 0):
-                    for t in targets:
-                        if t != ir.variable_left and is_dependent(ir.variable_left, t, ir.function) and t not in removed:
-                            removed.append(t)
-                    if ir.variable_left not in removed:
-                        removed.append(ir.variable_left)
-                    performs_check = True
+        if (
+            isinstance(ir, TypeConversion)
+            and ir.type == ElementaryType("address")
+            and ir.variable == Constant("0")
+        ):
+            zero_addresses.append(ir.lvalue)
+    return zero_addresses
 
-        # If an internal call or a library call was made
-        elif isinstance(ir, InternalCall) or isinstance(ir, LibraryCall):
-            if _performs_address_check(ir.function, targets, zero_addresses, removed):
-                for t in targets:
-                    if t not in removed and t in ir.arguments:
-                        for r in removed:
-                            if r != t and is_dependent(r, t, ir.function.contract):
-                                if t not in removed:
-                                    removed.append(t)
-                performs_check = True
-    return performs_check
+
+def _is_checked(
+    ir: Operation, targets: List[Variable], zero_addresses: List[Variable]
+) -> Optional[Variable]:
+    """
+    Check if the IR is
+        lvalue = left == right, or lvalue = left != right
+    Where left is dependent on one of the target, and right is one of the zero addresses
+
+    Args:
+        ir (Operation): Ir to check
+        targets (List[Variable]): list of targets
+        zero_addresses (List[Variable]): list of zero address
+
+    Returns:
+        Optional[Variable
+    """
+    if isinstance(ir, Binary) and ir.type in [BinaryType.EQUAL, BinaryType.NOT_EQUAL]:
+        for target in targets:
+            if is_dependent(ir.variable_left, target, ir.function) and (
+                ir.variable_right in zero_addresses
+            ):
+                return target
+    return None
+
+
+def _targets_checked_directly(function: Function, targets: List[Variable]) -> List[Variable]:
+    """
+    Return the list of targets checked directly
+
+    Args:
+        function (Function): function to check
+        targets (List[Variable]): list of targets
+
+    Returns:
+        List[Variable]: list of targets checked
+    """
+    zero_addresses = _get_zero_addresses(function)
+    vars_removed: List[Variable] = []
+
+    for ir in function.all_slithir_operations():
+        to_be_removed = _is_checked(ir, targets, zero_addresses)
+        if to_be_removed:
+            vars_removed.append(to_be_removed)
+
+    return vars_removed
+
+
+def _targets_checked_in_lib(function: Function, targets: List[Variable]) -> List[Variable]:
+    """
+    Return the list of targets checked in libraries.
+    We need a specific handling for libraries, as the data dependencies do not work on libraries
+    out of the box, as libraries can be external calls, and might not hold the actual logic based on
+    the system's deployment
+
+    Args:
+        function (Function): function to check
+        targets (List[Variable]): list of targets
+
+    Returns:
+        List[Variable]: list of targets checked
+
+    """
+    vars_removed: List[Variable] = []
+
+    for ir in function.all_slithir_operations():
+        if isinstance(ir, LibraryCall):
+
+            # We look if one of the target is used as an argument of the library
+            # For example in:
+            #   - do_check(address some_name) is a library definition
+            #   - myLib.do_check(param) is library call
+            # If param is a target, we then call _targets_checked_directly, where targets is [some_name]
+            # We then relive "param" from our target if "some_name" wes checked
+
+            # new_targets maps the lib parameter <> target
+            # Note this is not robust if the target is first copied another variable
+            # But this probably never happens
+            new_targets: Dict[Variable, Variable] = {}
+            for idx, param in enumerate(ir.arguments):
+                for target in targets:
+                    if param == target:
+                        new_targets[ir.function.parameters[idx]] = target
+
+            if new_targets:
+                new_targets_keys = list(new_targets.keys())
+                to_be_removed = _targets_checked_directly(ir.function, new_targets_keys)
+                for new_target in to_be_removed:
+                    vars_removed.append(new_targets[new_target])
+
+    return vars_removed
+
 
 class MissingZeroAddressValidation(AbstractDetector):
     """
@@ -109,37 +166,32 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
 
     WIKI_RECOMMENDATION = "Check that the address is not zero."
 
-    def _detect_missing_zero_address_validation(self, contract: Contract, targets: List[Variable], zero_addresses: List[Variable], removed: List[Variable]) -> None:
-        """
-            TODO: Add description
-        """
-        if targets:
-            for function in contract.functions:
-                # Perform check inside the function
-                _performs_address_check(function, targets, zero_addresses, removed)
-
     def _detect(self) -> List[Output]:
         """Detect if addresses are zero address validated before use.
         Returns:
             list: {'(function, node)'}
         """
 
-        # Check derived contracts for missing zero address validation
         results: List[Output] = []
-        targets: List[Variable] = []
-        zero_addresses: List[Variable] = []
-        removed: List[Variable] = []
 
         for contract in self.compilation_unit.contracts_derived:
-            _collect(contract, targets, zero_addresses)
+            for function in contract.functions_entry_points:
+                targets: List[Variable] = [
+                    param
+                    for param in function.parameters
+                    if param.type == ElementaryType("address")
+                ]
 
-            self._detect_missing_zero_address_validation(contract, targets, zero_addresses, removed)
+                to_be_removed = _targets_checked_directly(function, targets)
+                targets = [t for t in targets if t not in to_be_removed]
+                if targets:
+                    to_be_removed = _targets_checked_in_lib(function, targets)
+                    targets = [t for t in targets if t not in to_be_removed]
 
-        missing_zero_address_validation = list(set(targets) - set(removed))
-
-        for var in missing_zero_address_validation:
-            info = [var, " lacks a zero check "]
-            res = self.generate_result(info)
-            results.append(res)
+                # missing_zero_address_validation = set(targets) - set(removed)
+                for var in targets:
+                    info = [var, " lacks a zero check\n"]
+                    res = self.generate_result(info)
+                    results.append(res)
 
         return results
