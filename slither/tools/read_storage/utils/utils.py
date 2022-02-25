@@ -4,8 +4,13 @@ from eth_typing.evm import ChecksumAddress
 from eth_utils import to_int, to_text, to_checksum_address
 
 from slither.core.declarations import Structure, Enum
-from slither.core.solidity_types import ArrayType, MappingType, UserDefinedType
+from slither.core.solidity_types import ArrayType, MappingType, UserDefinedType, ElementaryType
 from slither.core.variables.state_variable import StateVariable
+
+
+def is_elementary(variable: StateVariable) -> bool:
+    """Returns whether variable is an elementary type."""
+    return isinstance(variable, ElementaryType)
 
 
 def is_array(variable: StateVariable) -> bool:

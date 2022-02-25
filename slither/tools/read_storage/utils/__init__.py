@@ -1,4 +1,5 @@
 from .utils import (
+    is_elementary,
     is_array,
     is_enum,
     is_mapping,

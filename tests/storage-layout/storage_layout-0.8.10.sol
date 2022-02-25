@@ -1,3 +1,5 @@
+// overwrite abi and bin:
+// solc tests/storage-layout/storage_layout-0.8.10.sol --abi --bin -o tests/storage-layout --overwrite
 contract StorageLayout {
     uint248 packedUint = 1;
     bool packedBool = true;
@@ -10,8 +12,8 @@ contract StorageLayout {
 
     mapping (uint => PackedStruct) mappingPackedStruct;
     mapping (address => mapping (uint => PackedStruct)) deepMappingPackedStruct;
-
     mapping (address => mapping (uint => bool)) deepMappingElementaryTypes;
+    mapping (address => PackedStruct[]) mappingDynamicArrayOfStructs;
 
     address _address;
     string _string = "slither-read-storage";
@@ -65,5 +67,8 @@ contract StorageLayout {
         dynamicArrayOfStructs.push(PackedStruct(false, 10));
         fixedArrayOfStructs[0] = _packedStruct;
         fixedArrayOfStructs[1] = PackedStruct(false, 10);
+
+       mappingDynamicArrayOfStructs[_address].push(dynamicArrayOfStructs[0]);
+       mappingDynamicArrayOfStructs[_address].push(dynamicArrayOfStructs[1]);
     }
 }

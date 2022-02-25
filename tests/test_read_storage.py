@@ -10,7 +10,7 @@ from typing import Generator
 import pytest
 from deepdiff import DeepDiff
 from slither import Slither
-from slither.tools.read_storage import get_storage_layout
+from slither.tools.read_storage import SlitherReadStorage
 
 try:
     from web3 import Web3
@@ -109,9 +109,17 @@ def test_read_storage(web3, ganache):
     sl = Slither(os.path.join(STORAGE_TEST_ROOT, "storage_layout-0.8.10.sol"))
     contracts = sl.contracts
 
-    get_storage_layout(contracts, address, ganache.provider, 20)
+    srs = SlitherReadStorage(contracts, 100)
+    srs.rpc = ganache.provider
+    srs.storage_address = address
+    srs.get_all_storage_variables()
+    srs.get_storage_layout()
+    srs.get_slot_values()
+    with open("storage_layout.json", "w", encoding="utf-8") as file:
+        json.dump(srs.slot_info, file, indent=4)
+
     expected_file = os.path.join(STORAGE_TEST_ROOT, "TEST_storage_layout.json")
-    actual_file = os.path.join(SLITHER_ROOT, f"{address}_storage_layout.json")
+    actual_file = os.path.join(SLITHER_ROOT, "storage_layout.json")
 
     with open(expected_file, "r", encoding="utf8") as f:
         expected = json.load(f)
