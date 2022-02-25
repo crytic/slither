@@ -85,6 +85,14 @@ def get_solc_versions() -> List[str]:
     return solc_versions
 
 
+def install_solc_version(solc_version: str):
+    """
+    install solc version using solc-select
+    :param solc_version: solc version to be installed, for example "0.8.7"
+    """
+    subprocess.run(["solc-select", "install", solc_version], stderr=subprocess.PIPE, check=True)
+
+
 def get_tests(solc_versions) -> Dict[str, List[str]]:
     """
     parse the list of testcases on disk
@@ -119,7 +127,13 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
         else:
             for ver in vers:
                 if ver not in solc_versions:
-                    raise Exception("base version not found", test, ver)
+                    try:
+                        install_solc_version(ver)
+                        solc_versions.append(ver)
+                    except subprocess.CalledProcessError as e:
+                        raise Exception(
+                            "Failed to install solc version", test, ver, e.stderr.decode("utf-8")
+                        ) from e
 
     return tests
 
