@@ -12,10 +12,11 @@ import pytest
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
+from solc_select.solc_select import install_artifacts as install_solc_versions
+from solc_select.solc_select import installed_versions as get_installed_solc_versions
+
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
-
-from .solc import get_solc_versions, install_solc_version
 
 # these solc versions only support legacy ast format
 
@@ -72,10 +73,9 @@ XFAIL = (
 )
 
 
-def get_tests(solc_versions) -> Dict[str, List[str]]:
+def get_tests() -> Dict[str, List[str]]:
     """
     parse the list of testcases on disk
-    :param solc_versions: the list of valid solidity versions
     :return: a dictionary of test id to list of base solidity versions supported
     """
     slither_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -99,6 +99,8 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
             tests[key] = sorted(test, key=StrictVersion)
 
     # validate tests
+    solc_versions = get_installed_solc_versions()
+    missing_solc_versions = set()
     for test, vers in tests.items():
         if len(vers) == 1:
             if vers[0] != "all":
@@ -106,8 +108,9 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
         else:
             for ver in vers:
                 if ver not in solc_versions:
-                    install_solc_version(ver)
-                    solc_versions.append(ver)
+                    missing_solc_versions.add(ver)
+    if missing_solc_versions:
+        install_solc_versions(missing_solc_versions)
 
     return tests
 
@@ -128,8 +131,8 @@ def get_all_test() -> List[Item]:
     generate a list of testcases by testing each test id with every solidity version for both legacy and compact ast
     :return: the testcases
     """
-    solc_versions = get_solc_versions()
-    tests = get_tests(solc_versions)
+    tests = get_tests()
+    solc_versions = get_installed_solc_versions()
 
     ret = []
 

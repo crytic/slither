@@ -8,11 +8,12 @@ from typing import Type, Optional, List
 import pytest
 from deepdiff import DeepDiff  # pip install deepdiff
 
+from solc_select.solc_select import install_artifacts as install_solc_versions
+from solc_select.solc_select import installed_versions as get_installed_solc_versions
+
 from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
-
-from .solc import get_solc_versions, install_solc_version
 
 
 class Test:  # pylint: disable=too-few-public-methods
@@ -1205,11 +1206,11 @@ ALL_TEST_OBJECTS = [
 
 
 def get_all_tests() -> List[Test]:
-    solc_versions = get_solc_versions()
-    for test in ALL_TEST_OBJECTS:
-        if test.solc_ver not in solc_versions:
-            install_solc_version(test.solc_ver)
-            solc_versions.append(test.solc_ver)
+    installed_solcs = set(get_installed_solc_versions())
+    required_solcs = {test.solc_ver for test in ALL_TEST_OBJECTS}
+    missing_solcs = list(required_solcs - installed_solcs)
+    if missing_solcs:
+        install_solc_versions(missing_solcs)
 
     return ALL_TEST_OBJECTS
 
