@@ -43,7 +43,6 @@ class Test:  # pylint: disable=too-few-public-methods
 
 
 def set_solc(test_item: Test):  # pylint: disable=too-many-lines
-    install_solc_version(test_item.solc_ver)
     # hacky hack hack to pick the solc version we want
     env = dict(os.environ)
     env["SOLC_VERSION"] = test_item.solc_ver
