@@ -12,6 +12,8 @@ from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
 
+from .solc import get_solc_versions, install_solc_version
+
 
 class Test:  # pylint: disable=too-few-public-methods
     def __init__(
@@ -41,6 +43,7 @@ class Test:  # pylint: disable=too-few-public-methods
 
 
 def set_solc(test_item: Test):  # pylint: disable=too-many-lines
+    install_solc_version(test_item.solc_ver)
     # hacky hack hack to pick the solc version we want
     env = dict(os.environ)
     env["SOLC_VERSION"] = test_item.solc_ver
@@ -52,7 +55,7 @@ def id_test(test_item: Test):
     return f"{test_item.detector}: {test_item.solc_ver}/{test_item.test_file}"
 
 
-ALL_TESTS = [
+ALL_TEST_OBJECTS = [
     Test(
         all_detectors.UninitializedFunctionPtrsConstructor,
         "uninitialized_function_ptr_constructor.sol",
@@ -1200,6 +1203,20 @@ ALL_TESTS = [
         "0.8.0",
     ),
 ]
+
+
+def get_all_tests() -> List[Test]:
+    solc_versions = get_solc_versions()
+    for test in ALL_TEST_OBJECTS:
+        if test.solc_ver not in solc_versions:
+            install_solc_version(test.solc_ver)
+            solc_versions.append(test.solc_ver)
+
+    return ALL_TEST_OBJECTS
+
+
+ALL_TESTS = get_all_tests()
+
 GENERIC_PATH = "/GENERIC_PATH"
 
 

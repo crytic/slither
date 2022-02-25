@@ -15,6 +15,8 @@ from crytic_compile.utils.zip import load_from_zip
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
 
+from .solc import get_solc_versions, install_solc_version
+
 # these solc versions only support legacy ast format
 
 LEGACY_SOLC_VERS = [f"0.4.{v}" for v in range(12)]
@@ -70,29 +72,6 @@ XFAIL = (
 )
 
 
-def get_solc_versions() -> List[str]:
-    """
-    get a list of all the supported versions of solidity, sorted from earliest to latest
-    :return: ascending list of versions, for example ["0.4.0", "0.4.1", ...]
-    """
-    result = subprocess.run(["solc-select", "versions"], stdout=subprocess.PIPE, check=True)
-    solc_versions = result.stdout.decode("utf-8").split("\n")
-
-    # there's an extra newline so just remove all empty strings
-    solc_versions = [version.split(" ")[0] for version in solc_versions if version != ""]
-
-    solc_versions = sorted(solc_versions, key=lambda x: list(map(int, x.split("."))))
-    return solc_versions
-
-
-def install_solc_version(solc_version: str):
-    """
-    install solc version using solc-select
-    :param solc_version: solc version to be installed, for example "0.8.7"
-    """
-    subprocess.run(["solc-select", "install", solc_version], stderr=subprocess.PIPE, check=True)
-
-
 def get_tests(solc_versions) -> Dict[str, List[str]]:
     """
     parse the list of testcases on disk
@@ -127,13 +106,8 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
         else:
             for ver in vers:
                 if ver not in solc_versions:
-                    try:
-                        install_solc_version(ver)
-                        solc_versions.append(ver)
-                    except subprocess.CalledProcessError as e:
-                        raise Exception(
-                            "Failed to install solc version", test, ver, e.stderr.decode("utf-8")
-                        ) from e
+                    install_solc_version(ver)
+                    solc_versions.append(ver)
 
     return tests
 
