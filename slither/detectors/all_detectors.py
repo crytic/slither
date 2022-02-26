@@ -1,5 +1,4 @@
 # pylint: disable=unused-import,relative-beyond-top-level
-from .examples.backdoor import Backdoor
 from .variables.uninitialized_state_variables import UninitializedStateVarsDetection
 from .variables.uninitialized_storage_variables import UninitializedStorageVars
 from .variables.uninitialized_local_variables import UninitializedLocalVars
@@ -81,3 +80,5 @@ from .functions.dead_code import DeadCode
 from .statements.write_after_write import WriteAfterWrite
 from .statements.msg_value_in_loop import MsgValueInLoop
 from .statements.delegatecall_in_loop import DelegatecallInLoop
+
+from .variables.possible_immutable_state_variables import ImmutableCandidateStateVars
