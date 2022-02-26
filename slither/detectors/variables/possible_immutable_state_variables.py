@@ -47,14 +47,14 @@ class ImmutableCandidateStateVars(AbstractDetector):
         all_functions = list({item for sublist in all_functions for item in sublist})
 
         all_variables_written = [
-            f.state_variables_written for f in all_functions if f.is_constructor
+            f.state_variables_written for f in all_functions if not f.is_constructor and not f.is_constructor_variables
         ]
         all_variables_written = {item for sublist in all_variables_written for item in sublist}
 
         immutable_variables = [
             v
             for v in all_candidates
-            if (v in all_variables_written)
+            if (not v in all_variables_written)
         ]
         # Order for deterministic results
         immutable_variables = sorted(immutable_variables, key=lambda x: x.canonical_name)
