@@ -8,6 +8,9 @@ from typing import Type, Optional, List
 import pytest
 from deepdiff import DeepDiff  # pip install deepdiff
 
+from solc_select.solc_select import install_artifacts as install_solc_versions
+from solc_select.solc_select import installed_versions as get_installed_solc_versions
+
 from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
@@ -52,7 +55,7 @@ def id_test(test_item: Test):
     return f"{test_item.detector}: {test_item.solc_ver}/{test_item.test_file}"
 
 
-ALL_TESTS = [
+ALL_TEST_OBJECTS = [
     Test(
         all_detectors.UninitializedFunctionPtrsConstructor,
         "uninitialized_function_ptr_constructor.sol",
@@ -1200,6 +1203,20 @@ ALL_TESTS = [
         "0.8.0",
     ),
 ]
+
+
+def get_all_tests() -> List[Test]:
+    installed_solcs = set(get_installed_solc_versions())
+    required_solcs = {test.solc_ver for test in ALL_TEST_OBJECTS}
+    missing_solcs = list(required_solcs - installed_solcs)
+    if missing_solcs:
+        install_solc_versions(missing_solcs)
+
+    return ALL_TEST_OBJECTS
+
+
+ALL_TESTS = get_all_tests()
+
 GENERIC_PATH = "/GENERIC_PATH"
 
 
