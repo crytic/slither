@@ -12,6 +12,9 @@ import pytest
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
+from solc_select.solc_select import install_artifacts as install_solc_versions
+from solc_select.solc_select import installed_versions as get_installed_solc_versions
+
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
 
@@ -26,7 +29,7 @@ ALL_04 = range(0, 27)
 ALL_05 = range(0, 18)
 ALL_06 = range(0, 13)
 ALL_07 = range(0, 7)
-ALL_08 = range(0, 12)
+ALL_08 = range(0, 13)
 
 # these are tests that are currently failing right now
 XFAIL = (
@@ -70,25 +73,9 @@ XFAIL = (
 )
 
 
-def get_solc_versions() -> List[str]:
-    """
-    get a list of all the supported versions of solidity, sorted from earliest to latest
-    :return: ascending list of versions, for example ["0.4.0", "0.4.1", ...]
-    """
-    result = subprocess.run(["solc-select", "versions"], stdout=subprocess.PIPE, check=True)
-    solc_versions = result.stdout.decode("utf-8").split("\n")
-
-    # there's an extra newline so just remove all empty strings
-    solc_versions = [version.split(" ")[0] for version in solc_versions if version != ""]
-
-    solc_versions = sorted(solc_versions, key=lambda x: list(map(int, x.split("."))))
-    return solc_versions
-
-
-def get_tests(solc_versions) -> Dict[str, List[str]]:
+def get_tests() -> Dict[str, List[str]]:
     """
     parse the list of testcases on disk
-    :param solc_versions: the list of valid solidity versions
     :return: a dictionary of test id to list of base solidity versions supported
     """
     slither_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -112,6 +99,8 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
             tests[key] = sorted(test, key=StrictVersion)
 
     # validate tests
+    solc_versions = get_installed_solc_versions()
+    missing_solc_versions = set()
     for test, vers in tests.items():
         if len(vers) == 1:
             if vers[0] != "all":
@@ -119,7 +108,9 @@ def get_tests(solc_versions) -> Dict[str, List[str]]:
         else:
             for ver in vers:
                 if ver not in solc_versions:
-                    raise Exception("base version not found", test, ver)
+                    missing_solc_versions.add(ver)
+    if missing_solc_versions:
+        install_solc_versions(missing_solc_versions)
 
     return tests
 
@@ -140,8 +131,8 @@ def get_all_test() -> List[Item]:
     generate a list of testcases by testing each test id with every solidity version for both legacy and compact ast
     :return: the testcases
     """
-    solc_versions = get_solc_versions()
-    tests = get_tests(solc_versions)
+    tests = get_tests()
+    solc_versions = get_installed_solc_versions()
 
     ret = []
 
