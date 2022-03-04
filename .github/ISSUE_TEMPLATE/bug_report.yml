@@ -1,41 +1,41 @@
 name: Bug Report
 description: File a bug report
 title: "[Bug]: "
-labels: ["bug"]
+labels: ["bug-candidate"]
 body:
   - type: markdown
     attributes:
-      value: |
+      value: >
         Please check the issues tab to avoid duplicates.
-
         Thanks for taking the time to fill out this bug report!
   - type: textarea
     id: what-happened
     attributes:
-      label: What happened?
-      description: Also tell us, what did you expect to happen?
-      value: "A bug happened!"
+      label: "Describe the issue:"
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: Can you share code with us to reproduce this bug?
-      description: It can be a github repo, etherscan link, or code snippet.
-      value: "contract A {}"
+      label: "Reproduce the code example:
+      description: >
+      It can be a github repo, etherscan link, or code snippet.
+      placeholder: "contract A {}"
     validations:
       required: true
   - type: textarea
     id: version
     attributes:
-      label: Version
-      description: What version of our software are you running?
-      value: Run `slither --version`
+      label: "Version:"
+      description: What version of slither are you running? Run `slither --version`
+      placeholder: 0.8.2
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
       label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      description: >
+      Please copy and paste any relevant log output. This 
+      will be automatically formatted into code, so no need for backticks.
       render: shell
