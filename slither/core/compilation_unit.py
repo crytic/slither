@@ -4,6 +4,7 @@ from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 from crytic_compile import CompilationUnit, CryticCompile
 from crytic_compile.compiler.compiler import CompilerVersion
 from crytic_compile.utils.naming import Filename
+from crytic_compile.platform.truffle import Truffle
 
 from slither.core.context.context import Context
 from slither.core.declarations import (
@@ -228,6 +229,10 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     def get_scope(self, filename_str: str) -> FileScope:
+        if isinstance(self._crytic_compile_compilation_unit.crytic_compile.platform, Truffle) \
+           and filename_str.startswith("project:/"):
+            # workaround for https://github.com/crytic/crytic-compile/issues/245
+            filename_str = "./" + filename_str[len("project:/") :]
         filename = self._crytic_compile_compilation_unit.crytic_compile.filename_lookup(
             filename_str
         )
