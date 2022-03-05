@@ -760,6 +760,10 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         return Identifier(func.underlying)
 
     # check for magic suffixes
+    # TODO: the following leads to wrong IR
+    # Currently SlithIR doesnt support raw access to memory
+    # So things like .offset/.slot will return the variable
+    # Instaed of the actual offset/slot
     if name.endswith("_slot") or name.endswith(".slot"):
         potential_name = name[:-5]
         variable_found = _check_for_state_variable_name(root, potential_name)
@@ -777,6 +781,9 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         if var and var.location == "calldata":
             return Identifier(var)
     if name.endswith(".length"):
+        # TODO: length should create a new IP operation LENGTH var
+        # The code below is an hotfix to allow slither to process length in yul
+        # Until we have a better support
         potential_name = name[:-7]
         var = root.function.get_local_variable_from_name(potential_name)
         if var and var.location == "calldata":
