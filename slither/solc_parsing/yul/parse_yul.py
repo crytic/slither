@@ -730,35 +730,7 @@ def _check_for_state_variable_name(root: YulScope, potential_name: str) -> Optio
     return None
 
 
-def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
-    name = ast["name"]
-
-    if name in builtins:
-        return Identifier(YulBuiltin(name))
-
-    # check function-scoped variables
-    parent_func = root.parent_func
-    if parent_func:
-        variable = parent_func.get_local_variable_from_name(name)
-        if variable:
-            return Identifier(variable)
-
-        if isinstance(parent_func, FunctionContract):
-            variable = parent_func.contract.get_state_variable_from_name(name)
-            if variable:
-                return Identifier(variable)
-
-    # check yul-scoped variable
-    variable = root.get_yul_local_variable_from_name(name)
-    if variable:
-        return Identifier(variable.underlying)
-
-    # check yul-scoped function
-
-    func = root.get_yul_local_function_from_name(name)
-    if func:
-        return Identifier(func.underlying)
-
+def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Optional[Expression]:
     # check for magic suffixes
     # TODO: the following leads to wrong IR
     # Currently SlithIR doesnt support raw access to memory
@@ -788,6 +760,41 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         var = root.function.get_local_variable_from_name(potential_name)
         if var and var.location == "calldata":
             return Identifier(var)
+    return None
+
+
+def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
+    name = ast["name"]
+
+    if name in builtins:
+        return Identifier(YulBuiltin(name))
+
+    # check function-scoped variables
+    parent_func = root.parent_func
+    if parent_func:
+        variable = parent_func.get_local_variable_from_name(name)
+        if variable:
+            return Identifier(variable)
+
+        if isinstance(parent_func, FunctionContract):
+            variable = parent_func.contract.get_state_variable_from_name(name)
+            if variable:
+                return Identifier(variable)
+
+    # check yul-scoped variable
+    variable = root.get_yul_local_variable_from_name(name)
+    if variable:
+        return Identifier(variable.underlying)
+
+    # check yul-scoped function
+
+    func = root.get_yul_local_function_from_name(name)
+    if func:
+        return Identifier(func.underlying)
+
+    magic_suffix = _parse_yul_magic_suffixes(name, root)
+    if magic_suffix:
+        return magic_suffix
 
     raise SlitherException(f"unresolved reference to identifier {name}")
 
