@@ -944,6 +944,18 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             s.set_expression(ins.expression)
             return s
 
+        if ins.ori.variable_left == ElementaryType("string") and ins.ori.variable_right == Constant(
+            "concat"
+        ):
+            s = SolidityCall(
+                SolidityFunction("string.concat()"),
+                ins.nbr_arguments,
+                ins.lvalue,
+                ins.type_call,
+            )
+            s.set_expression(ins.expression)
+            return s
+
         msgcall = HighLevelCall(
             ins.ori.variable_left,
             ins.ori.variable_right,
