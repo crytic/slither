@@ -64,6 +64,9 @@ def process_single(target, args, detector_classes, printer_classes):
     ast = "--ast-compact-json"
     if args.legacy_ast:
         ast = "--ast-json"
+    if args.checklist:
+        args.show_ignored_findings = True
+
     slither = Slither(target, ast_format=ast, **vars(args))
 
     return _process(slither, detector_classes, printer_classes)
