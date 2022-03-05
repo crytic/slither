@@ -22,7 +22,7 @@ class Member(OperationWithLValue):
         #         f.h(1);
         #     }
         # }
-        # Can be an ElementaryType because of bytes.concat
+        # Can be an ElementaryType because of bytes.concat, string.concat
         assert is_valid_rvalue(variable_left) or isinstance(
             variable_left,
             (Contract, Enum, Function, CustomError, SolidityImportPlaceHolder, ElementaryType),
