@@ -40,7 +40,7 @@ Run Slither on a single file:
 slither tests/uninitialized.sol
 ```
 
-For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
+For GitHub action integration, see [slither-action](https://github.com/marketplace/actions/slither-action). For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
 Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc.
 

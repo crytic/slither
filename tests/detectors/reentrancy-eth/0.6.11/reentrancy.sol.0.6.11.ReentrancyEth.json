@@ -6,7 +6,7 @@
                     "type": "function",
                     "name": "withdrawBalance",
                     "source_mapping": {
-                        "start": 301,
+                        "start": 707,
                         "length": 357,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
@@ -14,15 +14,15 @@
                         "filename_short": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                         "is_dependency": false,
                         "lines": [
-                            14,
-                            15,
-                            16,
-                            17,
-                            18,
-                            19,
-                            20,
-                            21,
-                            22
+                            25,
+                            26,
+                            27,
+                            28,
+                            29,
+                            30,
+                            31,
+                            32,
+                            33
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -33,7 +33,7 @@
                             "name": "Reentrancy",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 1807,
+                                "length": 2213,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -91,7 +91,18 @@
                                     51,
                                     52,
                                     53,
-                                    54
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -104,7 +115,7 @@
                     "type": "node",
                     "name": "(ret,mem) = msg.sender.call.value(userBalance[msg.sender])()",
                     "source_mapping": {
-                        "start": 480,
+                        "start": 886,
                         "length": 81,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
@@ -112,7 +123,7 @@
                         "filename_short": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                         "is_dependency": false,
                         "lines": [
-                            17
+                            28
                         ],
                         "starting_column": 9,
                         "ending_column": 90
@@ -122,7 +133,7 @@
                             "type": "function",
                             "name": "withdrawBalance",
                             "source_mapping": {
-                                "start": 301,
+                                "start": 707,
                                 "length": 357,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
@@ -130,15 +141,15 @@
                                 "filename_short": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -149,7 +160,7 @@
                                     "name": "Reentrancy",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 1807,
+                                        "length": 2213,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -207,7 +218,18 @@
                                             51,
                                             52,
                                             53,
-                                            54
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64,
+                                            65
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -225,7 +247,7 @@
                     "type": "node",
                     "name": "userBalance[msg.sender] = 0",
                     "source_mapping": {
-                        "start": 624,
+                        "start": 1030,
                         "length": 27,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
@@ -233,7 +255,7 @@
                         "filename_short": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                         "is_dependency": false,
                         "lines": [
-                            21
+                            32
                         ],
                         "starting_column": 9,
                         "ending_column": 36
@@ -243,7 +265,7 @@
                             "type": "function",
                             "name": "withdrawBalance",
                             "source_mapping": {
-                                "start": 301,
+                                "start": 707,
                                 "length": 357,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
@@ -251,15 +273,15 @@
                                 "filename_short": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -270,7 +292,7 @@
                                     "name": "Reentrancy",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 1807,
+                                        "length": 2213,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -328,7 +350,18 @@
                                             51,
                                             52,
                                             53,
-                                            54
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64,
+                                            65
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -344,10 +377,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#14-22):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call.value(userBalance[msg.sender])() (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#17)\n\tState variables written after the call(s):\n\t- userBalance[msg.sender] = 0 (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#21)\n",
-            "markdown": "Reentrancy in [Reentrancy.withdrawBalance()](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L14-L22):\n\tExternal calls:\n\t- [(ret,mem) = msg.sender.call.value(userBalance[msg.sender])()](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L17)\n\tState variables written after the call(s):\n\t- [userBalance[msg.sender] = 0](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L21)\n",
-            "first_markdown_element": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L14-L22",
-            "id": "703bb72dceaefd2a51f7f2f7c83443d37cebcc0b8ce4b5f6bd54e803d4c58d0d",
+            "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#25-33):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call.value(userBalance[msg.sender])() (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#28)\n\tState variables written after the call(s):\n\t- userBalance[msg.sender] = 0 (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#32)\n",
+            "markdown": "Reentrancy in [Reentrancy.withdrawBalance()](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L25-L33):\n\tExternal calls:\n\t- [(ret,mem) = msg.sender.call.value(userBalance[msg.sender])()](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L28)\n\tState variables written after the call(s):\n\t- [userBalance[msg.sender] = 0](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L32)\n",
+            "first_markdown_element": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L25-L33",
+            "id": "2ae23f335df95d0f5c56d214774a6afc507773d057c4ca44f2eb4eff0e2ebe98",
             "check": "reentrancy-eth",
             "impact": "High",
             "confidence": "Medium"
@@ -358,7 +391,7 @@
                     "type": "function",
                     "name": "withdrawBalance_fixed_3",
                     "source_mapping": {
-                        "start": 1437,
+                        "start": 1843,
                         "length": 393,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
@@ -366,16 +399,16 @@
                         "filename_short": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                         "is_dependency": false,
                         "lines": [
-                            44,
-                            45,
-                            46,
-                            47,
-                            48,
-                            49,
-                            50,
-                            51,
-                            52,
-                            53
+                            55,
+                            56,
+                            57,
+                            58,
+                            59,
+                            60,
+                            61,
+                            62,
+                            63,
+                            64
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -386,7 +419,7 @@
                             "name": "Reentrancy",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 1807,
+                                "length": 2213,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -444,7 +477,18 @@
                                     51,
                                     52,
                                     53,
-                                    54
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -457,7 +501,7 @@
                     "type": "node",
                     "name": "(ret,mem) = msg.sender.call.value(amount)()",
                     "source_mapping": {
-                        "start": 1682,
+                        "start": 2088,
                         "length": 64,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
@@ -465,7 +509,7 @@
                         "filename_short": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                         "is_dependency": false,
                         "lines": [
-                            49
+                            60
                         ],
                         "starting_column": 9,
                         "ending_column": 73
@@ -475,7 +519,7 @@
                             "type": "function",
                             "name": "withdrawBalance_fixed_3",
                             "source_mapping": {
-                                "start": 1437,
+                                "start": 1843,
                                 "length": 393,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
@@ -483,16 +527,16 @@
                                 "filename_short": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    44,
-                                    45,
-                                    46,
-                                    47,
-                                    48,
-                                    49,
-                                    50,
-                                    51,
-                                    52,
-                                    53
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -503,7 +547,7 @@
                                     "name": "Reentrancy",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 1807,
+                                        "length": 2213,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -561,7 +605,18 @@
                                             51,
                                             52,
                                             53,
-                                            54
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64,
+                                            65
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -579,7 +634,7 @@
                     "type": "node",
                     "name": "userBalance[msg.sender] = amount",
                     "source_mapping": {
-                        "start": 1781,
+                        "start": 2187,
                         "length": 32,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
@@ -587,7 +642,7 @@
                         "filename_short": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                         "is_dependency": false,
                         "lines": [
-                            51
+                            62
                         ],
                         "starting_column": 13,
                         "ending_column": 45
@@ -597,7 +652,7 @@
                             "type": "function",
                             "name": "withdrawBalance_fixed_3",
                             "source_mapping": {
-                                "start": 1437,
+                                "start": 1843,
                                 "length": 393,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
@@ -605,16 +660,16 @@
                                 "filename_short": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    44,
-                                    45,
-                                    46,
-                                    47,
-                                    48,
-                                    49,
-                                    50,
-                                    51,
-                                    52,
-                                    53
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -625,7 +680,7 @@
                                     "name": "Reentrancy",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 1807,
+                                        "length": 2213,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -683,7 +738,18 @@
                                             51,
                                             52,
                                             53,
-                                            54
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64,
+                                            65
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -699,10 +765,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in Reentrancy.withdrawBalance_fixed_3() (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#44-53):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call.value(amount)() (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#49)\n\tState variables written after the call(s):\n\t- userBalance[msg.sender] = amount (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#51)\n",
-            "markdown": "Reentrancy in [Reentrancy.withdrawBalance_fixed_3()](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L44-L53):\n\tExternal calls:\n\t- [(ret,mem) = msg.sender.call.value(amount)()](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L49)\n\tState variables written after the call(s):\n\t- [userBalance[msg.sender] = amount](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L51)\n",
-            "first_markdown_element": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L44-L53",
-            "id": "9d69f38d42306f0c57969c0e57d606c4bbd636e4deae55b630b247299f7afa49",
+            "description": "Reentrancy in Reentrancy.withdrawBalance_fixed_3() (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#55-64):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call.value(amount)() (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#60)\n\tState variables written after the call(s):\n\t- userBalance[msg.sender] = amount (tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#62)\n",
+            "markdown": "Reentrancy in [Reentrancy.withdrawBalance_fixed_3()](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L55-L64):\n\tExternal calls:\n\t- [(ret,mem) = msg.sender.call.value(amount)()](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L60)\n\tState variables written after the call(s):\n\t- [userBalance[msg.sender] = amount](tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L62)\n",
+            "first_markdown_element": "tests/detectors/reentrancy-eth/0.6.11/reentrancy.sol#L55-L64",
+            "id": "c4d2dd489fd8bc396119bdd7e5a73c3782cf5fa27171112104e34b2f3ccf37c4",
             "check": "reentrancy-eth",
             "impact": "High",
             "confidence": "Medium"

@@ -2,7 +2,7 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 
 
 class Expression(SourceMapping):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._is_lvalue = False
 

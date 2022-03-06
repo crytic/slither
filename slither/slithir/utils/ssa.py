@@ -13,6 +13,7 @@ from slither.core.declarations.solidity_import_placeholder import SolidityImport
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import (
     Assignment,
     Binary,
@@ -617,6 +618,7 @@ def get(
             Function,
             Type,
             SolidityImportPlaceHolder,
+            TopLevelVariable,
         ),
     )  # type for abi.decode(.., t)
     return variable
