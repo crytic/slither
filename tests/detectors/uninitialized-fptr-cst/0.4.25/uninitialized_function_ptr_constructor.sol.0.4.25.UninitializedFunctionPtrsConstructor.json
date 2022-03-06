@@ -4,217 +4,6 @@
             "elements": [
                 {
                     "type": "contract",
-                    "name": "bad0",
-                    "source_mapping": {
-                        "start": 27,
-                        "length": 149,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            3,
-                            4,
-                            5,
-                            6,
-                            7,
-                            8,
-                            9
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "a(10)",
-                    "source_mapping": {
-                        "start": 164,
-                        "length": 5,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            7
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 10
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "constructor",
-                            "source_mapping": {
-                                "start": 45,
-                                "length": 129,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8
-                                ],
-                                "starting_column": 3,
-                                "ending_column": 4
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "bad0",
-                                    "source_mapping": {
-                                        "start": 27,
-                                        "length": 149,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 2
-                                    }
-                                },
-                                "signature": "constructor()"
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "Contract bad0 (tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#3-9) \n\t a(10) (tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#7) is an unintialized function pointer call in a constructor\n",
-            "markdown": "Contract [bad0](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L3-L9) \n\t [a(10)](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L7) is an unintialized function pointer call in a constructor\n",
-            "first_markdown_element": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L3-L9",
-            "id": "38a85244054f0e06f1d3b476742113d0cf1cbe82b6c2a16f6abfa8cb7611aa2d",
-            "check": "uninitialized-fptr-cst",
-            "impact": "Low",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "bad1",
-                    "source_mapping": {
-                        "start": 178,
-                        "length": 306,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            11,
-                            12,
-                            13,
-                            14,
-                            15,
-                            16,
-                            17,
-                            18
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "b(10)",
-                    "source_mapping": {
-                        "start": 472,
-                        "length": 5,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            16
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 10
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "constructor",
-                            "source_mapping": {
-                                "start": 196,
-                                "length": 286,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17
-                                ],
-                                "starting_column": 3,
-                                "ending_column": 4
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "bad1",
-                                    "source_mapping": {
-                                        "start": 178,
-                                        "length": 306,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 2
-                                    }
-                                },
-                                "signature": "constructor()"
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "Contract bad1 (tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#11-18) \n\t b(10) (tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#16) is an unintialized function pointer call in a constructor\n",
-            "markdown": "Contract [bad1](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L11-L18) \n\t [b(10)](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L16) is an unintialized function pointer call in a constructor\n",
-            "first_markdown_element": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L11-L18",
-            "id": "eca46630e741d928b03312539f0e9ddfb182cb16b0425b5ff881a7800a50511e",
-            "check": "uninitialized-fptr-cst",
-            "impact": "Low",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
                     "name": "bad2",
                     "source_mapping": {
                         "start": 486,
@@ -316,6 +105,110 @@
             "markdown": "Contract [bad2](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L20-L29) \n\t [s.a(10)](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L27) is an unintialized function pointer call in a constructor\n",
             "first_markdown_element": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L20-L29",
             "id": "1b01aa44445395d800ebe53b807c6884d1c5fc96d38f255bc402e1b339a8a6f2",
+            "check": "uninitialized-fptr-cst",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "bad0",
+                    "source_mapping": {
+                        "start": 27,
+                        "length": 149,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "a(10)",
+                    "source_mapping": {
+                        "start": 164,
+                        "length": 5,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 10
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "constructor",
+                            "source_mapping": {
+                                "start": 45,
+                                "length": 129,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "bad0",
+                                    "source_mapping": {
+                                        "start": 27,
+                                        "length": 149,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "constructor()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Contract bad0 (tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#3-9) \n\t a(10) (tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#7) is an unintialized function pointer call in a constructor\n",
+            "markdown": "Contract [bad0](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L3-L9) \n\t [a(10)](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L7) is an unintialized function pointer call in a constructor\n",
+            "first_markdown_element": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L3-L9",
+            "id": "38a85244054f0e06f1d3b476742113d0cf1cbe82b6c2a16f6abfa8cb7611aa2d",
             "check": "uninitialized-fptr-cst",
             "impact": "Low",
             "confidence": "High"
@@ -429,6 +322,113 @@
             "markdown": "Contract [bad3](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L31-L42) \n\t [a(10)](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L36) is an unintialized function pointer call in a constructor\n",
             "first_markdown_element": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L31-L42",
             "id": "4bfb037a7504ad1a677e70cdba68b2b4d47f485e4c0d039ac0a6364465b4e56e",
+            "check": "uninitialized-fptr-cst",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "bad1",
+                    "source_mapping": {
+                        "start": 178,
+                        "length": 306,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "b(10)",
+                    "source_mapping": {
+                        "start": 472,
+                        "length": 5,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            16
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 10
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "constructor",
+                            "source_mapping": {
+                                "start": 196,
+                                "length": 286,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17
+                                ],
+                                "starting_column": 3,
+                                "ending_column": 4
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "bad1",
+                                    "source_mapping": {
+                                        "start": 178,
+                                        "length": 306,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "constructor()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Contract bad1 (tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#11-18) \n\t b(10) (tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#16) is an unintialized function pointer call in a constructor\n",
+            "markdown": "Contract [bad1](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L11-L18) \n\t [b(10)](tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L16) is an unintialized function pointer call in a constructor\n",
+            "first_markdown_element": "tests/detectors/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#L11-L18",
+            "id": "eca46630e741d928b03312539f0e9ddfb182cb16b0425b5ff881a7800a50511e",
             "check": "uninitialized-fptr-cst",
             "impact": "Low",
             "confidence": "High"

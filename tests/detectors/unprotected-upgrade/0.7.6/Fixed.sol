@@ -3,7 +3,7 @@ import "./Initializable.sol";
 contract Fixed is Initializable{
     address payable owner;
 
-    constructor() public{
+    constructor() {
         owner = msg.sender;
     }
 
@@ -21,19 +21,34 @@ contract Fixed is Initializable{
     }
 }
 
-
 contract Not_Upgradeable{
 }
 
 contract UpgradeableNoDestruct is Initializable{
     address payable owner;
 
-    constructor() public{
+    constructor() {
         owner = msg.sender;
     }
 
     function initialize() external initializer{
         require(owner == address(0));
         owner = msg.sender;
+    }
+}
+
+contract Fixed2 is Initializable {
+    address payable owner;
+
+    constructor() initializer {}
+
+    function initialize() external initializer {
+        require(owner == address(0));
+        owner = msg.sender;
+    }
+
+    function kill() external {
+        require(msg.sender == owner);
+        selfdestruct(owner);
     }
 }

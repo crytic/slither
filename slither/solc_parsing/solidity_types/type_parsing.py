@@ -220,6 +220,7 @@ def parse_type(
     from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
     from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+    from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
     sl: "SlitherCompilationUnit"
     # Note: for convenicence top level functions use the same parser than function in contract
@@ -245,9 +246,11 @@ def parse_type(
         all_enums += enums_direct_access
         contracts = sl.contracts
         functions = []
-    elif isinstance(caller_context, (StructureTopLevelSolc, CustomErrorSolc)):
+    elif isinstance(caller_context, (StructureTopLevelSolc, CustomErrorSolc, TopLevelVariableSolc)):
         if isinstance(caller_context, StructureTopLevelSolc):
             scope = caller_context.underlying_structure.file_scope
+        elif isinstance(caller_context, TopLevelVariableSolc):
+            scope = caller_context.underlying_variable.file_scope
         else:
             assert isinstance(caller_context, CustomErrorSolc)
             custom_error = caller_context.underlying_custom_error
@@ -258,8 +261,10 @@ def parse_type(
                 scope = custom_error.contract.file_scope
 
         next_context = caller_context.slither_parser
-        structures_direct_access = []
-        all_structures = scope.structures.values()
+        structures_direct_access = list(scope.structures.values())
+        all_structuress = [c.structures for c in scope.contracts.values()]
+        all_structures = [item for sublist in all_structuress for item in sublist]
+        all_structures += structures_direct_access
         enums_direct_access = []
         all_enums = scope.enums.values()
         contracts = scope.contracts.values()

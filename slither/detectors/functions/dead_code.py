@@ -68,6 +68,9 @@ contract Contract{
                 function.contract_declarer.is_from_dependency()
             ):
                 continue
+            # Continue if the functon is not implemented because it means the contract is abstract
+            if not function.is_implemented:
+                continue
             info = [function, " is never used and should be removed\n"]
             res = self.generate_result(info)
             results.append(res)
