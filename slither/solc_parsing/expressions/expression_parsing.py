@@ -617,13 +617,15 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         return call
 
     if name == "IndexRangeAccess":
-        # For now, we convert array slices to a direct array access
-        # As a result the generated IR will lose the slices information
-        # As far as I understand, array slice are only used in abi.decode
         # https://solidity.readthedocs.io/en/v0.6.12/types.html
-        # TODO: Investigate array slices usage and implication for the IR
-        base = parse_expression(expression["baseExpression"], caller_context)
-        return base
+        index_type = expression["typeDescriptions"]["typeString"]
+        left_expression = parse_expression(expression["baseExpression"], caller_context)
+        right_expression = parse_expression(expression["startExpression"], caller_context)
+        index = IndexAccess(left_expression, right_expression, index_type)
+        index.set_offset(src, caller_context.compilation_unit)
+        index.is_slice = True
+
+        return index
 
     # Introduced with solc 0.8
     if name == "IdentifierPath":

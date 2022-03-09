@@ -1,5 +1,4 @@
 from typing import List, TYPE_CHECKING
-
 from slither.core.expressions.expression_typed import ExpressionTyped
 
 
@@ -12,9 +11,10 @@ class IndexAccess(ExpressionTyped):
     def __init__(self, left_expression, right_expression, index_type):
         super().__init__()
         self._expressions = [left_expression, right_expression]
-        # TODO type of undexAccess is not always a Type
+        # TODO type of IndexAccess is not always a Type
         #        assert isinstance(index_type, Type)
         self._type: "Type" = index_type
+        self._is_slice = False  # Default
 
     @property
     def expressions(self) -> List["Expression"]:
@@ -32,5 +32,18 @@ class IndexAccess(ExpressionTyped):
     def type(self) -> "Type":
         return self._type
 
+    @property
+    def is_slice(self) -> bool:
+        """
+        True if IndexRangeAccess, False if IndexAccess
+        """
+        return self._is_slice
+
+    @is_slice.setter
+    def is_slice(self, is_index_range_access: bool):
+        self._is_slice = is_index_range_access
+
     def __str__(self):
-        return str(self.expression_left) + "[" + str(self.expression_right) + "]"
+        if self.is_slice:
+            return f"{self.expression_left}[{self.expression_right} : ]"
+        return f"{self.expression_left}[{self.expression_right}]"
