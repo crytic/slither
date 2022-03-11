@@ -13,7 +13,7 @@ class IncorrectMutatorInitialization(Exception):
     pass
 
 
-class FaulClass(Enum):
+class FaultClass(Enum):
     Assignement = 0
     Checking = 1
     Interface = 2
@@ -31,7 +31,7 @@ class FaultNature(Enum):
 class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-methods
     NAME = ""
     HELP = ""
-    FAULTCLASS = FaulClass.Undefined
+    FAULTCLASS = FaultClass.Undefined
     FAULTNATURE = FaultNature.Undefined
 
     def __init__(self, slither: Slither, rate: int = 10, seed: Optional[int] = None):
@@ -49,7 +49,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
                 f"HELP is not initialized {self.__class__.__name__}"
             )
 
-        if self.FAULTCLASS == FaulClass.Undefined:
+        if self.FAULTCLASS == FaultClass.Undefined:
             raise IncorrectMutatorInitialization(
                 f"FAULTCLASS is not initialized {self.__class__.__name__}"
             )

@@ -1,12 +1,12 @@
 from slither.core.cfg.node import NodeType
 from slither.formatters.utils.patches import create_patch
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaulClass
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
 
 
 class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MIA"
     HELP = '"if" construct around statement'
-    FAULTCLASS = FaulClass.Checking
+    FAULTCLASS = FaultClass.Checking
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self):
