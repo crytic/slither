@@ -4,7 +4,7 @@ from slither.tools.mutator.utils.generic_patching import remove_assignement
 
 
 class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
-    NAME = "MVIV"
+    NAME = "MVIE"
     HELP = "variable initialization using an expression"
     FAULTCLASS = FaultClass.Assignement
     FAULTNATURE = FaultNature.Missing
