@@ -1,4 +1,5 @@
 import logging
+from typing import Union
 
 from slither.core.cfg.node import NodeType
 from slither.core.declarations import (
@@ -128,21 +129,7 @@ def add_ssa_ir(function, all_state_variables_instances):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
-    add_phi_origins(function.entry_point, init_definition, {})
-
-    for node in function.nodes:
-        for (variable, nodes) in node.phi_origins_local_variables.values():
-            if len(nodes) < 2:
-                continue
-            if not is_used_later(node, variable):
-                continue
-            node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes))
-        for (variable, nodes) in node.phi_origins_state_variables.values():
-            if len(nodes) < 2:
-                continue
-            # if not is_used_later(node, variable.name, []):
-            #    continue
-            node.add_ssa_ir(Phi(StateIRVariable(variable), nodes))
+    add_phi_origins(function.nodes)
 
     init_local_variables_instances = {}
     for v in function.parameters:
@@ -507,45 +494,118 @@ def fix_phi_rvalues_and_storage_ref(
         )
 
 
-def add_phi_origins(node, local_variables_definition, state_variables_definition):
+def _add_dummy_phi(node, var: Union[LocalVariable, StateVariable]):
+    """Produces a dummy phi for when the real def can't be determined
 
-    # Add new key to local_variables_definition
-    # The key is the variable_name
-    # The value is (variable_instance, the node where its written)
-    # We keep the instance as we want to avoid to add __hash__ on v.name in Variable
-    # That might work for this used, but could create collision for other uses
-    local_variables_definition = dict(
-        local_variables_definition,
-        **{v.name: (v, node) for v in node.local_variables_written},
+    Before all phi-functions have been placed it is not possible to tell
+    which node defines a variable for a phi. This function creates dummy
+    phi information using the predecessor node. It could be the correct
+    node, but it could also be a parent node in the dominator tree. See
+    the _find_var_def function for lookups.
+    """
+    func = (
+        node.add_phi_origin_local_variable
+        if isinstance(var, LocalVariable)
+        else node.add_phi_origin_state_variable
     )
-    state_variables_definition = dict(
-        state_variables_definition,
-        **{v.canonical_name: (v, node) for v in node.state_variables_written},
-    )
+    for predecessor in node.fathers:
+        func(var, predecessor)
 
-    # For unini variable declaration
-    if (
-        node.variable_declaration
-        and not node.variable_declaration.name in local_variables_definition
-    ):
-        local_variables_definition[node.variable_declaration.name] = (
-            node.variable_declaration,
-            node,
-        )
 
-    # filter length of successors because we have node with one successor
-    # while most of the ssa textbook would represent following nodes as one
-    if node.dominance_frontier and len(node.dominator_successors) != 1:
+def _find_var_def(node, var: Union[LocalVariable, StateVariable]):
+    """Find the real definition of a variable
+
+    When placing dummy-phi functions origin of a value is
+    set to the predecessors of a node with a phi-function.
+    The actual value might be defined in parent in the
+    dominator tree. Walk the tree towards the root to find
+    which node either writes var or is assigned phi-node
+    for it.
+    """
+    # print(f"Find def {node} for {var}")
+    is_local_var = isinstance(var, LocalVariable)
+    while node:
+        if is_local_var:
+            if var in node.local_variables_written:
+                # print(f"\tvar is written in {node}")
+                return node
+            if var.name in node.phi_origins_local_variables.keys():
+                # print(f"\tvar is phi in {node}")
+                return node
+        else:
+            # Assumes StateVariable
+            if var in node.state_variables_written:
+                # print(f"\tstate var is written in {node}")
+                return node
+            if var.name in node.phi_origins_state_variables.keys():
+                # print(f"\tstate var is phi in {node}")
+                return node
+        if not node.immediate_dominator:
+            # If node becomes none we are at the entry point, and it is already assigned
+            # the phi-node for this var
+            # print("\tvar is entrypoint {node}")
+            return node
+
+        node = node.immediate_dominator
+
+
+def add_phi_origins(nodes):
+    """Insert Phi-nodes where needed"""
+    # Phase 1 place dummy phi nodes
+    workset = set()
+    all_phi = set()
+    for node in filter(lambda n: n.dominance_frontier, nodes):
         for phi_node in node.dominance_frontier:
-            for _, (variable, n) in local_variables_definition.items():
-                phi_node.add_phi_origin_local_variable(variable, n)
-            for _, (variable, n) in state_variables_definition.items():
-                phi_node.add_phi_origin_state_variable(variable, n)
+            workset.add(phi_node)
+            all_phi.add(phi_node)
+            for local_var in node.local_variables_written:
+                _add_dummy_phi(phi_node, local_var)
 
-    if not node.dominator_successors:
-        return
-    for succ in node.dominator_successors:
-        add_phi_origins(succ, local_variables_definition, state_variables_definition)
+            for state_var in node.state_variables_written:
+                _add_dummy_phi(phi_node, state_var)
+
+    # Phase 2 - any phi-node is a 'def' and should thus be propagated. Iter until no change.
+    while workset:
+        node = workset.pop()
+        for phi_node in node.dominance_frontier:
+            for (local_var, _) in node.phi_origins_local_variables.values():
+                if local_var.name not in phi_node.phi_origins_local_variables:
+                    _add_dummy_phi(phi_node, local_var)
+                    workset.add(phi_node)
+                    all_phi.add(phi_node)
+
+            for (state_var, _) in node.phi_origins_state_variables.values():
+                if state_var.name not in phi_node.phi_origins_state_variables:
+                    _add_dummy_phi(phi_node, state_var)
+                    workset.add(phi_node)
+                    all_phi.add(phi_node)
+
+    # Phase 3 - now that all phi nodes are recorded with dummy info (partially) lets add Phi IRs
+    for node in all_phi:
+        for (variable, source_nodes) in node.phi_origins_local_variables.values():
+            if len(source_nodes) < 2:
+                # TODO (hbrodin): How do we report errors/inconsistencies?
+                print("Unexpected no need for a phi node if < 2 predecessors")
+                continue
+
+            # TODO (hbrodin): Make sure this is correct
+            # if not is_used_later(node, variable):
+            #   continue
+            nodes_real_origin = set(map(lambda n, var=variable: _find_var_def(n, var), source_nodes))
+            node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes_real_origin))
+        for (variable, source_nodes) in node.phi_origins_state_variables.values():
+            if len(source_nodes) < 2:
+                # TODO (hbrodin): How do we report errors/inconsistencies?
+                print("Unexpected no need for a phi node if < 2 predecessors")
+                continue
+
+            # TODO (hbrodin): Make sure this is correct
+            # if not is_used_later(node, variable.name, []):
+            #    continue
+            nodes_real_origin = set(map(lambda n, var=variable: _find_var_def(n, var), source_nodes))
+            node.add_ssa_ir(Phi(StateIRVariable(variable), nodes_real_origin))
+
+
 
 
 # endregion
