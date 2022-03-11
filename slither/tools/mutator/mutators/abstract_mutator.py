@@ -72,6 +72,10 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
     def mutate(self) -> None:
         all_patches = self._mutate()
 
+        if "patches" not in all_patches:
+            logger.debug(f"No patches found by {self.NAME}")
+            return
+
         for file in all_patches["patches"]:
             original_txt = self.slither.source_code[file].encode("utf8")
             patched_txt = original_txt
