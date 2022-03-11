@@ -39,7 +39,6 @@ def ssa_basic_properties(function: Function):
                     lvalue_assignments[name] = 1
         for ssa in n.irs_ssa:
             if isinstance(ssa, OperationWithLValue):
-                print(ssa)
                 # 1
                 assert ssa.lvalue not in ssa_lvalues
                 ssa_lvalues.add(ssa.lvalue)
