@@ -522,28 +522,22 @@ def _find_var_def(node, var: Union[LocalVariable, StateVariable]):
     which node either writes var or is assigned phi-node
     for it.
     """
-    # print(f"Find def {node} for {var}")
     is_local_var = isinstance(var, LocalVariable)
     while node:
         if is_local_var:
             if var in node.local_variables_written:
-                # print(f"\tvar is written in {node}")
                 return node
             if var.name in node.phi_origins_local_variables.keys():
-                # print(f"\tvar is phi in {node}")
                 return node
         else:
             # Assumes StateVariable
             if var in node.state_variables_written:
-                # print(f"\tstate var is written in {node}")
                 return node
             if var.name in node.phi_origins_state_variables.keys():
-                # print(f"\tstate var is phi in {node}")
                 return node
         if not node.immediate_dominator:
             # If node becomes none we are at the entry point, and it is already assigned
             # the phi-node for this var
-            # print("\tvar is entrypoint {node}")
             return node
 
         node = node.immediate_dominator
