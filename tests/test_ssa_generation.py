@@ -125,13 +125,12 @@ def phi_values_inserted(f: Function):
                     return True
         return False
 
-    for node in f.nodes:
-        if node.dominance_frontier:
-            for df in node.dominance_frontier:
-                for ssa in node.irs_ssa:
-                    if isinstance(ssa, OperationWithLValue):
-                        if is_used_later(node, ssa.lvalue):
-                            assert have_phi_for_var(df, ssa.lvalue)
+    for node in filter(lambda n: n.dominance_frontier, f.nodes):
+        for df in node.dominance_frontier:
+            for ssa in node.irs_ssa:
+                if isinstance(ssa, OperationWithLValue):
+                    if is_used_later(node, ssa.lvalue):
+                        assert have_phi_for_var(df, ssa.lvalue)
 
 
 def verify_properties_hold(source_code: str):
