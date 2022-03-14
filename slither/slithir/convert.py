@@ -170,10 +170,10 @@ def _fits_under_integer(val: int, can_be_int: bool, can_be_uint) -> List[str]:
     assert can_be_int | can_be_uint
     while n <= 256:
         if can_be_uint:
-            if val <= 2 ** n - 1:
+            if val <= 2**n - 1:
                 ret.append(f"uint{n}")
         if can_be_int:
-            if val <= (2 ** n) / 2 - 1:
+            if val <= (2**n) / 2 - 1:
                 ret.append(f"int{n}")
         n = n + 8
     return ret
@@ -214,7 +214,7 @@ def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optio
     type_args: List[str]
     for idx, arg in enumerate(arguments):
         if isinstance(arg, (list,)):
-            type_args = ["{}[{}]".format(get_type(arg[0].type), len(arg))]
+            type_args = [f"{get_type(arg[0].type)}[{len(arg)}]"]
         elif isinstance(arg, Function):
             type_args = [arg.signature_str]
         else:
@@ -771,7 +771,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                 # temporary operation; they will be removed
                 pass
             else:
-                raise SlithIRError("Not handling {} during type propagation".format(type(ir)))
+                raise SlithIRError(f"Not handling {type(ir)} during type propagation")
     return None
 
 
@@ -1043,7 +1043,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
         internalcall.set_expression(ins.expression)
         return internalcall
 
-    raise Exception("Not extracted {} {}".format(type(ins.called), ins))
+    raise Exception(f"Not extracted {type(ins.called)} {ins}")
 
 
 # endregion
@@ -1102,7 +1102,7 @@ def convert_to_low_level(ir):
         new_ir.set_expression(ir.expression)
         new_ir.set_node(ir.node)
         return new_ir
-    raise SlithIRError("Incorrect conversion to low level {}".format(ir))
+    raise SlithIRError(f"Incorrect conversion to low level {ir}")
 
 
 def can_be_solidity_func(ir) -> bool:
@@ -1123,7 +1123,7 @@ def convert_to_solidity_func(ir):
     :param ir:
     :return:
     """
-    call = SolidityFunction("abi.{}()".format(ir.function_name))
+    call = SolidityFunction(f"abi.{ir.function_name}()")
     new_ir = SolidityCall(call, ir.nbr_arguments, ir.lvalue, ir.type_call)
     new_ir.arguments = ir.arguments
     new_ir.set_expression(ir.expression)
@@ -1497,7 +1497,7 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
         if can_be_solidity_func(ir):
             return convert_to_solidity_func(ir)
     if not func:
-        to_log = "Function not found {}".format(ir.function_name)
+        to_log = f"Function not found {ir.function_name}"
         logger.error(to_log)
     ir.function = func
     if isinstance(func, Function):

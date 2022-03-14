@@ -407,4 +407,4 @@ def find_variable(
     if ret:
         return ret, False
 
-    raise VariableNotFound("Variable not found: {} (context {})".format(var_name, contract))
+    raise VariableNotFound(f"Variable not found: {var_name} (context {contract})")

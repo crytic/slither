@@ -19,7 +19,7 @@ class UnaryType(Enum):
                 return UnaryType.BANG
             if operation_type == "~":
                 return UnaryType.TILD
-        raise SlithIRError("get_type: Unknown operation type {}".format(operation_type))
+        raise SlithIRError(f"get_type: Unknown operation type {operation_type}")
 
     def __str__(self):
         if self == UnaryType.BANG:
@@ -27,7 +27,7 @@ class UnaryType(Enum):
         if self == UnaryType.TILD:
             return "~"
 
-        raise SlithIRError("str: Unknown operation type {}".format(self))
+        raise SlithIRError(f"str: Unknown operation type {self}")
 
 
 class Unary(OperationWithLValue):
@@ -56,4 +56,4 @@ class Unary(OperationWithLValue):
         return str(self._type)
 
     def __str__(self):
-        return "{} = {} {} ".format(self.lvalue, self.type_str, self.rvalue)
+        return f"{self.lvalue} = {self.type_str} {self.rvalue} "

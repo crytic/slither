@@ -126,17 +126,17 @@ class PrinterHumanSummary(AbstractPrinter):
             medium,
             high,
         ) = self._get_detectors_result()
-        txt = "Number of optimization issues: {}\n".format(green(optimization))
-        txt += "Number of informational issues: {}\n".format(green(informational))
-        txt += "Number of low issues: {}\n".format(green(low))
+        txt = f"Number of optimization issues: {green(optimization)}\n"
+        txt += f"Number of informational issues: {green(informational)}\n"
+        txt += f"Number of low issues: {green(low)}\n"
         if medium > 0:
-            txt += "Number of medium issues: {}\n".format(yellow(medium))
+            txt += f"Number of medium issues: {yellow(medium)}\n"
         else:
-            txt += "Number of medium issues: {}\n".format(green(medium))
+            txt += f"Number of medium issues: {green(medium)}\n"
         if high > 0:
-            txt += "Number of high issues: {}\n".format(red(high))
+            txt += f"Number of high issues: {red(high)}\n"
         else:
-            txt += "Number of high issues: {}\n\n".format(green(high))
+            txt += f"Number of high issues: {green(high)}\n\n"
 
         return txt, all_results, optimization, informational, low, medium, high
 

@@ -135,5 +135,5 @@ class SplitTernaryExpression:
 
         else:
             raise SlitherException(
-                "Ternary operation not handled {}({})".format(expression, type(expression))
+                f"Ternary operation not handled {expression}({type(expression)})"
             )

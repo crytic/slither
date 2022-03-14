@@ -38,4 +38,4 @@ class InitArray(OperationWithLValue):
             return str(elem)
 
         init_values = convert(self.init_values)
-        return "{}({}) =  {}".format(self.lvalue, self.lvalue.type, init_values)
+        return f"{self.lvalue}({self.lvalue.type}) =  {init_values}"
