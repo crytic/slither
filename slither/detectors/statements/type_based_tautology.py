@@ -11,7 +11,7 @@ from slither.core.solidity_types.elementary_type import Int, Uint
 def typeRange(t):
     bits = int(t.split("int")[1])
     if t in Uint:
-        return 0, (2**bits) - 1
+        return 0, (2 ** bits) - 1
     if t in Int:
         v = (2 ** (bits - 1)) - 1
         return -v, v

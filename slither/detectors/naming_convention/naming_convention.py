@@ -89,10 +89,13 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                 if func.is_constructor:
                     continue
                 if not self.is_mixed_case(func.name):
-                    if func.visibility in [
-                        "internal",
-                        "private",
-                    ] and self.is_mixed_case_with_underscore(func.name):
+                    if (
+                        func.visibility
+                        in [
+                            "internal",
+                            "private",
+                        ] and self.is_mixed_case_with_underscore(func.name)
+                    ):
                         continue
                     if func.name.startswith("echidna_") or func.name.startswith("crytic_"):
                         continue

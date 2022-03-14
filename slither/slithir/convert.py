@@ -170,10 +170,10 @@ def _fits_under_integer(val: int, can_be_int: bool, can_be_uint) -> List[str]:
     assert can_be_int | can_be_uint
     while n <= 256:
         if can_be_uint:
-            if val <= 2**n - 1:
+            if val <= 2 ** n - 1:
                 ret.append(f"uint{n}")
         if can_be_int:
-            if val <= (2**n) / 2 - 1:
+            if val <= (2 ** n) / 2 - 1:
                 ret.append(f"int{n}")
         n = n + 8
     return ret
