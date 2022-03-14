@@ -332,6 +332,6 @@ class SlitherCore(Context):
 
     @property
     def show_ignore_findings(self) -> bool:
-        return self.show_ignore_findings
+        return self._show_ignored_findings
 
     # endregion
