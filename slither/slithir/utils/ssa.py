@@ -139,8 +139,6 @@ class VarStates:
             return None
 
         ir_var = self._var_to_ir_var(v)
-        if isinstance(ir_var, TemporaryVariableSSA):
-            print(f"Created {ir_var} from {v}")
         self._state[v].append(ir_var)
         return ir_var
 
@@ -430,6 +428,8 @@ def ir_nodes_to_ssa(node, parent_state):
             assert not isinstance(ir, (Phi, PhiCallback))
             # if s is a non-phi statement (by design, no phi in non-ssa ir)
             ssa_irs = ir_to_ssa_form(ir, state)
+            ssa_irs.set_expression(ir.expression)
+            ssa_irs.set_node(ir.node)
             node.add_ssa_ir(ssa_irs)
 
         for successor in node.sons:
