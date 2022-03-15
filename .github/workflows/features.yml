@@ -44,4 +44,5 @@ jobs:
       - name: Test with pytest
         run: |
           pytest tests/test_features.py
+          pytest tests/test_constant_folding_unary.py
 

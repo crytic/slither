@@ -1,12 +1,13 @@
 import pathlib
 import tempfile
 from collections import defaultdict
+from contextlib import contextmanager
 from typing import Union
 
 from slither import Slither
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
-from slither.slithir.operations import OperationWithLValue, Phi
+from slither.slithir.operations import OperationWithLValue, Phi, Assignment
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import Constant, TemporaryVariableSSA
 from slither.slithir.variables.variable import SlithIRVariable
@@ -20,14 +21,8 @@ def ssa_basic_properties(function: Function):
     3. The number of ssa defs is >= the number of assignments to var
     """
     ssa_lvalues = set()
-    ssa_lvalue_names = set()
     ssa_rvalues = set()
     lvalue_assignments = {}
-
-    def get_name(ssa_var: Union[TemporaryVariableSSA, SlithIRVariable]) -> str:
-        if isinstance(ssa_var, TemporaryVariableSSA):
-            return ssa_var.name
-        return ssa_var.ssa_name
 
     for n in function.nodes:
         for ir in n.irs:
@@ -37,23 +32,24 @@ def ssa_basic_properties(function: Function):
                     lvalue_assignments[name] += 1
                 else:
                     lvalue_assignments[name] = 1
+
         for ssa in n.irs_ssa:
             if isinstance(ssa, OperationWithLValue):
                 # 1
                 assert ssa.lvalue not in ssa_lvalues
                 ssa_lvalues.add(ssa.lvalue)
 
-                # 1
-                assert get_name(ssa.lvalue) not in ssa_lvalue_names
-                ssa_lvalue_names.add(get_name(ssa.lvalue))
-
             for rvalue in filter(lambda x: not isinstance(x, Constant), ssa.read):
                 ssa_rvalues.add(rvalue)
 
     # 2
+    # Each var can have one non-defined value, the value initially held. Typically,
+    # var_0, i_0, state_0 or similar.
+    undef_vars = set()
     for rvalue in ssa_rvalues:
-        assert get_name(rvalue) in ssa_lvalue_names
-        assert rvalue in ssa_lvalues
+        if rvalue not in ssa_lvalues:
+            assert rvalue.non_ssa_version not in undef_vars
+            undef_vars.add(rvalue.non_ssa_version)
 
     # 3
     ssa_defs = defaultdict(int)
@@ -132,14 +128,19 @@ def phi_values_inserted(f: Function):
                         assert have_phi_for_var(df, ssa.lvalue)
 
 
-def verify_properties_hold(source_code: str):
+@contextmanager
+def slither_from_source(source_code: str):
     # TODO (hbrodin): CryticCompile won't compile files unless dir is specified as cwd. Not sure why.
     with tempfile.NamedTemporaryFile(suffix=".sol", mode="w", dir=pathlib.Path().cwd()) as f:
         f.write(source_code)
         f.flush()
 
-        slither = Slither(f.name)
+        yield Slither(f.name)
 
+
+
+def verify_properties_hold(source_code: str):
+    with slither_from_source(source_code) as slither:
         for cu in slither.compilation_units:
             for func in cu.functions_and_modifiers:
                 phi_values_inserted(func)
@@ -247,3 +248,38 @@ def test_free_function_properties():
        contract Test {}
        """
     verify_properties_hold(contract)
+
+
+def test_ssa_inter_transactional():
+    source = """
+    pragma solidity ^0.8.11;
+    contract A {
+        uint my_var_A;
+        uint my_var_B;
+
+        function direct_set(uint i) public {
+            my_var_A = i;
+        }
+
+        function indirect_set() public {
+            my_var_B = my_var_A;
+        }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.contracts[0]
+        variables = c.variables_as_dict
+        funcs = c.available_functions_as_dict()
+        print(funcs)
+        direct_set = funcs["direct_set(uint256)"]
+        # Skip entry point and go straight to assignment ir
+        assign = direct_set.nodes[1].irs_ssa[0]
+        assert isinstance(assign, Assignment)
+
+        indirect_set = funcs["indirect_set()"]
+        phi = indirect_set.entry_point.irs_ssa[0]
+        assert isinstance(phi, Phi)
+        # phi rvalues come from 1, initial value of my_var_a and 2, assignment in direct_set
+        assert len(phi.rvalues) == 2
+        assert all(x.non_ssa_version == variables["my_var_A"] for x in phi.rvalues)
+        assert assign.lvalue in phi.rvalues

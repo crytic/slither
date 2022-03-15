@@ -21,26 +21,26 @@ class ExpressionPrinter(ExpressionVisitor):
     def _post_assignement_operation(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
-        val = "{} {} {}".format(left, expression.type, right)
+        val = f"{left} {expression.type} {right}"
         set_val(expression, val)
 
     def _post_binary_operation(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
-        val = "{} {} {}".format(left, expression.type, right)
+        val = f"{left} {expression.type} {right}"
         set_val(expression, val)
 
     def _post_call_expression(self, expression):
         called = get(expression.called)
-        arguments = [get(x) for x in expression.arguments if x]
-        val = "{}({})".format(called, ",".join(arguments))
+        arguments = ",".join([get(x) for x in expression.arguments if x])
+        val = f"{called}({arguments})"
         set_val(expression, val)
 
     def _post_conditional_expression(self, expression):
         if_expr = get(expression.if_expression)
         else_expr = get(expression.else_expression)
         then_expr = get(expression.then_expression)
-        val = "if {} then {} else {}".format(if_expr, else_expr, then_expr)
+        val = f"if {if_expr} then {else_expr} else {then_expr}"
         set_val(expression, val)
 
     def _post_elementary_type_name_expression(self, expression):
@@ -52,7 +52,7 @@ class ExpressionPrinter(ExpressionVisitor):
     def _post_index_access(self, expression):
         left = get(expression.expression_left)
         right = get(expression.expression_right)
-        val = "{}[{}]".format(left, right)
+        val = f"{left}[{right}]"
         set_val(expression, val)
 
     def _post_literal(self, expression):
@@ -61,41 +61,41 @@ class ExpressionPrinter(ExpressionVisitor):
     def _post_member_access(self, expression):
         expr = get(expression.expression)
         member_name = str(expression.member_name)
-        val = "{}.{}".format(expr, member_name)
+        val = f"{expr}.{member_name}"
         set_val(expression, val)
 
     def _post_new_array(self, expression):
         array = str(expression.array_type)
         depth = expression.depth
-        val = "new {}{}".format(array, "[]" * depth)
+        val = f"new {array}{'[]' * depth}"
         set_val(expression, val)
 
     def _post_new_contract(self, expression):
         contract = str(expression.contract_name)
-        val = "new {}".format(contract)
+        val = f"new {contract}"
         set_val(expression, val)
 
     def _post_new_elementary_type(self, expression):
         t = str(expression.type)
-        val = "new {}".format(t)
+        val = f"new {t}"
         set_val(expression, val)
 
     def _post_tuple_expression(self, expression):
         expressions = [get(e) for e in expression.expressions if e]
-        val = "({})".format(",".join(expressions))
+        val = f"({','.join(expressions)})"
         set_val(expression, val)
 
     def _post_type_conversion(self, expression):
         t = str(expression.type)
         expr = get(expression.expression)
-        val = "{}({})".format(t, expr)
+        val = f"{t}({expr})"
         set_val(expression, val)
 
     def _post_unary_operation(self, expression):
         t = str(expression.type)
         expr = get(expression.expression)
         if expression.is_prefix:
-            val = "{}{}".format(t, expr)
+            val = f"{t}{expr}"
         else:
-            val = "{}{}".format(expr, t)
+            val = f"{expr}{t}"
         set_val(expression, val)

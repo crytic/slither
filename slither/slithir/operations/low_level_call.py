@@ -90,9 +90,9 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         value = ""
         gas = ""
         if self.call_value:
-            value = "value:{}".format(self.call_value)
+            value = f"value:{self.call_value}"
         if self.call_gas:
-            gas = "gas:{}".format(self.call_gas)
+            gas = f"gas:{self.call_gas}"
         arguments = []
         if self.arguments:
             arguments = self.arguments

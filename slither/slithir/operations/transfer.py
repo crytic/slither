@@ -27,5 +27,5 @@ class Transfer(Call):
         return self._destination
 
     def __str__(self):
-        value = "value:{}".format(self.call_value)
-        return "Transfer dest:{} {}".format(self.destination, value)
+        value = f"value:{self.call_value}"
+        return f"Transfer dest:{self.destination} {value}"

@@ -35,7 +35,7 @@ class RequireOrAssert(AbstractPrinter):
         all_tables = []
         all_txt = ""
         for contract in self.slither.contracts_derived:
-            txt = "\nContract %s" % contract.name
+            txt = f"\nContract {contract.name}"
             table = MyPrettyTable(["Function", "require or assert"])
             for function in contract.functions:
                 require = function.all_slithir_operations()

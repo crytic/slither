@@ -144,9 +144,9 @@ class HighLevelCall(Call, OperationWithLValue):
         value = ""
         gas = ""
         if self.call_value:
-            value = "value:{}".format(self.call_value)
+            value = f"value:{self.call_value}"
         if self.call_gas:
-            gas = "gas:{}".format(self.call_gas)
+            gas = f"gas:{self.call_gas}"
         arguments = []
         if self.arguments:
             arguments = self.arguments
@@ -155,9 +155,9 @@ class HighLevelCall(Call, OperationWithLValue):
         if not self.lvalue:
             lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
+            lvalue = f"{self.lvalue}({','.join(str(x) for x in self.lvalue.type)}) = "
         else:
-            lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
+            lvalue = f"{self.lvalue}({self.lvalue.type}) = "
         return txt.format(
             lvalue,
             self.destination,
