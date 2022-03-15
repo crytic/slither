@@ -455,7 +455,7 @@ def convert_yul_switch(
     expression_ast = ast["expression"]
 
     # this variable stores the result of the expression so we don't accidentally compute it more than once
-    switch_expr_var = "switch_expr_{}".format(ast["src"].replace(":", "_"))
+    switch_expr_var = f"switch_expr_{ast['src'].replace(':', '_')}"
 
     rewritten_switch = {
         "nodeType": "YulBlock",
@@ -851,7 +851,7 @@ def vars_to_typestr(rets: List[Expression]) -> str:
         return ""
     if len(rets) == 1:
         return str(rets[0].type)
-    return "tuple({})".format(",".join(str(ret.type) for ret in rets))
+    return f"tuple({','.join(str(ret.type) for ret in rets)})"
 
 
 def vars_to_val(vars_to_convert):

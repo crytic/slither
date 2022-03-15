@@ -321,7 +321,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 set_val(expression, val)
 
     def _post_conditional_expression(self, expression):
-        raise Exception("Ternary operator are not convertible to SlithIR {}".format(expression))
+        raise Exception(f"Ternary operator are not convertible to SlithIR {expression}")
 
     def _post_elementary_type_name_expression(self, expression):
         set_val(expression, expression.type)
@@ -517,4 +517,4 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, lvalue)
         else:
-            raise SlithIRError("Unary operation to IR not supported {}".format(expression))
+            raise SlithIRError(f"Unary operation to IR not supported {expression}")

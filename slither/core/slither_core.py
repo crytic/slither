@@ -155,7 +155,7 @@ class SlitherCore(Context):
         for compilation_unit in self._compilation_units:
             for c in compilation_unit.contracts:
                 for f in c.functions:
-                    f.cfg_to_dot(os.path.join(d, "{}.{}.dot".format(c.name, f.name)))
+                    f.cfg_to_dot(os.path.join(d, f"{c.name}.{f.name}.dot"))
 
     # endregion
     ###################################################################################
@@ -261,9 +261,7 @@ class SlitherCore(Context):
                             if "id" in r:
                                 self._previous_results_ids.add(r["id"])
         except json.decoder.JSONDecodeError:
-            logger.error(
-                red("Impossible to decode {}. Consider removing the file".format(filename))
-            )
+            logger.error(red(f"Impossible to decode {filename}. Consider removing the file"))
 
     def write_results_to_hide(self):
         if not self._results_to_hide:
