@@ -468,10 +468,10 @@ def add_ssa_ir(function, all_state_variables_instances):
     # We only add phi function for state variable at entry node if
     # The state variable is used
     # And if the state variables is written in another function (otherwise its stay at index 0)
-    #for (_, variable_instance) in all_state_variables_instances.items():
-        #if is_used_later(function.entry_point, variable_instance):
+    for (_, variable_instance) in all_state_variables_instances.items():
+        if is_used_later(function.entry_point, variable_instance):
             # rvalues are fixed in solc_parsing.declaration.function
-            #function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
+            function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
     # Create the initial set of numbered variables
     # TODO (hbrodin): Add the storage part from below as well
