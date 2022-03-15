@@ -21,9 +21,9 @@ nodes = test.nodes
 
 for node in nodes:
     if node.expression:
-        print("Expression:\n\t{}".format(node.expression))
+        print(f"Expression:\n\t{node.expression}")
         irs = convert_expression(node.expression, node)
         print("IR expressions:")
         for ir in irs:
-            print("\t{}".format(ir))
+            print(f"\t{ir}")
         print()

@@ -19,21 +19,13 @@ contract = contracts[0]
 destination = contract.get_state_variable_from_name("destination")
 source = contract.get_state_variable_from_name("source")
 
-print(
-    "{} is dependent of {}: {}".format(
-        source, destination, is_dependent(source, destination, contract)
-    )
-)
+print(f"{source} is dependent of {destination}: {is_dependent(source, destination, contract)}")
 assert not is_dependent(source, destination, contract)
-print(
-    "{} is dependent of {}: {}".format(
-        destination, source, is_dependent(destination, source, contract)
-    )
-)
+print(f"{destination} is dependent of {source}: {is_dependent(destination, source, contract)}")
 assert is_dependent(destination, source, contract)
-print("{} is tainted {}".format(source, is_tainted(source, contract)))
+print(f"{source} is tainted {is_tainted(source, contract)}")
 assert not is_tainted(source, contract)
-print("{} is tainted {}".format(destination, is_tainted(destination, contract)))
+print(f"{destination} is tainted {is_tainted(destination, contract)}")
 assert is_tainted(destination, contract)
 
 contracts = slither.get_contract_from_name("Reference")
@@ -45,32 +37,20 @@ source = contract.get_state_variable_from_name("source")
 assert source
 
 print("Reference contract")
-print(
-    "{} is dependent of {}: {}".format(
-        source, destination, is_dependent(source, destination, contract)
-    )
-)
+print(f"{source} is dependent of {destination}: {is_dependent(source, destination, contract)}")
 assert not is_dependent(source, destination, contract)
-print(
-    "{} is dependent of {}: {}".format(
-        destination, source, is_dependent(destination, source, contract)
-    )
-)
+print(f"{destination} is dependent of {source}: {is_dependent(destination, source, contract)}")
 assert is_dependent(destination, source, contract)
-print("{} is tainted {}".format(source, is_tainted(source, contract)))
+print(f"{source} is tainted {is_tainted(source, contract)}")
 assert not is_tainted(source, contract)
-print("{} is tainted {}".format(destination, is_tainted(destination, contract)))
+print(f"{destination} is tainted {is_tainted(destination, contract)}")
 assert is_tainted(destination, contract)
 
 destination_indirect_1 = contract.get_state_variable_from_name("destination_indirect_1")
-print(
-    "{} is tainted {}".format(destination_indirect_1, is_tainted(destination_indirect_1, contract))
-)
+print(f"{destination_indirect_1} is tainted {is_tainted(destination_indirect_1, contract)}")
 assert is_tainted(destination_indirect_1, contract)
 destination_indirect_2 = contract.get_state_variable_from_name("destination_indirect_2")
-print(
-    "{} is tainted {}".format(destination_indirect_2, is_tainted(destination_indirect_2, contract))
-)
+print(f"{destination_indirect_2} is tainted {is_tainted(destination_indirect_2, contract)}")
 assert is_tainted(destination_indirect_2, contract)
 
 print("SolidityVar contract")
@@ -83,13 +63,9 @@ assert addr_1
 addr_2 = contract.get_state_variable_from_name("addr_2")
 assert addr_2
 msgsender = SolidityVariableComposed("msg.sender")
-print(
-    "{} is dependent of {}: {}".format(addr_1, msgsender, is_dependent(addr_1, msgsender, contract))
-)
+print(f"{addr_1} is dependent of {msgsender}: {is_dependent(addr_1, msgsender, contract)}")
 assert is_dependent(addr_1, msgsender, contract)
-print(
-    "{} is dependent of {}: {}".format(addr_2, msgsender, is_dependent(addr_2, msgsender, contract))
-)
+print(f"{addr_2} is dependent of {msgsender}: {is_dependent(addr_2, msgsender, contract)}")
 assert not is_dependent(addr_2, msgsender, contract)
 
 
@@ -102,11 +78,7 @@ assert destination
 source = contract.get_state_variable_from_name("source")
 assert source
 
-print(
-    "{} is dependent of {}: {}".format(
-        destination, source, is_dependent(destination, source, contract)
-    )
-)
+print(f"{destination} is dependent of {source}: {is_dependent(destination, source, contract)}")
 assert is_dependent(destination, source, contract)
 
 print("Base Derived contract")
@@ -117,16 +89,10 @@ contract_derived = slither.get_contract_from_name("Derived")[0]
 destination = contract.get_state_variable_from_name("destination")
 source = contract.get_state_variable_from_name("source")
 
-print(
-    "{} is dependent of {}: {} (base)".format(
-        destination, source, is_dependent(destination, source, contract)
-    )
-)
+print(f"{destination} is dependent of {source}: {is_dependent(destination, source, contract)}")
 assert not is_dependent(destination, source, contract)
 print(
-    "{} is dependent of {}: {} (derived)".format(
-        destination, source, is_dependent(destination, source, contract_derived)
-    )
+    f"{destination} is dependent of {source}: {is_dependent(destination, source, contract_derived)}"
 )
 assert is_dependent(destination, source, contract_derived)
 
@@ -147,12 +113,10 @@ user_input = f.parameters[0]
 f2 = contract.get_function_from_signature("f2(uint256,uint256)")
 
 print(
-    "{} is dependent of {}: {} (base)".format(
-        var_dependant, user_input, is_dependent(var_dependant, user_input, contract)
-    )
+    f"{var_dependant} is dependent of {user_input}: {is_dependent(var_dependant, user_input, contract)} (base)"
 )
 assert is_dependent(var_dependant, user_input, contract)
-print("{} is tainted: {}".format(var_tainted, is_tainted(var_tainted, contract)))
+print(f"{var_tainted} is tainted: {is_tainted(var_tainted, contract)}")
 assert is_tainted(var_tainted, contract)
-print("{} is tainted: {}".format(var_not_tainted, is_tainted(var_not_tainted, contract)))
+print(f"{var_not_tainted} is tainted: {is_tainted(var_not_tainted, contract)}")
 assert not is_tainted(var_not_tainted, contract)
