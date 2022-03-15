@@ -268,15 +268,15 @@ def pprint_dependency(caller_context: Context_types) -> None:
     print("#### SSA ####")
     context = caller_context.context
     for k, values in context[KEY_SSA].items():
-        print("{} ({}):".format(k, id(k)))
+        print(f"{k} ({id(k)}):")
         for v in values:
-            print("\t- {}".format(v))
+            print(f"\t- {v}")
 
     print("#### NON SSA ####")
     for k, values in context[KEY_NON_SSA].items():
-        print("{} ({}):".format(k, hex(id(k))))
+        print(f"{k} ({hex(id(k))}):")
         for v in values:
-            print("\t- {} ({})".format(v, hex(id(v))))
+            print(f"\t- {v} ({hex(id(v))})")
 
 
 # endregion

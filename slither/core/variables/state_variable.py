@@ -58,7 +58,7 @@ class StateVariable(ChildContract, Variable):
 
     @property
     def canonical_name(self) -> str:
-        return "{}.{}".format(self.contract.name, self.name)
+        return f"{self.contract.name}.{self.name}"
 
     @property
     def full_name(self) -> str:

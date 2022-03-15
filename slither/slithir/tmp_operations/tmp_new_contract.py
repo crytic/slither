@@ -34,4 +34,4 @@ class TmpNewContract(OperationWithLValue):
         return []
 
     def __str__(self):
-        return "{} = new {}".format(self.lvalue, self.contract_name)
+        return f"{self.lvalue} = new {self.contract_name}"
