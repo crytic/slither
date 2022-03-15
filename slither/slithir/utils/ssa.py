@@ -174,34 +174,6 @@ class VarStates:
         yield self
         [self._state[k].keep_instances(v) for (k, v) in captured_state.items()]
 
-def derive_ssa_initial_state(f: Function, state_variables):
-
-    # TODO (hbrodin): Consiter if the state_variables should be separate
-    # e.g. to not reuse state variable indices.
-    # Old version seems to produce a phi for all state vra writes, but
-    # there are cases that are not possible
-    # state_var = 1
-    # state_var = 2
-    # state_var = 3
-    # No function will see state_var being 1 or 2
-    # However, care needs to be taken:
-    # state_var = 1
-    # external_call()
-    # state_var = 2
-    # state_var = 3
-    # Here, state_var ==1 can be seen elsewhere
-    # There are even more complex cases when loops are involved
-
-    vs = VarStates()
-    # TODO (hbrodin): Should it be like this?
-    #for lv in filter(lambda x: x.name, f.parameters + f.returns):
-    #    _add_ir_var(d, lv)
-
-    #for sv in state_variables:
-    #    if is_used_later(f.entry_point, sv):
-    #        vs.add(sv)
-    return vs
-
 
 def ir_to_ssa_form(ir, state):
     """
