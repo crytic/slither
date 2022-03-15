@@ -444,7 +444,7 @@ def ir_nodes_to_ssa(node, parent_state):
     print(f"LEAVE {node}")
 
 
-def add_ssa_ir(function, all_state_variables_instances):
+def add_ssa_ir(function, all_state_variables_instances, ssa_state = None):
     """
         Add SSA version of the IR
     Args:
@@ -455,15 +455,8 @@ def add_ssa_ir(function, all_state_variables_instances):
     if not function.is_implemented:
         return
 
-    # init_definition = {}
-    # for v in function.parameters:
-    #     if v.name:
-    #         init_definition[v.name] = (v, function.entry_point)
-    #         function.entry_point.add_ssa_ir(Phi(LocalIRVariable(v), set()))
-    #
-    # for v in function.returns:
-    #     if v.name:
-    #         init_definition[v.name] = (v, function.entry_point)
+    if ssa_state is None:
+        ssa_state = VarStates()
 
     # We only add phi function for state variable at entry node if
     # The state variable is used
@@ -471,19 +464,15 @@ def add_ssa_ir(function, all_state_variables_instances):
     for (_, variable_instance) in all_state_variables_instances.items():
         if is_used_later(function.entry_point, variable_instance):
             # rvalues are fixed in solc_parsing.declaration.function
-            function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
-
-    # Create the initial set of numbered variables
-    # TODO (hbrodin): Add the storage part from below as well
-    vars = derive_ssa_initial_state(function, all_state_variables_instances.values())
+            function.entry_point.add_ssa_ir(Phi(ssa_state.get(variable_instance), set()))
 
     # Adding phi-nodes based on control flow of function
     # TODO (hbrodin): add phi nodes after calls (.. maybe later when we have the calls??)
-    add_phi_origins(function.nodes, vars)
+    add_phi_origins(function.nodes, ssa_state)
 
     # Transform IR to SSA ir by cloning IR nodes and add version info. This will also
     # append Phi-nodes after external calls (for any state variable currently used).
-    ir_nodes_to_ssa(function.entry_point, vars)
+    ir_nodes_to_ssa(function.entry_point, ssa_state)
 
 
     return

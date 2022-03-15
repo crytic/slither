@@ -1258,23 +1258,27 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         :return:
         """
         from slither.slithir.variables import StateIRVariable
+        from slither.slithir.utils.ssa import VarStates
 
         all_ssa_state_variables_instances = {}
+        ssa_state = VarStates()
 
         for contract in self.inheritance:
             for v in contract.state_variables_declared:
+                ssa_state.add(v)
                 new_var = StateIRVariable(v)
                 all_ssa_state_variables_instances[v.canonical_name] = new_var
                 self._initial_state_variables.append(new_var)
 
         for v in self.variables:
             if v.contract == self:
+                ssa_state.add(v)
                 new_var = StateIRVariable(v)
                 all_ssa_state_variables_instances[v.canonical_name] = new_var
                 self._initial_state_variables.append(new_var)
 
         for func in self.functions + self.modifiers:
-            func.generate_slithir_ssa(all_ssa_state_variables_instances)
+            func.generate_slithir_ssa(all_ssa_state_variables_instances, ssa_state)
 
     def fix_phi(self):
         last_state_variables_instances = {}
