@@ -21,14 +21,8 @@ def ssa_basic_properties(function: Function):
     3. The number of ssa defs is >= the number of assignments to var
     """
     ssa_lvalues = set()
-    ssa_lvalue_names = set()
     ssa_rvalues = set()
     lvalue_assignments = {}
-
-    def get_name(ssa_var: Union[TemporaryVariableSSA, SlithIRVariable]) -> str:
-        if isinstance(ssa_var, TemporaryVariableSSA):
-            return ssa_var.name
-        return ssa_var.ssa_name
 
     for n in function.nodes:
         for ir in n.irs:
@@ -38,23 +32,24 @@ def ssa_basic_properties(function: Function):
                     lvalue_assignments[name] += 1
                 else:
                     lvalue_assignments[name] = 1
+
         for ssa in n.irs_ssa:
             if isinstance(ssa, OperationWithLValue):
                 # 1
                 assert ssa.lvalue not in ssa_lvalues
                 ssa_lvalues.add(ssa.lvalue)
 
-                # 1
-                assert get_name(ssa.lvalue) not in ssa_lvalue_names
-                ssa_lvalue_names.add(get_name(ssa.lvalue))
-
             for rvalue in filter(lambda x: not isinstance(x, Constant), ssa.read):
                 ssa_rvalues.add(rvalue)
 
     # 2
+    # Each var can have one non-defined value, the value initially held. Typically,
+    # var_0, i_0, state_0 or similar.
+    undef_vars = set()
     for rvalue in ssa_rvalues:
-        assert get_name(rvalue) in ssa_lvalue_names
-        assert rvalue in ssa_lvalues
+        if rvalue not in ssa_lvalues:
+            assert rvalue.non_ssa_version not in undef_vars
+            undef_vars.add(rvalue.non_ssa_version)
 
     # 3
     ssa_defs = defaultdict(int)
