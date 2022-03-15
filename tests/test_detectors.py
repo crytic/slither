@@ -724,6 +724,11 @@ ALL_TEST_OBJECTS = [
         "right_to_left_override.sol",
         "0.6.11",
     ),
+    Test(
+        all_detectors.RightToLeftOverride,
+        "unicode_direction_override.sol",
+        "0.8.0",
+    ),
     Test(all_detectors.VoidConstructor, "void-cst.sol", "0.4.25"),
     Test(all_detectors.VoidConstructor, "void-cst.sol", "0.5.16"),
     Test(all_detectors.VoidConstructor, "void-cst.sol", "0.6.11"),
