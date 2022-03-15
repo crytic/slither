@@ -7,7 +7,7 @@ from typing import Union
 from slither import Slither
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
-from slither.slithir.operations import OperationWithLValue, Phi
+from slither.slithir.operations import OperationWithLValue, Phi, Assignment
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import Constant, TemporaryVariableSSA
 from slither.slithir.variables.variable import SlithIRVariable
@@ -248,3 +248,38 @@ def test_free_function_properties():
        contract Test {}
        """
     verify_properties_hold(contract)
+
+
+def test_ssa_inter_transactional():
+    source = """
+    pragma solidity ^0.8.11;
+    contract A {
+        uint my_var_A;
+        uint my_var_B;
+
+        function direct_set(uint i) public {
+            my_var_A = i;
+        }
+
+        function indirect_set() public {
+            my_var_B = my_var_A;
+        }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.contracts[0]
+        variables = c.variables_as_dict
+        funcs = c.available_functions_as_dict()
+        print(funcs)
+        direct_set = funcs["direct_set(uint256)"]
+        # Skip entry point and go straight to assignment ir
+        assign = direct_set.nodes[1].irs_ssa[0]
+        assert isinstance(assign, Assignment)
+
+        indirect_set = funcs["indirect_set()"]
+        phi = indirect_set.entry_point.irs_ssa[0]
+        assert isinstance(phi, Phi)
+        # phi rvalues come from 1, initial value of my_var_a and 2, assignment in direct_set
+        assert len(phi.rvalues) == 2
+        assert all(x.non_ssa_version == variables["my_var_A"] for x in phi.rvalues)
+        assert assign.lvalue in phi.rvalues
