@@ -6,8 +6,8 @@ from typing import Union
 
 from slither import Slither
 from slither.core.cfg.node import Node
-from slither.core.declarations import Function
-from slither.slithir.operations import OperationWithLValue, Phi, Assignment
+from slither.core.declarations import Function, Contract
+from slither.slithir.operations import OperationWithLValue, Phi, Assignment, HighLevelCall
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import Constant, TemporaryVariableSSA
 from slither.slithir.variables.variable import SlithIRVariable
@@ -148,6 +148,20 @@ def verify_properties_hold(source_code: str):
                 ssa_phi_node_properties(func)
                 dominance_properties(func)
 
+def _dump_function(f: Function):
+    """Helper function to print nodes/ssa ir for a function or modifier"""
+    print(f"---- {f} ----")
+    for n in f.nodes:
+        print(n)
+        for ir in n.irs_ssa:
+            print(f"\t{ir}")
+    print("")
+
+def _dump_functions(c: Contract):
+    """Helper function to print functions and modifiers of a contract"""
+    for f in c.functions_and_modifiers:
+        _dump_function(f)
+
 
 def test_multi_write():
     contract = """
@@ -261,6 +275,10 @@ def test_ssa_inter_transactional():
             my_var_A = i;
         }
 
+        function direct_set_plus_one(uint i) public {
+            my_var_A = i + 1;
+        }
+
         function indirect_set() public {
             my_var_B = my_var_A;
         }
@@ -273,13 +291,72 @@ def test_ssa_inter_transactional():
         print(funcs)
         direct_set = funcs["direct_set(uint256)"]
         # Skip entry point and go straight to assignment ir
-        assign = direct_set.nodes[1].irs_ssa[0]
-        assert isinstance(assign, Assignment)
+        assign1 = direct_set.nodes[1].irs_ssa[0]
+        assert isinstance(assign1, Assignment)
+
+        direct_set_plus_one = funcs["direct_set_plus_one(uint256)"]
+        assign2 = direct_set.nodes[1].irs_ssa[0]
+        assert isinstance(assign2, Assignment)
 
         indirect_set = funcs["indirect_set()"]
         phi = indirect_set.entry_point.irs_ssa[0]
         assert isinstance(phi, Phi)
         # phi rvalues come from 1, initial value of my_var_a and 2, assignment in direct_set
-        assert len(phi.rvalues) == 2
+        assert len(phi.rvalues) == 3
         assert all(x.non_ssa_version == variables["my_var_A"] for x in phi.rvalues)
-        assert assign.lvalue in phi.rvalues
+        assert assign1.lvalue in phi.rvalues
+        assert assign2.lvalue in phi.rvalues
+
+
+def test_ssa_phi_callbacks():
+    source = """
+    pragma solidity ^0.8.11;
+    contract A {
+        uint my_var_A;
+        uint my_var_B;
+
+        function direct_set(uint i) public {
+            my_var_A = i;
+        }
+
+        function use_a() public {
+            // Expect a phi-node here
+            my_var_B = my_var_A;
+            B b = new B();
+            my_var_A = 3;
+            b.do_stuff();
+            // Expect a phi-node here
+            my_var_B = my_var_A;
+        }
+    }
+
+    contract B {
+        function do_stuff() public returns (uint) {
+            // This could be calling back into A
+        }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("A")[0]
+        _dump_functions(c)
+        f = [x for x in c.functions if x.name == "use_a"][0]
+        var_a = [x for x in c.variables if x.name == "my_var_A"][0]
+
+        entry_phi = [x for x in f.entry_point.irs_ssa if isinstance(x, Phi) and x.lvalue.non_ssa_version == var_a][0]
+        # The four potential sources are:
+        # 1. initial value
+        # 2. my_var_A = i;
+        # 3. my_var_A = 3;
+        # 4. phi-value after call to b.do_stuff(), which could be reentrant.
+        assert len(entry_phi.rvalues) == 4
+
+        # Locate the first high-level call (should be b.do_stuff())
+        call_node = [x for y in f.nodes for x in y.irs_ssa if isinstance(x, HighLevelCall)][0]
+        n = call_node.node
+        # Get phi-node after call
+        after_call_phi = n.irs_ssa[n.irs_ssa.index(call_node)+1]
+        # The two sources for this phi node is
+        # 1. my_var_A = i;
+        # 2. my_var_A = 3;
+        assert isinstance(after_call_phi, Phi)
+        assert len(after_call_phi.rvalues) == 2
