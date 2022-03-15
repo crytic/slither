@@ -6,7 +6,7 @@
                     "type": "other",
                     "name": "rtlo-character",
                     "source_mapping": {
-                        "start": 223,
+                        "start": 336,
                         "length": 3,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
@@ -14,75 +14,17 @@
                         "filename_short": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
                         "is_dependency": false,
                         "lines": [
-                            12
-                        ],
-                        "starting_column": 17,
-                        "ending_column": 20
-                    }
-                }
-            ],
-            "description": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 223:\n\t- b'\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xac\\xe2\\x80\\xac\\xe2\\x80\\xac*/'\n",
-            "markdown": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 223:\n\t- b'\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xac\\xe2\\x80\\xac\\xe2\\x80\\xac*/'\n",
-            "first_markdown_element": "",
-            "id": "7a2b499e9770d60be6e2317690b2e031783ac7f6e4d75b9695cffdc3e3c10765",
-            "check": "rtlo",
-            "impact": "High",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "other",
-                    "name": "rtlo-character",
-                    "source_mapping": {
-                        "start": 159,
-                        "length": 3,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            9
-                        ],
-                        "starting_column": 17,
-                        "ending_column": 20
-                    }
-                }
-            ],
-            "description": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 159:\n\t- b'\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xac\\xe2\\x80\\xac*/'\n",
-            "markdown": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 159:\n\t- b'\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xac\\xe2\\x80\\xac*/'\n",
-            "first_markdown_element": "",
-            "id": "9053fe3415644e38ad004b570e143162d4f01d73e58821de42379b94e24fb102",
-            "check": "rtlo",
-            "impact": "High",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "other",
-                    "name": "rtlo-character",
-                    "source_mapping": {
-                        "start": 220,
-                        "length": 3,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            12
+                            8
                         ],
                         "starting_column": 14,
                         "ending_column": 17
                     }
                 }
             ],
-            "description": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 220:\n\t- b'        /*ok \\xe2\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xac\\xe2\\x80\\xac\\xe2\\x80\\xac*/'\n",
-            "markdown": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 220:\n\t- b'        /*ok \\xe2\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xac\\xe2\\x80\\xac\\xe2\\x80\\xac*/'\n",
+            "description": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 336:\n\t- b'        /*ok \\xe2\\x80\\xaeaaa\\xe2\\x80\\xaebbb\\xe2\\x80\\xaeccc\\xe2\\x80\\xacddd\\xe2\\x80\\xaceee\\xe2\\x80\\xac*/'\n",
+            "markdown": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 336:\n\t- b'        /*ok \\xe2\\x80\\xaeaaa\\xe2\\x80\\xaebbb\\xe2\\x80\\xaeccc\\xe2\\x80\\xacddd\\xe2\\x80\\xaceee\\xe2\\x80\\xac*/'\n",
             "first_markdown_element": "",
-            "id": "a617cc0a69d5a0941d1a1f72bde55990c21069564e51811783f5788fcc974d82",
+            "id": "2407672dea557be27d0c488ba9c714e6a7f21dd3f7759058e718c1984e142f95",
             "check": "rtlo",
             "impact": "High",
             "confidence": "High"
@@ -93,7 +35,7 @@
                     "type": "other",
                     "name": "rtlo-character",
                     "source_mapping": {
-                        "start": 106,
+                        "start": 348,
                         "length": 3,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
@@ -101,17 +43,17 @@
                         "filename_short": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
                         "is_dependency": false,
                         "lines": [
-                            6
+                            8
                         ],
-                        "starting_column": 14,
-                        "ending_column": 17
+                        "starting_column": 26,
+                        "ending_column": 29
                     }
                 }
             ],
-            "description": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 106:\n\t- b'        /*ok \\xe2\\x80\\xae\\xe2\\x80\\xac*/'\n",
-            "markdown": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 106:\n\t- b'        /*ok \\xe2\\x80\\xae\\xe2\\x80\\xac*/'\n",
+            "description": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 348:\n\t- b'\\x80\\xaebbb\\xe2\\x80\\xaeccc\\xe2\\x80\\xacddd\\xe2\\x80\\xaceee\\xe2\\x80\\xac*/'\n",
+            "markdown": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 348:\n\t- b'\\x80\\xaebbb\\xe2\\x80\\xaeccc\\xe2\\x80\\xacddd\\xe2\\x80\\xaceee\\xe2\\x80\\xac*/'\n",
             "first_markdown_element": "",
-            "id": "c61831a55b62885b532c9e068a8cb863f4ee2a976ade3f6a1827ff134187377a",
+            "id": "477e54031d4d30d485b9cdc2d7ef3e9ae3de52640364505df8eb9619c2bcde6b",
             "check": "rtlo",
             "impact": "High",
             "confidence": "High"
@@ -122,7 +64,7 @@
                     "type": "other",
                     "name": "rtlo-character",
                     "source_mapping": {
-                        "start": 226,
+                        "start": 342,
                         "length": 3,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
@@ -130,46 +72,17 @@
                         "filename_short": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
                         "is_dependency": false,
                         "lines": [
-                            12
+                            8
                         ],
                         "starting_column": 20,
                         "ending_column": 23
                     }
                 }
             ],
-            "description": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 226:\n\t- b'\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xac\\xe2\\x80\\xac\\xe2\\x80\\xac*/'\n",
-            "markdown": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 226:\n\t- b'\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xac\\xe2\\x80\\xac\\xe2\\x80\\xac*/'\n",
+            "description": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 342:\n\t- b'\\x80\\xaeaaa\\xe2\\x80\\xaebbb\\xe2\\x80\\xaeccc\\xe2\\x80\\xacddd\\xe2\\x80\\xaceee\\xe2\\x80\\xac*/'\n",
+            "markdown": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 342:\n\t- b'\\x80\\xaeaaa\\xe2\\x80\\xaebbb\\xe2\\x80\\xaeccc\\xe2\\x80\\xacddd\\xe2\\x80\\xaceee\\xe2\\x80\\xac*/'\n",
             "first_markdown_element": "",
-            "id": "d7e72573b0c127597c8dd7bcad9d49e2bedd78a5ccf65d18ede4a18220567e0e",
-            "check": "rtlo",
-            "impact": "High",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "other",
-                    "name": "rtlo-character",
-                    "source_mapping": {
-                        "start": 156,
-                        "length": 3,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            9
-                        ],
-                        "starting_column": 14,
-                        "ending_column": 17
-                    }
-                }
-            ],
-            "description": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 156:\n\t- b'        /*ok \\xe2\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xac\\xe2\\x80\\xac*/'\n",
-            "markdown": "tests/detectors/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 156:\n\t- b'        /*ok \\xe2\\x80\\xae\\xe2\\x80\\xae\\xe2\\x80\\xac\\xe2\\x80\\xac*/'\n",
-            "first_markdown_element": "",
-            "id": "e99f3e2fcbb81251d841f17f18c8beb86531dced22cd9e36a81263f4aa820727",
+            "id": "9dd23585bb0ff1f244f749281b27f62978e0bb5b0ae58c8c9cb6d3f9c7e82253",
             "check": "rtlo",
             "impact": "High",
             "confidence": "High"
