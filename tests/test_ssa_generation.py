@@ -1,6 +1,7 @@
 import pathlib
 import tempfile
 from collections import defaultdict
+from contextlib import contextmanager
 from typing import Union
 
 from slither import Slither
@@ -132,14 +133,19 @@ def phi_values_inserted(f: Function):
                         assert have_phi_for_var(df, ssa.lvalue)
 
 
-def verify_properties_hold(source_code: str):
+@contextmanager
+def slither_from_source(source_code: str):
     # TODO (hbrodin): CryticCompile won't compile files unless dir is specified as cwd. Not sure why.
     with tempfile.NamedTemporaryFile(suffix=".sol", mode="w", dir=pathlib.Path().cwd()) as f:
         f.write(source_code)
         f.flush()
 
-        slither = Slither(f.name)
+        yield Slither(f.name)
 
+
+
+def verify_properties_hold(source_code: str):
+    with slither_from_source(source_code) as slither:
         for cu in slither.compilation_units:
             for func in cu.functions_and_modifiers:
                 phi_values_inserted(func)
