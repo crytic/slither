@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from typing import Union
 
 from slither import Slither
-from slither.core.cfg.node import Node
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
 from slither.slithir.operations import OperationWithLValue, Phi, Assignment, HighLevelCall
 from slither.slithir.utils.ssa import is_used_later
@@ -150,7 +150,7 @@ def verify_properties_hold(source_code: str):
 
 def _dump_function(f: Function):
     """Helper function to print nodes/ssa ir for a function or modifier"""
-    print(f"---- {f} ----")
+    print(f"---- {f.name} ----")
     for n in f.nodes:
         print(n)
         for ir in n.irs_ssa:
@@ -360,3 +360,55 @@ def test_ssa_phi_callbacks():
         # 2. my_var_A = 3;
         assert isinstance(after_call_phi, Phi)
         assert len(after_call_phi.rvalues) == 2
+
+def test_issue_468():
+    """"
+    Ensure issue 468 is corrected as per
+    https://github.com/crytic/slither/issues/468#issuecomment-620974151
+    The one difference is that we allow the phi-function at entry of f to
+    hold exit state which contains init state and state from branch, which
+    is a bit redundant. This could be further simplified.
+    """
+    source = """
+    contract State {
+    int state = 0;
+    function f(int a) public returns (int) {
+        // phi-node here for state
+        if (a < 1) {
+            state += 1;
+        }
+        // phi-node here for state
+        return state;
+    }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("State")[0]
+        f = [x for x in c.functions if x.name == "f"][0]
+
+        # Check that there is an entry point phi values for each later value
+        # plus one additional which is the initial value
+        entry_ssa = f.entry_point.irs_ssa
+        assert len(entry_ssa) ==1
+        phi_entry = entry_ssa[0]
+        assert isinstance(phi_entry, Phi)
+
+        # Find the second phi function
+        endif_node = [x for x in f.nodes if x.type == NodeType.ENDIF][0]
+        assert len(endif_node.irs_ssa) == 1
+        phi_endif = endif_node.irs_ssa[0]
+        assert isinstance(phi_endif, Phi)
+
+        # Ensure second phi-function contains init-phi and one additional
+        assert len(phi_endif.rvalues) == 2
+        assert phi_entry.lvalue in phi_endif.rvalues
+
+        # Find return-statement and ensure it returns the phi_endif
+        return_node = [x for x in f.nodes if x.type == NodeType.RETURN][0]
+        assert len(return_node.irs_ssa) == 1
+        ret = return_node.irs_ssa[0]
+        assert len(ret.values) == 1
+        assert phi_endif.lvalue in ret.values
+
+        # Ensure that the phi_endif (which is the end-state for function as well) is in the entry_phi
+        assert phi_endif.lvalue in phi_entry.rvalues
