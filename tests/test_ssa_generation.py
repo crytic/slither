@@ -150,7 +150,7 @@ def verify_properties_hold(source_code: str):
 
 def _dump_function(f: Function):
     """Helper function to print nodes/ssa ir for a function or modifier"""
-    print(f"---- {f} ----")
+    print(f"---- {f.name} ----")
     for n in f.nodes:
         print(n)
         for ir in n.irs_ssa:
