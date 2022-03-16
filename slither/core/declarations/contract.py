@@ -1265,26 +1265,41 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         all_ssa_state_variables_instances = {}
         ssa_state = VarStates()
 
+        all_funcs = self.functions_and_modifiers
+        # If there are any constructor variable functions (artifical functions created by Slither)
+        # start by transforming their IR. This ensures state_0 is from them.
+        for var_ctor in all_funcs:
+            if var_ctor.function_type in (FunctionType.CONSTRUCTOR_VARIABLES,
+                                          FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES):
+                var_ctor.generate_slithir_ssa(None, ssa_state)
+
         for contract in self.inheritance:
             for v in contract.state_variables_declared:
-                ssa_state.add(v)
+                if v not in ssa_state.state_variables():
+                    ssa_state.add(v)
                 new_var = StateIRVariable(v)
                 all_ssa_state_variables_instances[v.canonical_name] = new_var
                 self._initial_state_variables.append(new_var)
 
         for v in self.variables:
             if v.contract == self:
-                ssa_state.add(v)
+                if v not in ssa_state.state_variables():
+                    ssa_state.add(v)
                 new_var = StateIRVariable(v)
                 all_ssa_state_variables_instances[v.canonical_name] = new_var
                 self._initial_state_variables.append(new_var)
 
         for func in self.functions + self.modifiers:
+            # Already processed these
+            if func.function_type in (FunctionType.CONSTRUCTOR_VARIABLES,
+                                      FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES):
+                continue
+
             func.generate_slithir_ssa(all_ssa_state_variables_instances, ssa_state)
 
         entry_phis = ssa_state.compute_entry_phis()
         end_states = ssa_state.end_states()
-        for func in self.functions + self.modifiers:
+        for func in all_funcs:
             for node in func.nodes:
                 for ir in node.irs_ssa:
                     if node == func.entry_point and isinstance(ir, Phi):

@@ -13,6 +13,7 @@ from slither.core.declarations import (
     SolidityVariable,
     Structure,
 )
+from slither.core.declarations.function import FunctionType
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
@@ -550,7 +551,13 @@ def add_ssa_ir(function: Function, all_state_variables_instances, ssa_state: Var
         all_state_variables_instances
     """
 
-    if not function.is_implemented:
+    # To allow for state variable constructors to be run
+    abort = not function.is_implemented
+    if function.function_type in (FunctionType.CONSTRUCTOR_VARIABLES,
+                                  FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES):
+        abort = False
+
+    if abort:
         return
 
     if ssa_state is None:
@@ -560,9 +567,10 @@ def add_ssa_ir(function: Function, all_state_variables_instances, ssa_state: Var
     # different times or SSA IR generation (before any call, at end of functions)
     rec = StateVarDefRecorder(ssa_state, referenced_state_variables(function))
 
-    # We only add phi function for state variable at entry node if
     # The state variable is used
-    # And if the state variables is written in another function (otherwise its stay at index 0)
+    # For state variable constructor functions this will be a no-op because those
+    # functions are run before initializing the ssa_state with all contract state
+    # variables.
     for state_var in ssa_state.state_variables():
         if is_used_later(function.entry_point, state_var):
             # rvalues are fixed in solc_parsing.declaration.function
