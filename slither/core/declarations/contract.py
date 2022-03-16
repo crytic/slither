@@ -2,6 +2,7 @@
     Contract module
 """
 import logging
+from collections import defaultdict
 from pathlib import Path
 from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 
@@ -1259,6 +1260,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         from slither.slithir.variables import StateIRVariable
         from slither.slithir.utils.ssa import VarStates
+        from slither.slithir.operations import Phi, PhiCallback
 
         all_ssa_state_variables_instances = {}
         ssa_state = VarStates()
@@ -1280,20 +1282,41 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         for func in self.functions + self.modifiers:
             func.generate_slithir_ssa(all_ssa_state_variables_instances, ssa_state)
 
+        entry_phis = ssa_state.compute_entry_phis()
+        end_states = ssa_state.end_states()
+        for func in self.functions + self.modifiers:
+            for node in func.nodes:
+                for ir in node.irs_ssa:
+                    if node == func.entry_point and isinstance(ir, Phi):
+                        assert isinstance(ir.lvalue, StateIRVariable)
+                        sv = ir.lvalue.non_ssa_version
+                        # The lvalue of the Phi might be the end-state for this function,
+                        # if so we should discard it from the set
+                        values = entry_phis[sv].difference([ir.lvalue])
+                        ir.rvalues = values
+
+                    if isinstance(ir, PhiCallback):
+                        sv = ir.lvalue.non_ssa_version
+                        # The lvalue of the PhiCallback might be the end-state for this function,
+                        # if so we should discard it from the set
+                        values = end_states[sv].difference([ir.lvalue])
+                        ir.rvalues.extend(values)
+
+
     def fix_phi(self):
         last_state_variables_instances = {}
-        initial_state_variables_instances = {}
-        for v in self._initial_state_variables:
-            last_state_variables_instances[v.canonical_name] = []
-            initial_state_variables_instances[v.canonical_name] = v
-
-        for func in self.functions + self.modifiers:
-            result = func.get_last_ssa_state_variables_instances()
-            for variable_name, instances in result.items():
-                last_state_variables_instances[variable_name] += instances
-
-        for func in self.functions + self.modifiers:
-            func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
+        # initial_state_variables_instances = {}
+        # for v in self._initial_state_variables:
+        #     last_state_variables_instances[v.canonical_name] = []
+        #     initial_state_variables_instances[v.canonical_name] = v
+        #
+        # for func in self.functions + self.modifiers:
+        #     result = func.get_last_ssa_state_variables_instances()
+        #     for variable_name, instances in result.items():
+        #         last_state_variables_instances[variable_name] += instances
+        #
+        # for func in self.functions + self.modifiers:
+        #     func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
 
     # endregion
     ###################################################################################

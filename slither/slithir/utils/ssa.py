@@ -1,10 +1,10 @@
 import logging
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Union
+from typing import Union, Iterator, Iterable, Set, Tuple
 
 from build.lib.slither.slithir.variables import tuple
-from slither.core.cfg.node import NodeType
+from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import (
     Contract,
     Enum,
@@ -48,7 +48,7 @@ from slither.slithir.operations import (
     TypeConversion,
     Unary,
     Unpack,
-    Nop,
+    Nop, Operation,
 )
 from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.variables import (
@@ -102,6 +102,60 @@ def transform_slithir_vars_to_ssa(function):
 
 # pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks,too-many-statements,too-many-branches
 
+class StateVarDefRecorder:
+    """
+    Captures information about StateVariable definitions at different points in a function
+    are current at different stages for a function.
+
+    Overview of the idea:
+    For a StateVariable, sv, its current SSA-defs at end of function (including return
+    statements) is recorded. Before any call the SSA-defs for sv is also recorded. Then,
+    to populate the phi-nodes at entry the following rvalues are used:
+
+    sv_1 = phi(sv_0, Union(SSA-defs at function exit), Union(SSA-defs before all calls)
+
+    This records the three states a StateVariable can be in at function entry:
+    1. Uninitialized (sv_0)
+    2. Whatever states some other function writing to it left it in
+    3. For reentrant calls, the state before the call for any call
+
+    If a function uses sv after a call, a phi node is placed after call:
+
+    sv_n = phi(sv_n-1, Union(Union(SSA-defs at function exit))
+
+    This records the two states a StateVariable can be in after the call
+    1. The state before the call (no change when invoking function)
+    2. Some other function completed and modified the state, hence any exit state
+
+    """
+    def __init__(self, vs: "VarStates", vars: Iterable[StateVariable]):
+        """Initialize using the set of variables that are of concern
+
+        This class is typically instantiated once per function being translated
+        to keep track of StateVar accesses. The idea is to limit which variables
+        are kept track of to those actually being read/written by the function.
+        """
+        self._vs = vs
+        self._vars = list(vars)
+
+    def collect_before_call(self):
+        """Collect the defs active at time of a call
+
+        Calls the VarStates to register the current version of each var of concern
+        with the 'at_call' state.
+        """
+        for sv in self._vars:
+            self._vs.register_at_call(sv)
+
+    def collect_at_end(self):
+        """Collect the defs active at end of function
+
+        Calls the VarStates to register the current version of each var of concern
+        with the 'at_end' state.
+        """
+        for sv in self._vars:
+            self._vs.register_at_end(sv)
+
 class VarState:
     def __init__(self):
         self.index = 0
@@ -121,10 +175,12 @@ class VarState:
             self.index += 1
         self.instances.append(ir_var)
 
-    def instance_count(self):
+    def instance_count(self) -> int:
+        """Returns how many versions/instances there are of variable"""
         return len(self.instances)
 
     def keep_instances(self, n):
+        """Drop all but the n first instances"""
         self.instances = self.instances[:n]
         return self
 
@@ -132,6 +188,20 @@ class VarState:
 class VarStates:
     def __init__(self):
         self._state = defaultdict(VarState)
+        self._func_defs = {}
+        self._state_vars_at_end = defaultdict(set)
+        self._state_vars_entry_phi = defaultdict(set)
+
+    def register_at_call(self, sv: StateVariable):
+        """Register a StateVariable last definition as current at time of call"""
+        sv_ir = self.get(sv)
+        self._state_vars_entry_phi[sv].add(sv_ir)
+
+    def register_at_end(self, sv: StateVariable):
+        """Register a StateVariable last definition as current at time of call"""
+        sv_ir = self.get(sv)
+        self._state_vars_at_end[sv].add(sv_ir)
+        self._state_vars_entry_phi[sv].add(sv_ir)
 
     def add(self, v):
         """Adds a new definition of v, creates a new version"""
@@ -155,6 +225,10 @@ class VarStates:
             return self.add(v)
         return self._state[v].instances[-1]
 
+    def state_variables(self) -> Iterator[StateIRVariable]:
+        """Returns an iterator to all vars that are of state type"""
+        return filter(lambda x: isinstance(x, StateVariable), self._state.keys())
+
     def _var_to_ir_var(self, v):
         if isinstance(v, LocalVariable):
             return LocalIRVariable(v)
@@ -170,38 +244,57 @@ class VarStates:
 
     @contextmanager
     def new_scope(self):
-        captured_state = {k: vs.instance_count() for (k, vs) in self._state.items()}
+        """Produces a new scope for the variables
+
+        This is part of the algorithm for assigning labels/versions/indices
+        to variables in ssa-form. Any successor in the dominator tree builds
+        on the naming from this node, but they each have their own naming
+        scopes (can't share vars between them).
+
+        The one exception implemented here is that StateVariables are not
+        restored to previous state. Those are global, every new definition
+        of a state variable (assignemnt to it) creates a new version, within
+        the scope of the VarStates (typically for a Contract).
+        """
+        captured_state = {k: vs.instance_count() for (k, vs) in self._state.items() if not isinstance(k, StateVariable)}
         yield self
         [self._state[k].keep_instances(v) for (k, v) in captured_state.items()]
 
+    def compute_entry_phis(self):
+        """Compute the entry point phi-values for each StateVariable
 
-def ir_to_ssa_form(ir, state):
+        Entrypoint phi-values are: a union of:
+         - all last defs before call, and
+         - the last def when leaving a function for all functions, and
+         - the initial value for those Variables
+        """
+        for (k, v) in self._state_vars_entry_phi.items():
+            v.add(self._state[k].instances[0])
+        return self._state_vars_entry_phi
+
+    def end_states(self):
+        return self._state_vars_at_end
+
+
+
+def ir_to_ssa_form(ir: Operation, state: VarStates, rec: StateVarDefRecorder):
     """
     Produces SSA form IR from IR
     Args:
         ir (Operation)
+        state (VarStates)
+        rec (StateVarDefRecorder)
 
     NOTE: The order of operation is important, lvalues MUST be
-     computed after r-values are computed. If not the r-value
-     version might use the latest def. That would cause this IR
-     var = var + 1
-     to incorrectly become:
-     var_1 = var_1 + 1
-     instead of the correct:
-     var_1 = var_0 + 1
+    computed after r-values are computed. If not the r-value
+    version might use the latest def. That would cause this IR
+    var = var + 1
+    to incorrectly become:
+    var_1 = var_1 + 1
+    instead of the correct:
+    var_1 = var_0 + 1
     """
 
-    # def get_ssa(var):
-    #     if var is None:
-    #         return None
-    #     if isinstance(var, Constant):
-    #         return var
-    #     return _curr_ssa_var(state, var)
-    #
-    # def add_def(lval):
-    #     if lval is None:
-    #         return None
-    #     return _add_ir_var(state, lval)
     def get_ssa(var):
         return state.get(var)
 
@@ -256,6 +349,11 @@ def ir_to_ssa_form(ir, state):
         call_gas = get_ssa(ir.call_gas)
         arguments = get_arguments(ir)
 
+        if not isinstance(ir, LibraryCall):
+            # This needs to happen before lvalue is computed otherwise
+            # We might record the wrong def for a StateVariable
+            rec.collect_before_call()
+
         lvalue = add_def(ir.lvalue)
         if isinstance(ir, LibraryCall):
             new_ir = LibraryCall(destination, ir.function_name, ir.nbr_arguments, lvalue, ir.type_call)
@@ -278,6 +376,7 @@ def ir_to_ssa_form(ir, state):
         return InitArray(init_values, lvalue)
     if isinstance(ir, InternalCall):
         args = get_arguments(ir)
+        rec.collect_before_call()
         lvalue = add_def(ir.lvalue)
         new_ir = InternalCall(ir.function, ir.nbr_arguments, lvalue, ir.type_call)
         new_ir.arguments = args
@@ -285,6 +384,7 @@ def ir_to_ssa_form(ir, state):
     if isinstance(ir, InternalDynamicCall):
         function = get_ssa(ir.function)
         arguments = get_arguments(ir)
+        rec.collect_before_call()
         lvalue = add_def(ir.lvalue)
         new_ir = InternalDynamicCall(lvalue, function, ir.function_type)
         new_ir.arguments = arguments
@@ -294,6 +394,7 @@ def ir_to_ssa_form(ir, state):
         call_value = get_ssa(ir.call_value)
         call_gas = get_ssa(ir.call_gas)
         arguments = get_arguments(ir)
+        rec.collect_before_call()
         lvalue = add_def(ir.lvalue)
         new_ir = LowLevelCall(destination, ir.function_name, ir.nbr_arguments, lvalue, ir.type_call)
         new_ir.call_id = ir.call_id
@@ -342,6 +443,7 @@ def ir_to_ssa_form(ir, state):
         return Push(array, lvalue)
     if isinstance(ir, Return):
         values = get_rec_values(ir, lambda x: x.values)
+        rec.collect_at_end()
         return Return(values)
     if isinstance(ir, Send):
         destination = get_ssa(ir.destination)
@@ -378,10 +480,29 @@ def ir_to_ssa_form(ir, state):
 
     raise SlithIRError("Impossible ir copy on {} ({})".format(ir, type(ir)))
 
+def insert_phi_after_call(node: Node, call_ir, var_state: VarStates):
+    """Creates a phi function after calls to
 
-def ir_nodes_to_ssa(node, parent_state):
+    The phi-function will later be populated with identified writes to state variables
+    """
+    if not isinstance(call_ir, (InternalCall, HighLevelCall, InternalDynamicCall, LowLevelCall)):
+        return
+    if isinstance(call_ir, LibraryCall):
+        return
 
-    print(f"ENTER {node}")
+    for variable in var_state.state_variables():
+        if not is_used_later(node, variable):
+            continue
+        # The value after the call could be whatever it was before the call,
+        # for other values it can hold (due to reentrancy or invoking state-
+        # modifying functions) additional work is done after the full contract
+        # is converted to SSA IR.
+        old_def = var_state.get(variable)
+        new_var = var_state.add(variable)
+        phi_ir = PhiCallback(new_var, {node}, call_ir, old_def)
+        node.add_ssa_ir(phi_ir)
+
+def ir_nodes_to_ssa(node: Node, parent_state: VarStates, rec: StateVarDefRecorder):
     with parent_state.new_scope() as state:
         # NOTE (hbrodin): Dummy phi-nodes have been placed in a previous step.
         # This will ensure that the dummy phi-nodes are replace with correctly
@@ -399,10 +520,16 @@ def ir_nodes_to_ssa(node, parent_state):
         for ir in node.irs:
             assert not isinstance(ir, (Phi, PhiCallback))
             # if s is a non-phi statement (by design, no phi in non-ssa ir)
-            ssa_irs = ir_to_ssa_form(ir, state)
+            ssa_irs = ir_to_ssa_form(ir, state, rec)
             ssa_irs.set_expression(ir.expression)
             ssa_irs.set_node(ir.node)
             node.add_ssa_ir(ssa_irs)
+
+            # Additional care for calls, want to show that state variables might
+            # have changed due to reentrancy or invoking another function that
+            # changes storage vars.
+            insert_phi_after_call(node, ssa_irs, state)
+
 
         for successor in node.sons:
             for n in successor.irs_ssa:
@@ -412,11 +539,10 @@ def ir_nodes_to_ssa(node, parent_state):
                     n.rvalues.append(ssa_var)
 
         for successor in node.dominator_successors:
-            ir_nodes_to_ssa(successor, state)
-    print(f"LEAVE {node}")
+            ir_nodes_to_ssa(successor, state, rec)
 
 
-def add_ssa_ir(function, all_state_variables_instances, ssa_state = None):
+def add_ssa_ir(function: Function, all_state_variables_instances, ssa_state: VarStates = None):
     """
         Add SSA version of the IR
     Args:
@@ -430,22 +556,30 @@ def add_ssa_ir(function, all_state_variables_instances, ssa_state = None):
     if ssa_state is None:
         ssa_state = VarStates()
 
+    # Create a StateVarDefRecorder that is used to keep track of state variables at
+    # different times or SSA IR generation (before any call, at end of functions)
+    rec = StateVarDefRecorder(ssa_state, referenced_state_variables(function))
+
     # We only add phi function for state variable at entry node if
     # The state variable is used
     # And if the state variables is written in another function (otherwise its stay at index 0)
-    for (_, variable_instance) in all_state_variables_instances.items():
-        if is_used_later(function.entry_point, variable_instance):
+    for state_var in ssa_state.state_variables():
+        if is_used_later(function.entry_point, state_var):
             # rvalues are fixed in solc_parsing.declaration.function
-            function.entry_point.add_ssa_ir(Phi(ssa_state.get(variable_instance), set()))
+            function.entry_point.add_ssa_ir(Phi(ssa_state.get(state_var), set()))
 
     # Adding phi-nodes based on control flow of function
-    # TODO (hbrodin): add phi nodes after calls (.. maybe later when we have the calls??)
+    # This will place the initial phi-nodes at dominance frontiers of each node
     add_phi_origins(function.nodes, ssa_state)
 
     # Transform IR to SSA ir by cloning IR nodes and add version info. This will also
     # append Phi-nodes after external calls (for any state variable currently used).
-    ir_nodes_to_ssa(function.entry_point, ssa_state)
+    ir_nodes_to_ssa(function.entry_point, ssa_state, rec)
 
+    # Collect the final state of variables at the end of function
+    # calls will have been made at points where a Return operation
+    # was found as well.
+    rec.collect_at_end()
 
     return
 
@@ -647,6 +781,13 @@ def last_name(n, var, init_vars):
     assert candidates
     return max(candidates, key=lambda v: v.index)
 
+def referenced_state_variables(function: Function) -> Set[StateVariable]:
+    """Returns a set of all StateVariables that are referenced in a function"""
+    vars = set()
+    for node in function.nodes:
+        vars.update(node.state_variables_written)
+        vars.update(node.state_variables_read)
+    return vars
 
 def is_used_later(initial_node, variable):
     # TODO: does not handle the case where its read and written in the declaration node
