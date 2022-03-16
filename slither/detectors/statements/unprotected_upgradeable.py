@@ -37,7 +37,9 @@ def _whitelisted_modifiers(f: Function) -> bool:
 
 
 def _initialize_functions(contract: Contract) -> List[Function]:
-    return filter(_whitelisted_modifiers, [f for f in contract.functions if f.name == "initialize"])
+    return list(
+        filter(_whitelisted_modifiers, [f for f in contract.functions if f.name == "initialize"])
+    )
 
 
 class UnprotectedUpgradeable(AbstractDetector):
