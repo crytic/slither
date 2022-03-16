@@ -1,19 +1,16 @@
 import json
 import os
 import re
-import subprocess
 import sys
-from collections import namedtuple, defaultdict
-from distutils.version import StrictVersion
 from typing import List, Dict, Tuple
-from deepdiff import DeepDiff
 
 import pytest
+from deepdiff import DeepDiff
+from solc_select.solc_select import install_artifacts as install_solc_versions
+from solc_select.solc_select import installed_versions as get_installed_solc_versions
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
-from solc_select.solc_select import install_artifacts as install_solc_versions
-from solc_select.solc_select import installed_versions as get_installed_solc_versions
 
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
@@ -21,7 +18,7 @@ from slither.printers.guidance.echidna import Echidna
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "ast-parsing")
 
-
+# pylint: disable=too-few-public-methods
 class Test:
     def __init__(self, test_file: str, solc_versions: List[str], disable_legacy: bool = False):
         self.solc_versions = solc_versions
