@@ -5,7 +5,7 @@
 mkdir test_embark
 cd test_embark || exit 255
 
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 # shellcheck disable=SC1090
 source ~/.nvm/nvm.sh
 nvm install 10.17.0
