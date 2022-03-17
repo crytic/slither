@@ -5,6 +5,7 @@
 mkdir test_embark
 cd test_embark || exit 255
 
+# shellcheck disable=SC2034
 NVM_METHOD=script
 
 install_node()
@@ -23,9 +24,10 @@ install_node()
 
     # Avoid picking up `.nvmrc` from the repository
     pushd / >/dev/null
+    # shellcheck disable=SC1090
     . ~/.nvm/nvm.sh
     nvm install "$NODEVER"
-    popd >/dev/null
+    popd >/dev/null || exit 255
 }
 
 install_node
