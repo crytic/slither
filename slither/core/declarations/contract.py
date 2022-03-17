@@ -1262,7 +1262,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         from slither.slithir.utils.ssa import VarStates
         from slither.slithir.operations import Phi, PhiCallback
 
-        all_ssa_state_variables_instances = {}
         ssa_state = VarStates()
 
         all_funcs = self.functions_and_modifiers
@@ -1271,14 +1270,13 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         for var_ctor in all_funcs:
             if var_ctor.function_type in (FunctionType.CONSTRUCTOR_VARIABLES,
                                           FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES):
-                var_ctor.generate_slithir_ssa(None, ssa_state)
+                var_ctor.generate_slithir_ssa(ssa_state)
 
         for contract in self.inheritance:
             for v in contract.state_variables_declared:
                 if v not in ssa_state.state_variables():
                     ssa_state.add(v)
                 new_var = StateIRVariable(v)
-                all_ssa_state_variables_instances[v.canonical_name] = new_var
                 self._initial_state_variables.append(new_var)
 
         for v in self.variables:
@@ -1286,7 +1284,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 if v not in ssa_state.state_variables():
                     ssa_state.add(v)
                 new_var = StateIRVariable(v)
-                all_ssa_state_variables_instances[v.canonical_name] = new_var
                 self._initial_state_variables.append(new_var)
 
         for func in self.functions + self.modifiers:
@@ -1295,8 +1292,11 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                                       FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES):
                 continue
 
-            func.generate_slithir_ssa(all_ssa_state_variables_instances, ssa_state)
+            func.generate_slithir_ssa(ssa_state)
 
+        # For contracts (not free functions) update state variable phis to track dependencies
+        # between function invocations (inter-transactional). Phi-functions are already placed
+        # this just updates the r-values.
         entry_phis = ssa_state.compute_entry_phis()
         end_states = ssa_state.end_states()
         for func in all_funcs:

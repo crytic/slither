@@ -543,7 +543,7 @@ def ir_nodes_to_ssa(node: Node, parent_state: VarStates, rec: StateVarDefRecorde
             ir_nodes_to_ssa(successor, state, rec)
 
 
-def add_ssa_ir(function: Function, all_state_variables_instances, ssa_state: VarStates = None):
+def add_ssa_ir(function: Function, ssa_state: VarStates = None):
     """
         Add SSA version of the IR
     Args:

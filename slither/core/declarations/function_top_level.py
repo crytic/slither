@@ -78,7 +78,7 @@ class FunctionTopLevel(Function, TopLevel):
     ###################################################################################
     ###################################################################################
 
-    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
+    def generate_slithir_ssa(self):
         # pylint: disable=import-outside-toplevel
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (
@@ -90,4 +90,4 @@ class FunctionTopLevel(Function, TopLevel):
         compute_dominance_frontier(self.nodes)
         transform_slithir_vars_to_ssa(self)
 
-        add_ssa_ir(self, all_ssa_state_variables_instances)
+        add_ssa_ir(self)
