@@ -7,7 +7,8 @@ from typing import Union, List
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
-from slither.slithir.operations import OperationWithLValue, Phi, Assignment, HighLevelCall
+from slither.slithir.operations import OperationWithLValue, Phi, Assignment, HighLevelCall, Return, Operation, Binary, \
+    BinaryType, InternalCall
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import Constant, TemporaryVariableSSA
 from slither.slithir.variables.variable import SlithIRVariable
@@ -423,3 +424,95 @@ def test_issue_468():
 
         # Ensure that the phi_endif (which is the end-state for function as well) is in the entry_phi
         assert phi_endif.lvalue in phi_entry.rvalues
+
+
+def test_issue_434():
+    source = """
+     contract Contract {
+        int public a;
+        function f() public {
+            g();
+            a += 1;
+        }
+
+        function e() public {
+            a -= 1;
+        }
+
+        function g() public {
+            e();
+        }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+
+        e = [x for x in c.functions if x.name == "e"][0]
+        f = [x for x in c.functions if x.name == "f"][0]
+        g = [x for x in c.functions if x.name == "g"][0]
+
+        # Ensure there is a phi-node at the beginning of f and e
+        phi_entry_e = get_ssa_of_type(e.entry_point, Phi)[0]
+        phi_entry_f = get_ssa_of_type(f.entry_point, Phi)[0]
+        # But not at g
+        assert len(get_ssa_of_type(g, Phi)) == 0
+
+        # Ensure that the final states of f and e are in the entry-states
+        add_f = get_filtered_ssa(f, lambda x: isinstance(x, Binary) and x.type == BinaryType.ADDITION)[0]
+        sub_e = get_filtered_ssa(e, lambda x: isinstance(x, Binary) and x.type == BinaryType.SUBTRACTION)[0]
+        assert add_f.lvalue in phi_entry_f.rvalues
+        assert add_f.lvalue in phi_entry_e.rvalues
+        assert sub_e.lvalue in phi_entry_f.rvalues
+        assert sub_e.lvalue in phi_entry_e.rvalues
+
+        # Ensure there is a phi-node after call to g
+        call = get_ssa_of_type(f, InternalCall)[0]
+        idx = call.node.irs_ssa.index(call)
+        aftercall_phi = call.node.irs_ssa[idx+1]
+        assert  isinstance(aftercall_phi, Phi)
+
+        # Ensure that phi node ^ is used in the addition afterwards
+        assert aftercall_phi.lvalue in (add_f.variable_left, add_f.variable_right)
+
+
+def test_issue_473():
+    source = """
+    contract Contract {
+    function f() public returns (int) {
+        int a = 1;
+        if (a > 0) {
+            a = 2;
+        }
+        if (a == 3) {
+            a = 6;
+        }
+        return a;
+    }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+        f = c.functions[0]
+
+        phis = get_ssa_of_type(f, Phi)
+        return_value = get_ssa_of_type(f, Return)[0]
+
+        # There shall be two phi functions
+        assert len(phis) == 2
+        first_phi = phis[0]
+        second_phi = phis[1]
+
+        # The second phi is the one being returned, if it's the first swap them (iteration order)
+        if first_phi.lvalue in return_value.values:
+            first_phi, second_phi = second_phi, first_phi
+
+        # First phi is for [a=1 or a=2]
+        assert len(first_phi.rvalues) == 2
+
+        # second is for [a=6 or first phi]
+        assert first_phi.lvalue in second_phi.rvalues
+        assert len(second_phi.rvalues) == 2
+
+        # return is for second phi
+        assert len(return_value.values) == 1
+        assert second_phi.lvalue in return_value.values
