@@ -542,6 +542,24 @@ def ir_nodes_to_ssa(node: Node, parent_state: VarStates, rec: StateVarDefRecorde
         for successor in node.dominator_successors:
             ir_nodes_to_ssa(successor, state, rec)
 
+def _add_param_return_ssa(function: Function, ssa_state: VarStates) -> None:
+    def add(vars, addfunc):
+        for var in filter(lambda x: x.name, vars):
+            # Get the initial version and record it in the function
+            ssa0 = ssa_state.add(var)
+
+            addfunc(ssa0)
+
+            if ssa0.is_storage:
+                # Create a fake variable that represents the storage
+                fake_var = ssa_state.add(var)
+                fake_var.name = "STORAGE_" + fake_var.name
+                fake_var.set_location("reference_to_storage")
+                ssa0.refers_to = {fake_var}
+
+    add(function.parameters, function.add_parameter_ssa)
+    add(function.returns, function.add_return_ssa)
+
 
 def add_ssa_ir(function: Function, ssa_state: VarStates = None):
     """
@@ -575,6 +593,9 @@ def add_ssa_ir(function: Function, ssa_state: VarStates = None):
         if is_used_later(function.entry_point, state_var):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(ssa_state.get(state_var), set()))
+
+    # Create initial version of named parameters/returns
+    _add_param_return_ssa(function, ssa_state)
 
     # Adding phi-nodes based on control flow of function
     # This will place the initial phi-nodes at dominance frontiers of each node
