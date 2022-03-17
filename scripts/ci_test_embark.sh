@@ -5,13 +5,32 @@
 mkdir test_embark
 cd test_embark || exit 255
 
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
-# shellcheck disable=SC1090
-source ~/.nvm/nvm.sh
-nvm install 10.17.0
-nvm use 10.17.0
+NVM_METHOD=script
 
-npm install -g embark@4.2.0
+install_node()
+{
+    if [[ -z "$NODEVER" ]]; then
+        NODEVER="node"
+        echo "[-] NODEVER was not set, using the latest version."
+    fi
+    wget -q -O nvm-install.sh https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh
+    if [ ! "fabc489b39a5e9c999c7cab4d281cdbbcbad10ec2f8b9a7f7144ad701b6bfdc7  nvm-install.sh" = "$(sha256sum nvm-install.sh)" ]; then
+        echo "NVM installer does not match expected checksum! exiting"
+        exit 1
+    fi
+    bash nvm-install.sh
+    rm nvm-install.sh
+
+    # Avoid picking up `.nvmrc` from the repository
+    pushd / >/dev/null
+    . ~/.nvm/nvm.sh
+    nvm install "$NODEVER"
+    popd >/dev/null
+}
+
+install_node
+
+npm install -g embark
 embark demo
 cd embark_demo || exit 255
 npm install
