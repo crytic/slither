@@ -2,7 +2,7 @@ import pathlib
 import tempfile
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Union
+from typing import Union, List
 
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
@@ -162,6 +162,17 @@ def _dump_functions(c: Contract):
     for f in c.functions_and_modifiers:
         _dump_function(f)
 
+def get_filtered_ssa(f: Union[Function, Node], filter) -> List[Operation]:
+    """Returns a list of all ssanodes filtered by filter for all nodes in function f"""
+    if isinstance(f, Function):
+        return [ssanode for node in f.nodes for ssanode in node.irs_ssa if filter(ssanode)]
+
+    assert isinstance(f, Node)
+    return [ssanode for ssanode in f.irs_ssa if filter(ssanode)]
+
+def get_ssa_of_type(f: Union[Function, Node], type) -> List[Operation]:
+    """Returns a list of all ssanodes of a specific type for all nodes in function f"""
+    return get_filtered_ssa(f, lambda ssanode: isinstance(ssanode, type))
 
 def test_multi_write():
     contract = """
