@@ -28,6 +28,10 @@ def ssa_basic_properties(function: Function):
     1. Every name is defined only once
     2. Every r-value is at least defined at some point
     3. The number of ssa defs is >= the number of assignments to var
+    4. Function parameters SSA are stored in function.parameters_ssa
+       - if function parameter is_storage it refers to a fake variable
+    5. Function returns SSA are stored in function.returns_ssa
+        - if function return is_storage it refers to a fake variable
     """
     ssa_lvalues = set()
     ssa_rvalues = set()
@@ -67,6 +71,24 @@ def ssa_basic_properties(function: Function):
 
     for (k, n) in lvalue_assignments.items():
         assert ssa_defs[k] >= n
+
+
+    # Helper 4/5
+    def check_property_4_and_5(vars, ssavars):
+        for var in filter(lambda x: x.name, vars):
+            ssa_vars = [x for x in ssavars if x.non_ssa_version == var]
+            assert len(ssa_vars) == 1
+            ssa_var = ssa_vars[0]
+            assert var.is_storage == ssa_var.is_storage
+            if ssa_var.is_storage:
+                assert len(ssa_var.refers_to) == 1
+                assert ssa_var.refers_to[0].location == "reference_to_storage"
+
+    # 4
+    check_property_4_and_5(function.parameters, function.parameters_ssa)
+
+    # 5
+    check_property_4_and_5(function.returns, function.return_values_ssa)
 
 
 def ssa_phi_node_properties(f: Function):
