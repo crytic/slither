@@ -306,11 +306,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         if self._can_reenter is None:
             self._can_reenter = False
             for ir in self.all_slithir_operations():
-                if (
-                    isinstance(ir, Call)
-                    and ir.can_reenter(callstack)
-                    and ir.function_name != "staticcall"
-                ):
+                if isinstance(ir, Call) and ir.can_reenter(callstack):
                     self._can_reenter = True
                     return True
         return self._can_reenter
