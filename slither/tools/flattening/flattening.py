@@ -364,7 +364,6 @@ class Flattening:
             else:
                 contract_to_explore.append(next_to_explore)
 
-
         return [Export(filename=path, content=content)]
 
     def _export_with_import(self) -> List[Export]:
