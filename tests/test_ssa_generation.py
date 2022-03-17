@@ -7,11 +7,19 @@ from typing import Union, List
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
-from slither.slithir.operations import OperationWithLValue, Phi, Assignment, HighLevelCall, Return, Operation, Binary, \
-    BinaryType, InternalCall
+from slither.slithir.operations import (
+    OperationWithLValue,
+    Phi,
+    Assignment,
+    HighLevelCall,
+    Return,
+    Operation,
+    Binary,
+    BinaryType,
+    InternalCall,
+)
 from slither.slithir.utils.ssa import is_used_later
-from slither.slithir.variables import Constant, TemporaryVariableSSA
-from slither.slithir.variables.variable import SlithIRVariable
+from slither.slithir.variables import Constant
 
 
 def ssa_basic_properties(function: Function):
@@ -139,7 +147,6 @@ def slither_from_source(source_code: str):
         yield Slither(f.name)
 
 
-
 def verify_properties_hold(source_code: str):
     with slither_from_source(source_code) as slither:
         for cu in slither.compilation_units:
@@ -148,6 +155,7 @@ def verify_properties_hold(source_code: str):
                 ssa_basic_properties(func)
                 ssa_phi_node_properties(func)
                 dominance_properties(func)
+
 
 def _dump_function(f: Function):
     """Helper function to print nodes/ssa ir for a function or modifier"""
@@ -158,22 +166,26 @@ def _dump_function(f: Function):
             print(f"\t{ir}")
     print("")
 
+
 def _dump_functions(c: Contract):
     """Helper function to print functions and modifiers of a contract"""
     for f in c.functions_and_modifiers:
         _dump_function(f)
 
-def get_filtered_ssa(f: Union[Function, Node], filter) -> List[Operation]:
+
+def get_filtered_ssa(f: Union[Function, Node], flt) -> List[Operation]:
     """Returns a list of all ssanodes filtered by filter for all nodes in function f"""
     if isinstance(f, Function):
-        return [ssanode for node in f.nodes for ssanode in node.irs_ssa if filter(ssanode)]
+        return [ssanode for node in f.nodes for ssanode in node.irs_ssa if flt(ssanode)]
 
     assert isinstance(f, Node)
-    return [ssanode for ssanode in f.irs_ssa if filter(ssanode)]
+    return [ssanode for ssanode in f.irs_ssa if flt(ssanode)]
 
-def get_ssa_of_type(f: Union[Function, Node], type) -> List[Operation]:
+
+def get_ssa_of_type(f: Union[Function, Node], ssatype) -> List[Operation]:
     """Returns a list of all ssanodes of a specific type for all nodes in function f"""
-    return get_filtered_ssa(f, lambda ssanode: isinstance(ssanode, type))
+    return get_filtered_ssa(f, lambda ssanode: isinstance(ssanode, ssatype))
+
 
 def test_multi_write():
     contract = """
@@ -300,13 +312,11 @@ def test_ssa_inter_transactional():
         c = slither.contracts[0]
         variables = c.variables_as_dict
         funcs = c.available_functions_as_dict()
-        print(funcs)
         direct_set = funcs["direct_set(uint256)"]
         # Skip entry point and go straight to assignment ir
         assign1 = direct_set.nodes[1].irs_ssa[0]
         assert isinstance(assign1, Assignment)
 
-        direct_set_plus_one = funcs["direct_set_plus_one(uint256)"]
         assign2 = direct_set.nodes[1].irs_ssa[0]
         assert isinstance(assign2, Assignment)
 
@@ -354,7 +364,11 @@ def test_ssa_phi_callbacks():
         f = [x for x in c.functions if x.name == "use_a"][0]
         var_a = [x for x in c.variables if x.name == "my_var_A"][0]
 
-        entry_phi = [x for x in f.entry_point.irs_ssa if isinstance(x, Phi) and x.lvalue.non_ssa_version == var_a][0]
+        entry_phi = [
+            x
+            for x in f.entry_point.irs_ssa
+            if isinstance(x, Phi) and x.lvalue.non_ssa_version == var_a
+        ][0]
         # The four potential sources are:
         # 1. initial value
         # 2. my_var_A = i;
@@ -366,15 +380,16 @@ def test_ssa_phi_callbacks():
         call_node = [x for y in f.nodes for x in y.irs_ssa if isinstance(x, HighLevelCall)][0]
         n = call_node.node
         # Get phi-node after call
-        after_call_phi = n.irs_ssa[n.irs_ssa.index(call_node)+1]
+        after_call_phi = n.irs_ssa[n.irs_ssa.index(call_node) + 1]
         # The two sources for this phi node is
         # 1. my_var_A = i;
         # 2. my_var_A = 3;
         assert isinstance(after_call_phi, Phi)
         assert len(after_call_phi.rvalues) == 2
 
+
 def test_issue_468():
-    """"
+    """ "
     Ensure issue 468 is corrected as per
     https://github.com/crytic/slither/issues/468#issuecomment-620974151
     The one difference is that we allow the phi-function at entry of f to
@@ -401,7 +416,7 @@ def test_issue_468():
         # Check that there is an entry point phi values for each later value
         # plus one additional which is the initial value
         entry_ssa = f.entry_point.irs_ssa
-        assert len(entry_ssa) ==1
+        assert len(entry_ssa) == 1
         phi_entry = entry_ssa[0]
         assert isinstance(phi_entry, Phi)
 
@@ -458,8 +473,12 @@ def test_issue_434():
         assert len(get_ssa_of_type(g, Phi)) == 0
 
         # Ensure that the final states of f and e are in the entry-states
-        add_f = get_filtered_ssa(f, lambda x: isinstance(x, Binary) and x.type == BinaryType.ADDITION)[0]
-        sub_e = get_filtered_ssa(e, lambda x: isinstance(x, Binary) and x.type == BinaryType.SUBTRACTION)[0]
+        add_f = get_filtered_ssa(
+            f, lambda x: isinstance(x, Binary) and x.type == BinaryType.ADDITION
+        )[0]
+        sub_e = get_filtered_ssa(
+            e, lambda x: isinstance(x, Binary) and x.type == BinaryType.SUBTRACTION
+        )[0]
         assert add_f.lvalue in phi_entry_f.rvalues
         assert add_f.lvalue in phi_entry_e.rvalues
         assert sub_e.lvalue in phi_entry_f.rvalues
@@ -468,8 +487,8 @@ def test_issue_434():
         # Ensure there is a phi-node after call to g
         call = get_ssa_of_type(f, InternalCall)[0]
         idx = call.node.irs_ssa.index(call)
-        aftercall_phi = call.node.irs_ssa[idx+1]
-        assert  isinstance(aftercall_phi, Phi)
+        aftercall_phi = call.node.irs_ssa[idx + 1]
+        assert isinstance(aftercall_phi, Phi)
 
         # Ensure that phi node ^ is used in the addition afterwards
         assert aftercall_phi.lvalue in (add_f.variable_left, add_f.variable_right)
