@@ -18,6 +18,5 @@ logging-fstring-interpolation,
 logging-not-lazy,
 duplicate-code,
 import-error,
-unsubscriptable-object,
-consider-using-f-string
+unsubscriptable-object
 """

@@ -71,6 +71,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "abi.encodeWithSelector()": ["bytes"],
     "abi.encodeWithSignature()": ["bytes"],
     "bytes.concat()": ["bytes"],
+    "string.concat()": ["string"],
     # abi.decode returns an a list arbitrary types
     "abi.decode()": [],
     "type(address)": [],
@@ -92,7 +93,7 @@ def solidity_function_signature(name):
     Returns:
         str
     """
-    return name + " returns({})".format(",".join(SOLIDITY_FUNCTIONS[name]))
+    return name + f" returns({','.join(SOLIDITY_FUNCTIONS[name])})"
 
 
 class SolidityVariable(SourceMapping):

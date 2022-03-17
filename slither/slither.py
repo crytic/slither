@@ -23,13 +23,11 @@ def _check_common_things(thing_name, cls, base_cls, instances_list):
 
     if not issubclass(cls, base_cls) or cls is base_cls:
         raise Exception(
-            "You can't register {!r} as a {}. You need to pass a class that inherits from {}".format(
-                cls, thing_name, base_cls.__name__
-            )
+            f"You can't register {cls!r} as a {thing_name}. You need to pass a class that inherits from {base_cls.__name__}"
         )
 
     if any(type(obj) == cls for obj in instances_list):  # pylint: disable=unidiomatic-typecheck
-        raise Exception("You can't register {!r} twice.".format(cls))
+        raise Exception(f"You can't register {cls!r} twice.")
 
 
 def _update_file_scopes(candidates: ValuesView[FileScope]):

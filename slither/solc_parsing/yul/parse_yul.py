@@ -455,7 +455,7 @@ def convert_yul_switch(
     expression_ast = ast["expression"]
 
     # this variable stores the result of the expression so we don't accidentally compute it more than once
-    switch_expr_var = "switch_expr_{}".format(ast["src"].replace(":", "_"))
+    switch_expr_var = f"switch_expr_{ast['src'].replace(':', '_')}"
 
     rewritten_switch = {
         "nodeType": "YulBlock",
@@ -730,6 +730,39 @@ def _check_for_state_variable_name(root: YulScope, potential_name: str) -> Optio
     return None
 
 
+def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Optional[Expression]:
+    # check for magic suffixes
+    # TODO: the following leads to wrong IR
+    # Currently SlithIR doesnt support raw access to memory
+    # So things like .offset/.slot will return the variable
+    # Instaed of the actual offset/slot
+    if name.endswith("_slot") or name.endswith(".slot"):
+        potential_name = name[:-5]
+        variable_found = _check_for_state_variable_name(root, potential_name)
+        if variable_found:
+            return variable_found
+        var = root.function.get_local_variable_from_name(potential_name)
+        if var and var.is_storage:
+            return Identifier(var)
+    if name.endswith("_offset") or name.endswith(".offset"):
+        potential_name = name[:-7]
+        variable_found = _check_for_state_variable_name(root, potential_name)
+        if variable_found:
+            return variable_found
+        var = root.function.get_local_variable_from_name(potential_name)
+        if var and var.location == "calldata":
+            return Identifier(var)
+    if name.endswith(".length"):
+        # TODO: length should create a new IP operation LENGTH var
+        # The code below is an hotfix to allow slither to process length in yul
+        # Until we have a better support
+        potential_name = name[:-7]
+        var = root.function.get_local_variable_from_name(potential_name)
+        if var and var.location == "calldata":
+            return Identifier(var)
+    return None
+
+
 def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     name = ast["name"]
 
@@ -759,20 +792,9 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     if func:
         return Identifier(func.underlying)
 
-    # check for magic suffixes
-    if name.endswith("_slot") or name.endswith(".slot"):
-        potential_name = name[:-5]
-        variable_found = _check_for_state_variable_name(root, potential_name)
-        if variable_found:
-            return variable_found
-        var = root.function.get_local_variable_from_name(potential_name)
-        if var and var.is_storage:
-            return Identifier(var)
-    if name.endswith("_offset") or name.endswith(".offset"):
-        potential_name = name[:-7]
-        variable_found = _check_for_state_variable_name(root, potential_name)
-        if variable_found:
-            return variable_found
+    magic_suffix = _parse_yul_magic_suffixes(name, root)
+    if magic_suffix:
+        return magic_suffix
 
     raise SlitherException(f"unresolved reference to identifier {name}")
 
@@ -829,7 +851,7 @@ def vars_to_typestr(rets: List[Expression]) -> str:
         return ""
     if len(rets) == 1:
         return str(rets[0].type)
-    return "tuple({})".format(",".join(str(ret.type) for ret in rets))
+    return f"tuple({','.join(str(ret.type) for ret in rets)})"
 
 
 def vars_to_val(vars_to_convert):

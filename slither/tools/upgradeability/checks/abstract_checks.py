@@ -134,7 +134,7 @@ class AbstractCheck(metaclass=abc.ABCMeta):
                 info = "\n"
                 for result in all_results:
                     info += result["description"]
-                info += "Reference: {}".format(self.WIKI)
+                info += f"Reference: {self.WIKI}"
                 self._log(info)
         return all_results
 
