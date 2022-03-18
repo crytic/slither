@@ -253,7 +253,22 @@ class VarStates:
                 ssavar.points_to = self.get(v.points_to)
             ssavar.set_type(v.type)
             return ssavar
-        raise SlithIRError(f"Unknown variable type{v}")
+        assert isinstance(
+            v,
+            (
+                Constant,
+                SolidityVariable,
+                Contract,
+                Enum,
+                SolidityFunction,
+                Structure,
+                Function,
+                Type,
+                SolidityImportPlaceHolder,
+                TopLevelVariable,
+            ),
+        )  # type for abi.decode(.., t)
+        return v
 
     @contextmanager
     def new_scope(self):
