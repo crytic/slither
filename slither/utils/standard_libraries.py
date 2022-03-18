@@ -68,13 +68,13 @@ def is_openzepellin(contract: "Contract") -> bool:
 
 
 def is_openzepellin_strict(contract: "Contract") -> bool:
-    start = contract.source_mapping['start']
-    end = start + contract.source_mapping['length']
-
-    # we need a way to get the source code, from a Contract
-    # source_code = slither.source_code[contract.source_mapping['filename_absolute']][start:end]
-    # source_hash = sha1(source_code.encode('utf-8')).hexdigest()
-    # return source_hash in oz_hashes
+    start = contract.source_mapping["start"]
+    end = start + contract.source_mapping["length"]
+    source_code = contract.compilation_unit.core.source_code[
+        contract.source_mapping["filename_absolute"]
+    ][start:end]
+    source_hash = sha1(source_code.encode("utf-8")).hexdigest()
+    return source_hash in oz_hashes
 
 
 def is_zos(contract: "Contract") -> bool:
