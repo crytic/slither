@@ -117,6 +117,21 @@ ALL_TEST_OBJECTS = [
         "0.4.25",
     ),
     Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "no-reentrancy-staticcall.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "no-reentrancy-staticcall.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "no-reentrancy-staticcall.sol",
+        "0.7.6",
+    ),
+    Test(
         all_detectors.BooleanEquality,
         "boolean-constant-equality.sol",
         "0.4.25",
@@ -636,6 +651,16 @@ ALL_TEST_OBJECTS = [
         "0.5.16",
     ),
     Test(
+        all_detectors.ShadowingAbstractDetection,
+        "shadowing_state_variable.sol",
+        "0.7.5",
+    ),
+    Test(
+        all_detectors.ShadowingAbstractDetection,
+        "public_gap_variable.sol",
+        "0.7.5",
+    ),
+    Test(
         all_detectors.StateShadowing,
         "shadowing_state_variable.sol",
         "0.4.25",
@@ -649,6 +674,16 @@ ALL_TEST_OBJECTS = [
         all_detectors.StateShadowing,
         "shadowing_state_variable.sol",
         "0.6.11",
+    ),
+    Test(
+        all_detectors.StateShadowing,
+        "shadowing_state_variable.sol",
+        "0.7.5",
+    ),
+    Test(
+        all_detectors.StateShadowing,
+        "public_gap_variable.sol",
+        "0.7.5",
     ),
     Test(
         all_detectors.StateShadowing,
@@ -820,12 +855,22 @@ ALL_TEST_OBJECTS = [
     ),
     Test(
         all_detectors.UnprotectedUpgradeable,
+        "whitelisted.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
         "Buggy.sol",
         "0.5.16",
     ),
     Test(
         all_detectors.UnprotectedUpgradeable,
         "Fixed.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "whitelisted.sol",
         "0.5.16",
     ),
     Test(
@@ -836,6 +881,11 @@ ALL_TEST_OBJECTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "Fixed.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "whitelisted.sol",
         "0.6.11",
     ),
     Test(
@@ -846,6 +896,11 @@ ALL_TEST_OBJECTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "Fixed.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "whitelisted.sol",
         "0.7.6",
     ),
     Test(
