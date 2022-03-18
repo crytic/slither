@@ -296,6 +296,24 @@ def _use_balance(slither: SlitherCore) -> Dict[str, List[str]]:
     return ret
 
 
+def _with_fallback(slither: SlitherCore) -> Set[str]:
+    ret: Set[str] = set()
+    for contract in slither.contracts:
+        for function in contract.functions_entry_points:
+            if function.is_fallback:
+                ret.add(contract.name)
+    return ret
+
+
+def _with_receive(slither: SlitherCore) -> Set[str]:
+    ret: Set[str] = set()
+    for contract in slither.contracts:
+        for function in contract.functions_entry_points:
+            if function.is_receive:
+                ret.add(contract.name)
+    return ret
+
+
 def _call_a_parameter(slither: SlitherCore) -> Dict[str, List[Dict]]:
     """
     Detect the functions with external calls
@@ -376,6 +394,10 @@ class Echidna(AbstractPrinter):
 
         use_balance = _use_balance(self.slither)
 
+        with_fallback = list(_with_fallback(self.slither))
+
+        with_receive = list(_with_receive(self.slither))
+
         d = {
             "payable": payable,
             "timestamp": timestamp,
@@ -392,6 +414,8 @@ class Echidna(AbstractPrinter):
             "call_a_parameter": call_parameters,
             "use_balance": use_balance,
             "solc_versions": [unit.solc_version for unit in self.slither.compilation_units],
+            "with_fallback": with_fallback,
+            "with_receive": with_receive,
         }
 
         self.info(json.dumps(d, indent=4))
