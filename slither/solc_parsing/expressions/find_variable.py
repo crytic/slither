@@ -337,6 +337,9 @@ def find_variable(
     if var_name in current_scope.renaming:
         var_name = current_scope.renaming[var_name]
 
+    if var_name in current_scope.user_defined_types:
+        raise SlitherError("Warp operations not yet supported")
+
     # Use ret0/ret1 to help mypy
     ret0 = _find_variable_from_ref_declaration(
         referenced_declaration, direct_contracts, direct_functions
