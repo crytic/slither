@@ -75,7 +75,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._custom_errors: Dict[str, "CustomErrorContract"] = {}
 
         # The only str is "*"
-        self._using_for: Dict[Union[str, Type], List[str]] = {}
+        self._using_for: Dict[Union[str, Type], List[Type]] = {}
         self._kind: Optional[str] = None
         self._is_interface: bool = False
 
@@ -245,7 +245,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def using_for(self) -> Dict[Union[str, Type], List[str]]:
+    def using_for(self) -> Dict[Union[str, Type], List[Type]]:
         return self._using_for
 
     # endregion
