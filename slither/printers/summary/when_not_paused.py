@@ -2,12 +2,13 @@
     Module printing summary of the contract
 """
 
+from typing import List, Set
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.core.declarations.function import Function, SolidityFunction
+from slither.core.declarations.function import SolidityFunction
 from slither.utils.myprettytable import MyPrettyTable
 from slither.utils.function import get_function_id
 from slither.core.declarations import Contract, Function
-from typing import List, Set
+
 
 class PrinterWhenNotPaused(AbstractPrinter):
 
@@ -16,9 +17,10 @@ class PrinterWhenNotPaused(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#when-not-paused"
 
-
     @staticmethod
-    def _list_functions_not_reaching_modifier(contract: Contract, modifier_name: str = "whenNotPaused") -> List[Function]:
+    def _list_functions_not_reaching_modifier(
+        contract: Contract, modifier_name: str = "whenNotPaused"
+    ) -> List[Function]:
         results: Set[Function] = set()
         for entry_point in contract.functions_entry_points:
             if entry_point.visibility not in ["public", "external"]:
@@ -49,7 +51,7 @@ class PrinterWhenNotPaused(AbstractPrinter):
         all_tables = []
         for contract in self.slither.contracts:
 
-            txt += "\n{}:\n".format(contract.name)
+            txt += f"\n{contract.name}:\n"
             table = MyPrettyTable(["Name", "ID"])
 
             results = self._list_functions_not_reaching_modifier(contract, modifier_name)
