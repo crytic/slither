@@ -10,13 +10,21 @@ def is_upgradable_gap_variable(contract: Contract, variable: StateVariable) -> b
      - it is a uint256 array declared at the end of the contract
      - it has private visibility"""
 
-    last_declared_variable = [
+    # Return early on if the variable name is != gap to avoid iterating over all the state variables
+    if variable.name != "__gap":
+        return False
+
+    declared_variable_ordered = [
         v for v in contract.state_variables_ordered if v in contract.state_variables_declared
-    ][-1]
+    ]
+
+    if not declared_variable_ordered:
+        return False
+
+    variable_type = variable.type
     return (
-        variable.name == "__gap"
-        and last_declared_variable is variable
-        and isinstance(variable.type, ArrayType)
-        and variable.type.type == ElementaryType("uint256")
+        declared_variable_ordered[-1] is variable
+        and isinstance(variable_type, ArrayType)
+        and variable_type.type == ElementaryType("uint256")
         and variable.visibility == "private"
     )
