@@ -1,6 +1,7 @@
 import logging
 from collections import defaultdict
 from contextlib import contextmanager
+from functools import cmp_to_key
 from typing import Union, Iterator, Iterable, Set, Tuple
 
 from build.lib.slither.slithir.variables import tuple
@@ -236,11 +237,19 @@ class VarStates:
         elif isinstance(v, StateVariable):
             return StateIRVariable(v)
         elif isinstance(v, TemporaryVariable):
-            return TemporaryVariableSSA(v)
+            ssavar = TemporaryVariableSSA(v)
+            ssavar.set_type(v.type)
+            return ssavar
         elif isinstance(v, TupleVariable):
-            return TupleVariableSSA(v)
+            ssavar = TupleVariableSSA(v)
+            ssavar.set_type(v.type)
+            return ssavar
         elif isinstance(v, ReferenceVariable):
-            return ReferenceVariableSSA(v)
+            ssavar = ReferenceVariableSSA(v)
+            if v.points_to:
+                ssavar.points_to = self.get(v.points_to)
+            ssavar.set_type(v.type)
+            return ssavar
         raise SlithIRError(f"Unknown variable type{v}")
 
     @contextmanager
@@ -276,6 +285,17 @@ class VarStates:
     def end_states(self):
         return self._state_vars_at_end
 
+def _add_phi_rvalue(phi: Phi, rvalue):
+    """Propagates refers to information for Phi lvalues
+
+    Appends refers_to information from rvalue to lvalue, typically
+    when adding to a Phi-node
+    """
+    phi.rvalues.append(rvalue)
+    lvalue = phi.lvalue
+    if isinstance(lvalue, (LocalIRVariable, TemporaryVariable)) and lvalue.is_storage:
+        lvalue.refers_to.update(rvalue.refers_to)
+
 
 
 def ir_to_ssa_form(ir: Operation, state: VarStates, rec: StateVarDefRecorder):
@@ -302,6 +322,25 @@ def ir_to_ssa_form(ir: Operation, state: VarStates, rec: StateVarDefRecorder):
     def add_def(lval):
         return state.add(lval)
 
+    def add_refers_to(op: OperationWithLValue):
+        if not isinstance(op.lvalue, LocalIRVariable):
+            return
+        if not op.lvalue.is_storage:
+            return
+
+        # NOTE (hbrodin): Given how IR is currently generated assignments to storage is
+        # only made through temporary variables, that is a storage type is not the lvalue
+        # of a binary or unary operation or other generic OperationWithLValue.
+        # If that ever changes this function needs to change.
+        assert isinstance(op, Assignment)
+
+        if isinstance(op.rvalue, ReferenceVariable):
+            refers_to = op.rvalue.points_to_origin
+            op.lvalue.add_refers_to(refers_to)
+        elif not isinstance(op.rvalue, Constant):
+            op.lvalue.add_refers_to(op.rvalue)
+
+
     def _get_traversal(values):
         ret = []
         for v in values:
@@ -325,7 +364,10 @@ def ir_to_ssa_form(ir: Operation, state: VarStates, rec: StateVarDefRecorder):
     if isinstance(ir, Assignment):
         rvalue = get_ssa(ir.rvalue)
         lvalue = add_def(ir.lvalue)
-        return Assignment(lvalue, rvalue, ir.variable_return_type)
+
+        op = Assignment(lvalue, rvalue, ir.variable_return_type)
+        add_refers_to(op)
+        return op
     if isinstance(ir, Binary):
         variable_left = get_ssa(ir.variable_left)
         variable_right = get_ssa(ir.variable_right)
@@ -404,7 +446,7 @@ def ir_to_ssa_form(ir: Operation, state: VarStates, rec: StateVarDefRecorder):
         new_ir.arguments = arguments
         return new_ir
     if isinstance(ir, Member):
-        variable_left = get_ssa(ir.variable_right)
+        variable_left = get_ssa(ir.variable_left)
         variable_right = get_ssa(ir.variable_right)
         lvalue = add_def(ir.lvalue)
         return Member(variable_left, variable_right, lvalue)
@@ -503,6 +545,25 @@ def insert_phi_after_call(node: Node, call_ir, var_state: VarStates):
         phi_ir = PhiCallback(new_var, {node}, call_ir, old_def)
         node.add_ssa_ir(phi_ir)
 
+def _record_store_through_ref(node: Node, op: OperationWithLValue, state: VarStates) -> None:
+    """When a store through a ReferenceVariable is made simulate a write to the target by inserting a phi
+
+    This ensures that StateVariables written via references get an additional version
+    """
+    # NOTE (hbrodin): Currently all lvalues of type ReferenceVariable seems to be
+    # via assignment (not Binary, Unary etc.) if that changes need to change this function
+    if isinstance(op, Assignment):
+        if isinstance(op.lvalue, ReferenceVariable):
+            origin = op.lvalue.points_to_origin
+            if isinstance(origin, LocalIRVariable):
+                if origin.is_storage:
+                    for refers_to in origin.refers_to:
+                        lvalue = state.add(refers_to.non_ssa_version)
+                        phi = Phi(lvalue, set())
+                        node.add_ssa_ir(phi)
+                        _add_phi_rvalue(phi, origin)
+
+
 def ir_nodes_to_ssa(node: Node, parent_state: VarStates, rec: StateVarDefRecorder):
     with parent_state.new_scope() as state:
         # NOTE (hbrodin): Dummy phi-nodes have been placed in a previous step.
@@ -515,9 +576,10 @@ def ir_nodes_to_ssa(node: Node, parent_state: VarStates, rec: StateVarDefRecorde
                 lvalue = state.add(n.lvalue.non_ssa_version)
                 new_ir = Phi(lvalue, n.nodes)
                 for ir_var in n.rvalues:
-                    new_ir.rvalues.append(ir_var)
+                    _add_phi_rvalue(new_ir, ir_var)
                 node.irs_ssa[i] = new_ir
 
+        # Transform each IR operation into SSA form (except Phis which shouldn't be present)
         for ir in node.irs:
             assert not isinstance(ir, (Phi, PhiCallback))
             # if s is a non-phi statement (by design, no phi in non-ssa ir)
@@ -530,17 +592,28 @@ def ir_nodes_to_ssa(node: Node, parent_state: VarStates, rec: StateVarDefRecorde
             # have changed due to reentrancy or invoking another function that
             # changes storage vars.
             insert_phi_after_call(node, ssa_irs, state)
+            _record_store_through_ref(node, ssa_irs, state)
 
-
+        # Propagate relevant vars to successor phi operations
         for successor in node.sons:
             for n in successor.irs_ssa:
                 if isinstance(n, Phi):
                     orig_var = n.lvalue.non_ssa_version
                     ssa_var = state.get(orig_var)
-                    n.rvalues.append(ssa_var)
+                    _add_phi_rvalue(n, ssa_var)
 
-        for successor in node.dominator_successors:
+        # Order the successors to ensure that a successor (A) is visited after successor
+        # (B) if dominance frontier of B is A. This is to ensure that refers_to
+        # analysis gets correct information. It is not strictly needed for the correct
+        # operation of assigning SSA values. The issue is that Phi-nodes have to be
+        # Fully constructed (all rvalues assigned) before users of the def can propagate
+        # refers_to information.
+        # TODO (hbrodin): Is this correct? Does it cover all cases?
+        def sortkey(x, y):
+            return 1 if x in y.dominance_frontier else -1
+        for successor in sorted(node.dominator_successors, key=cmp_to_key(sortkey)):
             ir_nodes_to_ssa(successor, state, rec)
+
 
 def _add_param_return_ssa(function: Function, ssa_state: VarStates) -> None:
     def add(vars, addfunc):
