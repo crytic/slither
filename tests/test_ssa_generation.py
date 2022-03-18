@@ -19,7 +19,7 @@ from slither.slithir.operations import (
     InternalCall,
 )
 from slither.slithir.utils.ssa import is_used_later
-from slither.slithir.variables import Constant
+from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable
 
 
 def ssa_basic_properties(function: Function):
@@ -410,8 +410,74 @@ def test_ssa_phi_callbacks():
         assert len(after_call_phi.rvalues) == 2
 
 
+def test_storage_refers_to():
+    """Test the storage aspects of the SSA IR
+
+    When declaring a var as being storage, start tracking what storage it refers_to.
+    When a phi-node is created, ensure refers_to is propagated to the phi-node.
+    Assignments also propagate refers_to.
+    Whenever a ReferenceVariable is the destination of an assignment (e.g. s.v = 10)
+    below, create additional versions of the variables it refers to record that a a
+    write was made. In the current implementation, this is referenced by phis.
+    """
+    source = """
+   contract A{
+
+    struct St{
+        int v;
+    }
+
+    St state0;
+    St state1;
+
+    function f() public{
+        St storage s = state0;
+        if(true){
+            s = state1;
+        }
+        s.v = 10;
+    }
+}
+    """
+    with slither_from_source(source) as slither:
+        c = slither.contracts[0]
+        f = c.functions[0]
+
+        phinodes = get_ssa_of_type(f, Phi)
+        # Expect 2 in entrypoint (state0/state1 initial values), 1 at 'ENDIF' and two related to the
+        # ReferenceVariable write s.v = 10.
+        assert len(phinodes) == 5
+
+        # Assign s to state0, s to state1, s.v to 10
+        assigns = get_ssa_of_type(f, Assignment)
+        assert len(assigns) == 3
+
+        # The IR variables have is_storage
+        assert all([x.lvalue.is_storage for x in assigns if isinstance(x, LocalIRVariable)])
+
+        # s.v ReferenceVariable points to one of the phi vars...
+        ref0 = [x.lvalue for x in assigns if isinstance(x.lvalue, ReferenceVariable)][0]
+        sphis = [x for x in phinodes if x.lvalue == ref0.points_to]
+        assert len(sphis) == 1
+        sphi = sphis[0]
+
+        # ...and that phi refers to the two entry phi-values
+        entryphi = [x for x in phinodes if x.lvalue in sphi.lvalue.refers_to]
+        assert len(entryphi) == 2
+
+        # The remaining two phis are the ones recording that write through ReferenceVariable occured
+        for ephi in entryphi:
+            phinodes.remove(ephi)
+        phinodes.remove(sphi)
+        assert len(phinodes) == 2
+
+        # And they are recorded in one of the entry phis
+        assert phinodes[0].lvalue in entryphi[0].rvalues or entryphi[1].rvalues
+        assert phinodes[1].lvalue in entryphi[0].rvalues or entryphi[1].rvalues
+
+
 def test_issue_468():
-    """ "
+    """
     Ensure issue 468 is corrected as per
     https://github.com/crytic/slither/issues/468#issuecomment-620974151
     The one difference is that we allow the phi-function at entry of f to
