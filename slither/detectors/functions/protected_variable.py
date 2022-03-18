@@ -17,16 +17,33 @@ class ProtectedVariables(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#WIP"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#protected-variables"
 
-    WIKI_TITLE = "WIP"
-    WIKI_DESCRIPTION = "WIP"
+    WIKI_TITLE = "Protected Variables"
+    WIKI_DESCRIPTION = "Detect unprotected variable that are marked protected"
 
     # region wiki_exploit_scenario
-    WIKI_EXPLOIT_SCENARIO = """WIP"""
+    WIKI_EXPLOIT_SCENARIO = """
+```solidity
+contract Buggy{
+
+    /// @custom:security write-protection="onlyOwner()"
+    address owner;
+
+    function set_protected() public onlyOwner(){
+        owner = msg.sender;
+    }
+
+    function set_not_protected() public{
+        owner = msg.sender;
+    }
+}    
+```
+`owner` must be always written by function using `onlyOwner` (`write-protection="onlyOwner()"`), however anyone can call `set_not_protected`.
+"""
     # endregion wiki_exploit_scenario
 
-    WIKI_RECOMMENDATION = "WIP"
+    WIKI_RECOMMENDATION = "Add access controls to the vulnerable function"
 
     def _analyze_function(self, function: Function, contract: Contract) -> List[Output]:
         results = []

@@ -110,10 +110,12 @@ class VariableDeclarationSolc:
             candidates = attributes["documentation"]["text"].split(",")
 
             for candidate in candidates:
-                if "sec:non-reentrant" in candidate:
+                if "@custom:security non-reentrant" in candidate:
                     self._variable.is_reentrant = False
 
-                write_protection = re.search(r'sec:write-protection="([\w, ()]*)"', candidate)
+                write_protection = re.search(
+                    r'@custom:security write-protection="([\w, ()]*)"', candidate
+                )
                 if write_protection:
                     if self._variable.write_protection is None:
                         self._variable.write_protection = []

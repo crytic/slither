@@ -117,6 +117,11 @@ ALL_TEST_OBJECTS = [
         "0.4.25",
     ),
     Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "comment.sol",
+        "0.8.2",
+    ),
+    Test(
         all_detectors.BooleanEquality,
         "boolean-constant-equality.sol",
         "0.4.25",
@@ -1206,6 +1211,11 @@ ALL_TEST_OBJECTS = [
         all_detectors.DelegatecallInLoop,
         "delegatecall_loop.sol",
         "0.8.0",
+    ),
+    Test(
+        all_detectors.ProtectedVariables,
+        "comment.sol",
+        "0.8.2",
     ),
 ]
 
