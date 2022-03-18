@@ -636,6 +636,16 @@ ALL_TEST_OBJECTS = [
         "0.5.16",
     ),
     Test(
+        all_detectors.ShadowingAbstractDetection,
+        "shadowing_state_variable.sol",
+        "0.7.5",
+    ),
+    Test(
+        all_detectors.ShadowingAbstractDetection,
+        "public_gap_variable.sol",
+        "0.7.5",
+    ),
+    Test(
         all_detectors.StateShadowing,
         "shadowing_state_variable.sol",
         "0.4.25",
@@ -649,6 +659,16 @@ ALL_TEST_OBJECTS = [
         all_detectors.StateShadowing,
         "shadowing_state_variable.sol",
         "0.6.11",
+    ),
+    Test(
+        all_detectors.StateShadowing,
+        "shadowing_state_variable.sol",
+        "0.7.5",
+    ),
+    Test(
+        all_detectors.StateShadowing,
+        "public_gap_variable.sol",
+        "0.7.5",
     ),
     Test(
         all_detectors.StateShadowing,
