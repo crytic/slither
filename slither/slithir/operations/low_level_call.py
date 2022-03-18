@@ -61,6 +61,8 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         Must be called after slithIR analysis pass
         :return: bool
         """
+        if self.function_name == "staticcall":
+            return False
         return True
 
     def can_send_eth(self):
