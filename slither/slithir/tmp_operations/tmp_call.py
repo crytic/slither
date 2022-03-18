@@ -95,4 +95,4 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
         self._ori = ori
 
     def __str__(self):
-        return str(self.lvalue) + " = TMPCALL{} ".format(self.nbr_arguments) + str(self._called)
+        return str(self.lvalue) + f" = TMPCALL{self.nbr_arguments} " + str(self._called)

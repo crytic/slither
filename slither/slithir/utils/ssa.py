@@ -822,7 +822,7 @@ def copy_ir(ir, *instances):
         value = get_variable(ir, lambda x: x.value, *instances)
         return Length(value, lvalue)
 
-    raise SlithIRError("Impossible ir copy on {} ({})".format(ir, type(ir)))
+    raise SlithIRError(f"Impossible ir copy on {ir} ({type(ir)})")
 
 
 # endregion

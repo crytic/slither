@@ -26,7 +26,7 @@ def _get_pattern_func(func):
 
 
 def _get_port_id(var, contract):
-    return "%s%s" % (var.name, contract.name)
+    return f"{var.name}{contract.name}"
 
 
 class PrinterInheritanceGraph(AbstractPrinter):
@@ -100,14 +100,10 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         # Add arrows (number them if there is more than one path so we know order of declaration for inheritance).
         if len(contract.immediate_inheritance) == 1:
-            ret += "%s -> %s;\n" % (contract.name, contract.immediate_inheritance[0])
+            ret += f"{contract.name} -> {contract.immediate_inheritance[0]};\n"
         else:
             for i, immediate_inheritance in enumerate(contract.immediate_inheritance):
-                ret += '%s -> %s [ label="%s" ];\n' % (
-                    contract.name,
-                    immediate_inheritance,
-                    i + 1,
-                )
+                ret += f'{contract.name} -> {immediate_inheritance} [ label="{i + 1}" ];\n'
 
         # Functions
         visibilities = ["public", "external"]
@@ -155,24 +151,24 @@ class PrinterInheritanceGraph(AbstractPrinter):
         indirect_shadowing_information = self._get_indirect_shadowing_information(contract)
 
         # Build the node label
-        ret += '%s[shape="box"' % contract.name
+        ret += f'{contract.name}[shape="box"'
         ret += 'label=< <TABLE border="0">'
-        ret += '<TR><TD align="center"><B>%s</B></TD></TR>' % contract.name
+        ret += f'<TR><TD align="center"><B>{contract.name}</B></TD></TR>'
         if public_functions:
             ret += '<TR><TD align="left"><I>Public Functions:</I></TD></TR>'
-            ret += "%s" % public_functions
+            ret += f"{public_functions}"
         if private_functions:
             ret += '<TR><TD align="left"><I>Private Functions:</I></TD></TR>'
-            ret += "%s" % private_functions
+            ret += f"{private_functions}"
         if modifiers:
             ret += '<TR><TD align="left"><I>Modifiers:</I></TD></TR>'
-            ret += "%s" % modifiers
+            ret += f"{modifiers}"
         if public_variables:
             ret += '<TR><TD align="left"><I>Public Variables:</I></TD></TR>'
-            ret += "%s" % public_variables
+            ret += f"{public_variables}"
         if private_variables:
             ret += '<TR><TD align="left"><I>Private Variables:</I></TD></TR>'
-            ret += "%s" % private_variables
+            ret += f"{private_variables}"
 
         if indirect_shadowing_information:
             ret += (

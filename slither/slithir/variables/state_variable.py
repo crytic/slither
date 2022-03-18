@@ -43,4 +43,4 @@ class StateIRVariable(
 
     @property
     def ssa_name(self):
-        return "{}_{}".format(self._name, self.index)
+        return f"{self._name}_{self.index}"

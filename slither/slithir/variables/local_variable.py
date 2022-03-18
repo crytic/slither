@@ -69,5 +69,5 @@ class LocalIRVariable(
     @property
     def ssa_name(self):
         if self.is_storage:
-            return "{}_{} (-> {})".format(self._name, self.index, [v.name for v in self.refers_to])
-        return "{}_{}".format(self._name, self.index)
+            return f"{self._name}_{self.index} (-> {[v.name for v in self.refers_to]})"
+        return f"{self._name}_{self.index}"

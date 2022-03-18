@@ -64,26 +64,22 @@ class ContractSummary(AbstractPrinter):
             public = list(collect.items())
 
             for contract, functions in public:
-                txt += blue("  - From {}\n".format(contract))
+                txt += blue(f"  - From {contract}\n")
 
                 functions = sorted(functions, key=lambda f: f.full_name)
 
                 for function in functions:
                     if function.visibility in ["external", "public"]:
-                        txt += green(
-                            "    - {} ({})\n".format(function.full_name, function.visibility)
-                        )
+                        txt += green(f"    - {function.full_name} ({function.visibility})\n")
                     if function.visibility in ["internal", "private"]:
-                        txt += magenta(
-                            "    - {} ({})\n".format(function.full_name, function.visibility)
-                        )
+                        txt += magenta(f"    - {function.full_name} ({function.visibility})\n")
                     if function.visibility not in [
                         "external",
                         "public",
                         "internal",
                         "private",
                     ]:
-                        txt += "    - {}  ({})\n".format(function.full_name, function.visibility)
+                        txt += f"    - {function.full_name}  ({function.visibility})\n"
 
                     additional_fields.add(
                         function, additional_fields={"visibility": function.visibility}

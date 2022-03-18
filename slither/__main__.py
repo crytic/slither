@@ -208,7 +208,7 @@ def choose_detectors(args, all_detector_classes):
             if detector in detectors:
                 detectors_to_run.append(detectors[detector])
             else:
-                raise Exception("Error: {} is not a detector".format(detector))
+                raise Exception(f"Error: {detector} is not a detector")
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 

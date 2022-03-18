@@ -27,16 +27,16 @@ class LibraryCall(HighLevelCall):
     def __str__(self):
         gas = ""
         if self.call_gas:
-            gas = "gas:{}".format(self.call_gas)
+            gas = f"gas:{self.call_gas}"
         arguments = []
         if self.arguments:
             arguments = self.arguments
         if not self.lvalue:
             lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
+            lvalue = f"{self.lvalue}({','.join(str(x) for x in self.lvalue.type)}) = "
         else:
-            lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
+            lvalue = f"{self.lvalue}({self.lvalue.type}) = "
         txt = "{}LIBRARY_CALL, dest:{}, function:{}, arguments:{} {}"
 
         function_name = self.function_name

@@ -66,7 +66,7 @@ class VariableDeclarationSolc:
             elif nodeType == "VariableDeclaration":
                 self._init_from_declaration(variable_data, variable_data.get("value", None))
             else:
-                raise ParsingError("Incorrect variable declaration type {}".format(nodeType))
+                raise ParsingError(f"Incorrect variable declaration type {nodeType}")
 
         else:
             nodeType = variable_data["name"]
@@ -90,7 +90,7 @@ class VariableDeclarationSolc:
             elif nodeType == "VariableDeclaration":
                 self._init_from_declaration(variable_data, False)
             else:
-                raise ParsingError("Incorrect variable declaration type {}".format(nodeType))
+                raise ParsingError(f"Incorrect variable declaration type {nodeType}")
 
     @property
     def underlying_variable(self) -> Variable:

@@ -47,6 +47,6 @@ def test(args):
             logger.info(format_table.format(*(list(x) + [score])))
 
     except Exception:  # pylint: disable=broad-except
-        logger.error("Error in %s" % args.filename)
+        logger.error(f"Error in {args.filename}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

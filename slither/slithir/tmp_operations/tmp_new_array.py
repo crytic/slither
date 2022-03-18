@@ -23,4 +23,4 @@ class TmpNewArray(OperationWithLValue):
         return self._depth
 
     def __str__(self):
-        return "{} = new {}{}".format(self.lvalue, self.array_type, "[]" * self._depth)
+        return f"{self.lvalue} = new {self.array_type}{'[]' * self._depth}"
