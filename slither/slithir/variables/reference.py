@@ -57,7 +57,7 @@ class ReferenceVariable(ChildNode, Variable):
 
     @property
     def name(self):
-        return "REF_{}".format(self.index)
+        return f"REF_{self.index}"
 
     # overide of core.variables.variables
     # reference can have Function has a type

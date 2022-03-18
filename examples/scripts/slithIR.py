@@ -17,7 +17,7 @@ for contract in slither.contracts:
         # Dont explore inherited functions
         if function.contract_declarer == contract:
 
-            print("Function: {}".format(function.name))
+            print(f"Function: {function.name}")
 
             # Iterate over the nodes of the function
             for node in function.nodes:
@@ -26,7 +26,7 @@ for contract in slither.contracts:
                 # And the SlithIR operations
                 if node.expression:
 
-                    print("\tSolidity expression: {}".format(node.expression))
+                    print(f"\tSolidity expression: {node.expression}")
                     print("\tSlithIR:")
                     for ir in node.irs:
-                        print("\t\t\t{}".format(ir))
+                        print(f"\t\t\t{ir}")

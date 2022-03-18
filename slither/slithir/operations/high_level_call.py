@@ -96,6 +96,14 @@ class HighLevelCall(Call, OperationWithLValue):
     # region Analyses
     ###################################################################################
     ###################################################################################
+    def is_static_call(self):
+        # If solidity >0.5, STATICCALL is used
+        if self.compilation_unit.solc_version and self.compilation_unit.solc_version >= "0.5.0":
+            if isinstance(self.function, Function) and (self.function.view or self.function.pure):
+                return True
+            if isinstance(self.function, Variable):
+                return True
+        return False
 
     def can_reenter(self, callstack=None):
         """
@@ -105,12 +113,8 @@ class HighLevelCall(Call, OperationWithLValue):
         :param callstack: check for recursion
         :return: bool
         """
-        # If solidity >0.5, STATICCALL is used
-        if self.compilation_unit.solc_version and self.compilation_unit.solc_version >= "0.5.0":
-            if isinstance(self.function, Function) and (self.function.view or self.function.pure):
-                return False
-            if isinstance(self.function, Variable):
-                return False
+        if self.is_static_call():
+            return False
         # If there is a call to itself
         # We can check that the function called is
         # reentrancy-safe
@@ -144,9 +148,9 @@ class HighLevelCall(Call, OperationWithLValue):
         value = ""
         gas = ""
         if self.call_value:
-            value = "value:{}".format(self.call_value)
+            value = f"value:{self.call_value}"
         if self.call_gas:
-            gas = "gas:{}".format(self.call_gas)
+            gas = f"gas:{self.call_gas}"
         arguments = []
         if self.arguments:
             arguments = self.arguments
@@ -155,9 +159,9 @@ class HighLevelCall(Call, OperationWithLValue):
         if not self.lvalue:
             lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
+            lvalue = f"{self.lvalue}({','.join(str(x) for x in self.lvalue.type)}) = "
         else:
-            lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
+            lvalue = f"{self.lvalue}({self.lvalue.type}) = "
         return txt.format(
             lvalue,
             self.destination,
