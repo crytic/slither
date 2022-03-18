@@ -80,6 +80,7 @@ class CustomErrorSolc(CallerContextExpression):
             assert param[self.get_key()] == "VariableDeclaration"
             local_var = self._add_param(param)
             self._custom_error.add_parameters(local_var.underlying_variable)
+        self._custom_error.set_solidity_sig()
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
 
