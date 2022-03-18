@@ -204,6 +204,19 @@ class SlitherCompilationUnitSolc:
                     # TODO investigate unitAlias in version < 0.7 and legacy ast
                     if "unitAlias" in top_level_data:
                         import_directive.alias = top_level_data["unitAlias"]
+                    if "symbolAliases" in top_level_data:
+                        symbol_aliases = top_level_data["symbolAliases"]
+                        for symbol_alias in symbol_aliases:
+                            if (
+                                "foreign" in symbol_alias
+                                and "name" in symbol_alias["foreign"]
+                                and "local" in symbol_alias
+                            ):
+                                original_name = symbol_alias["foreign"]["name"]
+                                local_name = symbol_alias["local"]
+                                import_directive.renaming[local_name] = original_name
+                                # Assuming that two imports cannot collide in renaming
+                                scope.renaming[local_name] = original_name
                 else:
                     import_directive = Import(
                         Path(
@@ -356,12 +369,16 @@ Please rename it, this name is reserved for Slither's internals"""
 
             for i in contract_parser.linearized_base_contracts[1:]:
                 if i in contract_parser.remapping:
-                    ancestors.append(
-                        contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                            contract_parser.remapping[i]
-                        )
-                        # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
+                    contract_name = contract_parser.remapping[i]
+                    if contract_name in contract_parser.underlying_contract.file_scope.renaming:
+                        contract_name = contract_parser.underlying_contract.file_scope.renaming[
+                            contract_name
+                        ]
+                    target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
+                        contract_name
                     )
+                    assert target
+                    ancestors.append(target)
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
                 else:
