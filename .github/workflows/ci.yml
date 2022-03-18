@@ -22,7 +22,7 @@ jobs:
       matrix:
         type: ["cli",
                "data_dependency",
-               "embark",
+               # "embark",
                "erc",
                "etherlime",
                "find_paths",
