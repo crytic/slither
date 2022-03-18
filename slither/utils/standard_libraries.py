@@ -1,5 +1,7 @@
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
+from hashlib import sha1
+from slither.utils.oz_hashes import oz_hashes
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract
@@ -63,6 +65,16 @@ def is_openzepellin(contract: "Contract") -> bool:
     except ValueError:
         pass
     return is_zep
+
+
+def is_openzepellin_strict(contract: "Contract") -> bool:
+    start = contract.source_mapping['start']
+    end = start + contract.source_mapping['length']
+
+    # we need a way to get the source code, from a Contract
+    # source_code = slither.source_code[contract.source_mapping['filename_absolute']][start:end]
+    # source_hash = sha1(source_code.encode('utf-8')).hexdigest()
+    # return source_hash in oz_hashes
 
 
 def is_zos(contract: "Contract") -> bool:
