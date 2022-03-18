@@ -96,7 +96,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
     ###################################################################################
     ###################################################################################
 
-    def generate_slithir_ssa(self, ssa_state = None):
+    def generate_slithir_ssa(self, ssa_state=None):
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (
             compute_dominance_frontier,

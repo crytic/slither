@@ -2,9 +2,8 @@ import logging
 from collections import defaultdict
 from contextlib import contextmanager
 from functools import cmp_to_key
-from typing import Union, Iterator, Iterable, Set, Tuple
+from typing import Union, Iterator, Iterable, Set
 
-from build.lib.slither.slithir.variables import tuple
 from slither.core.cfg.node import NodeType, Node
 from slither.core.declarations import (
     Contract,
@@ -50,7 +49,8 @@ from slither.slithir.operations import (
     TypeConversion,
     Unary,
     Unpack,
-    Nop, Operation,
+    Nop,
+    Operation,
 )
 from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.variables import (
@@ -104,6 +104,7 @@ def transform_slithir_vars_to_ssa(function):
 
 # pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks,too-many-statements,too-many-branches
 
+
 class StateVarDefRecorder:
     """
     Captures information about StateVariable definitions at different points in a function
@@ -130,7 +131,8 @@ class StateVarDefRecorder:
     2. Some other function completed and modified the state, hence any exit state
 
     """
-    def __init__(self, vs: "VarStates", vars: Iterable[StateVariable]):
+
+    def __init__(self, vs: "VarStates", variables: Iterable[StateVariable]):
         """Initialize using the set of variables that are of concern
 
         This class is typically instantiated once per function being translated
@@ -138,7 +140,7 @@ class StateVarDefRecorder:
         are kept track of to those actually being read/written by the function.
         """
         self._vs = vs
-        self._vars = list(vars)
+        self._vars = list(variables)
 
     def collect_before_call(self):
         """Collect the defs active at time of a call
@@ -157,6 +159,7 @@ class StateVarDefRecorder:
         """
         for sv in self._vars:
             self._vs.register_at_end(sv)
+
 
 class VarState:
     def __init__(self):
@@ -234,17 +237,17 @@ class VarStates:
     def _var_to_ir_var(self, v):
         if isinstance(v, LocalVariable):
             return LocalIRVariable(v)
-        elif isinstance(v, StateVariable):
+        if isinstance(v, StateVariable):
             return StateIRVariable(v)
-        elif isinstance(v, TemporaryVariable):
+        if isinstance(v, TemporaryVariable):
             ssavar = TemporaryVariableSSA(v)
             ssavar.set_type(v.type)
             return ssavar
-        elif isinstance(v, TupleVariable):
+        if isinstance(v, TupleVariable):
             ssavar = TupleVariableSSA(v)
             ssavar.set_type(v.type)
             return ssavar
-        elif isinstance(v, ReferenceVariable):
+        if isinstance(v, ReferenceVariable):
             ssavar = ReferenceVariableSSA(v)
             if v.points_to:
                 ssavar.points_to = self.get(v.points_to)
@@ -266,9 +269,14 @@ class VarStates:
         of a state variable (assignemnt to it) creates a new version, within
         the scope of the VarStates (typically for a Contract).
         """
-        captured_state = {k: vs.instance_count() for (k, vs) in self._state.items() if not isinstance(k, StateVariable)}
+        captured_state = {
+            k: vs.instance_count()
+            for (k, vs) in self._state.items()
+            if not isinstance(k, StateVariable)
+        }
         yield self
-        [self._state[k].keep_instances(v) for (k, v) in captured_state.items()]
+        for (k, v) in captured_state.items():
+            self._state[k].keep_instances(v)
 
     def compute_entry_phis(self):
         """Compute the entry point phi-values for each StateVariable
@@ -285,6 +293,7 @@ class VarStates:
     def end_states(self):
         return self._state_vars_at_end
 
+
 def _add_phi_rvalue(phi: Phi, rvalue):
     """Propagates refers to information for Phi lvalues
 
@@ -295,7 +304,6 @@ def _add_phi_rvalue(phi: Phi, rvalue):
     lvalue = phi.lvalue
     if isinstance(lvalue, (LocalIRVariable, TemporaryVariable)) and lvalue.is_storage:
         lvalue.refers_to.update(rvalue.refers_to)
-
 
 
 def ir_to_ssa_form(ir: Operation, state: VarStates, rec: StateVarDefRecorder):
@@ -339,7 +347,6 @@ def ir_to_ssa_form(ir: Operation, state: VarStates, rec: StateVarDefRecorder):
             op.lvalue.add_refers_to(refers_to)
         elif not isinstance(op.rvalue, Constant):
             op.lvalue.add_refers_to(op.rvalue)
-
 
     def _get_traversal(values):
         ret = []
@@ -399,9 +406,13 @@ def ir_to_ssa_form(ir: Operation, state: VarStates, rec: StateVarDefRecorder):
 
         lvalue = add_def(ir.lvalue)
         if isinstance(ir, LibraryCall):
-            new_ir = LibraryCall(destination, ir.function_name, ir.nbr_arguments, lvalue, ir.type_call)
+            new_ir = LibraryCall(
+                destination, ir.function_name, ir.nbr_arguments, lvalue, ir.type_call
+            )
         else:
-            new_ir = HighLevelCall(destination, ir.function_name, ir.nbr_arguments, lvalue, ir.type_call)
+            new_ir = HighLevelCall(
+                destination, ir.function_name, ir.nbr_arguments, lvalue, ir.type_call
+            )
         new_ir.call_id = ir.call_id
         new_ir.call_value = call_value
         new_ir.call_gas = call_gas
@@ -521,7 +532,8 @@ def ir_to_ssa_form(ir: Operation, state: VarStates, rec: StateVarDefRecorder):
         lvalue = add_def(ir.lvalue)
         return Length(value, lvalue)
 
-    raise SlithIRError("Impossible ir copy on {} ({})".format(ir, type(ir)))
+    raise SlithIRError(f"Impossible ir copy on {ir} ({type(ir)})")
+
 
 def insert_phi_after_call(node: Node, call_ir, var_state: VarStates):
     """Creates a phi function after calls to
@@ -544,6 +556,7 @@ def insert_phi_after_call(node: Node, call_ir, var_state: VarStates):
         new_var = var_state.add(variable)
         phi_ir = PhiCallback(new_var, {node}, call_ir, old_def)
         node.add_ssa_ir(phi_ir)
+
 
 def _record_store_through_ref(node: Node, op: OperationWithLValue, state: VarStates) -> None:
     """When a store through a ReferenceVariable is made simulate a write to the target by inserting a phi
@@ -611,13 +624,14 @@ def ir_nodes_to_ssa(node: Node, parent_state: VarStates, rec: StateVarDefRecorde
         # TODO (hbrodin): Is this correct? Does it cover all cases?
         def sortkey(x, y):
             return 1 if x in y.dominance_frontier else -1
+
         for successor in sorted(node.dominator_successors, key=cmp_to_key(sortkey)):
             ir_nodes_to_ssa(successor, state, rec)
 
 
 def _add_param_return_ssa(function: Function, ssa_state: VarStates) -> None:
-    def add(vars, addfunc):
-        for var in filter(lambda x: x.name, vars):
+    def add(variables, addfunc):
+        for var in filter(lambda x: x.name, variables):
             # Get the initial version and record it in the function
             ssa0 = ssa_state.add(var)
 
@@ -644,8 +658,10 @@ def add_ssa_ir(function: Function, ssa_state: VarStates = None):
 
     # To allow for state variable constructors to be run
     abort = not function.is_implemented
-    if function.function_type in (FunctionType.CONSTRUCTOR_VARIABLES,
-                                  FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES):
+    if function.function_type in (
+        FunctionType.CONSTRUCTOR_VARIABLES,
+        FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES,
+    ):
         abort = False
 
     if abort:
@@ -672,7 +688,7 @@ def add_ssa_ir(function: Function, ssa_state: VarStates = None):
 
     # Adding phi-nodes based on control flow of function
     # This will place the initial phi-nodes at dominance frontiers of each node
-    add_phi_origins(function.nodes, ssa_state)
+    add_phi_origins(function.nodes)
 
     # Transform IR to SSA ir by cloning IR nodes and add version info. This will also
     # append Phi-nodes after external calls (for any state variable currently used).
@@ -883,13 +899,15 @@ def last_name(n, var, init_vars):
     assert candidates
     return max(candidates, key=lambda v: v.index)
 
+
 def referenced_state_variables(function: Function) -> Set[StateVariable]:
     """Returns a set of all StateVariables that are referenced in a function"""
-    vars = set()
+    variables = set()
     for node in function.nodes:
-        vars.update(node.state_variables_written)
-        vars.update(node.state_variables_read)
-    return vars
+        variables.update(node.state_variables_written)
+        variables.update(node.state_variables_read)
+    return variables
+
 
 def is_used_later(initial_node, variable):
     # TODO: does not handle the case where its read and written in the declaration node
@@ -1110,7 +1128,7 @@ def _find_var_def(node, var: Union[LocalVariable, StateVariable]):
         node = node.immediate_dominator
 
 
-def add_phi_origins(nodes, vars):
+def add_phi_origins(nodes):
     """Insert Phi-nodes where needed"""
     # Phase 1 place dummy phi nodes
     workset = set()
@@ -1152,10 +1170,12 @@ def add_phi_origins(nodes, vars):
             # TODO (hbrodin): Make sure this is correct
             # if not is_used_later(node, variable):
             #   continue
-            nodes_real_origin = set(map(lambda n, var=variable: _find_var_def(n, var), source_nodes))
+            nodes_real_origin = set(
+                map(lambda n, var=variable: _find_var_def(n, var), source_nodes)
+            )
             node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes_real_origin))
-            #node.add_ssa_ir(Phi(variable, nodes_real_origin))
-            #node.add_ssa_ir(Phi(_add_ir_var(vars, variable), set()))
+            # node.add_ssa_ir(Phi(variable, nodes_real_origin))
+            # node.add_ssa_ir(Phi(_add_ir_var(vars, variable), set()))
         for (variable, source_nodes) in node.phi_origins_state_variables.values():
             if len(source_nodes) < 2:
                 # TODO (hbrodin): How do we report errors/inconsistencies?
@@ -1165,12 +1185,12 @@ def add_phi_origins(nodes, vars):
             # TODO (hbrodin): Make sure this is correct
             # if not is_used_later(node, variable.name, []):
             #    continue
-            nodes_real_origin = set(map(lambda n, var=variable: _find_var_def(n, var), source_nodes))
+            nodes_real_origin = set(
+                map(lambda n, var=variable: _find_var_def(n, var), source_nodes)
+            )
             node.add_ssa_ir(Phi(StateIRVariable(variable), nodes_real_origin))
-            #node.add_ssa_ir(Phi(variable, nodes_real_origin))
-            #node.add_ssa_ir(Phi(_add_ir_var(vars, variable), set()))
-
-
+            # node.add_ssa_ir(Phi(variable, nodes_real_origin))
+            # node.add_ssa_ir(Phi(_add_ir_var(vars, variable), set()))
 
 
 # endregion
@@ -1448,5 +1468,6 @@ def copy_ir(ir, *instances):
         return Length(value, lvalue)
 
     raise SlithIRError(f"Impossible ir copy on {ir} ({type(ir)})")
+
 
 # endregion

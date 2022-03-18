@@ -72,7 +72,6 @@ def ssa_basic_properties(function: Function):
     for (k, n) in lvalue_assignments.items():
         assert ssa_defs[k] >= n
 
-
     # Helper 4/5
     def check_property_4_and_5(vars, ssavars):
         for var in filter(lambda x: x.name, vars):

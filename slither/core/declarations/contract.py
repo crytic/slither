@@ -1292,8 +1292,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         # If there are any constructor variable functions (artifical functions created by Slither)
         # start by transforming their IR. This ensures state_0 is from them.
         for var_ctor in all_funcs:
-            if var_ctor.function_type in (FunctionType.CONSTRUCTOR_VARIABLES,
-                                          FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES):
+            if var_ctor.function_type in (
+                FunctionType.CONSTRUCTOR_VARIABLES,
+                FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES,
+            ):
                 var_ctor.generate_slithir_ssa(ssa_state)
 
         for contract in self.inheritance:
@@ -1312,8 +1314,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         for func in self.functions + self.modifiers:
             # Already processed these
-            if func.function_type in (FunctionType.CONSTRUCTOR_VARIABLES,
-                                      FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES):
+            if func.function_type in (
+                FunctionType.CONSTRUCTOR_VARIABLES,
+                FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES,
+            ):
                 continue
 
             func.generate_slithir_ssa(ssa_state)
@@ -1341,9 +1345,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                         values = end_states[sv].difference([ir.lvalue])
                         ir.rvalues.extend(values)
 
-
     def fix_phi(self):
-        last_state_variables_instances = {}
+        pass
+        # last_state_variables_instances = {}
         # initial_state_variables_instances = {}
         # for v in self._initial_state_variables:
         #     last_state_variables_instances[v.canonical_name] = []
