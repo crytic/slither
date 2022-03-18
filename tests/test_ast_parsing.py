@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+from pathlib import Path
 from typing import List, Dict, Tuple
 
 import pytest
@@ -394,6 +395,10 @@ ALL_TESTS = [
         "while-all.sol",
         ALL_VERSIONS,
     ),
+    Test(
+        "complex_imports/import_free/Caller.sol",
+        ["0.8.2"],
+    ),
 ]
 # create the output folder if needed
 try:
@@ -492,6 +497,9 @@ def _generate_test(test_item: Test, skip_existing=False):
 
         actual = generate_output(sl)
         print(f"Generate {expected_file}")
+
+        Path(expected_file).parents[0].mkdir(parents=True, exist_ok=True)
+
         with open(expected_file, "w", encoding="utf8") as f:
             json.dump(actual, f, indent="  ")
 
@@ -517,6 +525,8 @@ def _generate_compile(test_item: Test, skip_existing=False):
         set_solc(version)
         print(f"Compiled to {expected_file}")
         cc = CryticCompile(test_file, solc_force_legacy_json=flavor == "legacy")
+
+        Path(expected_file).parents[0].mkdir(parents=True, exist_ok=True)
 
         save_to_zip([cc], expected_file)
 

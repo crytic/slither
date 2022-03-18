@@ -1463,7 +1463,11 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
             for import_statement in contract.file_scope.imports:
                 if import_statement.alias and import_statement.alias == ir.contract_name:
                     imported_scope = contract.compilation_unit.get_scope(import_statement.filename)
-                    candidates += list(imported_scope.functions)
+                    candidates += [
+                        f
+                        for f in list(imported_scope.functions)
+                        if f.name == ir.function_name and len(f.parameters) == len(ir.arguments)
+                    ]
 
         func = _find_function_from_parameter(ir, candidates)
 
