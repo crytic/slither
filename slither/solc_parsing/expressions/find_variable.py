@@ -334,6 +334,9 @@ def find_variable(
     # Because functions are copied between contracts, two functions can have the same ref
     # So we need to first look with respect to the direct context
 
+    if var_name in current_scope.renaming:
+        var_name = current_scope.renaming[var_name]
+
     # Use ret0/ret1 to help mypy
     ret0 = _find_variable_from_ref_declaration(
         referenced_declaration, direct_contracts, direct_functions

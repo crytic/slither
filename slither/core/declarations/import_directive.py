@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Dict
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 
@@ -13,6 +13,8 @@ class Import(SourceMapping):
         self._filename: Path = filename
         self._alias: Optional[str] = None
         self.scope: "FileScope" = scope
+        # Map local name -> original name
+        self.renaming: Dict[str, str] = {}
 
     @property
     def filename(self) -> str:

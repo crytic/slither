@@ -39,6 +39,11 @@ class FileScope:
         self.structures: Dict[str, StructureTopLevel] = {}
         self.variables: Dict[str, TopLevelVariable] = {}
 
+        # Renamed created by import
+        # import A as B
+        # local name -> original name (A -> B)
+        self.renaming: Dict[str, str] = {}
+
     def add_accesible_scopes(self) -> bool:
         """
         Add information from accessible scopes. Return true if new information was obtained
@@ -73,6 +78,9 @@ class FileScope:
                 learn_something = True
             if not _dict_contain(new_scope.variables, self.variables):
                 self.variables.update(new_scope.variables)
+                learn_something = True
+            if not _dict_contain(new_scope.renaming, self.renaming):
+                self.renaming.update(new_scope.renaming)
                 learn_something = True
 
         return learn_something
