@@ -3,7 +3,6 @@ Tool to read on-chain storage from EVM
 """
 import json
 import argparse
-from argparse import Namespace
 
 from crytic_compile import cryticparser
 
@@ -11,7 +10,7 @@ from slither import Slither
 from slither.tools.read_storage.read_storage import SlitherReadStorage
 
 
-def parse_args() -> Namespace:
+def parse_args() -> argparse.Namespace:
     """Parse the underlying arguments for the program.
     Returns:
         The arguments for the program.

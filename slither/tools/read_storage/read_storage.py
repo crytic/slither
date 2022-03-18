@@ -2,7 +2,13 @@ import sys
 import logging
 from math import floor
 
-from typing import Callable, Optional, Tuple, TypedDict, Union, List, Dict
+from typing import Callable, Optional, Tuple, Union, List, Dict
+
+try:
+    from typing import TypedDict
+except ImportError:
+    # < Python 3.8
+    from typing_extensions import TypedDict
 
 try:
     from web3 import Web3

@@ -38,9 +38,13 @@ jobs:
           python3 setup.py install
           pip install web3 pytest deepdiff solc-select
           solc-select install 0.8.1
+          solc-select install 0.8.10
           solc-select use 0.8.1
 
-      - name: Run tests
+      - name: Run slither-read-storage
         run: |
           pytest tests/test_read_storage.py
 
+      - name: Run storage layout tests
+        run: |
+          pytest tests/test_storage_layout.py
