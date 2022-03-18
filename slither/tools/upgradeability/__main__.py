@@ -187,7 +187,7 @@ def main():
         v1_name = args.ContractName
         v1_contracts = variable1.get_contract_from_name(v1_name)
         if len(v1_contracts) != 1:
-            info = "Contract {} not found in {}".format(v1_name, variable1.filename)
+            info = f"Contract {v1_name} not found in {variable1.filename}"
             logger.error(red(info))
             if args.json:
                 output_to_json(args.json, str(info), json_results)

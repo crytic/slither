@@ -64,6 +64,9 @@ def process_single(target, args, detector_classes, printer_classes):
     ast = "--ast-compact-json"
     if args.legacy_ast:
         ast = "--ast-json"
+    if args.checklist:
+        args.show_ignored_findings = True
+
     slither = Slither(target, ast_format=ast, **vars(args))
 
     return _process(slither, detector_classes, printer_classes)
@@ -205,7 +208,7 @@ def choose_detectors(args, all_detector_classes):
             if detector in detectors:
                 detectors_to_run.append(detectors[detector])
             else:
-                raise Exception("Error: {} is not a detector".format(detector))
+                raise Exception(f"Error: {detector} is not a detector")
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
@@ -462,7 +465,7 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         help="Provide a config file (default: slither.config.json)",
         action="store",
         dest="config_file",
-        default="slither.config.json",
+        default=None,
     )
 
     group_misc.add_argument(

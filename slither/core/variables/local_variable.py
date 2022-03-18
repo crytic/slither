@@ -58,4 +58,4 @@ class LocalVariable(ChildFunction, Variable):
 
     @property
     def canonical_name(self) -> str:
-        return "{}.{}".format(self.function.canonical_name, self.name)
+        return f"{self.function.canonical_name}.{self.name}"

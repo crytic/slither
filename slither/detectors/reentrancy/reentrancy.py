@@ -283,11 +283,12 @@ class Reentrancy(AbstractDetector):
 
     def detect_reentrancy(self, contract):
         for function in contract.functions_and_modifiers_declared:
-            if function.is_implemented:
-                if self.KEY in function.context:
-                    continue
-                self._explore(function.entry_point, [])
-                function.context[self.KEY] = True
+            if not function.is_constructor:
+                if function.is_implemented:
+                    if self.KEY in function.context:
+                        continue
+                    self._explore(function.entry_point, [])
+                    function.context[self.KEY] = True
 
     def _detect(self):
         """"""

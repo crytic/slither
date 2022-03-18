@@ -28,4 +28,4 @@ class TypeConversion(OperationWithLValue):
         return [self.variable]
 
     def __str__(self):
-        return str(self.lvalue) + " = CONVERT {} to {}".format(self.variable, self.type)
+        return str(self.lvalue) + f" = CONVERT {self.variable} to {self.type}"

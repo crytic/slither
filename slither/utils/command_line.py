@@ -52,6 +52,15 @@ defaults_flag_in_config = {
 
 
 def read_config_file(args):
+    # No config file was provided as an argument
+    if args.config_file is None:
+        # Check wether the default config file is present
+        if os.path.exists("slither.config.json"):
+            # The default file exists, use it
+            args.config_file = "slither.config.json"
+        else:
+            return
+
     if os.path.isfile(args.config_file):
         try:
             with open(args.config_file, encoding="utf8") as f:
@@ -59,24 +68,23 @@ def read_config_file(args):
                 for key, elem in config.items():
                     if key not in defaults_flag_in_config:
                         logger.info(
-                            yellow(
-                                "{} has an unknown key: {} : {}".format(args.config_file, key, elem)
-                            )
+                            yellow(f"{args.config_file} has an unknown key: {key} : {elem}")
                         )
                         continue
                     if getattr(args, key) == defaults_flag_in_config[key]:
                         setattr(args, key, elem)
         except json.decoder.JSONDecodeError as e:
-            logger.error(
-                red("Impossible to read {}, please check the file {}".format(args.config_file, e))
-            )
+            logger.error(red(f"Impossible to read {args.config_file}, please check the file {e}"))
+    else:
+        logger.error(red(f"File {args.config_file} is not a file or does not exist"))
+        logger.error(yellow("Falling back to the default settings..."))
 
 
 def output_to_markdown(detector_classes, printer_classes, filter_wiki):
     def extract_help(cls):
         if cls.WIKI == "":
             return cls.HELP
-        return "[{}]({})".format(cls.HELP, cls.WIKI)
+        return f"[{cls.HELP}]({cls.WIKI})"
 
     detectors_list = []
     print(filter_wiki)
@@ -98,11 +106,7 @@ def output_to_markdown(detector_classes, printer_classes, filter_wiki):
     )
     idx = 1
     for (argument, help_info, impact, confidence) in detectors_list:
-        print(
-            "{} | `{}` | {} | {} | {}".format(
-                idx, argument, help_info, classification_txt[impact], confidence
-            )
-        )
+        print(f"{idx} | `{argument}` | {help_info} | {classification_txt[impact]} | {confidence}")
         idx = idx + 1
 
     print()
@@ -116,7 +120,7 @@ def output_to_markdown(detector_classes, printer_classes, filter_wiki):
     printers_list = sorted(printers_list, key=lambda element: (element[0]))
     idx = 1
     for (argument, help_info) in printers_list:
-        print("{} | `{}` | {}".format(idx, argument, help_info))
+        print(f"{idx} | `{argument}` | {help_info}")
         idx = idx + 1
 
 
@@ -202,11 +206,11 @@ def output_wiki(detector_classes, filter_wiki):
         exploit_scenario = detector.WIKI_EXPLOIT_SCENARIO
         recommendation = detector.WIKI_RECOMMENDATION
 
-        print("\n## {}".format(title))
+        print(f"\n## {title}")
         print("### Configuration")
-        print("* Check: `{}`".format(check))
-        print("* Severity: `{}`".format(impact))
-        print("* Confidence: `{}`".format(confidence))
+        print(f"* Check: `{check}`")
+        print(f"* Severity: `{impact}`")
+        print(f"* Confidence: `{confidence}`")
         print("\n### Description")
         print(description)
         if exploit_scenario:

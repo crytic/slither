@@ -51,4 +51,4 @@ class Return(Operation):
         return self._unroll(self._values)
 
     def __str__(self):
-        return "RETURN {}".format(",".join(["{}".format(x) for x in self.values]))
+        return f"RETURN {','.join([f'{x}' for x in self.values])}"

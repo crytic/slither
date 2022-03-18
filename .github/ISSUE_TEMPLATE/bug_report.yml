@@ -1,41 +1,48 @@
-name: Bug Report
-description: File a bug report
-title: "[Bug]: "
-labels: ["bug"]
-body:
-  - type: markdown
-    attributes:
+--- 
+body: 
+  - 
+    attributes: 
       value: |
-        Please check the issues tab to avoid duplicates.
-
-        Thanks for taking the time to fill out this bug report!
-  - type: textarea
+          Please check the issues tab to avoid duplicates.
+          Thanks for taking the time to fill out this bug report!
+    type: markdown
+  - 
+    attributes: 
+      label: "Describe the issue:"
     id: what-happened
-    attributes:
-      label: What happened?
-      description: Also tell us, what did you expect to happen?
-      value: "A bug happened!"
-    validations:
+    type: textarea
+    validations: 
       required: true
-  - type: textarea
+  - 
+    attributes: 
+      description: "It can be a github repo, etherscan link, or code snippet."
+      label: "Code example to reproduce the issue:"
+      placeholder: "`contract A {}`\n"
     id: reproduce
-    attributes:
-      label: Can you share code with us to reproduce this bug?
-      description: It can be a github repo, etherscan link, or code snippet.
-      value: "contract A {}"
-    validations:
+    type: textarea
+    validations: 
       required: true
-  - type: textarea
+  - 
+    attributes: 
+      description: |
+          What version of slither are you running? 
+          Run `slither --version`
+      label: "Version:"
     id: version
-    attributes:
-      label: Version
-      description: What version of our software are you running?
-      value: Run `slither --version`
-    validations:
+    type: textarea
+    validations: 
       required: true
-  - type: textarea
+  - 
+    attributes: 
+      description: |
+          Please copy and paste any relevant log output. This 
+          will be automatically formatted into code, so no need for backticks.
+          render: shell
+      label: "Relevant log output:"
     id: logs
-    attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
-      render: shell
+    type: textarea
+description: "File a bug report"
+labels: 
+  - bug-candidate
+name: "Bug Report"
+title: "[Bug-Candidate]: "
