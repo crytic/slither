@@ -198,7 +198,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
 def parse_type(
     t: Union[Dict, UnknownType],
     caller_context: Union[CallerContextExpression, "SlitherCompilationUnitSolc"],
-):
+) -> Type:
     """
     caller_context can be a SlitherCompilationUnitSolc because we recursively call the function
     and go up in the context's scope. If we are really lost we just go over the SlitherCompilationUnitSolc
