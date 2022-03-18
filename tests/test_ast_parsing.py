@@ -400,6 +400,7 @@ ALL_TESTS = [
         ["0.8.2"],
     ),
     Test("custom_error_with_state_variable.sol", make_version(8, 4, 12)),
+    Test("complex_imports/import_aliases/test.sol", VERSIONS_08),
 ]
 # create the output folder if needed
 try:

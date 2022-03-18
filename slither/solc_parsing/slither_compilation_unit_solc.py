@@ -14,6 +14,7 @@ from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.structure_top_level import StructureTopLevel
+from slither.core.scope.scope import FileScope
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.exceptions import SlitherException
 from slither.solc_parsing.declarations.contract import ContractSolc
@@ -26,6 +27,33 @@ from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSo
 logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
 logger.setLevel(logging.INFO)
+
+
+def _handle_import_aliases(
+    symbol_aliases: Dict, import_directive: Import, scope: FileScope
+) -> None:
+    """
+    Handle the parsing of import aliases
+
+    Args:
+        symbol_aliases (Dict): json dict from solc
+        import_directive (Import): current import directive
+        scope (FileScope): current file scape
+
+    Returns:
+
+    """
+    for symbol_alias in symbol_aliases:
+        if (
+            "foreign" in symbol_alias
+            and "name" in symbol_alias["foreign"]
+            and "local" in symbol_alias
+        ):
+            original_name = symbol_alias["foreign"]["name"]
+            local_name = symbol_alias["local"]
+            import_directive.renaming[local_name] = original_name
+            # Assuming that two imports cannot collide in renaming
+            scope.renaming[local_name] = original_name
 
 
 class SlitherCompilationUnitSolc:
@@ -206,17 +234,7 @@ class SlitherCompilationUnitSolc:
                         import_directive.alias = top_level_data["unitAlias"]
                     if "symbolAliases" in top_level_data:
                         symbol_aliases = top_level_data["symbolAliases"]
-                        for symbol_alias in symbol_aliases:
-                            if (
-                                "foreign" in symbol_alias
-                                and "name" in symbol_alias["foreign"]
-                                and "local" in symbol_alias
-                            ):
-                                original_name = symbol_alias["foreign"]["name"]
-                                local_name = symbol_alias["local"]
-                                import_directive.renaming[local_name] = original_name
-                                # Assuming that two imports cannot collide in renaming
-                                scope.renaming[local_name] = original_name
+                        _handle_import_aliases(symbol_aliases, import_directive, scope)
                 else:
                     import_directive = Import(
                         Path(
