@@ -8,6 +8,7 @@ from slither.core.declarations import Contract
 from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output, AllSupportedOutput
+from .common import is_upgradable_gap_variable
 
 
 def detect_shadowing(contract: Contract) -> List[List[StateVariable]]:
@@ -19,6 +20,9 @@ def detect_shadowing(contract: Contract) -> List[List[StateVariable]]:
 
     var: StateVariable
     for var in contract.state_variables_declared:
+        if is_upgradable_gap_variable(contract, var):
+            continue
+
         shadow: List[StateVariable] = [v for v in variables_fathers if v.name == var.name]
         if shadow:
             ret.append([var] + shadow)

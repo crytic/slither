@@ -309,19 +309,19 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad2",
+                    "name": "bad3",
                     "source_mapping": {
-                        "start": 877,
-                        "length": 160,
+                        "start": 1101,
+                        "length": 154,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "is_dependency": false,
                         "lines": [
-                            34,
-                            35,
-                            36
+                            39,
+                            40,
+                            41
                         ],
                         "starting_column": 3,
                         "ending_column": 4
@@ -441,42 +441,42 @@
                                 "ending_column": 2
                             }
                         },
-                        "signature": "bad2()"
+                        "signature": "bad3()"
                     }
                 },
                 {
                     "type": "node",
-                    "name": "b = abi.encode(bad_arr)",
+                    "name": "b = abi.encode(s)",
                     "source_mapping": {
-                        "start": 996,
-                        "length": 36,
+                        "start": 1220,
+                        "length": 30,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "is_dependency": false,
                         "lines": [
-                            35
+                            40
                         ],
                         "starting_column": 5,
-                        "ending_column": 41
+                        "ending_column": 35
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad2",
+                            "name": "bad3",
                             "source_mapping": {
-                                "start": 877,
-                                "length": 160,
+                                "start": 1101,
+                                "length": 154,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    34,
-                                    35,
-                                    36
+                                    39,
+                                    40,
+                                    41
                                 ],
                                 "starting_column": 3,
                                 "ending_column": 4
@@ -596,16 +596,16 @@
                                         "ending_column": 2
                                     }
                                 },
-                                "signature": "bad2()"
+                                "signature": "bad3()"
                             }
                         }
                     }
                 }
             ],
-            "description": "Function A.bad2() (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#34-36) trigger an abi encoding bug:\n\t- b = abi.encode(bad_arr) (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#35)\n",
-            "markdown": "Function [A.bad2()](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L34-L36) trigger an abi encoding bug:\n\t- [b = abi.encode(bad_arr)](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L35)\n",
-            "first_markdown_element": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L34-L36",
-            "id": "e976cd11118a9f5aaacfe5715cef990140fd67c7a35682446aedc878b63b3b24",
+            "description": "Function A.bad3() (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#39-41) trigger an abi encoding bug:\n\t- b = abi.encode(s) (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#40)\n",
+            "markdown": "Function [A.bad3()](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L39-L41) trigger an abi encoding bug:\n\t- [b = abi.encode(s)](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L40)\n",
+            "first_markdown_element": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L39-L41",
+            "id": "37e980d8d34fcffe10d2533052de986dd57c1d45700f02234332b275b532c71d",
             "check": "abiencoderv2-array",
             "impact": "High",
             "confidence": "High"
@@ -919,19 +919,19 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad3",
+                    "name": "bad4",
                     "source_mapping": {
-                        "start": 1101,
-                        "length": 154,
+                        "start": 1321,
+                        "length": 148,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "is_dependency": false,
                         "lines": [
-                            39,
-                            40,
-                            41
+                            44,
+                            45,
+                            46
                         ],
                         "starting_column": 3,
                         "ending_column": 4
@@ -1051,42 +1051,42 @@
                                 "ending_column": 2
                             }
                         },
-                        "signature": "bad3()"
+                        "signature": "bad4()"
                     }
                 },
                 {
                     "type": "node",
-                    "name": "b = abi.encode(s)",
+                    "name": "event1_bad(bad_arr)",
                     "source_mapping": {
-                        "start": 1220,
-                        "length": 30,
+                        "start": 1440,
+                        "length": 24,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "is_dependency": false,
                         "lines": [
-                            40
+                            45
                         ],
                         "starting_column": 5,
-                        "ending_column": 35
+                        "ending_column": 29
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad3",
+                            "name": "bad4",
                             "source_mapping": {
-                                "start": 1101,
-                                "length": 154,
+                                "start": 1321,
+                                "length": 148,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    39,
-                                    40,
-                                    41
+                                    44,
+                                    45,
+                                    46
                                 ],
                                 "starting_column": 3,
                                 "ending_column": 4
@@ -1206,16 +1206,16 @@
                                         "ending_column": 2
                                     }
                                 },
-                                "signature": "bad3()"
+                                "signature": "bad4()"
                             }
                         }
                     }
                 }
             ],
-            "description": "Function A.bad3() (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#39-41) trigger an abi encoding bug:\n\t- b = abi.encode(s) (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#40)\n",
-            "markdown": "Function [A.bad3()](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L39-L41) trigger an abi encoding bug:\n\t- [b = abi.encode(s)](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L40)\n",
-            "first_markdown_element": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L39-L41",
-            "id": "37e980d8d34fcffe10d2533052de986dd57c1d45700f02234332b275b532c71d",
+            "description": "Function A.bad4() (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#44-46) trigger an abi encoding bug:\n\t- event1_bad(bad_arr) (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#45)\n",
+            "markdown": "Function [A.bad4()](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L44-L46) trigger an abi encoding bug:\n\t- [event1_bad(bad_arr)](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L45)\n",
+            "first_markdown_element": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L44-L46",
+            "id": "6e9dfeb7f6ea7c989276fa8c5e27d71ab0f6b63ee878fb3f761dab9d07942246",
             "check": "abiencoderv2-array",
             "impact": "High",
             "confidence": "High"
@@ -1529,19 +1529,19 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad4",
+                    "name": "bad2",
                     "source_mapping": {
-                        "start": 1321,
-                        "length": 148,
+                        "start": 877,
+                        "length": 160,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "is_dependency": false,
                         "lines": [
-                            44,
-                            45,
-                            46
+                            34,
+                            35,
+                            36
                         ],
                         "starting_column": 3,
                         "ending_column": 4
@@ -1661,42 +1661,42 @@
                                 "ending_column": 2
                             }
                         },
-                        "signature": "bad4()"
+                        "signature": "bad2()"
                     }
                 },
                 {
                     "type": "node",
-                    "name": "event1_bad(bad_arr)",
+                    "name": "b = abi.encode(bad_arr)",
                     "source_mapping": {
-                        "start": 1440,
-                        "length": 24,
+                        "start": 996,
+                        "length": 36,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                         "is_dependency": false,
                         "lines": [
-                            45
+                            35
                         ],
                         "starting_column": 5,
-                        "ending_column": 29
+                        "ending_column": 41
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad4",
+                            "name": "bad2",
                             "source_mapping": {
-                                "start": 1321,
-                                "length": 148,
+                                "start": 877,
+                                "length": 160,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    44,
-                                    45,
-                                    46
+                                    34,
+                                    35,
+                                    36
                                 ],
                                 "starting_column": 3,
                                 "ending_column": 4
@@ -1816,16 +1816,16 @@
                                         "ending_column": 2
                                     }
                                 },
-                                "signature": "bad4()"
+                                "signature": "bad2()"
                             }
                         }
                     }
                 }
             ],
-            "description": "Function A.bad4() (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#44-46) trigger an abi encoding bug:\n\t- event1_bad(bad_arr) (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#45)\n",
-            "markdown": "Function [A.bad4()](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L44-L46) trigger an abi encoding bug:\n\t- [event1_bad(bad_arr)](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L45)\n",
-            "first_markdown_element": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L44-L46",
-            "id": "6e9dfeb7f6ea7c989276fa8c5e27d71ab0f6b63ee878fb3f761dab9d07942246",
+            "description": "Function A.bad2() (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#34-36) trigger an abi encoding bug:\n\t- b = abi.encode(bad_arr) (tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#35)\n",
+            "markdown": "Function [A.bad2()](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L34-L36) trigger an abi encoding bug:\n\t- [b = abi.encode(bad_arr)](tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L35)\n",
+            "first_markdown_element": "tests/detectors/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#L34-L36",
+            "id": "e976cd11118a9f5aaacfe5715cef990140fd67c7a35682446aedc878b63b3b24",
             "check": "abiencoderv2-array",
             "impact": "High",
             "confidence": "High"

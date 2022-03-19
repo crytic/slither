@@ -6,6 +6,7 @@ from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
+from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.variables import Constant
 
 
@@ -23,19 +24,25 @@ class FileScope:
         self.filename = filename
         self.accessible_scopes: List[FileScope] = []
 
-        self.contracts: Dict[str, Contract] = dict()
+        self.contracts: Dict[str, Contract] = {}
         # Custom error are a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
         self.custom_errors: Set[CustomErrorTopLevel] = set()
-        self.enums: Dict[str, EnumTopLevel] = dict()
+        self.enums: Dict[str, EnumTopLevel] = {}
         # Functions is a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
         self.functions: Set[FunctionTopLevel] = set()
         self.imports: Set[Import] = set()
         self.pragmas: Set[Pragma] = set()
-        self.structures: Dict[str, StructureTopLevel] = dict()
+        self.structures: Dict[str, StructureTopLevel] = {}
+        self.variables: Dict[str, TopLevelVariable] = {}
+
+        # Renamed created by import
+        # import A as B
+        # local name -> original name (A -> B)
+        self.renaming: Dict[str, str] = {}
 
     def add_accesible_scopes(self) -> bool:
         """
@@ -68,6 +75,12 @@ class FileScope:
                 learn_something = True
             if not _dict_contain(new_scope.structures, self.structures):
                 self.structures.update(new_scope.structures)
+                learn_something = True
+            if not _dict_contain(new_scope.variables, self.variables):
+                self.variables.update(new_scope.variables)
+                learn_something = True
+            if not _dict_contain(new_scope.renaming, self.renaming):
+                self.renaming.update(new_scope.renaming)
                 learn_something = True
 
         return learn_something

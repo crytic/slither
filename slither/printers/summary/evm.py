@@ -57,6 +57,7 @@ def _extract_evm_info(slither):
     return evm_info
 
 
+# pylint: disable=too-many-locals
 class PrinterEVM(AbstractPrinter):
     ARGUMENT = "evm"
     HELP = "Print the evm instructions of nodes in functions"
@@ -79,14 +80,13 @@ class PrinterEVM(AbstractPrinter):
         evm_info = _extract_evm_info(self.slither)
 
         for contract in self.slither.contracts_derived:
-            txt += blue("Contract {}\n".format(contract.name))
+            txt += blue(f"Contract {contract.name}\n")
 
             contract_file = self.slither.source_code[
                 contract.source_mapping["filename_absolute"]
             ].encode("utf-8")
-            contract_file_lines = open(
-                contract.source_mapping["filename_absolute"], "r"
-            ).readlines()
+            with open(contract.source_mapping["filename_absolute"], "r", encoding="utf8") as f:
+                contract_file_lines = f.readlines()
 
             contract_pcs = {}
             contract_cfg = {}
@@ -109,19 +109,12 @@ class PrinterEVM(AbstractPrinter):
                         + 1
                     )
                     txt += green(
-                        "\t\tSource line {}: {}\n".format(
-                            node_source_line,
-                            contract_file_lines[node_source_line - 1].rstrip(),
-                        )
+                        f"\t\tSource line {node_source_line}: {contract_file_lines[node_source_line - 1].rstrip()}\n"
                     )
                     txt += magenta("\t\tEVM Instructions:\n")
                     node_pcs = contract_pcs.get(node_source_line, [])
                     for pc in node_pcs:
-                        txt += magenta(
-                            "\t\t\t0x{:x}: {}\n".format(
-                                int(pc), contract_cfg.get_instruction_at(pc)
-                            )
-                        )
+                        txt += magenta(f"\t\t\t{hex(pc)}: {contract_cfg.get_instruction_at(pc)}\n")
 
             for modifier in contract.modifiers:
                 txt += blue(f"\tModifier {modifier.canonical_name}\n")
@@ -132,19 +125,12 @@ class PrinterEVM(AbstractPrinter):
                         + 1
                     )
                     txt += green(
-                        "\t\tSource line {}: {}\n".format(
-                            node_source_line,
-                            contract_file_lines[node_source_line - 1].rstrip(),
-                        )
+                        f"\t\tSource line {node_source_line}: {contract_file_lines[node_source_line - 1].rstrip()}\n"
                     )
                     txt += magenta("\t\tEVM Instructions:\n")
                     node_pcs = contract_pcs.get(node_source_line, [])
                     for pc in node_pcs:
-                        txt += magenta(
-                            "\t\t\t0x{:x}: {}\n".format(
-                                int(pc), contract_cfg.get_instruction_at(pc)
-                            )
-                        )
+                        txt += magenta(f"\t\t\t{hex(pc)}: {contract_cfg.get_instruction_at(pc)}\n")
 
         self.info(txt)
         res = self.generate_output(txt)

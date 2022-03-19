@@ -22,7 +22,7 @@ jobs:
       matrix:
         type: ["cli",
                "data_dependency",
-               "embark",
+               # "embark",
                "erc",
                "etherlime",
                "find_paths",
@@ -55,4 +55,4 @@ jobs:
         TEST_TYPE: ${{ matrix.type }}
         GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
       run: |
-        bash scripts/ci_test_${TEST_TYPE}.sh
+        bash "scripts/ci_test_${TEST_TYPE}.sh"

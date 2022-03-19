@@ -13,6 +13,7 @@ from slither.core.declarations.solidity_import_placeholder import SolidityImport
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import (
     Assignment,
     Binary,
@@ -109,7 +110,7 @@ def add_ssa_ir(function, all_state_variables_instances):
     if not function.is_implemented:
         return
 
-    init_definition = dict()
+    init_definition = {}
     for v in function.parameters:
         if v.name:
             init_definition[v.name] = (v, function.entry_point)
@@ -127,7 +128,7 @@ def add_ssa_ir(function, all_state_variables_instances):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
-    add_phi_origins(function.entry_point, init_definition, dict())
+    add_phi_origins(function.entry_point, init_definition, {})
 
     for node in function.nodes:
         for (variable, nodes) in node.phi_origins_local_variables.values():
@@ -143,7 +144,7 @@ def add_ssa_ir(function, all_state_variables_instances):
             #    continue
             node.add_ssa_ir(Phi(StateIRVariable(variable), nodes))
 
-    init_local_variables_instances = dict()
+    init_local_variables_instances = {}
     for v in function.parameters:
         if v.name:
             new_var = LocalIRVariable(v)
@@ -232,9 +233,9 @@ def generate_ssa_irs(
 
     # these variables are lived only during the liveness of the block
     # They dont need phi function
-    temporary_variables_instances = dict()
-    reference_variables_instances = dict()
-    tuple_variables_instances = dict()
+    temporary_variables_instances = {}
+    reference_variables_instances = {}
+    tuple_variables_instances = {}
 
     for ir in node.irs:
         new_ir = copy_ir(
@@ -617,6 +618,7 @@ def get(
             Function,
             Type,
             SolidityImportPlaceHolder,
+            TopLevelVariable,
         ),
     )  # type for abi.decode(.., t)
     return variable
@@ -820,7 +822,7 @@ def copy_ir(ir, *instances):
         value = get_variable(ir, lambda x: x.value, *instances)
         return Length(value, lvalue)
 
-    raise SlithIRError("Impossible ir copy on {} ({})".format(ir, type(ir)))
+    raise SlithIRError(f"Impossible ir copy on {ir} ({type(ir)})")
 
 
 # endregion

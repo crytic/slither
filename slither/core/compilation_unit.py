@@ -61,7 +61,7 @@ class SlitherCompilationUnit(Context):
         self.counter_slithir_temporary = 0
         self.counter_slithir_reference = 0
 
-        self.scopes: Dict[Filename, FileScope] = dict()
+        self.scopes: Dict[Filename, FileScope] = {}
 
     @property
     def core(self) -> "SlitherCore":

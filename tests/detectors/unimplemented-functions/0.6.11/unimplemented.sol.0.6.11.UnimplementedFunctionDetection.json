@@ -4,6 +4,82 @@
             "elements": [
                 {
                     "type": "contract",
+                    "name": "DerivedContract_bad2",
+                    "source_mapping": {
+                        "start": 593,
+                        "length": 344,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            27,
+                            28,
+                            29,
+                            30,
+                            31,
+                            32,
+                            33
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "get",
+                    "source_mapping": {
+                        "start": 539,
+                        "length": 50,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            24
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 55
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BaseInterface3",
+                            "source_mapping": {
+                                "start": 500,
+                                "length": 91,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    23,
+                                    24,
+                                    25
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "get(uint256)"
+                    }
+                }
+            ],
+            "description": "DerivedContract_bad2 (tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#27-33) does not implement functions:\n\t- BaseInterface3.get(uint256) (tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#24)\n",
+            "markdown": "[DerivedContract_bad2](tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#L27-L33) does not implement functions:\n\t- [BaseInterface3.get(uint256)](tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#L24)\n",
+            "first_markdown_element": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#L27-L33",
+            "id": "31915d2f480e24ddd054de973440a02abdac0ccd6332c47cd4eb8d836d3fddda",
+            "check": "unimplemented-functions",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
                     "name": "DerivedContract_bad0",
                     "source_mapping": {
                         "start": 185,
@@ -190,82 +266,6 @@
             "markdown": "[AbstractContract_bad1](tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#L16-L21) does not implement functions:\n\t- [AbstractContract_bad1.f1()](tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#L17)\n",
             "first_markdown_element": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#L16-L21",
             "id": "adc202df4717efc4e19b549c0e623a79fac759a36bffb5d5e4aac401e33375d7",
-            "check": "unimplemented-functions",
-            "impact": "Informational",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "DerivedContract_bad2",
-                    "source_mapping": {
-                        "start": 593,
-                        "length": 344,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            27,
-                            28,
-                            29,
-                            30,
-                            31,
-                            32,
-                            33
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "get",
-                    "source_mapping": {
-                        "start": 539,
-                        "length": 50,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            24
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 55
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "BaseInterface3",
-                            "source_mapping": {
-                                "start": 500,
-                                "length": 91,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    23,
-                                    24,
-                                    25
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "get(uint256)"
-                    }
-                }
-            ],
-            "description": "DerivedContract_bad2 (tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#27-33) does not implement functions:\n\t- BaseInterface3.get(uint256) (tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#24)\n",
-            "markdown": "[DerivedContract_bad2](tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#L27-L33) does not implement functions:\n\t- [BaseInterface3.get(uint256)](tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#L24)\n",
-            "first_markdown_element": "tests/detectors/unimplemented-functions/0.6.11/unimplemented.sol#L27-L33",
-            "id": "31915d2f480e24ddd054de973440a02abdac0ccd6332c47cd4eb8d836d3fddda",
             "check": "unimplemented-functions",
             "impact": "Informational",
             "confidence": "High"

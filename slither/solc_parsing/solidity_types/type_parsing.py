@@ -198,7 +198,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
 def parse_type(
     t: Union[Dict, UnknownType],
     caller_context: Union[CallerContextExpression, "SlitherCompilationUnitSolc"],
-):
+) -> Type:
     """
     caller_context can be a SlitherCompilationUnitSolc because we recursively call the function
     and go up in the context's scope. If we are really lost we just go over the SlitherCompilationUnitSolc
@@ -220,8 +220,10 @@ def parse_type(
     from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
     from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+    from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
     sl: "SlitherCompilationUnit"
+    renaming: Dict[str, str]
     # Note: for convenicence top level functions use the same parser than function in contract
     # but contract_parser is set to None
     if isinstance(caller_context, SlitherCompilationUnitSolc) or (
@@ -231,10 +233,12 @@ def parse_type(
         if isinstance(caller_context, SlitherCompilationUnitSolc):
             sl = caller_context.compilation_unit
             next_context = caller_context
+            renaming = {}
         else:
             assert isinstance(caller_context, FunctionSolc)
             sl = caller_context.underlying_function.compilation_unit
             next_context = caller_context.slither_parser
+            renaming = caller_context.underlying_function.file_scope.renaming
         structures_direct_access = sl.structures_top_level
         all_structuress = [c.structures for c in sl.contracts]
         all_structures = [item for sublist in all_structuress for item in sublist]
@@ -245,9 +249,11 @@ def parse_type(
         all_enums += enums_direct_access
         contracts = sl.contracts
         functions = []
-    elif isinstance(caller_context, (StructureTopLevelSolc, CustomErrorSolc)):
+    elif isinstance(caller_context, (StructureTopLevelSolc, CustomErrorSolc, TopLevelVariableSolc)):
         if isinstance(caller_context, StructureTopLevelSolc):
             scope = caller_context.underlying_structure.file_scope
+        elif isinstance(caller_context, TopLevelVariableSolc):
+            scope = caller_context.underlying_variable.file_scope
         else:
             assert isinstance(caller_context, CustomErrorSolc)
             custom_error = caller_context.underlying_custom_error
@@ -258,12 +264,16 @@ def parse_type(
                 scope = custom_error.contract.file_scope
 
         next_context = caller_context.slither_parser
-        structures_direct_access = []
-        all_structures = scope.structures.values()
+        structures_direct_access = list(scope.structures.values())
+        all_structuress = [c.structures for c in scope.contracts.values()]
+        all_structures = [item for sublist in all_structuress for item in sublist]
+        all_structures += structures_direct_access
         enums_direct_access = []
         all_enums = scope.enums.values()
         contracts = scope.contracts.values()
         functions = list(scope.functions)
+
+        renaming = scope.renaming
     elif isinstance(caller_context, (ContractSolc, FunctionSolc)):
         if isinstance(caller_context, FunctionSolc):
             underlying_func = caller_context.underlying_function
@@ -272,9 +282,11 @@ def parse_type(
             assert isinstance(underlying_func, FunctionContract)
             contract = underlying_func.contract
             next_context = caller_context.contract_parser
+            scope = caller_context.underlying_function.file_scope
         else:
             contract = caller_context.underlying_contract
             next_context = caller_context
+            scope = caller_context.underlying_contract.file_scope
 
         structures_direct_access = contract.structures
         structures_direct_access += contract.file_scope.structures.values()
@@ -288,6 +300,8 @@ def parse_type(
         all_enums += contract.file_scope.enums.values()
         contracts = contract.file_scope.contracts.values()
         functions = contract.functions + contract.modifiers
+
+        renaming = scope.renaming
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
 
@@ -298,8 +312,11 @@ def parse_type(
         key = "name"
 
     if isinstance(t, UnknownType):
+        name = t.name
+        if name in renaming:
+            name = renaming[name]
         return _find_from_type_name(
-            t.name,
+            name,
             functions,
             contracts,
             structures_direct_access,
@@ -315,8 +332,11 @@ def parse_type(
 
     if t[key] == "UserDefinedTypeName":
         if is_compact_ast:
+            name = t["typeDescriptions"]["typeString"]
+            if name in renaming:
+                name = renaming[name]
             return _find_from_type_name(
-                t["typeDescriptions"]["typeString"],
+                name,
                 functions,
                 contracts,
                 structures_direct_access,
@@ -327,8 +347,12 @@ def parse_type(
 
         # Determine if we have a type node (otherwise we use the name node, as some older solc did not have 'type').
         type_name_key = "type" if "type" in t["attributes"] else key
+
+        name = t["attributes"][type_name_key]
+        if name in renaming:
+            name = renaming[name]
         return _find_from_type_name(
-            t["attributes"][type_name_key],
+            name,
             functions,
             contracts,
             structures_direct_access,
@@ -340,8 +364,11 @@ def parse_type(
     # Introduced with Solidity 0.8
     if t[key] == "IdentifierPath":
         if is_compact_ast:
+            name = t["name"]
+            if name in renaming:
+                name = renaming[name]
             return _find_from_type_name(
-                t["name"],
+                name,
                 functions,
                 contracts,
                 structures_direct_access,

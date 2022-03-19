@@ -14,6 +14,7 @@ from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.structure_top_level import StructureTopLevel
+from slither.core.scope.scope import FileScope
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.exceptions import SlitherException
 from slither.solc_parsing.declarations.contract import ContractSolc
@@ -28,6 +29,33 @@ logger = logging.getLogger("SlitherSolcParsing")
 logger.setLevel(logging.INFO)
 
 
+def _handle_import_aliases(
+    symbol_aliases: Dict, import_directive: Import, scope: FileScope
+) -> None:
+    """
+    Handle the parsing of import aliases
+
+    Args:
+        symbol_aliases (Dict): json dict from solc
+        import_directive (Import): current import directive
+        scope (FileScope): current file scape
+
+    Returns:
+
+    """
+    for symbol_alias in symbol_aliases:
+        if (
+            "foreign" in symbol_alias
+            and "name" in symbol_alias["foreign"]
+            and "local" in symbol_alias
+        ):
+            original_name = symbol_alias["foreign"]["name"]
+            local_name = symbol_alias["local"]
+            import_directive.renaming[local_name] = original_name
+            # Assuming that two imports cannot collide in renaming
+            scope.renaming[local_name] = original_name
+
+
 class SlitherCompilationUnitSolc:
     # pylint: disable=no-self-use,too-many-instance-attributes
     def __init__(self, compilation_unit: SlitherCompilationUnit):
@@ -37,7 +65,7 @@ class SlitherCompilationUnitSolc:
         self._parsed = False
         self._analyzed = False
 
-        self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = dict()
+        self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = {}
         self._structures_top_level_parser: List[StructureTopLevelSolc] = []
         self._custom_error_parser: List[CustomErrorSolc] = []
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
@@ -204,6 +232,9 @@ class SlitherCompilationUnitSolc:
                     # TODO investigate unitAlias in version < 0.7 and legacy ast
                     if "unitAlias" in top_level_data:
                         import_directive.alias = top_level_data["unitAlias"]
+                    if "symbolAliases" in top_level_data:
+                        symbol_aliases = top_level_data["symbolAliases"]
+                        _handle_import_aliases(symbol_aliases, import_directive, scope)
                 else:
                     import_directive = Import(
                         Path(
@@ -239,12 +270,13 @@ class SlitherCompilationUnitSolc:
                 self._parse_enum(top_level_data, filename)
 
             elif top_level_data[self.get_key()] == "VariableDeclaration":
-                var = TopLevelVariable()
-                var_parser = TopLevelVariableSolc(var, top_level_data)
+                var = TopLevelVariable(scope)
+                var_parser = TopLevelVariableSolc(var, top_level_data, self)
                 var.set_offset(top_level_data["src"], self._compilation_unit)
 
                 self._compilation_unit.variables_top_level.append(var)
                 self._variables_top_level_parser.append(var_parser)
+                scope.variables[var.name] = var
             elif top_level_data[self.get_key()] == "FunctionDefinition":
                 scope = self.compilation_unit.get_scope(filename)
                 func = FunctionTopLevel(self._compilation_unit, scope)
@@ -355,12 +387,16 @@ Please rename it, this name is reserved for Slither's internals"""
 
             for i in contract_parser.linearized_base_contracts[1:]:
                 if i in contract_parser.remapping:
-                    ancestors.append(
-                        contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                            contract_parser.remapping[i]
-                        )
-                        # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
+                    contract_name = contract_parser.remapping[i]
+                    if contract_name in contract_parser.underlying_contract.file_scope.renaming:
+                        contract_name = contract_parser.underlying_contract.file_scope.renaming[
+                            contract_name
+                        ]
+                    target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
+                        contract_name
                     )
+                    assert target
+                    ancestors.append(target)
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
                 else:
@@ -495,6 +531,7 @@ Please rename it, this name is reserved for Slither's internals"""
         for lib in libraries:
             self._analyze_struct_events(lib)
 
+        self._analyze_top_level_variables()
         self._analyze_top_level_structures()
 
         # Start with the contracts without inheritance
@@ -580,9 +617,9 @@ Please rename it, this name is reserved for Slither's internals"""
     def _analyze_top_level_variables(self):
         try:
             for var in self._variables_top_level_parser:
-                var.analyze(self)
+                var.analyze(var)
         except (VariableNotFound, KeyError) as e:
-            raise SlitherException(f"Missing struct {e} during top level structure analyze") from e
+            raise SlitherException(f"Missing {e} during variable analyze") from e
 
     def _analyze_params_top_level_function(self):
         for func_parser in self._functions_top_level_parser:
@@ -636,7 +673,7 @@ Please rename it, this name is reserved for Slither's internals"""
 
         for func in self._compilation_unit.functions_top_level:
             func.generate_slithir_and_analyze()
-            func.generate_slithir_ssa(dict())
+            func.generate_slithir_ssa({})
         self._compilation_unit.propagate_function_calls()
         for contract in self._compilation_unit.contracts:
             contract.fix_phi()

@@ -56,12 +56,18 @@ class CustomError(SourceMapping):
         Contract and converted into address
         :return: the solidity signature
         """
-        if self._solidity_signature is None:
-            parameters = [
-                self._convert_type_for_solidity_signature(x.type) for x in self.parameters
-            ]
-            self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
+        assert self._solidity_signature is not None
         return self._solidity_signature
+
+    def set_solidity_sig(self) -> None:
+        """
+        Function to be called once all the parameters have been set
+
+        Returns:
+
+        """
+        parameters = [self._convert_type_for_solidity_signature(x.type) for x in self.parameters]
+        self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
 
     # endregion
     ###################################################################################

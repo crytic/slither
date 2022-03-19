@@ -34,7 +34,7 @@ def test(args):
         cache = load_and_encode(infile, model, **vars(args))
         # save_cache("cache.npz", cache)
 
-        r = dict()
+        r = {}
         for x, y in cache.items():
             r[x] = similarity(fvector, y)
 
@@ -47,6 +47,6 @@ def test(args):
             logger.info(format_table.format(*(list(x) + [score])))
 
     except Exception:  # pylint: disable=broad-except
-        logger.error("Error in %s" % args.filename)
+        logger.error(f"Error in {args.filename}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

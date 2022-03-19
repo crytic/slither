@@ -36,7 +36,7 @@ jobs:
           cp pyproject.toml .github/linters
 
       - name: Pylint
-        uses: docker://github/super-linter:v3
+        uses: github/super-linter/slim@v4
         if: always()
         env:
           # run linter on everything to catch preexisting problems
@@ -47,3 +47,4 @@ jobs:
           VALIDATE_PYTHON: true
           VALIDATE_PYTHON_PYLINT: true
           PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
+          FILTER_REGEX_EXCLUDE: .*tests/.*.(json|zip|sol)

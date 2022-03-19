@@ -46,7 +46,7 @@ class ArrayType(Type):
 
     def __str__(self):
         if self._length:
-            return str(self._type) + "[{}]".format(str(self._length_value))
+            return str(self._type) + f"[{str(self._length_value)}]"
         return str(self._type) + "[]"
 
     def __eq__(self, other):

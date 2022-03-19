@@ -83,8 +83,8 @@ class FunctionSolc(CallerContextExpression):
 
         self._analyze_type()
 
-        self._node_to_nodesolc: Dict[Node, NodeSolc] = dict()
-        self._node_to_yulobject: Dict[Node, YulBlock] = dict()
+        self._node_to_nodesolc: Dict[Node, NodeSolc] = {}
+        self._node_to_yulobject: Dict[Node, YulBlock] = {}
 
         self._local_variables_parser: List[
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
@@ -148,8 +148,8 @@ class FunctionSolc(CallerContextExpression):
         if local_var_parser.underlying_variable.name:
             known_variables = [v.name for v in self._function.variables]
             while local_var_parser.underlying_variable.name in known_variables:
-                local_var_parser.underlying_variable.name += "_scope_{}".format(
-                    self._counter_scope_local_variables
+                local_var_parser.underlying_variable.name += (
+                    f"_scope_{self._counter_scope_local_variables}"
                 )
                 self._counter_scope_local_variables += 1
                 known_variables = [v.name for v in self._function.variables]
@@ -661,7 +661,7 @@ class FunctionSolc(CallerContextExpression):
         externalCall = statement.get("externalCall", None)
 
         if externalCall is None:
-            raise ParsingError("Try/Catch not correctly parsed by Slither %s" % statement)
+            raise ParsingError(f"Try/Catch not correctly parsed by Slither {statement}")
         catch_scope = Scope(
             node.underlying_node.scope.is_checked, False, node.underlying_node.scope
         )
@@ -678,7 +678,7 @@ class FunctionSolc(CallerContextExpression):
         block = statement.get("block", None)
 
         if block is None:
-            raise ParsingError("Catch not correctly parsed by Slither %s" % statement)
+            raise ParsingError(f"Catch not correctly parsed by Slither {statement}")
         try_scope = Scope(node.underlying_node.scope.is_checked, False, node.underlying_node.scope)
 
         try_node = self._new_node(NodeType.CATCH, statement["src"], try_scope)
@@ -1011,7 +1011,7 @@ class FunctionSolc(CallerContextExpression):
             link_underlying_nodes(node, new_node)
             node = new_node
         else:
-            raise ParsingError("Statement not parsed %s" % name)
+            raise ParsingError(f"Statement not parsed {name}")
 
         return node
 
@@ -1124,7 +1124,7 @@ class FunctionSolc(CallerContextExpression):
             # We start with -1 as counter to catch this corner case
             end_node = self._find_end_loop(node, [], -1)
             if not end_node:
-                raise ParsingError("Break in no-loop context {}".format(node.function))
+                raise ParsingError(f"Break in no-loop context {node.function}")
 
         for son in node.sons:
             son.remove_father(node)
@@ -1135,7 +1135,7 @@ class FunctionSolc(CallerContextExpression):
         start_node = self._find_start_loop(node, [])
 
         if not start_node:
-            raise ParsingError("Continue in no-loop context {}".format(node.node_id))
+            raise ParsingError(f"Continue in no-loop context {node.node_id}")
 
         for son in node.sons:
             son.remove_father(node)

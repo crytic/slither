@@ -140,8 +140,8 @@ M = list(range(8, 257, 8))
 N = list(range(0, 81))
 MN = list(itertools.product(M, N))
 
-Fixed = ["fixed{}x{}".format(m, n) for (m, n) in MN] + ["fixed"]
-Ufixed = ["ufixed{}x{}".format(m, n) for (m, n) in MN] + ["ufixed"]
+Fixed = [f"fixed{m}x{n}" for (m, n) in MN] + ["fixed"]
+Ufixed = [f"ufixed{m}x{n}" for (m, n) in MN] + ["ufixed"]
 
 ElementaryTypeName = ["address", "bool", "string", "var"] + Int + Uint + Byte + Fixed + Ufixed
 
@@ -194,7 +194,7 @@ class ElementaryType(Type):
 
     @property
     def storage_size(self) -> Tuple[int, bool]:
-        if self._type == "string" or self._type == "bytes":
+        if self._type in ["string", "bytes"]:
             return 32, True
         if self.size is None:
             return 32, True

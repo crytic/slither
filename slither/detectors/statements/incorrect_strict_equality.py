@@ -106,7 +106,7 @@ contract Crowdsale{
 
     # Retrieve all tainted (node, function) pairs
     def tainted_equality_nodes(self, funcs, taints):
-        results = dict()
+        results = {}
         taints += self.sources_taint
 
         for func in funcs:
