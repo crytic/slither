@@ -533,7 +533,6 @@ def ir_to_ssa_form(ir: Operation, state: VarStates, rec: StateVarDefRecorder):
     if isinstance(ir, TypeConversion):
         variable = get_ssa(ir.variable)
         lvalue = add_def(ir.lvalue)
-        print(f"Conversion of {variable} ({ir.variable}) to {lvalue} ({ir.lvalue})")
         return TypeConversion(lvalue, variable, ir.type)
     if isinstance(ir, Unary):
         rvalue = get_ssa(ir.rvalue)
