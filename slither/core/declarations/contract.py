@@ -1336,7 +1336,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                         # The lvalue of the Phi might be the end-state for this function,
                         # if so we should discard it from the set
                         values = entry_phis[sv].difference([ir.lvalue])
-                        ir.rvalues = values
+                        ir.rvalues = list(values)
 
                     if isinstance(ir, PhiCallback):
                         sv = ir.lvalue.non_ssa_version
