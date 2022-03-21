@@ -16,7 +16,10 @@ on:
 jobs:
   build:
     name: Detectors tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-2022]
 
     steps:
       - name: Checkout Code
@@ -33,7 +36,7 @@ jobs:
           pip install deepdiff
           pip install pytest
 
-          pip install solc-select
+          pip install "solc-select>=v1.0.0b1"
           solc-select install all
           solc-select use 0.7.3
       - name: Test with pytest
