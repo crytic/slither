@@ -11,7 +11,7 @@ on:
     branches: [master, dev]
   schedule:
     # run CI every day even if no PRs/merges occur
-    - cron:  '0 12 * * *'
+    - cron: '0 12 * * *'
 
 jobs:
   build:
@@ -33,8 +33,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # FIXME: patched crytic-compile is used to support Windows. Install from pip once branch is merged
-          # and crytic-compile released
+          # FIXME: patched crytic-compile is used to support Windows.
+          # Install from pip once branch is merged and crytic-compile released
           pip install "crytic-compile@https://github.com/crytic/crytic-compile/archive/refs/heads/dev-windows-long-paths.zip"
 
           python setup.py install
@@ -50,4 +50,3 @@ jobs:
       - name: Test with pytest
         run: |
           pytest tests/test_ast_parsing.py
-
