@@ -79,6 +79,16 @@ jobs:
           solc-select install all
           solc-select use 0.5.1
 
+      - name: Set up nix
+        if: matrix.type == 'dapp'
+        uses: cachix/install-nix-action@v16
+
+      - name: Set up cachix
+        if: matrix.type == 'dapp'
+        uses: cachix/cachix-action@v10
+        with:
+          name: dapp
+
       - name: Run Tests
         env:
           TEST_TYPE: ${{ matrix.type }}
