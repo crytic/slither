@@ -19,11 +19,6 @@ class TypeAlias(Type):
     def storage_size(self) -> Tuple[int, bool]:
         return self.underlying_type.storage_size
 
-    def __eq__(self, other):
-        if not isinstance(other, TypeAlias):
-            return False
-        return self == other
-
     def __hash__(self):
         return hash(str(self))
 
