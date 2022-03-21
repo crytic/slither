@@ -17,23 +17,38 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-2022]
         type: ["cli",
+               # "dapp"
                "data_dependency",
                # "embark",
                "erc",
                "etherlime",
+               # "etherscan"
                "find_paths",
+               "flat",
                "kspec",
                "printers",
+               # "prop"
                "simil",
                "slither_config",
                "truffle",
-               "upgradability",
-               # "prop",
-               "flat"]
+               "upgradability"
+               ]
+        exclude:
+          # Requires nix
+          - os: windows-2022
+            type: dapp
+          # Requires nvm
+          - os: windows-2022
+            type: etherlime
+          # Requires nvm
+          - os: windows-2022
+            type: truffle
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.6
@@ -46,7 +61,7 @@ jobs:
         # Used by ci_test.sh
         pip install deepdiff
 
-        pip install solc-select
+        pip install "solc-select>=v1.0.0b1"
         solc-select install all
         solc-select use 0.5.1
 
