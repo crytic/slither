@@ -6,6 +6,7 @@ from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions.literal import Literal
+from slither.core.solidity_types import TypeAlias
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
@@ -224,7 +225,7 @@ def parse_type(
 
     sl: "SlitherCompilationUnit"
     renaming: Dict[str, str]
-    user_defined_types: Dict[str, Type]
+    user_defined_types: Dict[str, TypeAlias]
     # Note: for convenicence top level functions use the same parser than function in contract
     # but contract_parser is set to None
     if isinstance(caller_context, SlitherCompilationUnitSolc) or (

@@ -443,23 +443,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
             return
 
         if isinstance(expr, TypeAlias) and expression.member_name in ["wrap", "unwrap"]:
-            # print(expression.member_name)
-            # print(expression)
-            # val = TemporaryVariable(self._node)
-            # #operation = Assignment(val, value, value.type)
-            # #operation.set_expression(expression)
-            # #self._result.append(operation)
-            # set_val(expression, val)
-            # print(expression.expression)
-            # operation = TypeConversion(val, expr, expression.type)
-            # val.set_type(expression.type)
-            # operation.set_expression(expression)
+            # The logic is be handled by _post_call_expression
             set_val(expression, expr)
             return
 
         # Early lookup to detect user defined types from other contracts definitions
         # contract A { type MyInt is int}
         # contract B { function f() public{ A.MyInt test = A.MyInt.wrap(1);}}
+        # The logic is handled by _post_call_expression
         if isinstance(expr, Contract):
             if expression.member_name in expr.file_scope.user_defined_types:
                 set_val(expression, expr.file_scope.user_defined_types[expression.member_name])
