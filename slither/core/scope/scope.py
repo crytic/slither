@@ -6,7 +6,7 @@ from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
-from slither.core.solidity_types import Type
+from slither.core.solidity_types import TypeAlias
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.variables import Constant
 
@@ -46,8 +46,8 @@ class FileScope:
         self.renaming: Dict[str, str] = {}
 
         # User defined types
-        # Name -> original type
-        self.user_defined_types: Dict[str, Type] = {}
+        # Name -> type alias
+        self.user_defined_types: Dict[str, TypeAlias] = {}
 
     def add_accesible_scopes(self) -> bool:
         """

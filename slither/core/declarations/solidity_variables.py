@@ -80,7 +80,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "balance(address)": ["uint256"],
     "code(address)": ["bytes"],
     "codehash(address)": ["bytes32"],
-    "internal_user_defined_types_conversion": []
+    "internal_user_defined_types_conversion": [],
 }
 
 
