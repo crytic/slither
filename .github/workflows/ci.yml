@@ -46,6 +46,9 @@ jobs:
           # Requires nvm
           - os: windows-2022
             type: etherlime
+          # Paths are mangled
+          - os: windows-2022
+            type: printers
           # Requires nvm
           - os: windows-2022
             type: truffle
