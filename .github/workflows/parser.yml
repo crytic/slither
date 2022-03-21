@@ -35,7 +35,7 @@ jobs:
           python setup.py install
           pip install deepdiff
           pip install pytest
-          pip install solc-select
+          pip install "solc-select>=v1.0.0b1"
 
       - name: Install solc
         run: |
