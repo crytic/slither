@@ -776,7 +776,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         if args.checklist:
             output_results_to_markdown(results_detectors, args.checklist_limit)
 
-        # Dont print the number of result for printers
+        # Don't print the number of result for printers
         if number_contracts == 0:
             logger.warning(red("No contract was analyzed"))
         if printer_classes:
