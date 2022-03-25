@@ -20,7 +20,7 @@ class ExternalFunction(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external"
 
     WIKI_TITLE = "Public function that could be declared external"
-    WIKI_DESCRIPTION = "`public` functions that are never called by the contract should be declared `external` and its immutable parameters should be located in `calldata` to save gas."
+    WIKI_DESCRIPTION = "`public` functions that are never called by the contract should be declared `external`, and its immutable parameters should be located in `calldata` to save gas."
     WIKI_RECOMMENDATION = (
         "Use the `external` attribute for functions never called from the contract, and change the location of immutable parameters to `calldata` to save gas."
     )
@@ -110,7 +110,7 @@ class ExternalFunction(AbstractDetector):
 
         # After solc 0.6.9, calldata arguments are allowed in public functions
         if self.compilation_unit.solc_version >= "0.7." or self.compilation_unit.solc_version in ["0.6.9","0.6.10","0.6.11"]:
-            return []
+            return results
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be
         # calling functions internally, and thus we can't assume any function in such contracts isn't called by them.
