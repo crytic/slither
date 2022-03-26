@@ -1,9 +1,11 @@
+import os
 import pathlib
 import tempfile
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Union, List
+from typing import Union, List, Optional
 
+from solc_select import solc_select
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
@@ -158,11 +160,35 @@ def phi_values_inserted(f: Function):
                     if is_used_later(node, ssa.lvalue):
                         assert have_phi_for_var(df, ssa.lvalue)
 
+@contextmanager
+def select_solc_version(version: Optional[str]):
+    """Selects solc version to use for running tests.
+
+    If no version is provided, latest is used."""
+    # If no solc_version selected just use the latest avail
+    if not version:
+        # This sorts the versions numerically
+        vers = sorted(map(lambda x: (int(x[0]), int(x[1]), int(x[2])),
+                          map(lambda x: x.split(".", 3),
+                              solc_select.installed_versions())))
+        ver = list(vers)[-1]
+        version = ".".join(map(str, ver))
+    env = dict(os.environ)
+    env_restore = dict(env)
+    env["SOLC_VERSION"] = version
+    os.environ.clear()
+    os.environ.update(env)
+
+    yield version
+
+    os.environ.clear()
+    os.environ.update(env_restore)
 
 @contextmanager
-def slither_from_source(source_code: str):
+def slither_from_source(source_code: str, solc_version: Optional[str] = None):
     # TODO (hbrodin): CryticCompile won't compile files unless dir is specified as cwd. Not sure why.
-    with tempfile.NamedTemporaryFile(suffix=".sol", mode="w", dir=pathlib.Path().cwd()) as f:
+    with tempfile.NamedTemporaryFile(suffix=".sol", mode="w", dir=pathlib.Path().cwd()) as f,\
+            select_solc_version(solc_version) as ver:
         f.write(source_code)
         f.flush()
 
@@ -474,6 +500,38 @@ def test_storage_refers_to():
         # And they are recorded in one of the entry phis
         assert phinodes[0].lvalue in entryphi[0].rvalues or entryphi[1].rvalues
         assert phinodes[1].lvalue in entryphi[0].rvalues or entryphi[1].rvalues
+
+
+def test_initial_version_exists_for_locals():
+    """
+    In solidity you can write statements such as
+    uint a = a + 1, this test ensures that can be handled for local variables.
+    """
+    src = """
+    contract C {
+        function func() internal {
+            uint a = a + 1;
+        }
+    }
+    """
+    with slither_from_source(src, "0.4.0") as slither:
+        c = slither.contracts[0]
+        f = c.functions[0]
+
+        addition = get_ssa_of_type(f, Binary)[0]
+        assert addition.type == BinaryType.ADDITION
+        assert isinstance(addition.variable_right, Constant)
+        a_0 = addition.variable_left
+        assert a_0.index == 0
+        assert a_0.name == "a"
+
+        assignment = get_ssa_of_type(f, Assignment)[0]
+        a_1 = assignment.lvalue
+        assert a_1.index == 1
+        assert a_1.name == "a"
+        assert assignment.rvalue == addition.lvalue
+
+        assert a_0.non_ssa_version == a_1.non_ssa_version
 
 
 def test_issue_468():
