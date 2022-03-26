@@ -65,7 +65,7 @@ def ssa_basic_properties(function: Function):
                 if isinstance(ssa.lvalue, (StateIRVariable, LocalIRVariable)):
                     assert ssa.lvalue.index > 0
 
-            for rvalue in filter(lambda x: not isinstance(x, Constant), ssa.read):
+            for rvalue in filter(lambda x: not isinstance(x, (StateIRVariable, Constant)), ssa.read):
                 ssa_rvalues.add(rvalue)
 
     # 3
@@ -224,10 +224,12 @@ def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
     def verify(slither):
         for cu in slither.compilation_units:
             for func in cu.functions_and_modifiers:
+                _dump_function(func)
                 verify_func(func)
             for contract in cu.contracts:
                 for f in contract.functions:
                     if f.is_constructor or f.is_constructor_variables:
+                        _dump_function(f)
                         verify_func(f)
 
     if isinstance(source_code_or_slither, Slither):
@@ -586,13 +588,12 @@ def test_initial_version_exists_for_state_variables():
         assert isinstance(addition.variable_right, Constant)
         a_0 = addition.variable_left
         assert isinstance(a_0, StateIRVariable)
-        assert a_0.index == 0  # Not strictly necessary, depending on order of functions when gernating SSA
         assert a_0.name == "a"
 
         assignment = get_ssa_of_type(f, Assignment)[0]
         a_1 = assignment.lvalue
         assert isinstance(a_1, StateIRVariable)
-        assert a_1.index == 1
+        assert a_1.index == a_0.index + 1
         assert a_1.name == "a"
         assert assignment.rvalue == addition.lvalue
 
