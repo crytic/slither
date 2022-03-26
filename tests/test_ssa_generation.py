@@ -9,6 +9,7 @@ from solc_select import solc_select
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
+from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
     OperationWithLValue,
     Phi,
@@ -564,6 +565,81 @@ def test_initial_version_exists_for_locals():
         assert assignment.rvalue == addition.lvalue
 
         assert a_0.non_ssa_version == a_1.non_ssa_version
+
+
+def test_initial_version_exists_for_state_variables():
+    """
+    In solidity you can write statements such as
+    uint a = a + 1, this test ensures that can be handled for state variables.
+    """
+    src = """
+    contract C {
+        uint a = a + 1;
+    }
+    """
+    with slither_from_source(src, "0.4.0") as slither:
+        verify_properties_hold(slither)
+        c = slither.contracts[0]
+        f = c.functions[0]  # There will be one artificial ctor function for the state vars
+
+        addition = get_ssa_of_type(f, Binary)[0]
+        assert addition.type == BinaryType.ADDITION
+        assert isinstance(addition.variable_right, Constant)
+        a_0 = addition.variable_left
+        assert isinstance(a_0, StateIRVariable)
+        assert a_0.index == 0  # Not strictly necessary, depending on order of functions when gernating SSA
+        assert a_0.name == "a"
+
+        assignment = get_ssa_of_type(f, Assignment)[0]
+        a_1 = assignment.lvalue
+        assert isinstance(a_1, StateIRVariable)
+        assert a_1.index == 1
+        assert a_1.name == "a"
+        assert assignment.rvalue == addition.lvalue
+
+        assert a_0.non_ssa_version == a_1.non_ssa_version
+        assert isinstance(a_0.non_ssa_version, StateVariable)
+
+        # No conditional/other function interaction so no phis
+        assert len(get_ssa_of_type(f, Phi)) == 0
+
+
+def test_initial_version_exists_for_state_variables_function_assign():
+    """
+    In solidity you can write statements such as
+    uint a = a + 1, this test ensures that can be handled for local variables.
+    """
+    # TODO (hbrodin): Could be a detector that a is not used in f
+    src = """
+    contract C {
+        uint a = f();
+
+        function f() internal returns(uint) {
+            return a;
+        }
+    }
+    """
+    with slither_from_source(src) as slither:
+        verify_properties_hold(slither)
+        c = slither.contracts[0]
+        f, ctor = c.functions
+        if f.is_constructor_variables:
+            f, ctor = ctor, f
+
+        # ctor should have a single call to f that assigns to a
+        # temporary variable, that is then assigned to a
+
+        call = get_ssa_of_type(ctor, InternalCall)[0]
+        assert call.function == f
+        assign = get_ssa_of_type(ctor, Assignment)[0]
+        assert assign.rvalue == call.lvalue
+        assert isinstance(assign.lvalue, StateIRVariable)
+        assert assign.lvalue.name == "a"
+
+        # f should have a phi node on entry of a0, a1 and should return
+        # a2
+        phi = get_ssa_of_type(f, Phi)[0]
+        assert len(phi.rvalues) == 2
 
 
 def test_issue_468():
