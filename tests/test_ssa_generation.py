@@ -1,12 +1,15 @@
+import os
 import pathlib
 import tempfile
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import Union, List
+from typing import Union, List, Optional
 
+from solc_select import solc_select
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
+from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
     OperationWithLValue,
     Phi,
@@ -19,18 +22,24 @@ from slither.slithir.operations import (
     InternalCall,
 )
 from slither.slithir.utils.ssa import is_used_later
-from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable
+from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable, StateIRVariable
 
+def have_ssa_if_ir(function: Function):
+    """Verifies that all nodes in a function that have IR also have SSA IR"""
+    for n in function.nodes:
+        if n.irs:
+            assert n.irs_ssa
 
 def ssa_basic_properties(function: Function):
     """Verifies that basic properties of ssa holds
 
     1. Every name is defined only once
-    2. Every r-value is at least defined at some point
-    3. The number of ssa defs is >= the number of assignments to var
-    4. Function parameters SSA are stored in function.parameters_ssa
+    2. A l-value is never index zero - there is always a zero-value available for each var
+    3. Every r-value is at least defined at some point
+    4. The number of ssa defs is >= the number of assignments to var
+    5. Function parameters SSA are stored in function.parameters_ssa
        - if function parameter is_storage it refers to a fake variable
-    5. Function returns SSA are stored in function.returns_ssa
+    6. Function returns SSA are stored in function.returns_ssa
         - if function return is_storage it refers to a fake variable
     """
     ssa_lvalues = set()
@@ -52,10 +61,14 @@ def ssa_basic_properties(function: Function):
                 assert ssa.lvalue not in ssa_lvalues
                 ssa_lvalues.add(ssa.lvalue)
 
+                # 2 (if Local/State Var)
+                if isinstance(ssa.lvalue, (StateIRVariable, LocalIRVariable)):
+                    assert ssa.lvalue.index > 0
+
             for rvalue in filter(lambda x: not isinstance(x, Constant), ssa.read):
                 ssa_rvalues.add(rvalue)
 
-    # 2
+    # 3
     # Each var can have one non-defined value, the value initially held. Typically,
     # var_0, i_0, state_0 or similar.
     undef_vars = set()
@@ -64,7 +77,7 @@ def ssa_basic_properties(function: Function):
             assert rvalue.non_ssa_version not in undef_vars
             undef_vars.add(rvalue.non_ssa_version)
 
-    # 3
+    # 4
     ssa_defs = defaultdict(int)
     for v in ssa_lvalues:
         ssa_defs[v.name] += 1
@@ -72,8 +85,8 @@ def ssa_basic_properties(function: Function):
     for (k, n) in lvalue_assignments.items():
         assert ssa_defs[k] >= n
 
-    # Helper 4/5
-    def check_property_4_and_5(vars, ssavars):
+    # Helper 5/6
+    def check_property_5_and_6(vars, ssavars):
         for var in filter(lambda x: x.name, vars):
             ssa_vars = [x for x in ssavars if x.non_ssa_version == var]
             assert len(ssa_vars) == 1
@@ -83,20 +96,26 @@ def ssa_basic_properties(function: Function):
                 assert len(ssa_var.refers_to) == 1
                 assert ssa_var.refers_to[0].location == "reference_to_storage"
 
-    # 4
-    check_property_4_and_5(function.parameters, function.parameters_ssa)
-
     # 5
-    check_property_4_and_5(function.returns, function.return_values_ssa)
+    check_property_5_and_6(function.parameters, function.parameters_ssa)
+
+    # 6
+    check_property_5_and_6(function.returns, function.return_values_ssa)
 
 
 def ssa_phi_node_properties(f: Function):
-    """Every phi-function should have as many args as predecessors"""
+    """Every phi-function should have as many args as predecessors
+
+    This does not apply if the phi-node refers to state variables,
+    they make use os special phi-nodes for tracking potential values
+    a state variable can have
+    """
     for node in f.nodes:
         for ssa in node.irs_ssa:
             if isinstance(ssa, Phi):
                 n = len(ssa.read)
-                assert len(node.fathers) == n
+                if not isinstance(ssa.lvalue, StateIRVariable):
+                    assert len(node.fathers) == n
 
 
 # TODO (hbrodin): This should probably go into another file, not specific to SSA
@@ -157,26 +176,65 @@ def phi_values_inserted(f: Function):
                     if is_used_later(node, ssa.lvalue):
                         assert have_phi_for_var(df, ssa.lvalue)
 
+@contextmanager
+def select_solc_version(version: Optional[str]):
+    """Selects solc version to use for running tests.
+
+    If no version is provided, latest is used."""
+    # If no solc_version selected just use the latest avail
+    if not version:
+        # This sorts the versions numerically
+        vers = sorted(map(lambda x: (int(x[0]), int(x[1]), int(x[2])),
+                          map(lambda x: x.split(".", 3),
+                              solc_select.installed_versions())))
+        ver = list(vers)[-1]
+        version = ".".join(map(str, ver))
+    env = dict(os.environ)
+    env_restore = dict(env)
+    env["SOLC_VERSION"] = version
+    os.environ.clear()
+    os.environ.update(env)
+
+    yield version
+
+    os.environ.clear()
+    os.environ.update(env_restore)
 
 @contextmanager
-def slither_from_source(source_code: str):
+def slither_from_source(source_code: str, solc_version: Optional[str] = None):
     # TODO (hbrodin): CryticCompile won't compile files unless dir is specified as cwd. Not sure why.
-    with tempfile.NamedTemporaryFile(suffix=".sol", mode="w", dir=pathlib.Path().cwd()) as f:
+    with tempfile.NamedTemporaryFile(suffix=".sol", mode="w", dir=pathlib.Path().cwd()) as f,\
+            select_solc_version(solc_version) as ver:
         f.write(source_code)
         f.flush()
 
         yield Slither(f.name)
 
 
-def verify_properties_hold(source_code: str):
-    with slither_from_source(source_code) as slither:
+def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
+    """Ensures that basic properties of SSA hold true"""
+    def verify_func(func: Function):
+        have_ssa_if_ir(func)
+        phi_values_inserted(func)
+        ssa_basic_properties(func)
+        ssa_phi_node_properties(func)
+        dominance_properties(func)
+
+
+    def verify(slither):
         for cu in slither.compilation_units:
             for func in cu.functions_and_modifiers:
-                phi_values_inserted(func)
-                ssa_basic_properties(func)
-                ssa_phi_node_properties(func)
-                dominance_properties(func)
+                verify_func(func)
+            for contract in cu.contracts:
+                for f in contract.functions:
+                    if f.is_constructor or f.is_constructor_variables:
+                        verify_func(f)
 
+    if isinstance(source_code_or_slither, Slither):
+        verify(source_code_or_slither)
+    else:
+        with slither_from_source(source_code_or_slither) as slither:
+            verify(slither)
 
 def _dump_function(f: Function):
     """Helper function to print nodes/ssa ir for a function or modifier"""
@@ -473,6 +531,114 @@ def test_storage_refers_to():
         # And they are recorded in one of the entry phis
         assert phinodes[0].lvalue in entryphi[0].rvalues or entryphi[1].rvalues
         assert phinodes[1].lvalue in entryphi[0].rvalues or entryphi[1].rvalues
+
+
+def test_initial_version_exists_for_locals():
+    """
+    In solidity you can write statements such as
+    uint a = a + 1, this test ensures that can be handled for local variables.
+    """
+    src = """
+    contract C {
+        function func() internal {
+            uint a = a + 1;
+        }
+    }
+    """
+    with slither_from_source(src, "0.4.0") as slither:
+        verify_properties_hold(slither)
+        c = slither.contracts[0]
+        f = c.functions[0]
+
+        addition = get_ssa_of_type(f, Binary)[0]
+        assert addition.type == BinaryType.ADDITION
+        assert isinstance(addition.variable_right, Constant)
+        a_0 = addition.variable_left
+        assert a_0.index == 0
+        assert a_0.name == "a"
+
+        assignment = get_ssa_of_type(f, Assignment)[0]
+        a_1 = assignment.lvalue
+        assert a_1.index == 1
+        assert a_1.name == "a"
+        assert assignment.rvalue == addition.lvalue
+
+        assert a_0.non_ssa_version == a_1.non_ssa_version
+
+
+def test_initial_version_exists_for_state_variables():
+    """
+    In solidity you can write statements such as
+    uint a = a + 1, this test ensures that can be handled for state variables.
+    """
+    src = """
+    contract C {
+        uint a = a + 1;
+    }
+    """
+    with slither_from_source(src, "0.4.0") as slither:
+        verify_properties_hold(slither)
+        c = slither.contracts[0]
+        f = c.functions[0]  # There will be one artificial ctor function for the state vars
+
+        addition = get_ssa_of_type(f, Binary)[0]
+        assert addition.type == BinaryType.ADDITION
+        assert isinstance(addition.variable_right, Constant)
+        a_0 = addition.variable_left
+        assert isinstance(a_0, StateIRVariable)
+        assert a_0.index == 0  # Not strictly necessary, depending on order of functions when gernating SSA
+        assert a_0.name == "a"
+
+        assignment = get_ssa_of_type(f, Assignment)[0]
+        a_1 = assignment.lvalue
+        assert isinstance(a_1, StateIRVariable)
+        assert a_1.index == 1
+        assert a_1.name == "a"
+        assert assignment.rvalue == addition.lvalue
+
+        assert a_0.non_ssa_version == a_1.non_ssa_version
+        assert isinstance(a_0.non_ssa_version, StateVariable)
+
+        # No conditional/other function interaction so no phis
+        assert len(get_ssa_of_type(f, Phi)) == 0
+
+
+def test_initial_version_exists_for_state_variables_function_assign():
+    """
+    In solidity you can write statements such as
+    uint a = a + 1, this test ensures that can be handled for local variables.
+    """
+    # TODO (hbrodin): Could be a detector that a is not used in f
+    src = """
+    contract C {
+        uint a = f();
+
+        function f() internal returns(uint) {
+            return a;
+        }
+    }
+    """
+    with slither_from_source(src) as slither:
+        verify_properties_hold(slither)
+        c = slither.contracts[0]
+        f, ctor = c.functions
+        if f.is_constructor_variables:
+            f, ctor = ctor, f
+
+        # ctor should have a single call to f that assigns to a
+        # temporary variable, that is then assigned to a
+
+        call = get_ssa_of_type(ctor, InternalCall)[0]
+        assert call.function == f
+        assign = get_ssa_of_type(ctor, Assignment)[0]
+        assert assign.rvalue == call.lvalue
+        assert isinstance(assign.lvalue, StateIRVariable)
+        assert assign.lvalue.name == "a"
+
+        # f should have a phi node on entry of a0, a1 and should return
+        # a2
+        phi = get_ssa_of_type(f, Phi)[0]
+        assert len(phi.rvalues) == 2
 
 
 def test_issue_468():
