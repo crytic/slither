@@ -81,7 +81,7 @@ class VarState:
         which already is indexed (in SSA form) and should not be incremented.
         """
         # TODO (hbrodin): Is it correct? Are there any occasions where a temporary variable
-        # would need to have multiple versions?
+        # would need to have multiple versions? Also check Tuple variables
         if not isinstance(ir_var, (TemporaryVariableSSA, ReferenceVariableSSA)):
             ir_var.index = self.index
             self.index += 1

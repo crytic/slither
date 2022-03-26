@@ -478,6 +478,10 @@ def add_ssa_ir(function: Function, ssa_state: VarStates = None):
     if ssa_state is None:
         ssa_state = VarStates()
 
+    # Create the initial version of all variables used (represents the default value)
+    for var in function.variables:
+        ssa_state.add(var)
+
     # Create a StateVarDefRecorder that is used to keep track of state variables at
     # different times or SSA IR generation (before any call, at end of functions)
     rec = StateVarDefRecorder(ssa_state, referenced_state_variables(function))
