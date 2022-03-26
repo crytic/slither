@@ -641,6 +641,7 @@ def test_initial_version_exists_for_state_variables_function_assign():
         # a2
         phi = get_ssa_of_type(f, Phi)[0]
         assert len(phi.rvalues) == 2
+        assert assign.lvalue in phi.rvalues
 
 
 def test_issue_468():
