@@ -644,6 +644,57 @@ def test_initial_version_exists_for_state_variables_function_assign():
         assert assign.lvalue in phi.rvalues
 
 
+def test_return_local_before_assign():
+    src = """
+    // this require solidity < 0.5
+    // a variable can be returned before declared. Ensure it can be
+    // handled by Slither.
+    contract A {
+    function local(bool my_bool) internal returns(uint){
+        if(my_bool){
+            return a_local;
+        }
+
+        uint a_local = 10;
+    }
+    }
+    """
+    with slither_from_source(src, "0.4.0") as slither:
+        f = slither.contracts[0].functions[0]
+
+        ret = get_ssa_of_type(f, Return)[0]
+        assert len(ret.values) == 1
+        assert ret.values[0].index == 0
+
+        assign = get_ssa_of_type(f, Assignment)[0]
+        assert assign.lvalue.index == 1
+        assert assign.lvalue.non_ssa_version == ret.values[0].non_ssa_version
+
+
+def test_shadow_local():
+    src = """
+    contract A {
+     // this require solidity 0.5
+    function shadowing_local() internal{
+        uint local = 0;
+        {
+            uint local = 1;
+            {
+                uint local = 2;
+            }
+        }
+    }
+    }
+    """
+    with slither_from_source(src, "0.5.0") as slither:
+        _dump_functions(slither.contracts[0])
+        f = slither.contracts[0].functions[0]
+
+        # Ensure all assignments are to a variable of index 1
+        # not using the same IR var.
+        assert all(map(lambda x: x.lvalue.index == 1, get_ssa_of_type(f, Assignment)))
+
+
 def test_issue_468():
     """
     Ensure issue 468 is corrected as per
