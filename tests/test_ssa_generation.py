@@ -99,12 +99,18 @@ def ssa_basic_properties(function: Function):
 
 
 def ssa_phi_node_properties(f: Function):
-    """Every phi-function should have as many args as predecessors"""
+    """Every phi-function should have as many args as predecessors
+
+    This does not apply if the phi-node refers to state variables,
+    they make use os special phi-nodes for tracking potential values
+    a state variable can have
+    """
     for node in f.nodes:
         for ssa in node.irs_ssa:
             if isinstance(ssa, Phi):
                 n = len(ssa.read)
-                assert len(node.fathers) == n
+                if not isinstance(ssa.lvalue, StateIRVariable):
+                    assert len(node.fathers) == n
 
 
 # TODO (hbrodin): This should probably go into another file, not specific to SSA
@@ -200,15 +206,28 @@ def slither_from_source(source_code: str, solc_version: Optional[str] = None):
         yield Slither(f.name)
 
 
-def verify_properties_hold(source_code: str):
-    with slither_from_source(source_code) as slither:
+def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
+    """Ensures that basic properties of SSA hold true"""
+    def verify_func(func: Function):
+        phi_values_inserted(func)
+        ssa_basic_properties(func)
+        ssa_phi_node_properties(func)
+        dominance_properties(func)
+
+    def verify(slither):
         for cu in slither.compilation_units:
             for func in cu.functions_and_modifiers:
-                phi_values_inserted(func)
-                ssa_basic_properties(func)
-                ssa_phi_node_properties(func)
-                dominance_properties(func)
+                verify_func(func)
+            for contract in cu.contracts:
+                for f in contract.functions:
+                    if f.is_constructor or f.is_constructor_variables:
+                        verify_func(f)
 
+    if isinstance(source_code_or_slither, Slither):
+        verify(source_code_or_slither)
+    else:
+        with slither_from_source(source_code_or_slither) as slither:
+            verify(slither)
 
 def _dump_function(f: Function):
     """Helper function to print nodes/ssa ir for a function or modifier"""
