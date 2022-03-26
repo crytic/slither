@@ -23,6 +23,11 @@ from slither.slithir.operations import (
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable, StateIRVariable
 
+def have_ssa_if_ir(function: Function):
+    """Verifies that all nodes in a function that have IR also have SSA IR"""
+    for n in function.nodes:
+        if n.irs:
+            assert n.irs_ssa
 
 def ssa_basic_properties(function: Function):
     """Verifies that basic properties of ssa holds
@@ -209,10 +214,12 @@ def slither_from_source(source_code: str, solc_version: Optional[str] = None):
 def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
     """Ensures that basic properties of SSA hold true"""
     def verify_func(func: Function):
+        have_ssa_if_ir(func)
         phi_values_inserted(func)
         ssa_basic_properties(func)
         ssa_phi_node_properties(func)
         dominance_properties(func)
+
 
     def verify(slither):
         for cu in slither.compilation_units:
@@ -539,6 +546,7 @@ def test_initial_version_exists_for_locals():
     }
     """
     with slither_from_source(src, "0.4.0") as slither:
+        verify_properties_hold(slither)
         c = slither.contracts[0]
         f = c.functions[0]
 
