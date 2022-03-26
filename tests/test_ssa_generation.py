@@ -21,18 +21,19 @@ from slither.slithir.operations import (
     InternalCall,
 )
 from slither.slithir.utils.ssa import is_used_later
-from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable
+from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable, StateIRVariable
 
 
 def ssa_basic_properties(function: Function):
     """Verifies that basic properties of ssa holds
 
     1. Every name is defined only once
-    2. Every r-value is at least defined at some point
-    3. The number of ssa defs is >= the number of assignments to var
-    4. Function parameters SSA are stored in function.parameters_ssa
+    2. A l-value is never index zero - there is always a zero-value available for each var
+    3. Every r-value is at least defined at some point
+    4. The number of ssa defs is >= the number of assignments to var
+    5. Function parameters SSA are stored in function.parameters_ssa
        - if function parameter is_storage it refers to a fake variable
-    5. Function returns SSA are stored in function.returns_ssa
+    6. Function returns SSA are stored in function.returns_ssa
         - if function return is_storage it refers to a fake variable
     """
     ssa_lvalues = set()
@@ -54,10 +55,14 @@ def ssa_basic_properties(function: Function):
                 assert ssa.lvalue not in ssa_lvalues
                 ssa_lvalues.add(ssa.lvalue)
 
+                # 2 (if Local/State Var)
+                if isinstance(ssa.lvalue, (StateIRVariable, LocalIRVariable)):
+                    assert ssa.lvalue.index > 0
+
             for rvalue in filter(lambda x: not isinstance(x, Constant), ssa.read):
                 ssa_rvalues.add(rvalue)
 
-    # 2
+    # 3
     # Each var can have one non-defined value, the value initially held. Typically,
     # var_0, i_0, state_0 or similar.
     undef_vars = set()
@@ -66,7 +71,7 @@ def ssa_basic_properties(function: Function):
             assert rvalue.non_ssa_version not in undef_vars
             undef_vars.add(rvalue.non_ssa_version)
 
-    # 3
+    # 4
     ssa_defs = defaultdict(int)
     for v in ssa_lvalues:
         ssa_defs[v.name] += 1
@@ -75,8 +80,8 @@ def ssa_basic_properties(function: Function):
         assert ssa_defs[k] >= n
 
 
-    # Helper 4/5
-    def check_property_4_and_5(vars, ssavars):
+    # Helper 5/6
+    def check_property_5_and_6(vars, ssavars):
         for var in filter(lambda x: x.name, vars):
             ssa_vars = [x for x in ssavars if x.non_ssa_version == var]
             assert len(ssa_vars) == 1
@@ -86,11 +91,11 @@ def ssa_basic_properties(function: Function):
                 assert len(ssa_var.refers_to) == 1
                 assert ssa_var.refers_to[0].location == "reference_to_storage"
 
-    # 4
-    check_property_4_and_5(function.parameters, function.parameters_ssa)
-
     # 5
-    check_property_4_and_5(function.returns, function.return_values_ssa)
+    check_property_5_and_6(function.parameters, function.parameters_ssa)
+
+    # 6
+    check_property_5_and_6(function.returns, function.return_values_ssa)
 
 
 def ssa_phi_node_properties(f: Function):
