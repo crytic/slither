@@ -441,7 +441,7 @@ def _add_param_return_ssa(function: Function, ssa_state: VarStates) -> None:
     def add(variables, addfunc):
         for var in filter(lambda x: x.name, variables):
             # Get the initial version and record it in the function
-            ssa0 = ssa_state.add(var)
+            ssa0 = ssa_state.get(var)
 
             addfunc(ssa0)
 
