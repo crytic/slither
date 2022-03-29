@@ -695,6 +695,27 @@ def test_shadow_local():
         assert all(map(lambda x: x.lvalue.index == 1, get_ssa_of_type(f, Assignment)))
 
 
+def test_multiple_named_args_returns():
+    """Verifies that named arguments and return values have correct versions
+
+    Each arg/ret have an initial version, version 0, and is written once and should
+    then have version 1.
+    """
+    src = """
+    contract A {
+        function multi(uint arg1, uint arg2) internal returns (uint ret1, uint ret2) {
+            arg1 = arg1 + 1;
+            arg2 = arg2 + 2;
+            ret1 = arg1 + 3;
+            ret2 = arg2 + 4;
+        }
+    }"""
+    with slither_from_source(src) as slither:
+        verify_properties_hold(slither)
+        f = slither.contracts[0].functions[0]
+        assert all(map(lambda x: x.lvalue.index == 1, get_ssa_of_type(f, OperationWithLValue)))
+
+
 def test_issue_468():
     """
     Ensure issue 468 is corrected as per
