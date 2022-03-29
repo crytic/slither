@@ -100,7 +100,7 @@ def ssa_basic_properties(function: Function):
     check_property_5_and_6(function.parameters, function.parameters_ssa)
 
     # 6
-    check_property_5_and_6(function.returns, function.return_values_ssa)
+    check_property_5_and_6(function.returns, function.returns_ssa)
 
 
 def ssa_phi_node_properties(f: Function):
@@ -712,7 +712,9 @@ def test_multiple_named_args_returns():
     with slither_from_source(src) as slither:
         verify_properties_hold(slither)
         f = slither.contracts[0].functions[0]
-        assert all(map(lambda x: x.lvalue.index == 1, get_ssa_of_type(f, OperationWithLValue)))
+
+        # Ensure all LocalIRVariables (not TemporaryVariables) have index 1
+        assert all(map(lambda x: x.lvalue.index == 1 or not isinstance(x.lvalue, LocalIRVariable), get_ssa_of_type(f, OperationWithLValue)))
 
 
 def test_issue_468():
