@@ -24,12 +24,15 @@ from slither.slithir.operations import (
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable, StateIRVariable
 
+
 def have_ssa_if_ir(function: Function):
     """Verifies that all nodes in a function that have IR also have SSA IR"""
     for n in function.nodes:
         if n.irs:
             assert n.irs_ssa
 
+
+# pylint: disable=too-many-branches
 def ssa_basic_properties(function: Function):
     """Verifies that basic properties of ssa holds
 
@@ -65,7 +68,9 @@ def ssa_basic_properties(function: Function):
                 if isinstance(ssa.lvalue, (StateIRVariable, LocalIRVariable)):
                     assert ssa.lvalue.index > 0
 
-            for rvalue in filter(lambda x: not isinstance(x, (StateIRVariable, Constant)), ssa.read):
+            for rvalue in filter(
+                lambda x: not isinstance(x, (StateIRVariable, Constant)), ssa.read
+            ):
                 ssa_rvalues.add(rvalue)
 
     # 3
@@ -85,10 +90,9 @@ def ssa_basic_properties(function: Function):
     for (k, n) in lvalue_assignments.items():
         assert ssa_defs[k] >= n
 
-
     # Helper 5/6
-    def check_property_5_and_6(vars, ssavars):
-        for var in filter(lambda x: x.name, vars):
+    def check_property_5_and_6(variables, ssavars):
+        for var in filter(lambda x: x.name, variables):
             ssa_vars = [x for x in ssavars if x.non_ssa_version == var]
             assert len(ssa_vars) == 1
             ssa_var = ssa_vars[0]
@@ -177,6 +181,7 @@ def phi_values_inserted(f: Function):
                     if is_used_later(node, ssa.lvalue):
                         assert have_phi_for_var(df, ssa.lvalue)
 
+
 @contextmanager
 def select_solc_version(version: Optional[str]):
     """Selects solc version to use for running tests.
@@ -185,9 +190,12 @@ def select_solc_version(version: Optional[str]):
     # If no solc_version selected just use the latest avail
     if not version:
         # This sorts the versions numerically
-        vers = sorted(map(lambda x: (int(x[0]), int(x[1]), int(x[2])),
-                          map(lambda x: x.split(".", 3),
-                              solc_select.installed_versions())))
+        vers = sorted(
+            map(
+                lambda x: (int(x[0]), int(x[1]), int(x[2])),
+                map(lambda x: x.split(".", 3), solc_select.installed_versions()),
+            )
+        )
         ver = list(vers)[-1]
         version = ".".join(map(str, ver))
     env = dict(os.environ)
@@ -201,11 +209,13 @@ def select_solc_version(version: Optional[str]):
     os.environ.clear()
     os.environ.update(env_restore)
 
+
 @contextmanager
 def slither_from_source(source_code: str, solc_version: Optional[str] = None):
     # TODO (hbrodin): CryticCompile won't compile files unless dir is specified as cwd. Not sure why.
-    with tempfile.NamedTemporaryFile(suffix=".sol", mode="w", dir=pathlib.Path().cwd()) as f,\
-            select_solc_version(solc_version) as ver:
+    with tempfile.NamedTemporaryFile(
+        suffix=".sol", mode="w", dir=pathlib.Path().cwd()
+    ) as f, select_solc_version(solc_version):
         f.write(source_code)
         f.flush()
 
@@ -214,13 +224,13 @@ def slither_from_source(source_code: str, solc_version: Optional[str] = None):
 
 def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
     """Ensures that basic properties of SSA hold true"""
+
     def verify_func(func: Function):
         have_ssa_if_ir(func)
         phi_values_inserted(func)
         ssa_basic_properties(func)
         ssa_phi_node_properties(func)
         dominance_properties(func)
-
 
     def verify(slither):
         for cu in slither.compilation_units:
@@ -238,6 +248,7 @@ def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
     else:
         with slither_from_source(source_code_or_slither) as slither:
             verify(slither)
+
 
 def _dump_function(f: Function):
     """Helper function to print nodes/ssa ir for a function or modifier"""
@@ -513,7 +524,7 @@ def test_storage_refers_to():
         assert len(assigns) == 3
 
         # The IR variables have is_storage
-        assert all([x.lvalue.is_storage for x in assigns if isinstance(x, LocalIRVariable)])
+        assert all(x.lvalue.is_storage for x in assigns if isinstance(x, LocalIRVariable))
 
         # s.v ReferenceVariable points to one of the phi vars...
         ref0 = [x.lvalue for x in assigns if isinstance(x.lvalue, ReferenceVariable)][0]
@@ -715,7 +726,12 @@ def test_multiple_named_args_returns():
         f = slither.contracts[0].functions[0]
 
         # Ensure all LocalIRVariables (not TemporaryVariables) have index 1
-        assert all(map(lambda x: x.lvalue.index == 1 or not isinstance(x.lvalue, LocalIRVariable), get_ssa_of_type(f, OperationWithLValue)))
+        assert all(
+            map(
+                lambda x: x.lvalue.index == 1 or not isinstance(x.lvalue, LocalIRVariable),
+                get_ssa_of_type(f, OperationWithLValue),
+            )
+        )
 
 
 def test_issue_468():
