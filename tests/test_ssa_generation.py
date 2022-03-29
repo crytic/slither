@@ -101,7 +101,7 @@ def ssa_basic_properties(function: Function):
     check_property_5_and_6(function.parameters, function.parameters_ssa)
 
     # 6
-    check_property_5_and_6(function.returns, function.return_values_ssa)
+    check_property_5_and_6(function.returns, function.returns_ssa)
 
 
 def ssa_phi_node_properties(f: Function):
