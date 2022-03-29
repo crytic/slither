@@ -1710,7 +1710,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._analyze_calls()
 
     @abstractmethod
-    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
+    def generate_slithir_ssa(self, ssa_state):
         pass
 
     def update_read_write_using_ssa(self):

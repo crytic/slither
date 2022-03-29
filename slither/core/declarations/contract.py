@@ -2,7 +2,6 @@
     Contract module
 """
 import logging
-from collections import defaultdict
 from pathlib import Path
 from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
 
@@ -1275,7 +1274,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     # region SlithIR
     ###################################################################################
     ###################################################################################
-
+    # pylint: disable=too-many-locals, too-many-branches
     def convert_expression_to_slithir_ssa(self):
         """
         Assume generate_slithir_and_analyze was called on all functions

@@ -78,7 +78,7 @@ class FunctionTopLevel(Function, TopLevel):
     ###################################################################################
     ###################################################################################
 
-    def generate_slithir_ssa(self):
+    def generate_slithir_ssa(self, ssa_state=None):
         # pylint: disable=import-outside-toplevel
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (

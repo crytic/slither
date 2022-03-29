@@ -2,14 +2,30 @@ from collections import defaultdict
 from contextlib import contextmanager
 from typing import Iterable
 
-from slither.core.declarations import SolidityVariable, Contract, Enum, SolidityFunction, Structure, Function
+from slither.core.declarations import (
+    SolidityVariable,
+    Contract,
+    Enum,
+    SolidityFunction,
+    Structure,
+    Function,
+)
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.solidity_types import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
-from slither.slithir.variables import Constant, TemporaryVariableSSA, ReferenceVariableSSA, StateIRVariable, \
-    LocalIRVariable, TemporaryVariable, TupleVariable, TupleVariableSSA, ReferenceVariable
+from slither.slithir.variables import (
+    Constant,
+    TemporaryVariableSSA,
+    ReferenceVariableSSA,
+    StateIRVariable,
+    LocalIRVariable,
+    TemporaryVariable,
+    TupleVariable,
+    TupleVariableSSA,
+    ReferenceVariable,
+)
 
 
 class StateVarDefRecorder:
