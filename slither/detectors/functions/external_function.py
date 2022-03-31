@@ -1,3 +1,7 @@
+from array import ArrayType
+from slither.core.declarations.structure import Structure
+from slither.core.solidity_types.mapping_type import MappingType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import SolidityCall
 from slither.slithir.operations import InternalCall, InternalDynamicCall
@@ -105,6 +109,18 @@ class ExternalFunction(AbstractDetector):
     def function_parameters_written(function):
         return any(p in function.variables_written for p in function.parameters)
 
+    @staticmethod
+    def is_reference_type(parameter):
+        if isinstance(parameter.type, ArrayType):
+            return True        
+        if isinstance(parameter.type, MappingType):
+            return True
+        if isinstance(parameter.type, UserDefinedType) and isinstance(parameter.type.type, Structure):
+            return True
+        if str(parameter.type) in ["bytes", "string"]:
+            return True
+        return False
+
     def _detect(self):  # pylint: disable=too-many-locals,too-many-branches
         results = []
 
@@ -134,6 +150,14 @@ class ExternalFunction(AbstractDetector):
 
             # Next we'll want to loop through all functions defined directly in this contract.
             for function in contract.functions_declared:
+
+                # If all of the function arguments are non-reference type or calldata, we skip it.        
+                reference_args = []
+                for arg in function.parameters:
+                    if self.is_reference_type(arg) and arg.location == 'memory':
+                        reference_args.append(arg)
+                if len(reference_args) == 0 and len(function.parameters) > 0:
+                    continue                 
 
                 # If the function is a constructor, or is public, we skip it.
                 if function.is_constructor or function.visibility != "public":
