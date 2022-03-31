@@ -214,68 +214,6 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "parameter_read_ok_for_external",
-                    "source_mapping": {
-                        "start": 1420,
-                        "length": 81,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/external-function/0.4.25/external_function.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/external-function/0.4.25/external_function.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            74,
-                            75,
-                            76
-                        ],
-                        "starting_column": 3,
-                        "ending_column": 4
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "FunctionParameterWrite",
-                            "source_mapping": {
-                                "start": 1381,
-                                "length": 234,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/external-function/0.4.25/external_function.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/external-function/0.4.25/external_function.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    72,
-                                    73,
-                                    74,
-                                    75,
-                                    76,
-                                    77,
-                                    78,
-                                    79,
-                                    80,
-                                    81,
-                                    82
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "parameter_read_ok_for_external(uint256)"
-                    }
-                }
-            ],
-            "description": "parameter_read_ok_for_external(uint256) should be declared external:\n\t- FunctionParameterWrite.parameter_read_ok_for_external(uint256) (tests/detectors/external-function/0.4.25/external_function.sol#74-76)\n",
-            "markdown": "parameter_read_ok_for_external(uint256) should be declared external:\n\t- [FunctionParameterWrite.parameter_read_ok_for_external(uint256)](tests/detectors/external-function/0.4.25/external_function.sol#L74-L76)\n",
-            "first_markdown_element": "tests/detectors/external-function/0.4.25/external_function.sol#L74-L76",
-            "id": "3a0a42d128eff9fb04d8f7605bf2d6f7574c2cbbdffa2dcabbae66d7568ecc59",
-            "check": "external-function",
-            "impact": "Optimization",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
                     "name": "funcNotCalled",
                     "source_mapping": {
                         "start": 554,
