@@ -25,9 +25,7 @@ class ExternalFunction(AbstractDetector):
 
     WIKI_TITLE = "Public function that could be declared external"
     WIKI_DESCRIPTION = "`public` functions that are never called by the contract should be declared `external`, and its immutable parameters should be located in `calldata` to save gas."
-    WIKI_RECOMMENDATION = (
-        "Use the `external` attribute for functions never called from the contract, and change the location of immutable parameters to `calldata` to save gas."
-    )
+    WIKI_RECOMMENDATION = "Use the `external` attribute for functions never called from the contract, and change the location of immutable parameters to `calldata` to save gas."
 
     @staticmethod
     def detect_functions_called(contract):
@@ -112,10 +110,12 @@ class ExternalFunction(AbstractDetector):
     @staticmethod
     def is_reference_type(parameter):
         if isinstance(parameter.type, ArrayType):
-            return True        
+            return True
         if isinstance(parameter.type, MappingType):
             return True
-        if isinstance(parameter.type, UserDefinedType) and isinstance(parameter.type.type, Structure):
+        if isinstance(parameter.type, UserDefinedType) and isinstance(
+            parameter.type.type, Structure
+        ):
             return True
         if str(parameter.type) in ["bytes", "string"]:
             return True
@@ -125,7 +125,11 @@ class ExternalFunction(AbstractDetector):
         results = []
 
         # After solc 0.6.9, calldata arguments are allowed in public functions
-        if self.compilation_unit.solc_version >= "0.7." or self.compilation_unit.solc_version in ["0.6.9","0.6.10","0.6.11"]:
+        if self.compilation_unit.solc_version >= "0.7." or self.compilation_unit.solc_version in [
+            "0.6.9",
+            "0.6.10",
+            "0.6.11",
+        ]:
             return results
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be
@@ -151,13 +155,13 @@ class ExternalFunction(AbstractDetector):
             # Next we'll want to loop through all functions defined directly in this contract.
             for function in contract.functions_declared:
 
-                # If all of the function arguments are non-reference type or calldata, we skip it.        
+                # If all of the function arguments are non-reference type or calldata, we skip it.
                 reference_args = []
                 for arg in function.parameters:
-                    if self.is_reference_type(arg) and arg.location == 'memory':
+                    if self.is_reference_type(arg) and arg.location == "memory":
                         reference_args.append(arg)
                 if len(reference_args) == 0:
-                    continue                 
+                    continue
 
                 # If the function is a constructor, or is public, we skip it.
                 if function.is_constructor or function.visibility != "public":
