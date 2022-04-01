@@ -1,6 +1,7 @@
 import os
 import pathlib
 import tempfile
+from argparse import ArgumentTypeError
 from collections import defaultdict
 from contextlib import contextmanager
 from inspect import getsourcefile
@@ -8,7 +9,7 @@ from typing import Union, List, Optional
 
 import pytest
 from solc_select import solc_select
-from solc_select.solc_select import valid_version
+from solc_select.solc_select import valid_version as solc_valid_version
 
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
@@ -31,6 +32,19 @@ from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariab
 
 # Directory of currently executing script. Will be used as basis for temporary file names.
 SCRIPT_DIR = pathlib.Path(getsourcefile(lambda: 0)).parent
+
+
+def valid_version(ver: str) -> bool:
+    """Wrapper function to check if the solc-version is valid
+
+    The solc_select function raises and exception but for checks below,
+    only a bool is needed.
+    """
+    try:
+        solc_valid_version(ver)
+        return True
+    except ArgumentTypeError:
+        return False
 
 
 def have_ssa_if_ir(function: Function):
