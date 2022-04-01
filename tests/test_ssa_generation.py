@@ -3,6 +3,7 @@ import pathlib
 import tempfile
 from collections import defaultdict
 from contextlib import contextmanager
+from inspect import getsourcefile
 from typing import Union, List, Optional
 
 import pytest
@@ -24,6 +25,10 @@ from slither.slithir.operations import (
 )
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable, StateIRVariable
+
+
+# Directory of currently executing script. Will be used as basis for temporary file names.
+SCRIPT_DIR = pathlib.Path(getsourcefile(lambda: 0)).parent
 
 
 def have_ssa_if_ir(function: Function):
@@ -215,7 +220,10 @@ def select_solc_version(version: Optional[str]):
 def slither_from_source(source_code: str, solc_version: Optional[str] = None):
     # TODO (hbrodin): CryticCompile won't compile files unless dir is specified as cwd. Not sure why.
     with tempfile.NamedTemporaryFile(
-        suffix=".sol", mode="w", dir=pathlib.Path().cwd()
+        # suffix=".sol", mode="w", dir=pathlib.Path().cwd()
+        suffix=".sol",
+        mode="w",
+        dir=SCRIPT_DIR,
     ) as f, select_solc_version(solc_version):
         f.write(source_code)
         f.flush()
