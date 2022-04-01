@@ -1274,7 +1274,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     # region SlithIR
     ###################################################################################
     ###################################################################################
-
+    # pylint: disable=too-many-locals, too-many-branches
     def convert_expression_to_slithir_ssa(self):
         """
         Assume generate_slithir_and_analyze was called on all functions
@@ -1282,38 +1282,83 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         :return:
         """
         from slither.slithir.variables import StateIRVariable
+        from slither.slithir.utils.ssa import VarStates
+        from slither.slithir.operations import Phi, PhiCallback
 
-        all_ssa_state_variables_instances = {}
+        ssa_state = VarStates()
+
+        all_funcs = self.functions_and_modifiers
+        # If there are any constructor variable functions (artifical functions created by Slither)
+        # start by transforming their IR. This ensures state_0 is from them.
+        for var_ctor in all_funcs:
+            if var_ctor.function_type in (
+                FunctionType.CONSTRUCTOR_VARIABLES,
+                FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES,
+            ):
+                var_ctor.generate_slithir_ssa(ssa_state)
 
         for contract in self.inheritance:
             for v in contract.state_variables_declared:
+                if v not in ssa_state.state_variables():
+                    ssa_state.add(v)
                 new_var = StateIRVariable(v)
-                all_ssa_state_variables_instances[v.canonical_name] = new_var
                 self._initial_state_variables.append(new_var)
 
         for v in self.variables:
             if v.contract == self:
+                if v not in ssa_state.state_variables():
+                    ssa_state.add(v)
                 new_var = StateIRVariable(v)
-                all_ssa_state_variables_instances[v.canonical_name] = new_var
                 self._initial_state_variables.append(new_var)
 
         for func in self.functions + self.modifiers:
-            func.generate_slithir_ssa(all_ssa_state_variables_instances)
+            # Already processed these
+            if func.function_type in (
+                FunctionType.CONSTRUCTOR_VARIABLES,
+                FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES,
+            ):
+                continue
+
+            func.generate_slithir_ssa(ssa_state)
+
+        # For contracts (not free functions) update state variable phis to track dependencies
+        # between function invocations (inter-transactional). Phi-functions are already placed
+        # this just updates the r-values.
+        entry_phis = ssa_state.compute_entry_phis()
+        end_states = ssa_state.end_states()
+        for func in all_funcs:
+            for node in func.nodes:
+                for ir in node.irs_ssa:
+                    if node == func.entry_point and isinstance(ir, Phi):
+                        assert isinstance(ir.lvalue, StateIRVariable)
+                        sv = ir.lvalue.non_ssa_version
+                        # The lvalue of the Phi might be the end-state for this function,
+                        # if so we should discard it from the set
+                        values = entry_phis[sv].difference([ir.lvalue])
+                        ir.rvalues = list(values)
+
+                    if isinstance(ir, PhiCallback):
+                        sv = ir.lvalue.non_ssa_version
+                        # The lvalue of the PhiCallback might be the end-state for this function,
+                        # if so we should discard it from the set
+                        values = end_states[sv].difference([ir.lvalue])
+                        ir.rvalues.extend(values)
 
     def fix_phi(self):
-        last_state_variables_instances = {}
-        initial_state_variables_instances = {}
-        for v in self._initial_state_variables:
-            last_state_variables_instances[v.canonical_name] = []
-            initial_state_variables_instances[v.canonical_name] = v
-
-        for func in self.functions + self.modifiers:
-            result = func.get_last_ssa_state_variables_instances()
-            for variable_name, instances in result.items():
-                last_state_variables_instances[variable_name] += instances
-
-        for func in self.functions + self.modifiers:
-            func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
+        pass
+        # last_state_variables_instances = {}
+        # initial_state_variables_instances = {}
+        # for v in self._initial_state_variables:
+        #     last_state_variables_instances[v.canonical_name] = []
+        #     initial_state_variables_instances[v.canonical_name] = v
+        #
+        # for func in self.functions + self.modifiers:
+        #     result = func.get_last_ssa_state_variables_instances()
+        #     for variable_name, instances in result.items():
+        #         last_state_variables_instances[variable_name] += instances
+        #
+        # for func in self.functions + self.modifiers:
+        #     func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
 
     # endregion
     ###################################################################################
