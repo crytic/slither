@@ -514,7 +514,7 @@ ALL_TEST_OBJECTS = [
         all_detectors.ExternalFunction,
         "external_function_3.sol",
         "0.4.25",
-    ),    
+    ),
     Test(
         all_detectors.ExternalFunction,
         "external_function.sol",
@@ -529,7 +529,7 @@ ALL_TEST_OBJECTS = [
         all_detectors.ExternalFunction,
         "external_function_3.sol",
         "0.5.16",
-    ),    
+    ),
     Test(
         all_detectors.ExternalFunction,
         "external_function.sol",
@@ -544,7 +544,7 @@ ALL_TEST_OBJECTS = [
         all_detectors.ExternalFunction,
         "external_function_3.sol",
         "0.6.11",
-    ),    
+    ),
     Test(
         all_detectors.ExternalFunction,
         "external_function.sol",
@@ -559,7 +559,7 @@ ALL_TEST_OBJECTS = [
         all_detectors.ExternalFunction,
         "external_function_3.sol",
         "0.7.6",
-    ),    
+    ),
     Test(
         all_detectors.NamingConvention,
         "naming_convention.sol",
