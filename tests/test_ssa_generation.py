@@ -8,6 +8,8 @@ from typing import Union, List, Optional
 
 import pytest
 from solc_select import solc_select
+from solc_select.solc_select import valid_version
+
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
@@ -561,6 +563,9 @@ def test_storage_refers_to():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
+@pytest.mark.skipif(
+    not valid_version("0.4.0"), reason="Solidity version 0.4.0 not available on this platform"
+)
 def test_initial_version_exists_for_locals():
     """
     In solidity you can write statements such as
@@ -595,6 +600,9 @@ def test_initial_version_exists_for_locals():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
+@pytest.mark.skipif(
+    not valid_version("0.4.0"), reason="Solidity version 0.4.0 not available on this platform"
+)
 def test_initial_version_exists_for_state_variables():
     """
     In solidity you can write statements such as
@@ -671,6 +679,9 @@ def test_initial_version_exists_for_state_variables_function_assign():
         assert assign.lvalue in phi.rvalues
 
 
+@pytest.mark.skipif(
+    not valid_version("0.4.0"), reason="Solidity version 0.4.0 not available on this platform"
+)
 def test_return_local_before_assign():
     src = """
     // this require solidity < 0.5
@@ -698,6 +709,9 @@ def test_return_local_before_assign():
         assert assign.lvalue.non_ssa_version == ret.values[0].non_ssa_version
 
 
+@pytest.mark.skipif(
+    not valid_version("0.5.0"), reason="Solidity version 0.5.0 not available on this platform"
+)
 def test_shadow_local():
     src = """
     contract A {
