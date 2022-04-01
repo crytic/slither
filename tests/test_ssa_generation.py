@@ -249,7 +249,7 @@ def slither_from_source(source_code: str, solc_version: Optional[str] = None):
         fname = build_filename(i)
 
     try:
-        with open(fname, "wb") as f:
+        with open(fname, "w", encoding="utf8") as f:
             f.write(source_code)
 
         with select_solc_version(solc_version):
