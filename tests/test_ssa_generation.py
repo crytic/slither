@@ -1,6 +1,5 @@
 import os
 import pathlib
-import tempfile
 from argparse import ArgumentTypeError
 from collections import defaultdict
 from contextlib import contextmanager
@@ -234,17 +233,29 @@ def select_solc_version(version: Optional[str]):
 
 @contextmanager
 def slither_from_source(source_code: str, solc_version: Optional[str] = None):
-    # TODO (hbrodin): CryticCompile won't compile files unless dir is specified as cwd. Not sure why.
-    with tempfile.NamedTemporaryFile(
-        # suffix=".sol", mode="w", dir=pathlib.Path().cwd()
-        suffix=".sol",
-        mode="w",
-        dir=SCRIPT_DIR,
-    ) as f, select_solc_version(solc_version):
-        f.write(source_code)
-        f.flush()
+    """Yields a Slither instance using source_code string and solc_version
 
-        yield Slither(f.name)
+    Creates a temporary file and changes the solc-version temporary to solc_version.
+    """
+
+    def build_filename(i: int) -> pathlib.Path:
+        return SCRIPT_DIR / f"slither_test_{i}.sol"
+
+    # NOTE (hbrodin): There is a race condition here (TOCTOU), ignore that for now (only applies to test code).
+    i = 0
+    fname = build_filename(i)
+    while fname.exists():
+        i += 1
+        fname = build_filename(i)
+
+    try:
+        with open(fname, "wb") as f:
+            f.write(source_code)
+
+        with select_solc_version(solc_version):
+            yield Slither(str(fname))
+    finally:
+        fname.unlink()
 
 
 def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
