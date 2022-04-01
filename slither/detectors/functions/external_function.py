@@ -156,7 +156,7 @@ class ExternalFunction(AbstractDetector):
                 for arg in function.parameters:
                     if self.is_reference_type(arg) and arg.location == 'memory':
                         reference_args.append(arg)
-                if len(reference_args) == 0 and len(function.parameters) > 0:
+                if len(reference_args) == 0:
                     continue                 
 
                 # If the function is a constructor, or is public, we skip it.
