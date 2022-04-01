@@ -36,7 +36,7 @@ jobs:
           cp pyproject.toml .github/linters
 
       - name: Lint everything else
-        uses: github/super-linter/slim@v4
+        uses: megalinter/megalinter@v5
         if: always()
         env:
           # run linter on everything to catch preexisting problems
