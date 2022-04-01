@@ -5,3 +5,4 @@ from .mapping_type import MappingType
 from .user_defined_type import UserDefinedType
 from .type import Type
 from .type_information import TypeInformation
+from .type_alias import TypeAlias, TypeAliasTopLevel, TypeAliasContract

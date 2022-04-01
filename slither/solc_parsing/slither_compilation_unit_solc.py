@@ -14,6 +14,8 @@ from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.structure_top_level import StructureTopLevel
+from slither.core.scope.scope import FileScope
+from slither.core.solidity_types import ElementaryType, TypeAliasTopLevel
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.exceptions import SlitherException
 from slither.solc_parsing.declarations.contract import ContractSolc
@@ -26,6 +28,33 @@ from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSo
 logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
 logger.setLevel(logging.INFO)
+
+
+def _handle_import_aliases(
+    symbol_aliases: Dict, import_directive: Import, scope: FileScope
+) -> None:
+    """
+    Handle the parsing of import aliases
+
+    Args:
+        symbol_aliases (Dict): json dict from solc
+        import_directive (Import): current import directive
+        scope (FileScope): current file scape
+
+    Returns:
+
+    """
+    for symbol_alias in symbol_aliases:
+        if (
+            "foreign" in symbol_alias
+            and "name" in symbol_alias["foreign"]
+            and "local" in symbol_alias
+        ):
+            original_name = symbol_alias["foreign"]["name"]
+            local_name = symbol_alias["local"]
+            import_directive.renaming[local_name] = original_name
+            # Assuming that two imports cannot collide in renaming
+            scope.renaming[local_name] = original_name
 
 
 class SlitherCompilationUnitSolc:
@@ -204,6 +233,9 @@ class SlitherCompilationUnitSolc:
                     # TODO investigate unitAlias in version < 0.7 and legacy ast
                     if "unitAlias" in top_level_data:
                         import_directive.alias = top_level_data["unitAlias"]
+                    if "symbolAliases" in top_level_data:
+                        symbol_aliases = top_level_data["symbolAliases"]
+                        _handle_import_aliases(symbol_aliases, import_directive, scope)
                 else:
                     import_directive = Import(
                         Path(
@@ -266,6 +298,23 @@ class SlitherCompilationUnitSolc:
                 scope.custom_errors.add(custom_error)
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
+
+            elif top_level_data[self.get_key()] == "UserDefinedValueTypeDefinition":
+                assert "name" in top_level_data
+                alias = top_level_data["name"]
+                assert "underlyingType" in top_level_data
+                underlying_type = top_level_data["underlyingType"]
+                assert (
+                    "nodeType" in underlying_type
+                    and underlying_type["nodeType"] == "ElementaryTypeName"
+                )
+                assert "name" in underlying_type
+
+                original_type = ElementaryType(underlying_type["name"])
+
+                user_defined_type = TypeAliasTopLevel(original_type, alias, scope)
+                user_defined_type.set_offset(top_level_data["src"], self._compilation_unit)
+                scope.user_defined_types[alias] = user_defined_type
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
@@ -356,12 +405,16 @@ Please rename it, this name is reserved for Slither's internals"""
 
             for i in contract_parser.linearized_base_contracts[1:]:
                 if i in contract_parser.remapping:
-                    ancestors.append(
-                        contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                            contract_parser.remapping[i]
-                        )
-                        # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
+                    contract_name = contract_parser.remapping[i]
+                    if contract_name in contract_parser.underlying_contract.file_scope.renaming:
+                        contract_name = contract_parser.underlying_contract.file_scope.renaming[
+                            contract_name
+                        ]
+                    target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
+                        contract_name
                     )
+                    assert target
+                    ancestors.append(target)
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
                 else:

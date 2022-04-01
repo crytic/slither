@@ -18,6 +18,7 @@ from slither.core.solidity_types import (
     ArrayType,
     FunctionType,
     MappingType,
+    TypeAlias,
 )
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
@@ -292,6 +293,7 @@ def find_variable(
         Enum,
         Structure,
         CustomError,
+        TypeAlias,
     ],
     bool,
 ]:
@@ -333,6 +335,12 @@ def find_variable(
     # Reference looked are split between direct and all
     # Because functions are copied between contracts, two functions can have the same ref
     # So we need to first look with respect to the direct context
+
+    if var_name in current_scope.renaming:
+        var_name = current_scope.renaming[var_name]
+
+    if var_name in current_scope.user_defined_types:
+        return current_scope.user_defined_types[var_name], False
 
     # Use ret0/ret1 to help mypy
     ret0 = _find_variable_from_ref_declaration(

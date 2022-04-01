@@ -118,6 +118,11 @@ ALL_TEST_OBJECTS = [
     ),
     Test(
         all_detectors.ReentrancyReadBeforeWritten,
+        "comment.sol",
+        "0.8.2",
+    ),
+    Test(
+        all_detectors.ReentrancyReadBeforeWritten,
         "no-reentrancy-staticcall.sol",
         "0.5.16",
     ),
@@ -1262,6 +1267,11 @@ ALL_TEST_OBJECTS = [
         "delegatecall_loop.sol",
         "0.8.0",
     ),
+    Test(
+        all_detectors.ProtectedVariables,
+        "comment.sol",
+        "0.8.2",
+    ),
 ]
 
 
@@ -1304,11 +1314,10 @@ def test_detector(test_item: Test):
 
     for additional_file in test_item.additional_files:
         additional_path = str(pathlib.Path(test_dir_path, additional_file).absolute())
-        results_as_string = results_as_string.replace(
-            additional_path, str(pathlib.Path(GENERIC_PATH))
-        )
-    results_as_string = results_as_string.replace(test_file_path, str(pathlib.Path(GENERIC_PATH)))
-
+        additional_path = additional_path.replace("\\", "\\\\")
+        results_as_string = results_as_string.replace(additional_path, GENERIC_PATH)
+    test_file_path = test_file_path.replace("\\", "\\\\")
+    results_as_string = results_as_string.replace(test_file_path, GENERIC_PATH)
     results = json.loads(results_as_string)
 
     diff = DeepDiff(results, expected_result, ignore_order=True, verbose_level=2)
@@ -1348,13 +1357,13 @@ def _generate_test(test_item: Test, skip_existing=False):
     results = sl.run_detectors()
 
     results_as_string = json.dumps(results)
-    results_as_string = results_as_string.replace(test_file_path, str(pathlib.Path(GENERIC_PATH)))
+    test_file_path = test_file_path.replace("\\", "\\\\")
+    results_as_string = results_as_string.replace(test_file_path, GENERIC_PATH)
 
     for additional_file in test_item.additional_files:
         additional_path = str(pathlib.Path(test_dir_path, additional_file).absolute())
-        results_as_string = results_as_string.replace(
-            additional_path, str(pathlib.Path(GENERIC_PATH))
-        )
+        additional_path = additional_path.replace("\\", "\\\\")
+        results_as_string = results_as_string.replace(additional_path, GENERIC_PATH)
 
     results = json.loads(results_as_string)
     with open(expected_result_path, "w", encoding="utf8") as f:

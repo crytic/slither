@@ -128,6 +128,10 @@ class HighLevelCall(Call, OperationWithLValue):
             callstack = callstack + [self.function]
             if self.function.can_reenter(callstack):
                 return True
+        if isinstance(self.destination, Variable):
+            if not self.destination.is_reentrant:
+                return False
+
         return True
 
     def can_send_eth(self):

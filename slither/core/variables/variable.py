@@ -10,7 +10,7 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
 
-
+# pylint: disable=too-many-instance-attributes
 class Variable(SourceMapping):
     def __init__(self):
         super().__init__()
@@ -21,6 +21,8 @@ class Variable(SourceMapping):
         self._visibility: Optional[str] = None
         self._is_constant = False
         self._is_immutable: bool = False
+        self._is_reentrant: bool = True
+        self._write_protection: Optional[List[str]] = None
 
     @property
     def is_scalar(self) -> bool:
@@ -89,6 +91,22 @@ class Variable(SourceMapping):
     @is_constant.setter
     def is_constant(self, is_cst: bool):
         self._is_constant = is_cst
+
+    @property
+    def is_reentrant(self) -> bool:
+        return self._is_reentrant
+
+    @is_reentrant.setter
+    def is_reentrant(self, is_reentrant: bool):
+        self._is_reentrant = is_reentrant
+
+    @property
+    def write_protection(self) -> Optional[List[str]]:
+        return self._write_protection
+
+    @write_protection.setter
+    def write_protection(self, write_protection: List[str]):
+        self._write_protection = write_protection
 
     @property
     def visibility(self) -> Optional[str]:
