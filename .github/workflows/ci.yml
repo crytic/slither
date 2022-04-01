@@ -1,3 +1,4 @@
+---
 name: CI
 
 defaults:
@@ -13,46 +14,81 @@ on:
   pull_request:
   schedule:
     # run CI every day even if no PRs/merges occur
-    - cron:  '0 12 * * *'
+    - cron: '0 12 * * *'
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
+        os: ["ubuntu-latest", "windows-2022"]
         type: ["cli",
+               "dapp",
                "data_dependency",
                # "embark",
                "erc",
                "etherlime",
+               # "etherscan"
                "find_paths",
+               "flat",
                "kspec",
                "printers",
+               # "prop"
                "simil",
                "slither_config",
                "truffle",
-               "upgradability",
-               # "prop",
-               "flat"]
+               "upgradability"]
+        exclude:
+          # Requires nix
+          - os: windows-2022
+            type: dapp
+          # Requires nvm
+          - os: windows-2022
+            type: etherlime
+          # Requires nvm
+          - os: windows-2022
+            type: truffle
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.6
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.6
-    - name: Install dependencies
-      run: |
-        python setup.py install
-        # Used by ci_test.sh
-        pip install deepdiff
+      - uses: actions/checkout@v1
 
-        pip install solc-select
-        solc-select install all
-        solc-select use 0.5.1
+      - name: Set up shell
+        if: runner.os == 'Windows'
+        run: |
+          echo 'C:\msys64\mingw64\bin' >> "$GITHUB_PATH"
+          echo 'C:\msys64\usr\bin' >> "$GITHUB_PATH"
 
-    - name: Run Tests
-      env:
-        TEST_TYPE: ${{ matrix.type }}
-        GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
-      run: |
-        bash "scripts/ci_test_${TEST_TYPE}.sh"
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.6
+      - name: Install dependencies
+        run: |
+          # FIXME: patched crytic-compile is used to support Windows.
+          # Install from pip once branch is merged and crytic-compile released
+          pip install "crytic-compile@https://github.com/crytic/crytic-compile/archive/refs/heads/dev-windows-long-paths.zip"
+
+          python setup.py install
+          # Used by ci_test.sh
+          pip install deepdiff
+
+          pip install "solc-select>=v1.0.0b1"
+          solc-select install all
+          solc-select use 0.5.1
+
+      - name: Set up nix
+        if: matrix.type == 'dapp'
+        uses: cachix/install-nix-action@v16
+
+      - name: Set up cachix
+        if: matrix.type == 'dapp'
+        uses: cachix/cachix-action@v10
+        with:
+          name: dapp
+
+      - name: Run Tests
+        env:
+          TEST_TYPE: ${{ matrix.type }}
+          GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
+        run: |
+          bash "scripts/ci_test_${TEST_TYPE}.sh"

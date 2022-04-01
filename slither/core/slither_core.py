@@ -4,6 +4,7 @@
 import json
 import logging
 import os
+import posixpath
 import re
 from typing import Optional, Dict, List, Set, Union
 
@@ -172,7 +173,7 @@ class SlitherCore(Context):
             return False
         mapping_elements_with_lines = (
             (
-                os.path.normpath(elem["source_mapping"]["filename_absolute"]),
+                posixpath.normpath(elem["source_mapping"]["filename_absolute"]),
                 elem["source_mapping"]["lines"],
             )
             for elem in r["elements"]
@@ -218,7 +219,7 @@ class SlitherCore(Context):
             if "source_mapping" in elem
         ]
         source_mapping_elements = map(
-            lambda x: os.path.normpath(x) if x else x, source_mapping_elements
+            lambda x: posixpath.normpath(x) if x else x, source_mapping_elements
         )
         matching = False
 
