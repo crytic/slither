@@ -45,10 +45,6 @@ jobs:
           solc-select install all
           solc-select use 0.8.11
 
-          cd tests/test_node_modules/
-          npm install hardhat
-          cd ../..
-
       - name: Test with pytest
         run: |
           pytest tests/test_ssa_generation.py
