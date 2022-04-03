@@ -4,6 +4,7 @@ from argparse import ArgumentTypeError
 from collections import defaultdict
 from contextlib import contextmanager
 from inspect import getsourcefile
+from tempfile import NamedTemporaryFile
 from typing import Union, List, Optional
 
 import pytest
@@ -238,24 +239,15 @@ def slither_from_source(source_code: str, solc_version: Optional[str] = None):
     Creates a temporary file and changes the solc-version temporary to solc_version.
     """
 
-    def build_filename(i: int) -> pathlib.Path:
-        return SCRIPT_DIR / f"slither_test_{i}.sol"
-
-    # NOTE (hbrodin): There is a race condition here (TOCTOU), ignore that for now (only applies to test code).
-    i = 0
-    fname = build_filename(i)
-    while fname.exists():
-        i += 1
-        fname = build_filename(i)
-
+    fname = ""
     try:
-        with open(fname, "w", encoding="utf8") as f:
+        with NamedTemporaryFile(dir=SCRIPT_DIR, mode="w", suffix=".sol", delete=False) as f:
+            fname = f.name
             f.write(source_code)
-
         with select_solc_version(solc_version):
-            yield Slither(str(fname))
+            yield Slither(fname)
     finally:
-        fname.unlink()
+        pathlib.Path(fname).unlink()
 
 
 def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
