@@ -36,7 +36,7 @@ jobs:
           cp pyproject.toml .github/linters
 
       - name: Black
-        uses: github/super-linter/slim@v4.8.7
+        uses: github/super-linter/slim@v4.9.2
         if: always()
         env:
           # run linter on everything to catch preexisting problems

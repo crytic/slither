@@ -64,9 +64,6 @@ jobs:
           python-version: 3.6
       - name: Install dependencies
         run: |
-          # FIXME: patched crytic-compile is used to support Windows.
-          # Install from pip once branch is merged and crytic-compile released
-          pip install "crytic-compile@https://github.com/crytic/crytic-compile/archive/refs/heads/dev-windows-long-paths.zip"
 
           python setup.py install
           # Used by ci_test.sh
