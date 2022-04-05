@@ -279,6 +279,7 @@ class YulBlock(YulScope):
 
     """
 
+    # pylint: disable=redefined-slots-in-subclass
     __slots__ = ["_entrypoint", "_parent_func", "_nodes", "node_scope"]
 
     def __init__(
