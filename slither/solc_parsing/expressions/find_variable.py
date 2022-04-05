@@ -137,9 +137,15 @@ def _find_top_level(
     # For example, a top variable that use another top level variable
     # IF more top level objects are added to Solidity, we have to be careful with the order of the lookup
     # in this function
-    for custom_error in scope.custom_errors:
-        if custom_error.solidity_signature == var_name:
-            return custom_error, False
+    try:
+        for custom_error in scope.custom_errors:
+            if custom_error.solidity_signature == var_name:
+                return custom_error, False
+    except ValueError:
+        # This can happen as custom error sol signature might not have been built
+        # when find_variable was called
+        # TODO refactor find_variable to prevent this from happening
+        pass
 
     return None, False
 
@@ -208,9 +214,15 @@ def _find_in_contract(
     # This is because when the dic is populated the underlying object is not yet parsed
     # As a result, we need to iterate over all the custom errors here instead of using the dict
     custom_errors = contract.custom_errors
-    for custom_error in custom_errors:
-        if var_name == custom_error.solidity_signature:
-            return custom_error
+    try:
+        for custom_error in custom_errors:
+            if var_name == custom_error.solidity_signature:
+                return custom_error
+    except ValueError:
+        # This can happen as custom error sol signature might not have been built
+        # when find_variable was called
+        # TODO refactor find_variable to prevent this from happening
+        pass
 
     # If the enum is refered as its name rather than its canonicalName
     enums = {e.name: e for e in contract.enums}
