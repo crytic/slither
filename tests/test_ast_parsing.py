@@ -403,6 +403,7 @@ ALL_TESTS = [
     Test("complex_imports/import_aliases/test.sol", VERSIONS_08),
     # 0.8.9 crashes on our testcase
     Test("user_defined_types.sol", ["0.8.8"] + make_version(8, 10, 12)),
+    Test("bytes_call.sol", ["0.8.12"]),
 ]
 # create the output folder if needed
 try:
