@@ -196,7 +196,7 @@ def _fits_under_byte(val: Union[int, str]) -> List[str]:
         return [f"bytes{size}"]
     # val is a str
     length = len(val.encode("utf-8"))
-    return [f"bytes{f}" for f in range(length, 33)]
+    return [f"bytes{f}" for f in range(length, 33)] + ["bytes"]
 
 
 def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optional[Function]:
