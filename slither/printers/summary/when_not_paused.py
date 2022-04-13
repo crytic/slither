@@ -23,9 +23,7 @@ class PrinterWhenNotPaused(AbstractPrinter):
     ) -> List[Function]:
         results: Set[Function] = set()
         for entry_point in contract.functions_entry_points:
-            if entry_point.visibility not in ["public", "external"]:
-                continue
-            if entry_point.is_constructor or entry_point.view:
+            if entry_point.is_constructor or entry_point.view or entry_point.pure:
                 continue
 
             for function in entry_point.all_internal_calls():
