@@ -15,6 +15,7 @@ from slither.core.declarations.import_directive import Import
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.scope.scope import FileScope
+from slither.core.solidity_types import ElementaryType, TypeAliasTopLevel
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.exceptions import SlitherException
 from slither.solc_parsing.declarations.contract import ContractSolc
@@ -297,6 +298,23 @@ class SlitherCompilationUnitSolc:
                 scope.custom_errors.add(custom_error)
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
+
+            elif top_level_data[self.get_key()] == "UserDefinedValueTypeDefinition":
+                assert "name" in top_level_data
+                alias = top_level_data["name"]
+                assert "underlyingType" in top_level_data
+                underlying_type = top_level_data["underlyingType"]
+                assert (
+                    "nodeType" in underlying_type
+                    and underlying_type["nodeType"] == "ElementaryTypeName"
+                )
+                assert "name" in underlying_type
+
+                original_type = ElementaryType(underlying_type["name"])
+
+                user_defined_type = TypeAliasTopLevel(original_type, alias, scope)
+                user_defined_type.set_offset(top_level_data["src"], self._compilation_unit)
+                scope.user_defined_types[alias] = user_defined_type
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")

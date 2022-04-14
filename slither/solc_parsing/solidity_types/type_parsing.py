@@ -6,6 +6,7 @@ from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions.literal import Literal
+from slither.core.solidity_types import TypeAlias
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
@@ -224,6 +225,7 @@ def parse_type(
 
     sl: "SlitherCompilationUnit"
     renaming: Dict[str, str]
+    user_defined_types: Dict[str, TypeAlias]
     # Note: for convenicence top level functions use the same parser than function in contract
     # but contract_parser is set to None
     if isinstance(caller_context, SlitherCompilationUnitSolc) or (
@@ -234,11 +236,13 @@ def parse_type(
             sl = caller_context.compilation_unit
             next_context = caller_context
             renaming = {}
+            user_defined_types = {}
         else:
             assert isinstance(caller_context, FunctionSolc)
             sl = caller_context.underlying_function.compilation_unit
             next_context = caller_context.slither_parser
             renaming = caller_context.underlying_function.file_scope.renaming
+            user_defined_types = caller_context.underlying_function.file_scope.user_defined_types
         structures_direct_access = sl.structures_top_level
         all_structuress = [c.structures for c in sl.contracts]
         all_structures = [item for sublist in all_structuress for item in sublist]
@@ -274,6 +278,7 @@ def parse_type(
         functions = list(scope.functions)
 
         renaming = scope.renaming
+        user_defined_types = scope.user_defined_types
     elif isinstance(caller_context, (ContractSolc, FunctionSolc)):
         if isinstance(caller_context, FunctionSolc):
             underlying_func = caller_context.underlying_function
@@ -302,6 +307,7 @@ def parse_type(
         functions = contract.functions + contract.modifiers
 
         renaming = scope.renaming
+        user_defined_types = scope.user_defined_types
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
 
@@ -315,6 +321,8 @@ def parse_type(
         name = t.name
         if name in renaming:
             name = renaming[name]
+        if name in user_defined_types:
+            return user_defined_types[name]
         return _find_from_type_name(
             name,
             functions,
@@ -335,6 +343,8 @@ def parse_type(
             name = t["typeDescriptions"]["typeString"]
             if name in renaming:
                 name = renaming[name]
+            if name in user_defined_types:
+                return user_defined_types[name]
             return _find_from_type_name(
                 name,
                 functions,
@@ -351,6 +361,8 @@ def parse_type(
         name = t["attributes"][type_name_key]
         if name in renaming:
             name = renaming[name]
+        if name in user_defined_types:
+            return user_defined_types[name]
         return _find_from_type_name(
             name,
             functions,
@@ -367,6 +379,8 @@ def parse_type(
             name = t["name"]
             if name in renaming:
                 name = renaming[name]
+            if name in user_defined_types:
+                return user_defined_types[name]
             return _find_from_type_name(
                 name,
                 functions,

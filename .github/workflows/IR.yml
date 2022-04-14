@@ -1,5 +1,5 @@
 ---
-name: Parser tests
+name: IR tests
 
 defaults:
   run:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    name: Parser tests
+    name: IR tests
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -33,17 +33,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-
           python setup.py install
           pip install deepdiff
           pip install pytest
-          pip install "solc-select>=v1.0.0b1"
 
-      - name: Install solc
-        run: |
+          pip install "solc-select>=v1.0.0b1"
           solc-select install all
-          solc-select use 0.8.0
+          solc-select use 0.8.11
 
       - name: Test with pytest
         run: |
-          pytest tests/test_ast_parsing.py
+          pytest tests/test_ssa_generation.py

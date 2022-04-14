@@ -56,7 +56,12 @@ class CustomError(SourceMapping):
         Contract and converted into address
         :return: the solidity signature
         """
-        assert self._solidity_signature is not None
+        # Ideally this should be an assert
+        # But due to a logic limitation in the solc parsing (find_variable)
+        # We need to raise an error if the custom error sig was not yet built
+        # (set_solidity_sig was not called before find_variable)
+        if self._solidity_signature is None:
+            raise ValueError("Custom Error not yet built")
         return self._solidity_signature
 
     def set_solidity_sig(self) -> None:
