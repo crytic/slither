@@ -1,4 +1,4 @@
-from array import ArrayType
+from slither.core.solidity_types.array_type import ArrayType
 from slither.core.declarations.structure import Structure
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
