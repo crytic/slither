@@ -4,6 +4,7 @@
 import json
 import logging
 import os
+import posixpath
 import re
 from typing import Optional, Dict, List, Set, Union
 
@@ -172,7 +173,7 @@ class SlitherCore(Context):
             return False
         mapping_elements_with_lines = (
             (
-                os.path.normpath(elem["source_mapping"]["filename_absolute"]),
+                posixpath.normpath(elem["source_mapping"]["filename_absolute"]),
                 elem["source_mapping"]["lines"],
             )
             for elem in r["elements"]
@@ -218,7 +219,7 @@ class SlitherCore(Context):
             if "source_mapping" in elem
         ]
         source_mapping_elements = map(
-            lambda x: os.path.normpath(x) if x else x, source_mapping_elements
+            lambda x: posixpath.normpath(x) if x else x, source_mapping_elements
         )
         matching = False
 
@@ -239,14 +240,14 @@ class SlitherCore(Context):
 
         if r["elements"] and matching:
             return False
-        if r["elements"] and self._exclude_dependencies:
-            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
         if self._show_ignored_findings:
             return True
-        if r["id"] in self._previous_results_ids:
-            return False
         if self.has_ignore_comment(r):
             return False
+        if r["id"] in self._previous_results_ids:
+            return False
+        if r["elements"] and self._exclude_dependencies:
+            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
         return not r["description"] in [pr["description"] for pr in self._previous_results]
 

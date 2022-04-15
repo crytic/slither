@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Dict
 
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
@@ -103,6 +104,23 @@ class VariableDeclarationSolc:
         """
         return self._reference_id
 
+    def _handle_comment(self, attributes: Dict):
+        if "documentation" in attributes and "text" in attributes["documentation"]:
+
+            candidates = attributes["documentation"]["text"].split(",")
+
+            for candidate in candidates:
+                if "@custom:security non-reentrant" in candidate:
+                    self._variable.is_reentrant = False
+
+                write_protection = re.search(
+                    r'@custom:security write-protection="([\w, ()]*)"', candidate
+                )
+                if write_protection:
+                    if self._variable.write_protection is None:
+                        self._variable.write_protection = []
+                    self._variable.write_protection.append(write_protection.group(1))
+
     def _analyze_variable_attributes(self, attributes: Dict):
         if "visibility" in attributes:
             self._variable.visibility = attributes["visibility"]
@@ -144,6 +162,8 @@ class VariableDeclarationSolc:
                 self._variable.is_constant = True
             if attributes["mutability"] == "immutable":
                 self._variable.is_immutable = True
+
+        self._handle_comment(attributes)
 
         self._analyze_variable_attributes(attributes)
 

@@ -170,10 +170,10 @@ def _fits_under_integer(val: int, can_be_int: bool, can_be_uint) -> List[str]:
     assert can_be_int | can_be_uint
     while n <= 256:
         if can_be_uint:
-            if val <= 2 ** n - 1:
+            if val <= 2**n - 1:
                 ret.append(f"uint{n}")
         if can_be_int:
-            if val <= (2 ** n) / 2 - 1:
+            if val <= (2**n) / 2 - 1:
                 ret.append(f"int{n}")
         n = n + 8
     return ret
@@ -1463,7 +1463,11 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
             for import_statement in contract.file_scope.imports:
                 if import_statement.alias and import_statement.alias == ir.contract_name:
                     imported_scope = contract.compilation_unit.get_scope(import_statement.filename)
-                    candidates += list(imported_scope.functions)
+                    candidates += [
+                        f
+                        for f in list(imported_scope.functions)
+                        if f.name == ir.function_name and len(f.parameters) == len(ir.arguments)
+                    ]
 
         func = _find_function_from_parameter(ir, candidates)
 
