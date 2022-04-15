@@ -1,0 +1,46 @@
+---
+name: IR tests
+
+defaults:
+  run:
+    # To load bashrc
+    shell: bash -ieo pipefail {0}
+
+on:
+  pull_request:
+    branches: [master, dev]
+  schedule:
+    # run CI every day even if no PRs/merges occur
+    - cron: '0 12 * * *'
+
+jobs:
+  build:
+    name: IR tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-2022]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.6
+
+      - name: Install dependencies
+        run: |
+          python setup.py install
+          pip install deepdiff
+          pip install pytest
+
+          pip install "solc-select>=v1.0.0b1"
+          solc-select install all
+          solc-select use 0.8.11
+
+      - name: Test with pytest
+        run: |
+          pytest tests/test_ssa_generation.py

@@ -18,7 +18,7 @@ dapp init
 slither . --detect external-function
 
 # TODO: make more elaborate test
-if [ $? -eq 3 ]
+if [ $? -eq 4 ]
 then
     exit 0
 fi
