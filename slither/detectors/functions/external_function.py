@@ -1,6 +1,5 @@
 from array import ArrayType
 from slither.core.declarations.structure import Structure
-from slither.core.solidity_types.mapping_type import MappingType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import SolidityCall
@@ -110,8 +109,6 @@ class ExternalFunction(AbstractDetector):
     @staticmethod
     def is_reference_type(parameter):
         if isinstance(parameter.type, ArrayType):
-            return True
-        if isinstance(parameter.type, MappingType):
             return True
         if isinstance(parameter.type, UserDefinedType) and isinstance(
             parameter.type.type, Structure
