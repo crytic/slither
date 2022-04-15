@@ -1724,6 +1724,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
 
     def __str__(self):
-        return self._name
+        return self.name
 
     # endregion
