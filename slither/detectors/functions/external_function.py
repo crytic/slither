@@ -232,6 +232,12 @@ class ExternalFunction(AbstractDetector):
 
                     info = [f"{function_definition.full_name} should be declared external:\n"]
                     info += ["\t- ", function_definition, "\n"]
+                    if self.compilation_unit.solc_version >= "0.5.":
+                        info += [
+                            "Moreover, the following function parameters should change its data location:\n"
+                        ]
+                        for reference_arg in reference_args:
+                            info += [f"{reference_arg} location should be calldata\n"]
                     for other_function_definition in all_function_definitions:
                         info += ["\t- ", other_function_definition, "\n"]
 
