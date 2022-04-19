@@ -164,6 +164,10 @@ class ElementaryType(Type):
         self._type = t
 
     @property
+    def is_dynamic(self) -> bool:
+        return self._type in ("bytes", "string")
+
+    @property
     def type(self) -> str:
         return self._type
 
@@ -188,7 +192,7 @@ class ElementaryType(Type):
             return int(8)
         if t == "address":
             return int(160)
-        if t.startswith("bytes"):
+        if t.startswith("bytes") and t != "bytes":
             return int(t[len("bytes") :])
         return None
 

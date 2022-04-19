@@ -32,6 +32,10 @@ class FunctionType(Type):
     def storage_size(self) -> Tuple[int, bool]:
         return 24, False
 
+    @property
+    def is_dynamic(self) -> bool:
+        return False
+
     def __str__(self):
         # Use x.type
         # x.name may be empty

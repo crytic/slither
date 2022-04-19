@@ -21,8 +21,13 @@ class UserDefinedType(Type):
         self._type = t
 
     @property
+    def is_dynamic(self) -> bool:
+        raise NotImplemented
+
+    @property
     def type(self) -> Union["Contract", "Enum", "Structure"]:
         return self._type
+
 
     @property
     def storage_size(self) -> Tuple[int, bool]:
