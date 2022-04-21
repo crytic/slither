@@ -1,7 +1,7 @@
 from typing import List
-from .arbitrary_send_erc20 import ArbitrarySendErc20
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
+from .arbitrary_send_erc20 import ArbitrarySendErc20
 
 
 class ArbitrarySendErc20NoPermit(AbstractDetector):
@@ -35,7 +35,7 @@ Use `msg.sender` as `from` in transferFrom.
         results: List[Output] = []
 
         arbitrary_sends = ArbitrarySendErc20(self.compilation_unit)
-        arbitrary_sends._detect()
+        arbitrary_sends.detect()
         for node in arbitrary_sends.no_permit_results:
             func = node.function
             info = [func, " uses arbitrary from in transferFrom: ", node, "\n"]

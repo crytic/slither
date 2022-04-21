@@ -43,12 +43,12 @@ class ArbitrarySendErc20:
                     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
                     in all_high_level_calls
                 ):
-                    self._arbitrary_from(f.nodes, self._permit_results)
+                    ArbitrarySendErc20._arbitrary_from(f.nodes, self._permit_results)
                 else:
-                    self._arbitrary_from(f.nodes, self._no_permit_results)
+                    ArbitrarySendErc20._arbitrary_from(f.nodes, self._no_permit_results)
 
-    @classmethod
-    def _arbitrary_from(self, nodes: List[Node], results: List[Node]):
+    @staticmethod
+    def _arbitrary_from(nodes: List[Node], results: List[Node]):
         """Finds instances of (safe)transferFrom that do not use msg.sender or address(this) as from parameter."""
         for node in nodes:
             for ir in node.irs:
@@ -89,7 +89,7 @@ class ArbitrarySendErc20:
                 ):
                     results.append(ir.node)
 
-    def _detect(self):
-        """"""
+    def detect(self):
+        """Detect transfers that use arbitrary `from` parameter."""
         for c in self.compilation_unit.contracts_derived:
             self._detect_arbitrary_from(c)
