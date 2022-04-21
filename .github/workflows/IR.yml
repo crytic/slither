@@ -1,5 +1,5 @@
 ---
-name: Features tests
+name: IR tests
 
 defaults:
   run:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    name: Features tests
+    name: IR tests
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -33,7 +33,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-
           python setup.py install
           pip install deepdiff
           pip install pytest==7.0.1
@@ -42,14 +41,8 @@ jobs:
 
           pip install "solc-select>=v1.0.0b1"
           solc-select install all
-          solc-select use 0.8.0
-
-          cd tests/test_node_modules/
-          npm install hardhat
-          cd ../..
+          solc-select use 0.8.11
 
       - name: Test with pytest
         run: |
-          pytest tests/test_features.py
-          pytest tests/test_constant_folding_unary.py
-          pytest tests/slithir/test_ternary_expressions.py
+          pytest tests/test_ssa_generation.py
