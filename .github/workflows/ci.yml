@@ -72,6 +72,8 @@ jobs:
           pip install "solc-select>=v1.0.0b1"
           solc-select install all
           solc-select use 0.5.1
+          pip install typing_extensions==4.1.1
+          pip install importlib_metadata==4.8.3
 
       - name: Set up nix
         if: matrix.type == 'dapp'
