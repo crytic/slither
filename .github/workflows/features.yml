@@ -52,3 +52,4 @@ jobs:
         run: |
           pytest tests/test_features.py
           pytest tests/test_constant_folding_unary.py
+          pytest tests/slithir/test_ternary_expressions.py
