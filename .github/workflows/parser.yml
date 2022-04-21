@@ -36,7 +36,9 @@ jobs:
 
           python setup.py install
           pip install deepdiff
-          pip install pytest
+          pip install pytest==7.0.1
+          pip install typing_extensions==4.1.1
+          pip install importlib_metadata==4.8.3
           pip install "solc-select>=v1.0.0b1"
 
       - name: Install solc
