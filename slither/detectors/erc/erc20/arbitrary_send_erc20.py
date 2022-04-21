@@ -28,7 +28,7 @@ class ArbitrarySendErc20:
         return self._permit_results
 
     def _detect_arbitrary_from(self, contract: Contract):
-        for f in contract.functions_declared:
+        for f in contract.functions:
             all_high_level_calls = [
                 f_called[1].solidity_signature
                 for f_called in f.high_level_calls
