@@ -1298,6 +1298,11 @@ ALL_TEST_OBJECTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20_inheritance.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.ArbitrarySendErc20Permit,
         "arbitrary_send_erc20_permit.sol",
         "0.4.25",
