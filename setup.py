@@ -14,8 +14,6 @@ setup(
     install_requires=[
         "prettytable>=0.7.2",
         "pysha3>=1.0.2",
-        "typing_extensions==4.1.1",
-        "importlib_metadata==4.11.2",
         # "crytic-compile>=0.2.2",
         "crytic-compile",
     ],
