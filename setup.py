@@ -19,8 +19,8 @@ setup(
     ],
     extras_require={
         "dev": [
-            "black>=22.3.0",
-            "pylint>=2.13.4",
+            "black==22.3.0",
+            "pylint==2.13.4",
             "pytest==7.0.1",
             "pytest-cov",
             "deepdiff",

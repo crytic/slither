@@ -23,7 +23,7 @@ Some pull request guidelines:
 ## Development Environment
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
-To run the unit tests, you need clone this repo and run `pip install ".[dev]"`.
+To run the unit tests, you need clone this repository and run `pip install ".[dev]"`.
 
 ### Linters
 
