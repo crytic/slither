@@ -37,6 +37,9 @@ jobs:
         run: |
           python3 setup.py install
           pip install web3 pytest deepdiff solc-select
+          pip install pytest==7.0.1
+          pip install typing_extensions==4.1.1
+          pip install importlib_metadata==4.8.3
           solc-select install 0.8.1
           solc-select install 0.8.10
           solc-select use 0.8.1
