@@ -15,6 +15,7 @@ class TypeAlias(Type):
         self.name = name
         self.underlying_type = underlying_type
 
+
     @property
     def storage_size(self) -> Tuple[int, bool]:
         return self.underlying_type.storage_size
