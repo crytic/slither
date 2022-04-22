@@ -13,7 +13,7 @@ REPLACEMENT_VERSIONS = ["^0.4.25", "^0.5.3"]
 # 2: version number
 # 3: version number
 # 4: version number
-PATTERN = re.compile("(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
+PATTERN = re.compile(r"(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
 
 
 def custom_format(slither, result):

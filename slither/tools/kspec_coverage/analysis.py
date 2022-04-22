@@ -22,8 +22,8 @@ def _get_all_covered_kspec_functions(target: str) -> Set[Tuple[str, str]]:
     # Create a set of our discovered functions which are covered
     covered_functions: Set[Tuple[str, str]] = set()
 
-    BEHAVIOUR_PATTERN = re.compile("behaviour\s+(\S+)\s+of\s+(\S+)")
-    INTERFACE_PATTERN = re.compile("interface\s+([^\r\n]+)")
+    BEHAVIOUR_PATTERN = re.compile(r"behaviour\s+(\S+)\s+of\s+(\S+)")
+    INTERFACE_PATTERN = re.compile(r"interface\s+([^\r\n]+)")
 
     # Read the file contents
     with open(target, "r", encoding="utf8") as target_file:
