@@ -127,10 +127,10 @@ Max_Byte = {k: 2 ** (8 * (i + 1)) - 1 for i, k in enumerate(Byte[2:])}
 Max_Byte["bytes"] = None
 Max_Byte["string"] = None
 Max_Byte["byte"] = 255
-Min_Byte = {k: 1 << (4 + 8 * i) for i, k in enumerate(Byte[2:])}
+Min_Byte = {k: 0 for k in Byte}
 Min_Byte["bytes"] = 0x0
-Min_Byte["string"] = None
-Min_Byte["byte"] = 0x10
+Min_Byte["string"] = 0x0
+Min_Byte["byte"] = 0x0
 
 MaxValues = dict(dict(Max_Int, **Max_Uint), **Max_Byte)
 MinValues = dict(dict(Min_Int, **Min_Uint), **Min_Byte)
@@ -188,8 +188,8 @@ class ElementaryType(Type):
             return int(8)
         if t == "address":
             return int(160)
-        if t.startswith("bytes"):
-            return int(t[len("bytes") :])
+        if t.startswith("bytes") and t != "bytes":
+            return int(t[len("bytes") :]) * 8
         return None
 
     @property

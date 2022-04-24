@@ -1,0 +1,469 @@
+{
+    "packedUint": {
+        "type_string": "uint248",
+        "slot": 0,
+        "size": 248,
+        "offset": 0,
+        "value": 1
+    },
+    "packedBool": {
+        "type_string": "bool",
+        "slot": 0,
+        "size": 8,
+        "offset": 248,
+        "value": true
+    },
+    "_packedStruct": {
+        "type_string": "StorageLayout.PackedStruct",
+        "slot": 1,
+        "size": 256,
+        "offset": 0,
+        "elems": {
+            "b": {
+                "type_string": "bool",
+                "slot": 1,
+                "size": 8,
+                "offset": 0,
+                "value": true
+            },
+            "a": {
+                "type_string": "uint248",
+                "slot": 1,
+                "size": 248,
+                "offset": 8,
+                "value": 1
+            }
+        },
+        "value": "0000000000000000000000000000000000000000000000000000000000000101"
+    },
+    "mappingPackedStruct": {
+        "type_string": "mapping(uint256 => StorageLayout.PackedStruct)",
+        "slot": 2,
+        "size": 256,
+        "offset": 0,
+        "value": 0
+    },
+    "deepMappingPackedStruct": {
+        "type_string": "mapping(address => mapping(uint256 => StorageLayout.PackedStruct))",
+        "slot": 3,
+        "size": 256,
+        "offset": 0,
+        "value": 0
+    },
+    "deepMappingElementaryTypes": {
+        "type_string": "mapping(address => mapping(uint256 => bool))",
+        "slot": 4,
+        "size": 256,
+        "offset": 0,
+        "value": 0
+    },
+    "mappingDynamicArrayOfStructs": {
+        "type_string": "mapping(address => StorageLayout.PackedStruct[])",
+        "slot": 5,
+        "size": 256,
+        "offset": 0,
+        "value": 0
+    },
+    "_address": {
+        "type_string": "address",
+        "slot": 6,
+        "size": 160,
+        "offset": 0,
+        "value": "0xae17D2dD99e07CA3bF2571CCAcEAA9e2Aefc2Dc6"
+    },
+    "_string": {
+        "type_string": "string",
+        "slot": 7,
+        "size": 256,
+        "offset": 0,
+        "value": "slither-read-storage"
+    },
+    "packedUint8": {
+        "type_string": "uint8",
+        "slot": 8,
+        "size": 8,
+        "offset": 0,
+        "value": 8
+    },
+    "packedBytes": {
+        "type_string": "bytes8",
+        "slot": 8,
+        "size": 64,
+        "offset": 8,
+        "value": "6161616161616161"
+    },
+    "_enumA": {
+        "type_string": "StorageLayout.Enum",
+        "slot": 8,
+        "size": 8,
+        "offset": 72,
+        "value": "00"
+    },
+    "_enumB": {
+        "type_string": "StorageLayout.Enum",
+        "slot": 8,
+        "size": 8,
+        "offset": 80,
+        "value": "01"
+    },
+    "_enumC": {
+        "type_string": "StorageLayout.Enum",
+        "slot": 8,
+        "size": 8,
+        "offset": 88,
+        "value": "02"
+    },
+    "fixedArray": {
+        "type_string": "uint256[3]",
+        "slot": 9,
+        "size": 768,
+        "offset": 0,
+        "elems": {
+            "0": {
+                "type_string": "uint256",
+                "slot": 9,
+                "size": 256,
+                "offset": 0,
+                "value": 1
+            },
+            "1": {
+                "type_string": "uint256",
+                "slot": 10,
+                "size": 256,
+                "offset": 0,
+                "value": 2
+            },
+            "2": {
+                "type_string": "uint256",
+                "slot": 11,
+                "size": 256,
+                "offset": 0,
+                "value": 3
+            }
+        },
+        "value": 1
+    },
+    "dynamicArrayOfFixedArrays": {
+        "type_string": "uint256[3][]",
+        "slot": 12,
+        "size": 256,
+        "offset": 0,
+        "elems": {
+            "0": {
+                "type_string": "uint256",
+                "slot": 101051993584849178915136821395265346177868384823507754984078593667947067386055,
+                "size": 256,
+                "offset": 0,
+                "elems": {
+                    "0": {
+                        "type_string": "uint256",
+                        "slot": 101051993584849178915136821395265346177868384823507754984078593667947067386055,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 1
+                    },
+                    "1": {
+                        "type_string": "uint256",
+                        "slot": 101051993584849178915136821395265346177868384823507754984078593667947067386056,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 2
+                    },
+                    "2": {
+                        "type_string": "uint256",
+                        "slot": 101051993584849178915136821395265346177868384823507754984078593667947067386057,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 3
+                    }
+                },
+                "value": 1
+            },
+            "1": {
+                "type_string": "uint256",
+                "slot": 101051993584849178915136821395265346177868384823507754984078593667947067386058,
+                "size": 256,
+                "offset": 0,
+                "elems": {
+                    "0": {
+                        "type_string": "uint256",
+                        "slot": 101051993584849178915136821395265346177868384823507754984078593667947067386058,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 4
+                    },
+                    "1": {
+                        "type_string": "uint256",
+                        "slot": 101051993584849178915136821395265346177868384823507754984078593667947067386059,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 5
+                    },
+                    "2": {
+                        "type_string": "uint256",
+                        "slot": 101051993584849178915136821395265346177868384823507754984078593667947067386060,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 6
+                    }
+                },
+                "value": 4
+            }
+        },
+        "value": 2
+    },
+    "fixedArrayofDynamicArrays": {
+        "type_string": "uint256[][3]",
+        "slot": 13,
+        "size": 768,
+        "offset": 0,
+        "elems": {
+            "0": {
+                "type_string": "uint256",
+                "slot": 13,
+                "size": 256,
+                "offset": 0,
+                "elems": {
+                    "0": {
+                        "type_string": "uint256",
+                        "slot": 97569884605916225051403212656556507955018248777258318895762758024193532305077,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 7
+                    }
+                },
+                "value": 1
+            },
+            "1": {
+                "type_string": "uint256",
+                "slot": 14,
+                "size": 256,
+                "offset": 0,
+                "elems": {
+                    "0": {
+                        "type_string": "uint256",
+                        "slot": 84800337471693920904250232874319843718400766719524250287777680170677855896573,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 8
+                    },
+                    "1": {
+                        "type_string": "uint256",
+                        "slot": 84800337471693920904250232874319843718400766719524250287777680170677855896574,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 9
+                    }
+                },
+                "value": 2
+            },
+            "2": {
+                "type_string": "uint256",
+                "slot": 15,
+                "size": 256,
+                "offset": 0,
+                "elems": {
+                    "0": {
+                        "type_string": "uint256",
+                        "slot": 63806209331542711802848847270949280092855778197726125910674179583545433573378,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 10
+                    },
+                    "1": {
+                        "type_string": "uint256",
+                        "slot": 63806209331542711802848847270949280092855778197726125910674179583545433573379,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 11
+                    },
+                    "2": {
+                        "type_string": "uint256",
+                        "slot": 63806209331542711802848847270949280092855778197726125910674179583545433573380,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 12
+                    }
+                },
+                "value": 3
+            }
+        },
+        "value": 1
+    },
+    "multidimensionalArray": {
+        "type_string": "uint256[][]",
+        "slot": 16,
+        "size": 256,
+        "offset": 0,
+        "elems": {
+            "0": {
+                "type_string": "uint256",
+                "slot": 12396694973890998440467380340983585058878106250672390494374587083972727727730,
+                "size": 256,
+                "offset": 0,
+                "elems": {
+                    "0": {
+                        "type_string": "uint256",
+                        "slot": 93856215500098298973000561543003607329881518401177956003908346942307446808932,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 13
+                    }
+                },
+                "value": 1
+            },
+            "1": {
+                "type_string": "uint256",
+                "slot": 12396694973890998440467380340983585058878106250672390494374587083972727727731,
+                "size": 256,
+                "offset": 0,
+                "elems": {
+                    "0": {
+                        "type_string": "uint256",
+                        "slot": 48332168562525185806884758054388614910060623018875025120987491603435926351511,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 14
+                    },
+                    "1": {
+                        "type_string": "uint256",
+                        "slot": 48332168562525185806884758054388614910060623018875025120987491603435926351512,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 15
+                    }
+                },
+                "value": 2
+            },
+            "2": {
+                "type_string": "uint256",
+                "slot": 12396694973890998440467380340983585058878106250672390494374587083972727727732,
+                "size": 256,
+                "offset": 0,
+                "elems": {
+                    "0": {
+                        "type_string": "uint256",
+                        "slot": 69037578548663760355678879060995014288537668748590083357305779656188235687653,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 16
+                    },
+                    "1": {
+                        "type_string": "uint256",
+                        "slot": 69037578548663760355678879060995014288537668748590083357305779656188235687654,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 17
+                    },
+                    "2": {
+                        "type_string": "uint256",
+                        "slot": 69037578548663760355678879060995014288537668748590083357305779656188235687655,
+                        "size": 256,
+                        "offset": 0,
+                        "value": 18
+                    }
+                },
+                "value": 3
+            }
+        },
+        "value": 3
+    },
+    "dynamicArrayOfStructs": {
+        "type_string": "StorageLayout.PackedStruct[]",
+        "slot": 17,
+        "size": 256,
+        "offset": 0,
+        "elems": {
+            "0": {
+                "b": {
+                    "type_string": "bool",
+                    "slot": 22581645139872629890233439717971975110198959689450188087151966948260709403752,
+                    "size": 8,
+                    "offset": 0,
+                    "value": true
+                },
+                "a": {
+                    "type_string": "uint248",
+                    "slot": 22581645139872629890233439717971975110198959689450188087151966948260709403752,
+                    "size": 248,
+                    "offset": 8,
+                    "value": 1
+                }
+            },
+            "1": {
+                "b": {
+                    "type_string": "bool",
+                    "slot": 22581645139872629890233439717971975110198959689450188087151966948260709403753,
+                    "size": 8,
+                    "offset": 0,
+                    "value": false
+                },
+                "a": {
+                    "type_string": "uint248",
+                    "slot": 22581645139872629890233439717971975110198959689450188087151966948260709403753,
+                    "size": 248,
+                    "offset": 8,
+                    "value": 10
+                }
+            }
+        },
+        "value": "0000000000000000000000000000000000000000000000000000000000000002"
+    },
+    "fixedArrayOfStructs": {
+        "type_string": "StorageLayout.PackedStruct[3]",
+        "slot": 18,
+        "size": 768,
+        "offset": 0,
+        "elems": {
+            "0": {
+                "b": {
+                    "type_string": "bool",
+                    "slot": 18,
+                    "size": 8,
+                    "offset": 0,
+                    "value": true
+                },
+                "a": {
+                    "type_string": "uint248",
+                    "slot": 18,
+                    "size": 248,
+                    "offset": 8,
+                    "value": 1
+                }
+            },
+            "1": {
+                "b": {
+                    "type_string": "bool",
+                    "slot": 19,
+                    "size": 8,
+                    "offset": 0,
+                    "value": false
+                },
+                "a": {
+                    "type_string": "uint248",
+                    "slot": 19,
+                    "size": 248,
+                    "offset": 8,
+                    "value": 10
+                }
+            },
+            "2": {
+                "b": {
+                    "type_string": "bool",
+                    "slot": 20,
+                    "size": 8,
+                    "offset": 0,
+                    "value": false
+                },
+                "a": {
+                    "type_string": "uint248",
+                    "slot": 20,
+                    "size": 248,
+                    "offset": 8,
+                    "value": 0
+                }
+            }
+        },
+        "value": "0000000000000000000000000000000000000000000000000000000000000101"
+    }
+}

@@ -14,10 +14,10 @@ setup(
     install_requires=[
         "prettytable>=0.7.2",
         "pysha3>=1.0.2",
-        # "crytic-compile>=0.2.2",
-        "crytic-compile",
+        "crytic-compile>=0.2.3",
+        # "crytic-compile",
     ],
-    dependency_links=["git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile"],
+    # dependency_links=["git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile"],
     license="AGPL-3.0",
     long_description=long_description,
     entry_points={
@@ -32,6 +32,7 @@ setup(
             "slither-check-kspec = slither.tools.kspec_coverage.__main__:main",
             "slither-prop = slither.tools.properties.__main__:main",
             "slither-mutate = slither.tools.mutator.__main__:main",
+            "slither-read-storage = slither.tools.read_storage.__main__:main",
         ]
     },
 )
