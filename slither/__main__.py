@@ -299,6 +299,9 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
 
     group_detector = parser.add_argument_group("Detectors")
     group_printer = parser.add_argument_group("Printers")
+    group_checklist = parser.add_argument_group(
+        "Checklist (consider using https://github.com/crytic/slither-action)"
+    )
     group_misc = parser.add_argument_group("Additional options")
 
     group_detector.add_argument(
@@ -392,6 +395,28 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         default=defaults_flag_in_config["show_ignored_findings"],
     )
 
+    group_checklist.add_argument(
+        "--checklist",
+        help="Generate a markdown page with the detector results",
+        action="store_true",
+        default=False,
+    )
+
+    group_checklist.add_argument(
+        "--checklist-limit",
+        help="Limite the number of results per detector in the markdown file",
+        action="store",
+        default="",
+    )
+
+    group_checklist.add_argument(
+        "--markdown-root",
+        type=check_and_sanitize_markdown_root,
+        help="URL for markdown generation",
+        action="store",
+        default="",
+    )
+
     group_misc.add_argument(
         "--json",
         help='Export the results as a JSON file ("--json -" to export to stdout)',
@@ -427,14 +452,6 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         help=f'Zip compression type. One of {",".join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma',
         action="store",
         default=defaults_flag_in_config["zip_type"],
-    )
-
-    group_misc.add_argument(
-        "--markdown-root",
-        type=check_and_sanitize_markdown_root,
-        help="URL for markdown generation",
-        action="store",
-        default="",
     )
 
     group_misc.add_argument(
@@ -486,12 +503,6 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
 
     parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
-
-    group_misc.add_argument(
-        "--checklist", help=argparse.SUPPRESS, action="store_true", default=False
-    )
-
-    group_misc.add_argument("--checklist-limit", help=argparse.SUPPRESS, action="store", default="")
 
     parser.add_argument(
         "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
