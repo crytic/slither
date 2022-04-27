@@ -8,7 +8,7 @@ setup(
     description="Slither is a Solidity static analysis framework written in Python 3.",
     url="https://github.com/crytic/slither",
     author="Trail of Bits",
-    version="0.8.2",
+    version="0.8.3",
     packages=find_packages(),
     python_requires=">=3.6",
     install_requires=[
