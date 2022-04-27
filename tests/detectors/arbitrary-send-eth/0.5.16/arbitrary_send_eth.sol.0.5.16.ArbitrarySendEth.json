@@ -9,9 +9,9 @@
                         "start": 162,
                         "length": 79,
                         "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                        "filename_relative": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                        "filename_short": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                         "is_dependency": false,
                         "lines": [
                             11,
@@ -29,9 +29,9 @@
                                 "start": 0,
                                 "length": 884,
                                 "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                "filename_relative": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                "filename_short": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                 "is_dependency": false,
                                 "lines": [
                                     1,
@@ -90,9 +90,9 @@
                         "start": 196,
                         "length": 38,
                         "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                        "filename_relative": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                        "filename_short": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                         "is_dependency": false,
                         "lines": [
                             12
@@ -108,9 +108,9 @@
                                 "start": 162,
                                 "length": 79,
                                 "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                "filename_relative": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                "filename_short": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                 "is_dependency": false,
                                 "lines": [
                                     11,
@@ -128,9 +128,9 @@
                                         "start": 0,
                                         "length": 884,
                                         "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                        "filename_relative": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                         "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                        "filename_short": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                         "is_dependency": false,
                                         "lines": [
                                             1,
@@ -185,11 +185,11 @@
                     }
                 }
             ],
-            "description": "Test.direct() (tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol#11-13) sends eth to arbitrary user\n\tDangerous calls:\n\t- msg.sender.send(address(this).balance) (tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol#12)\n",
-            "markdown": "[Test.direct()](tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol#L11-L13) sends eth to arbitrary user\n\tDangerous calls:\n\t- [msg.sender.send(address(this).balance)](tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol#L12)\n",
-            "first_markdown_element": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol#L11-L13",
-            "id": "8a1de239f630f10fef9ef6a9c439fc10aad2f6caba7ee43d1a7f7bacf6028f1e",
-            "check": "arbitrary-send",
+            "description": "Test.direct() (tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol#11-13) sends eth to arbitrary user\n\tDangerous calls:\n\t- msg.sender.send(address(this).balance) (tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol#12)\n",
+            "markdown": "[Test.direct()](tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol#L11-L13) sends eth to arbitrary user\n\tDangerous calls:\n\t- [msg.sender.send(address(this).balance)](tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol#L12)\n",
+            "first_markdown_element": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol#L11-L13",
+            "id": "7ded1859293ad51d129850d2f19669c7d38f4687a6e2afa8d93534d5f2a9a0ad",
+            "check": "arbitrary-send-eth",
             "impact": "High",
             "confidence": "Medium"
         },
@@ -202,9 +202,9 @@
                         "start": 316,
                         "length": 82,
                         "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                        "filename_relative": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                        "filename_short": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                         "is_dependency": false,
                         "lines": [
                             19,
@@ -222,9 +222,9 @@
                                 "start": 0,
                                 "length": 884,
                                 "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                "filename_relative": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                "filename_short": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                 "is_dependency": false,
                                 "lines": [
                                     1,
@@ -283,9 +283,9 @@
                         "start": 352,
                         "length": 39,
                         "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                        "filename_relative": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                        "filename_short": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                         "is_dependency": false,
                         "lines": [
                             20
@@ -301,9 +301,9 @@
                                 "start": 316,
                                 "length": 82,
                                 "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                "filename_relative": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                "filename_short": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                 "is_dependency": false,
                                 "lines": [
                                     19,
@@ -321,9 +321,9 @@
                                         "start": 0,
                                         "length": 884,
                                         "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                        "filename_relative": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                         "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol",
+                                        "filename_short": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol",
                                         "is_dependency": false,
                                         "lines": [
                                             1,
@@ -378,11 +378,11 @@
                     }
                 }
             ],
-            "description": "Test.indirect() (tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol#19-21) sends eth to arbitrary user\n\tDangerous calls:\n\t- destination.send(address(this).balance) (tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol#20)\n",
-            "markdown": "[Test.indirect()](tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol#L19-L21) sends eth to arbitrary user\n\tDangerous calls:\n\t- [destination.send(address(this).balance)](tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol#L20)\n",
-            "first_markdown_element": "tests/detectors/arbitrary-send/0.6.11/arbitrary_send.sol#L19-L21",
-            "id": "f272e05d9741895fc22051ed09afa6ce4af8ad4cd74b3452224dfb29eb4b9df6",
-            "check": "arbitrary-send",
+            "description": "Test.indirect() (tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol#19-21) sends eth to arbitrary user\n\tDangerous calls:\n\t- destination.send(address(this).balance) (tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol#20)\n",
+            "markdown": "[Test.indirect()](tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol#L19-L21) sends eth to arbitrary user\n\tDangerous calls:\n\t- [destination.send(address(this).balance)](tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol#L20)\n",
+            "first_markdown_element": "tests/detectors/arbitrary-send-eth/0.5.16/arbitrary_send_eth.sol#L19-L21",
+            "id": "d27379ff48eebb6c568308104d444dc8f6b5ed5eae53f6c937aec9fb15cf6464",
+            "check": "arbitrary-send-eth",
             "impact": "High",
             "confidence": "Medium"
         }
