@@ -29,8 +29,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install .
-          pip install deepdiff numpy
+          pip install ".[dev]"
+          pip install numpy
 
           mkdir -p .github/linters
           cp pyproject.toml .github/linters

@@ -65,11 +65,8 @@ jobs:
       - name: Install dependencies
         run: |
 
-          python setup.py install
-          # Used by ci_test.sh
-          pip install deepdiff
+          pip install ".[dev]"
 
-          pip install "solc-select>=v1.0.0b1"
           solc-select install all
           solc-select use 0.5.1
           pip install typing_extensions==4.1.1

@@ -40,9 +40,12 @@ Run Slither on a single file:
 slither tests/uninitialized.sol
 ```
 
-For GitHub action integration, see [slither-action](https://github.com/marketplace/actions/slither-action). For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
+### Integration
+- For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
+- To generate a Markdown report, use `slither [target] --checklist`.
+- To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
 
-Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc.
+Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc. For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
 ### Detectors
 
