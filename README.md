@@ -42,8 +42,8 @@ slither tests/uninitialized.sol
 
 ### Integration
 - For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
-- To generate a markdown report, use `slither [target] --checklist`.
-- To generate a markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
+- To generate a Markdown report, use `slither [target] --checklist`.
+- To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
 
 Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc. For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
