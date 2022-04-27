@@ -1,0 +1,768 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad3",
+                    "source_mapping": {
+                        "start": 1563,
+                        "length": 238,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            47,
+                            48,
+                            49,
+                            50
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 630,
+                                "length": 1433,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad3(address,uint256,uint256,uint8,bytes32,bytes32,address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "erc20.safeTransferFrom(from,to,value)",
+                    "source_mapping": {
+                        "start": 1755,
+                        "length": 39,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            49
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 48
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad3",
+                            "source_mapping": {
+                                "start": 1563,
+                                "length": 238,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    47,
+                                    48,
+                                    49,
+                                    50
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 630,
+                                        "length": 1433,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad3(address,uint256,uint256,uint8,bytes32,bytes32,address)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.bad3(address,uint256,uint256,uint8,bytes32,bytes32,address) (tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#47-50) uses arbitrary from in transferFrom in combination with permit: erc20.safeTransferFrom(from,to,value) (tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#49)\n",
+            "markdown": "[C.bad3(address,uint256,uint256,uint8,bytes32,bytes32,address)](tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L47-L50) uses arbitrary from in transferFrom in combination with permit: [erc20.safeTransferFrom(from,to,value)](tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L49)\n",
+            "first_markdown_element": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L47-L50",
+            "id": "63dc39bd9025d9fa7d39e07342e5652c010ff424e6d31ed9d1559f225c417956",
+            "check": "arbitrary-send-erc20-permit",
+            "impact": "High",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad4",
+                    "source_mapping": {
+                        "start": 1811,
+                        "length": 249,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            52,
+                            53,
+                            54,
+                            55
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 630,
+                                "length": 1433,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad4(address,uint256,uint256,uint8,bytes32,bytes32,address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "SafeERC20.safeTransferFrom(erc20,from,to,value)",
+                    "source_mapping": {
+                        "start": 2003,
+                        "length": 50,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            54
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 59
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad4",
+                            "source_mapping": {
+                                "start": 1811,
+                                "length": 249,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    52,
+                                    53,
+                                    54,
+                                    55
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 630,
+                                        "length": 1433,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad4(address,uint256,uint256,uint8,bytes32,bytes32,address)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.bad4(address,uint256,uint256,uint8,bytes32,bytes32,address) (tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#52-55) uses arbitrary from in transferFrom in combination with permit: SafeERC20.safeTransferFrom(erc20,from,to,value) (tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#54)\n",
+            "markdown": "[C.bad4(address,uint256,uint256,uint8,bytes32,bytes32,address)](tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L52-L55) uses arbitrary from in transferFrom in combination with permit: [SafeERC20.safeTransferFrom(erc20,from,to,value)](tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L54)\n",
+            "first_markdown_element": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L52-L55",
+            "id": "7ebee7b534acb9d9502df84ba56fd0e90223cd262964c77cb9bee798eabd674b",
+            "check": "arbitrary-send-erc20-permit",
+            "impact": "High",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad1",
+                    "source_mapping": {
+                        "start": 860,
+                        "length": 232,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            32,
+                            33,
+                            34,
+                            35
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 630,
+                                "length": 1433,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad1(address,uint256,uint256,uint8,bytes32,bytes32,address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "erc20.transferFrom(from,to,value)",
+                    "source_mapping": {
+                        "start": 1050,
+                        "length": 35,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            34
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 44
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad1",
+                            "source_mapping": {
+                                "start": 860,
+                                "length": 232,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    32,
+                                    33,
+                                    34,
+                                    35
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 630,
+                                        "length": 1433,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad1(address,uint256,uint256,uint8,bytes32,bytes32,address)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.bad1(address,uint256,uint256,uint8,bytes32,bytes32,address) (tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#32-35) uses arbitrary from in transferFrom in combination with permit: erc20.transferFrom(from,to,value) (tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#34)\n",
+            "markdown": "[C.bad1(address,uint256,uint256,uint8,bytes32,bytes32,address)](tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L32-L35) uses arbitrary from in transferFrom in combination with permit: [erc20.transferFrom(from,to,value)](tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L34)\n",
+            "first_markdown_element": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L32-L35",
+            "id": "ba2c627103717a52a46b52714313000eb4f9d96f57dfac874854a3747ace5a13",
+            "check": "arbitrary-send-erc20-permit",
+            "impact": "High",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "int_transferFrom",
+                    "source_mapping": {
+                        "start": 1311,
+                        "length": 246,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            42,
+                            43,
+                            44,
+                            45
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 630,
+                                "length": 1433,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "int_transferFrom(address,uint256,uint256,uint8,bytes32,bytes32,address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "erc20.transferFrom(from,to,value)",
+                    "source_mapping": {
+                        "start": 1515,
+                        "length": 35,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            44
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 44
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "int_transferFrom",
+                            "source_mapping": {
+                                "start": 1311,
+                                "length": 246,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    42,
+                                    43,
+                                    44,
+                                    45
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 630,
+                                        "length": 1433,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "int_transferFrom(address,uint256,uint256,uint8,bytes32,bytes32,address)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.int_transferFrom(address,uint256,uint256,uint8,bytes32,bytes32,address) (tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#42-45) uses arbitrary from in transferFrom in combination with permit: erc20.transferFrom(from,to,value) (tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#44)\n",
+            "markdown": "[C.int_transferFrom(address,uint256,uint256,uint8,bytes32,bytes32,address)](tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L42-L45) uses arbitrary from in transferFrom in combination with permit: [erc20.transferFrom(from,to,value)](tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L44)\n",
+            "first_markdown_element": "tests/detectors/arbitrary-send-erc20-permit/0.7.6/arbitrary_send_erc20_permit.sol#L42-L45",
+            "id": "d56199ce2b7249389dffba8e53278f5ae32fbdda8a51cae8b5eb1cf2c09a0578",
+            "check": "arbitrary-send-erc20-permit",
+            "impact": "High",
+            "confidence": "Medium"
+        }
+    ]
+]
