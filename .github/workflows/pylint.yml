@@ -29,9 +29,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ".[dev]"
-          pip install numpy
-
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
 

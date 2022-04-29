@@ -64,9 +64,7 @@ jobs:
           python-version: 3.6
       - name: Install dependencies
         run: |
-
           pip install ".[dev]"
-
           solc-select install all
           solc-select use 0.5.1
           pip install typing_extensions==4.1.1
