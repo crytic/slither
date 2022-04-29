@@ -2,8 +2,18 @@
 Module detecting numbers with too many digits.
 """
 
+import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.variables import Constant
+
+_HEX_ADDRESS_REGEXP = re.compile("(0x)?[0-9a-f]{40}", re.IGNORECASE | re.ASCII)
+
+
+def is_hex_address(value) -> bool:
+    """
+    Checks if the given string of text type is an address in hexadecimal encoded form.
+    """
+    return _HEX_ADDRESS_REGEXP.fullmatch(value) is not None
 
 
 class TooManyDigits(AbstractDetector):
@@ -58,7 +68,7 @@ Use:
                     if isinstance(read, Constant):
                         # read.value can return an int or a str. Convert it to str
                         value_as_str = read.original_value
-                        if "00000" in value_as_str:
+                        if "00000" in value_as_str and not is_hex_address(value_as_str):
                             # Info to be printed
                             ret.append(node)
         return ret
