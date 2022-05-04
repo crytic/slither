@@ -798,7 +798,7 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     if magic_suffix:
         return magic_suffix
 
-    ret, _ = _find_top_level(name, root._contract.file_scope)
+    ret, _ = _find_top_level(name, root.contract.file_scope)
     if ret:
         return Identifier(ret)
 
