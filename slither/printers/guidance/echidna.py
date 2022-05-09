@@ -376,6 +376,9 @@ class Echidna(AbstractPrinter):
         msg_gas = _extract_solidity_variable_usage(
             self.slither, SolidityVariableComposed("msg.gas")
         )
+        msg_data = _extract_solidity_variable_usage(
+            self.slither, SolidityVariableComposed("msg.data")
+        )
         assert_usage = _extract_assert(self.slither)
         cst_functions = _extract_constant_functions(self.slither)
         (cst_used, cst_used_in_binary) = _extract_constants(self.slither)
@@ -404,6 +407,7 @@ class Echidna(AbstractPrinter):
             "block_number": block_number,
             "msg_sender": msg_sender,
             "msg_gas": msg_gas,
+            "msg_data": msg_data,
             "assert": assert_usage,
             "constant_functions": cst_functions,
             "constants_used": cst_used,
