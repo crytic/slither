@@ -781,6 +781,61 @@ def test_multiple_named_args_returns():
             )
         )
 
+def test_memory_array():
+    src = """
+    contract MemArray {
+        struct A {
+            uint val1;
+            uint val2;
+        }
+        
+        function test_array() internal {
+            A[] memory a = new A[](4);
+            accept_array_entry(a[2]);
+            
+            accept_array_entry(a[3]);
+        }
+        
+        function accept_array_entry(A memory val) internal returns (uint) {
+            return B(val.val1);
+        }
+        
+        function B(uint value) internal returns (uint){
+            return value + 1;
+        }
+    }"""
+    with slither_from_source(src) as slither:
+        _dump_functions(slither.contracts[0])
+    assert False
+
+def test_storage_array():
+    src = """
+    contract StorageArray {
+        struct A {
+            uint val1;
+            uint val2;
+        }
+        
+        A[] a;
+
+        function test_array() internal {
+            
+            accept_array_entry(a[2]);
+
+            accept_array_entry(a[3]);
+        }
+
+        function accept_array_entry(A storage val) internal returns (uint) {
+            return B(val.val1);
+        }
+
+        function B(uint value) internal returns (uint){
+            return value + 1;
+        }
+    }"""
+    with slither_from_source(src) as slither:
+        _dump_functions(slither.contracts[0])
+    assert False
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
 def test_issue_468():
