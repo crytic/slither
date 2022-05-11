@@ -7,7 +7,7 @@ from slither.exceptions import SlitherError
 def convert_string_to_int(val: Union[str, int]) -> int:
     if isinstance(val, int):
         return val
-    if val.startswith("0x") or val.startswith("0X"):
+    if val.startswith(("0x", "0X")):
         return int(val, 16)
 
     if "e" in val or "E" in val:
