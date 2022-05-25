@@ -20,3 +20,7 @@ duplicate-code,
 import-error,
 unsubscriptable-object
 """
+[tool.pytest.ini_options]
+markers = [
+    "skip_unsupported_platforms",
+]

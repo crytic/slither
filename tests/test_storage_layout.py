@@ -1,8 +1,7 @@
-import json
 import os
+import json
+import shutil
 import subprocess
-from subprocess import PIPE, Popen
-
 from slither import Slither
 
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,14 +10,20 @@ STORAGE_TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "storage-layout")
 # the storage layout has not yet changed between solidity versions so we will test with one version of the compiler
 
 
-def test_storage_layout():
-    subprocess.run(["solc-select", "use", "0.8.10"], stdout=subprocess.PIPE, check=True)
+def test_storage_layout(select_solc_version):
+    select_solc_version("0.8.10")
 
     test_item = os.path.join(STORAGE_TEST_ROOT, "storage_layout-0.8.10.sol")
 
     sl = Slither(test_item, solc_force_legacy_json=False, disallow_partial=True)
-
-    with Popen(["solc", test_item, "--storage-layout"], stdout=PIPE) as process:
+    base_command = ["solc"]
+    cmd = base_command + [test_item] + ["--storage-layout"]
+    with subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        executable=shutil.which(cmd[0]),
+    ) as process:
         for line in process.stdout:  # parse solc output
             if '{"storage":[{' in line.decode("utf-8"):  # find the storage layout
                 layout = iter(json.loads(line)["storage"])

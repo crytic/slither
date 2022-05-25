@@ -1,15 +1,8 @@
-import os
-import pathlib
-from argparse import ArgumentTypeError
 from collections import defaultdict
-from contextlib import contextmanager
-from inspect import getsourcefile
-from tempfile import NamedTemporaryFile
-from typing import Union, List, Optional
+from typing import Union, List
 
 import pytest
-from solc_select import solc_select
-from solc_select.solc_select import valid_version as solc_valid_version
+from .utils import skip_unsupported_platforms
 
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
@@ -28,24 +21,6 @@ from slither.slithir.operations import (
 )
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable, StateIRVariable
-
-
-# Directory of currently executing script. Will be used as basis for temporary file names.
-SCRIPT_DIR = pathlib.Path(getsourcefile(lambda: 0)).parent
-
-
-def valid_version(ver: str) -> bool:
-    """Wrapper function to check if the solc-version is valid
-
-    The solc_select function raises and exception but for checks below,
-    only a bool is needed.
-    """
-    try:
-        solc_valid_version(ver)
-        return True
-    except ArgumentTypeError:
-        return False
-
 
 def have_ssa_if_ir(function: Function):
     """Verifies that all nodes in a function that have IR also have SSA IR"""
@@ -203,54 +178,7 @@ def phi_values_inserted(f: Function):
                     if is_used_later(node, ssa.lvalue):
                         assert have_phi_for_var(df, ssa.lvalue)
 
-
-@contextmanager
-def select_solc_version(version: Optional[str]):
-    """Selects solc version to use for running tests.
-
-    If no version is provided, latest is used."""
-    # If no solc_version selected just use the latest avail
-    if not version:
-        # This sorts the versions numerically
-        vers = sorted(
-            map(
-                lambda x: (int(x[0]), int(x[1]), int(x[2])),
-                map(lambda x: x.split(".", 3), solc_select.installed_versions()),
-            )
-        )
-        ver = list(vers)[-1]
-        version = ".".join(map(str, ver))
-    env = dict(os.environ)
-    env_restore = dict(env)
-    env["SOLC_VERSION"] = version
-    os.environ.clear()
-    os.environ.update(env)
-
-    yield version
-
-    os.environ.clear()
-    os.environ.update(env_restore)
-
-
-@contextmanager
-def slither_from_source(source_code: str, solc_version: Optional[str] = None):
-    """Yields a Slither instance using source_code string and solc_version
-
-    Creates a temporary file and changes the solc-version temporary to solc_version.
-    """
-
-    fname = ""
-    try:
-        with NamedTemporaryFile(dir=SCRIPT_DIR, mode="w", suffix=".sol", delete=False) as f:
-            fname = f.name
-            f.write(source_code)
-        with select_solc_version(solc_version):
-            yield Slither(fname)
-    finally:
-        pathlib.Path(fname).unlink()
-
-
-def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
+def verify_properties_hold(slither: Slither):
     """Ensures that basic properties of SSA hold true"""
 
     def verify_func(func: Function):
@@ -271,11 +199,8 @@ def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
                         _dump_function(f)
                         verify_func(f)
 
-    if isinstance(source_code_or_slither, Slither):
-        verify(source_code_or_slither)
-    else:
-        with slither_from_source(source_code_or_slither) as slither:
-            verify(slither)
+    assert isinstance(slither, Slither)
+    verify(slither)
 
 
 def _dump_function(f: Function):
@@ -308,7 +233,7 @@ def get_ssa_of_type(f: Union[Function, Node], ssatype) -> List[Operation]:
     return get_filtered_ssa(f, lambda ssanode: isinstance(ssanode, ssatype))
 
 
-def test_multi_write():
+def test_multi_write(slither_from_source):
     contract = """
     pragma solidity ^0.8.11;
     contract Test {
@@ -318,10 +243,11 @@ def test_multi_write():
         val = 3;
     }
     }"""
-    verify_properties_hold(contract)
+    with slither_from_source(contract) as sl:
+        verify_properties_hold(sl)
 
 
-def test_single_branch_phi():
+def test_single_branch_phi(slither_from_source):
     contract = """
         pragma solidity ^0.8.11;
         contract Test {
@@ -333,10 +259,11 @@ def test_single_branch_phi():
         }
         }
         """
-    verify_properties_hold(contract)
+    with slither_from_source(contract) as sl:
+        verify_properties_hold(sl)
 
 
-def test_basic_phi():
+def test_basic_phi(slither_from_source):
     contract = """
     pragma solidity ^0.8.11;
     contract Test {
@@ -350,10 +277,11 @@ def test_basic_phi():
     }
     }
     """
-    verify_properties_hold(contract)
+    with slither_from_source(contract) as sl:
+        verify_properties_hold(sl)
 
 
-def test_basic_loop_phi():
+def test_basic_loop_phi(slither_from_source):
     contract = """
     pragma solidity ^0.8.11;
     contract Test {
@@ -365,11 +293,12 @@ def test_basic_loop_phi():
     }
     }
     """
-    verify_properties_hold(contract)
+    with slither_from_source(contract) as sl:
+        verify_properties_hold(sl)
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_phi_propagation_loop():
+def test_phi_propagation_loop(slither_from_source):
     contract = """
      pragma solidity ^0.8.11;
      contract Test {
@@ -386,11 +315,12 @@ def test_phi_propagation_loop():
     }
     }
     """
-    verify_properties_hold(contract)
+    with slither_from_source(contract) as sl:
+        verify_properties_hold(sl)
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_free_function_properties():
+def test_free_function_properties(slither_from_source):
     contract = """
         pragma solidity ^0.8.11;
 
@@ -408,10 +338,11 @@ def test_free_function_properties():
 
        contract Test {}
        """
-    verify_properties_hold(contract)
+    with slither_from_source(contract) as sl:
+        verify_properties_hold(contract)
 
 
-def test_ssa_inter_transactional():
+def test_ssa_inter_transactional(slither_from_source):
     source = """
     pragma solidity ^0.8.11;
     contract A {
@@ -580,9 +511,7 @@ def test_storage_refers_to():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-@pytest.mark.skipif(
-    not valid_version("0.4.0"), reason="Solidity version 0.4.0 not available on this platform"
-)
+@pytest.mark.skip_unsupported_platforms("0.4.0")
 def test_initial_version_exists_for_locals():
     """
     In solidity you can write statements such as
@@ -617,10 +546,8 @@ def test_initial_version_exists_for_locals():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-@pytest.mark.skipif(
-    not valid_version("0.4.0"), reason="Solidity version 0.4.0 not available on this platform"
-)
-def test_initial_version_exists_for_state_variables():
+@pytest.mark.skip_unsupported_platforms("0.4.0")
+def test_initial_version_exists_for_state_variables(slither_from_source):
     """
     In solidity you can write statements such as
     uint a = a + 1, this test ensures that can be handled for state variables.
@@ -657,7 +584,7 @@ def test_initial_version_exists_for_state_variables():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_initial_version_exists_for_state_variables_function_assign():
+def test_initial_version_exists_for_state_variables_function_assign(slither_from_source):
     """
     In solidity you can write statements such as
     uint a = a + 1, this test ensures that can be handled for local variables.
@@ -696,10 +623,8 @@ def test_initial_version_exists_for_state_variables_function_assign():
         assert assign.lvalue in phi.rvalues
 
 
-@pytest.mark.skipif(
-    not valid_version("0.4.0"), reason="Solidity version 0.4.0 not available on this platform"
-)
-def test_return_local_before_assign():
+@pytest.mark.skip_unsupported_platforms("0.4.0")
+def test_return_local_before_assign(slither_from_source):
     src = """
     // this require solidity < 0.5
     // a variable can be returned before declared. Ensure it can be
@@ -726,10 +651,8 @@ def test_return_local_before_assign():
         assert assign.lvalue.non_ssa_version == ret.values[0].non_ssa_version
 
 
-@pytest.mark.skipif(
-    not valid_version("0.5.0"), reason="Solidity version 0.5.0 not available on this platform"
-)
-def test_shadow_local():
+@pytest.mark.skip_unsupported_platforms("0.5.0")
+def test_shadow_local(slither_from_source):
     src = """
     contract A {
      // this require solidity 0.5
@@ -754,7 +677,7 @@ def test_shadow_local():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_multiple_named_args_returns():
+def test_multiple_named_args_returns(slither_from_source):
     """Verifies that named arguments and return values have correct versions
 
     Each arg/ret have an initial version, version 0, and is written once and should
@@ -783,7 +706,7 @@ def test_multiple_named_args_returns():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_issue_468():
+def test_issue_468(slither_from_source):
     """
     Ensure issue 468 is corrected as per
     https://github.com/crytic/slither/issues/468#issuecomment-620974151
@@ -837,7 +760,7 @@ def test_issue_468():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_issue_434():
+def test_issue_434(slither_from_source):
     source = """
      contract Contract {
         int public a;
@@ -891,7 +814,7 @@ def test_issue_434():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_issue_473():
+def test_issue_473(slither_from_source):
     source = """
     contract Contract {
     function f() public returns (int) {
