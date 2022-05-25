@@ -10,7 +10,7 @@ setup(
     author="Trail of Bits",
     version="0.8.3",
     packages=find_packages(),
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     install_requires=[
         "prettytable>=0.7.2",
         "pysha3>=1.0.2",
@@ -21,11 +21,10 @@ setup(
         "dev": [
             "black==22.3.0",
             "pylint==2.13.4",
-            "pytest==7.0.1",
+            "pytest",
             "pytest-cov",
             "deepdiff",
-            "typing_extensions==4.1.1",
-            "importlib_metadata==4.8.3",
+            "numpy",
             "solc-select>=v1.0.0b1",
         ]
     },
