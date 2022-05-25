@@ -84,5 +84,6 @@ jobs:
         env:
           TEST_TYPE: ${{ matrix.type }}
           GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
+          PYTHONUTF8: 1
         run: |
           bash "scripts/ci_test_${TEST_TYPE}.sh"
