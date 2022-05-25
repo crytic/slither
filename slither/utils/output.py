@@ -12,6 +12,7 @@ from slither.core.cfg.node import Node
 from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
+from slither.core.variables.local_variable import LocalVariable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 from slither.utils.myprettytable import MyPrettyTable
@@ -421,6 +422,8 @@ class Output:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(variable)}
+        if isinstance(variable, LocalVariable):
+            type_specific_fields["location"] = variable.location
         element = _create_base_element(
             "variable",
             variable.name,
