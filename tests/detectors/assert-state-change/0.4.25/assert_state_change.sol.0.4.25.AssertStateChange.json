@@ -4,19 +4,19 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad0",
+                    "name": "bad2",
                     "source_mapping": {
-                        "start": 77,
-                        "length": 57,
+                        "start": 398,
+                        "length": 55,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                         "is_dependency": false,
                         "lines": [
-                            6,
-                            7,
-                            8
+                            19,
+                            20,
+                            21
                         ],
                         "starting_column": 3,
                         "ending_column": 4
@@ -78,42 +78,42 @@
                                 "ending_column": 2
                             }
                         },
-                        "signature": "bad0()"
+                        "signature": "bad2()"
                     }
                 },
                 {
                     "type": "node",
-                    "name": "assert(bool)((s_a += 1) > 10)",
+                    "name": "assert(bool)(bad2_callee())",
                     "source_mapping": {
-                        "start": 106,
-                        "length": 23,
+                        "start": 427,
+                        "length": 21,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                         "is_dependency": false,
                         "lines": [
-                            7
+                            20
                         ],
                         "starting_column": 5,
-                        "ending_column": 28
+                        "ending_column": 26
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad0",
+                            "name": "bad2",
                             "source_mapping": {
-                                "start": 77,
-                                "length": 57,
+                                "start": 398,
+                                "length": 55,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    6,
-                                    7,
-                                    8
+                                    19,
+                                    20,
+                                    21
                                 ],
                                 "starting_column": 3,
                                 "ending_column": 4
@@ -175,16 +175,16 @@
                                         "ending_column": 2
                                     }
                                 },
-                                "signature": "bad0()"
+                                "signature": "bad2()"
                             }
                         }
                     }
                 }
             ],
-            "description": "A.bad0() (tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#6-8) has an assert() call which possibly changes state.\n\t-assert(bool)((s_a += 1) > 10) (tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#7)\nConsider using require() or change the invariant to not modify the state.\n",
-            "markdown": "[A.bad0()](tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L6-L8) has an assert() call which possibly changes state.\n\t-[assert(bool)((s_a += 1) > 10)](tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L7)\nConsider using require() or change the invariant to not modify the state.\n",
-            "first_markdown_element": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L6-L8",
-            "id": "a01104ede08ddc5107a2d63d851930d477642029aeef70d6cb44eb2a640b282a",
+            "description": "A.bad2() (tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#19-21) has an assert() call which possibly changes state.\n\t-assert(bool)(bad2_callee()) (tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#20)\nConsider using require() or change the invariant to not modify the state.\n",
+            "markdown": "[A.bad2()](tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L19-L21) has an assert() call which possibly changes state.\n\t-[assert(bool)(bad2_callee())](tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L20)\nConsider using require() or change the invariant to not modify the state.\n",
+            "first_markdown_element": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L19-L21",
+            "id": "47c8c39b084f8d339822d44f892cb049c1a3834f52fd48d2dcef80bac56996a3",
             "check": "assert-state-change",
             "impact": "Informational",
             "confidence": "High"
@@ -382,19 +382,19 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad2",
+                    "name": "bad0",
                     "source_mapping": {
-                        "start": 398,
-                        "length": 55,
+                        "start": 77,
+                        "length": 57,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                         "is_dependency": false,
                         "lines": [
-                            19,
-                            20,
-                            21
+                            6,
+                            7,
+                            8
                         ],
                         "starting_column": 3,
                         "ending_column": 4
@@ -456,42 +456,42 @@
                                 "ending_column": 2
                             }
                         },
-                        "signature": "bad2()"
+                        "signature": "bad0()"
                     }
                 },
                 {
                     "type": "node",
-                    "name": "assert(bool)(bad2_callee())",
+                    "name": "assert(bool)((s_a += 1) > 10)",
                     "source_mapping": {
-                        "start": 427,
-                        "length": 21,
+                        "start": 106,
+                        "length": 23,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                         "is_dependency": false,
                         "lines": [
-                            20
+                            7
                         ],
                         "starting_column": 5,
-                        "ending_column": 26
+                        "ending_column": 28
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad2",
+                            "name": "bad0",
                             "source_mapping": {
-                                "start": 398,
-                                "length": 55,
+                                "start": 77,
+                                "length": 57,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    19,
-                                    20,
-                                    21
+                                    6,
+                                    7,
+                                    8
                                 ],
                                 "starting_column": 3,
                                 "ending_column": 4
@@ -553,16 +553,16 @@
                                         "ending_column": 2
                                     }
                                 },
-                                "signature": "bad2()"
+                                "signature": "bad0()"
                             }
                         }
                     }
                 }
             ],
-            "description": "A.bad2() (tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#19-21) has an assert() call which possibly changes state.\n\t-assert(bool)(bad2_callee()) (tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#20)\nConsider using require() or change the invariant to not modify the state.\n",
-            "markdown": "[A.bad2()](tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L19-L21) has an assert() call which possibly changes state.\n\t-[assert(bool)(bad2_callee())](tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L20)\nConsider using require() or change the invariant to not modify the state.\n",
-            "first_markdown_element": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L19-L21",
-            "id": "47c8c39b084f8d339822d44f892cb049c1a3834f52fd48d2dcef80bac56996a3",
+            "description": "A.bad0() (tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#6-8) has an assert() call which possibly changes state.\n\t-assert(bool)((s_a += 1) > 10) (tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#7)\nConsider using require() or change the invariant to not modify the state.\n",
+            "markdown": "[A.bad0()](tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L6-L8) has an assert() call which possibly changes state.\n\t-[assert(bool)((s_a += 1) > 10)](tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L7)\nConsider using require() or change the invariant to not modify the state.\n",
+            "first_markdown_element": "tests/detectors/assert-state-change/0.4.25/assert_state_change.sol#L6-L8",
+            "id": "a01104ede08ddc5107a2d63d851930d477642029aeef70d6cb44eb2a640b282a",
             "check": "assert-state-change",
             "impact": "Informational",
             "confidence": "High"

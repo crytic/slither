@@ -18,10 +18,10 @@ def output_wiki(detector_classes, filter_wiki):
         exploit_scenario = detector.WIKI_EXPLOIT_SCENARIO
         recommendation = detector.WIKI_RECOMMENDATION
 
-        print("\n## {}".format(title))
+        print(f"\n## {title}")
         print("### Configuration")
-        print("* Check: `{}`".format(argument))
-        print("* Severity: `{}`".format(impact))
+        print(f"* Check: `{argument}`")
+        print(f"* Severity: `{impact}`")
         print("\n### Description")
         print(description)
         if exploit_scenario:
@@ -64,7 +64,7 @@ def output_to_markdown(detector_classes, _filter_wiki):
     def extract_help(cls):
         if cls.WIKI == "":
             return cls.HELP
-        return "[{}]({})".format(cls.HELP, cls.WIKI)
+        return f"[{cls.HELP}]({cls.WIKI})"
 
     detectors_list = []
     for detector in detector_classes:
@@ -80,14 +80,7 @@ def output_to_markdown(detector_classes, _filter_wiki):
     idx = 1
     for (argument, help_info, impact, proxy, v2) in detectors_list:
         print(
-            "{} | `{}` | {} | {} | {} | {}".format(
-                idx,
-                argument,
-                help_info,
-                classification_txt[impact],
-                "X" if proxy else "",
-                "X" if v2 else "",
-            )
+            f"{idx} | `{argument}` | {help_info} | {classification_txt[impact]} | {'X' if proxy else ''} | {'X' if v2 else ''}"
         )
         idx = idx + 1
 

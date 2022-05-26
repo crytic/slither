@@ -27,3 +27,7 @@ contract Test4 is Test2{
 
     }
 }
+
+abstract contract Test5 {
+    function unused_but_abstract() internal virtual;
+}

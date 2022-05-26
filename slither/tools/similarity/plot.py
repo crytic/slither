@@ -80,6 +80,6 @@ def plot(args):  # pylint: disable=too-many-locals
         plt.savefig("plot.png", bbox_inches="tight")
 
     except Exception:  # pylint: disable=broad-except
-        logger.error("Error in %s" % args.filename)
+        logger.error(f"Error in {args.filename}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

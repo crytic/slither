@@ -22,7 +22,7 @@ class Member(OperationWithLValue):
         #         f.h(1);
         #     }
         # }
-        # Can be an ElementaryType because of bytes.concat
+        # Can be an ElementaryType because of bytes.concat, string.concat
         assert is_valid_rvalue(variable_left) or isinstance(
             variable_left,
             (Contract, Enum, Function, CustomError, SolidityImportPlaceHolder, ElementaryType),
@@ -66,6 +66,4 @@ class Member(OperationWithLValue):
         self._gas = gas
 
     def __str__(self):
-        return "{}({}) -> {}.{}".format(
-            self.lvalue, self.lvalue.type, self.variable_left, self.variable_right
-        )
+        return f"{self.lvalue}({self.lvalue.type}) -> {self.variable_left}.{self.variable_right}"

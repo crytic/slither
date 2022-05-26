@@ -1,0 +1,8 @@
+{
+  "T": {
+    "g()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: EXPRESSION 1\n\"];\n}\n"
+  },
+  "T2": {
+    "h(uint256[10])": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n"
+  }
+}

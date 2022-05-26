@@ -40,8 +40,11 @@ class BinaryOperationType(Enum):
     GREATER_SIGNED = 22
     RIGHT_SHIFT_ARITHMETIC = 23
 
+    # pylint: disable=too-many-branches
     @staticmethod
-    def get_type(operation_type: "BinaryOperation"):  # pylint: disable=too-many-branches
+    def get_type(
+        operation_type: "BinaryOperation",
+    ) -> "BinaryOperationType":
         if operation_type == "**":
             return BinaryOperationType.POWER
         if operation_type == "*":
@@ -91,9 +94,9 @@ class BinaryOperationType(Enum):
         if operation_type == ">>'":
             return BinaryOperationType.RIGHT_SHIFT_ARITHMETIC
 
-        raise SlitherCoreError("get_type: Unknown operation type {})".format(operation_type))
+        raise SlitherCoreError(f"get_type: Unknown operation type {operation_type})")
 
-    def __str__(self):  # pylint: disable=too-many-branches
+    def __str__(self) -> str:  # pylint: disable=too-many-branches
         if self == BinaryOperationType.POWER:
             return "**"
         if self == BinaryOperationType.MULTIPLICATION:
@@ -142,11 +145,16 @@ class BinaryOperationType(Enum):
             return ">'"
         if self == BinaryOperationType.RIGHT_SHIFT_ARITHMETIC:
             return ">>'"
-        raise SlitherCoreError("str: Unknown operation type {})".format(self))
+        raise SlitherCoreError(f"str: Unknown operation type {self})")
 
 
 class BinaryOperation(ExpressionTyped):
-    def __init__(self, left_expression, right_expression, expression_type):
+    def __init__(
+        self,
+        left_expression: Expression,
+        right_expression: Expression,
+        expression_type: BinaryOperationType,
+    ) -> None:
         assert isinstance(left_expression, Expression)
         assert isinstance(right_expression, Expression)
         super().__init__()
@@ -169,5 +177,5 @@ class BinaryOperation(ExpressionTyped):
     def type(self) -> BinaryOperationType:
         return self._type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.expression_left) + " " + str(self.type) + " " + str(self.expression_right)

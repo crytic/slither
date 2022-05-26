@@ -20,6 +20,8 @@ from slither.utils.erc import (
     ERC1820_signatures,
     ERC777_signatures,
     ERC1155_signatures,
+    ERC2612_signatures,
+    ERC4626_signatures,
 )
 from slither.utils.tests_pattern import is_test_contract
 
@@ -73,7 +75,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._custom_errors: Dict[str, "CustomErrorContract"] = {}
 
         # The only str is "*"
-        self._using_for: Dict[Union[str, Type], List[str]] = {}
+        self._using_for: Dict[Union[str, Type], List[Type]] = {}
         self._kind: Optional[str] = None
         self._is_interface: bool = False
 
@@ -243,7 +245,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def using_for(self) -> Dict[Union[str, Type], List[str]]:
+    def using_for(self) -> Dict[Union[str, Type], List[Type]]:
         return self._using_for
 
     # endregion
@@ -900,6 +902,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             ("ERC223", self.is_erc223),
             ("ERC721", self.is_erc721),
             ("ERC777", self.is_erc777),
+            ("ERC2612", self.is_erc2612),
+            ("ERC4626", self.is_erc4626),
         ]
 
         return [erc for erc, is_erc in all_erc if is_erc()]
@@ -973,6 +977,26 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         full_names = self.functions_signatures
         return all(s in full_names for s in ERC1155_signatures)
+
+    def is_erc4626(self) -> bool:
+        """
+            Check if the contract is an erc4626
+
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc4626
+        """
+        full_names = self.functions_signatures
+        return all(s in full_names for s in ERC4626_signatures)
+
+    def is_erc2612(self) -> bool:
+        """
+            Check if the contract is an erc2612
+
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc2612
+        """
+        full_names = self.functions_signatures
+        return all(s in full_names for s in ERC2612_signatures)
 
     @property
     def is_token(self) -> bool:

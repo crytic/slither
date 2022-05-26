@@ -320,6 +320,82 @@ ERC1155 = ERC1155 + ERC1155_TOKEN_RECEIVER + ERC1155_METADATA
 
 ERC1155_signatures = erc_to_signatures(ERC1155)
 
+# Review
+# https://eips.ethereum.org/EIPS/eip-2612
+# Must have ERC20
+
+ERC2612_EVENTS = []
+ERC2612 = [
+    ERC(
+        "permit",
+        ["address", "address", "uint256", "uint256", "uint8", "bytes32", "bytes32"],
+        "",
+        False,
+        True,
+        [],
+    ),
+    ERC("nonces", ["address"], "uint256", True, True, []),
+    ERC("DOMAIN_SEPARATOR", [], "bytes32", True, True, []),
+] + ERC20
+
+ERC2612_signatures = erc_to_signatures(ERC2612)
+
+# Final
+# https://eips.ethereum.org/EIPS/eip-4626
+# Must have ERC20
+
+ERC4626_deposit_event = ERC_EVENT(
+    "Deposit",
+    ["address", "address", "uint256", "uint256"],
+    [True, True, False, False],
+)
+
+ERC4626_withdraw_event = ERC_EVENT(
+    "Withdraw",
+    ["address", "address", "address", "uint256", "uint256"],
+    [True, True, True, False, False],
+)
+
+ERC4626_EVENTS = [
+    ERC4626_deposit_event,
+    ERC4626_withdraw_event,
+]
+
+ERC4626 = [
+    ERC("asset", [], "address", True, True, []),
+    ERC("totalAssets", [], "uint256", True, True, []),
+    ERC("convertToShares", ["uint256"], "uint256", True, True, []),
+    ERC("convertToAssets", ["uint256"], "uint256", True, True, []),
+    ERC("maxDeposit", ["address"], "uint256", True, True, []),
+    ERC("previewDeposit", ["uint256"], "uint256", True, True, []),
+    ERC("deposit", ["uint256", "address"], "uint256", False, True, [ERC4626_deposit_event]),
+    ERC("maxMint", ["address"], "uint256", True, True, []),
+    ERC("previewMint", ["uint256"], "uint256", True, True, []),
+    ERC("mint", ["uint256", "address"], "uint256", False, True, [ERC4626_deposit_event]),
+    ERC("maxWithdraw", ["address"], "uint256", True, True, []),
+    ERC("previewWithdraw", ["uint256"], "uint256", True, True, []),
+    ERC(
+        "withdraw",
+        ["uint256", "address", "address"],
+        "uint256",
+        False,
+        True,
+        [ERC4626_withdraw_event],
+    ),
+    ERC("maxRedeem", ["address"], "uint256", True, True, []),
+    ERC("previewRedeem", ["uint256"], "uint256", True, True, []),
+    ERC(
+        "redeem",
+        ["uint256", "address", "address"],
+        "uint256",
+        False,
+        True,
+        [ERC4626_withdraw_event],
+    ),
+] + ERC20
+
+ERC4626_signatures = erc_to_signatures(ERC4626)
+
 ERCS = {
     "ERC20": (ERC20, ERC20_EVENTS),
     "ERC223": (ERC223, ERC223_EVENTS),
@@ -328,4 +404,6 @@ ERCS = {
     "ERC1820": (ERC1820, ERC1820_EVENTS),
     "ERC777": (ERC777, ERC777_EVENTS),
     "ERC1155": (ERC1155, ERC1155_EVENTS),
+    "ERC2612": (ERC2612, ERC2612_EVENTS),
+    "ERC4626": (ERC4626, ERC4626_EVENTS),
 }

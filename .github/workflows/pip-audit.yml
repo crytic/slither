@@ -1,3 +1,4 @@
+---
 name: pip-audit
 
 on:
@@ -11,17 +12,17 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.10"
-    - name: Install pip-audit
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install pip-audit
-    - name: Run pip-audit
-      run: |
-        python -m pip install .
-        pip-audit --desc -v
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install pip-audit
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pip-audit
+      - name: Run pip-audit
+        run: |
+          python -m pip install .
+          pip-audit --desc -v

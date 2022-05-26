@@ -7,7 +7,7 @@ from slither.exceptions import SlitherError
 def convert_string_to_int(val: Union[str, int]) -> int:
     if isinstance(val, int):
         return val
-    if val.startswith("0x") or val.startswith("0X"):
+    if val.startswith(("0x", "0X")):
         return int(val, 16)
 
     if "e" in val or "E" in val:
@@ -23,6 +23,6 @@ def convert_string_to_int(val: Union[str, int]) -> int:
                     f"{base}e{expo} is too large to fit in any Solidity integer size"
                 )
             return 0
-        return int(Decimal(base) * Decimal(10 ** expo))
+        return int(Decimal(base) * Decimal(10**expo))
 
     return int(Decimal(val))

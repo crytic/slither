@@ -8,23 +8,20 @@ cd test_dapp || exit 255
 git config --global user.email "ci@trailofbits.com"
 git config --global user.name "CI User"
 
-curl https://nixos.org/nix/install | sh
-# shellcheck disable=SC1090,SC1091
-. "$HOME/.nix-profile/etc/profile.d/nix.sh"
-nix-env -iA nixpkgs.cachix
-cachix use dapp
+which nix-env || exit 255
 
 git clone --recursive https://github.com/dapphub/dapptools "$HOME/.dapp/dapptools"
 nix-env -f "$HOME/.dapp/dapptools" -iA dapp seth solc hevm ethsign
 
 dapp init
 
-slither .
+slither . --detect external-function
 
-if [ $? -eq 21 ]
+# TODO: make more elaborate test
+if [ $? -eq 4 ]
 then
     exit 0
 fi
 
-echo "Truffle test failed"
+echo "Dapp test failed"
 exit 255

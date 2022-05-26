@@ -33,6 +33,4 @@ class Phi(OperationWithLValue):
         return self._nodes
 
     def __str__(self):
-        return "{}({}) := \u03D5({})".format(
-            self.lvalue, self.lvalue.type, [str(v) for v in self._rvalues]
-        )
+        return f"{self.lvalue}({self.lvalue.type}) := \u03D5({[str(v) for v in self._rvalues]})"

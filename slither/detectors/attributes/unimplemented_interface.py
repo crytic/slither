@@ -87,7 +87,7 @@ contract Something {
             if not intended_interface_is_subset_parent:
                 # Should not be a subset of an earlier determined intended_interface or derive from it
                 intended_interface_is_subset_intended = False
-                for intended_interface in intended_interfaces:
+                for intended_interface in list(intended_interfaces):
                     sigs_intended_interface = {
                         f.full_name for f in intended_interface.functions_entry_points
                     }
