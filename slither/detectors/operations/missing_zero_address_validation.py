@@ -5,7 +5,7 @@ Module detecting missing zero address validation
 from collections import defaultdict
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
+from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations import Send, Transfer, LowLevelCall
 from slither.slithir.operations import Call
@@ -79,7 +79,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
         if node.contains_require_or_assert():
             if var in node.variables_read:
                 return True
-            
+
         # Check recursively in all the parent nodes
         for father in node.fathers:
             if self._zero_address_validation(var, father, explored):
