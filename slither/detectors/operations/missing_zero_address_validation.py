@@ -78,7 +78,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
             # check dependant variables
         if node.contains_require_or_assert():
             for v in node.variables_read:
-                if is_dependent(var, v, node.function) or is_dependent(v, var, node.function):
+                if is_dependent(var, v, node.function) and is_dependent(v, var, node.function):
                     return True
 
         # Check recursively in all the parent nodes
