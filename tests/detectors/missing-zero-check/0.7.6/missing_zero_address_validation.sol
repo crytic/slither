@@ -1,6 +1,11 @@
 contract C {
   address owner;
 
+  modifier onlyOwner(){
+    require(msg.sender == owner);
+    _;
+  }
+
   modifier check_addr(address _addr) {
     if (_addr != address(0)) {
       _;
@@ -33,7 +38,12 @@ contract C {
   function bad4_call(address payable addr) payable public{
     addr.call{value:msg.value}(""); // No check before call
   }
-    
+ 
+  function bad5_set_owner(address addr) public{
+    require(msg.sender == owner);
+    owner = addr;
+  }
+
   function good0_set_owner(address new_owner) payable public{
     if (new_owner != address(0)) { // Check
       owner = new_owner;
