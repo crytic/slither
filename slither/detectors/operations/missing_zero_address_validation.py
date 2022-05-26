@@ -77,10 +77,9 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
                 return True
             # check dependant variables
         if node.contains_require_or_assert():
-            for v in node.variables_read:
-                if is_dependent(var, v, node.function) and is_dependent(v, var, node.function):
-                    return True
-
+            if var in node.variables_read:
+                return True
+            
         # Check recursively in all the parent nodes
         for father in node.fathers:
             if self._zero_address_validation(var, father, explored):
