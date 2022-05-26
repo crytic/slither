@@ -74,6 +74,11 @@ class SplitTernaryExpression:
     def copy_expression(
         self, expression: Expression, true_expression: Expression, false_expression: Expression
     ) -> None:
+        # case of unused
+        # (, var) = func()
+        if not expression:
+            return
+
         if self.condition:
             return
 
