@@ -1,7 +1,7 @@
 import logging
 from typing import List, Dict, Callable, TYPE_CHECKING, Union, Set
 
-from slither.core.declarations import Modifier, Event, EnumContract, StructureContract, Function, Structure
+from slither.core.declarations import Modifier, Event, EnumContract, StructureContract, Function
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract
@@ -561,11 +561,13 @@ class ContractSolc(CallerContextExpression):
                         self._contract.using_for[type_name] = []
                         self._contract.using_for_src[type_name] = []
                     # This is to populate the source location of using_for construct
-                    # We reuse the Structure class to store the source location instead
+                    # We reuse the StructureContract class to store the source location instead
                     # of creating a new class `UsingFor` for simplicity
-                    uf = Structure(self._contract.compilation_unit)
+                    uf = StructureContract(self._contract.compilation_unit)
                     uf.set_offset(using_for["src"], self._contract.compilation_unit)
-                    uf.canonical_name = uf.name = f"using {lib_name} for {type_name} in {self._contract}"
+                    uf.name = f"using {lib_name} for {type_name}"
+                    uf.canonical_name = uf.name + " in " + self._contract.name
+                    StructureContract.set_contract(uf, self._contract)
                     self._contract.using_for[type_name].append(lib_name)
                     self._contract.using_for_src[type_name].append((lib_name, uf))
             else:
