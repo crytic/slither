@@ -3,7 +3,7 @@ from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.type import Type
 
 
-class TypeConversion(ExpressionTyped):
+class TypeConversionIR(ExpressionTyped):
     def __init__(self, expression, expression_type):
         super().__init__()
         assert isinstance(expression, Expression)
