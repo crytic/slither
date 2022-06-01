@@ -549,6 +549,7 @@ class ContractSolc(CallerContextExpression):
         try:
             for father in self._contract.inheritance:
                 self._contract.using_for.update(father.using_for)
+                self._contract.using_for_src.update(father.using_for_src)
 
             if self.is_compact_ast:
                 for using_for in self._usingForNotParsed:
