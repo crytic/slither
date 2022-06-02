@@ -2,14 +2,17 @@ from slither.slithir.operations.call import Call
 
 
 class EventCall(Call):
-    def __init__(self, name):
+    def __init__(self, destination):
         super().__init__()
-        self._name = name
-        # todo add instance of the Event
+        self._destination = destination
+
+    @property
+    def destination(self):
+        return self._destination
 
     @property
     def name(self):
-        return self._name
+        return self.destination.name
 
     @property
     def read(self):

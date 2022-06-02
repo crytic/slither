@@ -8,6 +8,7 @@ from slither.core.declarations import (
     SolidityFunction,
     SolidityVariable,
     Structure,
+    Event,
 )
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.solidity_types.type import Type
@@ -617,6 +618,7 @@ def get(
             Function,
             Type,
             SolidityImportPlaceHolder,
+            Event,
         ),
     )  # type for abi.decode(.., t)
     return variable
@@ -687,8 +689,8 @@ def copy_ir(ir, *instances):
         variable = get_variable(ir, lambda x: x.variable, *instances)
         return Delete(lvalue, variable)
     if isinstance(ir, EventCall):
-        name = ir.name
-        return EventCall(name)
+        destination = get_variable(ir, lambda x: x.destination, *instances)
+        return EventCall(destination)
     if isinstance(ir, HighLevelCall):  # include LibraryCall
         destination = get_variable(ir, lambda x: x.destination, *instances)
         function_name = ir.function_name
