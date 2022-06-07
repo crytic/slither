@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 import os
 import pathlib
 from argparse import ArgumentTypeError
@@ -25,10 +26,15 @@ from slither.slithir.operations import (
     Binary,
     BinaryType,
     InternalCall,
+    Index,
 )
 from slither.slithir.utils.ssa import is_used_later
-from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable, StateIRVariable
-
+from slither.slithir.variables import (
+    Constant,
+    ReferenceVariable,
+    LocalIRVariable,
+    StateIRVariable,
+)
 
 # Directory of currently executing script. Will be used as basis for temporary file names.
 SCRIPT_DIR = pathlib.Path(getsourcefile(lambda: 0)).parent
@@ -780,6 +786,127 @@ def test_multiple_named_args_returns():
                 get_ssa_of_type(f, OperationWithLValue),
             )
         )
+
+
+@pytest.mark.xfail(reason="Tests for wanted state of SSA IR, not current.")
+def test_memory_array():
+    src = """
+    contract MemArray {
+        struct A {
+            uint val1;
+            uint val2;
+        }
+        
+        function test_array() internal {
+            A[] memory a= new A[](4);
+            // Create REF_0 -> a_1[2]
+            accept_array_entry(a[2]);
+            
+            // Create REF_1 -> a_1[3]
+            accept_array_entry(a[3]);
+            
+            A memory alocal;
+            accept_array_entry(alocal);
+            
+        }
+        
+        // val_1 = ϕ(val_0, REF_0, REF_1, alocal_1)
+        // val_0 is an unknown external value
+        function accept_array_entry(A memory val) public returns (uint) {
+            uint zero = 0;
+            b(zero);
+            // Create REF_2 -> val_1.val1
+            return b(val.val1);
+        }
+        
+        function b(uint arg) public returns (uint){
+            // arg_1 = ϕ(arg_0, zero_1, REF_2) 
+            return arg + 1;
+        }
+    }"""
+    with slither_from_source(src) as slither:
+        c = slither.contracts[0]
+
+        ftest_array, faccept, fb = c.functions
+
+        # Locate REF_0/REF_1/alocal (they are all args to the call)
+        accept_args = [x.arguments[0] for x in get_ssa_of_type(ftest_array, InternalCall)]
+
+        # Check entrypoint of accept_array_entry, it should contain a phi-node
+        # of expected rvalues
+        [phi_entry_accept] = get_ssa_of_type(faccept.entry_point, Phi)
+        for arg in accept_args:
+            assert arg in phi_entry_accept.rvalues
+        # NOTE(hbrodin): There should be an additional val_0 in the phi-node.
+        # That additional val_0 indicates an external caller of this function.
+        assert len(phi_entry_accept.rvalues) == len(accept_args) + 1
+
+        # Args used to invoke b
+        b_args = [x.arguments[0] for x in get_ssa_of_type(faccept, InternalCall)]
+
+        # Check entrypoint of B, it should contain a phi-node of expected
+        # rvalues
+        [phi_entry_b] = get_ssa_of_type(fb.entry_point, Phi)
+        for arg in b_args:
+            assert arg in phi_entry_b.rvalues
+
+        # NOTE(hbrodin): There should be an additional arg_0 (see comment about phi_entry_accept).
+        assert len(phi_entry_b.rvalues) == len(b_args) + 1
+
+
+@pytest.mark.xfail(reason="Tests for wanted state of SSA IR, not current.")
+def test_storage_array():
+    src = """
+    contract StorageArray {
+        struct A {
+            uint val1;
+            uint val2;
+        }
+        
+        // NOTE(hbrodin): a is never written, should only become a_0. Same for astorage (astorage_0). Phi-nodes at entry
+        // should only add new versions of a state variable if it is actually written. 
+        A[] a;
+        A astorage;
+        
+        function test_array() internal {
+            accept_array_entry(a[2]);
+            accept_array_entry(a[3]);
+            accept_array_entry(astorage);
+        }
+
+        function accept_array_entry(A storage val) internal returns (uint) {
+            // val is either a[2], a[3] or astorage_0. Ideally this could be identified.
+            uint five = 5;
+            
+            // NOTE(hbrodin): If the following line is enabled, there would ideally be a phi-node representing writes
+            // to either a or astorage.
+            //val.val2 = 4;
+            b(five);
+            return b(val.val1);
+        }
+
+        function b(uint value) public returns (uint){
+            // Expect a phi-node at the entrypoint
+            // value_1 = ϕ(value_0, five_0, REF_x), where REF_x is the reference to val.val1 in accept_array_entry.
+            return value + 1;
+        }
+    }"""
+    with slither_from_source(src) as slither:
+        c = slither.contracts[0]
+        _dump_functions(c)
+        ftest, faccept, fb = c.functions
+
+        # None of a/astorage is written so expect that there are no phi-nodes at entrypoint.
+        assert len(get_ssa_of_type(ftest.entry_point, Phi)) == 0
+
+        # Expect all references to start from index 0 (no writes)
+        assert all(x.variable_left.index == 0 for x in get_ssa_of_type(ftest, Index))
+
+        [phi_entry_accept] = get_ssa_of_type(faccept.entry_point, Phi)
+        assert len(phi_entry_accept.rvalues) == 3  # See comment in b above
+
+        [phi_entry_b] = get_ssa_of_type(fb.entry_point, Phi)
+        assert len(phi_entry_b.rvalues) == 3  # See comment in b above
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
