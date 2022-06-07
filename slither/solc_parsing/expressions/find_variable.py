@@ -155,6 +155,7 @@ def _find_in_contract(
     contract: Optional[Contract],
     contract_declarer: Optional[Contract],
     is_super: bool,
+    is_identifier_path: bool = False,
 ) -> Optional[Union[Variable, Function, Contract, Event, Enum, Structure, CustomError]]:
     if contract is None or contract_declarer is None:
         return None
@@ -196,6 +197,13 @@ def _find_in_contract(
         modifiers = contract.available_modifiers_as_dict()
     if var_name in modifiers:
         return modifiers[var_name]
+
+    if is_identifier_path:
+        for sig, modifier in modifiers.items():
+            if "(" in sig:
+                sig = sig[0 : sig.find("(")]
+                if sig == var_name:
+                    return modifier
 
     # structures are looked on the contract declarer
     structures = contract.structures_as_dict
@@ -294,6 +302,7 @@ def find_variable(
     caller_context: CallerContextExpression,
     referenced_declaration: Optional[int] = None,
     is_super: bool = False,
+    is_identifier_path: bool = False,
 ) -> Tuple[
     Union[
         Variable,
@@ -321,6 +330,8 @@ def find_variable(
     :type referenced_declaration:
     :param is_super:
     :type is_super:
+    :param is_identifier_path:
+    :type is_identifier_path:
     :return:
     :rtype:
     """
@@ -381,7 +392,7 @@ def find_variable(
         else:
             assert isinstance(underlying_func, FunctionTopLevel)
 
-    ret = _find_in_contract(var_name, contract, contract_declarer, is_super)
+    ret = _find_in_contract(var_name, contract, contract_declarer, is_super, is_identifier_path)
     if ret:
         return ret, False
 

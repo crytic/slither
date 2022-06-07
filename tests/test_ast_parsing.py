@@ -404,6 +404,7 @@ ALL_TESTS = [
     # 0.8.9 crashes on our testcase
     Test("user_defined_types.sol", ["0.8.8"] + make_version(8, 10, 12)),
     Test("bytes_call.sol", ["0.8.12"]),
+    Test("modifier_identifier_path.sol", VERSIONS_08),
 ]
 # create the output folder if needed
 try:
