@@ -1471,7 +1471,7 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
 
         func = _find_function_from_parameter(ir, candidates)
 
-        if not func and not ir.arguments:
+        if not func:
             assert contract
             func = contract.get_state_variable_from_name(ir.function_name)
     else:
@@ -1488,7 +1488,7 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
 
         if len(candidates) == 1:
             func = candidates[0]
-        if func is None and not ir.arguments:
+        if func is None:
             # TODO: handle collision with multiple state variables/functions
             func = contract.get_state_variable_from_name(ir.function_name)
         if func is None and candidates:
