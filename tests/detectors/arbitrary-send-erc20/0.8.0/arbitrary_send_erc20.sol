@@ -41,7 +41,6 @@ contract C {
         int_transferFrom(from_msgsender, to, am);
     }
 
-    // This is not detected
     function bad2(address from, address to, uint256 am) public {
         int_transferFrom(from, to, am);
     }
@@ -72,6 +71,12 @@ contract C {
 
     function good6(address from, address to, uint256 amount) external {
         erc20.safeTransferFrom(address(this), to, amount);
+    }
+
+    function overApproximation(address to, uint256 am) public {
+        address from_msgsender = address(0); // We probably need dead-code-elimination
+        from_msgsender = msg.sender;
+        int_transferFrom(from_msgsender, to, am);
     }
 
 }

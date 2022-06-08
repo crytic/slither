@@ -1,10 +1,14 @@
 from typing import List
+
+from attr import has
 from slither.core.cfg.node import Node
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.slithir.operations import HighLevelCall, LibraryCall
 from slither.core.declarations import Contract, Function, SolidityVariableComposed
-from slither.analyses.data_dependency.data_dependency import is_dependent
+from slither.analyses.data_dependency.data_dependency import always_depends_on
 from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.slithir.operations.operation import Operation
 
 
 class ArbitrarySendErc20:
@@ -28,66 +32,68 @@ class ArbitrarySendErc20:
         return self._permit_results
 
     def _detect_arbitrary_from(self, contract: Contract):
-        for f in contract.functions:
-            all_high_level_calls = [
-                f_called[1].solidity_signature
-                for f_called in f.high_level_calls
-                if isinstance(f_called[1], Function)
-            ]
-            all_library_calls = [f_called[1].solidity_signature for f_called in f.library_calls]
-            if (
-                "transferFrom(address,address,uint256)" in all_high_level_calls
-                or "safeTransferFrom(address,address,address,uint256)" in all_library_calls
-            ):
-                if (
-                    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
-                    in all_high_level_calls
-                ):
-                    ArbitrarySendErc20._arbitrary_from(f.nodes, self._permit_results)
-                else:
-                    ArbitrarySendErc20._arbitrary_from(f.nodes, self._no_permit_results)
+        for func in contract.functions_entry_points:
+            has_permit = False
+            for node in func.nodes:
+                for ir in node.all_slithir_operations():
+                    # FIXME this is not always in the same order and produces causes permits to fall into non-permit
+                    if isinstance(ir, HighLevelCall):
+                        sig = ir.function.solidity_signature
+                        has_permit |= (
+                            sig == "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
+                        )
+
+                        if sig in (
+                            "transferFrom(address,address,uint256)",
+                            "safeTransferFrom(address,address,address,uint256)",
+                        ):
+                            print(has_permit)
+                            if has_permit:
+                                ArbitrarySendErc20._arbitrary_from(func, ir, self._permit_results)
+                            else:
+                                ArbitrarySendErc20._arbitrary_from(
+                                    func, ir, self._no_permit_results
+                                )
 
     @staticmethod
-    def _arbitrary_from(nodes: List[Node], results: List[Node]):
+    def _arbitrary_from(func: FunctionContract, ir: Operation, results: List[Node]):
         """Finds instances of (safe)transferFrom that do not use msg.sender or address(this) as from parameter."""
-        for node in nodes:
-            for ir in node.irs:
-                if (
-                    isinstance(ir, HighLevelCall)
-                    and isinstance(ir.function, Function)
-                    and ir.function.solidity_signature == "transferFrom(address,address,uint256)"
-                    and not (
-                        is_dependent(
-                            ir.arguments[0],
-                            SolidityVariableComposed("msg.sender"),
-                            node.function.contract,
-                        )
-                        or is_dependent(
-                            ir.arguments[0],
-                            SolidityVariable("this"),
-                            node.function.contract,
-                        )
-                    )
-                ):
-                    results.append(ir.node)
-                elif (
-                    isinstance(ir, LibraryCall)
-                    and ir.function.solidity_signature
-                    == "safeTransferFrom(address,address,address,uint256)"
-                    and not (
-                        is_dependent(
-                            ir.arguments[1],
-                            SolidityVariableComposed("msg.sender"),
-                            node.function.contract,
-                        )
-                        or is_dependent(
-                            ir.arguments[1],
-                            SolidityVariable("this"),
-                            node.function.contract,
-                        )
-                    )
-                ):
-                    results.append(ir.node)
+        if (
+            isinstance(ir, HighLevelCall)
+            and isinstance(ir.function, Function)
+            and ir.function.solidity_signature == "transferFrom(address,address,uint256)"
+            and not (
+                always_depends_on(
+                    ir.arguments[0],
+                    SolidityVariableComposed("msg.sender"),
+                    ir.node.function,
+                )
+                or always_depends_on(
+                    ir.arguments[0],
+                    SolidityVariable("this"),
+                    ir.node.function,
+                )
+            )
+        ):
+            results.append((func, ir.node.function))
+        elif (
+            isinstance(ir, LibraryCall)
+            and ir.function.solidity_signature
+            == "safeTransferFrom(address,address,address,uint256)"
+            and not (
+                always_depends_on(
+                    ir.arguments[1],
+                    SolidityVariableComposed("msg.sender"),
+                    ir.node.function,
+                )
+                or always_depends_on(
+                    ir.arguments[1],
+                    SolidityVariable("this"),
+                    ir.node.function,
+                )
+            )
+        ):
+            results.append((func, ir.node.function))
 
     def detect(self):
         """Detect transfers that use arbitrary `from` parameter."""

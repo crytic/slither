@@ -36,9 +36,8 @@ Use `msg.sender` as `from` in transferFrom.
 
         arbitrary_sends = ArbitrarySendErc20(self.compilation_unit)
         arbitrary_sends.detect()
-        for node in arbitrary_sends.no_permit_results:
-            func = node.function
-            info = [func, " uses arbitrary from in transferFrom: ", node, "\n"]
+        for (outer_node, inner_node) in arbitrary_sends.no_permit_results:
+            info = [outer_node, " uses arbitrary from in transferFrom: ", inner_node, "\n"]
             res = self.generate_result(info)
             results.append(res)
 
