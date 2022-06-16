@@ -9,7 +9,7 @@ from zipfile import ZipFile
 from pkg_resources import require
 
 from slither.core.cfg.node import Node
-from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma
+from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma, CustomError
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
 from slither.core.variables.local_variable import LocalVariable
@@ -338,7 +338,7 @@ def _create_parent_element(element):
     return None
 
 
-SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node]
+SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node, CustomError]
 AllSupportedOutput = Union[str, SupportedOutput]
 
 
@@ -400,6 +400,8 @@ class Output:
             self.add_pragma(add, additional_fields=additional_fields)
         elif isinstance(add, Node):
             self.add_node(add, additional_fields=additional_fields)
+        elif isinstance(add, CustomError):
+            self.add_other(add.name, add.source_mapping, add.compilation_unit, additional_fields=additional_fields)
         else:
             raise SlitherError(f"Impossible to add {type(add)} to the json")
 
