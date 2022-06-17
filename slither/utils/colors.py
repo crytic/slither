@@ -73,7 +73,7 @@ def set_colorization_enabled(enabled: bool):
     if enabled and platform.system() == "Windows":
         Colors.COLORIZATION_ENABLED = enable_windows_virtual_terminal_sequences()
     else:
-        # This is not windows so we can enable color immediately.
+        # This is not windows, or colorization is being disabled, so we can adjust the state immediately.
         Colors.COLORIZATION_ENABLED = enabled
 
 

@@ -659,7 +659,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         cp.enable()
 
     # Set colorization option
-    set_colorization_enabled(not args.disable_color)
+    set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
 
     # Define some variables for potential JSON output
     json_results = {}
