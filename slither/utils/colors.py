@@ -1,5 +1,6 @@
 from functools import partial
 import platform
+import sys
 
 
 class Colors:  # pylint: disable=too-few-public-methods
@@ -83,6 +84,5 @@ red = partial(colorize, Colors.RED)
 blue = partial(colorize, Colors.BLUE)
 magenta = partial(colorize, Colors.MAGENTA)
 
-# We enable colorization by default (this call is important as it will enable color mode on Windows by default),
-# regardless of whether Slither is interacted with from CLI or another script.
-set_colorization_enabled(True)
+# We enable colorization by default if the output is a tty
+set_colorization_enabled(sys.stdout.isatty())
