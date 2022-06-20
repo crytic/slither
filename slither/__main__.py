@@ -824,7 +824,8 @@ def main_impl(all_detector_classes, all_printer_classes):
                 "stderr": StandardOutputCapture.get_stderr_output(),
             }
         StandardOutputCapture.disable()
-        output_to_json(None if outputting_json_stdout else args.json, output_error, json_results)
+        # TODO: Add a new cmd arg to toggle compact mode, now default to True
+        output_to_json(None if outputting_json_stdout else args.json, output_error, json_results, True)
 
     if outputting_sarif:
         StandardOutputCapture.disable()

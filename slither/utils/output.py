@@ -30,7 +30,7 @@ logger = logging.getLogger("Slither")
 ###################################################################################
 
 
-def output_to_json(filename: Optional[str], error, results: Dict) -> None:
+def output_to_json(filename: Optional[str], error, results: Dict, compact: bool = False) -> None:
     """
 
     :param filename: Filename where the json will be written. If None or "-", write to stdout
@@ -40,6 +40,12 @@ def output_to_json(filename: Optional[str], error, results: Dict) -> None:
     :return:
     """
     # Create our encapsulated JSON result.
+
+    # Strip out "elements" if on compact mode
+    if (compact):
+        for index in range(len(results["detectors"])):
+            results["detectors"][index].pop("elements")
+
     json_result = {"success": error is None, "error": error, "results": results}
 
     if filename == "-":
