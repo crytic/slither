@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 setup(
     name="slither-analyzer",
     description="Slither is a Solidity static analysis framework written in Python 3.",
-    url="https://github.com/crytic/slither",
+    url="https://github.com/redacted-cartel/slither",
     author="Trail of Bits",
     version="0.8.3",
     packages=find_packages(),
