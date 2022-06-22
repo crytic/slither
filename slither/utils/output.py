@@ -10,6 +10,7 @@ from pkg_resources import require
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma, CustomError
+from slither.core.expressions import Expression
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
 from slither.core.variables.local_variable import LocalVariable
@@ -338,7 +339,7 @@ def _create_parent_element(element):
     return None
 
 
-SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node, CustomError]
+SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node, CustomError, Expression]
 AllSupportedOutput = Union[str, SupportedOutput]
 
 
@@ -402,6 +403,8 @@ class Output:
             self.add_node(add, additional_fields=additional_fields)
         elif isinstance(add, CustomError):
             self.add_other(add.name, add.source_mapping, add.compilation_unit, additional_fields=additional_fields)
+        elif isinstance(add, Expression):
+            self.add_expression(add, additional_fields=additional_fields)
         else:
             raise SlitherError(f"Impossible to add {type(add)} to the json")
 
@@ -627,6 +630,21 @@ class Output:
         type_specific_fields = {"content": content.to_json(), "name": name}
         element = _create_base_element("pretty_table", type_specific_fields, additional_fields)
 
+        self._data["elements"].append(element)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Expression
+    ###################################################################################
+    ###################################################################################
+
+    def add_expression(self, expression: Expression, additional_fields: Optional[Dict] = None):
+        if additional_fields is None:
+            additional_fields = {}
+        element = _create_base_element(
+            "expression", str(expression), expression.source_mapping, {}, additional_fields
+        )
         self._data["elements"].append(element)
 
     # endregion

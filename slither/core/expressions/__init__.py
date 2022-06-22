@@ -15,3 +15,4 @@ from .super_identifier import SuperIdentifier
 from .tuple_expression import TupleExpression
 from .type_conversion import TypeConversion
 from .unary_operation import UnaryOperation, UnaryOperationType
+from .expression import Expression
