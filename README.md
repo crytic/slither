@@ -7,24 +7,13 @@
 
 Slither is a Solidity static analysis framework written in Python 3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses. Slither enables developers to find vulnerabilities, enhance their code comprehension, and quickly prototype custom analyses.
 
-- [Slither, the Solidity source analyzer](#slither-the-solidity-source-analyzer)
-  - [Features](#features)
-  - [Bugs and Optimizations Detection](#bugs-and-optimizations-detection)
-    - [Integration](#integration)
-    - [Detectors](#detectors)
-  - [Printers](#printers)
-    - [Quick Review Printers](#quick-review-printers)
-    - [In-Depth Review Printers](#in-depth-review-printers)
-  - [Tools](#tools)
-  - [How to install](#how-to-install)
-    - [Using Pip](#using-pip)
-    - [Using Git](#using-git)
-    - [Using Docker](#using-docker)
-  - [Getting Help](#getting-help)
-  - [License](#license)
-  - [Publications](#publications)
-    - [Trail of Bits publication](#trail-of-bits-publication)
-    - [External publications](#external-publications)
+- [Features](#features)
+- [Bugs and Optimizations Detection](#bugs-and-optimizations-detection)
+- [Printers](#printers)
+- [Tools](#tools)
+- [How to Install](#how-to-install)
+- [Getting Help](#getting-help)
+- [Publications](#publications)
 
 ## Features
 
@@ -37,6 +26,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 * Intermediate representation ([SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR)) enables simple, high-precision analyses
 * Correctly parses 99.9% of all public Solidity code
 * Average execution time of less than 1 second per contract
+
 
 ## Bugs and Optimizations Detection
 
@@ -51,7 +41,6 @@ slither tests/uninitialized.sol
 ```
 
 ### Integration
-
 - For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
 - To generate a Markdown report, use `slither [target] --checklist`.
 - To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
@@ -59,7 +48,6 @@ slither tests/uninitialized.sol
 Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc. For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
 ### Detectors
-
 
 
 Num | Detector | What it Detects | Impact | Confidence
@@ -228,11 +216,9 @@ Slither is licensed and distributed under the AGPLv3 license. [Contact us](mailt
 ## Publications
 
 ### Trail of Bits publication
-
 - [Slither: A Static Analysis Framework For Smart Contracts](https://arxiv.org/abs/1908.09878), Josselin Feist, Gustavo Grieco, Alex Groce - WETSEB '19
 
 ### External publications
-
 Title | Usage | Authors | Venue
 --- | --- | --- | ---
 [ReJection: A AST-Based Reentrancy Vulnerability Detection Method](https://www.researchgate.net/publication/339354823_ReJection_A_AST-Based_Reentrancy_Vulnerability_Detection_Method) | AST-based analysis built on top of Slither | Rui Ma, Zefeng Jian, Guangyuan Chen, Ke Ma, Yujia Chen | CTCIS 19
@@ -245,3 +231,5 @@ Title | Usage | Authors | Venue
 [SAILFISH: Vetting Smart Contract State-Inconsistency Bugs in Seconds](https://arxiv.org/pdf/2104.08638.pdf) | Rely on SlithIR to build a *storage dependency graph* | Priyanka Bose, Dipanjan Das, Yanju Chen, Yu Feng, Christopher Kruegel, and Giovanni Vigna | S&P 22
 [SolType: Refinement Types for Arithmetic Overflow in Solidity](https://arxiv.org/abs/2110.00677) | Use Slither as frontend to build refinement type system | Bryan Tan, Benjamin Mariano, Shuvendu K. Lahiri, Isil Dillig, Yu Feng | POPL 22
 [Do Not Rug on Me: Leveraging Machine Learning Techniques for Automated Scam Detection](https://www.mdpi.com/2227-7390/10/6/949) | Use Slither to extract tokens' features (mintable, pausable, ..) | Mazorra, Bruno, Victor Adan, and Vanesa Daza | Mathematics 10.6 (2022)
+
+If you are using Slither on an academic work, consider applying to the [Crytic $10k Research Prize](https://blog.trailofbits.com/2019/11/13/announcing-the-crytic-10k-research-prize/).
