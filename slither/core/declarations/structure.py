@@ -12,7 +12,7 @@ class Structure(SourceMapping):
         super().__init__()
         self._name = None
         self._canonical_name = None
-        self._elems: Dict[str, "StructureVariable"] = dict()
+        self._elems: Dict[str, "StructureVariable"] = {}
         # Name of the elements in the order of declaration
         self._elems_ordered: List[str] = []
         self.compilation_unit = compilation_unit

@@ -50,68 +50,6 @@
                         "signature": "Transfer(address,address,uint256)"
                     },
                     "additional_fields": {
-                        "parameter_name": "from"
-                    }
-                }
-            ],
-            "description": "ERC20 event IERC20BadTransfer(address,address,uint256) (tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol#19)does not index parameter from\n",
-            "markdown": "ERC20 event [IERC20BadTransfer(address,address,uint256)](tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol#L19)does not index parameter from\n",
-            "first_markdown_element": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol#L19",
-            "id": "a86c7a54115f270548e82d71570dc4d2900b622b0f82c6fce137f3a35314af53",
-            "check": "erc20-indexed",
-            "impact": "Informational",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "event",
-                    "name": "Transfer",
-                    "source_mapping": {
-                        "start": 1090,
-                        "length": 53,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            19
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 58
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "IERC20Bad",
-                            "source_mapping": {
-                                "start": 622,
-                                "length": 587,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "Transfer(address,address,uint256)"
-                    },
-                    "additional_fields": {
                         "parameter_name": "to"
                     }
                 }
@@ -182,6 +120,68 @@
             "markdown": "ERC20 event [IERC20BadApproval(address,address,uint256)](tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol#L20)does not index parameter owner\n",
             "first_markdown_element": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol#L20",
             "id": "7d72b56a71ca96db304878f25484c496af1d283a9b777dc788f1473974057025",
+            "check": "erc20-indexed",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "event",
+                    "name": "Transfer",
+                    "source_mapping": {
+                        "start": 1090,
+                        "length": 53,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            19
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 58
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "IERC20Bad",
+                            "source_mapping": {
+                                "start": 622,
+                                "length": 587,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "Transfer(address,address,uint256)"
+                    },
+                    "additional_fields": {
+                        "parameter_name": "from"
+                    }
+                }
+            ],
+            "description": "ERC20 event IERC20BadTransfer(address,address,uint256) (tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol#19)does not index parameter from\n",
+            "markdown": "ERC20 event [IERC20BadTransfer(address,address,uint256)](tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol#L19)does not index parameter from\n",
+            "first_markdown_element": "tests/detectors/erc20-indexed/0.4.25/erc20_indexed.sol#L19",
+            "id": "a86c7a54115f270548e82d71570dc4d2900b622b0f82c6fce137f3a35314af53",
             "check": "erc20-indexed",
             "impact": "Informational",
             "confidence": "High"

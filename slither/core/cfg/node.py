@@ -140,7 +140,7 @@ class NodeType(Enum):
             return "END_LOOP"
         if self == NodeType.OTHER_ENTRYPOINT:
             return "OTHER_ENTRYPOINT"
-        return "Unknown type {}".format(hex(self.value))
+        return f"Unknown type {hex(self.value)}"
 
 
 # endregion

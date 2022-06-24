@@ -1,6 +1,13 @@
 import abc
+from logging import Logger
+
+from typing import TYPE_CHECKING, Union, List, Optional, Dict
 
 from slither.utils import output
+from slither.utils.output import SupportedOutput
+
+if TYPE_CHECKING:
+    from slither import Slither
 
 
 class IncorrectPrinterInitialization(Exception):
@@ -13,7 +20,7 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
 
     WIKI = ""
 
-    def __init__(self, slither, logger):
+    def __init__(self, slither: "Slither", logger: Logger) -> None:
         self.slither = slither
         self.contracts = slither.contracts
         self.filename = slither.filename
@@ -21,24 +28,28 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
 
         if not self.HELP:
             raise IncorrectPrinterInitialization(
-                "HELP is not initialized {}".format(self.__class__.__name__)
+                f"HELP is not initialized {self.__class__.__name__}"
             )
 
         if not self.ARGUMENT:
             raise IncorrectPrinterInitialization(
-                "ARGUMENT is not initialized {}".format(self.__class__.__name__)
+                f"ARGUMENT is not initialized {self.__class__.__name__}"
             )
 
         if not self.WIKI:
             raise IncorrectPrinterInitialization(
-                "WIKI is not initialized {}".format(self.__class__.__name__)
+                f"WIKI is not initialized {self.__class__.__name__}"
             )
 
-    def info(self, info):
+    def info(self, info: str) -> None:
         if self.logger:
             self.logger.info(info)
 
-    def generate_output(self, info, additional_fields=None):
+    def generate_output(
+        self,
+        info: Union[str, List[Union[str, SupportedOutput]]],
+        additional_fields: Optional[Dict] = None,
+    ) -> output.Output:
         if additional_fields is None:
             additional_fields = {}
         printer_output = output.Output(info, additional_fields)
@@ -47,6 +58,5 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
         return printer_output
 
     @abc.abstractmethod
-    def output(self, filename):
-        """TODO Documentation"""
-        return
+    def output(self, filename: str) -> output.Output:
+        pass

@@ -62,7 +62,7 @@ class SlitherCompilationUnit(Context):
         self.counter_slithir_temporary = 0
         self.counter_slithir_reference = 0
 
-        self.scopes: Dict[Filename, FileScope] = dict()
+        self.scopes: Dict[Filename, FileScope] = {}
 
     @property
     def core(self) -> "SlitherCore":
@@ -256,7 +256,7 @@ class SlitherCompilationUnit(Context):
             slot = 0
             offset = 0
             for var in contract.state_variables_ordered:
-                if var.is_constant:
+                if var.is_constant or var.is_immutable:
                     continue
 
                 size, new_slot = var.type.storage_size

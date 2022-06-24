@@ -1,17 +1,17 @@
 from slither.core.expressions import Literal
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaulClass
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
 from slither.tools.mutator.utils.generic_patching import remove_assignement
 
 
 class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MVIV"
     HELP = "variable initialization using a value"
-    FAULTCLASS = FaulClass.Assignement
+    FAULTCLASS = FaultClass.Assignement
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self):
 
-        result = dict()
+        result = {}
 
         for contract in self.slither.contracts:
 

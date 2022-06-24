@@ -75,7 +75,7 @@ def parse_target(target):
 
 
 def load_and_encode(infile, vmodel, ext=None, nsamples=None, **kwargs):
-    r = dict()
+    r = {}
     if infile.endswith(".npz"):
         r = load_cache(infile, nsamples=nsamples)
     else:
@@ -142,35 +142,35 @@ def ntype(_type):  # pylint: disable=too-many-branches
 def encode_ir(ir):  # pylint: disable=too-many-branches
     # operations
     if isinstance(ir, Assignment):
-        return "({}):=({})".format(encode_ir(ir.lvalue), encode_ir(ir.rvalue))
+        return f"({encode_ir(ir.lvalue)}):=({encode_ir(ir.rvalue)})"
     if isinstance(ir, Index):
-        return "index({})".format(ntype(ir.index_type))
+        return f"index({ntype(ir.index_type)})"
     if isinstance(ir, Member):
         return "member"  # .format(ntype(ir._type))
     if isinstance(ir, Length):
         return "length"
     if isinstance(ir, Binary):
-        return "binary({})".format(str(ir.type))
+        return f"binary({str(ir.type)})"
     if isinstance(ir, Unary):
-        return "unary({})".format(str(ir.type))
+        return f"unary({str(ir.type)})"
     if isinstance(ir, Condition):
-        return "condition({})".format(encode_ir(ir.value))
+        return f"condition({encode_ir(ir.value)})"
     if isinstance(ir, NewStructure):
         return "new_structure"
     if isinstance(ir, NewContract):
         return "new_contract"
     if isinstance(ir, NewArray):
-        return "new_array({})".format(ntype(ir.array_type))
+        return f"new_array({ntype(ir.array_type)})"
     if isinstance(ir, NewElementaryType):
-        return "new_elementary({})".format(ntype(ir.type))
+        return f"new_elementary({ntype(ir.type)})"
     if isinstance(ir, Push):
-        return "push({},{})".format(encode_ir(ir.value), encode_ir(ir.lvalue))
+        return f"push({encode_ir(ir.value)},{encode_ir(ir.lvalue)})"
     if isinstance(ir, Delete):
-        return "delete({},{})".format(encode_ir(ir.lvalue), encode_ir(ir.variable))
+        return f"delete({encode_ir(ir.lvalue)},{encode_ir(ir.variable)})"
     if isinstance(ir, SolidityCall):
-        return "solidity_call({})".format(ir.function.full_name)
+        return f"solidity_call({ir.function.full_name})"
     if isinstance(ir, InternalCall):
-        return "internal_call({})".format(ntype(ir.type_call))
+        return f"internal_call({ntype(ir.type_call)})"
     if isinstance(ir, EventCall):  # is this useful?
         return "event"
     if isinstance(ir, LibraryCall):
@@ -182,13 +182,13 @@ def encode_ir(ir):  # pylint: disable=too-many-branches
     if isinstance(ir, LowLevelCall):  # TODO: improve
         return "low_level_call"
     if isinstance(ir, TypeConversion):
-        return "type_conversion({})".format(ntype(ir.type))
+        return f"type_conversion({ntype(ir.type)})"
     if isinstance(ir, Return):  # this can be improved using values
         return "return"  # .format(ntype(ir.type))
     if isinstance(ir, Transfer):
-        return "transfer({})".format(encode_ir(ir.call_value))
+        return f"transfer({encode_ir(ir.call_value)})"
     if isinstance(ir, Send):
-        return "send({})".format(encode_ir(ir.call_value))
+        return f"send({encode_ir(ir.call_value)})"
     if isinstance(ir, Unpack):  # TODO: improve
         return "unpack"
     if isinstance(ir, InitArray):  # TODO: improve
@@ -198,19 +198,19 @@ def encode_ir(ir):  # pylint: disable=too-many-branches
 
     # variables
     if isinstance(ir, Constant):
-        return "constant({})".format(ntype(ir.type))
+        return f"constant({ntype(ir.type)})"
     if isinstance(ir, SolidityVariableComposed):
-        return "solidity_variable_composed({})".format(ir.name)
+        return f"solidity_variable_composed({ir.name})"
     if isinstance(ir, SolidityVariable):
-        return "solidity_variable{}".format(ir.name)
+        return f"solidity_variable{ir.name}"
     if isinstance(ir, TemporaryVariable):
         return "temporary_variable"
     if isinstance(ir, ReferenceVariable):
-        return "reference({})".format(ntype(ir.type))
+        return f"reference({ntype(ir.type)})"
     if isinstance(ir, LocalVariable):
-        return "local_solc_variable({})".format(ir.location)
+        return f"local_solc_variable({ir.location})"
     if isinstance(ir, StateVariable):
-        return "state_solc_variable({})".format(ntype(ir.type))
+        return f"state_solc_variable({ntype(ir.type)})"
     if isinstance(ir, LocalVariableInitFromTuple):
         return "local_variable_init_tuple"
     if isinstance(ir, TupleVariable):
@@ -222,7 +222,7 @@ def encode_ir(ir):  # pylint: disable=too-many-branches
 
 
 def encode_contract(cfilename, **kwargs):
-    r = dict()
+    r = {}
 
     # Init slither
     try:

@@ -25,7 +25,7 @@ class VariableOrder(AbstractPrinter):
         all_tables = []
 
         for contract in self.slither.contracts_derived:
-            txt += "\n{}:\n".format(contract.name)
+            txt += f"\n{contract.name}:\n"
             table = MyPrettyTable(["Name", "Type", "Slot", "Offset"])
             for variable in contract.state_variables_ordered:
                 if not variable.is_constant:

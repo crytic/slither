@@ -23,6 +23,6 @@ def convert_string_to_int(val: Union[str, int]) -> int:
                     f"{base}e{expo} is too large to fit in any Solidity integer size"
                 )
             return 0
-        return int(Decimal(base) * Decimal(10 ** expo))
+        return int(Decimal(base) * Decimal(10**expo))
 
     return int(Decimal(val))

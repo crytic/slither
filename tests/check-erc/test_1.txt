@@ -2,7 +2,7 @@
 
 ## Check functions
 [✓] totalSupply() is present
-	[✓] totalSupply() -> () (correct return value)
+	[✓] totalSupply() -> (uint256) (correct return type)
 	[✓] totalSupply() is view
 [ ] balanceOf(address) is missing 
 [ ] transfer(address,uint256) is missing 

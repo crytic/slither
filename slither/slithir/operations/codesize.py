@@ -21,4 +21,4 @@ class CodeSize(OperationWithLValue):
         return self._value
 
     def __str__(self):
-        return "{} -> CODESIZE {}".format(self.lvalue, self.value)
+        return f"{self.lvalue} -> CODESIZE {self.value}"

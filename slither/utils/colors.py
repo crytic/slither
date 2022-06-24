@@ -14,7 +14,7 @@ class Colors:  # pylint: disable=too-few-public-methods
 
 def colorize(color: Colors, txt: str) -> str:
     if Colors.COLORIZATION_ENABLED:
-        return "{}{}{}".format(color, txt, Colors.END)
+        return f"{color}{txt}{Colors.END}"
     return txt
 
 

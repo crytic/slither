@@ -32,5 +32,5 @@ def write_file(
         logger.info(yellow(f"Overwrite {file_to_write}"))
     else:
         logger.info(green(f"Write {file_to_write}"))
-    with open(file_to_write, "w") as f:
+    with open(file_to_write, "w", encoding="utf8") as f:
         f.write(content)

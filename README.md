@@ -40,7 +40,7 @@ Run Slither on a single file:
 slither tests/uninitialized.sol
 ```
 
-For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
+For GitHub action integration, see [slither-action](https://github.com/marketplace/actions/slither-action). For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
 Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc.
 
@@ -177,7 +177,7 @@ git clone https://github.com/crytic/slither.git && cd slither
 python3 setup.py install
 ```
 
-We recommend using an Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
+We recommend using a Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
 
 ### Using Docker
 
