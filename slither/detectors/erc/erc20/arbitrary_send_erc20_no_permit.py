@@ -11,7 +11,7 @@ class ArbitrarySendErc20NoPermit(AbstractDetector):
 
     ARGUMENT = "arbitrary-send-erc20"
     HELP = "transferFrom uses arbitrary `from`"
-    IMPACT = DetectorClassification.HIGH
+    IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Detector-Documentation#arbitrary-send-erc20"
