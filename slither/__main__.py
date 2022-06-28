@@ -194,6 +194,7 @@ def choose_detectors(args, all_detector_classes):
     # If detectors are specified, run only these ones
 
     detectors_to_run = []
+    main_detectors = []
     detectors = {d.ARGUMENT: d for d in all_detector_classes}
 
     if args.detectors_to_run == "all":
@@ -234,9 +235,13 @@ def choose_detectors(args, all_detector_classes):
             d for d in detectors_to_run if d.ARGUMENT not in args.detectors_to_exclude
         ]
 
+    main_detectors = [
+        d for d in detectors_to_run if d.IMPACT == DetectorClassification.HIGH
+    ]
+
     detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
 
-    return detectors_to_run
+    return detectors_to_run, main_detectors
 
 
 def choose_printers(args, all_printer_classes):
@@ -679,7 +684,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
 
     printer_classes = choose_printers(args, all_printer_classes)
-    detector_classes = choose_detectors(args, all_detector_classes)
+    (detector_classes, main_detectors) = choose_detectors(args, all_detector_classes)
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
@@ -712,6 +717,7 @@ def main_impl(all_detector_classes, all_printer_classes):
 
     results_detectors = []
     results_printers = []
+    results_main_detectors = []
     try:
         filename = args.filename
 
@@ -727,6 +733,13 @@ def main_impl(all_detector_classes, all_printer_classes):
             if args.splitted:
                 (
                     slither_instance,
+                    results_main_detectors,
+                    results_printers,
+                    number_contracts,
+                ) = process_from_asts(filenames, args, main_detectors, printer_classes)
+
+                (
+                    slither_instance,
                     results_detectors,
                     results_printers,
                     number_contracts,
@@ -734,6 +747,14 @@ def main_impl(all_detector_classes, all_printer_classes):
                 slither_instances.append(slither_instance)
             else:
                 for filename in filenames:
+                    (
+                        slither_instance,
+                        results_main_detectors_tmp,
+                        results_printers_tmp,
+                        number_contracts_tmp,
+                    ) = process_single(filename, args, main_detectors, printer_classes)
+                    results_main_detectors += results_main_detectors_tmp
+
                     (
                         slither_instance,
                         results_detectors_tmp,
@@ -747,6 +768,13 @@ def main_impl(all_detector_classes, all_printer_classes):
 
         # Rely on CryticCompile to discern the underlying type of compilations.
         else:
+            (
+                slither_instances,
+                results_main_detectors,
+                results_printers,
+                number_contracts,
+            ) = process_all(filename, args, main_detectors, printer_classes)
+
             (
                 slither_instances,
                 results_detectors,
@@ -845,7 +873,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     if output_error:
         sys.exit(-1)
     else:
-        my_exit(results_detectors)
+        my_exit(results_main_detectors)
 
 
 if __name__ == "__main__":
