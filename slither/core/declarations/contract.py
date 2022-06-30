@@ -80,6 +80,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._using_for_src: Dict[Union[str, Type], List[Tuple[Type, "StructureContract"]]] = {}
         self._kind: Optional[str] = None
         self._is_interface: bool = False
+        self._is_abstract: bool = False
 
         self._signatures: Optional[List[str]] = None
         self._signatures_declared: Optional[List[str]] = None
@@ -145,6 +146,14 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @is_interface.setter
     def is_interface(self, is_interface: bool):
         self._is_interface = is_interface
+
+    @property
+    def is_abstract(self) -> bool:
+        return self.is_abstract
+
+    @is_abstract.setter
+    def is_abstract(self, is_abstract: bool):
+        self._is_abstract = is_abstract
 
     # endregion
     ###################################################################################

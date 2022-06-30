@@ -158,6 +158,8 @@ class ContractSolc(CallerContextExpression):
             if attributes["contractKind"] == "interface":
                 self._contract.is_interface = True
             self._contract.kind = attributes["contractKind"]
+        if "abstract" in attributes:
+            self._contract._is_abstract = attributes["abstract"] == True
         self._linearized_base_contracts = attributes["linearizedBaseContracts"]
         # self._contract.fullyImplemented = attributes["fullyImplemented"]
 
