@@ -31,11 +31,10 @@ def get_signatures(c):
 
 class WrongEncodeWithSelector(AbstractDetector):
     """
-    Detect calls to abi.encodeWithSelector that may result in unexpected
-    calldata encodings
+    Detect calls to abi.encodeWithSelector that may result in unexpected calldata encodings
     """
 
-    ARGUMENT = "encodeselector"  # slither will launch the detector with slither.py --mydetector
+    ARGUMENT = "wrongencodeselector"
     HELP = "abi.encodeWithSelector with unexpected arguments"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
@@ -61,17 +60,17 @@ contract D {
 The compiler will not check if the parameters of abi.encodeWithSelector match the arguments expected at the destination 
 function signature.
 """
-    WIKI_RECOMMENDATION = ".."
+    WIKI_RECOMMENDATION = "Make sure that encodeWithSelector is building a calldata that matches the target function signature"
 
     def _detect(self):
         #gather all known funcids
         func_ids = {}
-        for contract in self.compilation_unit.contracts:
+        for contract in self.contracts:
             func_ids.update(get_signatures(contract))
         #todo: include func_ids from the public db
 
         results = []
-        for contract in self.compilation_unit.contracts:
+        for contract in self.contracts:
             for func, node in check(contract, func_ids):
                 info = [func, " calls abi.encodeWithSelector() with wrong arguments at", node ]
                 json = self.generate_result(info)
