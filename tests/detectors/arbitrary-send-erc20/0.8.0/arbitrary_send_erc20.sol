@@ -73,8 +73,8 @@ contract C {
         erc20.safeTransferFrom(address(this), to, amount);
     }
 
-    function overApproximation(address to, uint256 am) public {
-        address from_msgsender = address(0); // We probably need dead-code-elimination
+    function good7(address to, uint256 am) public {
+        address from_msgsender = address(0); 
         from_msgsender = msg.sender;
         int_transferFrom(from_msgsender, to, am);
     }

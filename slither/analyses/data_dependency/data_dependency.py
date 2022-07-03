@@ -164,21 +164,6 @@ def is_tainted_ssa(
     )
 
 
-def always_depends_on(
-    variable: Variable_types,
-    source: Variable_types,
-    context: Context_types,
-) -> bool:
-    """Returns whether a `variable` always depends on `source`."""
-    if source == variable:
-        return True
-    dependencies = get_dependencies(variable, context)
-    if source in dependencies and len(dependencies) == 1:
-        return True
-    # TODO: handle interprocedural dependencies e.g. value is passed to internal function
-    return False
-
-
 def get_dependencies(
     variable: Variable_types,
     context: Context_types,

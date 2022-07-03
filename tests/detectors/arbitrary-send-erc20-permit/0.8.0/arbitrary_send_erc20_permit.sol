@@ -34,7 +34,6 @@ contract C {
         erc20.transferFrom(from, to, value);
     }
 
-    // This is not detected
     function bad2(address from, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s, address to) public {
         int_transferFrom(from,value, deadline, v, r, s, to);
     }

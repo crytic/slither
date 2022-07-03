@@ -39,11 +39,11 @@ Ensure that the underlying ERC20 token correctly implements a permit function.
 
         arbitrary_sends = ArbitrarySendErc20(self.compilation_unit)
         arbitrary_sends.detect()
-        for (outer_node, inner_node) in arbitrary_sends.permit_results:
+        for func in arbitrary_sends.permit_results:
             info = [
-                outer_node,
+                func,
                 " uses arbitrary from in transferFrom in combination with permit: ",
-                inner_node,
+                func,
                 "\n",
             ]
             res = self.generate_result(info)
