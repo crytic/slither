@@ -77,4 +77,4 @@ class Constant(SlithIRVariable):
         return f"{str(self.value)}"
 
     def __hash__(self) -> int:
-        return super().__hash__()
+        return self._val.__hash__()
