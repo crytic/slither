@@ -1,3 +1,4 @@
+import itertools
 from typing import List
 
 from slither.core.cfg.node import Node
@@ -21,15 +22,16 @@ def constant_propagation(instructions: List[Operation]):
     while changed:
         changed = False
         for instr in instructions:
-            if isinstance(instr, Assignment):
-                if instr.rvalue == SolidityVariableComposed("msg.sender"):
-                    mappings[instr.lvalue] = instr.rvalue
-            if isinstance(instr, TypeConversion):
-                if instr.variable == SolidityVariable("this"):
-                    mappings[instr.lvalue] = instr.variable
+            if isinstance(instr, Assignment) and instr.rvalue == SolidityVariableComposed(
+                "msg.sender"
+            ):
+                mappings[instr.lvalue] = instr.rvalue
+            elif isinstance(instr, TypeConversion) and instr.variable == SolidityVariable("this"):
+                mappings[instr.lvalue] = instr.variable
 
         for (i, instr) in enumerate(instructions):
-            if isinstance(instr, Call):
+            # This ignores return values like (x, y) = abi.decode(...)
+            if isinstance(instr, Call) and not isinstance(instr.arguments, list):
                 new_args = [mappings.get(x, x) for x in instr.arguments]
                 if instr.arguments != new_args:
                     instr.arguments = new_args
@@ -83,7 +85,8 @@ class ArbitrarySendErc20:
         for ir in instructions:
             if isinstance(ir, InternalCall):
                 self.simplify_and_analyze(ir.function.nodes)
-            if isinstance(ir, HighLevelCall):
+            # High level calls (view functions) can also be `StateVariable`
+            if isinstance(ir, HighLevelCall) and isinstance(ir.function, Function):
                 sig = ir.function.solidity_signature
                 has_permit |= sig == "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
 
