@@ -149,7 +149,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     @property
     def is_abstract(self) -> bool:
-        return self.is_abstract
+        return self._is_abstract
 
     @is_abstract.setter
     def is_abstract(self, is_abstract: bool):
