@@ -1,5 +1,3 @@
-pragma solidity ^0.8.9;
-
 type Fix is int192;
 
 
