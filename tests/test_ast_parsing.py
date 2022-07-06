@@ -60,7 +60,7 @@ VERSIONS_04 = make_version(4, 0, 26)
 VERSIONS_05 = make_version(5, 0, 17)
 VERSIONS_06 = make_version(6, 0, 12)
 VERSIONS_07 = make_version(7, 0, 6)
-VERSIONS_08 = make_version(8, 0, 12)
+VERSIONS_08 = make_version(8, 0, 15)
 
 ALL_VERSIONS = VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08
 
