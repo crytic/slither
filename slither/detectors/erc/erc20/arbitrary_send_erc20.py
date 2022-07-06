@@ -11,6 +11,7 @@ from slither.slithir.operations.operation import Operation
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations import Call
 from slither.slithir.operations import TypeConversion
+from slither.slithir.operations.solidity_call import SolidityCall
 
 
 def constant_propagation(instructions: List[Operation]):
@@ -31,7 +32,7 @@ def constant_propagation(instructions: List[Operation]):
 
         for (i, instr) in enumerate(instructions):
             # This ignores return values like (x, y) = abi.decode(...)
-            if isinstance(instr, Call) and not isinstance(instr.arguments, list):
+            if isinstance(instr, Call) and not isinstance(instr, SolidityCall):
                 new_args = [mappings.get(x, x) for x in instr.arguments]
                 if instr.arguments != new_args:
                     instr.arguments = new_args
@@ -70,7 +71,7 @@ class ArbitrarySendErc20:
             and ir.arguments[0]
             not in (SolidityVariableComposed("msg.sender"), SolidityVariable("this"))
         ):
-            results.append(ir.node.function)
+            results.append(ir.node)
         elif (
             isinstance(ir, LibraryCall)
             and ir.function.solidity_signature
@@ -78,7 +79,7 @@ class ArbitrarySendErc20:
             and ir.arguments[1]
             not in (SolidityVariableComposed("msg.sender"), SolidityVariable("this"))
         ):
-            results.append(ir.node.function)
+            results.append(ir.node)
 
     def _detect_arbitrary_from(self, instructions: List[Operation]):
         has_permit = False
