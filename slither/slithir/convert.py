@@ -437,9 +437,6 @@ def propagate_type_and_convert_call(result, node):
 
         new_ins = propagate_types(ins, node)
         if new_ins:
-            # Validate that type was propagated
-            if isinstance(new_ins, OperationWithLValue):
-                assert new_ins.lvalue.type
             if isinstance(new_ins, (list,)):
                 for new_ins_ in new_ins:
                     new_ins_.set_node(ins.node)
