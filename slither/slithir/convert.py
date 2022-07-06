@@ -1667,7 +1667,10 @@ def convert_constant_types(irs):
                         if isinstance(ir.rvalue, TupleVariable):
                             # TODO: fix missing Unpack conversion
                             continue
-                        if ir.rvalue.type.type not in ElementaryTypeInt:
+                        if isinstance(ir.rvalue.type, TypeAlias):
+                            ir.rvalue.set_type(ElementaryType(ir.lvalue.type.name))
+                            was_changed = True
+                        elif ir.rvalue.type.type not in ElementaryTypeInt:
                             ir.rvalue.set_type(ElementaryType(ir.lvalue.type.type))
                             was_changed = True
             if isinstance(ir, Binary):
