@@ -400,6 +400,13 @@ def propagate_type_and_convert_call(result, node):
                 ins = new_ins
                 result[idx] = ins
 
+        # If there's two consecutive type conversions, keep only the last
+        # ARG_CALL x                             call_data = [x]
+        # TMP_4 = CONVERT x to Fix               call_data = []
+        # TMP_5 = CONVERT TMP_4 to uint192       call_data = [TMP_5]
+        if isinstance(ins, TypeConversion) and ins.variable in call_data:
+            call_data.remove(ins.variable)
+
         if isinstance(ins, Argument):
             # In case of dupplicate arguments we overwrite the value
             # This can happen because of addr.call.value(1).value(2)
@@ -429,10 +436,10 @@ def propagate_type_and_convert_call(result, node):
             continue
 
         new_ins = propagate_types(ins, node)
-        # Validate that type was propagated
-        if isinstance(new_ins, OperationWithLValue):
-            assert new_ins.lvalue.type
         if new_ins:
+            # Validate that type was propagated
+            if isinstance(new_ins, OperationWithLValue):
+                assert new_ins.lvalue.type
             if isinstance(new_ins, (list,)):
                 for new_ins_ in new_ins:
                     new_ins_.set_node(ins.node)
@@ -1682,6 +1689,7 @@ def convert_constant_types(irs):
                         # TODO: add  POP instruction
                         break
                     types = [p.type for p in func.parameters]
+                assert len(types) == len(ir.arguments)
                 for idx, arg in enumerate(ir.arguments):
                     t = types[idx]
                     if isinstance(t, ElementaryType):
