@@ -1,0 +1,5 @@
+{
+  "C": {
+    "f()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: NEW VARIABLE 1\n\"];\n1->2;\n2[label=\"Node Type: BEGIN_LOOP 2\n\"];\n2->4;\n3[label=\"Node Type: IF_LOOP 3\n\"];\n3->4[label=\"True\"];\n3->5[label=\"False\"];\n4[label=\"Node Type: EXPRESSION 4\n\"];\n4->3;\n5[label=\"Node Type: END_LOOP 5\n\"];\n5->6;\n6[label=\"Node Type: EXPRESSION 6\n\"];\n6->7;\n7[label=\"Node Type: BEGIN_LOOP 7\n\"];\n7->9;\n8[label=\"Node Type: IF_LOOP 8\n\"];\n8->9[label=\"True\"];\n8->10[label=\"False\"];\n9[label=\"Node Type: EXPRESSION 9\n\"];\n9->8;\n10[label=\"Node Type: END_LOOP 10\n\"];\n}\n"
+  }
+}
