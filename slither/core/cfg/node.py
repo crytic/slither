@@ -44,7 +44,6 @@ from slither.core.declarations import Contract, Function
 from slither.core.expressions.expression import Expression
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Function
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.utils.type_helpers import (

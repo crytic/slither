@@ -829,7 +829,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
                     str(ins.ori.variable_right)
                 ]
                 assert isinstance(
-                    ins.ori.variable_left.custom_errors_as_dict[str(ins.ori.variable_right)],
+                    custom_error,
                     CustomError,
                 )
                 sol_function = SolidityCustomRevert(custom_error)
