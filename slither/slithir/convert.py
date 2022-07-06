@@ -33,6 +33,7 @@ from slither.core.solidity_types.elementary_type import (
     MaxValues,
 )
 from slither.core.solidity_types.type import Type
+from slither.core.solidity_types.type_alias import TypeAlias
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
@@ -428,6 +429,9 @@ def propagate_type_and_convert_call(result, node):
             continue
 
         new_ins = propagate_types(ins, node)
+        # Validate that type was propagated
+        if isinstance(new_ins, OperationWithLValue):
+            assert new_ins.lvalue.type
         if new_ins:
             if isinstance(new_ins, (list,)):
                 for new_ins_ in new_ins:
@@ -531,7 +535,9 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                         return convert_type_of_high_and_internal_level_call(ir, contract)
 
                 # Convert HighLevelCall to LowLevelCall
-                if isinstance(t, ElementaryType) and t.name == "address":
+                if (isinstance(t, ElementaryType) and t.name == "address") or (
+                    isinstance(t, TypeAlias) and t.underlying_type.name == "address"
+                ):
                     # Cannot be a top level function with this.
                     assert isinstance(node_function, FunctionContract)
                     if ir.destination.name == "this":

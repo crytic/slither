@@ -1,3 +1,4 @@
+pragma solidity ^0.8.9;
 pragma abicoder v2;
 type MyAddress is address;
 
@@ -21,7 +22,7 @@ contract C {
         test[0] = MyAddress.wrap(address(21));
         test[1] = MyAddress.wrap(address(22));
         test[2] = MyAddress.wrap(address(23));
-        this.f(test);
+        // this.f(test);
         test_equality(test);
         return true;
     }
