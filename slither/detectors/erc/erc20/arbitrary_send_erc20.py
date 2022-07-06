@@ -1,4 +1,3 @@
-import itertools
 from typing import List
 
 from slither.core.cfg.node import Node
