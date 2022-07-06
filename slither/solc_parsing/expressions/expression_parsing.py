@@ -439,7 +439,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         if caller_context.is_compact_ast:
             value = expression["name"]
             t = expression["typeDescriptions"]["typeString"]
-            print("VALUE", value, "\n", "T", t)
         else:
             value = expression["attributes"]["value"]
             if "type" in expression["attributes"]:
@@ -448,13 +447,11 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         if t:
 
             found = re.findall("[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
-            print(found)
             assert len(found) <= 1
             if found:
                 value = value + "(" + found[0] + ")"
                 value = filter_name(value)
-                print(value)
-                # THIS IS FAILING WHEN A CONTRACT TYPE IS IN A CUSTOM ERROR
+
         if "referencedDeclaration" in expression:
             referenced_declaration = expression["referencedDeclaration"]
         else:
