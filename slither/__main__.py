@@ -10,7 +10,7 @@ import os
 import pstats
 import sys
 import traceback
-from typing import Optional
+from typing import Tuple, Optional, List
 
 from pkg_resources import iter_entry_points, require
 
@@ -24,7 +24,13 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils.output import output_to_json, output_to_zip, output_to_sarif, ZIP_TYPES_ACCEPTED
+from slither.utils.output import (
+    output_to_json,
+    output_to_zip,
+    output_to_sarif,
+    ZIP_TYPES_ACCEPTED,
+    OutputData,
+)
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
@@ -54,7 +60,12 @@ logger = logging.getLogger("Slither")
 ###################################################################################
 
 
-def process_single(target, args, detector_classes, printer_classes):
+def process_single(
+    target: str,
+    args: argparse.Namespace,
+    detector_classes: List[AbstractDetector],
+    printer_classes: List[AbstractPrinter],
+) -> Tuple[Slither, List[OutputData], List[OutputData], int]:
     """
     The core high-level code for running Slither static analysis.
 
@@ -72,7 +83,12 @@ def process_single(target, args, detector_classes, printer_classes):
     return _process(slither, detector_classes, printer_classes)
 
 
-def process_all(target, args, detector_classes, printer_classes):
+def process_all(
+    target: str,
+    args: argparse.Namespace,
+    detector_classes: List[AbstractDetector],
+    printer_classes: List[AbstractPrinter],
+) -> Tuple[List[Slither], List[OutputData], List[OutputData], int]:
     compilations = compile_all(target, **vars(args))
     slither_instances = []
     results_detectors = []
@@ -97,7 +113,11 @@ def process_all(target, args, detector_classes, printer_classes):
     )
 
 
-def _process(slither, detector_classes, printer_classes):
+def _process(
+    slither: Slither,
+    detector_classes: List[AbstractDetector],
+    printer_classes: List[AbstractPrinter],
+) -> Tuple[Slither, List[OutputData], List[OutputData], int]:
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
 
@@ -123,7 +143,12 @@ def _process(slither, detector_classes, printer_classes):
     return slither, results_detectors, results_printers, analyzed_contracts_count
 
 
-def process_from_asts(filenames, args, detector_classes, printer_classes):
+def process_from_asts(
+    filenames: List[str],
+    args: argparse.Namespace,
+    detector_classes: List[AbstractDetector],
+    printer_classes: List[AbstractPrinter],
+):
     all_contracts = []
 
     for filename in filenames:
@@ -137,29 +162,13 @@ def process_from_asts(filenames, args, detector_classes, printer_classes):
 # endregion
 ###################################################################################
 ###################################################################################
-# region Exit
-###################################################################################
-###################################################################################
 
-
-def my_exit(results):
-    if not results:
-        sys.exit(0)
-    sys.exit(len(results))
-
-
-# endregion
-###################################################################################
-###################################################################################
 # region Detectors and printers
 ###################################################################################
 ###################################################################################
 
 
 def get_detectors_and_printers():
-    """
-    NOTE: This contains just a few detectors and printers that we made public.
-    """
 
     detectors = [getattr(all_detectors, name) for name in dir(all_detectors)]
     detectors = [d for d in detectors if inspect.isclass(d) and issubclass(d, AbstractDetector)]
@@ -190,7 +199,9 @@ def get_detectors_and_printers():
 
 
 # pylint: disable=too-many-branches
-def choose_detectors(args, all_detector_classes):
+def choose_detectors(
+    args: argparse.Namespace, all_detector_classes: List[AbstractDetector]
+) -> List[AbstractDetector]:
     # If detectors are specified, run only these ones
 
     detectors_to_run = []
@@ -212,22 +223,22 @@ def choose_detectors(args, all_detector_classes):
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
-    if args.exclude_optimization:
+    if args.exclude_optimization and not args.fail_pedantic:
         detectors_to_run = [
             d for d in detectors_to_run if d.IMPACT != DetectorClassification.OPTIMIZATION
         ]
 
-    if args.exclude_informational:
+    if args.exclude_informational and not args.fail_pedantic:
         detectors_to_run = [
             d for d in detectors_to_run if d.IMPACT != DetectorClassification.INFORMATIONAL
         ]
-    if args.exclude_low:
+    if args.exclude_low and not args.fail_low:
         detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.LOW]
-    if args.exclude_medium:
+    if args.exclude_medium and not args.fail_medium:
         detectors_to_run = [
             d for d in detectors_to_run if d.IMPACT != DetectorClassification.MEDIUM
         ]
-    if args.exclude_high:
+    if args.exclude_high and not args.fail_high:
         detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.HIGH]
     if args.detectors_to_exclude:
         detectors_to_run = [
@@ -239,7 +250,9 @@ def choose_detectors(args, all_detector_classes):
     return detectors_to_run
 
 
-def choose_printers(args, all_printer_classes):
+def choose_printers(
+    args: argparse.Namespace, all_printer_classes: List[AbstractPrinter]
+) -> List[AbstractPrinter]:
     printers_to_run = []
 
     # disable default printer
@@ -386,6 +399,34 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         help="Exclude high impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_high"],
+    )
+
+    group_detector.add_argument(
+        "--fail-pedantic",
+        help="Fail if any finding is detected",
+        action="store_true",
+        default=defaults_flag_in_config["fail_pedantic"],
+    )
+
+    group_detector.add_argument(
+        "--fail-low",
+        help="Fail if low or greater impact finding is detected",
+        action="store_true",
+        default=defaults_flag_in_config["fail_low"],
+    )
+
+    group_detector.add_argument(
+        "--fail-medium",
+        help="Fail if medium or greater impact finding is detected",
+        action="store_true",
+        default=defaults_flag_in_config["fail_medium"],
+    )
+
+    group_detector.add_argument(
+        "--fail-high",
+        help="Fail if high impact finding is detected",
+        action="store_true",
+        default=defaults_flag_in_config["fail_high"],
     )
 
     group_detector.add_argument(
@@ -644,7 +685,9 @@ def main():
 
 
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
-def main_impl(all_detector_classes, all_printer_classes):
+def main_impl(
+    all_detector_classes: List[AbstractDetector], all_printer_classes: List[AbstractPrinter]
+):
     """
     :param all_detector_classes: A list of all detectors that can be included/excluded.
     :param all_printer_classes: A list of all printers that can be included.
@@ -840,11 +883,26 @@ def main_impl(all_detector_classes, all_printer_classes):
         stats = pstats.Stats(cp).sort_stats("cumtime")
         stats.print_stats()
 
-    # Exit with the appropriate status code
-    if output_error:
+    if args.fail_high:
+        fail_on_detection = any(result["impact"] == "High" for result in results_detectors)
+    elif args.fail_medium:
+        fail_on_detection = any(
+            result["impact"] in ["Medium", "High"] for result in results_detectors
+        )
+    elif args.fail_low:
+        fail_on_detection = any(
+            result["impact"] in ["Low", "Medium", "High"] for result in results_detectors
+        )
+    elif args.fail_pedantic:
+        fail_on_detection = bool(len(results_detectors))
+    else:
+        fail_on_detection = False
+
+    # Exit with them appropriate status code
+    if output_error or fail_on_detection:
         sys.exit(-1)
     else:
-        my_exit(results_detectors)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
