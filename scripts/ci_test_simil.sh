@@ -10,7 +10,7 @@ pip3.8 install https://github.com/facebookresearch/fastText/archive/0.2.0.zip
 solc-select use "0.4.25"
 
 DIR_TESTS="tests/simil"
-slither-simil info "" --filename $DIR_TESTS/../complex_func.sol --fname Complex.complexExternalWrites  > test_1.txt 2>&1
+slither-simil info "" --filename $DIR_TESTS/../complex_func.sol --fname Complex.complexExternalWrites  > test_1.txt 
 DIFF=$(diff test_1.txt "$DIR_TESTS/test_1.txt")
 if [  "$DIFF" != "" ]
 then

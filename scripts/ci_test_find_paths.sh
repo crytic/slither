@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-### Test slither-check-upgradability
+### Test slither-check-upgradeability
 
 DIR_TESTS="tests/possible_paths"
 
 solc-select use "0.5.0"
-slither-find-paths "$DIR_TESTS/paths.sol"  A.destination  > test_possible_paths.txt 2>&1
+slither-find-paths "$DIR_TESTS/paths.sol"  A.destination  > test_possible_paths.txt 
 DIFF=$(diff test_possible_paths.txt "$DIR_TESTS/paths.txt")
 if [  "$DIFF" != "" ]
 then
