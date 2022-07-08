@@ -452,8 +452,9 @@ class Output:
     def add_contract(self, contract: Contract, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
+        type_specific_fields = {"kind": "abstract" if contract.is_abstract else contract.kind}
         element = _create_base_element(
-            "contract", contract.name, contract.source_mapping, {}, additional_fields
+            "contract", contract.name, contract.source_mapping, type_specific_fields, additional_fields
         )
         self._data["elements"].append(element)
 
