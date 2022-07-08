@@ -4,7 +4,7 @@ import json
 import logging
 import zipfile
 from collections import OrderedDict
-from typing import Optional, Dict, List, TypedDict, Union, Any, TYPE_CHECKING
+from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING
 from zipfile import ZipFile
 from pkg_resources import require
 
@@ -22,7 +22,11 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("Slither")
 
-
+try:
+    from typing import TypedDict
+except ImportError:
+    # < Python 3.8
+    from typing_extensions import TypedDict
 ###################################################################################
 ###################################################################################
 # region Output
