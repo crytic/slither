@@ -15,13 +15,11 @@ nix-env -f "$HOME/.dapp/dapptools" -iA dapp seth solc hevm ethsign
 
 dapp init
 
-slither . --detect external-function
+slither . --fail-pedantic
 
-# TODO: make more elaborate test
-if [ $? -eq 4 ]
+if [ $? -ne 255 ]
 then
-    exit 0
+    echo "Truffle test failed"
+    exit 255
 fi
 
-echo "Dapp test failed"
-exit 255

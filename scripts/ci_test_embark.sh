@@ -15,13 +15,12 @@ npm install -g embark@4.2.0
 embark demo
 cd embark_demo || exit 255
 npm install
-slither . --embark-overwrite-config
+slither . --embark-overwrite-config --fail-pedantic
 
-if [ $? -eq 4 ]
+if [ $? -ne 255 ]
 then
-    exit 0
+    echo "Embark test failed"
+    exit 255
 fi
 
-echo "Embark test failed"
-exit 255
 
