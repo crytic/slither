@@ -34,7 +34,7 @@ def delegatecall_in_loop(
             and ir.function_name == "delegatecall"
         ):
             results.append(ir.node)
-        if isinstance(ir, (InternalCall)):
+        if isinstance(ir, (InternalCall)) and ir.function.is_implemented:
             delegatecall_in_loop(ir.function.entry_point, in_loop_counter, visited, results)
 
     for son in node.sons:

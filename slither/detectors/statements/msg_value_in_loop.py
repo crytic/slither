@@ -30,7 +30,7 @@ def msg_value_in_loop(
     for ir in node.all_slithir_operations():
         if in_loop_counter > 0 and SolidityVariableComposed("msg.value") in ir.read:
             results.append(ir.node)
-        if isinstance(ir, (InternalCall)):
+        if isinstance(ir, (InternalCall)) and ir.function.is_implemented:
             msg_value_in_loop(ir.function.entry_point, in_loop_counter, visited, results)
 
     for son in node.sons:
