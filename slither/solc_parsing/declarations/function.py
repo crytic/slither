@@ -180,18 +180,23 @@ class FunctionSolc(CallerContextExpression):
         """
         if self.is_compact_ast:
             attributes = self._functionNotParsed
+            if self._function.name == "fallback":
+                self._function.function_type = FunctionType.FALLBACK
+            elif self._function.name == "receive":
+                self._function.function_type = FunctionType.RECEIVE
+            else:
+                self._function.function_type = FunctionType.NORMAL
         else:
             attributes = self._functionNotParsed["attributes"]
 
-        if self._function.name == "":
-            self._function.function_type = FunctionType.FALLBACK
-            # 0.6.x introduced the receiver function
-            # It has also an empty name, so we need to check the kind attribute
-            if "kind" in attributes:
-                if attributes["kind"] == "receive":
+            if self._function.name == "":
+                self._function.function_type = FunctionType.FALLBACK
+                # 0.6.x introduced the receiver function
+                # It has also an empty name, so we need to check the kind attribute
+                if "kind" in attributes and attributes["kind"] == "receive":
                     self._function.function_type = FunctionType.RECEIVE
-        else:
-            self._function.function_type = FunctionType.NORMAL
+            else:
+                self._function.function_type = FunctionType.NORMAL
 
         if isinstance(self._function, FunctionContract):
             if self._function.name == self._function.contract_declarer.name:

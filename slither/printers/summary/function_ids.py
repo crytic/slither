@@ -1,6 +1,7 @@
 """
     Module printing summary of the contract
 """
+from slither.core.declarations.function import FunctionType
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.function import get_function_id
 from slither.utils.myprettytable import MyPrettyTable
@@ -25,8 +26,8 @@ class FunctionIds(AbstractPrinter):
         for contract in self.slither.contracts_derived:
             txt += f"\n{contract.name}:\n"
             table = MyPrettyTable(["Name", "ID"])
-            for function in contract.functions:
-                if function.visibility in ["public", "external"]:
+            for function in contract.functions_entry_points:
+                if function.function_type == FunctionType.NORMAL:
                     function_id = get_function_id(function.solidity_signature)
                     table.add_row([function.solidity_signature, f"{function_id:#0{10}x}"])
             for variable in contract.state_variables:
