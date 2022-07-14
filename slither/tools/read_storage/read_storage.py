@@ -1,6 +1,7 @@
 import sys
 import logging
 from math import floor
+from os import environ
 
 from typing import Callable, Optional, Tuple, Union, List, Dict
 
@@ -29,6 +30,13 @@ try:
 except ImportError:
     print("ERROR: in order to use slither-read-storage, you need to install web3")
     print("$ pip3 install web3 --user\n")
+    sys.exit(-1)
+
+try:
+    from tabulate import tabulate
+except ImportError:
+    print("ERROR: in order to use slither-read-storage --table, you need to install tabulate")
+    print("$ pip3 install tabulate --user\n")
     sys.exit(-1)
 
 from slither.core.solidity_types.type import Type
@@ -182,14 +190,24 @@ class SlitherReadStorage:
 
         int_slot = int.from_bytes(slot, byteorder="big")
         self.log += f"\nName: {var_log_name}\nType: {type_to}\nSlot: {int_slot}\n"
-        logger.info(self.log)
+        if environ.get("SILENT") is None:
+            logger.info(self.log)
         self.log = ""
-        return {
-            "type_string": type_to,
-            "slot": int_slot,
-            "size": size,
-            "offset": offset,
-        }
+        if environ.get("TABLE") is None:
+            return {
+                "type_string": type_to,
+                "slot": int_slot,
+                "size": size,
+                "offset": offset,
+            }
+        else:
+            return {
+                "type_string": type_to,
+                "slot": int_slot,
+                "size": size,
+                "offset": offset,
+                "struct_var": struct_var,
+            }
 
     def get_target_variables(self, **kwargs) -> None:
         """
@@ -240,6 +258,86 @@ class SlitherReadStorage:
                     ],
                 )
             )
+
+    def print_table(self) -> None:
+
+        if environ.get("TABLE_VALUE") is None: 
+            tabulate_headers = ['slot', 'offset', 'size', 'type', 'name']
+        else:
+            tabulate_headers = ['slot', 'offset', 'size', 'type', 'name', 'value']
+            print("Processing, grabbing values from rpc endpoint...")
+
+        tabulate_data = []
+
+        for contract, state_var in self.target_variables:
+            type_ = state_var.type
+
+            var = state_var.name
+            info = self.slot_info[var]
+
+            slot = info.get('slot')
+            offset = info.get('offset')
+            size = info.get('size')
+            type_string = info.get('type_string')
+            struct_var = info.get('struct_var')
+
+
+            if environ.get("TABLE_VALUE") is None:
+                tabulate_data.append([slot, offset, size, type_string, var])
+            else:
+                hex_bytes = get_storage_data(self.web3, self.checksum_address, slot)
+                value = self.convert_value_to_type(
+                    hex_bytes, size, offset, type_string
+                )
+                tabulate_data.append([slot, offset, size, type_string, var, value])
+
+
+            if is_user_defined_type(type_) and is_struct(type_.type):
+                tabulate_data.pop()
+                for item in info["elems"]:
+                    slot = info["elems"][item].get('slot')
+                    offset = info["elems"][item].get('offset')
+                    size = info["elems"][item].get('size')
+                    type_string = info["elems"][item].get('type_string')
+                    struct_var = info["elems"][item].get('struct_var')
+
+                    # doesn't handle deep keys currently 
+                    var_name_struct_or_array_var = "{} -> {}".format(var, struct_var)
+
+
+                    if environ.get("TABLE_VALUE") is None:
+                        tabulate_data.append([slot, offset, size, type_string, var_name_struct_or_array_var])
+                    else:
+                        hex_bytes = get_storage_data(self.web3, self.checksum_address, slot)
+                        value = self.convert_value_to_type(
+                            hex_bytes, size, offset, type_string
+                        )
+                        tabulate_data.append([slot, offset, size, type_string, var_name_struct_or_array_var, value])
+
+            if is_array(type_):
+                tabulate_data.pop()
+                for item in info["elems"]:
+                    for key in info["elems"][item]:
+                        slot = info["elems"][item][key].get('slot')
+                        offset = info["elems"][item][key].get('offset')
+                        size = info["elems"][item][key].get('size')
+                        type_string = info["elems"][item][key].get('type_string')
+                        struct_var = info["elems"][item][key].get('struct_var')
+
+                        # doesn't handle deep keys currently
+                        var_name_struct_or_array_var = "{} -> {}".format(var, struct_var)
+
+                        if environ.get("TABLE_VALUE") is None:
+                            tabulate_data.append([slot, offset, size, type_string, var_name_struct_or_array_var])
+                        else:
+                            hex_bytes = get_storage_data(self.web3, self.checksum_address, slot)
+                            value = self.convert_value_to_type(
+                                hex_bytes, size, offset, type_string
+                            )
+                            tabulate_data.append([slot, offset, size, type_string, var_name_struct_or_array_var, value])
+                        
+
+        print(tabulate(tabulate_data, headers=tabulate_headers, tablefmt='grid'))
 
     @staticmethod
     def _find_struct_var_slot(
@@ -456,9 +554,10 @@ class SlitherReadStorage:
         size = byte_size * 8  # bits
         (int_slot, offset) = contract.compilation_unit.storage_layout_of(contract, target_variable)
         offset *= 8  # bits
-        logger.info(
-            f"\nContract '{contract.name}'\n{target_variable.canonical_name} with type {target_variable.type} is located at slot: {int_slot}\n"
-        )
+        if environ.get("SILENT") is None:
+            logger.info(
+                f"\nContract '{contract.name}'\n{target_variable.canonical_name} with type {target_variable.type} is located at slot: {int_slot}\n"
+            )
 
         return int_slot, size, offset, type_to
 

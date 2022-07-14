@@ -3,6 +3,7 @@ Tool to read on-chain storage from EVM
 """
 import json
 import argparse
+from os import environ
 
 from crytic_compile import cryticparser
 
@@ -84,6 +85,24 @@ def parse_args() -> argparse.Namespace:
         help="Toggle used to include values in output.",
     )
 
+    parser.add_argument(
+        "--table-storage-layout",
+        action="store_true",
+        help="Print table view of storage layout",
+    )
+
+    parser.add_argument(
+        "--table-storage-value",
+        action="store_true",
+        help="Print table view of storage layout & values",
+    )
+
+    parser.add_argument(
+        "--silent",
+        action="store_true",
+        help="Silence log outputs",
+    )
+
     parser.add_argument("--max-depth", help="Max depth to search in data structure.", default=20)
 
     cryticparser.init(parser)
@@ -119,6 +138,25 @@ def main() -> None:
         srs.storage_address = args.storage_address
 
         srs.rpc = args.rpc_url
+
+    if args.silent:
+        environ["SILENT"] = "1"
+
+    if args.table_storage_layout:
+        environ["TABLE"] = "1"
+        srs.get_all_storage_variables()
+        srs.get_storage_layout()
+        srs.print_table()
+        return
+
+    if args.table_storage_value:
+        assert args.rpc_url
+        environ["TABLE"] = "1"
+        environ["TABLE_VALUE"] = "1"
+        srs.get_all_storage_variables()
+        srs.get_storage_layout()
+        srs.print_table()
+        return
 
     if args.layout:
         srs.get_all_storage_variables()
