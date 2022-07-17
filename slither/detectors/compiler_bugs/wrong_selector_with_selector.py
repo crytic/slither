@@ -1,13 +1,12 @@
-import pdb
-
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import SolidityCall
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.constant import Constant
-
 from slither.utils.function import get_function_id
+
+
 def get_signatures(c):
     """Build a dictionary mapping function ids to signature, name, arguments for a contract"""
     result = {}
