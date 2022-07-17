@@ -1,0 +1,137 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad",
+                    "source_mapping": {
+                        "start": 135,
+                        "length": 131,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8,
+                            9,
+                            10,
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "D",
+                            "source_mapping": {
+                                "start": 118,
+                                "length": 286,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "address(t).call(abi.encodeWithSelector(Test.f.selector,test))",
+                    "source_mapping": {
+                        "start": 196,
+                        "length": 63,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 72
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad",
+                            "source_mapping": {
+                                "start": 135,
+                                "length": 131,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "D",
+                                    "source_mapping": {
+                                        "start": 118,
+                                        "length": 286,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "D.bad() (tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol#8-11) calls abi.encodeWithSelector() with wrong arguments ataddress(t).call(abi.encodeWithSelector(Test.f.selector,test)) (tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol#10)",
+            "markdown": "[D.bad()](tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol#L8-L11) calls abi.encodeWithSelector() with wrong arguments at[address(t).call(abi.encodeWithSelector(Test.f.selector,test))](tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol#L10)",
+            "first_markdown_element": "tests/detectors/wrongencodeselector/0.8.0/wrongencodeselector.sol#L8-L11",
+            "id": "9230578efcdc63464cf775b07aaf1d04e77ea58363f4809b7f6ffb1dcd46e34f",
+            "check": "wrongencodeselector",
+            "impact": "Medium",
+            "confidence": "High"
+        }
+    ]
+]

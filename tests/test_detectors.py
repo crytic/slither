@@ -1327,6 +1327,15 @@ ALL_TEST_OBJECTS = [
         "arbitrary_send_erc20_permit.sol",
         "0.8.0",
     ),
+    Test(all_detectors.WrongEncodeWithSelector,
+         "wrongencodeselector.sol",
+         "0.8.15"
+    ),
+    Test(all_detectors.WrongEncodeWithSelector,
+         "wrongencodeselector.sol",
+         "0.8.0"
+     )
+
 ]
 
 
