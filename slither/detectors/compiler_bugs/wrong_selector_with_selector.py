@@ -56,7 +56,7 @@ contract D {
     }
 }
 ```
-The compiler will not check if the parameters of abi.encodeWithSelector match the arguments expected at the destination 
+The compiler will not check_contract if the parameters of abi.encodeWithSelector match the arguments expected at the destination 
 function signature.
 """
     WIKI_RECOMMENDATION = "Make sure that encodeWithSelector is building a calldata that matches the target function signature"
@@ -70,45 +70,49 @@ function signature.
 
         results = []
         for contract in self.contracts:
-            for func, node in check(contract, func_ids):
+            for func, node in check_contract(contract, func_ids):
                 info = [func, " calls abi.encodeWithSelector() with wrong arguments at", node ]
                 json = self.generate_result(info)
                 results.append(json)
 
         return results
 
-def check(contract, func_ids):
-    """ check if contract has an ecodeWhitSelector that uses a selector
+def check_ir(function, node, ir, func_ids):
+    result = []
+    if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
+            "abi.encodeWithSelector()"
+    ):
+
+        # build reference bindings dict
+        assignments = {}
+        for ir1 in node.irs:
+            if isinstance(ir1, Assignment):
+                assignments[ir1.lvalue.name] = ir1.rvalue
+
+        # if the selector is a reference, deref
+        selector = ir.arguments[0]
+        if isinstance(selector, ReferenceVariable):
+            selector = assignments[selector.name]
+
+        assert isinstance(selector, Constant)
+
+        _, _, argument_types = func_ids[selector.value]
+        arguments = ir.arguments[1:]
+
+        if len(argument_types) != len(arguments):
+            result.append((function, node))
+
+        # Todo check_contract unmatching argument types for correct count
+    return result
+
+def check_contract(contract, func_ids):
+    """ check_contract if contract has an ecodeWhitSelector that uses a selector
         for a method with an unmatching number of arguments
     """
     result = []
     for function in contract.functions_and_modifiers_declared:
         for node in function.nodes:
             for ir in node.irs:
-
-                if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
-                    "abi.encodeWithSelector()"
-                ):
-
-                    #build reference bindings dict
-                    assigments = {}
-                    for ir1 in node.irs:
-                        if isinstance(ir1, Assignment):
-                            assigments[ir1.lvalue.name] = ir1.rvalue
-
-                    #if the selector is a reference, deref
-                    selector = ir.arguments[0]
-                    if isinstance(selector, ReferenceVariable):
-                        selector = assigments[selector.name]
-
-                    assert isinstance(selector, Constant)
-
-                    signature, name, argument_types = func_ids[selector.value]
-                    arguments = ir.arguments[1:]
-
-                    if len(argument_types) != len(arguments):
-                        result.append((function, node))
-
-                    #Todo check unmatching argument types for correct count
+                result += check_ir(function, node, ir, func_ids)
 
     return result
