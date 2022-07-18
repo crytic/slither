@@ -325,7 +325,7 @@ class SlitherReadStorage:
                         struct_var = info["elems"][item][key].get('struct_var')
 
                         # doesn't handle deep keys currently
-                        var_name_struct_or_array_var = "{} -> {} -> {}".format(var, item, struct_var)
+                        var_name_struct_or_array_var = "{}[{}] -> {}".format(var, item, struct_var)
 
                         if environ.get("TABLE_VALUE") is None:
                             tabulate_data.append([slot, offset, size, type_string, var_name_struct_or_array_var])
