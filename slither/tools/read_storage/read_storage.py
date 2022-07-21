@@ -145,7 +145,8 @@ class SlitherReadStorage:
             contracts (`Contract`): The contract that contains the given state variable.
         **kwargs:
             key (str): Key of a mapping or index position if an array.
-            deep_key (str): Key of a mapping embedded within another mapping or secondary index if array.
+            deep_key (str): Key of a mapping embedded within another mapping or 
+            secondary index if array.
             struct_var (str): Structure variable name.
         Returns:
             (`SlotInfo`) | None : A dictionary of the slot information.
@@ -200,14 +201,13 @@ class SlitherReadStorage:
                 "size": size,
                 "offset": offset,
             }
-        else:
-            return {
-                "type_string": type_to,
-                "slot": int_slot,
-                "size": size,
-                "offset": offset,
-                "struct_var": struct_var,
-            }
+        return {
+            "type_string": type_to,
+            "slot": int_slot,
+            "size": size,
+            "offset": offset,
+            "struct_var": struct_var,
+        }
 
     def get_target_variables(self, **kwargs) -> None:
         """
@@ -261,83 +261,104 @@ class SlitherReadStorage:
 
     def print_table(self) -> None:
 
-        if environ.get("TABLE_VALUE") is None: 
-            tabulate_headers = ['slot', 'offset', 'size', 'type', 'name']
+        if environ.get("TABLE_VALUE") is None:
+            tabulate_headers = ["slot", "offset", "size", "type", "name"]
         else:
-            tabulate_headers = ['slot', 'offset', 'size', 'type', 'name', 'value']
+            tabulate_headers = ["slot", "offset", "size", "type", "name", "value"]
             print("Processing, grabbing values from rpc endpoint...")
 
         tabulate_data = []
 
-        for contract, state_var in self.target_variables:
+        for _, state_var in self.target_variables:
             type_ = state_var.type
-
             var = state_var.name
             info = self.slot_info[var]
-
-            slot = info.get('slot')
-            offset = info.get('offset')
-            size = info.get('size')
-            type_string = info.get('type_string')
-            struct_var = info.get('struct_var')
-
+            slot = info.get("slot")
+            offset = info.get("offset")
+            size = info.get("size")
+            type_string = info.get("type_string")
+            struct_var = info.get("struct_var")
 
             if environ.get("TABLE_VALUE") is None:
-                tabulate_data.append([slot, offset, size, type_string, var])
+                tabulate_data.append(
+                    [slot, offset, size, type_string, var]
+                )
             else:
                 hex_bytes = get_storage_data(self.web3, self.checksum_address, slot)
-                value = self.convert_value_to_type(
-                    hex_bytes, size, offset, type_string
+                value = self.convert_value_to_type(hex_bytes, size, offset, type_string)
+                tabulate_data.append(
+                    [
+                        slot,
+                        offset,
+                        size,
+                        type_string,
+                        var,
+                        value
+                    ]
                 )
-                tabulate_data.append([slot, offset, size, type_string, var, value])
-
 
             if is_user_defined_type(type_) and is_struct(type_.type):
                 tabulate_data.pop()
                 for item in info["elems"]:
-                    slot = info["elems"][item].get('slot')
-                    offset = info["elems"][item].get('offset')
-                    size = info["elems"][item].get('size')
-                    type_string = info["elems"][item].get('type_string')
-                    struct_var = info["elems"][item].get('struct_var')
+                    slot = info["elems"][item].get("slot")
+                    offset = info["elems"][item].get("offset")
+                    size = info["elems"][item].get("size")
+                    type_string = info["elems"][item].get("type_string")
+                    struct_var = info["elems"][item].get("struct_var")
 
-                    # doesn't handle deep keys currently 
+                    # doesn't handle deep keys currently
                     var_name_struct_or_array_var = "{} -> {}".format(var, struct_var)
 
-
                     if environ.get("TABLE_VALUE") is None:
-                        tabulate_data.append([slot, offset, size, type_string, var_name_struct_or_array_var])
+                        tabulate_data.append(
+                            [slot, offset, size, type_string, var_name_struct_or_array_var]
+                        )
                     else:
                         hex_bytes = get_storage_data(self.web3, self.checksum_address, slot)
-                        value = self.convert_value_to_type(
-                            hex_bytes, size, offset, type_string
+                        value = self.convert_value_to_type(hex_bytes, size, offset, type_string)
+                        tabulate_data.append(
+                            [
+                                slot,
+                                offset,
+                                size,
+                                type_string,
+                                var_name_struct_or_array_var,
+                                value
+                            ]
                         )
-                        tabulate_data.append([slot, offset, size, type_string, var_name_struct_or_array_var, value])
 
             if is_array(type_):
                 tabulate_data.pop()
                 for item in info["elems"]:
                     for key in info["elems"][item]:
-                        slot = info["elems"][item][key].get('slot')
-                        offset = info["elems"][item][key].get('offset')
-                        size = info["elems"][item][key].get('size')
-                        type_string = info["elems"][item][key].get('type_string')
-                        struct_var = info["elems"][item][key].get('struct_var')
+                        slot = info["elems"][item][key].get("slot")
+                        offset = info["elems"][item][key].get("offset")
+                        size = info["elems"][item][key].get("size")
+                        type_string = info["elems"][item][key].get("type_string")
+                        struct_var = info["elems"][item][key].get("struct_var")
 
                         # doesn't handle deep keys currently
                         var_name_struct_or_array_var = "{}[{}] -> {}".format(var, item, struct_var)
 
                         if environ.get("TABLE_VALUE") is None:
-                            tabulate_data.append([slot, offset, size, type_string, var_name_struct_or_array_var])
+                            tabulate_data.append(
+                                [slot, offset, size, type_string, var_name_struct_or_array_var]
+                            )
                         else:
                             hex_bytes = get_storage_data(self.web3, self.checksum_address, slot)
-                            value = self.convert_value_to_type(
-                                hex_bytes, size, offset, type_string
+                            value = self.convert_value_to_type(hex_bytes, size, offset, type_string)
+                            tabulate_data.append(
+                                [
+                                    slot,
+                                    offset,
+                                    size,
+                                    type_string,
+                                    var_name_struct_or_array_var,
+                                    value,
+                                ]
                             )
-                            tabulate_data.append([slot, offset, size, type_string, var_name_struct_or_array_var, value])
-                        
 
-        print(tabulate(tabulate_data, headers=tabulate_headers, tablefmt='grid'))
+        print(tabulate(tabulate_data, headers=tabulate_headers, tablefmt="grid"))
 
     @staticmethod
     def _find_struct_var_slot(
