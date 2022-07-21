@@ -71,7 +71,7 @@ function signature.
         results = []
         for contract in self.contracts:
             for func, node in check_contract(contract, func_ids):
-                info = [func, " calls abi.encodeWithSelector() with wrong arguments at", node ]
+                info = [func, " calls abi.encodeWithSelector() with arguments of incorrect type:", node ]
                 json = self.generate_result(info)
                 results.append(json)
 
