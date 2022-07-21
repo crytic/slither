@@ -59,7 +59,7 @@ contract D {
 abi.encodeWithSelector's arguments do not match the types expected in the function signature.
 function signature.
 """
-    WIKI_RECOMMENDATION = "Make sure that encodeWithSelector is building a calldata that matches the target function signature"
+    WIKI_RECOMMENDATION = "Make sure that arguments passed to abi.encodeWithSelector have the same types as the target function signature."
 
     def _detect(self):
         #gather all known funcids
