@@ -39,7 +39,7 @@ class WrongEncodeWithSelector(AbstractDetector):
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = "https://github.com/trailofbits/slither/wiki/encode-with-selector"
-    WIKI_TITLE = "Encode With Selector uses unexpected parameters"
+    WIKI_TITLE = "Parameters of incorrect type in abi.encodeWithSelector"
     WIKI_DESCRIPTION = "Plugin example"
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
