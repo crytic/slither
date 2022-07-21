@@ -56,7 +56,7 @@ contract D {
     }
 }
 ```
-The compiler will not check_contract if the parameters of abi.encodeWithSelector match the arguments expected at the destination 
+abi.encodeWithSelector's arguments do not match the types expected in the function signature.
 function signature.
 """
     WIKI_RECOMMENDATION = "Make sure that encodeWithSelector is building a calldata that matches the target function signature"
