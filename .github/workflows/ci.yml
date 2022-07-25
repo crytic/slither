@@ -3,8 +3,7 @@ name: CI
 
 defaults:
   run:
-    # To load bashrc
-    shell: bash -ieo pipefail {0}
+    shell: bash
 
 on:
   push:
@@ -52,16 +51,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Set up shell
-        if: runner.os == 'Windows'
-        run: |
-          echo 'C:\msys64\mingw64\bin' >> "$GITHUB_PATH"
-          echo 'C:\msys64\usr\bin' >> "$GITHUB_PATH"
-
-      - name: Set up Python 3.6
+      - name: Set up Python 3.8
         uses: actions/setup-python@v3
         with:
-          python-version: 3.6
+          python-version: 3.8
       - name: Install dependencies
         run: |
 
@@ -87,6 +80,7 @@ jobs:
 
       - name: Run Tests
         env:
+          PYTHONUTF8: 1
           TEST_TYPE: ${{ matrix.type }}
           GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
         run: |
