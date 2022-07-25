@@ -151,12 +151,8 @@ class Flattening:
         if self._convert_library_to_internal and contract.is_library:
             for f in contract.functions_declared:
                 visibility = ""
-                if f.visibility == "external":
+                if f.visibility in ["external", "public"]:
                     visibility = f.visibility
-                elif f.visibility == "public":
-                    visibility = f.visibility
-
-                if visibility != "":
                     attributes_start = (
                         f.parameters_src().source_mapping["start"]
                         + f.parameters_src().source_mapping["length"]
