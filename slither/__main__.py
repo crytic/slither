@@ -315,7 +315,7 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
 
     group_printer.add_argument(
         "--print",
-        help="Comma-separated list fo contract information printers, "
+        help="Comma-separated list of contract information printers, "
         f"available printers: {', '.join(d.ARGUMENT for d in printer_classes)}",
         action="store",
         dest="printers_to_run",
