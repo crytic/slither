@@ -310,6 +310,10 @@ ALL_TESTS = [
         "minmax-0.6.8.sol",
         make_version(6, 8, 9) + VERSIONS_07 + VERSIONS_08,
     ),
+    Test(
+        "minmax-0.8.8.sol",
+        make_version(8, 8, 15),
+    ),
     Test("dowhile-0.4.0.sol", VERSIONS_04),
     Test(
         "dowhile-0.4.5.sol",
