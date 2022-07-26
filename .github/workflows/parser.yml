@@ -49,3 +49,4 @@ jobs:
       - name: Test with pytest
         run: |
           pytest tests/test_ast_parsing.py
+          pytest tests/test_path_filtering/test_path_filtering.py

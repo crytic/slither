@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.6.12;
+pragma solidity ^0.8.0;
 
 contract ReentrancyMock1 {
     mapping(address => uint256) public userBalances1;
