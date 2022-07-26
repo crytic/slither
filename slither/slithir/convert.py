@@ -817,11 +817,27 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             # lib L { event E()}
             # ...
             # emit L.E();
-            if str(ins.ori.variable_right) in [f.name for f in ins.ori.variable_left.events]:
+            if str(ins.ori.variable_right) in ins.ori.variable_left.events_as_dict:
                 eventcall = EventCall(ins.ori.variable_right)
                 eventcall.set_expression(ins.expression)
                 eventcall.call_id = ins.call_id
                 return eventcall
+
+            # lib Lib { error Error()} ... revert Lib.Error()
+            if str(ins.ori.variable_right) in ins.ori.variable_left.custom_errors_as_dict:
+                custom_error = ins.ori.variable_left.custom_errors_as_dict[
+                    str(ins.ori.variable_right)
+                ]
+                assert isinstance(
+                    custom_error,
+                    CustomError,
+                )
+                sol_function = SolidityCustomRevert(custom_error)
+                solidity_call = SolidityCall(
+                    sol_function, ins.nbr_arguments, ins.lvalue, ins.type_call
+                )
+                solidity_call.set_expression(ins.expression)
+                return solidity_call
 
             libcall = LibraryCall(
                 ins.ori.variable_left,
