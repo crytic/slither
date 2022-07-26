@@ -112,7 +112,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     if not var_type:
         if name.startswith("function "):
             found = re.findall(
-                "function \(([ ()\[\]a-zA-Z0-9\.,]*?)\)(?: payable)?(?: (?:external|internal|pure|view))?(?: returns \(([a-zA-Z0-9() \.,]*)\))?",
+                r"function \(([ ()\[\]a-zA-Z0-9\.,]*?)\)(?: payable)?(?: (?:external|internal|pure|view))?(?: returns \(([a-zA-Z0-9() \.,]*)\))?",
                 name,
             )
             assert len(found) == 1
@@ -159,10 +159,10 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         if name.startswith("mapping("):
             # nested mapping declared with var
             if name.count("mapping(") == 1:
-                found = re.findall("mapping\(([a-zA-Z0-9\.]*) => ([ a-zA-Z0-9\.\[\]]*)\)", name)
+                found = re.findall(r"mapping\(([a-zA-Z0-9\.]*) => ([ a-zA-Z0-9\.\[\]]*)\)", name)
             else:
                 found = re.findall(
-                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
+                    r"mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
                     name,
                 )
             assert len(found) == 1

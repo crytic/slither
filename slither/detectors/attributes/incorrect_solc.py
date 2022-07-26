@@ -14,7 +14,7 @@ from slither.formatters.attributes.incorrect_solc import custom_format
 # 4: version number
 
 # pylint: disable=anomalous-backslash-in-string
-PATTERN = re.compile("(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
+PATTERN = re.compile(r"(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
 
 
 class IncorrectSolc(AbstractDetector):
