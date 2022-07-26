@@ -139,8 +139,7 @@ def main() -> None:
 
         srs.rpc = args.rpc_url
 
-    if args.silent:
-        environ["SILENT"] = "1"
+    environ["SILENT"] = args.silent
 
     if args.table_storage_layout:
         environ["TABLE"] = "1"
@@ -148,14 +147,12 @@ def main() -> None:
         srs.get_storage_layout()
         srs.print_table()
         return
-
+    
     if args.table_storage_value:
-        assert args.rpc_url
         environ["TABLE"] = "1"
-        environ["TABLE_VALUE"] = "1"
         srs.get_all_storage_variables()
         srs.get_storage_layout()
-        srs.print_table()
+        srs.print_table_with_values()
         return
 
     if args.layout:
