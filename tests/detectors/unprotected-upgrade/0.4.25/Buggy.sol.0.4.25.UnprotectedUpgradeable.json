@@ -144,7 +144,7 @@
             "description": "Buggy (tests/detectors/unprotected-upgrade/0.4.25/Buggy.sol#3-15) is an upgradeable contract that does not protect its initialize functions: Buggy.initialize() (tests/detectors/unprotected-upgrade/0.4.25/Buggy.sol#6-9). Anyone can delete the contract with: Buggy.kill() (tests/detectors/unprotected-upgrade/0.4.25/Buggy.sol#10-13)",
             "markdown": "[Buggy](tests/detectors/unprotected-upgrade/0.4.25/Buggy.sol#L3-L15) is an upgradeable contract that does not protect its initialize functions: [Buggy.initialize()](tests/detectors/unprotected-upgrade/0.4.25/Buggy.sol#L6-L9). Anyone can delete the contract with: [Buggy.kill()](tests/detectors/unprotected-upgrade/0.4.25/Buggy.sol#L10-L13)",
             "first_markdown_element": "tests/detectors/unprotected-upgrade/0.4.25/Buggy.sol#L3-L15",
-            "id": "aceca400ce0b482809a70df612af22e24d154c5c89c24d630ec0ee5a366d09fe",
+            "id": "d85b90230632a30f7ffb5140a791d4a9ae8b0be045c5b27175f3c477e189c08c",
             "check": "unprotected-upgrade",
             "impact": "High",
             "confidence": "High"
