@@ -27,7 +27,7 @@ jobs:
                "data_dependency",
                # "embark",
                "erc",
-               "etherlime",
+               # "etherlime",
                # "etherscan"
                "find_paths",
                "flat",
@@ -42,9 +42,6 @@ jobs:
           # Requires nix
           - os: windows-2022
             type: dapp
-          # Requires nvm
-          - os: windows-2022
-            type: etherlime
           # Requires nvm
           - os: windows-2022
             type: truffle
