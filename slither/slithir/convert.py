@@ -1385,7 +1385,11 @@ def convert_type_library_call(ir: HighLevelCall, lib_contract: Contract):
 
     if len(candidates) == 1:
         func = candidates[0]
-    if func is None:
+    # We can discard if there are arguments here because libraries only support constant variables
+    # And constant variables cannot have non-value type
+    # i.e. "uint[2] constant arr = [1,2];" is not possible in Solidity
+    # If this were to change, the following condition might be broken
+    if func is None and not ir.arguments:
         # TODO: handle collision with multiple state variables/functions
         func = lib_contract.get_state_variable_from_name(ir.function_name)
     if func is None and candidates:

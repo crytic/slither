@@ -408,6 +408,9 @@ ALL_TESTS = [
     # 0.8.9 crashes on our testcase
     Test("user_defined_types.sol", ["0.8.8"] + make_version(8, 10, 12)),
     Test("bytes_call.sol", ["0.8.12"]),
+    Test("free_functions/libraries_from_free.sol", ["0.8.12"]),
+    Test("free_functions/new_operator.sol", ["0.8.12"]),
+    Test("free_functions/library_constant_function_collision.sol", ["0.8.12"]),
 ]
 # create the output folder if needed
 try:
