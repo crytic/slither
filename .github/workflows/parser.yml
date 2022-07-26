@@ -7,9 +7,6 @@ defaults:
     shell: bash -ieo pipefail {0}
 
 on:
-  push:
-    branches:
-      - patch-1
   pull_request:
     branches: [master, dev]
   schedule:
@@ -52,4 +49,3 @@ jobs:
       - name: Test with pytest
         run: |
           pytest tests/test_ast_parsing.py
-          pytest tests/test_path_filtering/test_path_filtering.py

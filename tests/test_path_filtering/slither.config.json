@@ -1,6 +1,0 @@
-{
-    "detectors_to_run": "all",
-    "exclude_informational": true,
-    "exclude_low": true,
-    "filter_paths": "filtering_paths/libs|filtering_paths/src/ReentrancyMock.sol"
-}
