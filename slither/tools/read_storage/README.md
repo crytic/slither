@@ -46,13 +46,13 @@ slither-read-storage 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --layout --rpc-u
 To view only the slot of the `slot0` structure variable, pass `--variable-name slot0`:
 
 ```shell
-slither-read-storage 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --variable-name slot0 --rpc-url https://mainnet.infura.io/v3/04942f7970ef41cc847a147bc64e460e --value
+slither-read-storage 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --variable-name slot0 --rpc-url $RPC_URL --value
 ```
 
 To view a member of the `slot0` struct, pass `--struct-var tick`
 
 ```shell
-slither-read-storage 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --variable-name slot0 --rpc-url https://mainnet.infura.io/v3/04942f7970ef41cc847a147bc64e460e --value --struct-var tick
+slither-read-storage 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --variable-name slot0 --rpc-url $RPC_URL --value --struct-var tick
 ```
 
 Retrieve the ERC20 balance slot of an account:

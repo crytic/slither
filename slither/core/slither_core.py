@@ -4,6 +4,7 @@
 import json
 import logging
 import os
+import pathlib
 import posixpath
 import re
 from typing import Optional, Dict, List, Set, Union
@@ -218,8 +219,12 @@ class SlitherCore(Context):
             for elem in r["elements"]
             if "source_mapping" in elem
         ]
-        source_mapping_elements = map(
-            lambda x: posixpath.normpath(x) if x else x, source_mapping_elements
+
+        # Use POSIX-style paths so that filter_paths works across different
+        # OSes. Convert to a list so elements don't get consumed and are lost
+        # while evaluating the first pattern
+        source_mapping_elements = list(
+            map(lambda x: pathlib.Path(x).resolve().as_posix() if x else x, source_mapping_elements)
         )
         matching = False
 

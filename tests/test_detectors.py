@@ -396,23 +396,23 @@ ALL_TEST_OBJECTS = [
     Test(all_detectors.LockedEther, "locked_ether.sol", "0.6.11"),
     Test(all_detectors.LockedEther, "locked_ether.sol", "0.7.6"),
     Test(
-        all_detectors.ArbitrarySend,
-        "arbitrary_send.sol",
+        all_detectors.ArbitrarySendEth,
+        "arbitrary_send_eth.sol",
         "0.4.25",
     ),
     Test(
-        all_detectors.ArbitrarySend,
-        "arbitrary_send.sol",
+        all_detectors.ArbitrarySendEth,
+        "arbitrary_send_eth.sol",
         "0.5.16",
     ),
     Test(
-        all_detectors.ArbitrarySend,
-        "arbitrary_send.sol",
+        all_detectors.ArbitrarySendEth,
+        "arbitrary_send_eth.sol",
         "0.6.11",
     ),
     Test(
-        all_detectors.ArbitrarySend,
-        "arbitrary_send.sol",
+        all_detectors.ArbitrarySendEth,
+        "arbitrary_send_eth.sol",
         "0.7.6",
     ),
     Test(
@@ -1271,6 +1271,61 @@ ALL_TEST_OBJECTS = [
         all_detectors.ProtectedVariables,
         "comment.sol",
         "0.8.2",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20_inheritance.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20Permit,
+        "arbitrary_send_erc20_permit.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20Permit,
+        "arbitrary_send_erc20_permit.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20Permit,
+        "arbitrary_send_erc20_permit.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20Permit,
+        "arbitrary_send_erc20_permit.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20Permit,
+        "arbitrary_send_erc20_permit.sol",
+        "0.8.0",
     ),
 ]
 

@@ -60,7 +60,7 @@ VERSIONS_04 = make_version(4, 0, 26)
 VERSIONS_05 = make_version(5, 0, 17)
 VERSIONS_06 = make_version(6, 0, 12)
 VERSIONS_07 = make_version(7, 0, 6)
-VERSIONS_08 = make_version(8, 0, 12)
+VERSIONS_08 = make_version(8, 0, 15)
 
 ALL_VERSIONS = VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08
 
@@ -310,6 +310,10 @@ ALL_TESTS = [
         "minmax-0.6.8.sol",
         make_version(6, 8, 9) + VERSIONS_07 + VERSIONS_08,
     ),
+    Test(
+        "minmax-0.8.8.sol",
+        make_version(8, 8, 15),
+    ),
     Test("dowhile-0.4.0.sol", VERSIONS_04),
     Test(
         "dowhile-0.4.5.sol",
@@ -404,6 +408,9 @@ ALL_TESTS = [
     # 0.8.9 crashes on our testcase
     Test("user_defined_types.sol", ["0.8.8"] + make_version(8, 10, 12)),
     Test("bytes_call.sol", ["0.8.12"]),
+    Test("free_functions/libraries_from_free.sol", ["0.8.12"]),
+    Test("free_functions/new_operator.sol", ["0.8.12"]),
+    Test("free_functions/library_constant_function_collision.sol", ["0.8.12"]),
 ]
 # create the output folder if needed
 try:

@@ -2,8 +2,8 @@
 
 ### Install requisites
 
-pip3.6 install pybind11
-pip3.6 install https://github.com/facebookresearch/fastText/archive/0.2.0.zip
+pip3 install pybind11
+pip3 install https://github.com/facebookresearch/fastText/archive/0.2.0.zip
 
 ### Test slither-simil
 
