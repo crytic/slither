@@ -25,6 +25,7 @@ jobs:
         type: ["cli",
                "dapp",
                "data_dependency",
+               "path_filtering",
                # "embark",
                "erc",
                "etherlime",
