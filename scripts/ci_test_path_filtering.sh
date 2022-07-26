@@ -4,8 +4,11 @@
 
 slither "tests/test_path_filtering/test_path_filtering.sol" --config "tests/test_path_filtering/slither.config.json" --json "output.json" > "output.txt" 2>&1
 
-if ! grep -q "0 result(s) found" "output.txt"; then
+if ! grep -q "0 result(s) found" "output.txt"
+then
   echo "Path filtering across POSIX and Windows failed"
   rm output.txt
   exit 5
+else 
+  rm output.txt
 fi
