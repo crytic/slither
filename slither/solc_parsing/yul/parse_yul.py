@@ -35,7 +35,7 @@ from slither.solc_parsing.yul.evm_functions import (
     unary_ops,
     binary_ops,
 )
-from slither.solc_parsing.expressions.find_variable import _find_top_level
+from slither.solc_parsing.expressions.find_variable import find_top_level
 from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
@@ -798,7 +798,7 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     if magic_suffix:
         return magic_suffix
 
-    ret, _ = _find_top_level(name, root.contract.file_scope)
+    ret, _ = find_top_level(name, root.contract.file_scope)
     if ret:
         return Identifier(ret)
 
