@@ -93,7 +93,7 @@ def detect_arbitrary_send(contract: Contract):
 class ArbitrarySendEth(AbstractDetector):
     ARGUMENT = "arbitrary-send-eth"
     HELP = "Functions that send Ether to arbitrary destinations"
-    IMPACT = DetectorClassification.HIGH
+    IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#functions-that-send-ether-to-arbitrary-destinations"
