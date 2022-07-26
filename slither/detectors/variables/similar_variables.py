@@ -17,7 +17,9 @@ class SimilarVarsDetection(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#variable-names-are-too-similar"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#variable-names-too-similar"
+    )
 
     WIKI_TITLE = "Variable names too similar"
     WIKI_DESCRIPTION = "Detect variables with names that are too similar."
