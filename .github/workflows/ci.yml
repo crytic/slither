@@ -27,7 +27,7 @@ jobs:
                "data_dependency",
                # "embark",
                "erc",
-               "etherlime",
+               # "etherlime",
                # "etherscan"
                "find_paths",
                "flat",
