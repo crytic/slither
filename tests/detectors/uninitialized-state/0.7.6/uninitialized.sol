@@ -43,16 +43,16 @@ contract Test2 {
     using Lib for Lib.MyStruct;
 
     Lib.MyStruct st;
-    Lib.MyStruct stInitiliazed;
+    Lib.MyStruct stinitialized;
     uint v; // v is used as parameter of the lib, but is never init
 
     function init() public{
-        stInitiliazed.set(v);
+        stinitialized.set(v);
     }
 
     function use() view public{
         // random operation to use the structure
-        require(st.val  == stInitiliazed.val);
+        require(st.val  == stinitialized.val);
     }
 
 }

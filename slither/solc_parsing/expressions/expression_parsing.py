@@ -445,7 +445,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 t = expression["attributes"]["type"]
 
         if t:
-            found = re.findall("[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
+            found = re.findall(r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
             assert len(found) <= 1
             if found:
                 value = value + "(" + found[0] + ")"
@@ -455,7 +455,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             referenced_declaration = expression["referencedDeclaration"]
         else:
             referenced_declaration = None
-
         var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)

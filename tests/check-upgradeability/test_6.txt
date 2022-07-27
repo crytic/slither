@@ -1,7 +1,7 @@
-INFO:Slither:[92m
+INFO:Slither:
 Contract_lack_to_call_modifier (tests/check-upgradeability/contract_initialization.sol#19-24) needs to be initialized by Contract_lack_to_call_modifier.initialize() (tests/check-upgradeability/contract_initialization.sol#21-23).
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function[0m
-INFO:Slither:[91m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function
+INFO:Slither:
 Contract_lack_to_call_modifier.initialize() (tests/check-upgradeability/contract_initialization.sol#21-23) does not call the initializer modifier.
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializer-is-not-called[0m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializer-is-not-called
 INFO:Slither:2 findings, 12 detectors run

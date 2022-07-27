@@ -21,6 +21,8 @@ from slither.utils.erc import (
     ERC777_signatures,
     ERC1155_signatures,
     ERC2612_signatures,
+    ERC1363_signatures,
+    ERC4524_signatures,
     ERC4626_signatures,
 )
 from slither.utils.tests_pattern import is_test_contract
@@ -912,6 +914,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             ("ERC721", self.is_erc721),
             ("ERC777", self.is_erc777),
             ("ERC2612", self.is_erc2612),
+            ("ERC1363", self.is_erc1363),
             ("ERC4626", self.is_erc4626),
         ]
 
@@ -1006,6 +1009,26 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         full_names = self.functions_signatures
         return all(s in full_names for s in ERC2612_signatures)
+
+    def is_erc1363(self) -> bool:
+        """
+            Check if the contract is an erc1363
+
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc1363
+        """
+        full_names = self.functions_signatures
+        return all(s in full_names for s in ERC1363_signatures)
+
+    def is_erc4524(self) -> bool:
+        """
+            Check if the contract is an erc4524
+
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc4524
+        """
+        full_names = self.functions_signatures
+        return all(s in full_names for s in ERC4524_signatures)
 
     @property
     def is_token(self) -> bool:
