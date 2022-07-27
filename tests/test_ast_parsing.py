@@ -411,6 +411,7 @@ ALL_TESTS = [
     Test("free_functions/libraries_from_free.sol", ["0.8.12"]),
     Test("free_functions/new_operator.sol", ["0.8.12"]),
     Test("free_functions/library_constant_function_collision.sol", ["0.8.12"]),
+    Test("ternary-with-max.sol", ["0.8.15"]),
 ]
 # create the output folder if needed
 try:
