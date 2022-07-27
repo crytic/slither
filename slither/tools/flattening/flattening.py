@@ -111,7 +111,7 @@ class Flattening:
 
         to_patch = []
         # interface must use external
-        if self._external_to_public and contract.contract_kind != "interface":
+        if self._external_to_public and not contract.is_interface:
             for f in contract.functions_declared:
                 # fallback must be external
                 if f.is_fallback or f.is_constructor_variables:
