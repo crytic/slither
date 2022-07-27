@@ -455,7 +455,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             referenced_declaration = expression["referencedDeclaration"]
         else:
             referenced_declaration = None
-
         var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)

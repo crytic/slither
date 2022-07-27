@@ -272,8 +272,12 @@ def parse_type(
         all_structuress = [c.structures for c in scope.contracts.values()]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += structures_direct_access
+
         enums_direct_access = []
-        all_enums = scope.enums.values()
+        all_enumss = [c.enums for c in scope.contracts.values()]
+        all_enums = [item for sublist in all_enumss for item in sublist]
+        all_enums += scope.enums.values()
+
         contracts = scope.contracts.values()
         functions = list(scope.functions)
 
