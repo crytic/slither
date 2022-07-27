@@ -147,7 +147,7 @@ def main() -> None:
         srs.get_storage_layout()
         srs.print_table()
         return
-    
+
     if args.table_storage_value:
         environ["TABLE"] = "1"
         srs.get_all_storage_variables()

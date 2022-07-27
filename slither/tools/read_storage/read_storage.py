@@ -329,7 +329,6 @@ class SlitherReadStorage:
             type_string = info.get("type_string")
             struct_var = info.get("struct_var")
 
-            hex_bytes = get_storage_data(self.web3, self.checksum_address, slot)
             tabulate_data.append(
                 [
                     slot,
@@ -337,7 +336,12 @@ class SlitherReadStorage:
                     size,
                     type_string,
                     var,
-                    self.convert_value_to_type(hex_bytes, size, offset, type_string),
+                    self.convert_value_to_type(
+                        get_storage_data(self.web3, self.checksum_address, slot),
+                        size,
+                        offset,
+                        type_string,
+                    ),
                 ]
             )
 
@@ -353,7 +357,6 @@ class SlitherReadStorage:
                     # doesn't handle deep keys currently
                     var_name_struct_or_array_var = f"{var} -> {struct_var}"
 
-                    hex_bytes = get_storage_data(self.web3, self.checksum_address, slot)
                     tabulate_data.append(
                         [
                             slot,
@@ -361,7 +364,12 @@ class SlitherReadStorage:
                             size,
                             type_string,
                             var_name_struct_or_array_var,
-                            self.convert_value_to_type(hex_bytes, size, offset, type_string),
+                            self.convert_value_to_type(
+                                get_storage_data(self.web3, self.checksum_address, slot),
+                                size,
+                                offset,
+                                type_string,
+                            ),
                         ]
                     )
 
