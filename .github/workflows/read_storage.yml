@@ -28,18 +28,15 @@ jobs:
       - name: Install ganache
         run: npm install --global ganache
 
-      - name: Set up Python 3.6
+      - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6
+          python-version: 3.8
 
       - name: Install python dependencies
         run: |
-          python3 setup.py install
-          pip install web3 pytest deepdiff solc-select
-          pip install pytest==7.0.1
-          pip install typing_extensions==4.1.1
-          pip install importlib_metadata==4.8.3
+          pip install ".[dev]"
+          pip install web3 
           pip install tabulate==0.8.10
           solc-select install 0.8.1
           solc-select install 0.8.10

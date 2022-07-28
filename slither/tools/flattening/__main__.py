@@ -80,6 +80,12 @@ def parse_args():
     )
 
     group_patching.add_argument(
+        "--convert-library-to-internal",
+        help="Convert external or public functions to internal in library.",
+        action="store_true",
+    )
+
+    group_patching.add_argument(
         "--remove-assert", help="Remove call to assert().", action="store_true"
     )
 
@@ -111,6 +117,7 @@ def main():
             compilation_unit,
             external_to_public=args.convert_external,
             remove_assert=args.remove_assert,
+            convert_library_to_internal=args.convert_library_to_internal,
             private_to_internal=args.convert_private,
             export_path=args.dir,
             pragma_solidity=args.pragma_solidity,
