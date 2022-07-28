@@ -1,9 +1,7 @@
-import json
-import sys
 import logging
+import sys
 from math import floor
 from os import environ
-
 from typing import Callable, Optional, Tuple, Union, List, Dict
 
 try:
@@ -35,11 +33,11 @@ except ImportError:
     print("$ pip3 install tabulate --user\n")
     sys.exit(-1)
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types import ArrayType, ElementaryType, UserDefinedType, MappingType
-from slither.core.declarations import Contract, StructureContract, Structure
+from slither.core.declarations import Contract, Structure
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
 
@@ -438,7 +436,7 @@ class SlitherReadStorage:
         slot = int.from_bytes(slot, "big")
         offset = 0
         type_to = ""
-        size = 0 # TODO: find out what size should return here? (montyly)
+        size = 0  # TODO: find out what size should return here? (montyly)
         for var in elems:
             var_type = var.type
             if isinstance(var_type, ElementaryType):
@@ -452,7 +450,7 @@ class SlitherReadStorage:
                         break  # found struct var
                     offset += size
             else:
-                print(f'{type(var_type)} is current not implemented in structure')
+                print(f"{type(var_type)} is current not implemented in structure")
 
         slot = int.to_bytes(slot, 32, byteorder="big")
         info = f"\nStruct Variable: {struct_var}"
@@ -529,7 +527,7 @@ class SlitherReadStorage:
 
             else:
                 type_to = target_variable_type_type.name
-                size = ttarget_variable_type_type.size  # bits
+                size = target_variable_type_type.size  # bits
 
         elif isinstance(target_variable_type_type, UserDefinedType):  # struct[]
             slot = keccak(slot)
@@ -590,7 +588,7 @@ class SlitherReadStorage:
         key = coerce_type(key_type, key)
         slot = keccak(encode_abi([key_type, "uint256"], [key, decode_single("uint256", slot)]))
 
-        if is_user_defined_type(target_variable.type.type_to) and is_struct(
+        if isinstance(target_variable.type.type_to, UserDefinedType) and is_struct(
             target_variable.type.type_to.type
         ):  # mapping(elem => struct)
             assert struct_var
@@ -600,7 +598,9 @@ class SlitherReadStorage:
             )
             info += info_tmp
 
-        elif is_mapping(target_variable.type.type_to):  # mapping(elem => mapping(elem => ???))
+        elif isinstance(
+            target_variable.type.type_to, MappingType
+        ):  # mapping(elem => mapping(elem => ???))
             assert deep_key
             key_type = target_variable.type.type_to.type_from.name
             if "int" in key_type:  # without this eth_utils encoding fails
@@ -615,7 +615,7 @@ class SlitherReadStorage:
             size = byte_size * 8  # bits
             offset = 0
 
-            if is_user_defined_type(target_variable.type.type_to.type_to) and is_struct(
+            if isinstance(target_variable.type.type_to.type_to, UserDefinedType) and is_struct(
                 target_variable.type.type_to.type_to.type
             ):  # mapping(elem => mapping(elem => struct))
                 assert struct_var
@@ -691,9 +691,13 @@ class SlitherReadStorage:
         array_length = self._get_array_length(type_, slot)
         elems: Dict[int, SlotInfo] = {}
         if isinstance(type_, UserDefinedType):
-            for i in range(min(array_length, self.max_depth)):
-                elems[i] = self._all_struct_slots(var, contract, key=str(i))
-                continue
+            st = type_.type
+            if isinstance(st, Structure):
+                for i in range(min(array_length, self.max_depth)):
+                    # TODO: figure out why _all_struct_slots returns a Dict[str, SlotInfo]
+                    # but this expect a SlotInfo (montyly)
+                    elems[i] = self._all_struct_slots(var, st, key=str(i))
+                    continue
 
         else:
             for i in range(min(array_length, self.max_depth)):

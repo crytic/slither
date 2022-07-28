@@ -1,7 +1,8 @@
-from typing import Union, Type, List, Optional
-from hexbytes import HexBytes
+from typing import Union
+
 from eth_typing.evm import ChecksumAddress
 from eth_utils import to_int, to_text, to_checksum_address
+from hexbytes import HexBytes
 
 
 def get_offset_value(hex_bytes: HexBytes, offset: int, size: int) -> bytes:
