@@ -135,8 +135,8 @@ def test_read_storage(web3, ganache) -> None:
             path_list = re.findall(r"\['(.*?)'\]", change.path())
             path = "_".join(path_list)
             with open(f"{path}_expected.txt", "w", encoding="utf8") as f:
-                f.write(change.t1)
+                f.write(str(change.t1))
             with open(f"{path}_actual.txt", "w", encoding="utf8") as f:
-                f.write(change.t2)
+                f.write(str(change.t2))
 
     assert not diff
