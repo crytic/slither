@@ -41,10 +41,7 @@ A code walkthrough is available [here](https://www.youtube.com/watch?v=EUl3UlYSl
 ## Development Environment
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
-To run the unit tests, you need
-- `deepdiff` installed (`pip install deepdiff`).
-- `pycov` installed (`pip install pytest-cov`).
-- [`solc-select`](https://github.com/crytic/solc-select) installed.
+To run the unit tests, you need to clone this repository and run `pip install ".[dev]"`.
 
 ### Linters
 
