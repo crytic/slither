@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types import ArrayType, ElementaryType, UserDefinedType, MappingType
-from slither.core.declarations import Contract, Structure, StructureContract
+from slither.core.declarations import Contract, Structure
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
 
@@ -127,10 +127,10 @@ class SlitherReadStorage:
     # TODO: remove this pylint exception (montyly)
     # pylint: disable=too-many-locals
     def get_storage_slot(
-            self,
-            target_variable: StateVariable,
-            contract: Contract,
-            **kwargs: Any,
+        self,
+        target_variable: StateVariable,
+        contract: Contract,
+        **kwargs: Any,
     ) -> Union[SlotInfo, None]:
         """Finds the storage slot of a variable in a given contract.
         Args:
@@ -146,7 +146,7 @@ class SlitherReadStorage:
         """
 
         key: Optional[int] = kwargs.get("key", None)
-        deep_key: Optional[int]= kwargs.get("deep_key", None)
+        deep_key: Optional[int] = kwargs.get("deep_key", None)
         struct_var: Optional[str] = kwargs.get("struct_var", None)
         info: str
         var_log_name = target_variable.name
@@ -408,7 +408,7 @@ class SlitherReadStorage:
 
     @staticmethod
     def _find_struct_var_slot(
-            elems: List[StructureVariable], slot_as_bytes: bytes, struct_var: str
+        elems: List[StructureVariable], slot_as_bytes: bytes, struct_var: str
     ) -> Tuple[str, str, bytes, int, int]:
         """Finds the slot of a structure variable.
         Args:
@@ -448,11 +448,11 @@ class SlitherReadStorage:
     # pylint: disable=too-many-branches
     @staticmethod
     def _find_array_slot(
-            target_variable_type: ArrayType,
-            slot: bytes,
-            key: int,
-            deep_key: int = None,
-            struct_var: str = None,
+        target_variable_type: ArrayType,
+        slot: bytes,
+        key: int,
+        deep_key: int = None,
+        struct_var: str = None,
     ) -> Tuple[str, str, bytes, int, int]:
         """Finds the slot of array's index.
         Args:
@@ -475,7 +475,7 @@ class SlitherReadStorage:
         target_variable_type_type = target_variable_type.type
 
         if isinstance(
-                target_variable_type_type, ArrayType
+            target_variable_type_type, ArrayType
         ):  # multidimensional array uint[i][], , uint[][i], or uint[][]
             size = target_variable_type_type.type.size
             type_to = target_variable_type_type.type.name
@@ -543,11 +543,11 @@ class SlitherReadStorage:
 
     @staticmethod
     def _find_mapping_slot(
-            target_variable: StateVariable,
-            slot: bytes,
-            key: Union[int, str],
-            deep_key: Union[int, str] = None,
-            struct_var: str = None,
+        target_variable: StateVariable,
+        slot: bytes,
+        key: Union[int, str],
+        deep_key: Union[int, str] = None,
+        struct_var: str = None,
     ) -> Tuple[str, str, bytes, int, int]:
         """Finds the data slot of a target variable within a mapping.
             target_variable (`StateVariable`): The mapping that contains the target variable.
@@ -578,7 +578,7 @@ class SlitherReadStorage:
         slot = keccak(encode_abi([key_type, "uint256"], [key, decode_single("uint256", slot)]))
 
         if isinstance(target_variable.type.type_to, UserDefinedType) and isinstance(
-                target_variable.type.type_to.type, Structure
+            target_variable.type.type_to.type, Structure
         ):  # mapping(elem => struct)
             assert struct_var
             elems = target_variable.type.type_to.type.elems_ordered
@@ -588,7 +588,7 @@ class SlitherReadStorage:
             info += info_tmp
 
         elif isinstance(
-                target_variable.type.type_to, MappingType
+            target_variable.type.type_to, MappingType
         ):  # mapping(elem => mapping(elem => ???))
             assert deep_key
             key_type = target_variable.type.type_to.type_from.name
@@ -605,7 +605,7 @@ class SlitherReadStorage:
             offset = 0
 
             if isinstance(target_variable.type.type_to.type_to, UserDefinedType) and isinstance(
-                    target_variable.type.type_to.type_to.type, Structure
+                target_variable.type.type_to.type_to.type, Structure
             ):  # mapping(elem => mapping(elem => struct))
                 assert struct_var
                 elems = target_variable.type.type_to.type_to.type.elems_ordered
@@ -626,7 +626,7 @@ class SlitherReadStorage:
 
     @staticmethod
     def get_variable_info(
-            contract: Contract, target_variable: StateVariable
+        contract: Contract, target_variable: StateVariable
     ) -> Tuple[int, int, int, str]:
         """Return slot, size, offset, and type."""
         type_to = str(target_variable.type)
@@ -643,7 +643,7 @@ class SlitherReadStorage:
 
     @staticmethod
     def convert_value_to_type(
-            hex_bytes: HexBytes, size: int, offset: int, type_to: str
+        hex_bytes: HexBytes, size: int, offset: int, type_to: str
     ) -> Union[int, bool, str, ChecksumAddress]:
         """Convert slot data to type representation."""
         # Account for storage packing
@@ -656,7 +656,7 @@ class SlitherReadStorage:
         return value
 
     def _all_struct_slots(
-            self, var: StateVariable, st: Structure, contract: Contract, key: Optional[int] = None
+        self, var: StateVariable, st: Structure, contract: Contract, key: Optional[int] = None
     ) -> Dict[str, SlotInfo]:
         """Retrieves all members of a struct."""
         struct_elems = st.elems_ordered
@@ -673,8 +673,10 @@ class SlitherReadStorage:
 
         return data
 
+    # TODO: remove this exception (montyly)
+    # pylint: disable=too-many-nested-blocks
     def _all_array_slots(
-            self, var: StateVariable, contract: Contract, type_: Type, slot: int
+        self, var: StateVariable, contract: Contract, type_: Type, slot: int
     ) -> Dict[str, SlotInfo]:
         """Retrieves all members of an array."""
         array_length = self._get_array_length(type_, slot)
