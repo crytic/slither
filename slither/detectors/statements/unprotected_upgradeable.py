@@ -102,7 +102,7 @@ class UnprotectedUpgradeable(AbstractDetector):
                             info = (
                                 [
                                     contract,
-                                    " is an upgradeable contract that does not protect its initiliaze functions: ",
+                                    " is an upgradeable contract that does not protect its initialize functions: ",
                                 ]
                                 + initialize_functions
                                 + [

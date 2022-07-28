@@ -9,6 +9,7 @@ from slither.core.declarations import (
     SolidityFunction,
     Contract,
 )
+from slither.core.declarations.enum import Enum
 from slither.core.expressions import (
     AssignmentOperationType,
     UnaryOperationType,
@@ -403,18 +404,25 @@ class ExpressionToSlithIR(ExpressionVisitor):
                     assert len(expression.expression.arguments) == 1
                     val = TemporaryVariable(self._node)
                     type_expression_found = expression.expression.arguments[0]
-                    assert isinstance(type_expression_found, ElementaryTypeNameExpression)
-                    type_found = type_expression_found.type
-                    if expression.member_name == "min:":
+                    if isinstance(type_expression_found, ElementaryTypeNameExpression):
+                        type_found = type_expression_found.type
+                        constant_type = type_found
+                    else:
+                        # type(enum).max/min
+                        assert isinstance(type_expression_found, Identifier)
+                        type_found = type_expression_found.value
+                        assert isinstance(type_found, Enum)
+                        constant_type = None
+                    if expression.member_name == "min":
                         op = Assignment(
                             val,
-                            Constant(str(type_found.min), type_found),
+                            Constant(str(type_found.min), constant_type),
                             type_found,
                         )
                     else:
                         op = Assignment(
                             val,
-                            Constant(str(type_found.max), type_found),
+                            Constant(str(type_found.max), constant_type),
                             type_found,
                         )
                     self._result.append(op)

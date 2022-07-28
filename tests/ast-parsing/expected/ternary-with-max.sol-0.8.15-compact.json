@@ -1,0 +1,5 @@
+{
+  "TernaryWithMax": {
+    "f(bool)": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->2;\n2[label=\"Node Type: IF 2\n\"];\n2->3[label=\"True\"];\n2->4[label=\"False\"];\n3[label=\"Node Type: EXPRESSION 3\n\"];\n3->5;\n4[label=\"Node Type: EXPRESSION 4\n\"];\n4->5;\n5[label=\"Node Type: END_IF 5\n\"];\n}\n"
+  }
+}

@@ -679,12 +679,12 @@ Please rename it, this name is reserved for Slither's internals"""
             for func in contract.functions + contract.modifiers:
                 try:
                     func.generate_slithir_and_analyze()
-                except AttributeError:
+                except AttributeError as e:
                     # This can happens for example if there is a call to an interface
                     # And the interface is redefined due to contract's name reuse
                     # But the available version misses some functions
                     self._underlying_contract_to_parser[contract].log_incorrect_parsing(
-                        f"Impossible to generate IR for {contract.name}.{func.name}"
+                        f"Impossible to generate IR for {contract.name}.{func.name}:\n {e}"
                     )
 
             contract.convert_expression_to_slithir_ssa()

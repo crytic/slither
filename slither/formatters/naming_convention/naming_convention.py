@@ -300,10 +300,10 @@ def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
 # group 2: beginning of the to type
 # nested mapping are within the group 1
 # RE_MAPPING = '[ ]*mapping[ ]*\([ ]*([\=\>\(\) a-zA-Z0-9\._\[\]]*)[ ]*=>[ ]*([a-zA-Z0-9\._\[\]]*)\)'
-RE_MAPPING_FROM = b"([a-zA-Z0-9\._\[\]]*)"
-RE_MAPPING_TO = b"([\=\>\(\) a-zA-Z0-9\._\[\]\   ]*)"
+RE_MAPPING_FROM = rb"([a-zA-Z0-9\._\[\]]*)"
+RE_MAPPING_TO = rb"([\=\>\(\) a-zA-Z0-9\._\[\]\   ]*)"
 RE_MAPPING = (
-    b"[ ]*mapping[ ]*\([ ]*" + RE_MAPPING_FROM + b"[ ]*" + b"=>" + b"[ ]*" + RE_MAPPING_TO + b"\)"
+    rb"[ ]*mapping[ ]*\([ ]*" + RE_MAPPING_FROM + b"[ ]*" + b"=>" + b"[ ]*" + RE_MAPPING_TO + rb"\)"
 )
 
 

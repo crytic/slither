@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall, InternalCall
@@ -15,8 +15,12 @@ def detect_delegatecall_in_loop(contract: Contract) -> List[Node]:
 
 
 def delegatecall_in_loop(
-    node: Node, in_loop_counter: int, visited: List[Node], results: List[Node]
+    node: Optional[Node], in_loop_counter: int, visited: List[Node], results: List[Node]
 ) -> None:
+
+    if node is None:
+        return
+
     if node in visited:
         return
     # shared visited

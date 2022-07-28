@@ -340,6 +340,53 @@ ERC2612 = [
 
 ERC2612_signatures = erc_to_signatures(ERC2612)
 
+# Review
+# https://eips.ethereum.org/EIPS/eip-1363
+# Must have ERC20 and ERC165
+
+ERC1363_EVENTS = []
+ERC1363 = (
+    [
+        ERC("transferAndCall", ["address", "uint256"], "bool", False, True, []),
+        ERC("transferAndCall", ["address", "uint256", "bytes"], "bool", False, True, []),
+        ERC("transferFromAndCall", ["address", "address", "uint256"], "bool", False, True, []),
+        ERC(
+            "transferFromAndCall",
+            ["address", "address", "uint256", "bytes"],
+            "bool",
+            False,
+            True,
+            [],
+        ),
+        ERC("approveAndCall", ["address", "uint256"], "bool", False, True, []),
+        ERC("approveAndCall", ["address", "uint256", "bytes"], "bool", False, True, []),
+    ]
+    + ERC20
+    + ERC165
+)
+
+ERC1363_signatures = erc_to_signatures(ERC1363)
+
+# Review
+# https://eips.ethereum.org/EIPS/eip-4524
+# Must have ERC20 and ERC165
+
+ERC4524_EVENTS = []
+ERC4524 = (
+    [
+        ERC("safeTransfer", ["address", "uint256"], "bool", False, True, []),
+        ERC("safeTransfer", ["address", "uint256", "bytes"], "bool", False, True, []),
+        ERC("safeTransferFrom", ["address", "address", "uint256"], "bool", False, True, []),
+        ERC(
+            "safeTransferFrom", ["address", "address", "uint256", "bytes"], "bool", False, True, []
+        ),
+    ]
+    + ERC20
+    + ERC165
+)
+
+ERC4524_signatures = erc_to_signatures(ERC4524)
+
 # Final
 # https://eips.ethereum.org/EIPS/eip-4626
 # Must have ERC20
@@ -405,5 +452,7 @@ ERCS = {
     "ERC777": (ERC777, ERC777_EVENTS),
     "ERC1155": (ERC1155, ERC1155_EVENTS),
     "ERC2612": (ERC2612, ERC2612_EVENTS),
+    "ERC1363": (ERC1363, ERC1363_EVENTS),
+    "ERC4524": (ERC4524, ERC4524_EVENTS),
     "ERC4626": (ERC4626, ERC4626_EVENTS),
 }
