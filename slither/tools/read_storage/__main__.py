@@ -1,6 +1,7 @@
 """
 Tool to read on-chain storage from EVM
 """
+import dataclasses
 import json
 import argparse
 from os import environ
@@ -139,8 +140,6 @@ def main() -> None:
 
         srs.rpc = args.rpc_url
 
-    environ["SILENT"] = args.silent
-
     if args.table_storage_layout:
         environ["TABLE"] = "1"
         srs.get_all_storage_variables()
@@ -173,7 +172,10 @@ def main() -> None:
     # Only write file if storage layout is used.
     if len(srs.slot_info) > 1:
         with open("storage_layout.json", "w", encoding="utf-8") as file:
-            json.dump(srs.slot_info, file, indent=4)
+            slot_infos_json = {
+                key: dataclasses.asdict(value) for key, value in srs.slot_info.items()
+            }
+            json.dump(slot_infos_json, file, indent=4)
 
 
 if __name__ == "__main__":

@@ -1,41 +1,7 @@
-from typing import Union
+from typing import Union, Type, List, Optional
 from hexbytes import HexBytes
 from eth_typing.evm import ChecksumAddress
 from eth_utils import to_int, to_text, to_checksum_address
-
-from slither.core.declarations import Structure, Enum
-from slither.core.solidity_types import ArrayType, MappingType, UserDefinedType, ElementaryType
-from slither.core.variables.state_variable import StateVariable
-
-
-def is_elementary(variable: StateVariable) -> bool:
-    """Returns whether variable is an elementary type."""
-    return isinstance(variable, ElementaryType)
-
-
-def is_array(variable: StateVariable) -> bool:
-    """Returns whether variable is an array."""
-    return isinstance(variable, ArrayType)
-
-
-def is_mapping(variable: StateVariable) -> bool:
-    """Returns whether variable is a mapping."""
-    return isinstance(variable, MappingType)
-
-
-def is_struct(variable: StateVariable) -> bool:
-    """Returns whether variable is a struct."""
-    return isinstance(variable, Structure)
-
-
-def is_enum(variable: StateVariable) -> bool:
-    """Returns whether variable is an enum."""
-    return isinstance(variable, Enum)
-
-
-def is_user_defined_type(variable: StateVariable) -> bool:
-    """Returns whether variable is a struct."""
-    return isinstance(variable, UserDefinedType)
 
 
 def get_offset_value(hex_bytes: HexBytes, offset: int, size: int) -> bytes:
@@ -58,7 +24,7 @@ def get_offset_value(hex_bytes: HexBytes, offset: int, size: int) -> bytes:
     return value
 
 
-def coerce_type(solidity_type: str, value: bytes) -> Union[int, bool, str, ChecksumAddress, hex]:
+def coerce_type(solidity_type: str, value: bytes) -> Union[int, bool, str, ChecksumAddress]:
     """
     Converts input to the indicated type.
     Args:
