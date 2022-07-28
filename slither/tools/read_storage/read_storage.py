@@ -5,12 +5,6 @@ from os import environ
 from typing import Callable, Optional, Tuple, Union, List, Dict
 
 try:
-    from typing import TypedDict
-except ImportError:
-    # < Python 3.8
-    from typing_extensions import TypedDict
-
-try:
     from web3 import Web3
     from eth_typing.evm import ChecksumAddress
     from eth_abi import decode_single, encode_abi
@@ -130,6 +124,8 @@ class SlitherReadStorage:
 
         self._slot_info = tmp
 
+    # TODO: remove this pylint exception (montyly)
+    # pylint: disable=too-many-locals
     def get_storage_slot(
         self,
         target_variable: StateVariable,
@@ -226,24 +222,18 @@ class SlitherReadStorage:
                 var, contract, **kwargs
             )
 
-    def get_slot_values(self) -> Dict[str, SlotInfo]:
+    def get_slot_values(self) -> None:
         """
-        Fetches the slot values and inserts them in slot info dictionary.
-        Returns:
-            (`SlotInfo`): The dictionary of slot info.
+        Fetches the slot values
         """
-        stack = list(self.slot_info.items())
-        while stack:
-            _, v = stack.pop()
-            if isinstance(v, dict):
-                stack.extend(v.items())
-                if "slot" in v:
-                    hex_bytes = get_storage_data(self.web3, self.checksum_address, v["slot"])
-                    v["value"] = self.convert_value_to_type(
-                        hex_bytes, v["size"], v["offset"], v["type_string"]
-                    )
-                    logger.info(f"\nValue: {v['value']}\n")
-        return self.slot_info
+        for slot_info in self.slot_info.values():
+            hex_bytes = get_storage_data(
+                self.web3, self.checksum_address, int.to_bytes(slot_info.slot, 32, byteorder="big")
+            )
+            slot_info.value = self.convert_value_to_type(
+                hex_bytes, slot_info.size, slot_info.offset, slot_info.type_string
+            )
+            logger.info(f"\nValue: {slot_info.value}\n")
 
     def get_all_storage_variables(self, func: Callable = None) -> None:
         """Fetches all storage variables from a list of contracts.
@@ -359,16 +349,13 @@ class SlitherReadStorage:
                     type_string = item.type_string
                     struct_var = item.struct_var
 
-                    # doesn't handle deep keys currently
-                    var_name_struct_or_array_var = f"{var} -> {struct_var}"
-
                     tabulate_data.append(
                         [
                             slot,
                             offset,
                             size,
                             type_string,
-                            var_name_struct_or_array_var,
+                            f"{var} -> {struct_var}",  # doesn't handle deep keys currently
                             self.convert_value_to_type(
                                 get_storage_data(
                                     self.web3,
@@ -392,9 +379,6 @@ class SlitherReadStorage:
                     type_string = item.type_string
                     struct_var = item.struct_var
 
-                    # doesn't handle deep keys currently
-                    var_name_struct_or_array_var = f"{var}[{item_key}] -> {struct_var}"
-
                     hex_bytes = get_storage_data(
                         self.web3, self.checksum_address, int.to_bytes(slot, 32, byteorder="big")
                     )
@@ -404,7 +388,7 @@ class SlitherReadStorage:
                             offset,
                             size,
                             type_string,
-                            var_name_struct_or_array_var,
+                            f"{var}[{item_key}] -> {struct_var}",  # doesn't handle deep keys currently
                             self.convert_value_to_type(hex_bytes, size, offset, type_string),
                         ]
                     )
@@ -588,8 +572,8 @@ class SlitherReadStorage:
         key = coerce_type(key_type, key)
         slot = keccak(encode_abi([key_type, "uint256"], [key, decode_single("uint256", slot)]))
 
-        if isinstance(target_variable.type.type_to, UserDefinedType) and is_struct(
-            target_variable.type.type_to.type
+        if isinstance(target_variable.type.type_to, UserDefinedType) and isinstance(
+            target_variable.type.type_to.type, Structure
         ):  # mapping(elem => struct)
             assert struct_var
             elems = target_variable.type.type_to.type.elems_ordered
@@ -615,8 +599,8 @@ class SlitherReadStorage:
             size = byte_size * 8  # bits
             offset = 0
 
-            if isinstance(target_variable.type.type_to.type_to, UserDefinedType) and is_struct(
-                target_variable.type.type_to.type_to.type
+            if isinstance(target_variable.type.type_to.type_to, UserDefinedType) and isinstance(
+                target_variable.type.type_to.type_to.type, Structure
             ):  # mapping(elem => mapping(elem => struct))
                 assert struct_var
                 elems = target_variable.type.type_to.type_to.type.elems_ordered
@@ -696,7 +680,7 @@ class SlitherReadStorage:
                 for i in range(min(array_length, self.max_depth)):
                     # TODO: figure out why _all_struct_slots returns a Dict[str, SlotInfo]
                     # but this expect a SlotInfo (montyly)
-                    elems[i] = self._all_struct_slots(var, st, key=str(i))
+                    elems[i] = self._all_struct_slots(var, st, contract, key=str(i))
                     continue
 
         else:
@@ -710,7 +694,7 @@ class SlitherReadStorage:
                     elems[i] = info
 
                     if isinstance(type_.type, ArrayType):  # multidimensional array
-                        array_length = self._get_array_length(type_.type, info["slot"])
+                        array_length = self._get_array_length(type_.type, info.slot)
 
                         elems[i].elems = {}
                         for j in range(min(array_length, self.max_depth)):
