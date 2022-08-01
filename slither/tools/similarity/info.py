@@ -40,7 +40,7 @@ def info(args):
         x = (filename, contract, fname)
         y = " ".join(irs[x])
 
-        to_log = "Function {} in contract {} is encoded as:".format(fname, contract)
+        to_log = f"Function {fname} in contract {contract} is encoded as:"
         logger.info(to_log)
         logger.info(y)
         if model is not None:
@@ -48,7 +48,7 @@ def info(args):
             logger.info(fvector)
 
     except Exception:  # pylint: disable=broad-except
-        to_log = "Error in %s" % args.filename
+        to_log = f"Error in {args.filename}"
         logger.error(to_log)
         logger.error(traceback.format_exc())
         sys.exit(-1)

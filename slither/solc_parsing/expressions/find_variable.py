@@ -18,7 +18,9 @@ from slither.core.solidity_types import (
     ArrayType,
     FunctionType,
     MappingType,
+    TypeAlias,
 )
+from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
@@ -98,7 +100,9 @@ def _find_variable_in_function_parser(
 
 def _find_top_level(
     var_name: str, scope: "FileScope"
-) -> Tuple[Optional[Union[Enum, Structure, SolidityImportPlaceHolder, CustomError]], bool]:
+) -> Tuple[
+    Optional[Union[Enum, Structure, SolidityImportPlaceHolder, CustomError, TopLevelVariable]], bool
+]:
     """
     Return the top level variable use, and a boolean indicating if the variable returning was cretead
     If the variable was created, it has no source_mapping
@@ -122,9 +126,26 @@ def _find_top_level(
             new_val = SolidityImportPlaceHolder(import_directive)
             return new_val, True
 
-    for custom_error in scope.custom_errors:
-        if custom_error.solidity_signature == var_name:
-            return custom_error, False
+    if var_name in scope.variables:
+        return scope.variables[var_name], False
+
+    # This path should be reached only after the top level custom error have been parsed
+    # If not, slither will crash
+    # It does not seem to be reacheable, but if so, we will have to adapt the order of logic
+    # This must be at the end, because other top level objects might require to go over "_find_top_level"
+    # Before the parsing of the top level custom error
+    # For example, a top variable that use another top level variable
+    # IF more top level objects are added to Solidity, we have to be careful with the order of the lookup
+    # in this function
+    try:
+        for custom_error in scope.custom_errors:
+            if custom_error.solidity_signature == var_name:
+                return custom_error, False
+    except ValueError:
+        # This can happen as custom error sol signature might not have been built
+        # when find_variable was called
+        # TODO refactor find_variable to prevent this from happening
+        pass
 
     return None, False
 
@@ -193,9 +214,15 @@ def _find_in_contract(
     # This is because when the dic is populated the underlying object is not yet parsed
     # As a result, we need to iterate over all the custom errors here instead of using the dict
     custom_errors = contract.custom_errors
-    for custom_error in custom_errors:
-        if var_name == custom_error.solidity_signature:
-            return custom_error
+    try:
+        for custom_error in custom_errors:
+            if var_name == custom_error.solidity_signature:
+                return custom_error
+    except ValueError:
+        # This can happen as custom error sol signature might not have been built
+        # when find_variable was called
+        # TODO refactor find_variable to prevent this from happening
+        pass
 
     # If the enum is refered as its name rather than its canonicalName
     enums = {e.name: e for e in contract.enums}
@@ -210,6 +237,8 @@ def _find_variable_init(
 ) -> Tuple[List[Contract], List["Function"], FileScope,]:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
+    from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
     direct_contracts: List[Contract]
     direct_functions_parser: List[Function]
@@ -244,6 +273,14 @@ def _find_variable_init(
         else:
             assert isinstance(underlying_function, FunctionContract)
             scope = underlying_function.contract.file_scope
+    elif isinstance(caller_context, StructureTopLevelSolc):
+        direct_contracts = []
+        direct_functions_parser = []
+        scope = caller_context.underlying_structure.file_scope
+    elif isinstance(caller_context, TopLevelVariableSolc):
+        direct_contracts = []
+        direct_functions_parser = []
+        scope = caller_context.underlying_variable.file_scope
     else:
         raise SlitherError(
             f"{type(caller_context)} ({caller_context} is not valid for find_variable"
@@ -268,6 +305,7 @@ def find_variable(
         Enum,
         Structure,
         CustomError,
+        TypeAlias,
     ],
     bool,
 ]:
@@ -309,6 +347,12 @@ def find_variable(
     # Reference looked are split between direct and all
     # Because functions are copied between contracts, two functions can have the same ref
     # So we need to first look with respect to the direct context
+
+    if var_name in current_scope.renaming:
+        var_name = current_scope.renaming[var_name]
+
+    if var_name in current_scope.user_defined_types:
+        return current_scope.user_defined_types[var_name], False
 
     # Use ret0/ret1 to help mypy
     ret0 = _find_variable_from_ref_declaration(
@@ -391,4 +435,4 @@ def find_variable(
     if ret:
         return ret, False
 
-    raise VariableNotFound("Variable not found: {} (context {})".format(var_name, contract))
+    raise VariableNotFound(f"Variable not found: {var_name} (context {contract})")

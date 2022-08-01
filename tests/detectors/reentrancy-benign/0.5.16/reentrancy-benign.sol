@@ -4,6 +4,15 @@ contract ReentrancyBenign {
     uint8 anotherVariableToChange;
     uint8 counter = 0;
 
+    // Should not detect reentrancy in constructor
+    constructor(address addr) public {
+        (bool success,) = addr.call("");
+        if (!success) {
+            revert();
+        }
+        counter += 1;
+    }
+
     function bad0() public {
         (bool success,) = msg.sender.call("");
         if (!success) {

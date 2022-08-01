@@ -23,4 +23,4 @@ class Condition(Operation):
         return self._value
 
     def __str__(self):
-        return "CONDITION {}".format(self.value)
+        return f"CONDITION {self.value}"

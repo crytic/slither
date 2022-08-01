@@ -25,7 +25,7 @@ class Modifiers(AbstractPrinter):
         all_tables = []
 
         for contract in self.slither.contracts_derived:
-            txt = "\nContract %s" % contract.name
+            txt = f"\nContract {contract.name}"
             table = MyPrettyTable(["Function", "Modifiers"])
             for function in contract.functions:
                 modifiers = function.modifiers

@@ -445,7 +445,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 t = expression["attributes"]["type"]
 
         if t:
-            found = re.findall("[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
+            found = re.findall(r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
             assert len(found) <= 1
             if found:
                 value = value + "(" + found[0] + ")"
@@ -455,7 +455,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             referenced_declaration = expression["referencedDeclaration"]
         else:
             referenced_declaration = None
-
         var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)
@@ -510,7 +509,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             super_name = parse_super_name(expression, is_compact_ast)
             var, was_created = find_variable(super_name, caller_context, is_super=True)
             if var is None:
-                raise VariableNotFound("Variable not found: {}".format(super_name))
+                raise VariableNotFound(f"Variable not found: {super_name}")
             if was_created:
                 var.set_offset(src, caller_context.compilation_unit)
             sup = SuperIdentifier(var)
@@ -567,7 +566,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             elif type_name[caller_context.get_key()] == "FunctionTypeName":
                 array_type = parse_type(type_name, caller_context)
             else:
-                raise ParsingError("Incorrect type array {}".format(type_name))
+                raise ParsingError(f"Incorrect type array {type_name}")
             array = NewArray(depth, array_type)
             array.set_offset(src, caller_context.compilation_unit)
             return array
@@ -646,4 +645,4 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         raise ParsingError("IdentifierPath not currently supported for the legacy ast")
 
-    raise ParsingError("Expression not parsed %s" % name)
+    raise ParsingError(f"Expression not parsed {name}")

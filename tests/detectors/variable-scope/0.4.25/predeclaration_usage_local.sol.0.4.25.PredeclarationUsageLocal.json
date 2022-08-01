@@ -4,20 +4,20 @@
             "elements": [
                 {
                     "type": "variable",
-                    "name": "x",
+                    "name": "i",
                     "source_mapping": {
-                        "start": 130,
-                        "length": 10,
+                        "start": 199,
+                        "length": 11,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "is_dependency": false,
                         "lines": [
-                            5
+                            8
                         ],
-                        "starting_column": 9,
-                        "ending_column": 19
+                        "starting_column": 18,
+                        "ending_column": 29
                     },
                     "type_specific_fields": {
                         "parent": {
@@ -168,20 +168,20 @@
                 },
                 {
                     "type": "node",
-                    "name": "y = x + 9 + z",
+                    "name": "i --",
                     "source_mapping": {
-                        "start": 69,
-                        "length": 13,
+                        "start": 417,
+                        "length": 3,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "is_dependency": false,
                         "lines": [
-                            4
+                            14
                         ],
-                        "starting_column": 9,
-                        "ending_column": 22
+                        "starting_column": 29,
+                        "ending_column": 32
                     },
                     "type_specific_fields": {
                         "parent": {
@@ -259,10 +259,10 @@
                     }
                 }
             ],
-            "description": "Variable 'C.f(uint256).x (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#5)' in C.f(uint256) (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: y = x + 9 + z (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#4)\n",
-            "markdown": "Variable '[C.f(uint256).x](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L5)' in [C.f(uint256)](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L2-L17) potentially used before declaration: [y = x + 9 + z](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L4)\n",
-            "first_markdown_element": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L5",
-            "id": "ede1e902fdfe70c5e7cf91f33df8540f1d15952d00f70a9a5dfb9edbcbe49cb6",
+            "description": "Variable 'C.f(uint256).i (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#8)' in C.f(uint256) (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: i -- (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#14)\n",
+            "markdown": "Variable '[C.f(uint256).i](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L8)' in [C.f(uint256)](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L2-L17) potentially used before declaration: [i --](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L14)\n",
+            "first_markdown_element": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L8",
+            "id": "24ed055a29ee9bac066b9a99a36d40f7bd77314605d8f1a6440a5576a38b24fb",
             "check": "variable-scope",
             "impact": "Low",
             "confidence": "High"
@@ -702,273 +702,6 @@
                 },
                 {
                     "type": "node",
-                    "name": "i > 0",
-                    "source_mapping": {
-                        "start": 410,
-                        "length": 5,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            14
-                        ],
-                        "starting_column": 22,
-                        "ending_column": 27
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "f",
-                            "source_mapping": {
-                                "start": 17,
-                                "length": 442,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "C",
-                                    "source_mapping": {
-                                        "start": 0,
-                                        "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            1,
-                                            2,
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 0
-                                    }
-                                },
-                                "signature": "f(uint256)"
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "Variable 'C.f(uint256).i (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#8)' in C.f(uint256) (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: i > 0 (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#14)\n",
-            "markdown": "Variable '[C.f(uint256).i](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L8)' in [C.f(uint256)](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L2-L17) potentially used before declaration: [i > 0](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L14)\n",
-            "first_markdown_element": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L8",
-            "id": "ffb778e86e0b11beed38687c3abf9ffd0de948ec4ccc0109a78954741220de9e",
-            "check": "variable-scope",
-            "impact": "Low",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "variable",
-                    "name": "i",
-                    "source_mapping": {
-                        "start": 199,
-                        "length": 11,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            8
-                        ],
-                        "starting_column": 18,
-                        "ending_column": 29
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "f",
-                            "source_mapping": {
-                                "start": 17,
-                                "length": 442,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "C",
-                                    "source_mapping": {
-                                        "start": 0,
-                                        "length": 461,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            1,
-                                            2,
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 0
-                                    }
-                                },
-                                "signature": "f(uint256)"
-                            }
-                        }
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "f",
-                    "source_mapping": {
-                        "start": 17,
-                        "length": 442,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            2,
-                            3,
-                            4,
-                            5,
-                            6,
-                            7,
-                            8,
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15,
-                            16,
-                            17
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "C",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 461,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 0
-                            }
-                        },
-                        "signature": "f(uint256)"
-                    }
-                },
-                {
-                    "type": "node",
                     "name": "x += i",
                     "source_mapping": {
                         "start": 436,
@@ -1072,6 +805,273 @@
             "elements": [
                 {
                     "type": "variable",
+                    "name": "x",
+                    "source_mapping": {
+                        "start": 130,
+                        "length": 10,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 19
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "f",
+                            "source_mapping": {
+                                "start": 17,
+                                "length": 442,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 461,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "f(uint256)"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
+                        "start": 17,
+                        "length": 442,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 461,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "f(uint256)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "y = x + 9 + z",
+                    "source_mapping": {
+                        "start": 69,
+                        "length": 13,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 22
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "f",
+                            "source_mapping": {
+                                "start": 17,
+                                "length": 442,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 461,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "f(uint256)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Variable 'C.f(uint256).x (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#5)' in C.f(uint256) (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: y = x + 9 + z (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#4)\n",
+            "markdown": "Variable '[C.f(uint256).x](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L5)' in [C.f(uint256)](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L2-L17) potentially used before declaration: [y = x + 9 + z](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L4)\n",
+            "first_markdown_element": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L5",
+            "id": "ede1e902fdfe70c5e7cf91f33df8540f1d15952d00f70a9a5dfb9edbcbe49cb6",
+            "check": "variable-scope",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
                     "name": "i",
                     "source_mapping": {
                         "start": 199,
@@ -1236,10 +1236,10 @@
                 },
                 {
                     "type": "node",
-                    "name": "i --",
+                    "name": "i > 0",
                     "source_mapping": {
-                        "start": 417,
-                        "length": 3,
+                        "start": 410,
+                        "length": 5,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol",
                         "filename_absolute": "/GENERIC_PATH",
@@ -1248,8 +1248,8 @@
                         "lines": [
                             14
                         ],
-                        "starting_column": 29,
-                        "ending_column": 32
+                        "starting_column": 22,
+                        "ending_column": 27
                     },
                     "type_specific_fields": {
                         "parent": {
@@ -1327,10 +1327,10 @@
                     }
                 }
             ],
-            "description": "Variable 'C.f(uint256).i (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#8)' in C.f(uint256) (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: i -- (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#14)\n",
-            "markdown": "Variable '[C.f(uint256).i](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L8)' in [C.f(uint256)](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L2-L17) potentially used before declaration: [i --](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L14)\n",
+            "description": "Variable 'C.f(uint256).i (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#8)' in C.f(uint256) (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: i > 0 (tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#14)\n",
+            "markdown": "Variable '[C.f(uint256).i](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L8)' in [C.f(uint256)](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L2-L17) potentially used before declaration: [i > 0](tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L14)\n",
             "first_markdown_element": "tests/detectors/variable-scope/0.4.25/predeclaration_usage_local.sol#L8",
-            "id": "24ed055a29ee9bac066b9a99a36d40f7bd77314605d8f1a6440a5576a38b24fb",
+            "id": "ffb778e86e0b11beed38687c3abf9ffd0de948ec4ccc0109a78954741220de9e",
             "check": "variable-scope",
             "impact": "Low",
             "confidence": "High"

@@ -13,6 +13,7 @@ Slither is a Solidity static analysis framework written in Python 3. It runs a s
 - [Tools](#tools)
 - [How to Install](#how-to-install)
 - [Getting Help](#getting-help)
+- [FAQ](#faq)
 - [Publications](#publications)
 
 ## Features
@@ -40,9 +41,12 @@ Run Slither on a single file:
 slither tests/uninitialized.sol
 ```
 
-For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
+### Integration
+- For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
+- To generate a Markdown report, use `slither [target] --checklist`.
+- To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
 
-Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc.
+Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc. For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
 ### Detectors
 
@@ -51,7 +55,7 @@ Num | Detector | What it Detects | Impact | Confidence
 --- | --- | --- | --- | ---
 1 | `abiencoderv2-array` | [Storage abiencoderv2 array](https://github.com/crytic/slither/wiki/Detector-Documentation#storage-abiencoderv2-array) | High | High
 2 | `array-by-reference` | [Modifying storage array by value](https://github.com/crytic/slither/wiki/Detector-Documentation#modifying-storage-array-by-value) | High | High
-3 | `incorrect-shift` | [The order of parameters in a shift instruction is incorrect.](https://github.com/crytic/slither/wiki/Detector-Documentation#shift-parameter-mixup) | High | High
+3 | `incorrect-shift` | [The order of parameters in a shift instruction is incorrect.](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-shift-in-assembly) | High | High
 4 | `multiple-constructors` | [Multiple constructor schemes](https://github.com/crytic/slither/wiki/Detector-Documentation#multiple-constructor-schemes) | High | High
 5 | `name-reused` | [Contract's name reused](https://github.com/crytic/slither/wiki/Detector-Documentation#name-reused) | High | High
 6 | `public-mappings-nested` | [Public mappings with nested variables](https://github.com/crytic/slither/wiki/Detector-Documentation#public-mappings-with-nested-variables) | High | High
@@ -121,10 +125,12 @@ Num | Detector | What it Detects | Impact | Confidence
 70 | `costly-loop` | [Costly operations in a loop](https://github.com/crytic/slither/wiki/Detector-Documentation#costly-operations-inside-a-loop) | Informational | Medium
 71 | `dead-code` | [Functions that are not used](https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code) | Informational | Medium
 72 | `reentrancy-unlimited-gas` | [Reentrancy vulnerabilities through send and transfer](https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4) | Informational | Medium
-73 | `similar-names` | [Variable names are too similar](https://github.com/crytic/slither/wiki/Detector-Documentation#variable-names-are-too-similar) | Informational | Medium
+73 | `similar-names` | [Variable names are too similar](https://github.com/crytic/slither/wiki/Detector-Documentation#variable-names-too-similar) | Informational | Medium
 74 | `too-many-digits` | [Conformance to numeric notation best practices](https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits) | Informational | Medium
 75 | `constable-states` | [State variables that could be declared constant](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant) | Optimization | High
 76 | `external-function` | [Public function that could be declared external](https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external) | Optimization | High
+77 | `arbitrary-send-erc20` | [Detect when `msg.sender` is not used as `from` in transferFrom](https://github.com/trailofbits/slither/wiki/Detector-Documentation#arbitrary-send-erc20)
+78 | `arbitrary-send-erc20-permit` | [Detect when `msg.sender` is not used as `from` in transferFrom in conjuction with permit](https://github.com/trailofbits/slither/wiki/Detector-Documentation#arbitrary-send-erc20-permit)
 
 For more information, see
 - The [Detector Documentation](https://github.com/crytic/slither/wiki/Detector-Documentation) for details on each detector
@@ -143,6 +149,7 @@ For more information, see
 - `cfg`: [Export the CFG of each functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#cfg)
 - `function-summary`: [Print a summary of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#function-summary)
 - `vars-and-auth`: [Print the state variables written and the authorization of the functions](https://github.com/crytic/slither/wiki/Printer-documentation#variables-written-and-authorization)
+- `when-not-paused`: [Print functions that do not use `whenNotPaused` modifier](https://github.com/trailofbits/slither/wiki/Printer-documentation#when-not-paused).
 
 To run a printer, use `--print` and a comma-separated list of printers.
 
@@ -155,6 +162,7 @@ See the [Printer documentation](https://github.com/crytic/slither/wiki/Printer-d
 - `slither-flat`: [Flatten a codebase](https://github.com/crytic/slither/wiki/Contract-Flattening)
 - `slither-check-erc`: [Check the ERC's conformance](https://github.com/crytic/slither/wiki/ERC-Conformance)
 - `slither-format`: [Automatic patch generation](https://github.com/crytic/slither/wiki/Slither-format)
+- `slither-read-storage`: [Read storage values from contracts](./slither/tools/read_storage/README.md)
 
 See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documentation) for additional tools.
 
@@ -162,7 +170,7 @@ See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documen
 
 ## How to install
 
-Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
+Slither requires Python 3.8+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
 
 ### Using Pip
 
@@ -181,7 +189,7 @@ We recommend using a Python virtual environment, as detailed in the [Developer I
 
 ### Using Docker
 
-Use the [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/) docker image. It includes all of our security tools and every major version of Solidity in a single image. `/home/share` will be mounted to `/share`  in the container.
+Use the [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/) docker image. It includes all of our security tools and every major version of Solidity in a single image. `/home/share` will be mounted to `/share` in the container.
 
 ```bash
 docker pull trailofbits/eth-security-toolbox
@@ -205,10 +213,22 @@ Feel free to stop by our [Slack channel](https://empireslacking.herokuapp.com) (
 
 * The [SlithIR documentation](https://github.com/trailofbits/slither/wiki/SlithIR) describes the SlithIR intermediate representation.
 
+## FAQ
+
+How do I exclude mocks or tests?
+- View our documentation on [path filtering](https://github.com/crytic/slither/wiki/Usage#path-filtering).
+
+How do I fix "unknown file" or compilation issues?
+- Because slither requires the solc AST, it must have all dependencies available.
+If a contract has dependencies, `slither contract.sol` will fail.
+Instead, use `slither .` in the parent directory of `contracts/` (you should see `contracts/` when you run `ls`).
+If you have a `node_modules/` folder, it must be in the same directory as `contracts/`. To verify that this issue is related to slither,
+run the compilation command for the framework you are using e.g `npx hardhat compile`. That must work successfully;
+otherwise, slither's compilation engine, crytic-compile, cannot generate the AST.
+
 ## License
 
 Slither is licensed and distributed under the AGPLv3 license. [Contact us](mailto:opensource@trailofbits.com) if you're looking for an exception to the terms.
-
 
 ## Publications
 
@@ -225,5 +245,8 @@ Title | Usage | Authors | Venue
 [Smart Contract Repair](https://arxiv.org/pdf/1912.05823.pdf) | Rely on Slither’s vulnerabilities detectors | Xiao Liang Yu, Omar Al-Bataineh, David Lo, Abhik Roychoudhury | TOSEM 20
 [Demystifying Loops in Smart Contracts](https://www.microsoft.com/en-us/research/uploads/prod/2020/08/loops_solidity__camera_ready-5f3fec3f15c69.pdf) | Leverage data dependency through Slither | Ben Mariano, Yanju Chen, Yu Feng, Shuvendu Lahiri, Isil Dillig | ASE 20
 [Trace-Based Dynamic Gas Estimation of Loops in Smart Contracts](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9268144) | Use Slither’s CFG to detect loops | Chunmiao Li, Shijie Nie, Yang Cao, Yijun Yu, Zhenjiang Hu | IEEE Open J. Comput. Soc. 1 (2020)
+[SAILFISH: Vetting Smart Contract State-Inconsistency Bugs in Seconds](https://arxiv.org/pdf/2104.08638.pdf) | Rely on SlithIR to build a *storage dependency graph* | Priyanka Bose, Dipanjan Das, Yanju Chen, Yu Feng, Christopher Kruegel, and Giovanni Vigna | S&P 22
+[SolType: Refinement Types for Arithmetic Overflow in Solidity](https://arxiv.org/abs/2110.00677) | Use Slither as frontend to build refinement type system | Bryan Tan, Benjamin Mariano, Shuvendu K. Lahiri, Isil Dillig, Yu Feng | POPL 22
+[Do Not Rug on Me: Leveraging Machine Learning Techniques for Automated Scam Detection](https://www.mdpi.com/2227-7390/10/6/949) | Use Slither to extract tokens' features (mintable, pausable, ..) | Mazorra, Bruno, Victor Adan, and Vanesa Daza | Mathematics 10.6 (2022)
 
 If you are using Slither on an academic work, consider applying to the [Crytic $10k Research Prize](https://blog.trailofbits.com/2019/11/13/announcing-the-crytic-10k-research-prize/).

@@ -163,7 +163,7 @@ def _initialization_recommendation(type_property: str) -> str:
 
 # TODO: move this to crytic-compile
 def _platform_to_output_dir(platform: AbstractPlatform) -> Path:
-    if platform.TYPE == PlatformType.TRUFFLE or platform.TYPE == PlatformType.BUILDER:
+    if platform.TYPE in [PlatformType.TRUFFLE, platform.TYPE == PlatformType.BUILDER]:
         return Path(platform.target, "contracts", "crytic")
     if platform.TYPE == PlatformType.SOLC:
         return Path(platform.target).parent

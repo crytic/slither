@@ -1,0 +1,9 @@
+{
+  "ERC20": {
+    "balanceOf(address)": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: RETURN 1\n\"];\n}\n"
+  },
+  "C": {
+    "tryCatchFunctionCall()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: NEW VARIABLE 1\n\"];\n1->2;\n2[label=\"Node Type: TRY 2\n\"];\n2->3;\n2->5;\n2->7;\n3[label=\"Node Type: CATCH 3\n\"];\n3->4;\n4[label=\"Node Type: EXPRESSION 4\n\"];\n4->7;\n5[label=\"Node Type: CATCH 5\n\"];\n5->6;\n6[label=\"Node Type: EXPRESSION 6\n\"];\n6->7;\n7[label=\"Node Type: TRY 7\n\"];\n7->8;\n7->10;\n7->12;\n8[label=\"Node Type: CATCH 8\n\"];\n8->9;\n9[label=\"Node Type: EXPRESSION 9\n\"];\n9->12;\n10[label=\"Node Type: CATCH 10\n\"];\n10->11;\n11[label=\"Node Type: EXPRESSION 11\n\"];\n11->12;\n12[label=\"Node Type: TRY 12\n\"];\n12->13;\n12->15;\n12->17;\n12->19;\n13[label=\"Node Type: CATCH 13\n\"];\n13->14;\n14[label=\"Node Type: EXPRESSION 14\n\"];\n14->19;\n15[label=\"Node Type: CATCH 15\n\"];\n15->16;\n16[label=\"Node Type: EXPRESSION 16\n\"];\n16->19;\n17[label=\"Node Type: CATCH 17\n\"];\n17->18;\n18[label=\"Node Type: EXPRESSION 18\n\"];\n18->19;\n19[label=\"Node Type: TRY 19\n\"];\n19->20;\n19->21;\n20[label=\"Node Type: CATCH 20\n\"];\n21[label=\"Node Type: CATCH 21\n\"];\n21->22;\n22[label=\"Node Type: EXPRESSION 22\n\"];\n}\n",
+    "tryCatchContractDeployment()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: TRY 1\n\"];\n1->2;\n1->6;\n2[label=\"Node Type: CATCH 2\n\"];\n2->3;\n3[label=\"Node Type: TRY 3\n\"];\n3->4;\n3->5;\n4[label=\"Node Type: CATCH 4\n\"];\n5[label=\"Node Type: CATCH 5\n\"];\n6[label=\"Node Type: CATCH 6\n\"];\n}\n"
+  }
+}

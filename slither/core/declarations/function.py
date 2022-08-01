@@ -538,7 +538,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._nodes = nodes
 
     @property
-    def entry_point(self) -> "Node":
+    def entry_point(self) -> Optional["Node"]:
         """
         Node: Entry point of the function
         """
@@ -1304,9 +1304,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         with open(filename, "w", encoding="utf8") as f:
             f.write("digraph{\n")
             for node in self.nodes:
-                f.write('{}[label="{}"];\n'.format(node.node_id, str(node)))
+                f.write(f'{node.node_id}[label="{str(node)}"];\n')
                 for son in node.sons:
-                    f.write("{}->{};\n".format(node.node_id, son.node_id))
+                    f.write(f"{node.node_id}->{son.node_id};\n")
 
             f.write("}\n")
 
@@ -1318,20 +1318,18 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
 
         def description(node):
-            desc = "{}\n".format(node)
-            desc += "id: {}".format(node.node_id)
+            desc = f"{node}\n"
+            desc += f"id: {node.node_id}"
             if node.dominance_frontier:
-                desc += "\ndominance frontier: {}".format(
-                    [n.node_id for n in node.dominance_frontier]
-                )
+                desc += f"\ndominance frontier: {[n.node_id for n in node.dominance_frontier]}"
             return desc
 
         with open(filename, "w", encoding="utf8") as f:
             f.write("digraph{\n")
             for node in self.nodes:
-                f.write('{}[label="{}"];\n'.format(node.node_id, description(node)))
+                f.write(f'{node.node_id}[label="{description(node)}"];\n')
                 if node.immediate_dominator:
-                    f.write("{}->{};\n".format(node.immediate_dominator.node_id, node.node_id))
+                    f.write(f"{node.immediate_dominator.node_id}->{node.node_id};\n")
 
             f.write("}\n")
 
@@ -1356,22 +1354,22 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         content = ""
         content += "digraph{\n"
         for node in self.nodes:
-            label = "Node Type: {} {}\n".format(str(node.type), node.node_id)
+            label = f"Node Type: {str(node.type)} {node.node_id}\n"
             if node.expression and not skip_expressions:
-                label += "\nEXPRESSION:\n{}\n".format(node.expression)
+                label += f"\nEXPRESSION:\n{node.expression}\n"
             if node.irs and not skip_expressions:
                 label += "\nIRs:\n" + "\n".join([str(ir) for ir in node.irs])
-            content += '{}[label="{}"];\n'.format(node.node_id, label)
+            content += f'{node.node_id}[label="{label}"];\n'
             if node.type in [NodeType.IF, NodeType.IFLOOP]:
                 true_node = node.son_true
                 if true_node:
-                    content += '{}->{}[label="True"];\n'.format(node.node_id, true_node.node_id)
+                    content += f'{node.node_id}->{true_node.node_id}[label="True"];\n'
                 false_node = node.son_false
                 if false_node:
-                    content += '{}->{}[label="False"];\n'.format(node.node_id, false_node.node_id)
+                    content += f'{node.node_id}->{false_node.node_id}[label="False"];\n'
             else:
                 for son in node.sons:
-                    content += "{}->{};\n".format(node.node_id, son.node_id)
+                    content += f"{node.node_id}->{son.node_id};\n"
 
         content += "}\n"
         return content
@@ -1726,6 +1724,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
 
     def __str__(self):
-        return self._name
+        return self.name
 
     # endregion

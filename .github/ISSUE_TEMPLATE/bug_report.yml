@@ -1,0 +1,48 @@
+--- 
+body: 
+  - 
+    attributes: 
+      value: |
+          Please check the issues tab to avoid duplicates.
+          Thanks for taking the time to fill out this bug report!
+    type: markdown
+  - 
+    attributes: 
+      label: "Describe the issue:"
+    id: what-happened
+    type: textarea
+    validations: 
+      required: true
+  - 
+    attributes: 
+      description: "It can be a github repo, etherscan link, or code snippet."
+      label: "Code example to reproduce the issue:"
+      placeholder: "`contract A {}`\n"
+    id: reproduce
+    type: textarea
+    validations: 
+      required: true
+  - 
+    attributes: 
+      description: |
+          What version of slither are you running? 
+          Run `slither --version`
+      label: "Version:"
+    id: version
+    type: textarea
+    validations: 
+      required: true
+  - 
+    attributes: 
+      description: |
+          Please copy and paste any relevant log output. This 
+          will be automatically formatted into code, so no need for backticks.
+      render: shell
+      label: "Relevant log output:"
+    id: logs
+    type: textarea
+description: "File a bug report"
+labels: 
+  - bug-candidate
+name: "Bug Report"
+title: "[Bug-Candidate]: "

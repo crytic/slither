@@ -102,7 +102,7 @@ def choose_detectors(detectors_to_run, detectors_to_exclude):
                     continue
                 cls_detectors_to_run.append(all_detectors[d])
             else:
-                raise Exception("Error: {} is not a detector".format(d))
+                raise Exception(f"Error: {d} is not a detector")
     return cls_detectors_to_run
 
 

@@ -1,9 +1,9 @@
+---
 name: CI
 
 defaults:
   run:
-    # To load bashrc
-    shell: bash -ieo pipefail {0}
+    shell: bash
 
 on:
   push:
@@ -13,46 +13,66 @@ on:
   pull_request:
   schedule:
     # run CI every day even if no PRs/merges occur
-    - cron:  '0 12 * * *'
+    - cron: '0 12 * * *'
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
+        os: ["ubuntu-latest", "windows-2022"]
         type: ["cli",
+               "dapp",
                "data_dependency",
-               "embark",
+               # "embark",
                "erc",
-               "etherlime",
+               # "etherlime",
+               # "etherscan"
                "find_paths",
+               "flat",
                "kspec",
                "printers",
+               # "prop"
                "simil",
                "slither_config",
                "truffle",
-               "upgradability",
-               # "prop",
-               "flat"]
+               "upgradability"]
+        exclude:
+          # Requires nix
+          - os: windows-2022
+            type: dapp
+          # Requires nvm
+          - os: windows-2022
+            type: truffle
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.6
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.6
-    - name: Install dependencies
-      run: |
-        python setup.py install
-        # Used by ci_test.sh
-        pip install deepdiff
+      - uses: actions/checkout@v1
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          pip install ".[dev]"
+          solc-select install all
+          solc-select use 0.5.1
+          pip install typing_extensions==4.1.1
+          pip install importlib_metadata==4.8.3
 
-        pip install solc-select
-        solc-select install all
-        solc-select use 0.5.1
+      - name: Set up nix
+        if: matrix.type == 'dapp'
+        uses: cachix/install-nix-action@v16
 
-    - name: Run Tests
-      env:
-        TEST_TYPE: ${{ matrix.type }}
-        GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
-      run: |
-        bash "scripts/ci_test_${TEST_TYPE}.sh"
+      - name: Set up cachix
+        if: matrix.type == 'dapp'
+        uses: cachix/cachix-action@v10
+        with:
+          name: dapp
+
+      - name: Run Tests
+        env:
+          PYTHONUTF8: 1
+          TEST_TYPE: ${{ matrix.type }}
+          GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
+        run: |
+          bash "scripts/ci_test_${TEST_TYPE}.sh"

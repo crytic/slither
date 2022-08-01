@@ -1,5 +1,6 @@
 from functools import partial
 import platform
+import sys
 
 
 class Colors:  # pylint: disable=too-few-public-methods
@@ -14,7 +15,7 @@ class Colors:  # pylint: disable=too-few-public-methods
 
 def colorize(color: Colors, txt: str) -> str:
     if Colors.COLORIZATION_ENABLED:
-        return "{}{}{}".format(color, txt, Colors.END)
+        return f"{color}{txt}{Colors.END}"
     return txt
 
 
@@ -73,7 +74,7 @@ def set_colorization_enabled(enabled: bool):
     if enabled and platform.system() == "Windows":
         Colors.COLORIZATION_ENABLED = enable_windows_virtual_terminal_sequences()
     else:
-        # This is not windows so we can enable color immediately.
+        # This is not windows, or colorization is being disabled, so we can adjust the state immediately.
         Colors.COLORIZATION_ENABLED = enabled
 
 
@@ -83,6 +84,5 @@ red = partial(colorize, Colors.RED)
 blue = partial(colorize, Colors.BLUE)
 magenta = partial(colorize, Colors.MAGENTA)
 
-# We enable colorization by default (this call is important as it will enable color mode on Windows by default),
-# regardless of whether Slither is interacted with from CLI or another script.
-set_colorization_enabled(True)
+# We enable colorization by default if the output is a tty
+set_colorization_enabled(sys.stdout.isatty())

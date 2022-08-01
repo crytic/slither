@@ -49,6 +49,6 @@ def train(args):  # pylint: disable=too-many-locals
         logger.info("Done!")
 
     except Exception:  # pylint: disable=broad-except
-        logger.error("Error in %s" % args.filename)
+        logger.error(f"Error in {args.filename}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

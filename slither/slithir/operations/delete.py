@@ -24,4 +24,4 @@ class Delete(OperationWithLValue):
         return self._variable
 
     def __str__(self):
-        return "{} = delete {} ".format(self.lvalue, self.variable)
+        return f"{self.lvalue} = delete {self.variable} "

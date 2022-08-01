@@ -4,21 +4,23 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad",
+                    "name": "bad3",
                     "source_mapping": {
-                        "start": 61,
-                        "length": 232,
+                        "start": 738,
+                        "length": 312,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "is_dependency": false,
                         "lines": [
-                            5,
-                            6,
-                            7,
-                            8,
-                            9
+                            25,
+                            26,
+                            27,
+                            28,
+                            29,
+                            30,
+                            31
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -75,14 +77,14 @@
                                 "ending_column": 0
                             }
                         },
-                        "signature": "bad(address[])"
+                        "signature": "bad3(address[])"
                     }
                 },
                 {
                     "type": "node",
                     "name": "address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))",
                     "source_mapping": {
-                        "start": 188,
+                        "start": 931,
                         "length": 88,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -90,29 +92,31 @@
                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "is_dependency": false,
                         "lines": [
-                            7
+                            28
                         ],
-                        "starting_column": 13,
-                        "ending_column": 101
+                        "starting_column": 17,
+                        "ending_column": 105
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad",
+                            "name": "bad3",
                             "source_mapping": {
-                                "start": 61,
-                                "length": 232,
+                                "start": 738,
+                                "length": 312,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -169,16 +173,16 @@
                                         "ending_column": 0
                                     }
                                 },
-                                "signature": "bad(address[])"
+                                "signature": "bad3(address[])"
                             }
                         }
                     }
                 }
             ],
-            "description": "C.bad(address[]) (tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#5-9) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i])) (tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#7)\n",
-            "markdown": "[C.bad(address[])](tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L5-L9) has delegatecall inside a loop in a payable function: [address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))](tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L7)\n",
-            "first_markdown_element": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L5-L9",
-            "id": "e057dff3814f9be2d5eca53fe80f41323b8ed90d20bb1e33600bb4e043c40b66",
+            "description": "C.bad3(address[]) (tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#25-31) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i])) (tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#28)\n",
+            "markdown": "[C.bad3(address[])](tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L25-L31) has delegatecall inside a loop in a payable function: [address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))](tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L28)\n",
+            "first_markdown_element": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L25-L31",
+            "id": "77dda07eb6e2fe62ccfc45730422fa556ee775c1f6686148258f1ccc76c86491",
             "check": "delegatecall-loop",
             "impact": "High",
             "confidence": "Medium"
@@ -370,23 +374,21 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad3",
+                    "name": "bad",
                     "source_mapping": {
-                        "start": 738,
-                        "length": 312,
+                        "start": 61,
+                        "length": 232,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "is_dependency": false,
                         "lines": [
-                            25,
-                            26,
-                            27,
-                            28,
-                            29,
-                            30,
-                            31
+                            5,
+                            6,
+                            7,
+                            8,
+                            9
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -443,14 +445,14 @@
                                 "ending_column": 0
                             }
                         },
-                        "signature": "bad3(address[])"
+                        "signature": "bad(address[])"
                     }
                 },
                 {
                     "type": "node",
                     "name": "address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))",
                     "source_mapping": {
-                        "start": 931,
+                        "start": 188,
                         "length": 88,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -458,31 +460,29 @@
                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "is_dependency": false,
                         "lines": [
-                            28
+                            7
                         ],
-                        "starting_column": 17,
-                        "ending_column": 105
+                        "starting_column": 13,
+                        "ending_column": 101
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad3",
+                            "name": "bad",
                             "source_mapping": {
-                                "start": 738,
-                                "length": 312,
+                                "start": 61,
+                                "length": 232,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    25,
-                                    26,
-                                    27,
-                                    28,
-                                    29,
-                                    30,
-                                    31
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -539,16 +539,16 @@
                                         "ending_column": 0
                                     }
                                 },
-                                "signature": "bad3(address[])"
+                                "signature": "bad(address[])"
                             }
                         }
                     }
                 }
             ],
-            "description": "C.bad3(address[]) (tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#25-31) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i])) (tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#28)\n",
-            "markdown": "[C.bad3(address[])](tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L25-L31) has delegatecall inside a loop in a payable function: [address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))](tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L28)\n",
-            "first_markdown_element": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L25-L31",
-            "id": "77dda07eb6e2fe62ccfc45730422fa556ee775c1f6686148258f1ccc76c86491",
+            "description": "C.bad(address[]) (tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#5-9) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i])) (tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#7)\n",
+            "markdown": "[C.bad(address[])](tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L5-L9) has delegatecall inside a loop in a payable function: [address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))](tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L7)\n",
+            "first_markdown_element": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol#L5-L9",
+            "id": "e057dff3814f9be2d5eca53fe80f41323b8ed90d20bb1e33600bb4e043c40b66",
             "check": "delegatecall-loop",
             "impact": "High",
             "confidence": "Medium"
