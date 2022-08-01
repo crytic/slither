@@ -1,0 +1,135 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
+                        "start": 19,
+                        "length": 106,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 128,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "f()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "a = 8 >> a",
+                    "source_mapping": {
+                        "start": 93,
+                        "length": 14,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 27
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "f",
+                            "source_mapping": {
+                                "start": 19,
+                                "length": 106,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 128,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "f()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.f() (tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol#3-7) contains an incorrect shift operation: a = 8 >> a (tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol#5)\n",
+            "markdown": "[C.f()](tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol#L3-L7) contains an incorrect shift operation: [a = 8 >> a](tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol#L5)\n",
+            "first_markdown_element": "tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol#L3-L7",
+            "id": "eefda017d078fd6c0cdb19b471ac8d0a96b2b3dba9bac04ac194270820a77301",
+            "check": "incorrect-shift",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]
