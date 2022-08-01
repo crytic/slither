@@ -25,8 +25,4 @@ function_using_a_as_condition = [
 ]
 
 # Print the result
-print(
-    'The function using "a" in condition are {}'.format(
-        [f.name for f in function_using_a_as_condition]
-    )
-)
+print(f'The function using "a" in condition are {[f.name for f in function_using_a_as_condition]}')

@@ -11,6 +11,17 @@ contract Reentrancy {
         userBalance[msg.sender] += msg.value;
     }   
 
+    // Should not detect reentrancy in constructor
+    constructor() public {
+        // send userBalance[msg.sender] ethers to msg.sender
+        // if mgs.sender is a contract, it will call its fallback function
+        (bool ret, bytes memory mem) = msg.sender.call.value(userBalance[msg.sender])("");
+        if( ! ret ){
+            revert();
+        }
+        userBalance[msg.sender] = 0;
+    }
+
     function withdrawBalance() public{
         // send userBalance[msg.sender] ethers to msg.sender
         // if mgs.sender is a contract, it will call its fallback function

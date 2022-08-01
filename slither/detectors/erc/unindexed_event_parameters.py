@@ -16,7 +16,7 @@ class UnindexedERC20EventParameters(AbstractDetector):
 
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-erc20-event-parameters"
 
-    WIKI_TITLE = "Unindexed ERC20 event oarameters"
+    WIKI_TITLE = "Unindexed ERC20 event parameters"
     WIKI_DESCRIPTION = "Detects whether events defined by the `ERC20` specification that should have some parameters as `indexed` are missing the `indexed` keyword."
 
     # region wiki_exploit_scenario

@@ -20,7 +20,7 @@ from slither.tools.upgradeability.utils.command_line import (
 )
 
 logging.basicConfig()
-logger = logging.getLogger("Slither")
+logger: logging.Logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
 
@@ -187,7 +187,7 @@ def main():
         v1_name = args.ContractName
         v1_contracts = variable1.get_contract_from_name(v1_name)
         if len(v1_contracts) != 1:
-            info = "Contract {} not found in {}".format(v1_name, variable1.filename)
+            info = f"Contract {v1_name} not found in {variable1.filename}"
             logger.error(red(info))
             if args.json:
                 output_to_json(args.json, str(info), json_results)
@@ -208,7 +208,7 @@ def main():
 
             proxy_contracts = proxy.get_contract_from_name(args.proxy_name)
             if len(proxy_contracts) != 1:
-                info = "Proxy {} not found in {}".format(args.proxy_name, proxy.filename)
+                info = f"Proxy {args.proxy_name} not found in {proxy.filename}"
                 logger.error(red(info))
                 if args.json:
                     output_to_json(args.json, str(info), json_results)
@@ -230,8 +230,8 @@ def main():
 
             v2_contracts = variable2.get_contract_from_name(args.new_contract_name)
             if len(v2_contracts) != 1:
-                info = "New logic contract {} not found in {}".format(
-                    args.new_contract_name, variable2.filename
+                info = (
+                    f"New logic contract {args.new_contract_name} not found in {variable2.filename}"
                 )
                 logger.error(red(info))
                 if args.json:

@@ -5,16 +5,16 @@ from typing import TYPE_CHECKING, List, Tuple
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.children.child_inheritance import ChildInheritance
-from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.declarations import Function
 
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract
+    from slither.core.scope.scope import FileScope
 
 
-class FunctionContract(Function, ChildContract, ChildInheritance, SourceMapping):
+class FunctionContract(Function, ChildContract, ChildInheritance):
     @property
     def canonical_name(self) -> str:
         """
@@ -24,7 +24,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance, SourceMapping)
         if self._canonical_name is None:
             name, parameters, _ = self.signature
             self._canonical_name = (
-                ".".join([self.contract_declarer.name] + self._scope + [name])
+                ".".join([self.contract_declarer.name] + self._internal_scope + [name])
                 + "("
                 + ",".join(parameters)
                 + ")"
@@ -38,6 +38,10 @@ class FunctionContract(Function, ChildContract, ChildInheritance, SourceMapping)
         :return:
         """
         return self.contract_declarer == contract
+
+    @property
+    def file_scope(self) -> "FileScope":
+        return self.contract.file_scope
 
     # endregion
     ###################################################################################

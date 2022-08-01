@@ -1,5 +1,6 @@
 import re
 import logging
+from typing import Set, Tuple
 
 from slither.core.declarations import Function
 from slither.core.variables.variable import Variable
@@ -13,16 +14,16 @@ logger = logging.getLogger("Slither.kspec")
 # pylint: disable=anomalous-backslash-in-string
 
 
-def _refactor_type(targeted_type):
+def _refactor_type(targeted_type: str) -> str:
     return {"uint": "uint256", "int": "int256"}.get(targeted_type, targeted_type)
 
 
-def _get_all_covered_kspec_functions(target):
+def _get_all_covered_kspec_functions(target: str) -> Set[Tuple[str, str]]:
     # Create a set of our discovered functions which are covered
-    covered_functions = set()
+    covered_functions: Set[Tuple[str, str]] = set()
 
-    BEHAVIOUR_PATTERN = re.compile("behaviour\s+(\S+)\s+of\s+(\S+)")
-    INTERFACE_PATTERN = re.compile("interface\s+([^\r\n]+)")
+    BEHAVIOUR_PATTERN = re.compile(r"behaviour\s+(\S+)\s+of\s+(\S+)")
+    INTERFACE_PATTERN = re.compile(r"interface\s+([^\r\n]+)")
 
     # Read the file contents
     with open(target, "r", encoding="utf8") as target_file:

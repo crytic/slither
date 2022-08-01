@@ -1,14 +1,25 @@
 """
     Function module
 """
-from typing import List, Tuple
+from typing import List, Tuple, TYPE_CHECKING
 
 from slither.core.declarations import Function
 from slither.core.declarations.top_level import TopLevel
-from slither.core.source_mapping.source_mapping import SourceMapping
+
+if TYPE_CHECKING:
+    from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.scope.scope import FileScope
 
 
-class FunctionTopLevel(Function, TopLevel, SourceMapping):
+class FunctionTopLevel(Function, TopLevel):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope"):
+        super().__init__(compilation_unit)
+        self._scope: "FileScope" = scope
+
+    @property
+    def file_scope(self) -> "FileScope":
+        return self._scope
+
     @property
     def canonical_name(self) -> str:
         """
@@ -17,7 +28,9 @@ class FunctionTopLevel(Function, TopLevel, SourceMapping):
         """
         if self._canonical_name is None:
             name, parameters, _ = self.signature
-            self._canonical_name = ".".join(self._scope + [name]) + "(" + ",".join(parameters) + ")"
+            self._canonical_name = (
+                ".".join(self._internal_scope + [name]) + "(" + ",".join(parameters) + ")"
+            )
         return self._canonical_name
 
     # endregion

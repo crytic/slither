@@ -8,6 +8,9 @@ from typing import Type, Optional, List
 import pytest
 from deepdiff import DeepDiff  # pip install deepdiff
 
+from solc_select.solc_select import install_artifacts as install_solc_versions
+from solc_select.solc_select import installed_versions as get_installed_solc_versions
+
 from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
@@ -52,7 +55,7 @@ def id_test(test_item: Test):
     return f"{test_item.detector}: {test_item.solc_ver}/{test_item.test_file}"
 
 
-ALL_TESTS = [
+ALL_TEST_OBJECTS = [
     Test(
         all_detectors.UninitializedFunctionPtrsConstructor,
         "uninitialized_function_ptr_constructor.sol",
@@ -112,6 +115,26 @@ ALL_TESTS = [
         all_detectors.ReentrancyReadBeforeWritten,
         "DAO.sol",
         "0.4.25",
+    ),
+    Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "comment.sol",
+        "0.8.2",
+    ),
+    Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "no-reentrancy-staticcall.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "no-reentrancy-staticcall.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ReentrancyReadBeforeWritten,
+        "no-reentrancy-staticcall.sol",
+        "0.7.6",
     ),
     Test(
         all_detectors.BooleanEquality,
@@ -373,23 +396,23 @@ ALL_TESTS = [
     Test(all_detectors.LockedEther, "locked_ether.sol", "0.6.11"),
     Test(all_detectors.LockedEther, "locked_ether.sol", "0.7.6"),
     Test(
-        all_detectors.ArbitrarySend,
-        "arbitrary_send.sol",
+        all_detectors.ArbitrarySendEth,
+        "arbitrary_send_eth.sol",
         "0.4.25",
     ),
     Test(
-        all_detectors.ArbitrarySend,
-        "arbitrary_send.sol",
+        all_detectors.ArbitrarySendEth,
+        "arbitrary_send_eth.sol",
         "0.5.16",
     ),
     Test(
-        all_detectors.ArbitrarySend,
-        "arbitrary_send.sol",
+        all_detectors.ArbitrarySendEth,
+        "arbitrary_send_eth.sol",
         "0.6.11",
     ),
     Test(
-        all_detectors.ArbitrarySend,
-        "arbitrary_send.sol",
+        all_detectors.ArbitrarySendEth,
+        "arbitrary_send_eth.sol",
         "0.7.6",
     ),
     Test(
@@ -471,6 +494,11 @@ ALL_TESTS = [
         all_detectors.ConstCandidateStateVars,
         "const_state_variables.sol",
         "0.7.6",
+    ),
+    Test(
+        all_detectors.ConstCandidateStateVars,
+        "immutable.sol",
+        "0.8.0",
     ),
     Test(
         all_detectors.ExternalFunction,
@@ -628,6 +656,16 @@ ALL_TESTS = [
         "0.5.16",
     ),
     Test(
+        all_detectors.ShadowingAbstractDetection,
+        "shadowing_state_variable.sol",
+        "0.7.5",
+    ),
+    Test(
+        all_detectors.ShadowingAbstractDetection,
+        "public_gap_variable.sol",
+        "0.7.5",
+    ),
+    Test(
         all_detectors.StateShadowing,
         "shadowing_state_variable.sol",
         "0.4.25",
@@ -641,6 +679,16 @@ ALL_TESTS = [
         all_detectors.StateShadowing,
         "shadowing_state_variable.sol",
         "0.6.11",
+    ),
+    Test(
+        all_detectors.StateShadowing,
+        "shadowing_state_variable.sol",
+        "0.7.5",
+    ),
+    Test(
+        all_detectors.StateShadowing,
+        "public_gap_variable.sol",
+        "0.7.5",
     ),
     Test(
         all_detectors.StateShadowing,
@@ -715,6 +763,11 @@ ALL_TESTS = [
         all_detectors.RightToLeftOverride,
         "right_to_left_override.sol",
         "0.6.11",
+    ),
+    Test(
+        all_detectors.RightToLeftOverride,
+        "unicode_direction_override.sol",
+        "0.8.0",
     ),
     Test(all_detectors.VoidConstructor, "void-cst.sol", "0.4.25"),
     Test(all_detectors.VoidConstructor, "void-cst.sol", "0.5.16"),
@@ -807,12 +860,22 @@ ALL_TESTS = [
     ),
     Test(
         all_detectors.UnprotectedUpgradeable,
+        "whitelisted.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
         "Buggy.sol",
         "0.5.16",
     ),
     Test(
         all_detectors.UnprotectedUpgradeable,
         "Fixed.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "whitelisted.sol",
         "0.5.16",
     ),
     Test(
@@ -823,6 +886,11 @@ ALL_TESTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "Fixed.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "whitelisted.sol",
         "0.6.11",
     ),
     Test(
@@ -833,6 +901,11 @@ ALL_TESTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "Fixed.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "whitelisted.sol",
         "0.7.6",
     ),
     Test(
@@ -1144,7 +1217,131 @@ ALL_TESTS = [
         "write-after-write.sol",
         "0.8.0",
     ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.MsgValueInLoop,
+        "msg_value_loop.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.DelegatecallInLoop,
+        "delegatecall_loop.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.DelegatecallInLoop,
+        "delegatecall_loop.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.DelegatecallInLoop,
+        "delegatecall_loop.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.DelegatecallInLoop,
+        "delegatecall_loop.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.DelegatecallInLoop,
+        "delegatecall_loop.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.ProtectedVariables,
+        "comment.sol",
+        "0.8.2",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20NoPermit,
+        "arbitrary_send_erc20_inheritance.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20Permit,
+        "arbitrary_send_erc20_permit.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20Permit,
+        "arbitrary_send_erc20_permit.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20Permit,
+        "arbitrary_send_erc20_permit.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20Permit,
+        "arbitrary_send_erc20_permit.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ArbitrarySendErc20Permit,
+        "arbitrary_send_erc20_permit.sol",
+        "0.8.0",
+    ),
 ]
+
+
+def get_all_tests() -> List[Test]:
+    installed_solcs = set(get_installed_solc_versions())
+    required_solcs = {test.solc_ver for test in ALL_TEST_OBJECTS}
+    missing_solcs = list(required_solcs - installed_solcs)
+    if missing_solcs:
+        install_solc_versions(missing_solcs)
+
+    return ALL_TEST_OBJECTS
+
+
+ALL_TESTS = get_all_tests()
+
 GENERIC_PATH = "/GENERIC_PATH"
 
 
@@ -1172,11 +1369,10 @@ def test_detector(test_item: Test):
 
     for additional_file in test_item.additional_files:
         additional_path = str(pathlib.Path(test_dir_path, additional_file).absolute())
-        results_as_string = results_as_string.replace(
-            additional_path, str(pathlib.Path(GENERIC_PATH))
-        )
-    results_as_string = results_as_string.replace(test_file_path, str(pathlib.Path(GENERIC_PATH)))
-
+        additional_path = additional_path.replace("\\", "\\\\")
+        results_as_string = results_as_string.replace(additional_path, GENERIC_PATH)
+    test_file_path = test_file_path.replace("\\", "\\\\")
+    results_as_string = results_as_string.replace(test_file_path, GENERIC_PATH)
     results = json.loads(results_as_string)
 
     diff = DeepDiff(results, expected_result, ignore_order=True, verbose_level=2)
@@ -1216,16 +1412,16 @@ def _generate_test(test_item: Test, skip_existing=False):
     results = sl.run_detectors()
 
     results_as_string = json.dumps(results)
-    results_as_string = results_as_string.replace(test_file_path, str(pathlib.Path(GENERIC_PATH)))
+    test_file_path = test_file_path.replace("\\", "\\\\")
+    results_as_string = results_as_string.replace(test_file_path, GENERIC_PATH)
 
     for additional_file in test_item.additional_files:
         additional_path = str(pathlib.Path(test_dir_path, additional_file).absolute())
-        results_as_string = results_as_string.replace(
-            additional_path, str(pathlib.Path(GENERIC_PATH))
-        )
+        additional_path = additional_path.replace("\\", "\\\\")
+        results_as_string = results_as_string.replace(additional_path, GENERIC_PATH)
 
     results = json.loads(results_as_string)
-    with open(expected_result_path, "w") as f:
+    with open(expected_result_path, "w", encoding="utf8") as f:
         f.write(json.dumps(results, indent=4))
 
 

@@ -13,7 +13,7 @@ from slither.slithir.operations import (
     LowLevelCall,
     Operation,
 )
-from slither.slithir.variables import ReferenceVariable, TemporaryVariable
+from slither.slithir.variables import ReferenceVariable, TemporaryVariable, TupleVariable
 from slither.slithir.variables.variable import SlithIRVariable
 
 
@@ -59,7 +59,7 @@ def _handle_ir(
         if (
             ir.lvalue
             and isinstance(ir.lvalue.type, ElementaryType)
-            and not isinstance(ir.lvalue, (ReferenceVariable, TemporaryVariable))
+            and not isinstance(ir.lvalue, (ReferenceVariable, TemporaryVariable, TupleVariable))
         ):
             if ir.lvalue.name == "_":
                 return
@@ -88,7 +88,7 @@ def _detect_write_after_write(
             _handle_ir(ir, written, ret)
 
     if len(node.sons) > 1:
-        written = dict()
+        written = {}
     for son in node.sons:
         _detect_write_after_write(son, explored, dict(written), ret)
 
@@ -128,7 +128,7 @@ class WriteAfterWrite(AbstractDetector):
             for function in contract.functions:
                 if function.entry_point:
                     ret = []
-                    _detect_write_after_write(function.entry_point, set(), dict(), ret)
+                    _detect_write_after_write(function.entry_point, set(), {}, ret)
                     for var, node1, node2 in ret:
                         info = [var, " is written in both\n\t", node1, "\n\t", node2, "\n"]
 

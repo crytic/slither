@@ -9,6 +9,9 @@ class Enum(SourceMapping):
         self._name = name
         self._canonical_name = canonical_name
         self._values = values
+        self._min = 0
+        # The max value of an Enum is the index of the last element
+        self._max = len(values) - 1
 
     @property
     def canonical_name(self) -> str:
@@ -21,6 +24,14 @@ class Enum(SourceMapping):
     @property
     def values(self) -> List[str]:
         return self._values
+
+    @property
+    def min(self) -> int:
+        return self._min
+
+    @property
+    def max(self) -> int:
+        return self._max
 
     def __str__(self):
         return self.name

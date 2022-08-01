@@ -26,7 +26,7 @@ class AssignmentOperationType(Enum):
     ASSIGN_MODULO = 10  # %=
 
     @staticmethod
-    def get_type(operation_type: "AssignmentOperationType"):
+    def get_type(operation_type: str) -> "AssignmentOperationType":
         if operation_type == "=":
             return AssignmentOperationType.ASSIGN
         if operation_type == "|=":
@@ -50,9 +50,9 @@ class AssignmentOperationType(Enum):
         if operation_type == "%=":
             return AssignmentOperationType.ASSIGN_MODULO
 
-        raise SlitherCoreError("get_type: Unknown operation type {})".format(operation_type))
+        raise SlitherCoreError(f"get_type: Unknown operation type {operation_type})")
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self == AssignmentOperationType.ASSIGN:
             return "="
         if self == AssignmentOperationType.ASSIGN_OR:
@@ -75,7 +75,7 @@ class AssignmentOperationType(Enum):
             return "/="
         if self == AssignmentOperationType.ASSIGN_MODULO:
             return "%="
-        raise SlitherCoreError("str: Unknown operation type {})".format(self))
+        raise SlitherCoreError(f"str: Unknown operation type {self})")
 
 
 class AssignmentOperation(ExpressionTyped):
@@ -91,7 +91,7 @@ class AssignmentOperation(ExpressionTyped):
         super().__init__()
         left_expression.set_lvalue()
         self._expressions = [left_expression, right_expression]
-        self._type: Optional["Type"] = expression_type
+        self._type: Optional["AssignmentOperationType"] = expression_type
         self._expression_return_type: Optional["Type"] = expression_return_type
 
     @property
@@ -111,8 +111,8 @@ class AssignmentOperation(ExpressionTyped):
         return self._expressions[1]
 
     @property
-    def type(self) -> Optional["Type"]:
+    def type(self) -> Optional["AssignmentOperationType"]:
         return self._type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.expression_left) + " " + str(self.type) + " " + str(self.expression_right)

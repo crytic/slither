@@ -1,16 +1,40 @@
-from typing import Optional
+from pathlib import Path
+from typing import Optional, TYPE_CHECKING, Dict
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 
+if TYPE_CHECKING:
+    from slither.core.scope.scope import FileScope
+
 
 class Import(SourceMapping):
-    def __init__(self, filename: str):
+    def __init__(self, filename: Path, scope: "FileScope"):
         super().__init__()
-        self._filename = filename
+        self._filename: Path = filename
         self._alias: Optional[str] = None
+        self.scope: "FileScope" = scope
+        # Map local name -> original name
+        self.renaming: Dict[str, str] = {}
 
     @property
     def filename(self) -> str:
+        """
+        Return the absolute filename
+
+        :return:
+        :rtype:
+        """
+        return self._filename.as_posix()
+
+    @property
+    def filename_path(self) -> Path:
+        """
+        Return the absolute filename
+
+        :return:
+        :rtype:
+        """
+
         return self._filename
 
     @property

@@ -47,7 +47,7 @@ class UnusedStateVars(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variables"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variable"
 
     WIKI_TITLE = "Unused state variable"
     WIKI_DESCRIPTION = "Unused state variable."

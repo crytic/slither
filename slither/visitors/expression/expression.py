@@ -90,7 +90,7 @@ class ExpressionVisitor:
             pass
 
         else:
-            raise SlitherError("Expression not handled: {}".format(expression))
+            raise SlitherError(f"Expression not handled: {expression}")
 
         self._post_visit(expression)
 
@@ -209,7 +209,7 @@ class ExpressionVisitor:
             pass
 
         else:
-            raise SlitherError("Expression not handled: {}".format(expression))
+            raise SlitherError(f"Expression not handled: {expression}")
 
     # pre_expression_name
 
@@ -310,7 +310,7 @@ class ExpressionVisitor:
             pass
 
         else:
-            raise SlitherError("Expression not handled: {}".format(expression))
+            raise SlitherError(f"Expression not handled: {expression}")
 
     # post_expression_name
 

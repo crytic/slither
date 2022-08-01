@@ -4,6 +4,8 @@
 import json
 import logging
 import os
+import pathlib
+import posixpath
 import re
 from typing import Optional, Dict, List, Set, Union
 
@@ -110,9 +112,7 @@ class SlitherCore(Context):
         """
         contracts = []
         for compilation_unit in self._compilation_units:
-            contract = compilation_unit.get_contract_from_name(contract_name)
-            if contract:
-                contracts.append(contract)
+            contracts += compilation_unit.get_contract_from_name(contract_name)
         return contracts
 
     ###################################################################################
@@ -123,7 +123,7 @@ class SlitherCore(Context):
 
     @property
     def source_code(self) -> Dict[str, str]:
-        """ {filename: source_code (str)}: source code """
+        """{filename: source_code (str)}: source code"""
         return self._raw_source_code
 
     @property
@@ -157,7 +157,7 @@ class SlitherCore(Context):
         for compilation_unit in self._compilation_units:
             for c in compilation_unit.contracts:
                 for f in c.functions:
-                    f.cfg_to_dot(os.path.join(d, "{}.{}.dot".format(c.name, f.name)))
+                    f.cfg_to_dot(os.path.join(d, f"{c.name}.{f.name}.dot"))
 
     # endregion
     ###################################################################################
@@ -174,7 +174,7 @@ class SlitherCore(Context):
             return False
         mapping_elements_with_lines = (
             (
-                os.path.normpath(elem["source_mapping"]["filename_absolute"]),
+                posixpath.normpath(elem["source_mapping"]["filename_absolute"]),
                 elem["source_mapping"]["lines"],
             )
             for elem in r["elements"]
@@ -219,8 +219,12 @@ class SlitherCore(Context):
             for elem in r["elements"]
             if "source_mapping" in elem
         ]
-        source_mapping_elements = map(
-            lambda x: os.path.normpath(x) if x else x, source_mapping_elements
+
+        # Use POSIX-style paths so that filter_paths works across different
+        # OSes. Convert to a list so elements don't get consumed and are lost
+        # while evaluating the first pattern
+        source_mapping_elements = list(
+            map(lambda x: pathlib.Path(x).resolve().as_posix() if x else x, source_mapping_elements)
         )
         matching = False
 
@@ -241,14 +245,14 @@ class SlitherCore(Context):
 
         if r["elements"] and matching:
             return False
-        if r["elements"] and self._exclude_dependencies:
-            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
         if self._show_ignored_findings:
             return True
-        if r["id"] in self._previous_results_ids:
-            return False
         if self.has_ignore_comment(r):
             return False
+        if r["id"] in self._previous_results_ids:
+            return False
+        if r["elements"] and self._exclude_dependencies:
+            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
         return not r["description"] in [pr["description"] for pr in self._previous_results]
 
@@ -256,16 +260,14 @@ class SlitherCore(Context):
         filename = self._previous_results_filename
         try:
             if os.path.isfile(filename):
-                with open(filename) as f:
+                with open(filename, encoding="utf8") as f:
                     self._previous_results = json.load(f)
                     if self._previous_results:
                         for r in self._previous_results:
                             if "id" in r:
                                 self._previous_results_ids.add(r["id"])
         except json.decoder.JSONDecodeError:
-            logger.error(
-                red("Impossible to decode {}. Consider removing the file".format(filename))
-            )
+            logger.error(red(f"Impossible to decode {filename}. Consider removing the file"))
 
     def write_results_to_hide(self):
         if not self._results_to_hide:
@@ -334,6 +336,6 @@ class SlitherCore(Context):
 
     @property
     def show_ignore_findings(self) -> bool:
-        return self.show_ignore_findings
+        return self._show_ignored_findings
 
     # endregion

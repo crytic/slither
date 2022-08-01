@@ -74,4 +74,4 @@ class Constant(SlithIRVariable):
         return self.value < other
 
     def __repr__(self):
-        return "%s" % (str(self.value))
+        return f"{str(self.value)}"

@@ -20,7 +20,7 @@ class ComparableEnum(Enum):
         return False
 
     def __repr__(self):
-        return "%s" % (str(self.value))
+        return f"{str(self.value)}"
 
     def __hash__(self):
         return hash(self.value)

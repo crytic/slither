@@ -23,4 +23,4 @@ class NewElementaryType(Call, OperationWithLValue):
     def __str__(self):
         args = [str(a) for a in self.arguments]
 
-        return "{} = new {}({})".format(self.lvalue, self._type, ",".join(args))
+        return f"{self.lvalue} = new {self._type}({','.join(args)})"

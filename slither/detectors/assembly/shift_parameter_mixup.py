@@ -13,7 +13,9 @@ class ShiftParameterMixup(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#shift-parameter-mixup"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-shift-in-assembly"
+    )
 
     WIKI_TITLE = "Incorrect shift in assembly."
     WIKI_DESCRIPTION = "Detect if the values in a shift operation are reversed"

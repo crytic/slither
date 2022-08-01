@@ -18,4 +18,4 @@ class TmpNewElementaryType(OperationWithLValue):
         return self._type
 
     def __str__(self):
-        return "{} = new {}".format(self.lvalue, self._type)
+        return f"{self.lvalue} = new {self._type}"
