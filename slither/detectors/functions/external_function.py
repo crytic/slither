@@ -1,3 +1,6 @@
+from slither.core.solidity_types.array_type import ArrayType
+from slither.core.declarations.structure import Structure
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import SolidityCall
 from slither.slithir.operations import InternalCall, InternalDynamicCall
@@ -20,10 +23,8 @@ class ExternalFunction(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external"
 
     WIKI_TITLE = "Public function that could be declared external"
-    WIKI_DESCRIPTION = "`public` functions that are never called by the contract should be declared `external` to save gas."
-    WIKI_RECOMMENDATION = (
-        "Use the `external` attribute for functions never called from the contract."
-    )
+    WIKI_DESCRIPTION = "`public` functions that are never called by the contract should be declared `external`, and its immutable parameters should be located in `calldata` to save gas."
+    WIKI_RECOMMENDATION = "Use the `external` attribute for functions never called from the contract, and change the location of immutable parameters to `calldata` to save gas."
 
     @staticmethod
     def detect_functions_called(contract):
@@ -105,8 +106,28 @@ class ExternalFunction(AbstractDetector):
     def function_parameters_written(function):
         return any(p in function.variables_written for p in function.parameters)
 
+    @staticmethod
+    def is_reference_type(parameter):
+        if isinstance(parameter.type, ArrayType):
+            return True
+        if isinstance(parameter.type, UserDefinedType) and isinstance(
+            parameter.type.type, Structure
+        ):
+            return True
+        if str(parameter.type) in ["bytes", "string"]:
+            return True
+        return False
+
     def _detect(self):  # pylint: disable=too-many-locals,too-many-branches
         results = []
+
+        # After solc 0.6.9, calldata arguments are allowed in public functions
+        if self.compilation_unit.solc_version >= "0.7." or self.compilation_unit.solc_version in [
+            "0.6.9",
+            "0.6.10",
+            "0.6.11",
+        ]:
+            return results
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be
         # calling functions internally, and thus we can't assume any function in such contracts isn't called by them.
@@ -130,6 +151,14 @@ class ExternalFunction(AbstractDetector):
 
             # Next we'll want to loop through all functions defined directly in this contract.
             for function in contract.functions_declared:
+
+                # If all of the function arguments are non-reference type or calldata, we skip it.
+                reference_args = []
+                for arg in function.parameters:
+                    if self.is_reference_type(arg) and arg.location == "memory":
+                        reference_args.append(arg)
+                if len(reference_args) == 0:
+                    continue
 
                 # If the function is a constructor, or is public, we skip it.
                 if function.is_constructor or function.visibility != "public":
@@ -203,6 +232,12 @@ class ExternalFunction(AbstractDetector):
 
                     info = [f"{function_definition.full_name} should be declared external:\n"]
                     info += ["\t- ", function_definition, "\n"]
+                    if self.compilation_unit.solc_version >= "0.5.":
+                        info += [
+                            "Moreover, the following function parameters should change its data location:\n"
+                        ]
+                        for reference_arg in reference_args:
+                            info += [f"{reference_arg} location should be calldata\n"]
                     for other_function_definition in all_function_definitions:
                         info += ["\t- ", other_function_definition, "\n"]
 
