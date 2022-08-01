@@ -15,7 +15,6 @@ class TypeAlias(Type):
         self.name = name
         self.underlying_type = underlying_type
 
-
     @property
     def storage_size(self) -> Tuple[int, bool]:
         return self.underlying_type.storage_size
@@ -26,6 +25,7 @@ class TypeAlias(Type):
     @property
     def is_dynamic(self) -> bool:
         return self.underlying_type.is_dynamic
+
 
 class TypeAliasTopLevel(TypeAlias, TopLevel):
     def __init__(self, underlying_type: Type, name: str, scope: "FileScope"):

@@ -35,6 +35,10 @@ class TypeInformation(Type):
         """
         return 32, True
 
+    @property
+    def is_dynamic(self) -> bool:
+        raise NotImplementedError
+
     def __str__(self):
         return f"type({self.type.name})"
 

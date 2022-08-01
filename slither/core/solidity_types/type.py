@@ -18,4 +18,4 @@ class Type(SourceMapping, metaclass=abc.ABCMeta):
     @property
     @abc.abstractmethod
     def is_dynamic(self) -> bool:
-        """ True if the size of the type is dynamic"""
+        """True if the size of the type is dynamic"""
