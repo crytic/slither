@@ -15,11 +15,7 @@ nix-env -f "$HOME/.dapp/dapptools" -iA dapp seth solc hevm ethsign
 
 dapp init
 
-slither . --detect external-function
-
-# TODO: make more elaborate test
-if [ $? -eq 0 ]
-then
+if !slither . --detect external-function; then
     exit 0
 fi
 
