@@ -23,7 +23,7 @@ class FunctionIds(AbstractPrinter):
         txt = ""
         all_tables = []
         for contract in self.slither.contracts_derived:
-            txt += "\n{}:\n".format(contract.name)
+            txt += f"\n{contract.name}:\n"
             table = MyPrettyTable(["Name", "ID"])
             for function in contract.functions:
                 if function.is_shadowed or function.is_constructor_variables:

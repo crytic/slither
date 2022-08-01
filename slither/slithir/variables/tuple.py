@@ -28,7 +28,7 @@ class TupleVariable(ChildNode, SlithIRVariable):
 
     @property
     def name(self):
-        return "TUPLE_{}".format(self.index)
+        return f"TUPLE_{self.index}"
 
     def __str__(self):
         return self.name

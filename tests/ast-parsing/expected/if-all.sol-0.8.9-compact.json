@@ -1,0 +1,8 @@
+{
+  "C": {
+    "ifWithoutElse()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: IF 1\n\"];\n1->2[label=\"True\"];\n1->3[label=\"False\"];\n2[label=\"Node Type: EXPRESSION 2\n\"];\n2->3;\n3[label=\"Node Type: END_IF 3\n\"];\n}\n",
+    "ifWithElse()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: IF 1\n\"];\n1->2[label=\"True\"];\n1->3[label=\"False\"];\n2[label=\"Node Type: EXPRESSION 2\n\"];\n2->4;\n3[label=\"Node Type: EXPRESSION 3\n\"];\n3->4;\n4[label=\"Node Type: END_IF 4\n\"];\n}\n",
+    "ifWithElseIf()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: IF 1\n\"];\n1->2[label=\"True\"];\n1->3[label=\"False\"];\n2[label=\"Node Type: EXPRESSION 2\n\"];\n2->9;\n3[label=\"Node Type: IF 3\n\"];\n3->4[label=\"True\"];\n3->5[label=\"False\"];\n4[label=\"Node Type: EXPRESSION 4\n\"];\n4->8;\n5[label=\"Node Type: IF 5\n\"];\n5->6[label=\"True\"];\n5->7[label=\"False\"];\n6[label=\"Node Type: EXPRESSION 6\n\"];\n6->7;\n7[label=\"Node Type: END_IF 7\n\"];\n7->8;\n8[label=\"Node Type: END_IF 8\n\"];\n8->9;\n9[label=\"Node Type: END_IF 9\n\"];\n}\n",
+    "ifWithElseIfElse()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: IF 1\n\"];\n1->2[label=\"True\"];\n1->3[label=\"False\"];\n2[label=\"Node Type: EXPRESSION 2\n\"];\n2->7;\n3[label=\"Node Type: IF 3\n\"];\n3->4[label=\"True\"];\n3->5[label=\"False\"];\n4[label=\"Node Type: EXPRESSION 4\n\"];\n4->6;\n5[label=\"Node Type: EXPRESSION 5\n\"];\n5->6;\n6[label=\"Node Type: END_IF 6\n\"];\n6->7;\n7[label=\"Node Type: END_IF 7\n\"];\n}\n"
+  }
+}

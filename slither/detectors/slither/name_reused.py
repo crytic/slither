@@ -53,7 +53,16 @@ As a result, the second contract cannot be analyzed.
     def _detect(self):  # pylint: disable=too-many-locals,too-many-branches
         results = []
         compilation_unit = self.compilation_unit
-        names_reused = compilation_unit.contract_name_collisions
+
+        all_contracts = compilation_unit.contracts
+        all_contracts_name = [c.name for c in all_contracts]
+        contracts_name_reused = {
+            contract for contract in all_contracts_name if all_contracts_name.count(contract) > 1
+        }
+
+        names_reused = {
+            name: compilation_unit.get_contract_from_name(name) for name in contracts_name_reused
+        }
 
         # First show the contracts that we know are missing
         incorrectly_constructed = [

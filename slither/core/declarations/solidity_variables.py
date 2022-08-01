@@ -20,6 +20,7 @@ SOLIDITY_VARIABLES = {
 }
 
 SOLIDITY_VARIABLES_COMPOSED = {
+    "block.basefee": "uint",
     "block.coinbase": "address",
     "block.difficulty": "uint256",
     "block.gaslimit": "uint256",
@@ -69,10 +70,16 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "abi.encodePacked()": ["bytes"],
     "abi.encodeWithSelector()": ["bytes"],
     "abi.encodeWithSignature()": ["bytes"],
+    "bytes.concat()": ["bytes"],
+    "string.concat()": ["string"],
     # abi.decode returns an a list arbitrary types
     "abi.decode()": [],
     "type(address)": [],
     "type()": [],  # 0.6.8 changed type(address) to type()
+    # The following are conversion from address.something
+    "balance(address)": ["uint256"],
+    "code(address)": ["bytes"],
+    "codehash(address)": ["bytes32"],
 }
 
 
@@ -86,7 +93,7 @@ def solidity_function_signature(name):
     Returns:
         str
     """
-    return name + " returns({})".format(",".join(SOLIDITY_FUNCTIONS[name]))
+    return name + f" returns({','.join(SOLIDITY_FUNCTIONS[name])})"
 
 
 class SolidityVariable(Context):
@@ -97,7 +104,7 @@ class SolidityVariable(Context):
 
     # dev function, will be removed once the code is stable
     def _check_name(self, name: str):  # pylint: disable=no-self-use
-        assert name in SOLIDITY_VARIABLES or name.endswith("_slot") or name.endswith("_offset")
+        assert name in SOLIDITY_VARIABLES or name.endswith(("_slot", "_offset"))
 
     @property
     def state_variable(self):

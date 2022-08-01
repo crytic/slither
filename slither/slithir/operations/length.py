@@ -21,4 +21,4 @@ class Length(OperationWithLValue):
         return self._value
 
     def __str__(self):
-        return "{} -> LENGTH {}".format(self.lvalue, self.value)
+        return f"{self.lvalue} -> LENGTH {self.value}"

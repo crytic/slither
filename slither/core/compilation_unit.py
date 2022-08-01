@@ -1,9 +1,9 @@
 import math
-from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
 from crytic_compile import CompilationUnit, CryticCompile
 from crytic_compile.compiler.compiler import CompilerVersion
+from crytic_compile.utils.naming import Filename
 
 from slither.core.context.context import Context
 from slither.core.declarations import (
@@ -17,6 +17,7 @@ from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
+from slither.core.scope.scope import FileScope
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import InternalCall
@@ -24,6 +25,7 @@ from slither.slithir.variables import Constant
 
 if TYPE_CHECKING:
     from slither.core.slither_core import SlitherCore
+
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCompilationUnit(Context):
@@ -34,7 +36,7 @@ class SlitherCompilationUnit(Context):
         self._crytic_compile_compilation_unit = crytic_compilation_unit
 
         # Top level object
-        self._contracts: Dict[str, Contract] = {}
+        self.contracts: List[Contract] = []
         self._structures_top_level: List[StructureTopLevel] = []
         self._enums_top_level: List[EnumTopLevel] = []
         self._variables_top_level: List[TopLevelVariable] = []
@@ -51,7 +53,6 @@ class SlitherCompilationUnit(Context):
 
         self._storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
 
-        self._contract_name_collisions = defaultdict(list)
         self._contract_with_missing_inheritance = set()
 
         self._source_units: Dict[int, str] = {}
@@ -59,6 +60,8 @@ class SlitherCompilationUnit(Context):
         self.counter_slithir_tuple = 0
         self.counter_slithir_temporary = 0
         self.counter_slithir_reference = 0
+
+        self.scopes: Dict[Filename, FileScope] = {}
 
     @property
     def core(self) -> "SlitherCore":
@@ -100,12 +103,12 @@ class SlitherCompilationUnit(Context):
 
     @property
     def pragma_directives(self) -> List[Pragma]:
-        """ list(core.declarations.Pragma): Pragma directives."""
+        """list(core.declarations.Pragma): Pragma directives."""
         return self._pragma_directives
 
     @property
     def import_directives(self) -> List[Import]:
-        """ list(core.declarations.Import): Import directives"""
+        """list(core.declarations.Import): Import directives"""
         return self._import_directives
 
     # endregion
@@ -116,31 +119,21 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     @property
-    def contracts(self) -> List[Contract]:
-        """list(Contract): List of contracts."""
-        return list(self._contracts.values())
-
-    @property
     def contracts_derived(self) -> List[Contract]:
         """list(Contract): List of contracts that are derived and not inherited."""
         inheritances = [x.inheritance for x in self.contracts]
         inheritance = [item for sublist in inheritances for item in sublist]
-        return [c for c in self._contracts.values() if c not in inheritance and not c.is_top_level]
+        return [c for c in self.contracts if c not in inheritance and not c.is_top_level]
 
-    @property
-    def contracts_as_dict(self) -> Dict[str, Contract]:
-        """list(dict(str: Contract): List of contracts as dict: name -> Contract."""
-        return self._contracts
-
-    def get_contract_from_name(self, contract_name: Union[str, Constant]) -> Optional[Contract]:
+    def get_contract_from_name(self, contract_name: Union[str, Constant]) -> List[Contract]:
         """
-            Return a contract from a name
+            Return a list of contract from a name
         Args:
             contract_name (str): name of the contract
         Returns:
-            Contract
+            List[Contract]
         """
-        return next((c for c in self.contracts if c.name == contract_name), None)
+        return [c for c in self.contracts if c.name == contract_name]
 
     # endregion
     ###################################################################################
@@ -224,12 +217,25 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     @property
-    def contract_name_collisions(self) -> Dict:
-        return self._contract_name_collisions
-
-    @property
     def contracts_with_missing_inheritance(self) -> Set:
         return self._contract_with_missing_inheritance
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Scope
+    ###################################################################################
+    ###################################################################################
+
+    def get_scope(self, filename_str: str) -> FileScope:
+        filename = self._crytic_compile_compilation_unit.crytic_compile.filename_lookup(
+            filename_str
+        )
+
+        if filename not in self.scopes:
+            self.scopes[filename] = FileScope(filename)
+
+        return self.scopes[filename]
 
     # endregion
     ###################################################################################
@@ -245,7 +251,7 @@ class SlitherCompilationUnit(Context):
             slot = 0
             offset = 0
             for var in contract.state_variables_ordered:
-                if var.is_constant:
+                if var.is_constant or var.is_immutable:
                     continue
 
                 size, new_slot = var.type.storage_size

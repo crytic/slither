@@ -43,8 +43,8 @@ Int = [
     "int256",
 ]
 
-Max_Int = {k: 2 ** (8 * i - 1) - 1 if i > 0 else 2 ** 255 - 1 for i, k in enumerate(Int)}
-Min_Int = {k: -(2 ** (8 * i - 1)) if i > 0 else -(2 ** 255) for i, k in enumerate(Int)}
+Max_Int = {k: 2 ** (8 * i - 1) - 1 if i > 0 else 2**255 - 1 for i, k in enumerate(Int)}
+Min_Int = {k: -(2 ** (8 * i - 1)) if i > 0 else -(2**255) for i, k in enumerate(Int)}
 
 Uint = [
     "uint",
@@ -82,7 +82,7 @@ Uint = [
     "uint256",
 ]
 
-Max_Uint = {k: 2 ** (8 * i) - 1 if i > 0 else 2 ** 256 - 1 for i, k in enumerate(Uint)}
+Max_Uint = {k: 2 ** (8 * i) - 1 if i > 0 else 2**256 - 1 for i, k in enumerate(Uint)}
 Min_Uint = {k: 0 for k in Uint}
 
 
@@ -127,10 +127,10 @@ Max_Byte = {k: 2 ** (8 * (i + 1)) - 1 for i, k in enumerate(Byte[2:])}
 Max_Byte["bytes"] = None
 Max_Byte["string"] = None
 Max_Byte["byte"] = 255
-Min_Byte = {k: 1 << (4 + 8 * i) for i, k in enumerate(Byte[2:])}
+Min_Byte = {k: 0 for k in Byte}
 Min_Byte["bytes"] = 0x0
-Min_Byte["string"] = None
-Min_Byte["byte"] = 0x10
+Min_Byte["string"] = 0x0
+Min_Byte["byte"] = 0x0
 
 MaxValues = dict(dict(Max_Int, **Max_Uint), **Max_Byte)
 MinValues = dict(dict(Min_Int, **Min_Uint), **Min_Byte)
@@ -140,8 +140,8 @@ M = list(range(8, 257, 8))
 N = list(range(0, 81))
 MN = list(itertools.product(M, N))
 
-Fixed = ["fixed{}x{}".format(m, n) for (m, n) in MN] + ["fixed"]
-Ufixed = ["ufixed{}x{}".format(m, n) for (m, n) in MN] + ["ufixed"]
+Fixed = [f"fixed{m}x{n}" for (m, n) in MN] + ["fixed"]
+Ufixed = [f"ufixed{m}x{n}" for (m, n) in MN] + ["ufixed"]
 
 ElementaryTypeName = ["address", "bool", "string", "var"] + Int + Uint + Byte + Fixed + Ufixed
 
@@ -188,13 +188,13 @@ class ElementaryType(Type):
             return int(8)
         if t == "address":
             return int(160)
-        if t.startswith("bytes"):
-            return int(t[len("bytes") :])
+        if t.startswith("bytes") and t != "bytes":
+            return int(t[len("bytes") :]) * 8
         return None
 
     @property
     def storage_size(self) -> Tuple[int, bool]:
-        if self._type == "string" or self._type == "bytes":
+        if self._type in ["string", "bytes"]:
             return 32, True
         if self.size is None:
             return 32, True

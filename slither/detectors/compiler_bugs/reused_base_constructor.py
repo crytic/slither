@@ -77,7 +77,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
         :param contract: The contract to detect explicit calls to a base constructor with arguments to.
         :return: Dictionary of function:list(tuple): { constructor : [(invoking_contract, called_by_constructor]}
         """
-        results = dict()
+        results = {}
 
         # Create a set to track all completed contracts
         processed_contracts = set()

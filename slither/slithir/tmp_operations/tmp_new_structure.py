@@ -16,4 +16,4 @@ class TmpNewStructure(OperationWithLValue):
         return []
 
     def __str__(self):
-        return "{} = tmpnew {}".format(self.lvalue, self.contract_name)
+        return f"{self.lvalue} = tmpnew {self.contract_name}"

@@ -39,6 +39,7 @@ from slither.utils.command_line import (
     read_config_file,
     JSON_OUTPUT_TYPES,
     DEFAULT_JSON_OUTPUT_TYPES,
+    check_and_sanitize_markdown_root,
 )
 from slither.exceptions import SlitherException
 
@@ -63,6 +64,9 @@ def process_single(target, args, detector_classes, printer_classes):
     ast = "--ast-compact-json"
     if args.legacy_ast:
         ast = "--ast-json"
+    if args.checklist:
+        args.show_ignored_findings = True
+
     slither = Slither(target, ast_format=ast, **vars(args))
 
     return _process(slither, detector_classes, printer_classes)
@@ -172,13 +176,11 @@ def get_detectors_and_printers():
         detector = None
         if not all(issubclass(detector, AbstractDetector) for detector in plugin_detectors):
             raise Exception(
-                "Error when loading plugin %s, %r is not a detector" % (entry_point, detector)
+                f"Error when loading plugin {entry_point}, {detector} is not a detector"
             )
         printer = None
         if not all(issubclass(printer, AbstractPrinter) for printer in plugin_printers):
-            raise Exception(
-                "Error when loading plugin %s, %r is not a printer" % (entry_point, printer)
-            )
+            raise Exception(f"Error when loading plugin {entry_point}, {printer} is not a printer")
 
         # We convert those to lists in case someone returns a tuple
         detectors += list(plugin_detectors)
@@ -206,7 +208,7 @@ def choose_detectors(args, all_detector_classes):
             if detector in detectors:
                 detectors_to_run.append(detectors[detector])
             else:
-                raise Exception("Error: {} is not a detector".format(detector))
+                raise Exception(f"Error: {detector} is not a detector")
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
@@ -252,7 +254,7 @@ def choose_printers(args, all_printer_classes):
         if printer in printers:
             printers_to_run.append(printers[printer])
         else:
-            raise Exception("Error: {} is not a printer".format(printer))
+            raise Exception(f"Error: {printer} is not a printer")
     return printers_to_run
 
 
@@ -297,12 +299,15 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
 
     group_detector = parser.add_argument_group("Detectors")
     group_printer = parser.add_argument_group("Printers")
+    group_checklist = parser.add_argument_group(
+        "Checklist (consider using https://github.com/crytic/slither-action)"
+    )
     group_misc = parser.add_argument_group("Additional options")
 
     group_detector.add_argument(
         "--detect",
         help="Comma-separated list of detectors, defaults to all, "
-        "available detectors: {}".format(", ".join(d.ARGUMENT for d in detector_classes)),
+        f"available detectors: {', '.join(d.ARGUMENT for d in detector_classes)}",
         action="store",
         dest="detectors_to_run",
         default=defaults_flag_in_config["detectors_to_run"],
@@ -310,8 +315,8 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
 
     group_printer.add_argument(
         "--print",
-        help="Comma-separated list fo contract information printers, "
-        "available printers: {}".format(", ".join(d.ARGUMENT for d in printer_classes)),
+        help="Comma-separated list of contract information printers, "
+        f"available printers: {', '.join(d.ARGUMENT for d in printer_classes)}",
         action="store",
         dest="printers_to_run",
         default=defaults_flag_in_config["printers_to_run"],
@@ -390,6 +395,28 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         default=defaults_flag_in_config["show_ignored_findings"],
     )
 
+    group_checklist.add_argument(
+        "--checklist",
+        help="Generate a markdown page with the detector results",
+        action="store_true",
+        default=False,
+    )
+
+    group_checklist.add_argument(
+        "--checklist-limit",
+        help="Limite the number of results per detector in the markdown file",
+        action="store",
+        default="",
+    )
+
+    group_checklist.add_argument(
+        "--markdown-root",
+        type=check_and_sanitize_markdown_root,
+        help="URL for markdown generation",
+        action="store",
+        default="",
+    )
+
     group_misc.add_argument(
         "--json",
         help='Export the results as a JSON file ("--json -" to export to stdout)',
@@ -428,13 +455,6 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     )
 
     group_misc.add_argument(
-        "--markdown-root",
-        help="URL for markdown generation",
-        action="store",
-        default="",
-    )
-
-    group_misc.add_argument(
         "--disable-color",
         help="Disable output colorization",
         action="store_true",
@@ -462,7 +482,7 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         help="Provide a config file (default: slither.config.json)",
         action="store",
         dest="config_file",
-        default="slither.config.json",
+        default=None,
     )
 
     group_misc.add_argument(
@@ -483,12 +503,6 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
 
     parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
-
-    group_misc.add_argument(
-        "--checklist", help=argparse.SUPPRESS, action="store_true", default=False
-    )
-
-    group_misc.add_argument("--checklist-limit", help=argparse.SUPPRESS, action="store", default="")
 
     parser.add_argument(
         "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
@@ -645,7 +659,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         cp.enable()
 
     # Set colorization option
-    set_colorization_enabled(not args.disable_color)
+    set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
 
     # Define some variables for potential JSON output
     json_results = {}
@@ -655,7 +669,7 @@ def main_impl(all_detector_classes, all_printer_classes):
     outputting_sarif = args.sarif is not None
     outputting_sarif_stdout = args.sarif == "-"
     outputting_zip = args.zip is not None
-    if args.zip_type not in ZIP_TYPES_ACCEPTED.keys():
+    if args.zip_type not in ZIP_TYPES_ACCEPTED:
         to_log = f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
         logger.error(to_log)
 
@@ -773,7 +787,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         if args.checklist:
             output_results_to_markdown(results_detectors, args.checklist_limit)
 
-        # Dont print the number of result for printers
+        # Don't print the number of result for printers
         if number_contracts == 0:
             logger.warning(red("No contract was analyzed"))
         if printer_classes:

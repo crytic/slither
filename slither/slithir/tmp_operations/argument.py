@@ -42,5 +42,5 @@ class Argument(Operation):
     def __str__(self):
         call_id = "none"
         if self.call_id:
-            call_id = "(id ({}))".format(self.call_id)
-        return "ARG_{} {} {}".format(self._type.name, str(self._argument), call_id)
+            call_id = f"(id ({self.call_id}))"
+        return f"ARG_{self._type.name} {str(self._argument)} {call_id}"

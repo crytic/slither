@@ -11,37 +11,35 @@ on:
     branches: [master, dev]
   schedule:
     # run CI every day even if no PRs/merges occur
-    - cron:  '0 12 * * *'
+    - cron: '0 12 * * *'
 
 jobs:
   build:
     name: Parser tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-2022]
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.6
+          python-version: 3.8
 
       - name: Install dependencies
         run: |
-          python setup.py install
-          pip install deepdiff
-          pip install pytest
+          pip install ".[dev]"
 
-          git clone https://github.com/crytic/solc-select.git
-          cd solc-select
-          git checkout 119dd05f58341811cb02b546f25269a7e8a10875
-          python setup.py install
+      - name: Install solc
+        run: |
           solc-select install all
           solc-select use 0.8.0
-          cd ..
 
       - name: Test with pytest
         run: |
           pytest tests/test_ast_parsing.py
-

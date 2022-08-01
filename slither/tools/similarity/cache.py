@@ -9,7 +9,7 @@ except ImportError:
 
 
 def load_cache(infile, nsamples=None):
-    cache = dict()
+    cache = {}
     with np.load(infile, allow_pickle=True) as data:
         array = data["arr_0"][0]
         for i, (x, y) in enumerate(array):

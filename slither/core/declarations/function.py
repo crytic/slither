@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.slithir.operations import Operation
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.scope.scope import FileScope
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -117,7 +118,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
     def __init__(self, compilation_unit: "SlitherCompilationUnit"):
         super().__init__()
-        self._scope: List[str] = []
+        self._internal_scope: List[str] = []
         self._name: Optional[str] = None
         self._view: bool = False
         self._pure: bool = False
@@ -216,6 +217,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         # Assume we are analyzing Solidty by default
         self.function_language: FunctionLanguage = FunctionLanguage.Solidity
 
+        self._id: Optional[str] = None
+
     ###################################################################################
     ###################################################################################
     # region General properties
@@ -244,18 +247,18 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._name = new_name
 
     @property
-    def scope(self) -> List[str]:
+    def internal_scope(self) -> List[str]:
         """
         Return a list of name representing the scope of the function
         This is used to model nested functions declared in YUL
 
         :return:
         """
-        return self._scope
+        return self._internal_scope
 
-    @scope.setter
-    def scope(self, new_scope: List[str]):
-        self._scope = new_scope
+    @internal_scope.setter
+    def internal_scope(self, new_scope: List[str]):
+        self._internal_scope = new_scope
 
     @property
     def full_name(self) -> str:
@@ -265,7 +268,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._full_name is None:
             name, parameters, _ = self.signature
-            full_name = ".".join(self._scope + [name]) + "(" + ",".join(parameters) + ")"
+            full_name = ".".join(self._internal_scope + [name]) + "(" + ",".join(parameters) + ")"
             self._full_name = full_name
         return self._full_name
 
@@ -333,6 +336,26 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
 
         return self.compilation_unit.solc_version >= "0.8.0"
+
+    @property
+    def id(self) -> Optional[str]:
+        """
+        Return the ID of the funciton. For Solidity with compact-AST the ID is the reference ID
+        For other, the ID is None
+
+        :return:
+        :rtype:
+        """
+        return self._id
+
+    @id.setter
+    def id(self, new_id: str):
+        self._id = new_id
+
+    @property
+    @abstractmethod
+    def file_scope(self) -> "FileScope":
+        pass
 
     # endregion
     ###################################################################################
@@ -515,7 +538,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._nodes = nodes
 
     @property
-    def entry_point(self) -> "Node":
+    def entry_point(self) -> Optional["Node"]:
         """
         Node: Entry point of the function
         """
@@ -859,7 +882,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         from slither.slithir.variables import Constant
 
         if self._return_values is None:
-            return_values = list()
+            return_values = []
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
             [  # pylint: disable=expression-not-assigned
                 return_values.extend(ir.values)
@@ -880,7 +903,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         from slither.slithir.variables import Constant
 
         if self._return_values_ssa is None:
-            return_values_ssa = list()
+            return_values_ssa = []
             returns = [n for n in self.nodes if n.type == NodeType.RETURN]
             [  # pylint: disable=expression-not-assigned
                 return_values_ssa.extend(ir.values)
@@ -1281,9 +1304,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         with open(filename, "w", encoding="utf8") as f:
             f.write("digraph{\n")
             for node in self.nodes:
-                f.write('{}[label="{}"];\n'.format(node.node_id, str(node)))
+                f.write(f'{node.node_id}[label="{str(node)}"];\n')
                 for son in node.sons:
-                    f.write("{}->{};\n".format(node.node_id, son.node_id))
+                    f.write(f"{node.node_id}->{son.node_id};\n")
 
             f.write("}\n")
 
@@ -1295,20 +1318,18 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
 
         def description(node):
-            desc = "{}\n".format(node)
-            desc += "id: {}".format(node.node_id)
+            desc = f"{node}\n"
+            desc += f"id: {node.node_id}"
             if node.dominance_frontier:
-                desc += "\ndominance frontier: {}".format(
-                    [n.node_id for n in node.dominance_frontier]
-                )
+                desc += f"\ndominance frontier: {[n.node_id for n in node.dominance_frontier]}"
             return desc
 
         with open(filename, "w", encoding="utf8") as f:
             f.write("digraph{\n")
             for node in self.nodes:
-                f.write('{}[label="{}"];\n'.format(node.node_id, description(node)))
+                f.write(f'{node.node_id}[label="{description(node)}"];\n')
                 if node.immediate_dominator:
-                    f.write("{}->{};\n".format(node.immediate_dominator.node_id, node.node_id))
+                    f.write(f"{node.immediate_dominator.node_id}->{node.node_id};\n")
 
             f.write("}\n")
 
@@ -1333,22 +1354,22 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         content = ""
         content += "digraph{\n"
         for node in self.nodes:
-            label = "Node Type: {} {}\n".format(str(node.type), node.node_id)
+            label = f"Node Type: {str(node.type)} {node.node_id}\n"
             if node.expression and not skip_expressions:
-                label += "\nEXPRESSION:\n{}\n".format(node.expression)
+                label += f"\nEXPRESSION:\n{node.expression}\n"
             if node.irs and not skip_expressions:
                 label += "\nIRs:\n" + "\n".join([str(ir) for ir in node.irs])
-            content += '{}[label="{}"];\n'.format(node.node_id, label)
+            content += f'{node.node_id}[label="{label}"];\n'
             if node.type in [NodeType.IF, NodeType.IFLOOP]:
                 true_node = node.son_true
                 if true_node:
-                    content += '{}->{}[label="True"];\n'.format(node.node_id, true_node.node_id)
+                    content += f'{node.node_id}->{true_node.node_id}[label="True"];\n'
                 false_node = node.son_false
                 if false_node:
-                    content += '{}->{}[label="False"];\n'.format(node.node_id, false_node.node_id)
+                    content += f'{node.node_id}->{false_node.node_id}[label="False"];\n'
             else:
                 for son in node.sons:
-                    content += "{}->{};\n".format(node.node_id, son.node_id)
+                    content += f"{node.node_id}->{son.node_id};\n"
 
         content += "}\n"
         return content
@@ -1552,7 +1573,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ) -> "Node":
         from slither.core.cfg.node import Node
 
-        node = Node(node_type, self._counter_nodes, scope)
+        node = Node(node_type, self._counter_nodes, scope, self.file_scope)
         node.set_offset(src, self.compilation_unit)
         self._counter_nodes += 1
         node.set_function(self)
@@ -1576,16 +1597,16 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         from slither.core.cfg.node import NodeType
 
         if not self.is_implemented:
-            return dict()
+            return {}
 
         if self._entry_point is None:
-            return dict()
+            return {}
         # node, values
-        to_explore: List[Tuple["Node", Dict]] = [(self._entry_point, dict())]
+        to_explore: List[Tuple["Node", Dict]] = [(self._entry_point, {})]
         # node -> values
-        explored: Dict = dict()
+        explored: Dict = {}
         # name -> instances
-        ret: Dict = dict()
+        ret: Dict = {}
 
         while to_explore:
             node, values = to_explore[0]
@@ -1703,6 +1724,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
 
     def __str__(self):
-        return self._name
+        return self.name
 
     # endregion

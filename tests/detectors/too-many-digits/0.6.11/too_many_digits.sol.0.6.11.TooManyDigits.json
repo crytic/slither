@@ -31,7 +31,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 897,
+                                "length": 1000,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -75,202 +75,11 @@
                                     37,
                                     38,
                                     39,
-                                    40
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "f()"
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "x1 = 0x000001",
-                    "source_mapping": {
-                        "start": 209,
-                        "length": 18,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            10
-                        ],
-                        "starting_column": 9,
-                        "ending_column": 27
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "f",
-                            "source_mapping": {
-                                "start": 177,
-                                "length": 195,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "C",
-                                    "source_mapping": {
-                                        "start": 28,
-                                        "length": 897,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19,
-                                            20,
-                                            21,
-                                            22,
-                                            23,
-                                            24,
-                                            25,
-                                            26,
-                                            27,
-                                            28,
-                                            29,
-                                            30,
-                                            31,
-                                            32,
-                                            33,
-                                            34,
-                                            35,
-                                            36,
-                                            37,
-                                            38,
-                                            39,
-                                            40
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 2
-                                    }
-                                },
-                                "signature": "f()"
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "C.f() (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x1 = 0x000001 (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#10)\n",
-            "markdown": "[C.f()](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L9-L15) uses literals with too many digits:\n\t- [x1 = 0x000001](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L10)\n",
-            "first_markdown_element": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L9-L15",
-            "id": "d467d1c664634fc17c861de567ef53f0ce8964e9b337127308dad5d3cb0bc343",
-            "check": "too-many-digits",
-            "impact": "Informational",
-            "confidence": "Medium"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
-                    "name": "f",
-                    "source_mapping": {
-                        "start": 177,
-                        "length": 195,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "C",
-                            "source_mapping": {
-                                "start": 28,
-                                "length": 897,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24,
-                                    25,
-                                    26,
-                                    27,
-                                    28,
-                                    29,
-                                    30,
-                                    31,
-                                    32,
-                                    33,
-                                    34,
-                                    35,
-                                    36,
-                                    37,
-                                    38,
-                                    39,
-                                    40
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -326,7 +135,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 897,
+                                        "length": 1000,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -370,7 +179,11 @@
                                             37,
                                             38,
                                             39,
-                                            40
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -394,23 +207,21 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "f",
+                    "name": "h",
                     "source_mapping": {
-                        "start": 177,
-                        "length": 195,
+                        "start": 456,
+                        "length": 113,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                         "is_dependency": false,
                         "lines": [
-                            9,
-                            10,
-                            11,
-                            12,
-                            13,
-                            14,
-                            15
+                            20,
+                            21,
+                            22,
+                            23,
+                            24
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -421,7 +232,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 897,
+                                "length": 1000,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -465,52 +276,54 @@
                                     37,
                                     38,
                                     39,
-                                    40
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
                             }
                         },
-                        "signature": "f()"
+                        "signature": "h()"
                     }
                 },
                 {
                     "type": "node",
-                    "name": "x3 = 1000000000000000000",
+                    "name": "x2 = 100000",
                     "source_mapping": {
-                        "start": 272,
-                        "length": 29,
+                        "start": 512,
+                        "length": 16,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                         "is_dependency": false,
                         "lines": [
-                            12
+                            22
                         ],
                         "starting_column": 9,
-                        "ending_column": 38
+                        "ending_column": 25
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "f",
+                            "name": "h",
                             "source_mapping": {
-                                "start": 177,
-                                "length": 195,
+                                "start": 456,
+                                "length": 113,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -521,7 +334,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 897,
+                                        "length": 1000,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -565,22 +378,26 @@
                                             37,
                                             38,
                                             39,
-                                            40
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
                                     }
                                 },
-                                "signature": "f()"
+                                "signature": "h()"
                             }
                         }
                     }
                 }
             ],
-            "description": "C.f() (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x3 = 1000000000000000000 (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#12)\n",
-            "markdown": "[C.f()](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L9-L15) uses literals with too many digits:\n\t- [x3 = 1000000000000000000](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L12)\n",
-            "first_markdown_element": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L9-L15",
-            "id": "ed4cd26212cad644e275c3784912d9fe2d0789a9cb731a1a20bfdb30554f6f3a",
+            "description": "C.h() (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#20-24) uses literals with too many digits:\n\t- x2 = 100000 (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#22)\n",
+            "markdown": "[C.h()](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L20-L24) uses literals with too many digits:\n\t- [x2 = 100000](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L22)\n",
+            "first_markdown_element": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L20-L24",
+            "id": "7cd1e51c89ae28bc9bf2c7e406b39f97a648cde765fc2a05c14697648ad27e92",
             "check": "too-many-digits",
             "impact": "Informational",
             "confidence": "Medium"
@@ -616,7 +433,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 897,
+                                "length": 1000,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -660,7 +477,11 @@
                                     37,
                                     38,
                                     39,
-                                    40
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -716,7 +537,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 897,
+                                        "length": 1000,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -760,7 +581,11 @@
                                             37,
                                             38,
                                             39,
-                                            40
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -784,21 +609,23 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "h",
+                    "name": "f",
                     "source_mapping": {
-                        "start": 456,
-                        "length": 113,
+                        "start": 177,
+                        "length": 195,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                         "is_dependency": false,
                         "lines": [
-                            20,
-                            21,
-                            22,
-                            23,
-                            24
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -809,7 +636,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 897,
+                                "length": 1000,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
@@ -853,50 +680,56 @@
                                     37,
                                     38,
                                     39,
-                                    40
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
                             }
                         },
-                        "signature": "h()"
+                        "signature": "f()"
                     }
                 },
                 {
                     "type": "node",
-                    "name": "x2 = 100000",
+                    "name": "x1 = 0x000001",
                     "source_mapping": {
-                        "start": 512,
-                        "length": 16,
+                        "start": 209,
+                        "length": 18,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                         "is_dependency": false,
                         "lines": [
-                            22
+                            10
                         ],
                         "starting_column": 9,
-                        "ending_column": 25
+                        "ending_column": 27
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "h",
+                            "name": "f",
                             "source_mapping": {
-                                "start": 456,
-                                "length": 113,
+                                "start": 177,
+                                "length": 195,
                                 "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -907,7 +740,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 897,
+                                        "length": 1000,
                                         "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
@@ -951,22 +784,229 @@
                                             37,
                                             38,
                                             39,
-                                            40
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
                                     }
                                 },
-                                "signature": "h()"
+                                "signature": "f()"
                             }
                         }
                     }
                 }
             ],
-            "description": "C.h() (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#20-24) uses literals with too many digits:\n\t- x2 = 100000 (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#22)\n",
-            "markdown": "[C.h()](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L20-L24) uses literals with too many digits:\n\t- [x2 = 100000](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L22)\n",
-            "first_markdown_element": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L20-L24",
-            "id": "7cd1e51c89ae28bc9bf2c7e406b39f97a648cde765fc2a05c14697648ad27e92",
+            "description": "C.f() (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x1 = 0x000001 (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#10)\n",
+            "markdown": "[C.f()](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L9-L15) uses literals with too many digits:\n\t- [x1 = 0x000001](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L10)\n",
+            "first_markdown_element": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L9-L15",
+            "id": "d467d1c664634fc17c861de567ef53f0ce8964e9b337127308dad5d3cb0bc343",
+            "check": "too-many-digits",
+            "impact": "Informational",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
+                        "start": 177,
+                        "length": 195,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 28,
+                                "length": 1000,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "f()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "x3 = 1000000000000000000",
+                    "source_mapping": {
+                        "start": 272,
+                        "length": 29,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            12
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 38
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "f",
+                            "source_mapping": {
+                                "start": 177,
+                                "length": 195,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 28,
+                                        "length": 1000,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "f()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.f() (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#9-15) uses literals with too many digits:\n\t- x3 = 1000000000000000000 (tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#12)\n",
+            "markdown": "[C.f()](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L9-L15) uses literals with too many digits:\n\t- [x3 = 1000000000000000000](tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L12)\n",
+            "first_markdown_element": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol#L9-L15",
+            "id": "ed4cd26212cad644e275c3784912d9fe2d0789a9cb731a1a20bfdb30554f6f3a",
             "check": "too-many-digits",
             "impact": "Informational",
             "confidence": "Medium"

@@ -14,6 +14,7 @@ from slither.core.expressions import AssignmentOperation
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.solc_parsing.cfg.node import NodeSolc
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
@@ -43,7 +44,7 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
 # pylint: disable=too-many-lines,too-many-branches,too-many-locals,too-many-statements,too-many-instance-attributes
 
 
-class FunctionSolc:
+class FunctionSolc(CallerContextExpression):
 
     # elems = [(type, name)]
 
@@ -59,11 +60,9 @@ class FunctionSolc:
         self._function = function
 
         # Only present if compact AST
-        self._referenced_declaration: Optional[int] = None
         if self.is_compact_ast:
             self._function.name = function_data["name"]
             if "id" in function_data:
-                self._referenced_declaration = function_data["id"]
                 self._function.id = function_data["id"]
         else:
             self._function.name = function_data["attributes"][self.get_key()]
@@ -84,8 +83,8 @@ class FunctionSolc:
 
         self._analyze_type()
 
-        self._node_to_nodesolc: Dict[Node, NodeSolc] = dict()
-        self._node_to_yulobject: Dict[Node, YulBlock] = dict()
+        self._node_to_nodesolc: Dict[Node, NodeSolc] = {}
+        self._node_to_yulobject: Dict[Node, YulBlock] = {}
 
         self._local_variables_parser: List[
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
@@ -125,13 +124,6 @@ class FunctionSolc:
     def is_compact_ast(self):
         return self._slither_parser.is_compact_ast
 
-    @property
-    def referenced_declaration(self) -> Optional[str]:
-        """
-        Return the compact AST referenced declaration id (None for legacy AST)
-        """
-        return self._referenced_declaration
-
     # endregion
     ###################################################################################
     ###################################################################################
@@ -156,8 +148,8 @@ class FunctionSolc:
         if local_var_parser.underlying_variable.name:
             known_variables = [v.name for v in self._function.variables]
             while local_var_parser.underlying_variable.name in known_variables:
-                local_var_parser.underlying_variable.name += "_scope_{}".format(
-                    self._counter_scope_local_variables
+                local_var_parser.underlying_variable.name += (
+                    f"_scope_{self._counter_scope_local_variables}"
                 )
                 self._counter_scope_local_variables += 1
                 known_variables = [v.name for v in self._function.variables]
@@ -669,7 +661,7 @@ class FunctionSolc:
         externalCall = statement.get("externalCall", None)
 
         if externalCall is None:
-            raise ParsingError("Try/Catch not correctly parsed by Slither %s" % statement)
+            raise ParsingError(f"Try/Catch not correctly parsed by Slither {statement}")
         catch_scope = Scope(
             node.underlying_node.scope.is_checked, False, node.underlying_node.scope
         )
@@ -686,7 +678,7 @@ class FunctionSolc:
         block = statement.get("block", None)
 
         if block is None:
-            raise ParsingError("Catch not correctly parsed by Slither %s" % statement)
+            raise ParsingError(f"Catch not correctly parsed by Slither {statement}")
         try_scope = Scope(node.underlying_node.scope.is_checked, False, node.underlying_node.scope)
 
         try_node = self._new_node(NodeType.CATCH, statement["src"], try_scope)
@@ -1019,7 +1011,7 @@ class FunctionSolc:
             link_underlying_nodes(node, new_node)
             node = new_node
         else:
-            raise ParsingError("Statement not parsed %s" % name)
+            raise ParsingError(f"Statement not parsed {name}")
 
         return node
 
@@ -1132,7 +1124,7 @@ class FunctionSolc:
             # We start with -1 as counter to catch this corner case
             end_node = self._find_end_loop(node, [], -1)
             if not end_node:
-                raise ParsingError("Break in no-loop context {}".format(node.function))
+                raise ParsingError(f"Break in no-loop context {node.function}")
 
         for son in node.sons:
             son.remove_father(node)
@@ -1143,7 +1135,7 @@ class FunctionSolc:
         start_node = self._find_start_loop(node, [])
 
         if not start_node:
-            raise ParsingError("Continue in no-loop context {}".format(node.node_id))
+            raise ParsingError(f"Continue in no-loop context {node.node_id}")
 
         for son in node.sons:
             son.remove_father(node)

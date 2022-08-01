@@ -29,88 +29,6 @@
                 },
                 {
                     "type": "function",
-                    "name": "transfer",
-                    "source_mapping": {
-                        "start": 46,
-                        "length": 51,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            4
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 56
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Token",
-                            "source_mapping": {
-                                "start": 26,
-                                "length": 355,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "transfer(address,uint256)"
-                    }
-                }
-            ],
-            "description": "Token (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.transfer(address,uint256) (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#4)\n",
-            "markdown": "[Token](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.transfer(address,uint256)](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L4)\n",
-            "first_markdown_element": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10",
-            "id": "d3df2e48ae6e8a1b05b275de574b480853a0839c272ce889e8a1664ae432698e",
-            "check": "erc20-interface",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Token",
-                    "source_mapping": {
-                        "start": 26,
-                        "length": 355,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            3,
-                            4,
-                            5,
-                            6,
-                            7,
-                            8,
-                            9,
-                            10
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
                     "name": "approve",
                     "source_mapping": {
                         "start": 102,
@@ -160,6 +78,170 @@
             "markdown": "[Token](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.approve(address,uint256)](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L5)\n",
             "first_markdown_element": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10",
             "id": "0fced3029cf59cf348a6b79c58dbb032d837fdd5a5f355600edebda1878e9e2e",
+            "check": "erc20-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Token",
+                    "source_mapping": {
+                        "start": 26,
+                        "length": 355,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "allowance",
+                    "source_mapping": {
+                        "start": 319,
+                        "length": 60,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 65
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Token",
+                            "source_mapping": {
+                                "start": 26,
+                                "length": 355,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "allowance(address,address)"
+                    }
+                }
+            ],
+            "description": "Token (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.allowance(address,address) (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#9)\n",
+            "markdown": "[Token](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.allowance(address,address)](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L9)\n",
+            "first_markdown_element": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10",
+            "id": "1286abfe21b09e21e1cec8b991f73664e104fa39f7f4190690ece3af45bc0c7a",
+            "check": "erc20-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Token",
+                    "source_mapping": {
+                        "start": 26,
+                        "length": 355,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "balanceOf",
+                    "source_mapping": {
+                        "start": 273,
+                        "length": 41,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 46
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Token",
+                            "source_mapping": {
+                                "start": 26,
+                                "length": 355,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "balanceOf(address)"
+                    }
+                }
+            ],
+            "description": "Token (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.balanceOf(address) (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#8)\n",
+            "markdown": "[Token](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.balanceOf(address)](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L8)\n",
+            "first_markdown_element": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10",
+            "id": "758ca2456030a36dbd6115f2ccb1a43f53f1dabd66ed079806df0f6b7b4d21ef",
             "check": "erc20-interface",
             "impact": "Medium",
             "confidence": "High"
@@ -357,20 +439,20 @@
                 },
                 {
                     "type": "function",
-                    "name": "balanceOf",
+                    "name": "transfer",
                     "source_mapping": {
-                        "start": 273,
-                        "length": 41,
+                        "start": 46,
+                        "length": 51,
                         "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
                         "is_dependency": false,
                         "lines": [
-                            8
+                            4
                         ],
                         "starting_column": 5,
-                        "ending_column": 46
+                        "ending_column": 56
                     },
                     "type_specific_fields": {
                         "parent": {
@@ -398,96 +480,14 @@
                                 "ending_column": 2
                             }
                         },
-                        "signature": "balanceOf(address)"
+                        "signature": "transfer(address,uint256)"
                     }
                 }
             ],
-            "description": "Token (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.balanceOf(address) (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#8)\n",
-            "markdown": "[Token](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.balanceOf(address)](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L8)\n",
+            "description": "Token (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.transfer(address,uint256) (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#4)\n",
+            "markdown": "[Token](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.transfer(address,uint256)](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L4)\n",
             "first_markdown_element": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10",
-            "id": "758ca2456030a36dbd6115f2ccb1a43f53f1dabd66ed079806df0f6b7b4d21ef",
-            "check": "erc20-interface",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Token",
-                    "source_mapping": {
-                        "start": 26,
-                        "length": 355,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            3,
-                            4,
-                            5,
-                            6,
-                            7,
-                            8,
-                            9,
-                            10
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                },
-                {
-                    "type": "function",
-                    "name": "allowance",
-                    "source_mapping": {
-                        "start": 319,
-                        "length": 60,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            9
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 65
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "Token",
-                            "source_mapping": {
-                                "start": 26,
-                                "length": 355,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 2
-                            }
-                        },
-                        "signature": "allowance(address,address)"
-                    }
-                }
-            ],
-            "description": "Token (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.allowance(address,address) (tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#9)\n",
-            "markdown": "[Token](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.allowance(address,address)](tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L9)\n",
-            "first_markdown_element": "tests/detectors/erc20-interface/0.4.25/incorrect_erc20_interface.sol#L3-L10",
-            "id": "1286abfe21b09e21e1cec8b991f73664e104fa39f7f4190690ece3af45bc0c7a",
+            "id": "d3df2e48ae6e8a1b05b275de574b480853a0839c272ce889e8a1664ae432698e",
             "check": "erc20-interface",
             "impact": "Medium",
             "confidence": "High"

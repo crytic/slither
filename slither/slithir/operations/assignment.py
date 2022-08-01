@@ -41,7 +41,5 @@ class Assignment(OperationWithLValue):
             points = self.lvalue.points_to
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
-            return "{} (->{}) := {}({})".format(self.lvalue, points, self.rvalue, self.rvalue.type)
-        return "{}({}) := {}({})".format(
-            self.lvalue, self.lvalue.type, self.rvalue, self.rvalue.type
-        )
+            return f"{self.lvalue} (->{points}) := {self.rvalue}({self.rvalue.type})"
+        return f"{self.lvalue}({self.lvalue.type}) := {self.rvalue}({self.rvalue.type})"

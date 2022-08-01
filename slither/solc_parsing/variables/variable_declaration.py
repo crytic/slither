@@ -1,6 +1,8 @@
 import logging
+import re
 from typing import Dict
 
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 
 from slither.core.variables.variable import Variable
@@ -64,7 +66,7 @@ class VariableDeclarationSolc:
             elif nodeType == "VariableDeclaration":
                 self._init_from_declaration(variable_data, variable_data.get("value", None))
             else:
-                raise ParsingError("Incorrect variable declaration type {}".format(nodeType))
+                raise ParsingError(f"Incorrect variable declaration type {nodeType}")
 
         else:
             nodeType = variable_data["name"]
@@ -88,7 +90,7 @@ class VariableDeclarationSolc:
             elif nodeType == "VariableDeclaration":
                 self._init_from_declaration(variable_data, False)
             else:
-                raise ParsingError("Incorrect variable declaration type {}".format(nodeType))
+                raise ParsingError(f"Incorrect variable declaration type {nodeType}")
 
     @property
     def underlying_variable(self) -> Variable:
@@ -101,6 +103,23 @@ class VariableDeclarationSolc:
         Returns None if it was not parsed (legacy AST)
         """
         return self._reference_id
+
+    def _handle_comment(self, attributes: Dict):
+        if "documentation" in attributes and "text" in attributes["documentation"]:
+
+            candidates = attributes["documentation"]["text"].split(",")
+
+            for candidate in candidates:
+                if "@custom:security non-reentrant" in candidate:
+                    self._variable.is_reentrant = False
+
+                write_protection = re.search(
+                    r'@custom:security write-protection="([\w, ()]*)"', candidate
+                )
+                if write_protection:
+                    if self._variable.write_protection is None:
+                        self._variable.write_protection = []
+                    self._variable.write_protection.append(write_protection.group(1))
 
     def _analyze_variable_attributes(self, attributes: Dict):
         if "visibility" in attributes:
@@ -144,6 +163,8 @@ class VariableDeclarationSolc:
             if attributes["mutability"] == "immutable":
                 self._variable.is_immutable = True
 
+        self._handle_comment(attributes)
+
         self._analyze_variable_attributes(attributes)
 
         if self._is_compact_ast:
@@ -179,7 +200,7 @@ class VariableDeclarationSolc:
                 self._variable.initialized = True
                 self._initializedNotParsed = var["children"][1]
 
-    def analyze(self, caller_context):
+    def analyze(self, caller_context: CallerContextExpression):
         # Can be re-analyzed due to inheritance
         if self._was_analyzed:
             return

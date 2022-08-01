@@ -5,7 +5,9 @@ from slither.core.declarations import Modifier, Event, EnumContract, StructureCo
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract
+from slither.core.solidity_types import ElementaryType, TypeAliasContract
 from slither.core.variables.state_variable import StateVariable
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
@@ -25,7 +27,7 @@ if TYPE_CHECKING:
 # pylint: disable=too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks,too-many-public-methods
 
 
-class ContractSolc:
+class ContractSolc(CallerContextExpression):
     def __init__(self, slither_parser: "SlitherCompilationUnitSolc", contract: Contract, data):
         # assert slitherSolc.solc_version.startswith('0.4')
 
@@ -155,7 +157,10 @@ class ContractSolc:
         if "contractKind" in attributes:
             if attributes["contractKind"] == "interface":
                 self._contract.is_interface = True
-            self._contract.kind = attributes["contractKind"]
+            elif attributes["contractKind"] == "library":
+                self._contract.is_library = True
+            self._contract.contract_kind = attributes["contractKind"]
+
         self._linearized_base_contracts = attributes["linearizedBaseContracts"]
         # self._contract.fullyImplemented = attributes["fullyImplemented"]
 
@@ -229,6 +234,7 @@ class ContractSolc:
                         self.baseConstructorContractsCalled.append(referencedDeclaration)
 
     def _parse_contract_items(self):
+        # pylint: disable=too-many-branches
         if not self.get_children() in self._data:  # empty contract
             return
         for item in self._data[self.get_children()]:
@@ -252,13 +258,37 @@ class ContractSolc:
                 self._usingForNotParsed.append(item)
             elif item[self.get_key()] == "ErrorDefinition":
                 self._customErrorParsed.append(item)
+            elif item[self.get_key()] == "UserDefinedValueTypeDefinition":
+                self._parse_type_alias(item)
             else:
                 raise ParsingError("Unknown contract item: " + item[self.get_key()])
         return
 
+    def _parse_type_alias(self, item: Dict) -> None:
+        assert "name" in item
+        assert "underlyingType" in item
+        underlying_type = item["underlyingType"]
+        assert "nodeType" in underlying_type and underlying_type["nodeType"] == "ElementaryTypeName"
+        assert "name" in underlying_type
+
+        original_type = ElementaryType(underlying_type["name"])
+
+        # For user defined types defined at the contract level the lookup can be done
+        # Using the name or the canonical name
+        # For example during the type parsing the canonical name
+        # Note that Solidity allows shadowing of user defined types
+        # Between top level and contract definitions
+        alias = item["name"]
+        alias_canonical = self._contract.name + "." + item["name"]
+
+        user_defined_type = TypeAliasContract(original_type, alias, self.underlying_contract)
+        user_defined_type.set_offset(item["src"], self.compilation_unit)
+        self._contract.file_scope.user_defined_types[alias] = user_defined_type
+        self._contract.file_scope.user_defined_types[alias_canonical] = user_defined_type
+
     def _parse_struct(self, struct: Dict):
 
-        st = StructureContract()
+        st = StructureContract(self._contract.compilation_unit)
         st.set_contract(self._contract)
         st.set_offset(struct["src"], self._contract.compilation_unit)
 
@@ -423,7 +453,7 @@ class ContractSolc:
         Cls: Callable,
         Cls_parser: Callable,
         element_parser: FunctionSolc,
-        explored_reference_id: Set[int],
+        explored_reference_id: Set[str],
         parser: List[FunctionSolc],
         all_elements: Dict[str, Function],
     ):
@@ -442,13 +472,13 @@ class ContractSolc:
             elem, element_parser.function_not_parsed, self, self.slither_parser
         )
         if (
-            element_parser.referenced_declaration
-            and element_parser.referenced_declaration in explored_reference_id
+            element_parser.underlying_function.id
+            and element_parser.underlying_function.id in explored_reference_id
         ):
             # Already added from other fathers
             return
-        if element_parser.referenced_declaration:
-            explored_reference_id.add(element_parser.referenced_declaration)
+        if element_parser.underlying_function.id:
+            explored_reference_id.add(element_parser.underlying_function.id)
         elem_parser.analyze_params()
         if isinstance(elem, Modifier):
             self._contract.compilation_unit.add_modifier(elem)

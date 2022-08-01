@@ -15,7 +15,7 @@ class MultipleInitTarget(Exception):
     pass
 
 
-def _has_initiliaze_modifier(function: Function):
+def _has_initialize_modifier(function: Function):
     if not function.modifiers:
         return False
     return any((m.name == "initializer") for m in function.modifiers)
@@ -25,7 +25,7 @@ def _get_initialize_functions(contract):
     return [
         f
         for f in contract.functions
-        if (f.name == "initialize" or _has_initiliaze_modifier(f)) and f.is_implemented
+        if (f.name == "initialize" or _has_initialize_modifier(f)) and f.is_implemented
     ]
 
 
@@ -71,7 +71,7 @@ Consider using a `Initializable` contract to follow [standard practice](https://
     # endregion wiki_recommendation
 
     def _check(self):
-        initializable = self.contract.compilation_unit.get_contract_from_name("Initializable")
+        initializable = self.contract.file_scope.get_contract_from_name("Initializable")
         if initializable is None:
             info = [
                 "Initializable contract not found, the contract does not follow a standard initalization schema.\n"
@@ -104,7 +104,7 @@ Review manually the contract's initialization. Consider inheriting `Initializabl
     REQUIRE_CONTRACT = True
 
     def _check(self):
-        initializable = self.contract.compilation_unit.get_contract_from_name("Initializable")
+        initializable = self.contract.file_scope.get_contract_from_name("Initializable")
         # See InitializablePresent
         if initializable is None:
             return []
@@ -138,7 +138,7 @@ Review manually the contract's initialization. Consider inheriting a `Initializa
     REQUIRE_CONTRACT = True
 
     def _check(self):
-        initializable = self.contract.compilation_unit.get_contract_from_name("Initializable")
+        initializable = self.contract.file_scope.get_contract_from_name("Initializable")
         # See InitializablePresent
         if initializable is None:
             return []
@@ -191,7 +191,7 @@ Use `Initializable.initializer()`.
     REQUIRE_CONTRACT = True
 
     def _check(self):
-        initializable = self.contract.compilation_unit.get_contract_from_name("Initializable")
+        initializable = self.contract.file_scope.get_contract_from_name("Initializable")
         # See InitializablePresent
         if initializable is None:
             return []
@@ -313,7 +313,7 @@ contract DerivedDerived is Derived{
 }
 
 ```
-`Base.initialize(uint)` is called two times in `DerivedDerived.initiliaze` execution, leading to a potential corruption.
+`Base.initialize(uint)` is called two times in `DerivedDerived.initialize` execution, leading to a potential corruption.
 """
     # endregion wiki_exploit_scenario
 

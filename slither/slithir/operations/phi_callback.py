@@ -39,6 +39,4 @@ class PhiCallback(Phi):
         return self._nodes
 
     def __str__(self):
-        return "{}({}) := \u03D5({})".format(
-            self.lvalue, self.lvalue.type, [v.ssa_name for v in self._rvalues]
-        )
+        return f"{self.lvalue}({self.lvalue.type}) := \u03D5({[v.ssa_name for v in self._rvalues]})"

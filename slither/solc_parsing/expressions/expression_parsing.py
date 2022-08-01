@@ -33,8 +33,9 @@ from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
 )
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
-from slither.solc_parsing.expressions.find_variable import CallerContext, find_variable
+from slither.solc_parsing.expressions.find_variable import find_variable
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 
 if TYPE_CHECKING:
@@ -196,7 +197,7 @@ def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
 
 
 def _parse_elementary_type_name_expression(
-    expression: Dict, is_compact_ast: bool, caller_context
+    expression: Dict, is_compact_ast: bool, caller_context: CallerContextExpression
 ) -> ElementaryTypeNameExpression:
     # nop exression
     # uint;
@@ -216,7 +217,12 @@ def _parse_elementary_type_name_expression(
     return e
 
 
-def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expression":
+if TYPE_CHECKING:
+
+    from slither.core.scope.scope import FileScope
+
+
+def parse_expression(expression: Dict, caller_context: CallerContextExpression) -> "Expression":
     # pylint: disable=too-many-nested-blocks,too-many-statements
     """
 
@@ -246,6 +252,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
     #    | Expression ('=' | '|=' | '^=' | '&=' | '<<=' | '>>=' | '+=' | '-=' | '*=' | '/=' | '%=') Expression
     #    | PrimaryExpression
     # The AST naming does not follow the spec
+    assert isinstance(caller_context, CallerContextExpression)
     name = expression[caller_context.get_key()]
     is_compact_ast = caller_context.is_compact_ast
     src = expression["src"]
@@ -438,7 +445,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
                 t = expression["attributes"]["type"]
 
         if t:
-            found = re.findall("[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
+            found = re.findall(r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
             assert len(found) <= 1
             if found:
                 value = value + "(" + found[0] + ")"
@@ -448,7 +455,6 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
             referenced_declaration = expression["referencedDeclaration"]
         else:
             referenced_declaration = None
-
         var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)
@@ -503,7 +509,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
             super_name = parse_super_name(expression, is_compact_ast)
             var, was_created = find_variable(super_name, caller_context, is_super=True)
             if var is None:
-                raise VariableNotFound("Variable not found: {}".format(super_name))
+                raise VariableNotFound(f"Variable not found: {super_name}")
             if was_created:
                 var.set_offset(src, caller_context.compilation_unit)
             sup = SuperIdentifier(var)
@@ -560,7 +566,7 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
             elif type_name[caller_context.get_key()] == "FunctionTypeName":
                 array_type = parse_type(type_name, caller_context)
             else:
-                raise ParsingError("Incorrect type array {}".format(type_name))
+                raise ParsingError(f"Incorrect type array {type_name}")
             array = NewArray(depth, array_type)
             array.set_offset(src, caller_context.compilation_unit)
             return array
@@ -639,4 +645,4 @@ def parse_expression(expression: Dict, caller_context: CallerContext) -> "Expres
 
         raise ParsingError("IdentifierPath not currently supported for the legacy ast")
 
-    raise ParsingError("Expression not parsed %s" % name)
+    raise ParsingError(f"Expression not parsed {name}")

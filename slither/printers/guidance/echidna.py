@@ -27,7 +27,6 @@ from slither.slithir.operations import (
     InternalDynamicCall,
     InternalCall,
     TypeConversion,
-    Balance,
 )
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
@@ -288,10 +287,30 @@ def _use_balance(slither: SlitherCore) -> Dict[str, List[str]]:
     for contract in slither.contracts:
         for function in contract.functions_entry_points:
             for ir in function.all_slithir_operations():
-                if isinstance(ir, Balance):
+                if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
+                    "balance(address)"
+                ):
                     ret[contract.name].append(_get_name(function))
         if contract.name in ret:
             ret[contract.name] = list(set(ret[contract.name]))
+    return ret
+
+
+def _with_fallback(slither: SlitherCore) -> Set[str]:
+    ret: Set[str] = set()
+    for contract in slither.contracts:
+        for function in contract.functions_entry_points:
+            if function.is_fallback:
+                ret.add(contract.name)
+    return ret
+
+
+def _with_receive(slither: SlitherCore) -> Set[str]:
+    ret: Set[str] = set()
+    for contract in slither.contracts:
+        for function in contract.functions_entry_points:
+            if function.is_receive:
+                ret.add(contract.name)
     return ret
 
 
@@ -375,6 +394,10 @@ class Echidna(AbstractPrinter):
 
         use_balance = _use_balance(self.slither)
 
+        with_fallback = list(_with_fallback(self.slither))
+
+        with_receive = list(_with_receive(self.slither))
+
         d = {
             "payable": payable,
             "timestamp": timestamp,
@@ -390,6 +413,9 @@ class Echidna(AbstractPrinter):
             "have_external_calls": external_calls,
             "call_a_parameter": call_parameters,
             "use_balance": use_balance,
+            "solc_versions": [unit.solc_version for unit in self.slither.compilation_units],
+            "with_fallback": with_fallback,
+            "with_receive": with_receive,
         }
 
         self.info(json.dumps(d, indent=4))
