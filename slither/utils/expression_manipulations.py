@@ -3,12 +3,14 @@
     as they should be immutable
 """
 import copy
-
+from typing import Union, Callable
 from slither.core.expressions import UnaryOperation
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.conditional_expression import ConditionalExpression
+from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
+from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
 from slither.core.expressions.literal import Literal
@@ -20,7 +22,9 @@ from slither.core.expressions.type_conversion import TypeConversion
 from slither.all_exceptions import SlitherException
 
 # pylint: disable=protected-access
-def f_expressions(e, x):
+def f_expressions(
+    e: AssignmentOperation, x: Union[Identifier, Literal, MemberAccess, IndexAccess]
+) -> None:
     e._expressions.append(x)
 
 
@@ -37,7 +41,7 @@ def f_called(e, x):
 
 
 class SplitTernaryExpression:
-    def __init__(self, expression):
+    def __init__(self, expression: Union[AssignmentOperation, ConditionalExpression]) -> None:
 
         if isinstance(expression, ConditionalExpression):
             self.true_expression = copy.copy(expression.then_expression)
@@ -49,7 +53,13 @@ class SplitTernaryExpression:
             self.condition = None
             self.copy_expression(expression, self.true_expression, self.false_expression)
 
-    def apply_copy(self, next_expr, true_expression, false_expression, f):
+    def apply_copy(
+        self,
+        next_expr: Expression,
+        true_expression: Union[AssignmentOperation, MemberAccess],
+        false_expression: Union[AssignmentOperation, MemberAccess],
+        f: Callable,
+    ) -> bool:
 
         if isinstance(next_expr, ConditionalExpression):
             f(true_expression, copy.copy(next_expr.then_expression))
@@ -61,16 +71,20 @@ class SplitTernaryExpression:
         f(false_expression, copy.copy(next_expr))
         return True
 
+    # pylint: disable=too-many-branches
     def copy_expression(
-        self, expression, true_expression, false_expression
-    ):  # pylint: disable=too-many-branches
+        self, expression: Expression, true_expression: Expression, false_expression: Expression
+    ) -> None:
         if self.condition:
             return
 
         if isinstance(expression, ConditionalExpression):
             raise SlitherException("Nested ternary operator not handled")
 
-        if isinstance(expression, (Literal, Identifier, IndexAccess, NewArray, NewContract)):
+        if isinstance(
+            expression,
+            (Literal, Identifier, IndexAccess, NewArray, NewContract, ElementaryTypeNameExpression),
+        ):
             return
 
         # case of lib
@@ -87,6 +101,12 @@ class SplitTernaryExpression:
             false_expression._expressions = []
 
             for next_expr in expression.expressions:
+                if isinstance(next_expr, IndexAccess):
+                    # create an index access for each branch
+                    if isinstance(next_expr.expression_right, ConditionalExpression):
+                        next_expr = _handle_ternary_access(
+                            next_expr, true_expression, false_expression
+                        )
                 if self.apply_copy(next_expr, true_expression, false_expression, f_expressions):
                     # always on last arguments added
                     self.copy_expression(
@@ -115,16 +135,7 @@ class SplitTernaryExpression:
                         false_expression.arguments[-1],
                     )
 
-        elif isinstance(expression, TypeConversion):
-            next_expr = expression.expression
-            if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
-                self.copy_expression(
-                    expression.expression,
-                    true_expression.expression,
-                    false_expression.expression,
-                )
-
-        elif isinstance(expression, UnaryOperation):
+        elif isinstance(expression, (TypeConversion, UnaryOperation)):
             next_expr = expression.expression
             if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
                 self.copy_expression(
@@ -137,3 +148,35 @@ class SplitTernaryExpression:
             raise SlitherException(
                 f"Ternary operation not handled {expression}({type(expression)})"
             )
+
+
+def _handle_ternary_access(
+    next_expr: IndexAccess,
+    true_expression: AssignmentOperation,
+    false_expression: AssignmentOperation,
+):
+    """
+    Conditional ternary accesses are split into two accesses, one true and one false
+    E.g.  x[if cond ? 1 : 2] -> if cond { x[1] } else { x[2] }
+    """
+    true_index_access = IndexAccess(
+        next_expr.expression_left,
+        next_expr.expression_right.then_expression,
+        next_expr.type,
+    )
+    false_index_access = IndexAccess(
+        next_expr.expression_left,
+        next_expr.expression_right.else_expression,
+        next_expr.type,
+    )
+
+    f_expressions(
+        true_expression,
+        true_index_access,
+    )
+    f_expressions(
+        false_expression,
+        false_index_access,
+    )
+
+    return next_expr.expression_right

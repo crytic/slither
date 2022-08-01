@@ -6,7 +6,9 @@ from .variables.uninitialized_local_variables import UninitializedLocalVars
 from .attributes.constant_pragma import ConstantPragma
 from .attributes.incorrect_solc import IncorrectSolc
 from .attributes.locked_ether import LockedEther
-from .functions.arbitrary_send import ArbitrarySend
+from .functions.arbitrary_send_eth import ArbitrarySendEth
+from .erc.erc20.arbitrary_send_erc20_no_permit import ArbitrarySendErc20NoPermit
+from .erc.erc20.arbitrary_send_erc20_permit import ArbitrarySendErc20Permit
 from .functions.suicidal import Suicidal
 
 # from .functions.complex_function import ComplexFunction
@@ -34,7 +36,7 @@ from .shadowing.builtin_symbols import BuiltinSymbolShadowing
 from .operations.block_timestamp import Timestamp
 from .statements.calls_in_loop import MultipleCallsInLoop
 from .statements.incorrect_strict_equality import IncorrectStrictEquality
-from .erc.incorrect_erc20_interface import IncorrectERC20InterfaceDetection
+from .erc.erc20.incorrect_erc20_interface import IncorrectERC20InterfaceDetection
 from .erc.incorrect_erc721_interface import IncorrectERC721InterfaceDetection
 from .erc.unindexed_event_parameters import UnindexedERC20EventParameters
 from .statements.deprecated_calls import DeprecatedStandards

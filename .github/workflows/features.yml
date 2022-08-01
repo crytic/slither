@@ -26,21 +26,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Set up Python 3.6
+      - name: Set up Python 3.8
         uses: actions/setup-python@v3
         with:
-          python-version: 3.6
+          python-version: 3.8
 
       - name: Install dependencies
         run: |
+          pip install ".[dev]"
 
-          python setup.py install
-          pip install deepdiff
-          pip install pytest==7.0.1
-          pip install typing_extensions==4.1.1
-          pip install importlib_metadata==4.8.3
-
-          pip install "solc-select>=v1.0.0b1"
           solc-select install all
           solc-select use 0.8.0
 
@@ -52,3 +46,4 @@ jobs:
         run: |
           pytest tests/test_features.py
           pytest tests/test_constant_folding_unary.py
+          pytest tests/slithir/test_ternary_expressions.py

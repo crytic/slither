@@ -1,4 +1,4 @@
-INFO:Slither:[92m
+INFO:Slither:
 Contract_no_bug (tests/check-upgradeability/contract_initialization.sol#11-17) needs to be initialized by Contract_no_bug.initialize() (tests/check-upgradeability/contract_initialization.sol#13-15).
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function[0m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function
 INFO:Slither:1 findings, 12 detectors run

@@ -11,18 +11,25 @@ on:
 jobs:
   audit:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v3
+        uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-      - name: Install pip-audit
+
+      - name: Install Slither
         run: |
+          python -m venv /tmp/pip-audit-env
+          source /tmp/pip-audit-env/bin/activate
+
           python -m pip install --upgrade pip
-          python -m pip install pip-audit
-      - name: Run pip-audit
-        run: |
           python -m pip install .
-          pip-audit --desc -v
+
+      - name: Run pip-audit
+        uses: trailofbits/gh-action-pip-audit@v0.0.4
+        with:
+          virtual-environment: /tmp/pip-audit-env

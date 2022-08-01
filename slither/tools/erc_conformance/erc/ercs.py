@@ -192,9 +192,10 @@ def generic_erc_checks(contract, erc_functions, erc_events, ret, explored=None):
     logger.info("## Check functions")
     for erc_function in erc_functions:
         _check_signature(erc_function, contract, ret)
-    logger.info("\n## Check events")
-    for erc_event in erc_events:
-        _check_events(erc_event, contract, ret)
+    if erc_events:
+        logger.info("\n## Check events")
+        for erc_event in erc_events:
+            _check_events(erc_event, contract, ret)
 
     logger.info("\n")
 

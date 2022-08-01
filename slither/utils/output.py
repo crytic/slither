@@ -160,7 +160,7 @@ def output_to_sarif(
         ],
     }
 
-    for detector in results["detectors"]:
+    for detector in results.get("detectors", []):
         _output_result_to_sarif(detector, detectors_classes, sarif)
 
     if filename == "-":
