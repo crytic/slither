@@ -2,7 +2,7 @@ import logging
 import sys
 from math import floor
 from os import environ
-from typing import Callable, Optional, Tuple, Union, List, Dict, Any
+from typing import Callable, Optional, Tuple, Union, List, Dict, Any, NewType
 
 try:
     from web3 import Web3
@@ -20,12 +20,12 @@ except ImportError:
     print("$ pip3 install web3 --user\n")
     sys.exit(-1)
 
-try:
-    from tabulate import tabulate
-except ImportError:
-    print("ERROR: in order to use slither-read-storage --table, you need to install tabulate")
-    print("$ pip3 install tabulate --user\n")
-    sys.exit(-1)
+# try:
+#     from tabulate import tabulate
+# except ImportError:
+#     print("ERROR: in order to use slither-read-storage --table, you need to install tabulate")
+#     print("$ pip3 install tabulate --user\n")
+#     sys.exit(-1)
 
 from dataclasses import dataclass, field
 
@@ -39,7 +39,8 @@ logging.basicConfig()
 logger = logging.getLogger("Slither-read-storage")
 logger.setLevel(logging.INFO)
 
-
+Elem = NewType("Elem", Dict[str, "SlotInfo"])
+NestedElem =  NewType("NestedElem", Dict[str, Elem])
 @dataclass
 class SlotInfo:
     type_string: str
@@ -48,7 +49,7 @@ class SlotInfo:
     offset: int
     value: Optional[Union[int, bool, str, ChecksumAddress]] = None
     # For structure, str->SlotInfo, for array, str-> SlotInfo
-    elems: Dict[str, "SlotInfo"] = field(default_factory=lambda: {})
+    elems: Elem = field(default_factory=lambda: {})
     struct_var: Optional[str] = None
 
 
@@ -109,7 +110,7 @@ class SlitherReadStorage:
 
     def get_storage_layout(self) -> None:
         """Retrieves the storage layout of entire contract."""
-        tmp: Dict[str, SlotInfo] = {}
+        tmp: Elem
         for contract, var in self.target_variables:
             type_ = var.type
             info = self.get_storage_slot(var, contract)
@@ -186,7 +187,7 @@ class SlitherReadStorage:
 
         elif isinstance(target_variable_type, MappingType) and key:
             info, type_to, slot, size, offset = self._find_mapping_slot(
-                target_variable, slot, key, struct_var=struct_var, deep_key=deep_key
+                target_variable_type, slot, key, struct_var=struct_var, deep_key=deep_key
             )
             self.log += info
 
@@ -220,9 +221,11 @@ class SlitherReadStorage:
             struct_var (str): Structure variable name.
         """
         for contract, var in self.target_variables:
-            self._slot_info[f"{contract.name}.{var.name}"] = self.get_storage_slot(
+            slot_info = self.get_storage_slot(
                 var, contract, **kwargs
             )
+            if slot_info:
+                self._slot_info[f"{contract.name}.{var.name}"] = slot_info
 
     def get_slot_values(self) -> None:
         """
@@ -425,7 +428,6 @@ class SlitherReadStorage:
         slot = int.from_bytes(slot_as_bytes, "big")
         offset = 0
         type_to = ""
-        size = 0
         for var in elems:
             var_type = var.type
             if isinstance(var_type, ElementaryType):
@@ -477,6 +479,8 @@ class SlitherReadStorage:
         if isinstance(
             target_variable_type_type, ArrayType
         ):  # multidimensional array uint[i][], , uint[][i], or uint[][]
+            assert isinstance(target_variable_type_type.type, ElementaryType)
+            assert target_variable_type_type.type.size
             size = target_variable_type_type.type.size
             type_to = target_variable_type_type.type.name
 
@@ -503,7 +507,7 @@ class SlitherReadStorage:
 
         elif target_variable_type.is_fixed_array:
             slot_int = int.from_bytes(slot, "big") + int(key)
-            if isinstance(target_variable_type_type, UserDefinedType):  # struct[i]
+            if isinstance(target_variable_type_type, UserDefinedType) and isinstance(target_variable_type_type.type, Structure):  # struct[i]
                 type_to = target_variable_type_type.type.name
                 if not struct_var:
                     return info, type_to, int.to_bytes(slot_int, 32, "big"), size, offset
@@ -515,10 +519,12 @@ class SlitherReadStorage:
                 info += info_tmp
 
             else:
+                assert isinstance(target_variable_type_type, ElementaryType)
                 type_to = target_variable_type_type.name
+                assert target_variable_type_type.size
                 size = target_variable_type_type.size  # bits
 
-        elif isinstance(target_variable_type_type, UserDefinedType):  # struct[]
+        elif isinstance(target_variable_type_type, UserDefinedType) and isinstance(target_variable_type_type.type, Structure):  # struct[]
             slot = keccak(slot)
             slot_int = int.from_bytes(slot, "big") + int(key)
             type_to = target_variable_type_type.type.name
@@ -532,6 +538,7 @@ class SlitherReadStorage:
             info += info_tmp
 
         else:
+            assert isinstance(target_variable_type_type, ElementaryType) and target_variable_type_type.size
             slot = keccak(slot)
             slot_int = int.from_bytes(slot, "big") + int(key)
             type_to = target_variable_type_type.name
@@ -543,7 +550,7 @@ class SlitherReadStorage:
 
     @staticmethod
     def _find_mapping_slot(
-        target_variable: StateVariable,
+        target_variable_type: MappingType,
         slot: bytes,
         key: Union[int, str],
         deep_key: Union[int, str] = None,
@@ -557,7 +564,7 @@ class SlitherReadStorage:
             struct_var (str, optional): Structure variable name.
         :returns:
             log (str): Info about the target variable to log.
-            type_to (bytes): The type of the target variable.
+            type_to (str): The type of the target variable.
             slot (bytes): The storage location of the target variable.
             size (int): The size (in bits) of the target variable.
             offset (int): The size of other variables that share the same slot.
@@ -569,29 +576,30 @@ class SlitherReadStorage:
             info += f"\nKey: {key}"
         if deep_key:
             info += f"\nDeep Key: {deep_key}"
-
-        key_type = target_variable.type.type_from.name
+        assert isinstance(target_variable_type.type_from, ElementaryType)
+        key_type = target_variable_type.type_from.name
         assert key
         if "int" in key_type:  # without this eth_utils encoding fails
             key = int(key)
         key = coerce_type(key_type, key)
         slot = keccak(encode_abi([key_type, "uint256"], [key, decode_single("uint256", slot)]))
 
-        if isinstance(target_variable.type.type_to, UserDefinedType) and isinstance(
-            target_variable.type.type_to.type, Structure
+        if isinstance(target_variable_type.type_to, UserDefinedType) and isinstance(
+            target_variable_type.type_to.type, Structure
         ):  # mapping(elem => struct)
             assert struct_var
-            elems = target_variable.type.type_to.type.elems_ordered
+            elems = target_variable_type.type_to.type.elems_ordered
             info_tmp, type_to, slot, size, offset = SlitherReadStorage._find_struct_var_slot(
                 elems, slot, struct_var
             )
             info += info_tmp
 
         elif isinstance(
-            target_variable.type.type_to, MappingType
+            target_variable_type.type_to, MappingType
         ):  # mapping(elem => mapping(elem => ???))
             assert deep_key
-            key_type = target_variable.type.type_to.type_from.name
+            assert isinstance(target_variable_type.type_to.type_from, ElementaryType)
+            key_type = target_variable_type.type_to.type_from.name
             if "int" in key_type:  # without this eth_utils encoding fails
                 deep_key = int(deep_key)
 
@@ -599,16 +607,18 @@ class SlitherReadStorage:
             slot = keccak(encode_abi([key_type, "bytes32"], [deep_key, slot]))
 
             # mapping(elem => mapping(elem => elem))
-            type_to = target_variable.type.type_to.type_to.type
-            byte_size, _ = target_variable.type.type_to.type_to.storage_size
+            target_variable_type_type_to_type_to = target_variable_type.type_to.type_to
+            assert isinstance(target_variable_type_type_to_type_to, (UserDefinedType, ElementaryType))
+            type_to = str(target_variable_type_type_to_type_to.type)
+            byte_size, _ = target_variable_type_type_to_type_to.storage_size
             size = byte_size * 8  # bits
             offset = 0
 
-            if isinstance(target_variable.type.type_to.type_to, UserDefinedType) and isinstance(
-                target_variable.type.type_to.type_to.type, Structure
+            if isinstance(target_variable_type_type_to_type_to, UserDefinedType) and isinstance(
+                target_variable_type_type_to_type_to.type, Structure
             ):  # mapping(elem => mapping(elem => struct))
                 assert struct_var
-                elems = target_variable.type.type_to.type_to.type.elems_ordered
+                elems = target_variable_type_type_to_type_to.type.elems_ordered
                 # If map struct, will be bytes32(uint256(keccak256(abi.encode(key1, keccak256(abi.encode(key0, uint(slot)))))) + structFieldDepth);
                 info_tmp, type_to, slot, size, offset = SlitherReadStorage._find_struct_var_slot(
                     elems, slot, struct_var
@@ -617,10 +627,14 @@ class SlitherReadStorage:
 
         # TODO: suppory mapping with dynamic arrays
 
-        else:  # mapping(elem => elem)
-            type_to = target_variable.type.type_to.name  # the value's elementary type
-            byte_size, _ = target_variable.type.type_to.storage_size
+        # mapping(elem => elem)
+        elif isinstance(target_variable_type.type_to, ElementaryType):
+            type_to = target_variable_type.type_to.name  # the value's elementary type
+            byte_size, _ = target_variable_type.type_to.storage_size
             size = byte_size * 8  # bits
+
+        else:
+            raise NotImplementedError(f"{target_variable_type} => {target_variable_type.type_to} not implemented")
 
         return info, type_to, slot, size, offset
 
@@ -629,6 +643,7 @@ class SlitherReadStorage:
         contract: Contract, target_variable: StateVariable
     ) -> Tuple[int, int, int, str]:
         """Return slot, size, offset, and type."""
+        assert isinstance(target_variable.type, Type)
         type_to = str(target_variable.type)
         byte_size, _ = target_variable.type.storage_size
         size = byte_size * 8  # bits
@@ -643,7 +658,7 @@ class SlitherReadStorage:
 
     @staticmethod
     def convert_value_to_type(
-        hex_bytes: HexBytes, size: int, offset: int, type_to: str
+        hex_bytes: bytes, size: int, offset: int, type_to: str
     ) -> Union[int, bool, str, ChecksumAddress]:
         """Convert slot data to type representation."""
         # Account for storage packing
@@ -657,10 +672,10 @@ class SlitherReadStorage:
 
     def _all_struct_slots(
         self, var: StateVariable, st: Structure, contract: Contract, key: Optional[int] = None
-    ) -> Dict[str, SlotInfo]:
+    ) -> Elem:
         """Retrieves all members of a struct."""
         struct_elems = st.elems_ordered
-        data: Dict[str, SlotInfo] = {}
+        data: Elem 
         for elem in struct_elems:
             info = self.get_storage_slot(
                 var,
@@ -673,21 +688,18 @@ class SlitherReadStorage:
 
         return data
 
-    # TODO: remove this exception (montyly)
     # pylint: disable=too-many-nested-blocks
     def _all_array_slots(
-        self, var: StateVariable, contract: Contract, type_: Type, slot: int
-    ) -> Dict[str, SlotInfo]:
+        self, var: StateVariable, contract: Contract, type_: ArrayType, slot: int
+    ) -> Elem:
         """Retrieves all members of an array."""
         array_length = self._get_array_length(type_, slot)
-        elems: Dict[str, SlotInfo] = {}
+        elems: Elem 
+        tartget_variable_type = type_.type
         if isinstance(type_, UserDefinedType):
-            st = type_.type
-            if isinstance(st, Structure):
+            if isinstance(tartget_variable_type, Structure):
                 for i in range(min(array_length, self.max_depth)):
-                    # TODO: figure out why _all_struct_slots returns a Dict[str, SlotInfo]
-                    # but this expect a SlotInfo (montyly)
-                    elems[str(i)] = self._all_struct_slots(var, st, contract, key=i)
+                    elems[str(i)] = self._all_struct_slots(var, tartget_variable_type, contract, key=i)
 
         else:
             for i in range(min(array_length, self.max_depth)):
@@ -699,8 +711,8 @@ class SlitherReadStorage:
                 if info:
                     elems[str(i)] = info
 
-                    if isinstance(type_.type, ArrayType):  # multidimensional array
-                        array_length = self._get_array_length(type_.type, info.slot)
+                    if isinstance(tartget_variable_type, ArrayType):  # multidimensional array
+                        array_length = self._get_array_length(tartget_variable_type, info.slot)
 
                         for j in range(min(array_length, self.max_depth)):
                             info = self.get_storage_slot(
@@ -710,13 +722,14 @@ class SlitherReadStorage:
                                 deep_key=str(j),
                             )
                             if info:
-                                elems[str(i)].elems[str(j)] = info
+                               elem =  elems[str(i)]
+                               elem.elems[str(j)] = info
         return elems
 
     def _get_array_length(self, type_: Type, slot: int) -> int:
         """Gets the length of dynamic and fixed arrays.
         Args:
-            type_ (`Type`): The array type.
+            type_ (`AbstractType`): The array type.
             slot (int): Slot a dynamic array's length is stored at.
         Returns:
             (int): The length of the array.

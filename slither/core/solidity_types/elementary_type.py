@@ -172,7 +172,7 @@ class ElementaryType(Type):
         return self.type
 
     @property
-    def size(self) -> Optional[int]:
+    def size(self) -> int:
         """
             Return the size in bits
             Return None if the size is not known
@@ -190,7 +190,7 @@ class ElementaryType(Type):
             return int(160)
         if t.startswith("bytes") and t != "bytes":
             return int(t[len("bytes") :]) * 8
-        return None
+        raise SlitherException(f"{t} does not have a size")
 
     @property
     def storage_size(self) -> Tuple[int, bool]:
