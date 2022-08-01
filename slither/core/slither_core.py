@@ -245,9 +245,7 @@ class SlitherCore(Context):
 
         if r["elements"] and matching:
             return False
-        if r["elements"] and self._exclude_dependencies:
-            if all(element["source_mapping"]["is_dependency"] for element in r["elements"]):
-                return False
+
         if self._show_ignored_findings:
             return True
         if self.has_ignore_comment(r):
@@ -255,7 +253,8 @@ class SlitherCore(Context):
         if r["id"] in self._previous_results_ids:
             return False
         if r["elements"] and self._exclude_dependencies:
-            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
+            if all(element["source_mapping"]["is_dependency"] for element in r["elements"]):
+                return False
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
         if r["description"] in [pr["description"] for pr in self._previous_results]:
             return False
