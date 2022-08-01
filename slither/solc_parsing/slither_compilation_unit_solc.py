@@ -459,7 +459,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 txt = f"Missing inheritance {contract_parser.underlying_contract} ({contract_parser.compilation_unit.crytic_compile_compilation_unit.unique_id})\n"
                 txt += f"Missing inheritance ID: {missing_inheritance}\n"
                 if contract_parser.underlying_contract.inheritance:
-                    txt += f"Inheritance found:\n"
+                    txt += "Inheritance found:\n"
                     for contract_inherited in contract_parser.underlying_contract.inheritance:
                         txt += f"\t - {contract_inherited} (ID {contract_inherited.id})\n"
                 contract_parser.log_incorrect_parsing(txt)
