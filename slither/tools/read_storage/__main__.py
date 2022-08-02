@@ -1,7 +1,6 @@
 """
 Tool to read on-chain storage from EVM
 """
-import dataclasses
 import json
 import argparse
 
@@ -154,9 +153,7 @@ def main() -> None:
     # Only write file if storage layout is used. TODO add flag for file
     elif len(srs.slot_info) > 1:
         with open("storage_layout.json", "w", encoding="utf-8") as file:
-            slot_infos_json = {
-                key: dataclasses.asdict(value) for key, value in srs.slot_info.items()
-            }
+            slot_infos_json = srs.to_json()
             json.dump(slot_infos_json, file, indent=4)
 
 

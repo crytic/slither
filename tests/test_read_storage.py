@@ -1,4 +1,3 @@
-import dataclasses
 import re
 import os
 import sys
@@ -116,9 +115,9 @@ def test_read_storage(web3, ganache) -> None:
     srs.storage_address = address
     srs.get_all_storage_variables()
     srs.get_storage_layout()
-    srs.get_slot_values()
+    srs.walk_slot_info(srs.get_slot_values)
     with open("storage_layout.json", "w", encoding="utf-8") as file:
-        slot_infos_json = {key: dataclasses.asdict(value) for key, value in srs.slot_info.items()}
+        slot_infos_json = srs.to_json()
         json.dump(slot_infos_json, file, indent=4)
 
     expected_file = os.path.join(STORAGE_TEST_ROOT, "TEST_storage_layout.json")
