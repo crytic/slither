@@ -49,7 +49,7 @@ class SlotInfo:
     offset: int
     value: Optional[Union[int, bool, str, ChecksumAddress]] = None
     # For structure, str->SlotInfo, for array, str-> SlotInfo
-    elems: Elem = field(default_factory=lambda: {})
+    elems: Elem = field(default_factory=lambda: Elem({}))
     struct_var: Optional[str] = None
 
 
@@ -674,7 +674,10 @@ class SlitherReadStorage:
         self, var: StateVariable, st: Structure, contract: Contract, key: Optional[int] = None
     ) -> Elem:
         """Retrieves all members of a struct."""
-        struct_elems = st.elems_ordered
+        if isinstance(var.type.type, Structure):
+            struct_elems = var.type.type.elems_ordered
+        else:
+            struct_elems = var.type.type.type.elems_ordered
         data = Elem({})
         for elem in struct_elems:
             info = self.get_storage_slot(
@@ -695,11 +698,10 @@ class SlitherReadStorage:
         """Retrieves all members of an array."""
         array_length = self._get_array_length(type_, slot)
         elems = Elem({})
-        tartget_variable_type = type_.type
-        if isinstance(type_, UserDefinedType):
-            if isinstance(tartget_variable_type, Structure):
-                for i in range(min(array_length, self.max_depth)):
-                    elems[str(i)] = self._all_struct_slots(var, tartget_variable_type, contract, key=i)
+        target_variable_type = type_.type
+        if isinstance(target_variable_type, UserDefinedType) and isinstance(target_variable_type.type, Structure):
+            for i in range(min(array_length, self.max_depth)):
+                elems[str(i)] = self._all_struct_slots(var, target_variable_type, contract, key=i)
 
         else:
             for i in range(min(array_length, self.max_depth)):
@@ -711,8 +713,8 @@ class SlitherReadStorage:
                 if info:
                     elems[str(i)] = info
 
-                    if isinstance(tartget_variable_type, ArrayType):  # multidimensional array
-                        array_length = self._get_array_length(tartget_variable_type, info.slot)
+                    if isinstance(target_variable_type, ArrayType):  # multidimensional array
+                        array_length = self._get_array_length(target_variable_type, info.slot)
 
                         for j in range(min(array_length, self.max_depth)):
                             info = self.get_storage_slot(
@@ -722,8 +724,7 @@ class SlitherReadStorage:
                                 deep_key=str(j),
                             )
                             if info:
-                               elem =  elems[str(i)]
-                               elem.elems[str(j)] = info
+                               elems[str(i)].elems[str(j)] = info
         return elems
 
     def _get_array_length(self, type_: Type, slot: int) -> int:
