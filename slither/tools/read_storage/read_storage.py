@@ -48,9 +48,8 @@ class SlotInfo:
     size: int
     offset: int
     value: Optional[Union[int, bool, str, ChecksumAddress]] = None
-    # For structure, str->SlotInfo, for array, str-> SlotInfo
-    elems: Elem = field(default_factory=lambda: Elem({}))
-    struct_var: Optional[str] = None
+    # For structure and array, str->SlotInfo
+    elems: Elem = field(default_factory=lambda:{})
 
 
 class SlitherReadStorageException(Exception):
@@ -196,19 +195,12 @@ class SlitherReadStorage:
         if environ.get("SILENT") is None:
             logger.info(self.log)
         self.log = ""
-        if environ.get("TABLE") is None:
-            return SlotInfo(
-                type_string=type_to,
-                slot=int_slot,
-                size=size,
-                offset=offset,
-            )
+
         return SlotInfo(
             type_string=type_to,
             slot=int_slot,
             size=size,
             offset=offset,
-            struct_var=struct_var,
         )
 
     def get_target_variables(self, **kwargs) -> None:
@@ -234,15 +226,18 @@ class SlitherReadStorage:
         stack = list(self.slot_info.values())
         while stack:
             slot_info = stack.pop()
-            if slot_info.elems:
-                stack.extend(slot_info.elems.values())
-            hex_bytes = get_storage_data(
-                self.web3, self.checksum_address, int.to_bytes(slot_info.slot, 32, byteorder="big")
-            )
-            slot_info.value = self.convert_value_to_type(
-                hex_bytes, slot_info.size, slot_info.offset, slot_info.type_string
-            )
-            logger.info(f"\nValue: {slot_info.value}\n")
+            if isinstance(slot_info, dict): # NestedElem
+                stack.extend(slot_info.values())
+            elif slot_info.elems:
+                stack.extend(list(slot_info.elems.values()))
+            if isinstance(slot_info, SlotInfo):
+                hex_bytes = get_storage_data(
+                    self.web3, self.checksum_address, int.to_bytes(slot_info.slot, 32, byteorder="big")
+                )
+                slot_info.value = self.convert_value_to_type(
+                    hex_bytes, slot_info.size, slot_info.offset, slot_info.type_string
+                )
+                logger.info(f"\nValue: {slot_info.value}\n")
 
     def get_all_storage_variables(self, func: Callable = None) -> None:
         """Fetches all storage variables from a list of contracts.
@@ -674,10 +669,7 @@ class SlitherReadStorage:
         self, var: StateVariable, st: Structure, contract: Contract, key: Optional[int] = None
     ) -> Elem:
         """Retrieves all members of a struct."""
-        if isinstance(var.type.type, Structure):
-            struct_elems = var.type.type.elems_ordered
-        else:
-            struct_elems = var.type.type.type.elems_ordered
+        struct_elems = st.elems_ordered
         data = Elem({})
         for elem in struct_elems:
             info = self.get_storage_slot(
@@ -694,16 +686,17 @@ class SlitherReadStorage:
     # pylint: disable=too-many-nested-blocks
     def _all_array_slots(
         self, var: StateVariable, contract: Contract, type_: ArrayType, slot: int
-    ) -> Elem:
+    ) -> Union[Elem, NestedElem]:
         """Retrieves all members of an array."""
         array_length = self._get_array_length(type_, slot)
-        elems = Elem({})
         target_variable_type = type_.type
         if isinstance(target_variable_type, UserDefinedType) and isinstance(target_variable_type.type, Structure):
+            nested_elems = NestedElem({})
             for i in range(min(array_length, self.max_depth)):
-                elems[str(i)] = self._all_struct_slots(var, target_variable_type, contract, key=i)
-
+                nested_elems[str(i)] = self._all_struct_slots(var, target_variable_type.type, contract, key=i)
+            return nested_elems
         else:
+            elems = Elem({})
             for i in range(min(array_length, self.max_depth)):
                 info = self.get_storage_slot(
                     var,
@@ -725,7 +718,7 @@ class SlitherReadStorage:
                             )
                             if info:
                                elems[str(i)].elems[str(j)] = info
-        return elems
+            return elems
 
     def _get_array_length(self, type_: Type, slot: int) -> int:
         """Gets the length of dynamic and fixed arrays.
