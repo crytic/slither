@@ -1,5 +1,5 @@
 import itertools
-from typing import Optional, Tuple
+from typing import Tuple
 
 from slither.core.solidity_types.type import Type
 

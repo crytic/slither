@@ -1,7 +1,7 @@
 import logging
 import sys
 from math import floor
-from typing import Callable, Optional, Tuple, Union, List, Dict, Any, NewType
+from typing import Callable, Optional, Tuple, Union, List, Dict, Any
 
 try:
     from web3 import Web3
@@ -30,8 +30,8 @@ logging.basicConfig()
 logger = logging.getLogger("Slither-read-storage")
 logger.setLevel(logging.INFO)
 
-Elem = NewType("Elem", Dict[str, "SlotInfo"])
-NestedElem = NewType("NestedElem", Dict[str, Elem])
+Elem = Dict[str, "SlotInfo"]
+NestedElem = Dict[str, Elem]
 
 
 @dataclasses.dataclass
@@ -43,7 +43,7 @@ class SlotInfo:
     offset: int
     value: Optional[Union[int, bool, str, ChecksumAddress]] = None
     # For structure and array, str->SlotInfo
-    elems: Elem = dataclasses.field(default_factory=lambda: {})
+    elems: Union[Elem, NestedElem] = dataclasses.field(default_factory=lambda: {})  # type: ignore[assignment]
 
 
 class SlitherReadStorageException(Exception):
@@ -88,6 +88,8 @@ class SlitherReadStorage:
 
     @property
     def checksum_address(self) -> ChecksumAddress:
+        if not self.storage_address:
+            raise ValueError
         if not self._checksum_address:
             self._checksum_address = self.web3.toChecksumAddress(self.storage_address)
         return self._checksum_address
@@ -104,7 +106,7 @@ class SlitherReadStorage:
 
     def get_storage_layout(self) -> None:
         """Retrieves the storage layout of entire contract."""
-        tmp = Elem({})
+        tmp = {}
         for contract, var in self.target_variables:
             type_ = var.type
             info = self.get_storage_slot(var, contract)
@@ -291,14 +293,13 @@ class SlitherReadStorage:
             var_type = var.type
             if isinstance(var_type, ElementaryType):
                 size = var_type.size
-                if size:
-                    if offset >= 256:
-                        slot += 1
-                        offset = 0
-                    if struct_var == var.name:
-                        type_to = var_type.name
-                        break  # found struct var
-                    offset += size
+                if offset >= 256:
+                    slot += 1
+                    offset = 0
+                if struct_var == var.name:
+                    type_to = var_type.name
+                    break  # found struct var
+                offset += size
             else:
                 logger.info(f"{type(var_type)} is current not implemented in _find_struct_var_slot")
 
@@ -306,7 +307,7 @@ class SlitherReadStorage:
         info = f"\nStruct Variable: {struct_var}"
         return info, type_to, slot_as_bytes, size, offset
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches,too-many-statements
     @staticmethod
     def _find_array_slot(
         target_variable_type: ArrayType,
@@ -339,7 +340,6 @@ class SlitherReadStorage:
             target_variable_type_type, ArrayType
         ):  # multidimensional array uint[i][], , uint[][i], or uint[][]
             assert isinstance(target_variable_type_type.type, ElementaryType)
-            assert target_variable_type_type.type.size
             size = target_variable_type_type.type.size
             type_to = target_variable_type_type.type.name
 
@@ -382,7 +382,6 @@ class SlitherReadStorage:
             else:
                 assert isinstance(target_variable_type_type, ElementaryType)
                 type_to = target_variable_type_type.name
-                assert target_variable_type_type.size
                 size = target_variable_type_type.size  # bits
 
         elif isinstance(target_variable_type_type, UserDefinedType) and isinstance(
@@ -401,10 +400,8 @@ class SlitherReadStorage:
             info += info_tmp
 
         else:
-            assert (
-                isinstance(target_variable_type_type, ElementaryType)
-                and target_variable_type_type.size
-            )
+            assert isinstance(target_variable_type_type, ElementaryType)
+
             slot = keccak(slot)
             slot_int = int.from_bytes(slot, "big") + int(key)
             type_to = target_variable_type_type.name
@@ -544,7 +541,7 @@ class SlitherReadStorage:
     ) -> Elem:
         """Retrieves all members of a struct."""
         struct_elems = st.elems_ordered
-        data = Elem({})
+        data: Elem = {}
         for elem in struct_elems:
             info = self.get_storage_slot(
                 var,
@@ -567,14 +564,14 @@ class SlitherReadStorage:
         if isinstance(target_variable_type, UserDefinedType) and isinstance(
             target_variable_type.type, Structure
         ):
-            nested_elems = NestedElem({})
+            nested_elems: NestedElem = {}
             for i in range(min(array_length, self.max_depth)):
                 nested_elems[str(i)] = self._all_struct_slots(
                     var, target_variable_type.type, contract, key=i
                 )
             return nested_elems
 
-        elems = Elem({})
+        elems: Elem = {}
         for i in range(min(array_length, self.max_depth)):
             info = self.get_storage_slot(
                 var,
