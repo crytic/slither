@@ -110,7 +110,7 @@ class SlitherReadStorage:
 
     def get_storage_layout(self) -> None:
         """Retrieves the storage layout of entire contract."""
-        tmp: Elem
+        tmp = Elem({})
         for contract, var in self.target_variables:
             type_ = var.type
             info = self.get_storage_slot(var, contract)
@@ -675,7 +675,7 @@ class SlitherReadStorage:
     ) -> Elem:
         """Retrieves all members of a struct."""
         struct_elems = st.elems_ordered
-        data: Elem 
+        data = Elem({})
         for elem in struct_elems:
             info = self.get_storage_slot(
                 var,
@@ -694,7 +694,7 @@ class SlitherReadStorage:
     ) -> Elem:
         """Retrieves all members of an array."""
         array_length = self._get_array_length(type_, slot)
-        elems: Elem 
+        elems = Elem({})
         tartget_variable_type = type_.type
         if isinstance(type_, UserDefinedType):
             if isinstance(tartget_variable_type, Structure):
