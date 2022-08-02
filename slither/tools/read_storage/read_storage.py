@@ -3,7 +3,7 @@ import sys
 from math import floor
 from os import environ
 from typing import Callable, Optional, Tuple, Union, List, Dict, Any, NewType
-
+from slither.utils.myprettytable import MyPrettyTable
 try:
     from web3 import Web3
     from eth_typing.evm import ChecksumAddress
@@ -20,14 +20,7 @@ except ImportError:
     print("$ pip3 install web3 --user\n")
     sys.exit(-1)
 
-# try:
-#     from tabulate import tabulate
-# except ImportError:
-#     print("ERROR: in order to use slither-read-storage --table, you need to install tabulate")
-#     print("$ pip3 install tabulate --user\n")
-#     sys.exit(-1)
-
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types import ArrayType, ElementaryType, UserDefinedType, MappingType
@@ -43,6 +36,7 @@ Elem = NewType("Elem", Dict[str, "SlotInfo"])
 NestedElem =  NewType("NestedElem", Dict[str, Elem])
 @dataclass
 class SlotInfo:
+    name: str
     type_string: str
     slot: int
     size: int
@@ -68,6 +62,7 @@ class SlitherReadStorage:
         self._checksum_address: Optional[ChecksumAddress] = None
         self.storage_address: Optional[str] = None
         self.rpc: Optional[str] = None
+        self.table: Optional[MyPrettyTable] = None
 
     @property
     def contracts(self) -> List[Contract]:
@@ -167,6 +162,7 @@ class SlitherReadStorage:
             type_to = target_variable_type.name
 
         elif isinstance(target_variable_type, ArrayType) and key:
+            var_log_name = f"{var_log_name}[{key}]"
             info, type_to, slot, size, offset = self._find_array_slot(
                 target_variable_type,
                 slot,
@@ -177,7 +173,7 @@ class SlitherReadStorage:
             self.log += info
 
         elif isinstance(target_variable_type, UserDefinedType) and struct_var:
-            var_log_name = struct_var
+            var_log_name = f"{var_log_name}.{struct_var}"
             target_variable_type_type = target_variable_type.type
             assert isinstance(target_variable_type_type, Structure)
             elems = target_variable_type_type.elems_ordered
@@ -197,6 +193,7 @@ class SlitherReadStorage:
         self.log = ""
 
         return SlotInfo(
+            name=var_log_name,
             type_string=type_to,
             slot=int_slot,
             size=size,
@@ -219,10 +216,7 @@ class SlitherReadStorage:
             if slot_info:
                 self._slot_info[f"{contract.name}.{var.name}"] = slot_info
 
-    def get_slot_values(self) -> None:
-        """
-        Fetches the slot values
-        """
+    def walk_slot_info(self, func: Callable) -> None:
         stack = list(self.slot_info.values())
         while stack:
             slot_info = stack.pop()
@@ -231,13 +225,19 @@ class SlitherReadStorage:
             elif slot_info.elems:
                 stack.extend(list(slot_info.elems.values()))
             if isinstance(slot_info, SlotInfo):
-                hex_bytes = get_storage_data(
-                    self.web3, self.checksum_address, int.to_bytes(slot_info.slot, 32, byteorder="big")
-                )
-                slot_info.value = self.convert_value_to_type(
-                    hex_bytes, slot_info.size, slot_info.offset, slot_info.type_string
-                )
-                logger.info(f"\nValue: {slot_info.value}\n")
+                func(slot_info)
+    
+    def get_slot_values(self, slot_info: SlotInfo) -> None:
+        """ Fetches the slot value of `SlotInfo` object
+        :param slot_info:
+        """
+        hex_bytes = get_storage_data(
+            self.web3, self.checksum_address, int.to_bytes(slot_info.slot, 32, byteorder="big")
+        )
+        slot_info.value = self.convert_value_to_type(
+            hex_bytes, slot_info.size, slot_info.offset, slot_info.type_string
+        )
+        logger.info(f"\nValue: {slot_info.value}\n")
 
     def get_all_storage_variables(self, func: Callable = None) -> None:
         """Fetches all storage variables from a list of contracts.
@@ -256,153 +256,15 @@ class SlitherReadStorage:
                 )
             )
 
-    def print_table(self) -> None:
-
-        tabulate_data = []
-
-        for _, state_var in self.target_variables:
-            type_ = state_var.type
-            var = state_var.name
-            info = self.slot_info[var]
-            slot = info.slot
-            offset = info.offset
-            size = info.size
-            type_string = info.type_string
-
-            tabulate_data.append([slot, offset, size, type_string, var])
-
-            if isinstance(type_, UserDefinedType) and isinstance(type_.type, Structure):
-                tabulate_data.pop()
-                for item in info.elems.values():
-                    slot = item.slot
-                    offset = item.offset
-                    size = item.size
-                    type_string = item.type_string
-                    struct_var = item.struct_var
-
-                    # doesn't handle deep keys currently
-                    var_name_struct_or_array_var = f"{var} -> {struct_var}"
-
-                    tabulate_data.append(
-                        [slot, offset, size, type_string, var_name_struct_or_array_var]
-                    )
-
-            if isinstance(type_, ArrayType):
-                tabulate_data.pop()
-                for item_key, item in info.elems.items():
-                    slot = item.slot
-                    offset = item.offset
-                    size = item.size
-                    type_string = item.type_string
-                    struct_var = item.struct_var
-
-                    # doesn't handle deep keys currently
-                    var_name_struct_or_array_var = f"{var}[{item_key}] -> {struct_var}"
-
-                    tabulate_data.append(
-                        [slot, offset, size, type_string, var_name_struct_or_array_var]
-                    )
-
-        print(
-            tabulate(
-                tabulate_data, headers=["slot", "offset", "size", "type", "name"], tablefmt="grid"
-            )
-        )
-
-    def print_table_with_values(self) -> None:
-
-        print("Processing, grabbing values from rpc endpoint...")
-        tabulate_data = []
-
-        for _, state_var in self.target_variables:
-            type_ = state_var.type
-            var = state_var.name
-            info = self.slot_info[var]
-            slot = info.slot
-            offset = info.offset
-            size = info.size
-            type_string = info.type_string
-
-            tabulate_data.append(
-                [
-                    slot,
-                    offset,
-                    size,
-                    type_string,
-                    var,
-                    self.convert_value_to_type(
-                        get_storage_data(
-                            self.web3,
-                            self.checksum_address,
-                            int.to_bytes(slot, 32, byteorder="big"),
-                        ),
-                        size,
-                        offset,
-                        type_string,
-                    ),
-                ]
-            )
-
-            if isinstance(type_, UserDefinedType) and isinstance(type_.type, Structure):
-                tabulate_data.pop()
-                for item in info.elems.values():
-                    slot = item.slot
-                    offset = item.offset
-                    size = item.size
-                    type_string = item.type_string
-                    struct_var = item.struct_var
-
-                    tabulate_data.append(
-                        [
-                            slot,
-                            offset,
-                            size,
-                            type_string,
-                            f"{var} -> {struct_var}",  # doesn't handle deep keys currently
-                            self.convert_value_to_type(
-                                get_storage_data(
-                                    self.web3,
-                                    self.checksum_address,
-                                    int.to_bytes(slot, 32, byteorder="big"),
-                                ),
-                                size,
-                                offset,
-                                type_string,
-                            ),
-                        ]
-                    )
-
-            if isinstance(type_, ArrayType):
-                tabulate_data.pop()
-                for item_key, item in info.elems.items():
-                    #    for elem in info.elems[item].values():
-                    slot = item.slot
-                    offset = item.offset
-                    size = item.size
-                    type_string = item.type_string
-                    struct_var = item.struct_var
-
-                    hex_bytes = get_storage_data(
-                        self.web3, self.checksum_address, int.to_bytes(slot, 32, byteorder="big")
-                    )
-                    tabulate_data.append(
-                        [
-                            slot,
-                            offset,
-                            size,
-                            type_string,
-                            f"{var}[{item_key}] -> {struct_var}",  # doesn't handle deep keys currently
-                            self.convert_value_to_type(hex_bytes, size, offset, type_string),
-                        ]
-                    )
-
-        print(
-            tabulate(
-                tabulate_data,
-                headers=["slot", "offset", "size", "type", "name", "value"],
-                tablefmt="grid",
-            )
-        )
+    def convert_slot_info_to_rows(self, slot_info: SlotInfo) -> None:
+        """ Convert and append slot info to table. Create table if it
+        does not yet exist 
+        :param slot_info:
+        """
+        field_names = [field.name for field in fields(SlotInfo) if field.name != "elems"] 
+        if not self.table:
+            self.table = MyPrettyTable(field_names)
+        self.table.add_row([getattr(slot_info, field) for field in field_names])
 
     @staticmethod
     def _find_struct_var_slot(

@@ -4,7 +4,6 @@ Tool to read on-chain storage from EVM
 import dataclasses
 import json
 import argparse
-from os import environ
 
 from crytic_compile import cryticparser
 
@@ -87,15 +86,9 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--table-storage-layout",
+        "--table",
         action="store_true",
         help="Print table view of storage layout",
-    )
-
-    parser.add_argument(
-        "--table-storage-value",
-        action="store_true",
-        help="Print table view of storage layout & values",
     )
 
     parser.add_argument(
@@ -140,20 +133,6 @@ def main() -> None:
 
         srs.rpc = args.rpc_url
 
-    if args.table_storage_layout:
-        environ["TABLE"] = "1"
-        srs.get_all_storage_variables()
-        srs.get_storage_layout()
-        srs.print_table()
-        return
-
-    if args.table_storage_value:
-        environ["TABLE"] = "1"
-        srs.get_all_storage_variables()
-        srs.get_storage_layout()
-        srs.print_table_with_values()
-        return
-
     if args.layout:
         srs.get_all_storage_variables()
         srs.get_storage_layout()
@@ -167,10 +146,13 @@ def main() -> None:
     # To retrieve slot values an rpc url is required.
     if args.value:
         assert args.rpc_url
-        srs.get_slot_values()
+        srs.walk_slot_info(srs.get_slot_values)
 
-    # Only write file if storage layout is used.
-    if len(srs.slot_info) > 1:
+    if args.table:
+        srs.walk_slot_info(srs.convert_slot_info_to_rows)
+        print(srs.table)
+    # Only write file if storage layout is used. TODO add flag for file
+    elif len(srs.slot_info) > 1:
         with open("storage_layout.json", "w", encoding="utf-8") as file:
             slot_infos_json = {
                 key: dataclasses.asdict(value) for key, value in srs.slot_info.items()
