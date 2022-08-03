@@ -375,7 +375,7 @@ class Output:
                 self.add(add)
 
         if additional_fields:
-            self._data.additional_fields = additional_fields
+            self._data["additional_fields"] = additional_fields
 
     def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None):
         if not self._data["first_markdown_element"]:
