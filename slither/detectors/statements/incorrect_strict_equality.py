@@ -5,13 +5,14 @@
 
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function
+from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
     Assignment,
-    Balance,
     Binary,
     BinaryType,
     HighLevelCall,
+    SolidityCall,
 )
 
 from slither.core.solidity_types import MappingType, ElementaryType
@@ -20,6 +21,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.core.declarations.solidity_variables import (
     SolidityVariable,
     SolidityVariableComposed,
+    SolidityFunction,
 )
 
 
@@ -35,6 +37,8 @@ class IncorrectStrictEquality(AbstractDetector):
 
     WIKI_TITLE = "Dangerous strict equalities"
     WIKI_DESCRIPTION = "Use of strict equalities that can be easily manipulated by an attacker."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Crowdsale{
@@ -44,6 +48,7 @@ contract Crowdsale{
 ```
 `Crowdsale` relies on `fund_reached` to know when to stop the sale of tokens.
 `Crowdsale` reaches 100 Ether. Bob sends 0.1 Ether. As a result, `fund_reached` is always false and the `crowdsale` never ends."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = (
         """Don't use strict equality to determine if an account has enough Ether or tokens."""
@@ -60,13 +65,13 @@ contract Crowdsale{
         return isinstance(ir, Binary) and ir.type == BinaryType.EQUAL
 
     @staticmethod
-    def is_any_tainted(variables, taints, function):
+    def is_any_tainted(variables, taints, function) -> bool:
         return any(
-            [
+            (
                 is_dependent_ssa(var, taint, function.contract)
                 for var in variables
                 for taint in taints
-            ]
+            )
         )
 
     def taint_balance_equalities(self, functions):
@@ -74,7 +79,9 @@ contract Crowdsale{
         for func in functions:
             for node in func.nodes:
                 for ir in node.irs_ssa:
-                    if isinstance(ir, Balance):
+                    if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
+                        "balance(address)"
+                    ):
                         taints.append(ir.lvalue)
                     if isinstance(ir, HighLevelCall):
                         # print(ir.function.full_name)
@@ -99,10 +106,13 @@ contract Crowdsale{
 
     # Retrieve all tainted (node, function) pairs
     def tainted_equality_nodes(self, funcs, taints):
-        results = dict()
+        results = {}
         taints += self.sources_taint
 
         for func in funcs:
+            # Disable the detector on top level function until we have good taint on those
+            if isinstance(func, FunctionTopLevel):
+                continue
             for node in func.nodes:
                 for ir in node.irs_ssa:
 
@@ -128,7 +138,7 @@ contract Crowdsale{
     def _detect(self):
         results = []
 
-        for c in self.slither.contracts_derived:
+        for c in self.compilation_unit.contracts_derived:
             ret = self.detect_strict_equality(c)
 
             # sort ret to get deterministic results

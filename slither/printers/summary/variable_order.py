@@ -25,11 +25,11 @@ class VariableOrder(AbstractPrinter):
         all_tables = []
 
         for contract in self.slither.contracts_derived:
-            txt += "\n{}:\n".format(contract.name)
+            txt += f"\n{contract.name}:\n"
             table = MyPrettyTable(["Name", "Type", "Slot", "Offset"])
             for variable in contract.state_variables_ordered:
-                if not variable.is_constant:
-                    slot, offset = self.slither.storage_layout_of(contract, variable)
+                if not variable.is_constant and not variable.is_immutable:
+                    slot, offset = contract.compilation_unit.storage_layout_of(contract, variable)
                     table.add_row([variable.canonical_name, str(variable.type), slot, offset])
 
             all_tables.append((contract.name, table))

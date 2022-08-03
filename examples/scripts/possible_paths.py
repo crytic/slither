@@ -11,12 +11,12 @@ def resolve_function(contract_name, function_name):
     :return: Returns the resolved function, raises an exception otherwise.
     """
     # Obtain the target contract
-    contract = slither.get_contract_from_name(contract_name)
+    contracts = slither.get_contract_from_name(contract_name)
 
     # Verify the contract was resolved successfully
-    if contract is None:
+    if len(contracts) != 1:
         raise ValueError(f"Could not resolve target contract: {contract_name}")
-
+    contract = contracts[0]
     # Obtain the target function
     target_function = next(
         (function for function in contract.functions if function.name == function_name), None

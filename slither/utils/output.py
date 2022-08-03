@@ -4,8 +4,9 @@ import json
 import logging
 import zipfile
 from collections import OrderedDict
-from typing import Optional, Dict, List, Union, Any
+from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING
 from zipfile import ZipFile
+from pkg_resources import require
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma
@@ -14,6 +15,10 @@ from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 from slither.utils.myprettytable import MyPrettyTable
+
+if TYPE_CHECKING:
+    from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.detectors.abstract_detector import AbstractDetector
 
 logger = logging.getLogger("Slither")
 
@@ -25,7 +30,7 @@ logger = logging.getLogger("Slither")
 ###################################################################################
 
 
-def output_to_json(filename: str, error, results: Dict):
+def output_to_json(filename: Optional[str], error, results: Dict) -> None:
     """
 
     :param filename: Filename where the json will be written. If None or "-", write to stdout
@@ -53,6 +58,127 @@ def output_to_json(filename: str, error, results: Dict):
                 json.dump(json_result, f, indent=2)
 
 
+def _output_result_to_sarif(
+    detector: Dict, detectors_classes: List["AbstractDetector"], sarif: Dict
+) -> None:
+    confidence = "very-high"
+    if detector["confidence"] == "Medium":
+        confidence = "high"
+    elif detector["confidence"] == "Low":
+        confidence = "medium"
+    elif detector["confidence"] == "Informational":
+        confidence = "low"
+
+    risk = "0.0"
+    if detector["impact"] == "High":
+        risk = "8.0"
+    elif detector["impact"] == "Medium":
+        risk = "4.0"
+    elif detector["impact"] == "Low":
+        risk = "3.0"
+
+    detector_class = next((d for d in detectors_classes if d.ARGUMENT == detector["check"]))
+    check_id = (
+        str(detector_class.IMPACT.value)
+        + "-"
+        + str(detector_class.CONFIDENCE.value)
+        + "-"
+        + detector["check"]
+    )
+
+    rule = {
+        "id": check_id,
+        "name": detector["check"],
+        "properties": {"precision": confidence, "security-severity": risk},
+        "shortDescription": {"text": detector_class.WIKI_TITLE},
+        "help": {"text": detector_class.WIKI_RECOMMENDATION},
+    }
+    # Add the rule if does not exist yet
+    if len([x for x in sarif["runs"][0]["tool"]["driver"]["rules"] if x["id"] == check_id]) == 0:
+        sarif["runs"][0]["tool"]["driver"]["rules"].append(rule)
+
+    if not detector["elements"]:
+        logger.info(yellow("Cannot generate Github security alert for finding without location"))
+        logger.info(yellow(detector["description"]))
+        logger.info(yellow("This will be supported in a future Slither release"))
+        return
+
+    # From 3.19.10 (http://docs.oasis-open.org/sarif/sarif/v2.0/csprd01/sarif-v2.0-csprd01.html)
+    # The locations array SHALL NOT contain more than one element unless the condition indicated by the result,
+    # if any, can only be corrected by making a change at every location specified in the array.
+    finding = detector["elements"][0]
+    path = finding["source_mapping"]["filename_relative"]
+    start_line = finding["source_mapping"]["lines"][0]
+    end_line = finding["source_mapping"]["lines"][-1]
+
+    sarif["runs"][0]["results"].append(
+        {
+            "ruleId": check_id,
+            "message": {"text": detector["description"], "markdown": detector["markdown"]},
+            "level": "warning",
+            "locations": [
+                {
+                    "physicalLocation": {
+                        "artifactLocation": {"uri": path},
+                        "region": {"startLine": start_line, "endLine": end_line},
+                    }
+                }
+            ],
+            "partialFingerprints": {"id": detector["id"]},
+        }
+    )
+
+
+def output_to_sarif(
+    filename: Optional[str], results: Dict, detectors_classes: List["AbstractDetector"]
+) -> None:
+    """
+
+    :param filename:
+    :type filename:
+    :param results:
+    :type results:
+    :return:
+    :rtype:
+    """
+
+    sarif: Dict[str, Any] = {
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "Slither",
+                        "informationUri": "https://github.com/crytic/slither",
+                        "version": require("slither-analyzer")[0].version,
+                        "rules": [],
+                    }
+                },
+                "results": [],
+            }
+        ],
+    }
+
+    for detector in results.get("detectors", []):
+        _output_result_to_sarif(detector, detectors_classes, sarif)
+
+    if filename == "-":
+        filename = None
+
+    # Determine if we should output to stdout
+    if filename is None:
+        # Write json to console
+        print(json.dumps(sarif))
+    else:
+        # Write json to file
+        if os.path.isfile(filename):
+            logger.info(yellow(f"{filename} exists already, the overwrite is prevented"))
+        else:
+            with open(filename, "w", encoding="utf8") as f:
+                json.dump(sarif, f, indent=2)
+
+
 # https://docs.python.org/3/library/zipfile.html#zipfile-objects
 ZIP_TYPES_ACCEPTED = {
     "lzma": zipfile.ZIP_LZMA,
@@ -78,7 +204,9 @@ def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: 
         logger.info(yellow(f"{filename} exists already, the overwrite is prevented"))
     else:
         with ZipFile(
-            filename, "w", compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA),
+            filename,
+            "w",
+            compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA),
         ) as file_desc:
             file_desc.writestr("slither_results.json", json.dumps(json_result).encode("utf8"))
 
@@ -210,6 +338,7 @@ def _create_parent_element(element):
 
 
 SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node]
+AllSupportedOutput = Union[str, SupportedOutput]
 
 
 class Output:
@@ -234,6 +363,8 @@ class Output:
         self._data["elements"] = []
         self._data["description"] = "".join(_convert_to_description(d) for d in info)
         self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
+        self._data["first_markdown_element"] = ""
+        self._markdown_root = markdown_root
 
         id_txt = "".join(_convert_to_id(d) for d in info)
         self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
@@ -248,6 +379,10 @@ class Output:
             self._data["additional_fields"] = additional_fields
 
     def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None):
+        if not self._data["first_markdown_element"]:
+            self._data["first_markdown_element"] = add.source_mapping_to_markdown(
+                self._markdown_root
+            )
         if isinstance(add, Variable):
             self.add_variable(add, additional_fields=additional_fields)
         elif isinstance(add, Contract):
@@ -355,7 +490,11 @@ class Output:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(enum)}
         element = _create_base_element(
-            "enum", enum.name, enum.source_mapping, type_specific_fields, additional_fields,
+            "enum",
+            enum.name,
+            enum.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
         self._data["elements"].append(element)
 
@@ -371,7 +510,11 @@ class Output:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(struct)}
         element = _create_base_element(
-            "struct", struct.name, struct.source_mapping, type_specific_fields, additional_fields,
+            "struct",
+            struct.name,
+            struct.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
         self._data["elements"].append(element)
 
@@ -390,7 +533,11 @@ class Output:
             "signature": event.full_name,
         }
         element = _create_base_element(
-            "event", event.name, event.source_mapping, type_specific_fields, additional_fields,
+            "event",
+            event.name,
+            event.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
 
         self._data["elements"].append(element)
@@ -410,7 +557,11 @@ class Output:
         }
         node_name = str(node.expression) if node.expression else ""
         element = _create_base_element(
-            "node", node_name, node.source_mapping, type_specific_fields, additional_fields,
+            "node",
+            node_name,
+            node.source_mapping,
+            type_specific_fields,
+            additional_fields,
         )
         self._data["elements"].append(element)
 
@@ -461,7 +612,10 @@ class Output:
     ###################################################################################
 
     def add_pretty_table(
-        self, content: MyPrettyTable, name: str, additional_fields: Optional[Dict] = None,
+        self,
+        content: MyPrettyTable,
+        name: str,
+        additional_fields: Optional[Dict] = None,
     ):
         if additional_fields is None:
             additional_fields = {}
@@ -478,7 +632,11 @@ class Output:
     ###################################################################################
 
     def add_other(
-        self, name: str, source_mapping, slither, additional_fields: Optional[Dict] = None,
+        self,
+        name: str,
+        source_mapping,
+        compilation_unit: "SlitherCompilationUnit",
+        additional_fields: Optional[Dict] = None,
     ):
         # If this a tuple with (filename, start, end), convert it to a source mapping.
         if additional_fields is None:
@@ -489,7 +647,10 @@ class Output:
             source_id = next(
                 (
                     source_unit_id
-                    for (source_unit_id, source_unit_filename,) in slither.source_units.items()
+                    for (
+                        source_unit_id,
+                        source_unit_filename,
+                    ) in compilation_unit.source_units.items()
                     if source_unit_filename == filename
                 ),
                 -1,
@@ -502,7 +663,7 @@ class Output:
         if isinstance(source_mapping, str):
             source_mapping_str = source_mapping
             source_mapping = SourceMapping()
-            source_mapping.set_offset(source_mapping_str, slither)
+            source_mapping.set_offset(source_mapping_str, compilation_unit)
 
         # If this is a source mapping object, get the underlying source mapping dictionary
         if isinstance(source_mapping, SourceMapping):

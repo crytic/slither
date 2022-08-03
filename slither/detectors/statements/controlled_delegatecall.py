@@ -27,6 +27,8 @@ class ControlledDelegateCall(AbstractDetector):
 
     WIKI_TITLE = "Controlled Delegatecall"
     WIKI_DESCRIPTION = "`Delegatecall` or `callcode` to an address controlled by the user."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Delegatecall{
@@ -36,13 +38,14 @@ contract Delegatecall{
 }
 ```
 Bob calls `delegate` and delegates the execution to his malicious contract. As a result, Bob withdraws the funds of the contract and destructs it."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Avoid using `delegatecall`. Use only trusted destinations."
 
     def _detect(self):
         results = []
 
-        for contract in self.slither.contracts_derived:
+        for contract in self.compilation_unit.contracts_derived:
             for f in contract.functions:
                 # If its an upgradeable proxy, do not report protected function
                 # As functions to upgrades the destination lead to too many FPs

@@ -13,7 +13,7 @@ REPLACEMENT_VERSIONS = ["^0.4.25", "^0.5.3"]
 # 2: version number
 # 3: version number
 # 4: version number
-PATTERN = re.compile("(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
+PATTERN = re.compile(r"(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
 
 
 def custom_format(slither, result):
@@ -34,7 +34,7 @@ def custom_format(slither, result):
 
 
 def _analyse_versions(used_solc_versions):
-    replace_solc_versions = list()
+    replace_solc_versions = []
     for version in used_solc_versions:
         replace_solc_versions.append(_determine_solc_version_replacement(version))
     if not all(version == replace_solc_versions[0] for version in replace_solc_versions):
@@ -70,5 +70,10 @@ def _patch(
     in_file_str = slither.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     create_patch(
-        result, in_file, int(modify_loc_start), int(modify_loc_end), old_str_of_interest, pragma,
+        result,
+        in_file,
+        int(modify_loc_start),
+        int(modify_loc_end),
+        old_str_of_interest,
+        pragma,
     )

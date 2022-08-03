@@ -1,0 +1,17 @@
+---
+name: Feature request
+description: Suggest a feature
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check the issues tab to avoid duplicates.
+
+        Thanks for providing feedback on Slither!
+  - type: textarea
+    attributes:
+      label: Describe the desired feature
+      description: Explain what the feature solves/ improves.
+    validations:
+      required: true

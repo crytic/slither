@@ -19,6 +19,8 @@ class UninitializedStorageVars(AbstractDetector):
 
     WIKI_TITLE = "Uninitialized storage variables"
     WIKI_DESCRIPTION = "An uninitialized storage variable will act as a reference to the first state variable, and can override a critical variable."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Uninitialized{
@@ -36,6 +38,7 @@ contract Uninitialized{
 ```
 Bob calls `func`. As a result, `owner` is overridden to `0`.
 """
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Initialize all storage variables."
 
@@ -91,9 +94,9 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
         self.results = []
         self.visited_all_paths = {}
 
-        for contract in self.slither.contracts:
+        for contract in self.compilation_unit.contracts:
             for function in contract.functions:
-                if function.is_implemented:
+                if function.is_implemented and function.entry_point:
                     uninitialized_storage_variables = [
                         v for v in function.local_variables if v.is_storage and v.uninitialized
                     ]

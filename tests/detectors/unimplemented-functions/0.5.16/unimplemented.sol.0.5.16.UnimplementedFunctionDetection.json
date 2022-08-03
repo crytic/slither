@@ -1,0 +1,198 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "DerivedContract_bad0",
+                    "source_mapping": {
+                        "start": 185,
+                        "length": 133,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "f2",
+                    "source_mapping": {
+                        "start": 72,
+                        "length": 37,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 42
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BaseInterface",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 111,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "f2()"
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "f3",
+                    "source_mapping": {
+                        "start": 144,
+                        "length": 37,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 42
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BaseInterface2",
+                            "source_mapping": {
+                                "start": 113,
+                                "length": 70,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "f3()"
+                    }
+                }
+            ],
+            "description": "DerivedContract_bad0 (tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#10-14) does not implement functions:\n\t- BaseInterface.f2() (tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#3)\n\t- BaseInterface2.f3() (tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#7)\n",
+            "markdown": "[DerivedContract_bad0](tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#L10-L14) does not implement functions:\n\t- [BaseInterface.f2()](tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#L3)\n\t- [BaseInterface2.f3()](tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#L7)\n",
+            "first_markdown_element": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#L10-L14",
+            "id": "8614d351f7aac0c05e8df6ef7c89c6b46a2b8acf6295c9d5a886ff6489c74a41",
+            "check": "unimplemented-functions",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "AbstractContract_bad1",
+                    "source_mapping": {
+                        "start": 320,
+                        "length": 143,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "f1",
+                    "source_mapping": {
+                        "start": 357,
+                        "length": 37,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            17
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 42
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "AbstractContract_bad1",
+                            "source_mapping": {
+                                "start": 320,
+                                "length": 143,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "f1()"
+                    }
+                }
+            ],
+            "description": "AbstractContract_bad1 (tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#16-21) does not implement functions:\n\t- AbstractContract_bad1.f1() (tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#17)\n",
+            "markdown": "[AbstractContract_bad1](tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#L16-L21) does not implement functions:\n\t- [AbstractContract_bad1.f1()](tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#L17)\n",
+            "first_markdown_element": "tests/detectors/unimplemented-functions/0.5.16/unimplemented.sol#L16-L21",
+            "id": "adc202df4717efc4e19b549c0e623a79fac759a36bffb5d5e4aac401e33375d7",
+            "check": "unimplemented-functions",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

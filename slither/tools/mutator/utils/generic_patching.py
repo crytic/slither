@@ -17,7 +17,7 @@ def remove_assignement(variable: Variable, contract: Contract, result: Dict):
     # Retrieve the file
     in_file = contract.source_mapping["filename_absolute"]
     # Retrieve the source code
-    in_file_str = contract.slither.source_code[in_file]
+    in_file_str = contract.compilation_unit.core.source_code[in_file]
 
     # Get the string
     start = variable.source_mapping["start"]

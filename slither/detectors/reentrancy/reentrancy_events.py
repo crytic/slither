@@ -24,9 +24,14 @@ class ReentrancyEvent(Reentrancy):
     )
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
 Only report reentrancies leading to out-of-order events."""
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     function bug(Called d){
@@ -37,6 +42,7 @@ Only report reentrancies leading to out-of-order events."""
 ```
 
 If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, which might lead to issues for third parties."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
 
@@ -61,7 +67,11 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                             send_eth=to_hashable(node.context[self.KEY].send_eth),
                         )
                         finding_vars = {
-                            FindingValue(e, e.node, tuple(sorted(nodes, key=lambda x: x.node_id)),)
+                            FindingValue(
+                                e,
+                                e.node,
+                                tuple(sorted(nodes, key=lambda x: x.node_id)),
+                            )
                             for (e, nodes) in node.context[self.KEY].events.items()
                         }
                         if finding_vars:
@@ -115,7 +125,8 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         res.add(
-                            call_list_info, {"underlying_type": "external_calls_sending_eth"},
+                            call_list_info,
+                            {"underlying_type": "external_calls_sending_eth"},
                         )
 
             #
@@ -127,7 +138,8 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             res.add(
-                                call_list_info, {"underlying_type": "external_calls_sending_eth"},
+                                call_list_info,
+                                {"underlying_type": "external_calls_sending_eth"},
                             )
 
             for finding_value in events:

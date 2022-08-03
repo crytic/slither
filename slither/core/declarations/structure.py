@@ -1,20 +1,21 @@
-from typing import List, TYPE_CHECKING, Dict
+from typing import List, TYPE_CHECKING, Dict, Optional
 
-from slither.core.children.child_contract import ChildContract
 from slither.core.source_mapping.source_mapping import SourceMapping
 
 if TYPE_CHECKING:
     from slither.core.variables.structure_variable import StructureVariable
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 
-class Structure(ChildContract, SourceMapping):
-    def __init__(self):
+class Structure(SourceMapping):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit"):
         super().__init__()
-        self._name = None
+        self._name: Optional[str] = None
         self._canonical_name = None
-        self._elems: Dict[str, "StructureVariable"] = dict()
+        self._elems: Dict[str, "StructureVariable"] = {}
         # Name of the elements in the order of declaration
         self._elems_ordered: List[str] = []
+        self.compilation_unit = compilation_unit
 
     @property
     def canonical_name(self) -> str:
@@ -38,14 +39,6 @@ class Structure(ChildContract, SourceMapping):
 
     def add_elem_in_order(self, s: str):
         self._elems_ordered.append(s)
-
-    def is_declared_by(self, contract):
-        """
-        Check if the element is declared by the contract
-        :param contract:
-        :return:
-        """
-        return self.contract == contract
 
     @property
     def elems_ordered(self) -> List["StructureVariable"]:

@@ -21,6 +21,10 @@ class UserDefinedType(Type):
         self._type = t
 
     @property
+    def is_dynamic(self) -> bool:
+        return False
+
+    @property
     def type(self) -> Union["Contract", "Enum", "Structure"]:
         return self._type
 
@@ -59,12 +63,13 @@ class UserDefinedType(Type):
         raise SlitherException(to_log)
 
     def __str__(self):
-        from slither.core.declarations.structure import Structure
-        from slither.core.declarations.enum import Enum
+        from slither.core.declarations.structure_contract import StructureContract
+        from slither.core.declarations.enum_contract import EnumContract
 
-        if isinstance(self.type, (Enum, Structure)):
-            return str(self.type.contract) + "." + str(self.type.name)
-        return str(self.type.name)
+        type_used = self.type
+        if isinstance(type_used, (EnumContract, StructureContract)):
+            return str(type_used.contract) + "." + str(type_used.name)
+        return str(type_used.name)
 
     def __eq__(self, other):
         if not isinstance(other, UserDefinedType):

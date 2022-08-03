@@ -54,7 +54,10 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--version", help="displays the current version", version="0.0", action="version",
+        "--version",
+        help="displays the current version",
+        version="0.0",
+        action="version",
     )
 
     cryticparser.init(parser)
@@ -92,7 +95,7 @@ def main():
     elif mode == "plot":
         plot(args)
     else:
-        to_log = "Invalid mode!. It should be one of these: %s" % ", ".join(modes)
+        to_log = f"Invalid mode!. It should be one of these: {', '.join(modes)}"
         logger.error(to_log)
         sys.exit(-1)
 

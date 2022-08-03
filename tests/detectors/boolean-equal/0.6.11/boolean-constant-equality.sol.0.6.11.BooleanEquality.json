@@ -1,0 +1,171 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad1",
+                    "source_mapping": {
+                        "start": 139,
+                        "length": 84,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7,
+                            8,
+                            9
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "MyConc",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 578,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "bad1(bool)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "(b == true)",
+                    "source_mapping": {
+                        "start": 198,
+                        "length": 18,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 27
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad1",
+                            "source_mapping": {
+                                "start": 139,
+                                "length": 84,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "MyConc",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 578,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "bad1(bool)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "MyConc.bad1(bool) (tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol#7-9) compares to a boolean constant:\n\t-(b == true) (tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol#8)\n",
+            "markdown": "[MyConc.bad1(bool)](tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol#L7-L9) compares to a boolean constant:\n\t-[(b == true)](tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol#L8)\n",
+            "first_markdown_element": "tests/detectors/boolean-equal/0.6.11/boolean-constant-equality.sol#L7-L9",
+            "id": "0f863694c7b456673256b0f8002c9ac9f050b89b9ec3c86936c6399b3eb4b2e1",
+            "check": "boolean-equal",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

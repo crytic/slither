@@ -1,21 +1,30 @@
 """
     Event module
 """
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, Union
 
 from slither.core.cfg.node import NodeType
 from slither.core.cfg.node import link_nodes
+from slither.core.cfg.scope import Scope
 from slither.core.declarations.modifier import Modifier
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+    from slither.core.declarations import Function
 
 
 class ModifierSolc(FunctionSolc):
-    def __init__(self, modifier: Modifier, function_data: Dict, contract_parser: "ContractSolc"):
-        super().__init__(modifier, function_data, contract_parser)
+    def __init__(
+        self,
+        modifier: Modifier,
+        function_data: Dict,
+        contract_parser: "ContractSolc",
+        slither_parser: "SlitherCompilationUnitSolc",
+    ):
+        super().__init__(modifier, function_data, contract_parser, slither_parser)
         # _modifier is equal to _function, but keep it here to prevent
         # confusion for mypy in underlying_function
         self._modifier = modifier
@@ -37,7 +46,11 @@ class ModifierSolc(FunctionSolc):
             params = self._functionNotParsed["parameters"]
         else:
             children = self._functionNotParsed["children"]
-            params = children[0]
+            # It uses to be
+            # params = children[0]
+            # But from Solidity 0.6.3 to 0.6.10 (included)
+            # Comment above a function might be added in the children
+            params = next(child for child in children if child[self.get_key()] == "ParameterList")
 
         if params:
             self._parse_params(params)
@@ -60,9 +73,11 @@ class ModifierSolc(FunctionSolc):
 
             self._function.is_implemented = False
             if len(children) > 1:
-                assert len(children) == 2
-                block = children[1]
-                assert block["name"] == "Block"
+                # It uses to be
+                # params = children[1]
+                # But from Solidity 0.6.3 to 0.6.10 (included)
+                # Comment above a function might be added in the children
+                block = next(child for child in children if child[self.get_key()] == "Block")
                 self._function.is_implemented = True
                 self._parse_cfg(block)
 
@@ -78,10 +93,12 @@ class ModifierSolc(FunctionSolc):
         # self._analyze_read_write()
         # self._analyze_calls()
 
-    def _parse_statement(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_statement(
+        self, statement: Dict, node: NodeSolc, scope: Union[Scope, "Function"]
+    ) -> NodeSolc:
         name = statement[self.get_key()]
         if name == "PlaceholderStatement":
-            placeholder_node = self._new_node(NodeType.PLACEHOLDER, statement["src"])
+            placeholder_node = self._new_node(NodeType.PLACEHOLDER, statement["src"], scope)
             link_nodes(node.underlying_node, placeholder_node.underlying_node)
             return placeholder_node
-        return super()._parse_statement(statement, node)
+        return super()._parse_statement(statement, node, scope)

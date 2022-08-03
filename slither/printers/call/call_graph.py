@@ -33,21 +33,39 @@ def _edge(from_node, to_node):
 
 # return dot language string to add graph node (with optional label)
 def _node(node, label=None):
-    return " ".join((f'"{node}"', f'[label="{label}"]' if label is not None else "",))
+    return " ".join(
+        (
+            f'"{node}"',
+            f'[label="{label}"]' if label is not None else "",
+        )
+    )
 
 
 # pylint: disable=too-many-arguments
 def _process_internal_call(
-    contract, function, internal_call, contract_calls, solidity_functions, solidity_calls,
+    contract,
+    function,
+    internal_call,
+    contract_calls,
+    solidity_functions,
+    solidity_calls,
 ):
     if isinstance(internal_call, (Function)):
         contract_calls[contract].add(
-            _edge(_function_node(contract, function), _function_node(contract, internal_call),)
+            _edge(
+                _function_node(contract, function),
+                _function_node(contract, internal_call),
+            )
         )
     elif isinstance(internal_call, (SolidityFunction)):
-        solidity_functions.add(_node(_solidity_function_node(internal_call)),)
+        solidity_functions.add(
+            _node(_solidity_function_node(internal_call)),
+        )
         solidity_calls.add(
-            _edge(_function_node(contract, function), _solidity_function_node(internal_call),)
+            _edge(
+                _function_node(contract, function),
+                _solidity_function_node(internal_call),
+            )
         )
 
 
@@ -84,7 +102,12 @@ def _render_solidity_calls(solidity_functions, solidity_calls):
 
 
 def _process_external_call(
-    contract, function, external_call, contract_functions, external_calls, all_contracts,
+    contract,
+    function,
+    external_call,
+    contract_functions,
+    external_calls,
+    all_contracts,
 ):
     external_contract, external_function = external_call
 
@@ -94,7 +117,10 @@ def _process_external_call(
     # add variable as node to respective contract
     if isinstance(external_function, (Variable)):
         contract_functions[external_contract].add(
-            _node(_function_node(external_contract, external_function), external_function.name,)
+            _node(
+                _function_node(external_contract, external_function),
+                external_function.name,
+            )
         )
 
     external_calls.add(
@@ -116,15 +142,27 @@ def _process_function(
     external_calls,
     all_contracts,
 ):
-    contract_functions[contract].add(_node(_function_node(contract, function), function.name),)
+    contract_functions[contract].add(
+        _node(_function_node(contract, function), function.name),
+    )
 
     for internal_call in function.internal_calls:
         _process_internal_call(
-            contract, function, internal_call, contract_calls, solidity_functions, solidity_calls,
+            contract,
+            function,
+            internal_call,
+            contract_calls,
+            solidity_functions,
+            solidity_calls,
         )
     for external_call in function.high_level_calls:
         _process_external_call(
-            contract, function, external_call, contract_functions, external_calls, all_contracts,
+            contract,
+            function,
+            external_call,
+            contract_functions,
+            external_calls,
+            all_contracts,
         )
 
 
@@ -178,29 +216,45 @@ class PrinterCallGraph(AbstractPrinter):
             filename(string)
         """
 
+        all_contracts_filename = ""
         if not filename.endswith(".dot"):
-            filename += ".dot"
+            if filename in ("", "."):
+                filename = ""
+            else:
+                filename += "."
+            all_contracts_filename = f"{filename}all_contracts.call-graph.dot"
+
         if filename == ".dot":
-            filename = "all_contracts.dot"
+            all_contracts_filename = "all_contracts.dot"
 
         info = ""
         results = []
-        with open(filename, "w", encoding="utf8") as f:
-            info += f"Call Graph: {filename}\n"
+        with open(all_contracts_filename, "w", encoding="utf8") as f:
+            info += f"Call Graph: {all_contracts_filename}\n"
+
+            # Avoid duplicate functions due to different compilation unit
+            all_functionss = [
+                compilation_unit.functions for compilation_unit in self.slither.compilation_units
+            ]
+            all_functions = [item for sublist in all_functionss for item in sublist]
+            all_functions_as_dict = {
+                function.canonical_name: function for function in all_functions
+            }
             content = "\n".join(
-                ["strict digraph {"] + [_process_functions(self.slither.functions)] + ["}"]
+                ["strict digraph {"] + [_process_functions(all_functions_as_dict.values())] + ["}"]
             )
             f.write(content)
-            results.append((filename, content))
+            results.append((all_contracts_filename, content))
 
         for derived_contract in self.slither.contracts_derived:
-            with open(f"{derived_contract.name}.dot", "w", encoding="utf8") as f:
-                info += f"Call Graph: {derived_contract.name}.dot\n"
+            derived_output_filename = f"{filename}{derived_contract.name}.call-graph.dot"
+            with open(derived_output_filename, "w", encoding="utf8") as f:
+                info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
                     ["strict digraph {"] + [_process_functions(derived_contract.functions)] + ["}"]
                 )
                 f.write(content)
-                results.append((filename, content))
+                results.append((derived_output_filename, content))
 
         self.info(info)
         res = self.generate_output(info)

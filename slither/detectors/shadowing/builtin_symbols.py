@@ -19,6 +19,8 @@ class BuiltinSymbolShadowing(AbstractDetector):
 
     WIKI_TITLE = "Builtin Symbol Shadowing"
     WIKI_DESCRIPTION = "Detection of shadowing built-in symbols using local variables, state variables, functions, modifiers, or events."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 pragma solidity ^0.4.24;
@@ -36,6 +38,7 @@ contract Bug {
 }
 ```
 `now` is defined as a state variable, and shadows with the built-in symbol `now`. The function `assert` overshadows the built-in `assert` function. Any use of either of these built-in symbols may lead to unexpected results."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Rename the local variables, state variables, functions, modifiers, and events that shadow a builtin symbol."
 

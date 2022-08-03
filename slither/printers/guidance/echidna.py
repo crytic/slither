@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from typing import Dict, List, Set, Tuple, NamedTuple
+from typing import Dict, List, Set, Tuple, NamedTuple, Union
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
@@ -27,19 +27,16 @@ from slither.slithir.operations import (
     InternalDynamicCall,
     InternalCall,
     TypeConversion,
-    Balance,
 )
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
 
 
-def _get_name(f: Function) -> str:
-   
-    if 'StateVariable' in str(type(f)):
-       return "()" 
-    if f.is_fallback or f.is_receive:
-       return "()"
-
+def _get_name(f: Union[Function, Variable]) -> str:
+    # Return the name of the function or variable
+    if isinstance(f, Function):
+        if f.is_fallback or f.is_receive:
+            return "()"
     return f.solidity_signature
 
 
@@ -80,9 +77,8 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
     :return:
     """
     if f.view or f.pure:
-        if f.contract.slither.crytic_compile and f.contract.slither.crytic_compile.compiler_version:
-            if not f.contract.slither.crytic_compile.compiler_version.version.startswith("0.4"):
-                return True
+        if not f.contract.compilation_unit.solc_version.startswith("0.4"):
+            return True
     if f.payable:
         return False
     if not f.is_implemented:
@@ -104,12 +100,8 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
         if isinstance(ir, HighLevelCall):
             if isinstance(ir.function, Variable) or ir.function.view or ir.function.pure:
                 # External call to constant functions are ensured to be constant only for solidity >= 0.5
-                if (
-                    f.contract.slither.crytic_compile
-                    and f.contract.slither.crytic_compile.compiler_version
-                ):
-                    if f.contract.slither.crytic_compile.compiler_version.version.startswith("0.4"):
-                        return False
+                if f.contract.compilation_unit.solc_version.startswith("0.4"):
+                    return False
             else:
                 return False
         if isinstance(ir, InternalCall):
@@ -124,7 +116,7 @@ def _extract_constant_functions(slither: SlitherCore) -> Dict[str, List[str]]:
     for contract in slither.contracts:
         cst_functions = [_get_name(f) for f in contract.functions_entry_points if _is_constant(f)]
         cst_functions += [
-            v.function_name for v in contract.state_variables if v.visibility in ["public"]
+            v.solidity_signature for v in contract.state_variables if v.visibility in ["public"]
         ]
         if cst_functions:
             ret[contract.name] = cst_functions
@@ -294,10 +286,30 @@ def _use_balance(slither: SlitherCore) -> Dict[str, List[str]]:
     for contract in slither.contracts:
         for function in contract.functions_entry_points:
             for ir in function.all_slithir_operations():
-                if isinstance(ir, Balance):
+                if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
+                    "balance(address)"
+                ):
                     ret[contract.name].append(_get_name(function))
         if contract.name in ret:
             ret[contract.name] = list(set(ret[contract.name]))
+    return ret
+
+
+def _with_fallback(slither: SlitherCore) -> Set[str]:
+    ret: Set[str] = set()
+    for contract in slither.contracts:
+        for function in contract.functions_entry_points:
+            if function.is_fallback:
+                ret.add(contract.name)
+    return ret
+
+
+def _with_receive(slither: SlitherCore) -> Set[str]:
+    ret: Set[str] = set()
+    for contract in slither.contracts:
+        for function in contract.functions_entry_points:
+            if function.is_receive:
+                ret.add(contract.name)
     return ret
 
 
@@ -381,6 +393,10 @@ class Echidna(AbstractPrinter):
 
         use_balance = _use_balance(self.slither)
 
+        with_fallback = list(_with_fallback(self.slither))
+
+        with_receive = list(_with_receive(self.slither))
+
         d = {
             "payable": payable,
             "timestamp": timestamp,
@@ -396,6 +412,9 @@ class Echidna(AbstractPrinter):
             "have_external_calls": external_calls,
             "call_a_parameter": call_parameters,
             "use_balance": use_balance,
+            "solc_versions": [unit.solc_version for unit in self.slither.compilation_units],
+            "with_fallback": with_fallback,
+            "with_receive": with_receive,
         }
 
         self.info(json.dumps(d, indent=4))

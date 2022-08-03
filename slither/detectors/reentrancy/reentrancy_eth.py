@@ -25,9 +25,14 @@ class ReentrancyEth(Reentrancy):
     )
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
 Do not report reentrancies that don't involve Ether (see `reentrancy-no-eth`)"""
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     function withdrawBalance(){
@@ -41,6 +46,7 @@ Do not report reentrancies that don't involve Ether (see `reentrancy-no-eth`)"""
 ```
 
 Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw more than its initial deposit to the contract."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions pattern`](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
 
@@ -63,7 +69,9 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                                 continue
                             read_then_written |= {
                                 FindingValue(
-                                    v, node, tuple(sorted(nodes, key=lambda x: x.node_id)),
+                                    v,
+                                    node,
+                                    tuple(sorted(nodes, key=lambda x: x.node_id)),
                                 )
                                 for (v, nodes) in node.context[self.KEY].written.items()
                                 if v in node.context[self.KEY].reads_prior_calls[c]
@@ -128,7 +136,8 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         res.add(
-                            call_list_info, {"underlying_type": "external_calls_sending_eth"},
+                            call_list_info,
+                            {"underlying_type": "external_calls_sending_eth"},
                         )
 
             # If the calls are not the same ones that send eth, add the eth sending nodes.
@@ -138,7 +147,8 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             res.add(
-                                call_list_info, {"underlying_type": "external_calls_sending_eth"},
+                                call_list_info,
+                                {"underlying_type": "external_calls_sending_eth"},
                             )
 
             # Add all variables written via nodes which write them.

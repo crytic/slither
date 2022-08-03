@@ -20,7 +20,7 @@ from slither.tools.upgradeability.utils.command_line import (
 )
 
 logging.basicConfig()
-logger = logging.getLogger("Slither")
+logger: logging.Logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
 
@@ -57,7 +57,10 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--markdown-root", help="URL for markdown generation", action="store", default="",
+        "--markdown-root",
+        help="URL for markdown generation",
+        action="store",
+        default="",
     )
 
     parser.add_argument(
@@ -182,13 +185,14 @@ def main():
 
         # Analyze logic contract
         v1_name = args.ContractName
-        v1_contract = variable1.get_contract_from_name(v1_name)
-        if v1_contract is None:
-            info = "Contract {} not found in {}".format(v1_name, variable1.filename)
+        v1_contracts = variable1.get_contract_from_name(v1_name)
+        if len(v1_contracts) != 1:
+            info = f"Contract {v1_name} not found in {variable1.filename}"
             logger.error(red(info))
             if args.json:
                 output_to_json(args.json, str(info), json_results)
             return
+        v1_contract = v1_contracts[0]
 
         detectors_results, number_detectors = _checks_on_contract(detectors, v1_contract)
         json_results["detectors"] += detectors_results
@@ -202,13 +206,14 @@ def main():
             else:
                 proxy = variable1
 
-            proxy_contract = proxy.get_contract_from_name(args.proxy_name)
-            if proxy_contract is None:
-                info = "Proxy {} not found in {}".format(args.proxy_name, proxy.filename)
+            proxy_contracts = proxy.get_contract_from_name(args.proxy_name)
+            if len(proxy_contracts) != 1:
+                info = f"Proxy {args.proxy_name} not found in {proxy.filename}"
                 logger.error(red(info))
                 if args.json:
                     output_to_json(args.json, str(info), json_results)
                 return
+            proxy_contract = proxy_contracts[0]
             json_results["proxy-present"] = True
 
             detectors_results, number_detectors = _checks_on_contract_and_proxy(
@@ -223,15 +228,16 @@ def main():
             else:
                 variable2 = variable1
 
-            v2_contract = variable2.get_contract_from_name(args.new_contract_name)
-            if v2_contract is None:
-                info = "New logic contract {} not found in {}".format(
-                    args.new_contract_name, variable2.filename
+            v2_contracts = variable2.get_contract_from_name(args.new_contract_name)
+            if len(v2_contracts) != 1:
+                info = (
+                    f"New logic contract {args.new_contract_name} not found in {variable2.filename}"
                 )
                 logger.error(red(info))
                 if args.json:
                     output_to_json(args.json, str(info), json_results)
                 return
+            v2_contract = v2_contracts[0]
             json_results["contract_v2-present"] = True
 
             if proxy_contract:

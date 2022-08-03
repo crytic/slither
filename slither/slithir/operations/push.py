@@ -24,4 +24,4 @@ class Push(OperationWithLValue):
         return self._value
 
     def __str__(self):
-        return "PUSH {} in {}".format(self.value, self.lvalue)
+        return f"PUSH {self.value} in {self.lvalue}"

@@ -28,9 +28,14 @@ class ReentrancyNoGas(Reentrancy):
     )
 
     WIKI_TITLE = "Reentrancy vulnerabilities"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
 Only report reentrancy that is based on `transfer` or `send`."""
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
     function callme(){
@@ -40,6 +45,7 @@ Only report reentrancy that is based on `transfer` or `send`."""
 ```
 
 `send` and `transfer` do not protect from reentrancies in case of gas price changes."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
 
@@ -72,11 +78,19 @@ Only report reentrancy that is based on `transfer` or `send`."""
                             send_eth=to_hashable(node.context[self.KEY].send_eth),
                         )
                         finding_vars = {
-                            FindingValue(v, node, tuple(sorted(nodes, key=lambda x: x.node_id)),)
+                            FindingValue(
+                                v,
+                                node,
+                                tuple(sorted(nodes, key=lambda x: x.node_id)),
+                            )
                             for (v, nodes) in node.context[self.KEY].written.items()
                         }
                         finding_vars |= {
-                            FindingValue(e, e.node, tuple(sorted(nodes, key=lambda x: x.node_id)),)
+                            FindingValue(
+                                e,
+                                e.node,
+                                tuple(sorted(nodes, key=lambda x: x.node_id)),
+                            )
                             for (e, nodes) in node.context[self.KEY].events.items()
                         }
                         if finding_vars:
@@ -151,7 +165,8 @@ Only report reentrancy that is based on `transfer` or `send`."""
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         res.add(
-                            call_list_info, {"underlying_type": "external_calls_sending_eth"},
+                            call_list_info,
+                            {"underlying_type": "external_calls_sending_eth"},
                         )
 
             #
@@ -163,7 +178,8 @@ Only report reentrancy that is based on `transfer` or `send`."""
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             res.add(
-                                call_list_info, {"underlying_type": "external_calls_sending_eth"},
+                                call_list_info,
+                                {"underlying_type": "external_calls_sending_eth"},
                             )
 
             # Add all variables written via nodes which write them.

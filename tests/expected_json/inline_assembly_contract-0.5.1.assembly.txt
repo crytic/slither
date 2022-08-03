@@ -1,6 +1,0 @@
-[92m
-GetCode.at(address) (tests/inline_assembly_contract-0.5.1.sol#6-20) uses assembly
-	- INLINE ASM (tests/inline_assembly_contract-0.5.1.sol#7-20)
-Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage[0m
-tests/inline_assembly_contract-0.5.1.sol analyzed (1 contracts with 1 detectors), 1 result(s) found
-[94mUse https://crytic.io/ to get access to additional detectors and Github integration[0m

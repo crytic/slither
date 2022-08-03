@@ -5,6 +5,7 @@ Module detecting unused return values from external calls
 from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import HighLevelCall
+from slither.core.declarations import Function
 
 
 class UnusedReturnValues(AbstractDetector):
@@ -23,6 +24,8 @@ class UnusedReturnValues(AbstractDetector):
     WIKI_DESCRIPTION = (
         "The return value of an external call is not stored in a local or state variable."
     )
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyConc{
@@ -33,13 +36,19 @@ contract MyConc{
 }
 ```
 `MyConc` calls `add` of `SafeMath`, but does not store the result in `a`. As a result, the computation has no effect."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Ensure that all the return values of the function calls are used."
 
-    _txt_description = "external calls"
-
     def _is_instance(self, ir):  # pylint: disable=no-self-use
-        return isinstance(ir, HighLevelCall)
+        return isinstance(ir, HighLevelCall) and (
+            (
+                isinstance(ir.function, Function)
+                and ir.function.solidity_signature
+                not in ["transfer(address,uint256)", "transferFrom(address,address,uint256)"]
+            )
+            or not isinstance(ir.function, Function)
+        )
 
     def detect_unused_return_values(self, f):  # pylint: disable=no-self-use
         """
@@ -67,7 +76,7 @@ contract MyConc{
     def _detect(self):
         """Detect high level calls which return a value that are never used"""
         results = []
-        for c in self.slither.contracts:
+        for c in self.compilation_unit.contracts:
             for f in c.functions + c.modifiers:
                 if f.contract_declarer != c:
                     continue

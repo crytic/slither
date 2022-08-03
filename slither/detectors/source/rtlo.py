@@ -1,7 +1,7 @@
 import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
-
+# pylint: disable=bidirectional-unicode
 class RightToLeftOverride(AbstractDetector):
     """
     Detect the usage of a Right-To-Left-Override (U+202E) character
@@ -15,6 +15,8 @@ class RightToLeftOverride(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#right-to-left-override-character"
     WIKI_TITLE = "Right-to-Left-Override character"
     WIKI_DESCRIPTION = "An attacker can manipulate the logic of the contract by using a right-to-left-override character (`U+202E)`."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Token
@@ -43,6 +45,8 @@ contract Token
 `Token` uses the right-to-left-override character when calling `_withdraw`. As a result, the fee is incorrectly sent to `msg.sender`, and the token balance is sent to the owner.
 
 """
+    # endregion wiki_exploit_scenario
+
     WIKI_RECOMMENDATION = "Special control characters must not be allowed."
 
     RTLO_CHARACTER_ENCODED = "\u202e".encode("utf-8")
@@ -79,11 +83,11 @@ contract Token
                 res.add_other(
                     "rtlo-character",
                     (filename, idx, len(self.RTLO_CHARACTER_ENCODED)),
-                    self.slither,
+                    self.compilation_unit,
                 )
                 results.append(res)
 
                 # Advance the start index for the next iteration
-                start_index = result_index + 1
+                start_index = idx + 1
 
         return results

@@ -1,16 +1,22 @@
+from typing import Union, Tuple, List, Optional
 from slither.core.declarations import Modifier
 from slither.core.declarations.function import Function
+from slither.core.declarations.function_contract import FunctionContract
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 
 
 class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, function, nbr_arguments, result, type_call):
+    def __init__(
+        self, function: Union[Function, Tuple[str, str]], nbr_arguments, result, type_call
+    ):
         super().__init__()
+        self._contract_name = ""
         if isinstance(function, Function):
             self._function = function
             self._function_name = function.name
-            self._contract_name = function.contract_declarer.name
+            if isinstance(function, FunctionContract):
+                self._contract_name = function.contract_declarer.name
         else:
             self._function = None
             self._function_name, self._contract_name = function
@@ -18,6 +24,10 @@ class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
         self._lvalue = result
+        # function_candidates is only used as an helper to retrieve the "function" object
+        # For top level function called through a import renamed
+        # See SolidityImportPlaceHolder usages
+        self.function_candidates: Optional[List[Function]] = None
 
     @property
     def read(self):
@@ -60,9 +70,9 @@ class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         if not self.lvalue:
             lvalue = ""
         elif isinstance(self.lvalue.type, (list,)):
-            lvalue = "{}({}) = ".format(self.lvalue, ",".join(str(x) for x in self.lvalue.type))
+            lvalue = f"{self.lvalue}({','.join(str(x) for x in self.lvalue.type)}) = "
         else:
-            lvalue = "{}({}) = ".format(self.lvalue, self.lvalue.type)
+            lvalue = f"{self.lvalue}({self.lvalue.type}) = "
         if self.is_modifier_call:
             txt = "{}MODIFIER_CALL, {}({})"
         else:

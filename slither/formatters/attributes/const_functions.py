@@ -1,36 +1,41 @@
 import re
+
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.exceptions import FormatError
 from slither.formatters.utils.patches import create_patch
 
 
-def custom_format(slither, result):
-    elements = result["elements"]
-    for element in elements:
-        if element["type"] != "function":
-            # Skip variable elements
-            continue
-        target_contract = slither.get_contract_from_name(
-            element["type_specific_fields"]["parent"]["name"]
-        )
-        if target_contract:
-            function = target_contract.get_function_from_signature(
-                element["type_specific_fields"]["signature"]
+def custom_format(compilation_unit: SlitherCompilationUnit, result):
+    for file_scope in compilation_unit.scopes.values():
+        elements = result["elements"]
+        for element in elements:
+            if element["type"] != "function":
+                # Skip variable elements
+                continue
+            target_contract = file_scope.get_contract_from_name(
+                element["type_specific_fields"]["parent"]["name"]
             )
-            if function:
-                _patch(
-                    slither,
-                    result,
-                    element["source_mapping"]["filename_absolute"],
-                    int(
-                        function.parameters_src.source_mapping["start"]
-                        + function.parameters_src.source_mapping["length"]
-                    ),
-                    int(function.returns_src.source_mapping["start"]),
+            if target_contract:
+                function = target_contract.get_function_from_full_name(
+                    element["type_specific_fields"]["signature"]
                 )
+                if function:
+                    _patch(
+                        compilation_unit,
+                        result,
+                        element["source_mapping"]["filename_absolute"],
+                        int(
+                            function.parameters_src().source_mapping["start"]
+                            + function.parameters_src().source_mapping["length"]
+                        ),
+                        int(function.returns_src().source_mapping["start"]),
+                    )
 
 
-def _patch(slither, result, in_file, modify_loc_start, modify_loc_end):
-    in_file_str = slither.source_code[in_file].encode("utf8")
+def _patch(
+    compilation_unit: SlitherCompilationUnit, result, in_file, modify_loc_start, modify_loc_end
+):
+    in_file_str = compilation_unit.core.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Find the keywords view|pure|constant and remove them
     m = re.search("(view|pure|constant)", old_str_of_interest.decode("utf-8"))

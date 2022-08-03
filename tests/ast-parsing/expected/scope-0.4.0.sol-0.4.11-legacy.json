@@ -1,0 +1,8 @@
+{
+  "Scope": {
+    "nested_scope()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: NEW VARIABLE 1\n\"];\n1->2;\n2[label=\"Node Type: NEW VARIABLE 2\n\"];\n2->3;\n3[label=\"Node Type: NEW VARIABLE 3\n\"];\n}\n",
+    "if_scope()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: IF 1\n\"];\n1->2[label=\"True\"];\n1->3[label=\"False\"];\n2[label=\"Node Type: NEW VARIABLE 2\n\"];\n2->4;\n3[label=\"Node Type: NEW VARIABLE 3\n\"];\n3->4;\n4[label=\"Node Type: END_IF 4\n\"];\n}\n",
+    "while_scope()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: NEW VARIABLE 1\n\"];\n1->2;\n2[label=\"Node Type: BEGIN_LOOP 2\n\"];\n2->3;\n3[label=\"Node Type: IF_LOOP 3\n\"];\n3->4[label=\"True\"];\n3->5[label=\"False\"];\n4[label=\"Node Type: NEW VARIABLE 4\n\"];\n4->3;\n5[label=\"Node Type: END_LOOP 5\n\"];\n}\n",
+    "for_scope()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: NEW VARIABLE 1\n\"];\n1->4;\n2[label=\"Node Type: BEGIN_LOOP 2\n\"];\n2->5;\n3[label=\"Node Type: END_LOOP 3\n\"];\n4[label=\"Node Type: NEW VARIABLE 4\n\"];\n4->2;\n5[label=\"Node Type: IF_LOOP 5\n\"];\n5->6[label=\"True\"];\n5->3[label=\"False\"];\n6[label=\"Node Type: NEW VARIABLE 6\n\"];\n6->7;\n7[label=\"Node Type: EXPRESSION 7\n\"];\n7->5;\n}\n"
+  }
+}

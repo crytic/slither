@@ -36,7 +36,7 @@ class FunctionSummary(AbstractPrinter):
             if c.is_top_level:
                 continue
             (name, inheritance, var, func_summaries, modif_summaries) = c.get_summary()
-            txt = "\nContract %s" % name
+            txt = f"\nContract {name}"
             txt += "\nContract vars: " + str(var)
             txt += "\nInheritance:: " + str(inheritance)
             table = MyPrettyTable(
@@ -65,11 +65,26 @@ class FunctionSummary(AbstractPrinter):
                 internal_calls = self._convert(internal_calls)
                 external_calls = self._convert(external_calls)
                 table.add_row(
-                    [f_name, visi, modifiers, read, write, internal_calls, external_calls,]
+                    [
+                        f_name,
+                        visi,
+                        modifiers,
+                        read,
+                        write,
+                        internal_calls,
+                        external_calls,
+                    ]
                 )
             txt += "\n \n" + str(table)
             table = MyPrettyTable(
-                ["Modifiers", "Visibility", "Read", "Write", "Internal Calls", "External Calls",]
+                [
+                    "Modifiers",
+                    "Visibility",
+                    "Read",
+                    "Write",
+                    "Internal Calls",
+                    "External Calls",
+                ]
             )
             for (
                 _c_name,

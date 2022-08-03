@@ -1,4 +1,5 @@
-from slither.core.expressions import BinaryOperationType, Literal
+from slither.core.expressions import BinaryOperationType, Literal, UnaryOperationType
+from slither.utils.integer_conversion import convert_string_to_int
 from slither.visitors.expression.expression import ExpressionVisitor
 
 
@@ -36,13 +37,13 @@ class ConstantFolding(ExpressionVisitor):
         if not isinstance(expr, Literal):
             cf = ConstantFolding(expr, self._type)
             expr = cf.result()
-        set_val(expression, int(expr.value))
+        set_val(expression, convert_string_to_int(expr.value))
 
     def _post_binary_operation(self, expression):
         left = get_val(expression.expression_left)
         right = get_val(expression.expression_right)
         if expression.type == BinaryOperationType.POWER:
-            set_val(expression, left ** right)
+            set_val(expression, left**right)
         elif expression.type == BinaryOperationType.MULTIPLICATION:
             set_val(expression, left * right)
         elif expression.type == BinaryOperationType.DIVISION:
@@ -64,7 +65,16 @@ class ConstantFolding(ExpressionVisitor):
             raise NotConstant
 
     def _post_unary_operation(self, expression):
-        raise NotConstant
+        # Case of uint a = -7; uint[-a] arr;
+        if expression.type == UnaryOperationType.MINUS_PRE:
+            expr = expression.expression
+            if not isinstance(expr, Literal):
+                cf = ConstantFolding(expr, self._type)
+                expr = cf.result()
+            assert isinstance(expr, Literal)
+            set_val(expression, int(expr.value))
+        else:
+            raise NotConstant
 
     def _post_literal(self, expression):
         if expression.value.isdigit():

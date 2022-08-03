@@ -1,0 +1,129 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "constructor",
+                    "source_mapping": {
+                        "start": 41,
+                        "length": 32,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/void-cst/0.6.11/void-cst.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/void-cst/0.6.11/void-cst.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "D",
+                            "source_mapping": {
+                                "start": 19,
+                                "length": 57,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/void-cst/0.6.11/void-cst.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/void-cst/0.6.11/void-cst.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "constructor()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "C()",
+                    "source_mapping": {
+                        "start": 62,
+                        "length": 3,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/void-cst/0.6.11/void-cst.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/void-cst/0.6.11/void-cst.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10
+                        ],
+                        "starting_column": 26,
+                        "ending_column": 29
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "constructor",
+                            "source_mapping": {
+                                "start": 41,
+                                "length": 32,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/void-cst/0.6.11/void-cst.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/void-cst/0.6.11/void-cst.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "D",
+                                    "source_mapping": {
+                                        "start": 19,
+                                        "length": 57,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/void-cst/0.6.11/void-cst.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/void-cst/0.6.11/void-cst.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "constructor()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Void constructor called in D.constructor() (tests/detectors/void-cst/0.6.11/void-cst.sol#10-12):\n\t- C() (tests/detectors/void-cst/0.6.11/void-cst.sol#10)\n",
+            "markdown": "Void constructor called in [D.constructor()](tests/detectors/void-cst/0.6.11/void-cst.sol#L10-L12):\n\t- [C()](tests/detectors/void-cst/0.6.11/void-cst.sol#L10)\n",
+            "first_markdown_element": "tests/detectors/void-cst/0.6.11/void-cst.sol#L10-L12",
+            "id": "ad3ebdf765f3b6e552dc65d3fd2e92ec13535139316d1063cd76bb521b265bd7",
+            "check": "void-cst",
+            "impact": "Low",
+            "confidence": "High"
+        }
+    ]
+]

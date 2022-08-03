@@ -1,0 +1,326 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bug0",
+                    "source_mapping": {
+                        "start": 130,
+                        "length": 66,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9,
+                            10,
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "TxOrigin",
+                            "source_mapping": {
+                                "start": 28,
+                                "length": 442,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bug0()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "require(bool)(tx.origin == owner)",
+                    "source_mapping": {
+                        "start": 162,
+                        "length": 27,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 36
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bug0",
+                            "source_mapping": {
+                                "start": 130,
+                                "length": 66,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    9,
+                                    10,
+                                    11
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "TxOrigin",
+                                    "source_mapping": {
+                                        "start": 28,
+                                        "length": 442,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bug0()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "TxOrigin.bug0() (tests/detectors/tx-origin/0.6.11/tx_origin.sol#9-11) uses tx.origin for authorization: require(bool)(tx.origin == owner) (tests/detectors/tx-origin/0.6.11/tx_origin.sol#10)\n",
+            "markdown": "[TxOrigin.bug0()](tests/detectors/tx-origin/0.6.11/tx_origin.sol#L9-L11) uses tx.origin for authorization: [require(bool)(tx.origin == owner)](tests/detectors/tx-origin/0.6.11/tx_origin.sol#L10)\n",
+            "first_markdown_element": "tests/detectors/tx-origin/0.6.11/tx_origin.sol#L9-L11",
+            "id": "5eb57935f1e4650e5340de788d03401c5f010c2bf5f0240254d2235bbe1b970b",
+            "check": "tx-origin",
+            "impact": "Medium",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bug2",
+                    "source_mapping": {
+                        "start": 202,
+                        "length": 95,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13,
+                            14,
+                            15,
+                            16,
+                            17
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "TxOrigin",
+                            "source_mapping": {
+                                "start": 28,
+                                "length": 442,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bug2()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "tx.origin != owner",
+                    "source_mapping": {
+                        "start": 238,
+                        "length": 18,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 31
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bug2",
+                            "source_mapping": {
+                                "start": 202,
+                                "length": 95,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "TxOrigin",
+                                    "source_mapping": {
+                                        "start": 28,
+                                        "length": 442,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/tx-origin/0.6.11/tx_origin.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bug2()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "TxOrigin.bug2() (tests/detectors/tx-origin/0.6.11/tx_origin.sol#13-17) uses tx.origin for authorization: tx.origin != owner (tests/detectors/tx-origin/0.6.11/tx_origin.sol#14)\n",
+            "markdown": "[TxOrigin.bug2()](tests/detectors/tx-origin/0.6.11/tx_origin.sol#L13-L17) uses tx.origin for authorization: [tx.origin != owner](tests/detectors/tx-origin/0.6.11/tx_origin.sol#L14)\n",
+            "first_markdown_element": "tests/detectors/tx-origin/0.6.11/tx_origin.sol#L13-L17",
+            "id": "817a27177f073d8ab4a011817ea1e6ebb8b7cba8691c8dea621ee65a77871ee0",
+            "check": "tx-origin",
+            "impact": "Medium",
+            "confidence": "Medium"
+        }
+    ]
+]

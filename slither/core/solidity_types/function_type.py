@@ -6,7 +6,9 @@ from slither.core.variables.function_type_variable import FunctionTypeVariable
 
 class FunctionType(Type):
     def __init__(
-        self, params: List[FunctionTypeVariable], return_values: List[FunctionTypeVariable],
+        self,
+        params: List[FunctionTypeVariable],
+        return_values: List[FunctionTypeVariable],
     ):
         assert all(isinstance(x, FunctionTypeVariable) for x in params)
         assert all(isinstance(x, FunctionTypeVariable) for x in return_values)
@@ -30,14 +32,18 @@ class FunctionType(Type):
     def storage_size(self) -> Tuple[int, bool]:
         return 24, False
 
+    @property
+    def is_dynamic(self) -> bool:
+        return False
+
     def __str__(self):
         # Use x.type
         # x.name may be empty
         params = ",".join([str(x.type) for x in self._params])
         return_values = ",".join([str(x.type) for x in self._return_values])
         if return_values:
-            return "function({}) returns({})".format(params, return_values)
-        return "function({})".format(params)
+            return f"function({params}) returns({return_values})"
+        return f"function({params})"
 
     @property
     def parameters_signature(self) -> str:
@@ -47,7 +53,7 @@ class FunctionType(Type):
         # Use x.type
         # x.name may be empty
         params = ",".join([str(x.type) for x in self._params])
-        return "({})".format(params)
+        return f"({params})"
 
     @property
     def signature(self) -> str:
@@ -59,8 +65,8 @@ class FunctionType(Type):
         params = ",".join([str(x.type) for x in self._params])
         return_values = ",".join([str(x.type) for x in self._return_values])
         if return_values:
-            return "({}) returns({})".format(params, return_values)
-        return "({})".format(params)
+            return f"({params}) returns({return_values})"
+        return f"({params})"
 
     def __eq__(self, other):
         if not isinstance(other, FunctionType):

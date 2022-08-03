@@ -41,10 +41,17 @@ def parse_args():
         default=False,
     )
     parser.add_argument(
-        "--verbose-json", "-j", help="verbose json output", action="store_true", default=False,
+        "--verbose-json",
+        "-j",
+        help="verbose json output",
+        action="store_true",
+        default=False,
     )
     parser.add_argument(
-        "--version", help="displays the current version", version="0.1.0", action="version",
+        "--version",
+        help="displays the current version",
+        version="0.1.0",
+        action="version",
     )
 
     parser.add_argument(
@@ -59,7 +66,7 @@ def parse_args():
     group_detector.add_argument(
         "--detect",
         help="Comma-separated list of detectors, defaults to all, "
-        "available detectors: {}".format(", ".join(d for d in available_detectors)),
+        f"available detectors: {', '.join(d for d in available_detectors)}",
         action="store",
         dest="detectors_to_run",
         default="all",
@@ -68,7 +75,7 @@ def parse_args():
     group_detector.add_argument(
         "--exclude",
         help="Comma-separated list of detectors to exclude,"
-        "available detectors: {}".format(", ".join(d for d in available_detectors)),
+        "available detectors: {', '.join(d for d in available_detectors)}",
         action="store",
         dest="detectors_to_exclude",
         default="all",

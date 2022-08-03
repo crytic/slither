@@ -13,7 +13,7 @@ class IncorrectMutatorInitialization(Exception):
     pass
 
 
-class FaulClass(Enum):
+class FaultClass(Enum):
     Assignement = 0
     Checking = 1
     Interface = 2
@@ -31,7 +31,7 @@ class FaultNature(Enum):
 class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-methods
     NAME = ""
     HELP = ""
-    FAULTCLASS = FaulClass.Undefined
+    FAULTCLASS = FaultClass.Undefined
     FAULTNATURE = FaultNature.Undefined
 
     def __init__(self, slither: Slither, rate: int = 10, seed: Optional[int] = None):
@@ -41,42 +41,46 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
 
         if not self.NAME:
             raise IncorrectMutatorInitialization(
-                "NAME is not initialized {}".format(self.__class__.__name__)
+                f"NAME is not initialized {self.__class__.__name__}"
             )
 
         if not self.HELP:
             raise IncorrectMutatorInitialization(
-                "HELP is not initialized {}".format(self.__class__.__name__)
+                f"HELP is not initialized {self.__class__.__name__}"
             )
 
-        if self.FAULTCLASS == FaulClass.Undefined:
+        if self.FAULTCLASS == FaultClass.Undefined:
             raise IncorrectMutatorInitialization(
-                "FAULTCLASS is not initialized {}".format(self.__class__.__name__)
+                f"FAULTCLASS is not initialized {self.__class__.__name__}"
             )
 
         if self.FAULTNATURE == FaultNature.Undefined:
             raise IncorrectMutatorInitialization(
-                "FAULTNATURE is not initialized {}".format(self.__class__.__name__)
+                f"FAULTNATURE is not initialized {self.__class__.__name__}"
             )
 
         if rate < 0 or rate > 100:
             raise IncorrectMutatorInitialization(
-                "rate must be between 0 and 100 {}".format(self.__class__.__name__)
+                f"rate must be between 0 and 100 {self.__class__.__name__}"
             )
 
     @abc.abstractmethod
     def _mutate(self) -> Dict:
         """TODO Documentation"""
-        return dict()
+        return {}
 
-    def mutate(self):
-        patches = self._mutate()
+    def mutate(self) -> None:
+        all_patches = self._mutate()
 
-        for file in patches["patches"]:
+        if "patches" not in all_patches:
+            logger.debug(f"No patches found by {self.NAME}")
+            return
+
+        for file in all_patches["patches"]:
             original_txt = self.slither.source_code[file].encode("utf8")
             patched_txt = original_txt
             offset = 0
-            patches = patches["patches"][file]
+            patches = all_patches["patches"][file]
             patches.sort(key=lambda x: x["start"])
             if not all(patches[i]["end"] <= patches[i + 1]["end"] for i in range(len(patches) - 1)):
                 logger.info(f"Impossible to generate patch; patches collisions: {patches}")

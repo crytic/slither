@@ -1,10 +1,7 @@
-from typing import TYPE_CHECKING
-
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.expression_typed import ExpressionTyped
 
-if TYPE_CHECKING:
-    from slither.core.solidity_types.type import Type
+from slither.core.solidity_types.type import Type
 
 
 class MemberAccess(ExpressionTyped):
@@ -13,7 +10,7 @@ class MemberAccess(ExpressionTyped):
         # TODO member_type is not always a Type
         assert isinstance(expression, Expression)
         super().__init__()
-        self._type: "Type" = member_type
+        self._type: Type = member_type
         self._member_name: str = member_name
         self._expression: Expression = expression
 
@@ -26,7 +23,7 @@ class MemberAccess(ExpressionTyped):
         return self._member_name
 
     @property
-    def type(self) -> "Type":
+    def type(self) -> Type:
         return self._type
 
     def __str__(self):

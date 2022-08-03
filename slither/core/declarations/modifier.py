@@ -1,8 +1,8 @@
 """
     Modifier module
 """
-from .function import Function
+from .function_contract import FunctionContract
 
 
-class Modifier(Function):
+class Modifier(FunctionContract):
     pass

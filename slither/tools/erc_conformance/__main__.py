@@ -8,6 +8,7 @@ from slither.utils.erc import ERCS
 from slither.utils.output import output_to_json
 from .erc.ercs import generic_erc_checks
 from .erc.erc20 import check_erc20
+from .erc.erc1155 import check_erc1155
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
@@ -22,7 +23,7 @@ logger.addHandler(ch)
 logger.handlers[0].setFormatter(formatter)
 logger.propagate = False
 
-ADDITIONAL_CHECKS = {"ERC20": check_erc20}
+ADDITIONAL_CHECKS = {"ERC20": check_erc20, "ERC1155": check_erc1155}
 
 
 def parse_args():
@@ -31,7 +32,8 @@ def parse_args():
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(
-        description="Check the ERC 20 conformance", usage="slither-check-erc project contractName",
+        description="Check the ERC 20 conformance",
+        usage="slither-check-erc project contractName",
     )
 
     parser.add_argument("project", help="The codebase to be tested.")
@@ -78,12 +80,13 @@ def main():
 
     if args.erc.upper() in ERCS:
 
-        contract = slither.get_contract_from_name(args.contract_name)
+        contracts = slither.get_contract_from_name(args.contract_name)
 
-        if not contract:
+        if len(contracts) != 1:
             err = f"Contract not found: {args.contract_name}"
             _log_error(err, args)
             return
+        contract = contracts[0]
         # First elem is the function, second is the event
         erc = ERCS[args.erc.upper()]
         generic_erc_checks(contract, erc[0], erc[1], ret)

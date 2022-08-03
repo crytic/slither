@@ -13,7 +13,6 @@ from slither.slithir.operations import (
     OperationWithLValue,
     SolidityCall,
     Length,
-    Balance,
 )
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 
@@ -35,7 +34,10 @@ class State:  # pylint: disable=too-few-public-methods
 
 # pylint: disable=too-many-branches
 def _visit(
-    node: Node, state: State, variables_written: Set[Variable], variables_to_write: List[Variable],
+    node: Node,
+    state: State,
+    variables_written: Set[Variable],
+    variables_to_write: List[Variable],
 ):
     """
     Explore all the nodes to look for values not written when the node's function return
@@ -62,7 +64,7 @@ def _visit(
             continue
         if isinstance(ir, (Index, Member)):
             refs[ir.lvalue] = ir.variable_left
-        if isinstance(ir, (Length, Balance)):
+        if isinstance(ir, Length):
             refs[ir.lvalue] = ir.value
 
         if ir.lvalue and not isinstance(ir.lvalue, (TemporaryVariable, ReferenceVariable)):

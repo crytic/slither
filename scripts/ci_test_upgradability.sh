@@ -3,7 +3,7 @@
 ### Test slither-check-upgradeability
 
 DIR_TESTS="tests/check-upgradeability"
-solc use "0.5.0"
+solc-select use "0.5.0"
 
 slither-check-upgradeability  "$DIR_TESTS/contractV1.sol" ContractV1 --proxy-filename "$DIR_TESTS/proxy.sol" --proxy-name Proxy  > test_1.txt 2>&1
 DIFF=$(diff test_1.txt "$DIR_TESTS/test_1.txt")

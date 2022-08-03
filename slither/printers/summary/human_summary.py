@@ -126,17 +126,17 @@ class PrinterHumanSummary(AbstractPrinter):
             medium,
             high,
         ) = self._get_detectors_result()
-        txt = "Number of optimization issues: {}\n".format(green(optimization))
-        txt += "Number of informational issues: {}\n".format(green(informational))
-        txt += "Number of low issues: {}\n".format(green(low))
+        txt = f"Number of optimization issues: {green(optimization)}\n"
+        txt += f"Number of informational issues: {green(informational)}\n"
+        txt += f"Number of low issues: {green(low)}\n"
         if medium > 0:
-            txt += "Number of medium issues: {}\n".format(yellow(medium))
+            txt += f"Number of medium issues: {yellow(medium)}\n"
         else:
-            txt += "Number of medium issues: {}\n".format(green(medium))
+            txt += f"Number of medium issues: {green(medium)}\n"
         if high > 0:
-            txt += "Number of high issues: {}\n".format(red(high))
+            txt += f"Number of high issues: {red(high)}\n"
         else:
-            txt += "Number of high issues: {}\n\n".format(green(high))
+            txt += f"Number of high issues: {green(high)}\n\n"
 
         return txt, all_results, optimization, informational, low, medium, high
 
@@ -238,13 +238,14 @@ class PrinterHumanSummary(AbstractPrinter):
 
         use_abi_encoder = False
 
-        for pragma in self.slither.pragma_directives:
-            if (
-                pragma.source_mapping["filename_absolute"]
-                == contract.source_mapping["filename_absolute"]
-            ):
-                if pragma.is_abi_encoder_v2:
-                    use_abi_encoder = True
+        for compilation_unit in self.slither.compilation_units:
+            for pragma in compilation_unit.pragma_directives:
+                if (
+                    pragma.source_mapping["filename_absolute"]
+                    == contract.source_mapping["filename_absolute"]
+                ):
+                    if pragma.is_abi_encoder_v2:
+                        use_abi_encoder = True
 
         for function in contract.functions:
             if function.payable:
@@ -307,7 +308,7 @@ class PrinterHumanSummary(AbstractPrinter):
             "number_lines_assembly": 0,
             "standard_libraries": [],
             "ercs": [],
-            "number_findings": dict(),
+            "number_findings": {},
             "detectors": [],
         }
 
@@ -379,7 +380,14 @@ class PrinterHumanSummary(AbstractPrinter):
             )
 
             table.add_row(
-                [contract.name, number_functions, ercs, erc20_info, is_complex, features,]
+                [
+                    contract.name,
+                    number_functions,
+                    ercs,
+                    erc20_info,
+                    is_complex,
+                    features,
+                ]
             )
 
         self.info(txt + "\n" + str(table))

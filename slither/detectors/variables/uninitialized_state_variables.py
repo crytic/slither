@@ -28,6 +28,8 @@ class UninitializedStateVarsDetection(AbstractDetector):
 
     WIKI_TITLE = "Uninitialized state variables"
     WIKI_DESCRIPTION = "Uninitialized state variables."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Uninitialized{
@@ -40,9 +42,13 @@ contract Uninitialized{
 ```
 Bob calls `transfer`. As a result, the Ether are sent to the address `0x0` and are lost.
 """
+    # endregion wiki_exploit_scenario
+
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
-Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero.
+Initialize all the variables. If a variable is meant to be initialized to zero, explicitly set it to zero to improve code readability.
 """
+    # endregion wiki_recommendation
 
     @staticmethod
     def _written_variables(contract):
@@ -74,7 +80,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             return self.__variables_written_in_proxy
 
         variables_written_in_proxy = []
-        for c in self.slither.contracts:
+        for c in self.compilation_unit.contracts:
             if c.is_upgradeable_proxy:
                 variables_written_in_proxy += self._written_variables(c)
 
@@ -122,7 +128,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             dict: [contract name] = set(state variable uninitialized)
         """
         results = []
-        for c in self.slither.contracts_derived:
+        for c in self.compilation_unit.contracts_derived:
             ret = self._detect_uninitialized(c)
             for variable, functions in ret:
 

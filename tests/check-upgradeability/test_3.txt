@@ -1,23 +1,23 @@
-INFO:Slither:[92m
+INFO:Slither:
 Initializable contract not found, the contract does not follow a standard initalization schema.
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing[0m
-INFO:Slither:[91m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing
+INFO:Slither:
 Different variables between ContractV2 (tests/check-upgradeability/contractV2_bug.sol#1-5) and Proxy (tests/check-upgradeability/proxy.sol#7-27)
 	 ContractV2.destination (tests/check-upgradeability/contractV2_bug.sol#2)
 	 Proxy.destination (tests/check-upgradeability/proxy.sol#9)
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#incorrect-variables-with-the-proxy[0m
-INFO:Slither:[91m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#incorrect-variables-with-the-proxy
+INFO:Slither:
 Function shadowing found: ContractV2.myFunc (tests/check-upgradeability/contractV2_bug.sol#4) Proxy.myFunc() (tests/check-upgradeability/proxy.sol#11)
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-shadowing[0m
-INFO:Slither:[91m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-shadowing
+INFO:Slither:
 Different variables between ContractV1 (tests/check-upgradeability/contractV1.sol#1-3) and ContractV2 (tests/check-upgradeability/contractV2_bug.sol#1-5)
 	 ContractV1.destination (tests/check-upgradeability/contractV1.sol#2)
 	 ContractV2.destination (tests/check-upgradeability/contractV2_bug.sol#2)
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#incorrect-variables-with-the-v2[0m
-INFO:Slither:[92m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#incorrect-variables-with-the-v2
+INFO:Slither:
 Extra variables in ContractV2 (tests/check-upgradeability/contractV2_bug.sol#1-5): ContractV2.myFunc (tests/check-upgradeability/contractV2_bug.sol#4)
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#extra-variables-in-the-v2[0m
-INFO:Slither:[92m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#extra-variables-in-the-v2
+INFO:Slither:
 Initializable contract not found, the contract does not follow a standard initalization schema.
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing[0m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing
 INFO:Slither:6 findings, 22 detectors run

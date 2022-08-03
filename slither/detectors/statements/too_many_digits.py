@@ -2,8 +2,18 @@
 Module detecting numbers with too many digits.
 """
 
+import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.variables import Constant
+
+_HEX_ADDRESS_REGEXP = re.compile("(0[xX])?[0-9a-fA-F]{40}")
+
+
+def is_hex_address(value) -> bool:
+    """
+    Checks if the given string of text type is an address in hexadecimal encoded form.
+    """
+    return _HEX_ADDRESS_REGEXP.fullmatch(value) is not None
 
 
 class TooManyDigits(AbstractDetector):
@@ -18,9 +28,14 @@ class TooManyDigits(AbstractDetector):
 
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits"
     WIKI_TITLE = "Too many digits"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Literals with many digits are difficult to read and review.
 """
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract MyContract{
@@ -30,12 +45,16 @@ contract MyContract{
 
 While `1_ether` looks like `1 ether`, it is `10 ether`. As a result, it's likely to be used incorrectly.
 """
+    # endregion wiki_exploit_scenario
+
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Use:
 - [Ether suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#ether-units),
 - [Time suffix](https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#time-units), or
 - [The scientific notation](https://solidity.readthedocs.io/en/latest/types.html#rational-and-integer-literals)
 """
+    # endregion wiki_recommendation
 
     @staticmethod
     def _detect_too_many_digits(f):
@@ -49,7 +68,7 @@ Use:
                     if isinstance(read, Constant):
                         # read.value can return an int or a str. Convert it to str
                         value_as_str = read.original_value
-                        if "00000" in value_as_str:
+                        if "00000" in value_as_str and not is_hex_address(value_as_str):
                             # Info to be printed
                             ret.append(node)
         return ret
@@ -58,7 +77,7 @@ Use:
         results = []
 
         # iterate over all contracts
-        for contract in self.slither.contracts_derived:
+        for contract in self.compilation_unit.contracts_derived:
             # iterate over all functions
             for f in contract.functions:
                 # iterate over all the nodes

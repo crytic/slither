@@ -41,7 +41,9 @@ def parse_args():
     group_export = parser.add_argument_group("Export options")
 
     group_export.add_argument(
-        "--dir", help=f"Export directory (default: {DEFAULT_EXPORT_PATH}).", default=None,
+        "--dir",
+        help=f"Export directory (default: {DEFAULT_EXPORT_PATH}).",
+        default=None,
     )
 
     group_export.add_argument(
@@ -52,7 +54,10 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--zip", help="Export all the files to a zip file", action="store", default=None,
+        "--zip",
+        help="Export all the files to a zip file",
+        action="store",
+        default=None,
     )
 
     parser.add_argument(
@@ -69,7 +74,15 @@ def parse_args():
     )
 
     group_patching.add_argument(
-        "--convert-private", help="Convert private variables to internal.", action="store_true",
+        "--convert-private",
+        help="Convert private variables to internal.",
+        action="store_true",
+    )
+
+    group_patching.add_argument(
+        "--convert-library-to-internal",
+        help="Convert external or public functions to internal in library.",
+        action="store_true",
     )
 
     group_patching.add_argument(
@@ -97,28 +110,32 @@ def main():
     args = parse_args()
 
     slither = Slither(args.filename, **vars(args))
-    flat = Flattening(
-        slither,
-        external_to_public=args.convert_external,
-        remove_assert=args.remove_assert,
-        private_to_internal=args.convert_private,
-        export_path=args.dir,
-        pragma_solidity=args.pragma_solidity,
-    )
 
-    try:
-        strategy = Strategy[args.strategy]
-    except KeyError:
-        to_log = f"{args.strategy} is not a valid strategy, use: {STRATEGIES_NAMES} (default MostDerived)"
-        logger.error(to_log)
-        return
-    flat.export(
-        strategy=strategy,
-        target=args.contract,
-        json=args.json,
-        zip=args.zip,
-        zip_type=args.zip_type,
-    )
+    for compilation_unit in slither.compilation_units:
+
+        flat = Flattening(
+            compilation_unit,
+            external_to_public=args.convert_external,
+            remove_assert=args.remove_assert,
+            convert_library_to_internal=args.convert_library_to_internal,
+            private_to_internal=args.convert_private,
+            export_path=args.dir,
+            pragma_solidity=args.pragma_solidity,
+        )
+
+        try:
+            strategy = Strategy[args.strategy]
+        except KeyError:
+            to_log = f"{args.strategy} is not a valid strategy, use: {STRATEGIES_NAMES} (default MostDerived)"
+            logger.error(to_log)
+            return
+        flat.export(
+            strategy=strategy,
+            target=args.contract,
+            json=args.json,
+            zip=args.zip,
+            zip_type=args.zip_type,
+        )
 
 
 if __name__ == "__main__":

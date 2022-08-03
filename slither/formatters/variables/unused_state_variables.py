@@ -1,20 +1,21 @@
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import create_patch
 
 
-def custom_format(slither, result):
+def custom_format(compilation_unit: SlitherCompilationUnit, result):
     elements = result["elements"]
     for element in elements:
         if element["type"] == "variable":
             _patch(
-                slither,
+                compilation_unit,
                 result,
                 element["source_mapping"]["filename_absolute"],
                 element["source_mapping"]["start"],
             )
 
 
-def _patch(slither, result, in_file, modify_loc_start):
-    in_file_str = slither.source_code[in_file].encode("utf8")
+def _patch(compilation_unit: SlitherCompilationUnit, result, in_file, modify_loc_start):
+    in_file_str = compilation_unit.core.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:]
     old_str = (
         old_str_of_interest.decode("utf-8").partition(";")[0]

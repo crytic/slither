@@ -14,6 +14,8 @@ class VoidConstructor(AbstractDetector):
     WIKI_TITLE = "Void constructor"
     WIKI_DESCRIPTION = "Detect the call to a constructor that is not implemented"
     WIKI_RECOMMENDATION = "Remove the constructor call."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract A{}
@@ -22,6 +24,7 @@ contract B is A{
 }
 ```
 When reading `B`'s constructor definition, we might assume that `A()` initiates the contract, but no code is executed."""
+    # endregion wiki_exploit_scenario
 
     def _detect(self):
         """"""

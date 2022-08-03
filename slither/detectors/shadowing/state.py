@@ -3,9 +3,11 @@ Module detecting shadowing of state variables
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations import Contract
+from .common import is_upgradable_gap_variable
 
 
-def detect_shadowing(contract):
+def detect_shadowing(contract: Contract):
     ret = []
     variables_fathers = []
     for father in contract.inheritance:
@@ -13,6 +15,10 @@ def detect_shadowing(contract):
             variables_fathers += father.state_variables_declared
 
     for var in contract.state_variables_declared:
+        # Ignore __gap variables for updatable contracts
+        if is_upgradable_gap_variable(contract, var):
+            continue
+
         shadow = [v for v in variables_fathers if v.name == var.name]
         if shadow:
             ret.append([var] + shadow)
@@ -33,6 +39,8 @@ class StateShadowing(AbstractDetector):
 
     WIKI_TITLE = "State variable shadowing"
     WIKI_DESCRIPTION = "Detection of state variables shadowed."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract BaseContract{
@@ -58,6 +66,7 @@ contract DerivedContract is BaseContract{
 }
 ```
 `owner` of `BaseContract` is never assigned and the modifier `isOwner` does not work."""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Remove the state variable shadowing."
 

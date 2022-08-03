@@ -22,7 +22,7 @@ def get_signatures(c):
 
 
 def _get_function_or_variable(contract, signature):
-    f = contract.get_function_from_signature(signature)
+    f = contract.get_function_from_full_name(signature)
 
     if f:
         return f
@@ -44,10 +44,13 @@ class IDCollision(AbstractCheck):
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-collisions"
     WIKI_TITLE = "Functions ids collisions"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect function id collision between the contract and the proxy.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
@@ -65,10 +68,13 @@ contract Proxy{
 `Proxy.tgeo()` and `Contract.gsf()` have the same function id (0x67e43e43). 
 As a result, `Proxy.tgeo()` will shadow Contract.gsf()`.  
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Rename the function. Avoid public functions in the proxy.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
     REQUIRE_PROXY = True
@@ -111,10 +117,13 @@ class FunctionShadowing(AbstractCheck):
     WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-shadowing"
     WIKI_TITLE = "Functions shadowing"
 
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Detect function shadowing between the contract and the proxy.
 """
+    # endregion wiki_description
 
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Contract{
@@ -131,10 +140,13 @@ contract Proxy{
 ```
 `Proxy.get` will shadow any call to `get()`. As a result `get()` is never executed in the logic contract and cannot be updated.
 """
+    # endregion wiki_exploit_scenario
 
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Rename the function. Avoid public functions in the proxy.
 """
+    # endregion wiki_recommendation
 
     REQUIRE_CONTRACT = True
     REQUIRE_PROXY = True

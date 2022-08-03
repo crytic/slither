@@ -1,18 +1,17 @@
-from typing import List, TYPE_CHECKING
+from typing import List
 
 from slither.core.source_mapping.source_mapping import SourceMapping
-from slither.core.children.child_contract import ChildContract
-
-if TYPE_CHECKING:
-    from slither.core.declarations import Contract
 
 
-class Enum(ChildContract, SourceMapping):
+class Enum(SourceMapping):
     def __init__(self, name: str, canonical_name: str, values: List[str]):
         super().__init__()
         self._name = name
         self._canonical_name = canonical_name
         self._values = values
+        self._min = 0
+        # The max value of an Enum is the index of the last element
+        self._max = len(values) - 1
 
     @property
     def canonical_name(self) -> str:
@@ -26,13 +25,13 @@ class Enum(ChildContract, SourceMapping):
     def values(self) -> List[str]:
         return self._values
 
-    def is_declared_by(self, contract: "Contract") -> bool:
-        """
-        Check if the element is declared by the contract
-        :param contract:
-        :return:
-        """
-        return self.contract == contract
+    @property
+    def min(self) -> int:
+        return self._min
+
+    @property
+    def max(self) -> int:
+        return self._max
 
     def __str__(self):
         return self.name

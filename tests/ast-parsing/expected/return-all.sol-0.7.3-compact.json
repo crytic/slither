@@ -1,0 +1,9 @@
+{
+  "C": {
+    "returnConstant()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: RETURN 1\n\"];\n}\n",
+    "returnVariable()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: NEW VARIABLE 1\n\"];\n1->2;\n2[label=\"Node Type: RETURN 2\n\"];\n}\n",
+    "returnTuple()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: NEW VARIABLE 1\n\"];\n1->2;\n2[label=\"Node Type: NEW VARIABLE 2\n\"];\n2->3;\n3[label=\"Node Type: RETURN 3\n\"];\n}\n",
+    "returnTernary()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: NEW VARIABLE 1\n\"];\n1->3;\n3[label=\"Node Type: IF 3\n\"];\n3->4[label=\"True\"];\n3->5[label=\"False\"];\n4[label=\"Node Type: RETURN 4\n\"];\n5[label=\"Node Type: RETURN 5\n\"];\n}\n",
+    "returnDelete()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: RETURN 1\n\"];\n}\n"
+  }
+}

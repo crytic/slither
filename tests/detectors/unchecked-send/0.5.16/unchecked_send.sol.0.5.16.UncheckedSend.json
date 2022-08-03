@@ -1,0 +1,151 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad",
+                    "source_mapping": {
+                        "start": 21,
+                        "length": 86,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            2,
+                            3,
+                            4
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "MyConc",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 419,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad(address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "dst.send(msg.value)",
+                    "source_mapping": {
+                        "start": 81,
+                        "length": 19,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 28
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad",
+                            "source_mapping": {
+                                "start": 21,
+                                "length": 86,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "MyConc",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 419,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad(address)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "MyConc.bad(address) (tests/detectors/unchecked-send/0.5.16/unchecked_send.sol#2-4) ignores return value by dst.send(msg.value) (tests/detectors/unchecked-send/0.5.16/unchecked_send.sol#3)\n",
+            "markdown": "[MyConc.bad(address)](tests/detectors/unchecked-send/0.5.16/unchecked_send.sol#L2-L4) ignores return value by [dst.send(msg.value)](tests/detectors/unchecked-send/0.5.16/unchecked_send.sol#L3)\n",
+            "first_markdown_element": "tests/detectors/unchecked-send/0.5.16/unchecked_send.sol#L2-L4",
+            "id": "0a6498f517f4ce099f69fa38244cd23d58ea065fced5890d0cbbc1e5d3cc2c67",
+            "check": "unchecked-send",
+            "impact": "Medium",
+            "confidence": "Medium"
+        }
+    ]
+]

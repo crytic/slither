@@ -27,6 +27,8 @@ class DeprecatedStandards(AbstractDetector):
 
     WIKI_TITLE = "Deprecated standards"
     WIKI_DESCRIPTION = "Detect the usage of deprecated standards."
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract ContractWithDeprecatedReferences {
@@ -55,6 +57,7 @@ contract ContractWithDeprecatedReferences {
     }
 }
 ```"""
+    # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Replace all uses of deprecated symbols."
 

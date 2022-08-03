@@ -1,16 +1,17 @@
 from collections import defaultdict
 
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
-def _find_missing_inheritance(slither):
+def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit):
     """
     Filter contracts with missing inheritance to return only the "most base" contracts
     in the inheritance tree.
     :param slither:
     :return:
     """
-    missings = slither.contracts_with_missing_inheritance
+    missings = compilation_unit.contracts_with_missing_inheritance
 
     ret = []
     for b in missings:
@@ -33,23 +34,41 @@ class NameReused(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#name-reused"
 
     WIKI_TITLE = "Name reused"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """If a codebase has two contracts the similar names, the compilation artifacts
 will not contain one of the contracts with the duplicate name."""
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 Bob's `truffle` codebase has two contracts named `ERC20`.
 When `truffle compile` runs, only one of the two contracts will generate artifacts in `build/contracts`.
 As a result, the second contract cannot be analyzed.
 """
+    # endregion wiki_exploit_scenario
+
     WIKI_RECOMMENDATION = "Rename the contract."
 
     def _detect(self):  # pylint: disable=too-many-locals,too-many-branches
         results = []
+        compilation_unit = self.compilation_unit
 
-        names_reused = self.slither.contract_name_collisions
+        all_contracts = compilation_unit.contracts
+        all_contracts_name = [c.name for c in all_contracts]
+        contracts_name_reused = {
+            contract for contract in all_contracts_name if all_contracts_name.count(contract) > 1
+        }
+
+        names_reused = {
+            name: compilation_unit.get_contract_from_name(name) for name in contracts_name_reused
+        }
 
         # First show the contracts that we know are missing
         incorrectly_constructed = [
-            contract for contract in self.contracts if contract.is_incorrectly_constructed
+            contract
+            for contract in compilation_unit.contracts
+            if contract.is_incorrectly_constructed
         ]
 
         inheritance_corrupted = defaultdict(list)
@@ -74,7 +93,7 @@ As a result, the second contract cannot be analyzed.
 
         # Then show the contracts for which one of the father was not found
         # Here we are not able to know
-        most_base_with_missing_inheritance = _find_missing_inheritance(self.slither)
+        most_base_with_missing_inheritance = _find_missing_inheritance(compilation_unit)
 
         for b in most_base_with_missing_inheritance:
             info = [b, " inherits from a contract for which the name is reused.\n"]

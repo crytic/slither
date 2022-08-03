@@ -22,11 +22,14 @@ class NamingConvention(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions"
 
     WIKI_TITLE = "Conformance to Solidity naming conventions"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions) that should be followed.
 #### Rule exceptions
 - Allow constant variable name/symbol/decimals to be lowercase (`ERC20`).
 - Allow `_` at the beginning of the `mixed_case` match for private variables and unused parameters."""
+    # endregion wiki_description
 
     WIKI_RECOMMENDATION = "Follow the Solidity [naming convention](https://solidity.readthedocs.io/en/v0.4.25/style-guide.html#naming-conventions)."
 
@@ -91,7 +94,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         "private",
                     ] and self.is_mixed_case_with_underscore(func.name):
                         continue
-                    if func.name.startswith("echidna_") or func.name.startswith("crytic_"):
+                    if func.name.startswith(("echidna_", "crytic_")):
                         continue
                     info = ["Function ", func, " is not in mixedCase\n"]
 
@@ -125,7 +128,11 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
                         res = self.generate_result(info)
                         res.add(
-                            var, {"target": "variable", "convention": "l_O_I_should_not_be_used",},
+                            var,
+                            {
+                                "target": "variable",
+                                "convention": "l_O_I_should_not_be_used",
+                            },
                         )
                         results.append(res)
 

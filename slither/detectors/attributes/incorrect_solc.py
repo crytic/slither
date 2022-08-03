@@ -14,7 +14,7 @@ from slither.formatters.attributes.incorrect_solc import custom_format
 # 4: version number
 
 # pylint: disable=anomalous-backslash-in-string
-PATTERN = re.compile("(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
+PATTERN = re.compile(r"(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
 
 
 class IncorrectSolc(AbstractDetector):
@@ -30,40 +30,45 @@ class IncorrectSolc(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity"
 
     WIKI_TITLE = "Incorrect versions of Solidity"
+
+    # region wiki_description
     WIKI_DESCRIPTION = """
 `solc` frequently releases new compiler versions. Using an old version prevents access to new Solidity security checks.
 We also recommend avoiding complex `pragma` statement."""
+    # endregion wiki_description
+
+    # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Deploy with any of the following Solidity versions:
-- 0.5.11 - 0.5.13,
-- 0.5.15 - 0.5.17,
-- 0.6.8,
-- 0.6.10 - 0.6.11.
+- 0.5.16 - 0.5.17
+- 0.6.11 - 0.6.12
+- 0.7.5 - 0.7.6
+- 0.8.4 - 0.8.7
 Use a simple pragma version that allows any of these versions.
 Consider using the latest version of Solidity for testing."""
+    # endregion wiki_recommendation
 
     COMPLEX_PRAGMA_TXT = "is too complex"
     OLD_VERSION_TXT = "allows old versions"
     LESS_THAN_TXT = "uses lesser than"
 
-    TOO_RECENT_VERSION_TXT = (
-        "necessitates a version too recent to be trusted. Consider deploying with 0.6.11"
-    )
+    TOO_RECENT_VERSION_TXT = "necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.7"
     BUGGY_VERSION_TXT = (
         "is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
     )
 
     # Indicates the allowed versions. Must be formatted in increasing order.
     ALLOWED_VERSIONS = [
-        "0.5.11",
-        "0.5.12",
-        "0.5.13",
-        "0.5.15",
         "0.5.16",
         "0.5.17",
-        "0.6.8",
-        "0.6.10",
         "0.6.11",
+        "0.6.12",
+        "0.7.5",
+        "0.7.6",
+        "0.8.4",
+        "0.8.5",
+        "0.8.6",
+        "0.8.7",
     ]
 
     # Indicates the versions that should not be used.
@@ -78,6 +83,8 @@ Consider using the latest version of Solidity for testing."""
         "^0.5.14",
         "0.6.9",
         "^0.6.9",
+        "0.8.8",
+        "^0.8.8",
     ]
 
     def _check_version(self, version):
@@ -85,6 +92,8 @@ Consider using the latest version of Solidity for testing."""
         if op and op not in [">", ">=", "^"]:
             return self.LESS_THAN_TXT
         version_number = ".".join(version[2:])
+        if version_number in self.BUGGY_VERSIONS:
+            return self.BUGGY_VERSION_TXT
         if version_number not in self.ALLOWED_VERSIONS:
             if list(map(int, version[2:])) > list(map(int, self.ALLOWED_VERSIONS[-1].split("."))):
                 return self.TOO_RECENT_VERSION_TXT
@@ -119,7 +128,7 @@ Consider using the latest version of Solidity for testing."""
         """
         # Detect all version related pragmas and check if they are disallowed.
         results = []
-        pragma = self.slither.pragma_directives
+        pragma = self.compilation_unit.pragma_directives
         disallowed_pragmas = []
 
         for p in pragma:
@@ -141,24 +150,28 @@ Consider using the latest version of Solidity for testing."""
 
                 results.append(json)
 
-        if self.slither.crytic_compile:
-            if self.slither.crytic_compile.compiler_version:
-                if (
-                    self.slither.crytic_compile.compiler_version.version
-                    not in self.ALLOWED_VERSIONS
-                ):
-                    info = [
-                        "solc-",
-                        self.slither.crytic_compile.compiler_version.version,
-                        " is not recommended for deployment\n",
-                    ]
+        if self.compilation_unit.solc_version not in self.ALLOWED_VERSIONS:
 
-                    json = self.generate_result(info)
+            if self.compilation_unit.solc_version in self.BUGGY_VERSIONS:
+                info = [
+                    "solc-",
+                    self.compilation_unit.solc_version,
+                    " ",
+                    self.BUGGY_VERSION_TXT,
+                ]
+            else:
+                info = [
+                    "solc-",
+                    self.compilation_unit.solc_version,
+                    " is not recommended for deployment\n",
+                ]
 
-                    # TODO: Once crytic-compile adds config file info, add a source mapping element pointing to
-                    #       the line in the config that specifies the problematic version of solc
+            json = self.generate_result(info)
 
-                    results.append(json)
+            # TODO: Once crytic-compile adds config file info, add a source mapping element pointing to
+            #       the line in the config that specifies the problematic version of solc
+
+            results.append(json)
 
         return results
 

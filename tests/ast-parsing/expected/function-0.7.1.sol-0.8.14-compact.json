@@ -1,0 +1,52 @@
+{
+  "C1": {
+    "constructor()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "fallback()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "receive()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n"
+  },
+  "C2": {
+    "constructor()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "fallback()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "receive()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n"
+  },
+  "C3": {
+    "constructor()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "f()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: EXPRESSION 1\n\"];\n1->2;\n2[label=\"Node Type: EXPRESSION 2\n\"];\n}\n",
+    "modifierNoArgs()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: _ 1\n\"];\n}\n",
+    "modifierWithArgs(uint256)": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: _ 1\n\"];\n}\n"
+  },
+  "C4": {
+    "hasArgs(uint256,uint256)": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "hasReturns()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "hasArgsAndReturns(uint256,uint256)": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n"
+  },
+  "C5": {
+    "payableFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "externalFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "publicFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "internalFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "privateFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "pureFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "viewFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "abstractFunc()": "digraph{\n}\n"
+  },
+  "C6": {
+    "abstractFunc()": "digraph{\n}\n",
+    "abstractFunc2()": "digraph{\n}\n"
+  },
+  "C7": {
+    "abstractFunc3()": "digraph{\n}\n"
+  },
+  "C8": {
+    "abstractFunc3()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "abstractFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "abstractFunc2()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "payableFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "externalFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "publicFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "internalFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "privateFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "pureFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n",
+    "viewFunc()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n"
+  }
+}

@@ -108,7 +108,9 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--address-attacker", help=f"Attacker address. Default {ATTACKER_ADDRESS}", default=None,
+        "--address-attacker",
+        help=f"Attacker address. Default {ATTACKER_ADDRESS}",
+        default=None,
     )
 
     parser.add_argument(
@@ -140,8 +142,8 @@ def main():
         generate_auto(slither, args.txs, addresses, args.max_balance, crytic_args)
         return 
 
-    contract = slither.get_contract_from_name(args.contract)
-    if not contract:
+    contracts = slither.get_contract_from_name(args.contract)
+    if len(contracts) != 1:
         if len(slither.contracts) == 1:
             contract = slither.contracts[0]
         else:
@@ -151,6 +153,8 @@ def main():
                 to_log = f"{args.contract} not found"
             logger.error(to_log)
             return
+    else:
+        contract = contracts[0]
 
     generate_erc20(contract, args.scenario, addresses)
 
