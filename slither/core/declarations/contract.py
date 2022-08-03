@@ -650,6 +650,21 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         return [f for f in self.functions if f.is_writing(variable)]
 
+    def get_function_from_full_name(self, full_name: str) -> Optional["Function"]:
+        """
+            Return a function from a full name
+            The full name differs from the solidity's signature are the type are conserved
+            For example contract type are kept, structure are not unrolled, etc
+        Args:
+            full_name (str): signature of the function (without return statement)
+        Returns:
+            Function
+        """
+        return next(
+            (f for f in self.functions if f.full_name == full_name and not f.is_shadowed),
+            None,
+        )
+
     def get_function_from_signature(self, function_signature: str) -> Optional["Function"]:
         """
             Return a function from a signature
@@ -659,7 +674,11 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             Function
         """
         return next(
-            (f for f in self.functions if f.full_name == function_signature and not f.is_shadowed),
+            (
+                f
+                for f in self.functions
+                if f.solidity_signature == function_signature and not f.is_shadowed
+            ),
             None,
         )
 

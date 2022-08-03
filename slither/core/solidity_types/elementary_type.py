@@ -151,7 +151,7 @@ class NonElementaryType(Exception):
 
 
 class ElementaryType(Type):
-    def __init__(self, t):
+    def __init__(self, t: str) -> None:
         if t not in ElementaryTypeName:
             raise NonElementaryType
         super().__init__()
