@@ -254,7 +254,7 @@ def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
         ]
         param_name = element["name"]
         contract = scope.get_contract_from_name(contract_name)
-        function = contract.get_function_from_signature(function_sig)
+        function = contract.get_function_from_full_name(function_sig)
         target = function.get_local_variable_from_name(param_name)
 
     elif _target in ["variable", "variable_constant"]:
@@ -268,7 +268,7 @@ def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
             ]
             var_name = element["name"]
             contract = scope.get_contract_from_name(contract_name)
-            function = contract.get_function_from_signature(function_sig)
+            function = contract.get_function_from_full_name(function_sig)
             target = function.get_local_variable_from_name(var_name)
         # State variable
         else:

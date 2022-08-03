@@ -31,7 +31,7 @@ class FunctionIds(AbstractPrinter):
                     table.add_row([function.solidity_signature, f"{function_id:#0{10}x}"])
             for variable in contract.state_variables:
                 if variable.visibility in ["public"]:
-                    sig = variable.function_name
+                    sig = variable.solidity_signature
                     function_id = get_function_id(sig)
                     table.add_row([sig, f"{function_id:#0{10}x}"])
             txt += str(table) + "\n"
