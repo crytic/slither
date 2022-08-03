@@ -4,6 +4,7 @@ from typing import List
 from slither.tools.properties.addresses.address import Addresses
 from slither.tools.properties.utils import write_file
 
+
 def generate_echidna_config(output_dir: Path, addresses: Addresses) -> str:
     """
     Generate the echidna configuration file
@@ -20,7 +21,10 @@ def generate_echidna_config(output_dir: Path, addresses: Addresses) -> str:
     write_file(output_dir, filename, content)
     return filename
 
-def generate_echidna_auto_config(output_dir: Path, addresses: List[str], init_file: str, crytic_args: List[str]) -> str:
+
+def generate_echidna_auto_config(
+    output_dir: Path, addresses: List[str], init_file: str, crytic_args: List[str]
+) -> str:
     """
     Generate the echidna configuration file
     :param output_dir:
@@ -30,12 +34,12 @@ def generate_echidna_auto_config(output_dir: Path, addresses: List[str], init_fi
     content = "prefix: crytic_\n"
     content += "seqLen: 250\n"
     content += "testLimit: 1000000\n"
-    content += f'sender: [' + ','.join(map(repr,addresses)) + ']\n'
+    content += "sender: [" + ",".join(map(repr, addresses)) + "]\n"
     content += "coverage: true\n"
-    content += "corpusDir: 'corpus'\n" 
-    content += "initialize: " +  init_file + "\n"
+    content += "corpusDir: 'corpus'\n"
+    content += "initialize: " + init_file + "\n"
     content += "multi-abi: true\n"
-    content += 'cryticArgs: [' + ','.join(map(repr,crytic_args)) + ']\n'
+    content += "cryticArgs: [" + ",".join(map(repr, crytic_args)) + "]\n"
     filename = "echidna_config.yaml"
     write_file(output_dir, filename, content)
     return filename

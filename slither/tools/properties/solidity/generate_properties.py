@@ -28,6 +28,7 @@ def generate_solidity_properties(
 
     return Path(filename)
 
+
 def generate_solidity_properties_no_contract(
     type_property: str, solidity_properties: str, output_dir: Path
 ) -> Path:
@@ -36,15 +37,14 @@ def generate_solidity_properties_no_contract(
 
     test_contract_name = f"Properties{type_property}"
 
-    solidity_content = (
-        f"{solidity_import}\ncontract {test_contract_name} is CryticInterface"
-    )
+    solidity_content = f"{solidity_import}\ncontract {test_contract_name} is CryticInterface"
     solidity_content += f"{{\n\n{solidity_properties}\n}}\n"
 
     filename = f"{test_contract_name}.sol"
     write_file(output_dir, filename, solidity_content, allow_overwrite=False)
 
     return Path(filename)
+
 
 def generate_test_contract(
     contract: Contract,
@@ -100,6 +100,7 @@ def generate_test_contract_no_contract(
     write_file(output_dir, filename, content, allow_overwrite=False)
 
     return filename, test_contract_name
+
 
 def generate_solidity_interface(output_dir: Path, addresses: Addresses):
     content = f"""

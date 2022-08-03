@@ -6,7 +6,7 @@ from crytic_compile import cryticparser
 
 from slither import Slither
 from slither.tools.properties.properties.erc20 import generate_erc20, ERC20_PROPERTIES
-from slither.tools.properties.properties.auto import generate_auto 
+from slither.tools.properties.properties.auto import generate_auto
 
 from slither.tools.properties.addresses.address import (
     Addresses,
@@ -114,7 +114,9 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--max-balance", help=f"Max balance for the auto-generation of token properties", default=None,
+        "--max-balance",
+        help="Max balance for the auto-generation of token properties",
+        default=None,
     )
 
     # Add default arguments from crytic-compile
@@ -126,6 +128,7 @@ def parse_args():
 
     return parser.parse_args()
 
+
 def main():
     args = parse_args()
 
@@ -135,12 +138,12 @@ def main():
 
     if args.txs is not None:
         crytic_args = []
-        for (arg,v) in args.__dict__.items():
-            if v == True and v is not None:
-                crytic_args.append("--"+arg.replace("_","-"))
+        for (arg, v) in args.__dict__.items():
+            if v and v is not None:
+                crytic_args.append("--" + arg.replace("_", "-"))
 
         generate_auto(slither, args.txs, addresses, args.max_balance, crytic_args)
-        return 
+        return
 
     contracts = slither.get_contract_from_name(args.contract)
     if len(contracts) != 1:
