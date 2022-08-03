@@ -22,11 +22,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("Slither")
 
-try:
-    from typing import TypedDict
-except ImportError:
-    # < Python 3.8
-    from typing_extensions import TypedDict
 ###################################################################################
 ###################################################################################
 # region Output
@@ -327,31 +322,22 @@ def _create_parent_element(element):
         if element.contract_declarer:
             contract = Output("")
             contract.add_contract(element.contract_declarer)
-            return contract.data.elements[0]
+            return contract.data["elements"][0]
     elif isinstance(element, ChildContract):
         if element.contract:
             contract = Output("")
             contract.add_contract(element.contract)
-            return contract.data.elements[0]
+            return contract.data["elements"][0]
     elif isinstance(element, ChildFunction):
         if element.function:
             function = Output("")
             function.add_function(element.function)
-            return function.data.elements[0]
+            return function.data["elements"][0]
     return None
 
 
 SupportedOutput = Union[Variable, Contract, Function, Enum, Event, Structure, Pragma, Node]
 AllSupportedOutput = Union[str, SupportedOutput]
-
-
-class OutputData(TypedDict):
-    elements: List
-    description: str
-    markdown: str
-    first_markdown_element: str
-    id: str
-    additional_fields: Dict
 
 
 class Output:
@@ -372,15 +358,15 @@ class Output:
         else:
             info = info_
 
-        self._data: OutputData = OrderedDict()
-        self._data.elements = []
-        self._data.description = "".join(_convert_to_description(d) for d in info)
-        self._data.markdown = "".join(_convert_to_markdown(d, markdown_root) for d in info)
-        self._data.first_markdown_element = ""
+        self._data = OrderedDict()
+        self._data["elements"] = []
+        self._data["description"] = "".join(_convert_to_description(d) for d in info)
+        self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
+        self._data["first_markdown_element"] = ""
         self._markdown_root = markdown_root
 
         id_txt = "".join(_convert_to_id(d) for d in info)
-        self._data.id = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
+        self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
 
         if standard_format:
             to_add = [i for i in info if not isinstance(i, str)]
@@ -392,8 +378,10 @@ class Output:
             self._data.additional_fields = additional_fields
 
     def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None):
-        if not self._data.first_markdown_element:
-            self._data.first_markdown_element = add.source_mapping_to_markdown(self._markdown_root)
+        if not self._data["first_markdown_element"]:
+            self._data["first_markdown_element"] = add.source_mapping_to_markdown(
+                self._markdown_root
+            )
         if isinstance(add, Variable):
             self.add_variable(add, additional_fields=additional_fields)
         elif isinstance(add, Contract):
@@ -419,7 +407,7 @@ class Output:
 
     @property
     def elements(self) -> List[Dict]:
-        return self._data.elements
+        return self._data["elements"]
 
     # endregion
     ###################################################################################
@@ -439,7 +427,7 @@ class Output:
             type_specific_fields,
             additional_fields,
         )
-        self._data.elements.append(element)
+        self._data["elements"].append(element)
 
     def add_variables(self, variables: List[Variable]):
         for variable in sorted(variables, key=lambda x: x.name):
@@ -458,7 +446,7 @@ class Output:
         element = _create_base_element(
             "contract", contract.name, contract.source_mapping, {}, additional_fields
         )
-        self._data.elements.append(element)
+        self._data["elements"].append(element)
 
     # endregion
     ###################################################################################
@@ -481,7 +469,7 @@ class Output:
             type_specific_fields,
             additional_fields,
         )
-        self._data.elements.append(element)
+        self._data["elements"].append(element)
 
     def add_functions(self, functions: List[Function], additional_fields: Optional[Dict] = None):
         if additional_fields is None:
@@ -507,7 +495,7 @@ class Output:
             type_specific_fields,
             additional_fields,
         )
-        self._data.elements.append(element)
+        self._data["elements"].append(element)
 
     # endregion
     ###################################################################################
@@ -527,7 +515,7 @@ class Output:
             type_specific_fields,
             additional_fields,
         )
-        self._data.elements.append(element)
+        self._data["elements"].append(element)
 
     # endregion
     ###################################################################################
@@ -551,7 +539,7 @@ class Output:
             additional_fields,
         )
 
-        self._data.elements.append(element)
+        self._data["elements"].append(element)
 
     # endregion
     ###################################################################################
@@ -574,7 +562,7 @@ class Output:
             type_specific_fields,
             additional_fields,
         )
-        self._data.elements.append(element)
+        self._data["elements"].append(element)
 
     def add_nodes(self, nodes: List[Node]):
         for node in sorted(nodes, key=lambda x: x.node_id):
@@ -598,7 +586,7 @@ class Output:
             type_specific_fields,
             additional_fields,
         )
-        self._data.elements.append(element)
+        self._data["elements"].append(element)
 
     # endregion
     ###################################################################################
@@ -613,7 +601,7 @@ class Output:
         type_specific_fields = {"filename": filename, "content": content}
         element = _create_base_element("file", type_specific_fields, additional_fields)
 
-        self._data.elements.append(element)
+        self._data["elements"].append(element)
 
     # endregion
     ###################################################################################
@@ -633,7 +621,7 @@ class Output:
         type_specific_fields = {"content": content.to_json(), "name": name}
         element = _create_base_element("pretty_table", type_specific_fields, additional_fields)
 
-        self._data.elements.append(element)
+        self._data["elements"].append(element)
 
     # endregion
     ###################################################################################
@@ -682,4 +670,4 @@ class Output:
 
         # Create the underlying element and add it to our resulting json
         element = _create_base_element("other", name, source_mapping, {}, additional_fields)
-        self._data.elements.append(element)
+        self._data["elements"].append(element)

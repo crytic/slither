@@ -16,7 +16,6 @@ from slither.core.context.context import Context
 from slither.core.declarations import Contract
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
-from slither.utils.output import OutputData
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -178,7 +177,7 @@ class SlitherCore(Context):
                 posixpath.normpath(elem["source_mapping"]["filename_absolute"]),
                 elem["source_mapping"]["lines"],
             )
-            for elem in r.elements
+            for elem in r["elements"]
             if "source_mapping" in elem
             and "filename_absolute" in elem["source_mapping"]
             and "lines" in elem["source_mapping"]
@@ -200,7 +199,7 @@ class SlitherCore(Context):
 
         return False
 
-    def valid_result(self, r: OutputData) -> bool:
+    def valid_result(self, r: Dict) -> bool:
         """
         Check if the result is valid
         A result is invalid if:
@@ -213,11 +212,11 @@ class SlitherCore(Context):
         # Remove duplicate due to the multiple compilation support
         if r["id"] in self._currently_seen_resuts:
             return False
-        self._currently_seen_resuts.add(r.id)
+        self._currently_seen_resuts.add(r["id"])
 
         source_mapping_elements = [
             elem["source_mapping"].get("filename_absolute", "unknown")
-            for elem in r.elements
+            for elem in r["elements"]
             if "source_mapping" in elem
         ]
 
@@ -244,14 +243,14 @@ class SlitherCore(Context):
                     ": https://docs.python.org/3/library/re.html"
                 )
 
-        if r.elements and matching:
+        if r["elements"] and matching:
             return False
 
         if self._show_ignored_findings:
             return True
         if self.has_ignore_comment(r):
             return False
-        if r.id in self._previous_results_ids:
+        if r["id"] in self._previous_results_ids:
             return False
         if r["elements"] and self._exclude_dependencies:
             if all(element["source_mapping"]["is_dependency"] for element in r["elements"]):

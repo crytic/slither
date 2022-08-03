@@ -9,7 +9,7 @@ from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.utils.comparable_enum import ComparableEnum
-from slither.utils.output import Output, SupportedOutput, OutputData
+from slither.utils.output import Output, SupportedOutput
 
 if TYPE_CHECKING:
     from slither import Slither
@@ -145,8 +145,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return []
 
     # pylint: disable=too-many-branches
-    def detect(self) -> List[OutputData]:
-        results: List[OutputData] = []
+    def detect(self) -> List[Dict]:
+        results: List[Dict] = []
         # only keep valid result, and remove duplicate
         # Keep only dictionaries
         for r in [output.data for output in self._detect()]:
@@ -208,7 +208,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                     return [r for (idx, r) in enumerate(results) if idx not in indexes_converted]
                 except ValueError:
                     self.logger.error(yellow("Malformed input. Example of valid input: 0,1,2,3"))
-        results = sorted(results, key=lambda x: x.id)
+        results = sorted(results, key=lambda x: x["id"])
 
         return results
 
@@ -235,15 +235,15 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         return output
 
     @staticmethod
-    def _format(_compilation_unit: SlitherCompilationUnit, _result: OutputData) -> None:
+    def _format(_compilation_unit: SlitherCompilationUnit, _result: Dict) -> None:
         """Implement format"""
         return
 
-    def _log_result(self, results: List[OutputData]) -> None:
+    def _log_result(self, results: List[Dict]) -> None:
         info = "\n"
         for idx, result in enumerate(results):
             if self.slither.triage_mode:
                 info += f"{idx}: "
-            info += result.description
+            info += result["description"]
         info += f"Reference: {self.WIKI}"
         self._log(info)

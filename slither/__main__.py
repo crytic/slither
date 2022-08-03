@@ -10,7 +10,7 @@ import os
 import pstats
 import sys
 import traceback
-from typing import Tuple, Optional, List
+from typing import Tuple, Optional, List, Dict
 
 from pkg_resources import iter_entry_points, require
 
@@ -24,13 +24,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils.output import (
-    output_to_json,
-    output_to_zip,
-    output_to_sarif,
-    ZIP_TYPES_ACCEPTED,
-    OutputData,
-)
+from slither.utils.output import output_to_json, output_to_zip, output_to_sarif, ZIP_TYPES_ACCEPTED
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
@@ -65,7 +59,7 @@ def process_single(
     args: argparse.Namespace,
     detector_classes: List[AbstractDetector],
     printer_classes: List[AbstractPrinter],
-) -> Tuple[Slither, List[OutputData], List[OutputData], int]:
+) -> Tuple[Slither, List[Dict], List[Dict], int]:
     """
     The core high-level code for running Slither static analysis.
 
@@ -88,7 +82,7 @@ def process_all(
     args: argparse.Namespace,
     detector_classes: List[AbstractDetector],
     printer_classes: List[AbstractPrinter],
-) -> Tuple[List[Slither], List[OutputData], List[OutputData], int]:
+) -> Tuple[List[Slither], List[Dict], List[Dict], int]:
     compilations = compile_all(target, **vars(args))
     slither_instances = []
     results_detectors = []
@@ -117,7 +111,7 @@ def _process(
     slither: Slither,
     detector_classes: List[AbstractDetector],
     printer_classes: List[AbstractPrinter],
-) -> Tuple[Slither, List[OutputData], List[OutputData], int]:
+) -> Tuple[Slither, List[Dict], List[Dict], int]:
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
 
