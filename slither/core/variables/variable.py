@@ -66,11 +66,10 @@ class Variable(SourceMapping):
         return not self._initialized
 
     @property
-    def name(self) -> str:
+    def name(self) -> Optional[str]:
         """
         str: variable name
         """
-        assert self._name
         return self._name
 
     @name.setter
