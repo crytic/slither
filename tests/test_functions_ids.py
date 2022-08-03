@@ -39,7 +39,7 @@ signatures = {
 
 
 def test_functions_ids() -> None:
-    solc_select.switch_global_version("0.7.0")
+    solc_select.switch_global_version("0.7.0", always_install=True)
     sl = Slither("tests/printers/functions_ids.sol")
     contracts_c = sl.get_contract_from_name("C")
     assert len(contracts_c) == 1
