@@ -48,3 +48,5 @@ jobs:
           pytest tests/test_constant_folding_unary.py
           pytest tests/slithir/test_ternary_expressions.py
           pytest tests/test_functions_ids.py
+          gpytest tests/test_function.py
+          pytest tests/test_source_mapping.py
