@@ -2,10 +2,9 @@ from typing import Union
 
 from eth_typing.evm import ChecksumAddress
 from eth_utils import to_int, to_text, to_checksum_address
-from hexbytes import HexBytes
 
 
-def get_offset_value(hex_bytes: HexBytes, offset: int, size: int) -> bytes:
+def get_offset_value(hex_bytes: bytes, offset: int, size: int) -> bytes:
     """
     Trims slot data to only contain the target variable's.
     Args:
@@ -25,7 +24,9 @@ def get_offset_value(hex_bytes: HexBytes, offset: int, size: int) -> bytes:
     return value
 
 
-def coerce_type(solidity_type: str, value: bytes) -> Union[int, bool, str, ChecksumAddress]:
+def coerce_type(
+    solidity_type: str, value: Union[int, str, bytes]
+) -> Union[int, bool, str, ChecksumAddress]:
     """
     Converts input to the indicated type.
     Args:
@@ -35,24 +36,26 @@ def coerce_type(solidity_type: str, value: bytes) -> Union[int, bool, str, Check
         (Union[int, bool, str, ChecksumAddress, hex]): The type representation of the value.
     """
     if "int" in solidity_type:
-        converted_value = to_int(value)
-    elif "bool" in solidity_type:
-        converted_value = bool(to_int(value))
-    elif "string" in solidity_type:
+        return to_int(value)
+    if "bool" in solidity_type:
+        return bool(to_int(value))
+    if "string" in solidity_type and isinstance(value, bytes):
         # length * 2 is stored in lower end bits
         # TODO handle bytes and strings greater than 32 bytes
         length = int(int.from_bytes(value[-2:], "big") / 2)
-        converted_value = to_text(value[:length])
+        return to_text(value[:length])
 
-    elif "address" in solidity_type:
-        converted_value = to_checksum_address(value)
-    else:
-        converted_value = value.hex()
+    if "address" in solidity_type:
+        if not isinstance(value, (str, bytes)):
+            raise TypeError
+        return to_checksum_address(value)
 
-    return converted_value
+    if not isinstance(value, bytes):
+        raise TypeError
+    return value.hex()
 
 
-def get_storage_data(web3, checksum_address: ChecksumAddress, slot: bytes) -> HexBytes:
+def get_storage_data(web3, checksum_address: ChecksumAddress, slot: bytes) -> bytes:
     """
     Retrieves the storage data from the blockchain at target address and slot.
     Args:

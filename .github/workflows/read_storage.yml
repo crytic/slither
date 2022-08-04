@@ -37,7 +37,6 @@ jobs:
         run: |
           pip install ".[dev]"
           pip install web3 
-          pip install tabulate==0.8.10
           solc-select install 0.8.1
           solc-select install 0.8.10
           solc-select use 0.8.1
