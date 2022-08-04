@@ -241,8 +241,8 @@ class PrinterHumanSummary(AbstractPrinter):
         for compilation_unit in self.slither.compilation_units:
             for pragma in compilation_unit.pragma_directives:
                 if (
-                    pragma.source_mapping["filename_absolute"]
-                    == contract.source_mapping["filename_absolute"]
+                    pragma.source_mapping.filename.absolute
+                    == contract.source_mapping.filename.absolute
                 ):
                     if pragma.is_abi_encoder_v2:
                         use_abi_encoder = True

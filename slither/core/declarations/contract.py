@@ -1112,7 +1112,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def is_from_dependency(self) -> bool:
         return self.compilation_unit.core.crytic_compile.is_dependency(
-            self.source_mapping["filename_absolute"]
+            self.source_mapping.filename.absolute
         )
 
     # endregion
@@ -1130,7 +1130,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         if self.compilation_unit.core.crytic_compile.platform == PlatformType.TRUFFLE:
             if self.name == "Migrations":
-                paths = Path(self.source_mapping["filename_absolute"]).parts
+                paths = Path(self.source_mapping.filename.absolute).parts
                 if len(paths) >= 2:
                     return paths[-2] == "contracts" and paths[-1] == "migrations.sol"
         return False

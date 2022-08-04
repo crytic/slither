@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 68,
                         "length": 89,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-inheritance/0.6.11/unimplemented_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-inheritance/0.6.11/unimplemented_interface.sol",
@@ -31,7 +30,6 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-inheritance/0.6.11/unimplemented_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-inheritance/0.6.11/unimplemented_interface.sol",

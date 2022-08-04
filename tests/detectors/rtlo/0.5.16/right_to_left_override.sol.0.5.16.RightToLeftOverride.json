@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 96,
                         "length": 3,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/rtlo/0.5.16/right_to_left_override.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/rtlo/0.5.16/right_to_left_override.sol",

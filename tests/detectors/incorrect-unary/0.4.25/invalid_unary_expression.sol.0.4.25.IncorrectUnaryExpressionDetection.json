@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 60,
                         "length": 142,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -34,7 +33,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 204,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -69,7 +67,6 @@
                     "source_mapping": {
                         "start": 104,
                         "length": 26,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -87,7 +84,6 @@
                             "source_mapping": {
                                 "start": 60,
                                 "length": 142,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -113,7 +109,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 204,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -161,7 +156,6 @@
                     "source_mapping": {
                         "start": 60,
                         "length": 142,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -187,7 +181,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 204,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -222,7 +215,6 @@
                     "source_mapping": {
                         "start": 136,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -240,7 +232,6 @@
                             "source_mapping": {
                                 "start": 60,
                                 "length": 142,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -266,7 +257,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 204,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -314,7 +304,6 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 204,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -346,7 +335,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 204,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -381,7 +369,6 @@
                     "source_mapping": {
                         "start": 42,
                         "length": 13,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -399,7 +386,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 204,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -431,7 +417,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 204,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -479,7 +464,6 @@
                     "source_mapping": {
                         "start": 42,
                         "length": 13,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
@@ -497,7 +481,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 204,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-unary/0.4.25/invalid_unary_expression.sol",

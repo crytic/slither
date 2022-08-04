@@ -17,11 +17,11 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result):
                 )
                 if function:
                     _patch(
-                        compilation_unit,
+                        file_scope,
                         result,
                         element["source_mapping"]["filename_absolute"],
-                        int(function.parameters_src().source_mapping["start"]),
-                        int(function.returns_src().source_mapping["start"]),
+                        int(function.parameters_src().source_mapping.start),
+                        int(function.returns_src().source_mapping.start),
                     )
 
 

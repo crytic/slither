@@ -2,7 +2,7 @@
     Function module
 """
 import logging
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod, ABCMeta
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby

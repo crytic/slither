@@ -935,14 +935,14 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             # For top level import, where the import statement renames the filename
             # See https://blog.soliditylang.org/2020/09/02/solidity-0.7.1-release-announcement/
 
-            current_path = Path(ins.ori.variable_left.source_mapping["filename_absolute"]).parent
+            current_path = Path(ins.ori.variable_left.source_mapping.filename.absolute).parent
             target = str(
                 Path(current_path, ins.ori.variable_left.import_directive.filename).absolute()
             )
             top_level_function_targets = [
                 f
                 for f in ins.compilation_unit.functions_top_level
-                if f.source_mapping["filename_absolute"] == target
+                if f.source_mapping.filename.absolute == target
                 and f.name == ins.ori.variable_right
                 and len(f.parameters) == ins.nbr_arguments
             ]
@@ -1760,6 +1760,21 @@ def convert_delete(irs):
 # endregion
 ###################################################################################
 ###################################################################################
+# region Source Mapping
+###################################################################################
+###################################################################################
+
+
+def _find_source_mapping_references(irs: List[Operation]):
+    for ir in irs:
+
+        if isinstance(ir, NewContract):
+            ir.contract_created.references.append(ir.expression.source_mapping)
+
+
+# endregion
+###################################################################################
+###################################################################################
 # region Heuristics selection
 ###################################################################################
 ###################################################################################
@@ -1777,5 +1792,7 @@ def apply_ir_heuristics(irs, node):
     find_references_origin(irs)
     convert_constant_types(irs)
     convert_delete(irs)
+
+    _find_source_mapping_references(irs)
 
     return irs

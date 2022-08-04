@@ -1,10 +1,12 @@
 from typing import TYPE_CHECKING
 
+from slither.core.source_mapping.source_mapping import SourceMapping
+
 if TYPE_CHECKING:
     from slither.core.declarations import Contract
 
 
-class ChildContract:
+class ChildContract(SourceMapping):
     def __init__(self):
         super().__init__()
         self._contract = None
