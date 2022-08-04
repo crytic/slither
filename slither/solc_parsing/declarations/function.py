@@ -623,11 +623,11 @@ class FunctionSolc(CallerContextExpression):
 
     def _parse_dowhile(self, do_while_statement: Dict, node: NodeSolc) -> NodeSolc:
 
-        condition_scope = Scope(
-            node.underlying_node.scope.is_checked, False, node.underlying_node.scope
-        )
         node_startDoWhile = self._new_node(
             NodeType.STARTLOOP, do_while_statement["src"], node.underlying_node.scope
+        )
+        condition_scope = Scope(
+            node.underlying_node.scope.is_checked, False, node.underlying_node.scope
         )
 
         if self.is_compact_ast:
@@ -962,7 +962,6 @@ class FunctionSolc(CallerContextExpression):
             node = continue_node
         elif name == "Break":
             break_node = self._new_node(NodeType.BREAK, statement["src"], scope)
-            print(self._loops)
             link_underlying_nodes(break_node, self._loops[-1][1])
             link_underlying_nodes(node, break_node)
             node = break_node
