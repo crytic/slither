@@ -147,6 +147,10 @@ ALL_TESTS = [
         ALL_VERSIONS,
     ),
     Test(
+        "break-continue-all.sol",
+        ALL_VERSIONS,
+    ),
+    Test(
         "top-level-nested-import-0.4.0.sol",
         VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"],
     ),
