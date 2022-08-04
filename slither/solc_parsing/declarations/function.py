@@ -411,10 +411,9 @@ class FunctionSolc(CallerContextExpression):
     def _parse_while(self, whilte_statement: Dict, node: NodeSolc) -> NodeSolc:
         # WhileStatement = 'while' '(' Expression ')' Statement
 
-        node_startWhile = self._new_node(NodeType.STARTLOOP, whilte_statement["src"], node.underlying_node.scope)
-        node_endWhile = self._new_node(NodeType.ENDLOOP, whilte_statement["src"], node.underlying_node.scope)
-
-        self._loops.append((node_startWhile, node_endWhile))
+        node_startWhile = self._new_node(
+            NodeType.STARTLOOP, whilte_statement["src"], node.underlying_node.scope
+        )
 
         body_scope = Scope(node.underlying_node.scope.is_checked, False, node.underlying_node.scope)
         if self.is_compact_ast:
@@ -431,6 +430,11 @@ class FunctionSolc(CallerContextExpression):
             )
             node_condition.add_unparsed_expression(expression)
             statement = self._parse_statement(children[1], node_condition, body_scope)
+
+        node_endWhile = self._new_node(
+            NodeType.ENDLOOP, whilte_statement["src"], node.underlying_node.scope
+        )
+        self._loops.append((node_startWhile, node_endWhile))
 
         link_underlying_nodes(node, node_startWhile)
         link_underlying_nodes(node_startWhile, node_condition)
@@ -622,10 +626,9 @@ class FunctionSolc(CallerContextExpression):
         condition_scope = Scope(
             node.underlying_node.scope.is_checked, False, node.underlying_node.scope
         )
-        node_startDoWhile = self._new_node(NodeType.STARTLOOP, do_while_statement["src"], node.underlying_node.scope)
-        node_endDoWhile = self._new_node(NodeType.ENDLOOP, do_while_statement["src"], node.underlying_node.scope)
-
-        self._loops.append((node_startDoWhile, node_endDoWhile))
+        node_startDoWhile = self._new_node(
+            NodeType.STARTLOOP, do_while_statement["src"], node.underlying_node.scope
+        )
 
         if self.is_compact_ast:
             node_condition = self._new_node(
@@ -645,6 +648,8 @@ class FunctionSolc(CallerContextExpression):
 
         body_scope = Scope(node.underlying_node.scope.is_checked, False, condition_scope)
         node_endDoWhile = self._new_node(NodeType.ENDLOOP, do_while_statement["src"], body_scope)
+
+        self._loops.append((node_startDoWhile, node_endDoWhile))
 
         link_underlying_nodes(node, node_startDoWhile)
         # empty block, loop from the start to the condition
