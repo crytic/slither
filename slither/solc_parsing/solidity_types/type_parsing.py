@@ -397,7 +397,7 @@ def parse_type(
                 name = renaming[name]
             if name in user_defined_types:
                 return user_defined_types[name]
-            type_found =  _find_from_type_name(
+            type_found = _find_from_type_name(
                 name,
                 functions,
                 contracts,
