@@ -16,7 +16,7 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result):
                 element["type_specific_fields"]["parent"]["name"]
             )
             if target_contract:
-                function = target_contract.get_function_from_signature(
+                function = target_contract.get_function_from_full_name(
                     element["type_specific_fields"]["signature"]
                 )
                 if function:

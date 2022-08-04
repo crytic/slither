@@ -1,11 +1,12 @@
 from typing import List
 
 from slither.core.declarations import SolidityFunction, Function
+from slither.core.declarations.contract import Contract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall, SolidityCall
 
 
-def _can_be_destroyed(contract) -> List[Function]:
+def _can_be_destroyed(contract: Contract) -> List[Function]:
     targets = []
     for f in contract.functions_entry_points:
         for ir in f.all_slithir_operations():
@@ -27,6 +28,18 @@ def _has_initializer_modifier(functions: List[Function]) -> bool:
             if m.name == "initializer":
                 return True
     return False
+
+
+def _whitelisted_modifiers(f: Function) -> bool:
+    # The onlyProxy modifier prevents calling the implementation contract (must be delegatecall)
+    #  https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/3dec82093ea4a490d63aab3e925fed4f692909e8/contracts/proxy/utils/UUPSUpgradeable.sol#L38-L42
+    return "onlyProxy" not in [modifier.name for modifier in f.modifiers]
+
+
+def _initialize_functions(contract: Contract) -> List[Function]:
+    return list(
+        filter(_whitelisted_modifiers, [f for f in contract.functions if f.name == "initialize"])
+    )
 
 
 class UnprotectedUpgradeable(AbstractDetector):
@@ -72,12 +85,10 @@ class UnprotectedUpgradeable(AbstractDetector):
                 if not _has_initializer_modifier(contract.constructors):
                     functions_that_can_destroy = _can_be_destroyed(contract)
                     if functions_that_can_destroy:
-                        initiliaze_functions = [
-                            f for f in contract.functions if f.name == "initialize"
-                        ]
+                        initialize_functions = _initialize_functions(contract)
 
                         vars_init_ = [
-                            init.all_state_variables_written() for init in initiliaze_functions
+                            init.all_state_variables_written() for init in initialize_functions
                         ]
                         vars_init = [item for sublist in vars_init_ for item in sublist]
 
@@ -91,9 +102,9 @@ class UnprotectedUpgradeable(AbstractDetector):
                             info = (
                                 [
                                     contract,
-                                    " is an upgradeable contract that does not protect its initiliaze functions: ",
+                                    " is an upgradeable contract that does not protect its initialize functions: ",
                                 ]
-                                + initiliaze_functions
+                                + initialize_functions
                                 + [
                                     ". Anyone can delete the contract with: ",
                                 ]

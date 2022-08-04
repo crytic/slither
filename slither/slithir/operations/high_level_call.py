@@ -96,6 +96,14 @@ class HighLevelCall(Call, OperationWithLValue):
     # region Analyses
     ###################################################################################
     ###################################################################################
+    def is_static_call(self):
+        # If solidity >0.5, STATICCALL is used
+        if self.compilation_unit.solc_version and self.compilation_unit.solc_version >= "0.5.0":
+            if isinstance(self.function, Function) and (self.function.view or self.function.pure):
+                return True
+            if isinstance(self.function, Variable):
+                return True
+        return False
 
     def can_reenter(self, callstack=None):
         """
@@ -105,12 +113,8 @@ class HighLevelCall(Call, OperationWithLValue):
         :param callstack: check for recursion
         :return: bool
         """
-        # If solidity >0.5, STATICCALL is used
-        if self.compilation_unit.solc_version and self.compilation_unit.solc_version >= "0.5.0":
-            if isinstance(self.function, Function) and (self.function.view or self.function.pure):
-                return False
-            if isinstance(self.function, Variable):
-                return False
+        if self.is_static_call():
+            return False
         # If there is a call to itself
         # We can check that the function called is
         # reentrancy-safe
@@ -124,6 +128,10 @@ class HighLevelCall(Call, OperationWithLValue):
             callstack = callstack + [self.function]
             if self.function.can_reenter(callstack):
                 return True
+        if isinstance(self.destination, Variable):
+            if not self.destination.is_reentrant:
+                return False
+
         return True
 
     def can_send_eth(self):

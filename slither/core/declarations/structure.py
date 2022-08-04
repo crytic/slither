@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, Dict
+from typing import List, TYPE_CHECKING, Dict, Optional
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 class Structure(SourceMapping):
     def __init__(self, compilation_unit: "SlitherCompilationUnit"):
         super().__init__()
-        self._name = None
+        self._name: Optional[str] = None
         self._canonical_name = None
         self._elems: Dict[str, "StructureVariable"] = {}
         # Name of the elements in the order of declaration

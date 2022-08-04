@@ -1,0 +1,3 @@
+# Always checkout test solidity code with lf endings
+# autocrlf breaks file offsets in tests.
+*.sol text eol=lf

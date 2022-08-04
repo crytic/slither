@@ -30,7 +30,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 897,
+                                "length": 1000,
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
@@ -73,7 +73,11 @@
                                     37,
                                     38,
                                     39,
-                                    40
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -127,7 +131,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 897,
+                                        "length": 1000,
                                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
@@ -170,7 +174,11 @@
                                             37,
                                             38,
                                             39,
-                                            40
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -218,7 +226,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 897,
+                                "length": 1000,
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
@@ -261,7 +269,11 @@
                                     37,
                                     38,
                                     39,
-                                    40
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -313,7 +325,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 897,
+                                        "length": 1000,
                                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
@@ -356,7 +368,11 @@
                                             37,
                                             38,
                                             39,
-                                            40
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -406,7 +422,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 897,
+                                "length": 1000,
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
@@ -449,7 +465,11 @@
                                     37,
                                     38,
                                     39,
-                                    40
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -503,7 +523,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 897,
+                                        "length": 1000,
                                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
@@ -546,7 +566,11 @@
                                             37,
                                             38,
                                             39,
-                                            40
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -596,7 +620,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 897,
+                                "length": 1000,
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
@@ -639,7 +663,11 @@
                                     37,
                                     38,
                                     39,
-                                    40
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -693,7 +721,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 897,
+                                        "length": 1000,
                                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
@@ -736,7 +764,11 @@
                                             37,
                                             38,
                                             39,
-                                            40
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -786,7 +818,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 28,
-                                "length": 897,
+                                "length": 1000,
                                 "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
@@ -829,7 +861,11 @@
                                     37,
                                     38,
                                     39,
-                                    40
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -883,7 +919,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 28,
-                                        "length": 897,
+                                        "length": 1000,
                                         "filename_relative": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/too-many-digits/0.6.11/too_many_digits.sol",
@@ -926,7 +962,11 @@
                                             37,
                                             38,
                                             39,
-                                            40
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2

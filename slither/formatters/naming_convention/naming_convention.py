@@ -257,7 +257,7 @@ def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
         ]
         param_name = element["name"]
         contract = scope.get_contract_from_name(contract_name)
-        function = contract.get_function_from_signature(function_sig)
+        function = contract.get_function_from_full_name(function_sig)
         target = function.get_local_variable_from_name(param_name)
 
     elif _target in ["variable", "variable_constant"]:
@@ -271,7 +271,7 @@ def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
             ]
             var_name = element["name"]
             contract = scope.get_contract_from_name(contract_name)
-            function = contract.get_function_from_signature(function_sig)
+            function = contract.get_function_from_full_name(function_sig)
             target = function.get_local_variable_from_name(var_name)
         # State variable
         else:
@@ -303,10 +303,10 @@ def _patch(compilation_unit: SlitherCompilationUnit, result, element, _target):
 # group 2: beginning of the to type
 # nested mapping are within the group 1
 # RE_MAPPING = '[ ]*mapping[ ]*\([ ]*([\=\>\(\) a-zA-Z0-9\._\[\]]*)[ ]*=>[ ]*([a-zA-Z0-9\._\[\]]*)\)'
-RE_MAPPING_FROM = b"([a-zA-Z0-9\._\[\]]*)"
-RE_MAPPING_TO = b"([\=\>\(\) a-zA-Z0-9\._\[\]\   ]*)"
+RE_MAPPING_FROM = rb"([a-zA-Z0-9\._\[\]]*)"
+RE_MAPPING_TO = rb"([\=\>\(\) a-zA-Z0-9\._\[\]\   ]*)"
 RE_MAPPING = (
-    b"[ ]*mapping[ ]*\([ ]*" + RE_MAPPING_FROM + b"[ ]*" + b"=>" + b"[ ]*" + RE_MAPPING_TO + b"\)"
+    rb"[ ]*mapping[ ]*\([ ]*" + RE_MAPPING_FROM + b"[ ]*" + b"=>" + b"[ ]*" + RE_MAPPING_TO + rb"\)"
 )
 
 

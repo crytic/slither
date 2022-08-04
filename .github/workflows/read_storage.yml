@@ -1,0 +1,50 @@
+---
+name: Test slither-read-storage
+
+defaults:
+  run:
+    # To load bashrc
+    shell: bash -ieo pipefail {0}
+
+on:
+  pull_request:
+    branches: [master, dev]
+  schedule:
+    # run CI every day even if no PRs/merges occur
+    - cron:  '0 12 * * *'
+
+jobs:
+  build:
+    name: Test slither-read-storage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install ganache
+        run: npm install --global ganache
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install python dependencies
+        run: |
+          pip install ".[dev]"
+          pip install web3 
+          solc-select install 0.8.1
+          solc-select install 0.8.10
+          solc-select use 0.8.1
+
+      - name: Run slither-read-storage
+        run: |
+          pytest tests/test_read_storage.py
+
+      - name: Run storage layout tests
+        run: |
+          pytest tests/test_storage_layout.py

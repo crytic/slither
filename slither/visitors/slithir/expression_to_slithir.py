@@ -1,11 +1,15 @@
 import logging
 
+from typing import List
+
 from slither.core.declarations import (
     Function,
     SolidityVariable,
     SolidityVariableComposed,
     SolidityFunction,
+    Contract,
 )
+from slither.core.declarations.enum import Enum
 from slither.core.expressions import (
     AssignmentOperationType,
     UnaryOperationType,
@@ -13,8 +17,9 @@ from slither.core.expressions import (
     ElementaryTypeNameExpression,
     CallExpression,
     Identifier,
+    MemberAccess,
 )
-from slither.core.solidity_types import ArrayType, ElementaryType
+from slither.core.solidity_types import ArrayType, ElementaryType, TypeAlias
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.core.variables.variable import Variable
@@ -33,6 +38,7 @@ from slither.slithir.operations import (
     Unpack,
     Return,
     SolidityCall,
+    Operation,
 )
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
@@ -57,6 +63,10 @@ def get(expression):
     # we delete the item to reduce memory use
     del expression.context[key]
     return val
+
+
+def get_without_removing(expression):
+    return expression.context[key]
 
 
 def set_val(expression, val):
@@ -127,7 +137,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
         self._expression = expression
         self._node = node
-        self._result = []
+        self._result: List[Operation] = []
         self._visit_expression(self.expression)
         if node.type == NodeType.RETURN:
             r = Return(get(self.expression))
@@ -240,8 +250,13 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     def _post_call_expression(
         self, expression
-    ):  # pylint: disable=too-many-branches,too-many-statements
-        called = get(expression.called)
+    ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals
+
+        assert isinstance(expression, CallExpression)
+
+        expression_called = expression.called
+        called = get(expression_called)
+
         args = [get(a) for a in expression.arguments if a]
         for arg in args:
             arg_ = Argument(arg)
@@ -259,66 +274,81 @@ class ExpressionToSlithIR(ExpressionVisitor):
             internal_call.set_expression(expression)
             self._result.append(internal_call)
             set_val(expression, val)
+
+        # User defined types
+        elif (
+            isinstance(called, TypeAlias)
+            and isinstance(expression_called, MemberAccess)
+            and expression_called.member_name in ["wrap", "unwrap"]
+            and len(args) == 1
+        ):
+            val = TemporaryVariable(self._node)
+            var = TypeConversion(val, args[0], called)
+            var.set_expression(expression)
+            val.set_type(called)
+            self._result.append(var)
+            set_val(expression, val)
+
+        # yul things
+        elif called.name == "caller()":
+            val = TemporaryVariable(self._node)
+            var = Assignment(val, SolidityVariableComposed("msg.sender"), "uint256")
+            self._result.append(var)
+            set_val(expression, val)
+        elif called.name == "origin()":
+            val = TemporaryVariable(self._node)
+            var = Assignment(val, SolidityVariableComposed("tx.origin"), "uint256")
+            self._result.append(var)
+            set_val(expression, val)
+        elif called.name == "extcodesize(uint256)":
+            val = ReferenceVariable(self._node)
+            var = Member(args[0], Constant("codesize"), val)
+            self._result.append(var)
+            set_val(expression, val)
+        elif called.name == "selfbalance()":
+            val = TemporaryVariable(self._node)
+            var = TypeConversion(val, SolidityVariable("this"), ElementaryType("address"))
+            val.set_type(ElementaryType("address"))
+            self._result.append(var)
+
+            val1 = ReferenceVariable(self._node)
+            var1 = Member(val, Constant("balance"), val1)
+            self._result.append(var1)
+            set_val(expression, val1)
+        elif called.name == "address()":
+            val = TemporaryVariable(self._node)
+            var = TypeConversion(val, SolidityVariable("this"), ElementaryType("address"))
+            val.set_type(ElementaryType("address"))
+            self._result.append(var)
+            set_val(expression, val)
+        elif called.name == "callvalue()":
+            val = TemporaryVariable(self._node)
+            var = Assignment(val, SolidityVariableComposed("msg.value"), "uint256")
+            self._result.append(var)
+            set_val(expression, val)
+
         else:
-            # yul things
-            if called.name == "caller()":
-                val = TemporaryVariable(self._node)
-                var = Assignment(val, SolidityVariableComposed("msg.sender"), "uint256")
-                self._result.append(var)
-                set_val(expression, val)
-            elif called.name == "origin()":
-                val = TemporaryVariable(self._node)
-                var = Assignment(val, SolidityVariableComposed("tx.origin"), "uint256")
-                self._result.append(var)
-                set_val(expression, val)
-            elif called.name == "extcodesize(uint256)":
-                val = ReferenceVariable(self._node)
-                var = Member(args[0], Constant("codesize"), val)
-                self._result.append(var)
-                set_val(expression, val)
-            elif called.name == "selfbalance()":
-                val = TemporaryVariable(self._node)
-                var = TypeConversion(val, SolidityVariable("this"), ElementaryType("address"))
-                val.set_type(ElementaryType("address"))
-                self._result.append(var)
-
-                val1 = ReferenceVariable(self._node)
-                var1 = Member(val, Constant("balance"), val1)
-                self._result.append(var1)
-                set_val(expression, val1)
-            elif called.name == "address()":
-                val = TemporaryVariable(self._node)
-                var = TypeConversion(val, SolidityVariable("this"), ElementaryType("address"))
-                val.set_type(ElementaryType("address"))
-                self._result.append(var)
-                set_val(expression, val)
-            elif called.name == "callvalue()":
-                val = TemporaryVariable(self._node)
-                var = Assignment(val, SolidityVariableComposed("msg.value"), "uint256")
-                self._result.append(var)
-                set_val(expression, val)
+            # If tuple
+            if expression.type_call.startswith("tuple(") and expression.type_call != "tuple()":
+                val = TupleVariable(self._node)
             else:
-                # If tuple
-                if expression.type_call.startswith("tuple(") and expression.type_call != "tuple()":
-                    val = TupleVariable(self._node)
-                else:
-                    val = TemporaryVariable(self._node)
+                val = TemporaryVariable(self._node)
 
-                message_call = TmpCall(called, len(args), val, expression.type_call)
-                message_call.set_expression(expression)
-                # Gas/value are only accessible here if the syntax {gas: , value: }
-                # Is used over .gas().value()
-                if expression.call_gas:
-                    call_gas = get(expression.call_gas)
-                    message_call.call_gas = call_gas
-                if expression.call_value:
-                    call_value = get(expression.call_value)
-                    message_call.call_value = call_value
-                if expression.call_salt:
-                    call_salt = get(expression.call_salt)
-                    message_call.call_salt = call_salt
-                self._result.append(message_call)
-                set_val(expression, val)
+            message_call = TmpCall(called, len(args), val, expression.type_call)
+            message_call.set_expression(expression)
+            # Gas/value are only accessible here if the syntax {gas: , value: }
+            # Is used over .gas().value()
+            if expression.call_gas:
+                call_gas = get(expression.call_gas)
+                message_call.call_gas = call_gas
+            if expression.call_value:
+                call_value = get(expression.call_value)
+                message_call.call_value = call_value
+            if expression.call_salt:
+                call_salt = get(expression.call_salt)
+                message_call.call_salt = call_salt
+            self._result.append(message_call)
+            set_val(expression, val)
 
     def _post_conditional_expression(self, expression):
         raise Exception(f"Ternary operator are not convertible to SlithIR {expression}")
@@ -374,18 +404,25 @@ class ExpressionToSlithIR(ExpressionVisitor):
                     assert len(expression.expression.arguments) == 1
                     val = TemporaryVariable(self._node)
                     type_expression_found = expression.expression.arguments[0]
-                    assert isinstance(type_expression_found, ElementaryTypeNameExpression)
-                    type_found = type_expression_found.type
-                    if expression.member_name == "min:":
+                    if isinstance(type_expression_found, ElementaryTypeNameExpression):
+                        type_found = type_expression_found.type
+                        constant_type = type_found
+                    else:
+                        # type(enum).max/min
+                        assert isinstance(type_expression_found, Identifier)
+                        type_found = type_expression_found.value
+                        assert isinstance(type_found, Enum)
+                        constant_type = None
+                    if expression.member_name == "min":
                         op = Assignment(
                             val,
-                            Constant(str(type_found.min), type_found),
+                            Constant(str(type_found.min), constant_type),
                             type_found,
                         )
                     else:
                         op = Assignment(
                             val,
-                            Constant(str(type_found.max), type_found),
+                            Constant(str(type_found.max), constant_type),
                             type_found,
                         )
                     self._result.append(op)
@@ -412,6 +449,20 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(s)
             set_val(expression, val)
             return
+
+        if isinstance(expr, TypeAlias) and expression.member_name in ["wrap", "unwrap"]:
+            # The logic is be handled by _post_call_expression
+            set_val(expression, expr)
+            return
+
+        # Early lookup to detect user defined types from other contracts definitions
+        # contract A { type MyInt is int}
+        # contract B { function f() public{ A.MyInt test = A.MyInt.wrap(1);}}
+        # The logic is handled by _post_call_expression
+        if isinstance(expr, Contract):
+            if expression.member_name in expr.file_scope.user_defined_types:
+                set_val(expression, expr.file_scope.user_defined_types[expression.member_name])
+                return
 
         val = ReferenceVariable(self._node)
         member = Member(expr, Constant(expression.member_name), val)

@@ -1,0 +1,223 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "set_not_protected",
+                    "source_mapping": {
+                        "start": 653,
+                        "length": 85,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            31,
+                            32,
+                            33
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ReentrancyAndWrite",
+                            "source_mapping": {
+                                "start": 55,
+                                "length": 685,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "set_not_protected()"
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "onlyOwner",
+                    "source_mapping": {
+                        "start": 210,
+                        "length": 88,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11,
+                            12,
+                            13,
+                            14
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ReentrancyAndWrite",
+                            "source_mapping": {
+                                "start": 55,
+                                "length": 685,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "onlyOwner()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "external_contract",
+                    "source_mapping": {
+                        "start": 184,
+                        "length": 19,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 24
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ReentrancyAndWrite",
+                            "source_mapping": {
+                                "start": 55,
+                                "length": 685,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "ReentrancyAndWrite.set_not_protected() (tests/detectors/protected-vars/0.8.2/comment.sol#31-33) should have ReentrancyAndWrite.onlyOwner() (tests/detectors/protected-vars/0.8.2/comment.sol#11-14) to protect ReentrancyAndWrite.external_contract (tests/detectors/protected-vars/0.8.2/comment.sol#9)\n",
+            "markdown": "[ReentrancyAndWrite.set_not_protected()](tests/detectors/protected-vars/0.8.2/comment.sol#L31-L33) should have [ReentrancyAndWrite.onlyOwner()](tests/detectors/protected-vars/0.8.2/comment.sol#L11-L14) to protect [ReentrancyAndWrite.external_contract](tests/detectors/protected-vars/0.8.2/comment.sol#L9)\n",
+            "first_markdown_element": "tests/detectors/protected-vars/0.8.2/comment.sol#L31-L33",
+            "id": "3f3bc8c8a9b3e23482f47f1133aceaed81c2c781c6aaf25656a8e578c9f6cb0e",
+            "check": "protected-vars",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]

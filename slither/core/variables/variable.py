@@ -1,7 +1,7 @@
 """
     Variable module
 """
-from typing import Optional, TYPE_CHECKING, List, Union
+from typing import Optional, TYPE_CHECKING, List, Union, Tuple
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.solidity_types.type import Type
@@ -10,7 +10,7 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
 
-
+# pylint: disable=too-many-instance-attributes
 class Variable(SourceMapping):
     def __init__(self):
         super().__init__()
@@ -21,6 +21,8 @@ class Variable(SourceMapping):
         self._visibility: Optional[str] = None
         self._is_constant = False
         self._is_immutable: bool = False
+        self._is_reentrant: bool = True
+        self._write_protection: Optional[List[str]] = None
 
     @property
     def is_scalar(self) -> bool:
@@ -42,7 +44,7 @@ class Variable(SourceMapping):
         return self._initial_expression
 
     @expression.setter
-    def expression(self, expr: "Expression"):
+    def expression(self, expr: "Expression") -> None:
         self._initial_expression = expr
 
     @property
@@ -64,7 +66,7 @@ class Variable(SourceMapping):
         return not self._initialized
 
     @property
-    def name(self) -> str:
+    def name(self) -> Optional[str]:
         """
         str: variable name
         """
@@ -91,6 +93,22 @@ class Variable(SourceMapping):
         self._is_constant = is_cst
 
     @property
+    def is_reentrant(self) -> bool:
+        return self._is_reentrant
+
+    @is_reentrant.setter
+    def is_reentrant(self, is_reentrant: bool) -> None:
+        self._is_reentrant = is_reentrant
+
+    @property
+    def write_protection(self) -> Optional[List[str]]:
+        return self._write_protection
+
+    @write_protection.setter
+    def write_protection(self, write_protection: List[str]) -> None:
+        self._write_protection = write_protection
+
+    @property
     def visibility(self) -> Optional[str]:
         """
         str: variable visibility
@@ -98,12 +116,13 @@ class Variable(SourceMapping):
         return self._visibility
 
     @visibility.setter
-    def visibility(self, v: str):
+    def visibility(self, v: str) -> None:
         self._visibility = v
 
-    def set_type(self, t):
+    def set_type(self, t: Optional[Union[List, Type, str]]) -> None:
         if isinstance(t, str):
-            t = ElementaryType(t)
+            self._type = ElementaryType(t)
+            return
         assert isinstance(t, (Type, list)) or t is None
         self._type = t
 
@@ -117,27 +136,46 @@ class Variable(SourceMapping):
         return self._is_immutable
 
     @is_immutable.setter
-    def is_immutable(self, immutablility: bool):
+    def is_immutable(self, immutablility: bool) -> None:
         self._is_immutable = immutablility
 
+    ###################################################################################
+    ###################################################################################
+    # region Signature
+    ###################################################################################
+    ###################################################################################
+
     @property
-    def function_name(self):
+    def signature(self) -> Tuple[str, List[str], List[str]]:
         """
-        Return the name of the variable as a function signature
-        :return:
+        Return the signature of the state variable as a function signature
+        :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)
         """
         # pylint: disable=import-outside-toplevel
-        from slither.core.solidity_types import ArrayType, MappingType
-        from slither.utils.type import export_nested_types_from_variable
+        from slither.utils.type import (
+            export_nested_types_from_variable,
+            export_return_type_from_variable,
+        )
 
-        variable_getter_args = ""
-        return_type = self.type
-        assert return_type
+        return (
+            self.name,
+            [str(x) for x in export_nested_types_from_variable(self)],
+            [str(x) for x in export_return_type_from_variable(self)],
+        )
 
-        if isinstance(return_type, (ArrayType, MappingType)):
-            variable_getter_args = ",".join(map(str, export_nested_types_from_variable(self)))
+    @property
+    def signature_str(self) -> str:
+        """
+        Return the signature of the state variable as a function signature
+        :return: str: func_name(type1,type2) returns(type3)
+        """
+        name, parameters, returnVars = self.signature
+        return name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
 
-        return f"{self.name}({variable_getter_args})"
+    @property
+    def solidity_signature(self) -> str:
+        name, parameters, _ = self.signature
+        return f'{name}({",".join(parameters)})'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._name

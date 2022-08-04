@@ -53,7 +53,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         Keyword Args:
             solc (str): solc binary location (default 'solc')
             disable_solc_warnings (bool): True to disable solc warnings (default false)
-            solc_arguments (str): solc arguments (default '')
+            solc_args (str): solc arguments (default '')
             ast_format (str): ast format (default '--ast-compact-json')
             filter_paths (list(str)): list of path to filter (default [])
             triage_mode (bool): if true, switch to triage mode (default false)

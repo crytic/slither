@@ -17,6 +17,8 @@ class LibraryCall(HighLevelCall):
         Must be called after slithIR analysis pass
         :return: bool
         """
+        if self.is_static_call():
+            return False
         # In case of recursion, return False
         callstack = [] if callstack is None else callstack
         if self.function in callstack:

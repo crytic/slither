@@ -53,10 +53,10 @@
                     }
                 }
             ],
-            "description": "Different versions of Solidity is used:\n\t- Version used: ['^0.5.15', '^0.5.16']\n\t- ^0.5.15 (tests/detectors/pragma/0.5.16/pragma.0.5.15.sol#1)\n\t- ^0.5.16 (tests/detectors/pragma/0.5.16/pragma.0.5.16.sol#1)\n",
-            "markdown": "Different versions of Solidity is used:\n\t- Version used: ['^0.5.15', '^0.5.16']\n\t- [^0.5.15](tests/detectors/pragma/0.5.16/pragma.0.5.15.sol#L1)\n\t- [^0.5.16](tests/detectors/pragma/0.5.16/pragma.0.5.16.sol#L1)\n",
+            "description": "Different versions of Solidity are used:\n\t- Version used: ['^0.5.15', '^0.5.16']\n\t- ^0.5.15 (tests/detectors/pragma/0.5.16/pragma.0.5.15.sol#1)\n\t- ^0.5.16 (tests/detectors/pragma/0.5.16/pragma.0.5.16.sol#1)\n",
+            "markdown": "Different versions of Solidity are used:\n\t- Version used: ['^0.5.15', '^0.5.16']\n\t- [^0.5.15](tests/detectors/pragma/0.5.16/pragma.0.5.15.sol#L1)\n\t- [^0.5.16](tests/detectors/pragma/0.5.16/pragma.0.5.16.sol#L1)\n",
             "first_markdown_element": "tests/detectors/pragma/0.5.16/pragma.0.5.15.sol#L1",
-            "id": "fb131cf132ddad4e4550414541cc4b778b66e14a2a134874ad78197e54fbc020",
+            "id": "f3c6aef8c4d19f960e801fe9343d7cb4c290460cb7b4b14dca769269f0234b31",
             "check": "pragma",
             "impact": "Informational",
             "confidence": "High"

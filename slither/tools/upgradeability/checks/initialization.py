@@ -15,7 +15,7 @@ class MultipleInitTarget(Exception):
     pass
 
 
-def _has_initiliaze_modifier(function: Function):
+def _has_initialize_modifier(function: Function):
     if not function.modifiers:
         return False
     return any((m.name == "initializer") for m in function.modifiers)
@@ -25,7 +25,7 @@ def _get_initialize_functions(contract):
     return [
         f
         for f in contract.functions
-        if (f.name == "initialize" or _has_initiliaze_modifier(f)) and f.is_implemented
+        if (f.name == "initialize" or _has_initialize_modifier(f)) and f.is_implemented
     ]
 
 
@@ -313,7 +313,7 @@ contract DerivedDerived is Derived{
 }
 
 ```
-`Base.initialize(uint)` is called two times in `DerivedDerived.initiliaze` execution, leading to a potential corruption.
+`Base.initialize(uint)` is called two times in `DerivedDerived.initialize` execution, leading to a potential corruption.
 """
     # endregion wiki_exploit_scenario
 
