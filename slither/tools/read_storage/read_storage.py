@@ -106,7 +106,7 @@ class SlitherReadStorage:
 
     def get_storage_layout(self) -> None:
         """Retrieves the storage layout of entire contract."""
-        tmp = {}
+        tmp: Dict[str, SlotInfo] = {}
         for contract, var in self.target_variables:
             type_ = var.type
             info = self.get_storage_slot(var, contract)
