@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 193,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
@@ -39,7 +38,6 @@
                     "source_mapping": {
                         "start": 29,
                         "length": 43,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
@@ -59,7 +57,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 193,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
@@ -93,7 +90,6 @@
                     "source_mapping": {
                         "start": 77,
                         "length": 42,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
@@ -113,7 +109,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 193,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",

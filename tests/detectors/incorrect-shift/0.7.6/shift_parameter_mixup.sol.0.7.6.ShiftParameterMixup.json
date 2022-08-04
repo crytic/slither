@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 19,
                         "length": 106,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
@@ -30,7 +29,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 128,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
@@ -58,7 +56,6 @@
                     "source_mapping": {
                         "start": 93,
                         "length": 14,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
@@ -76,7 +73,6 @@
                             "source_mapping": {
                                 "start": 19,
                                 "length": 106,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
@@ -98,7 +94,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 128,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
