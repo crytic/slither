@@ -1218,6 +1218,122 @@ ALL_TEST_OBJECTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.ShiftParameterMixup,
+        "shift_parameter_mixup.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ShiftParameterMixup,
+        "shift_parameter_mixup.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ShiftParameterMixup,
+        "shift_parameter_mixup.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ShiftParameterMixup,
+        "shift_parameter_mixup.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.MissingInheritance,
+        "unimplemented_interface.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.MissingInheritance,
+        "unimplemented_interface.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.MissingInheritance,
+        "unimplemented_interface.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.MissingInheritance,
+        "unimplemented_interface.sol",
+        "0.7.6",
+    ),
+    # Does not work on the CI. Most likely because of solc 0.4.2?
+    # Test(
+    #     all_detectors.EnumConversion,
+    #     "enum_conversion.sol",
+    #     "0.4.2",
+    # ),
+    Test(
+        all_detectors.MultipleConstructorSchemes,
+        "multiple_constructor_schemes.sol",
+        "0.4.22",
+    ),
+    Test(
+        all_detectors.DeprecatedStandards,
+        "deprecated_calls.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.TypeBasedTautology,
+        "type_based_tautology.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.TypeBasedTautology,
+        "type_based_tautology.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.TypeBasedTautology,
+        "type_based_tautology.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.TypeBasedTautology,
+        "type_based_tautology.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.7.6",
+    ),
+    Test(
         all_detectors.MsgValueInLoop,
         "msg_value_loop.sol",
         "0.4.25",

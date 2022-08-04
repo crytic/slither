@@ -151,7 +151,7 @@ class NonElementaryType(Exception):
 
 
 class ElementaryType(Type):
-    def __init__(self, t):
+    def __init__(self, t: str) -> None:
         if t not in ElementaryTypeName:
             raise NonElementaryType
         super().__init__()
@@ -162,6 +162,10 @@ class ElementaryType(Type):
         elif t == "byte":
             t = "bytes1"
         self._type = t
+
+    @property
+    def is_dynamic(self) -> bool:
+        return self._type in ("bytes", "string")
 
     @property
     def type(self) -> str:

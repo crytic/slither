@@ -1,0 +1,149 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "A",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 193,
+                        "filename_relative": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "constructor",
+                    "source_mapping": {
+                        "start": 29,
+                        "length": 43,
+                        "filename_relative": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 193,
+                                "filename_relative": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "constructor()"
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "A",
+                    "source_mapping": {
+                        "start": 77,
+                        "length": 42,
+                        "filename_relative": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 193,
+                                "filename_relative": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "A()"
+                    }
+                }
+            ],
+            "description": "A (tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#1-14) contains multiple constructors in the same contract:\n\t- A.constructor() (tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#3-5)\n\t- A.A() (tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#6-8)\n",
+            "markdown": "[A](tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#L1-L14) contains multiple constructors in the same contract:\n\t- [A.constructor()](tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#L3-L5)\n\t- [A.A()](tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#L6-L8)\n",
+            "first_markdown_element": "tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#L1-L14",
+            "id": "704cdb1c05e919913c22befaf077b9585bc75e31b5033fa46c930ad82dc6852e",
+            "check": "multiple-constructors",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]

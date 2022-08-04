@@ -37,8 +37,7 @@ def _get_name(f: Union[Function, Variable]) -> str:
     if isinstance(f, Function):
         if f.is_fallback or f.is_receive:
             return "()"
-        return f.solidity_signature
-    return f.function_name
+    return f.solidity_signature
 
 
 def _extract_payable(slither: SlitherCore) -> Dict[str, List[str]]:
@@ -117,7 +116,7 @@ def _extract_constant_functions(slither: SlitherCore) -> Dict[str, List[str]]:
     for contract in slither.contracts:
         cst_functions = [_get_name(f) for f in contract.functions_entry_points if _is_constant(f)]
         cst_functions += [
-            v.function_name for v in contract.state_variables if v.visibility in ["public"]
+            v.solidity_signature for v in contract.state_variables if v.visibility in ["public"]
         ]
         if cst_functions:
             ret[contract.name] = cst_functions

@@ -35,7 +35,7 @@ def _extract_evm_info(slither):
             cfg.instructions,
             contract_srcmap_runtime,
             slither,
-            contract.source_mapping["filename_absolute"],
+            contract.source_mapping.filename.absolute,
         )
 
         contract_bytecode_init = (
@@ -51,7 +51,7 @@ def _extract_evm_info(slither):
             cfg_init.instructions,
             contract_srcmap_init,
             slither,
-            contract.source_mapping["filename_absolute"],
+            contract.source_mapping.filename.absolute,
         )
 
     return evm_info
@@ -83,9 +83,9 @@ class PrinterEVM(AbstractPrinter):
             txt += blue(f"Contract {contract.name}\n")
 
             contract_file = self.slither.source_code[
-                contract.source_mapping["filename_absolute"]
+                contract.source_mapping.filename.absolute
             ].encode("utf-8")
-            with open(contract.source_mapping["filename_absolute"], "r", encoding="utf8") as f:
+            with open(contract.source_mapping.filename.absolute, "r", encoding="utf8") as f:
                 contract_file_lines = f.readlines()
 
             contract_pcs = {}
@@ -105,8 +105,7 @@ class PrinterEVM(AbstractPrinter):
                 for node in function.nodes:
                     txt += green("\t\tNode: " + str(node) + "\n")
                     node_source_line = (
-                        contract_file[0 : node.source_mapping["start"]].count("\n".encode("utf-8"))
-                        + 1
+                        contract_file[0 : node.source_mapping.start].count("\n".encode("utf-8")) + 1
                     )
                     txt += green(
                         f"\t\tSource line {node_source_line}: {contract_file_lines[node_source_line - 1].rstrip()}\n"
@@ -121,8 +120,7 @@ class PrinterEVM(AbstractPrinter):
                 for node in modifier.nodes:
                     txt += green("\t\tNode: " + str(node) + "\n")
                     node_source_line = (
-                        contract_file[0 : node.source_mapping["start"]].count("\n".encode("utf-8"))
-                        + 1
+                        contract_file[0 : node.source_mapping.start].count("\n".encode("utf-8")) + 1
                     )
                     txt += green(
                         f"\t\tSource line {node_source_line}: {contract_file_lines[node_source_line - 1].rstrip()}\n"

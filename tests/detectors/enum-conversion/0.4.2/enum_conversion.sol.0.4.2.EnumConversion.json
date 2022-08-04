@@ -1,0 +1,222 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "node",
+                    "name": "Test.E(a)",
+                    "source_mapping": {
+                        "start": 118,
+                        "length": 11,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 20
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bug",
+                            "source_mapping": {
+                                "start": 70,
+                                "length": 69,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Test",
+                                    "source_mapping": {
+                                        "start": 27,
+                                        "length": 114,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10
+                                        ],
+                                        "starting_column": 5,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "bug(uint256)"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "a",
+                    "source_mapping": {
+                        "start": 83,
+                        "length": 6,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6
+                        ],
+                        "starting_column": 18,
+                        "ending_column": 24
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bug",
+                            "source_mapping": {
+                                "start": 70,
+                                "length": 69,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Test",
+                                    "source_mapping": {
+                                        "start": 27,
+                                        "length": 114,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10
+                                        ],
+                                        "starting_column": 5,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "bug(uint256)"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "Test.E(a)",
+                    "source_mapping": {
+                        "start": 118,
+                        "length": 11,
+                        "filename_used": "/GENERIC_PATH",
+                        "filename_relative": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 20
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bug",
+                            "source_mapping": {
+                                "start": 70,
+                                "length": 69,
+                                "filename_used": "/GENERIC_PATH",
+                                "filename_relative": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Test",
+                                    "source_mapping": {
+                                        "start": 27,
+                                        "length": 114,
+                                        "filename_used": "/GENERIC_PATH",
+                                        "filename_relative": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10
+                                        ],
+                                        "starting_column": 5,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "bug(uint256)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Test.E(a) (tests/detectors/enum-conversion/0.4.2/enum_conversion.sol#7) has a dangerous enum conversion\n\t- Variable: Test.bug(uint256).a (tests/detectors/enum-conversion/0.4.2/enum_conversion.sol#6) of type: uint256\n\t- Enum conversion: Test.E(a) (tests/detectors/enum-conversion/0.4.2/enum_conversion.sol#7)\n",
+            "markdown": "[Test.E(a)](tests/detectors/enum-conversion/0.4.2/enum_conversion.sol#L7) has a dangerous enum conversion\n\t- Variable: [Test.bug(uint256).a](tests/detectors/enum-conversion/0.4.2/enum_conversion.sol#L6) of type: uint256\n\t- Enum conversion: [Test.E(a)](tests/detectors/enum-conversion/0.4.2/enum_conversion.sol#L7)\n",
+            "first_markdown_element": "tests/detectors/enum-conversion/0.4.2/enum_conversion.sol#L7",
+            "id": "f16bcdd6943fe3ff7ed6cc9b729ed5f95f61375509c7cce6646efa44c69860b7",
+            "check": "enum-conversion",
+            "impact": "Medium",
+            "confidence": "High"
+        }
+    ]
+]

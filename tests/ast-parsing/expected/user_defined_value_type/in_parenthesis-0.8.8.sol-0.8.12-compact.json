@@ -1,0 +1,14 @@
+{
+  "C": {
+    "f()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: EXPRESSION 1\n\"];\n1->2;\n2[label=\"Node Type: EXPRESSION 2\n\"];\n2->3;\n3[label=\"Node Type: EXPRESSION 3\n\"];\n3->4;\n4[label=\"Node Type: EXPRESSION 4\n\"];\n}\n"
+  },
+  "FixedMath": {
+    "add(UFixed,UFixed)": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: RETURN 1\n\"];\n}\n",
+    "mul(UFixed,uint256)": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: RETURN 1\n\"];\n}\n",
+    "floor(UFixed)": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: RETURN 1\n\"];\n}\n",
+    "toUFixed(uint256)": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: RETURN 1\n\"];\n}\n"
+  },
+  "Greeter": {
+    "constructor(string)": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n}\n"
+  }
+}

@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 31,
                         "length": 285,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol",
@@ -38,7 +37,6 @@
                     "source_mapping": {
                         "start": 96,
                         "length": 115,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol",
@@ -59,7 +57,6 @@
                             "source_mapping": {
                                 "start": 31,
                                 "length": 285,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol",
@@ -92,7 +89,6 @@
                     "source_mapping": {
                         "start": 216,
                         "length": 98,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol",
@@ -113,7 +109,6 @@
                             "source_mapping": {
                                 "start": 31,
                                 "length": 285,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol",

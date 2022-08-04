@@ -4,6 +4,7 @@ tests that `tests/test_function.sol` gets translated into correct
 `slither.core.declarations.Function` objects or its subclasses
 and that these objects behave correctly.
 """
+from solc_select import solc_select
 
 from slither import Slither
 from slither.core.declarations.function import FunctionType
@@ -12,6 +13,7 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 
 def test_functions():
     # pylint: disable=too-many-statements
+    solc_select.switch_global_version("0.6.12", always_install=True)
     slither = Slither("tests/test_function.sol")
     compilation_unit = slither.compilation_units[0]
     functions = compilation_unit.get_contract_from_name("TestFunction")[
