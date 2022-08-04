@@ -1,8 +1,11 @@
+from solc_select import solc_select
+
 from slither import Slither
 from slither.core.declarations import Function
 
 
 def test_source_mapping():
+    solc_select.switch_global_version("0.6.12", always_install=True)
     slither = Slither("tests/src_mapping/inheritance.sol")
 
     # Check if A.f() is at the offset 27
@@ -78,6 +81,3 @@ def test_source_mapping():
         (x.start, x.end)
         for x in slither.offset_to_implementations("tests/src_mapping/inheritance.sol", 93)
     } == {(17, 53), (193, 230), (129, 166)}
-
-
-test_source_mapping()

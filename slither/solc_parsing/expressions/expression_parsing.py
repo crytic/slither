@@ -464,8 +464,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         identifier = Identifier(var)
         identifier.set_offset(src, caller_context.compilation_unit)
-        # for i in range(0, identifier.source_mapping.length+1):
-        #     caller_context.compilation_unit.core.offset_to_objects[identifier.source_mapping.filename][identifier.source_mapping.start + i] = var
         var.references.append(identifier.source_mapping)
 
         return identifier
@@ -522,9 +520,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             sup = SuperIdentifier(var)
             sup.set_offset(src, caller_context.compilation_unit)
 
-            # for i in range(0, sup.source_mapping.length + 1):
-            #     caller_context.compilation_unit.core.offset_to_objects[sup.source_mapping.filename][
-            #         sup.source_mapping.start + i] = var
             var.references.append(sup.source_mapping)
 
             return sup
@@ -654,10 +649,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
             identifier = Identifier(var)
             identifier.set_offset(src, caller_context.compilation_unit)
-
-            # for i in range(0, identifier.source_mapping.length + 1):
-            #     caller_context.compilation_unit.core.offset_to_objects[identifier.source_mapping.filename][
-            #         identifier.source_mapping.start + i] = var
 
             var.references.append(identifier.source_mapping)
 
