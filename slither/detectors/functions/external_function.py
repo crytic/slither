@@ -126,6 +126,7 @@ class ExternalFunction(AbstractDetector):
             "0.6.9",
             "0.6.10",
             "0.6.11",
+            "0.6.12",
         ]:
             return results
 
