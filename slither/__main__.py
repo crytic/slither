@@ -299,6 +299,9 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
 
     group_detector = parser.add_argument_group("Detectors")
     group_printer = parser.add_argument_group("Printers")
+    group_checklist = parser.add_argument_group(
+        "Checklist (consider using https://github.com/crytic/slither-action)"
+    )
     group_misc = parser.add_argument_group("Additional options")
 
     group_detector.add_argument(
@@ -312,7 +315,7 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
 
     group_printer.add_argument(
         "--print",
-        help="Comma-separated list fo contract information printers, "
+        help="Comma-separated list of contract information printers, "
         f"available printers: {', '.join(d.ARGUMENT for d in printer_classes)}",
         action="store",
         dest="printers_to_run",
@@ -392,6 +395,28 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         default=defaults_flag_in_config["show_ignored_findings"],
     )
 
+    group_checklist.add_argument(
+        "--checklist",
+        help="Generate a markdown page with the detector results",
+        action="store_true",
+        default=False,
+    )
+
+    group_checklist.add_argument(
+        "--checklist-limit",
+        help="Limite the number of results per detector in the markdown file",
+        action="store",
+        default="",
+    )
+
+    group_checklist.add_argument(
+        "--markdown-root",
+        type=check_and_sanitize_markdown_root,
+        help="URL for markdown generation",
+        action="store",
+        default="",
+    )
+
     group_misc.add_argument(
         "--json",
         help='Export the results as a JSON file ("--json -" to export to stdout)',
@@ -430,14 +455,6 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     )
 
     group_misc.add_argument(
-        "--markdown-root",
-        type=check_and_sanitize_markdown_root,
-        help="URL for markdown generation",
-        action="store",
-        default="",
-    )
-
-    group_misc.add_argument(
         "--disable-color",
         help="Disable output colorization",
         action="store_true",
@@ -469,6 +486,14 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     )
 
     group_misc.add_argument(
+        "--change-line-prefix",
+        help="Change the line prefix (default #) for the displayed source codes (i.e. file.sol#1).",
+        action="store",
+        dest="change_line_prefix",
+        default="#",
+    )
+
+    group_misc.add_argument(
         "--solc-ast",
         help="Provide the contract as a json AST",
         action="store_true",
@@ -486,12 +511,6 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
 
     parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
-
-    group_misc.add_argument(
-        "--checklist", help=argparse.SUPPRESS, action="store_true", default=False
-    )
-
-    group_misc.add_argument("--checklist-limit", help=argparse.SUPPRESS, action="store", default="")
 
     parser.add_argument(
         "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
@@ -648,7 +667,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         cp.enable()
 
     # Set colorization option
-    set_colorization_enabled(not args.disable_color)
+    set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
 
     # Define some variables for potential JSON output
     json_results = {}
@@ -776,7 +795,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         if args.checklist:
             output_results_to_markdown(results_detectors, args.checklist_limit)
 
-        # Dont print the number of result for printers
+        # Don't print the number of result for printers
         if number_contracts == 0:
             logger.warning(red("No contract was analyzed"))
         if printer_classes:

@@ -56,8 +56,8 @@ def is_standard_library(contract: "Contract") -> Optional[str]:
 def is_openzepellin(contract: "Contract") -> bool:
     if not contract.is_from_dependency():
         return False
-    path = Path(contract.source_mapping["filename_absolute"]).parts
-    is_zep = "openzeppelin-solidity" in Path(contract.source_mapping["filename_absolute"]).parts
+    path = Path(contract.source_mapping.filename.absolute).parts
+    is_zep = "openzeppelin-solidity" in Path(contract.source_mapping.filename.absolute).parts
     try:
         is_zep |= path[path.index("@openzeppelin") + 1] == "contracts"
     except IndexError:
@@ -80,13 +80,13 @@ def is_openzepellin_strict(contract: "Contract") -> bool:
 def is_zos(contract: "Contract") -> bool:
     if not contract.is_from_dependency():
         return False
-    return "zos-lib" in Path(contract.source_mapping["filename_absolute"]).parts
+    return "zos-lib" in Path(contract.source_mapping.filename.absolute).parts
 
 
 def is_aragonos(contract: "Contract") -> bool:
     if not contract.is_from_dependency():
         return False
-    return "@aragon/os" in Path(contract.source_mapping["filename_absolute"]).parts
+    return "@aragon/os" in Path(contract.source_mapping.filename.absolute).parts
 
 
 # endregion
@@ -216,7 +216,7 @@ def _is_ds(contract: "Contract", name: str) -> bool:
 def _is_dappdhub_ds(contract: "Contract", name: str) -> bool:
     if not contract.is_from_dependency():
         return False
-    if not dapphubs[name] in Path(contract.source_mapping["filename_absolute"]).parts:
+    if not dapphubs[name] in Path(contract.source_mapping.filename.absolute).parts:
         return False
     return _is_ds(contract, name)
 

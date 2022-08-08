@@ -30,12 +30,24 @@ class ArrayType(Type):
         return self._type
 
     @property
+    def is_dynamic(self) -> bool:
+        return self.length is None
+
+    @property
     def length(self) -> Optional[Expression]:
         return self._length
 
     @property
-    def lenght_value(self) -> Optional[Literal]:
+    def length_value(self) -> Optional[Literal]:
         return self._length_value
+
+    @property
+    def is_fixed_array(self) -> bool:
+        return bool(self.length)
+
+    @property
+    def is_dynamic_array(self) -> bool:
+        return not self.is_fixed_array
 
     @property
     def storage_size(self) -> Tuple[int, bool]:

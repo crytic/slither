@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 637,
                         "length": 243,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -35,7 +34,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 1569,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -125,7 +123,6 @@
                     "source_mapping": {
                         "start": 684,
                         "length": 33,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -143,7 +140,6 @@
                             "source_mapping": {
                                 "start": 637,
                                 "length": 243,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -170,7 +166,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -265,7 +260,6 @@
                     "source_mapping": {
                         "start": 754,
                         "length": 36,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -283,7 +277,6 @@
                             "source_mapping": {
                                 "start": 637,
                                 "length": 243,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -310,7 +303,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -405,7 +397,6 @@
                     "source_mapping": {
                         "start": 684,
                         "length": 33,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -423,7 +414,6 @@
                             "source_mapping": {
                                 "start": 637,
                                 "length": 243,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -450,7 +440,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -545,7 +534,6 @@
                     "source_mapping": {
                         "start": 754,
                         "length": 36,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -563,7 +551,6 @@
                             "source_mapping": {
                                 "start": 637,
                                 "length": 243,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -590,7 +577,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -685,7 +671,6 @@
                     "source_mapping": {
                         "start": 804,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -703,7 +688,6 @@
                             "source_mapping": {
                                 "start": 637,
                                 "length": 243,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -730,7 +714,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -837,7 +820,6 @@
                     "source_mapping": {
                         "start": 886,
                         "length": 125,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -859,7 +841,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 1569,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -949,7 +930,6 @@
                     "source_mapping": {
                         "start": 933,
                         "length": 22,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -967,7 +947,6 @@
                             "source_mapping": {
                                 "start": 886,
                                 "length": 125,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -989,7 +968,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1084,7 +1062,6 @@
                     "source_mapping": {
                         "start": 1387,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1102,7 +1079,6 @@
                             "source_mapping": {
                                 "start": 1329,
                                 "length": 89,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1122,7 +1098,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1217,7 +1192,6 @@
                     "source_mapping": {
                         "start": 933,
                         "length": 22,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1235,7 +1209,6 @@
                             "source_mapping": {
                                 "start": 886,
                                 "length": 125,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1257,7 +1230,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1352,7 +1324,6 @@
                     "source_mapping": {
                         "start": 1387,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1370,7 +1341,6 @@
                             "source_mapping": {
                                 "start": 1329,
                                 "length": 89,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1390,7 +1360,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1485,7 +1454,6 @@
                     "source_mapping": {
                         "start": 965,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1503,7 +1471,6 @@
                             "source_mapping": {
                                 "start": 886,
                                 "length": 125,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1525,7 +1492,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1621,7 +1587,6 @@
                     "source_mapping": {
                         "start": 1563,
                         "length": 25,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1639,7 +1604,6 @@
                             "source_mapping": {
                                 "start": 1523,
                                 "length": 72,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1659,7 +1623,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1766,7 +1729,6 @@
                     "source_mapping": {
                         "start": 496,
                         "length": 135,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1788,7 +1750,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 1569,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1878,7 +1839,6 @@
                     "source_mapping": {
                         "start": 543,
                         "length": 33,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1896,7 +1856,6 @@
                             "source_mapping": {
                                 "start": 496,
                                 "length": 135,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -1918,7 +1877,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2013,7 +1971,6 @@
                     "source_mapping": {
                         "start": 543,
                         "length": 33,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2031,7 +1988,6 @@
                             "source_mapping": {
                                 "start": 496,
                                 "length": 135,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2053,7 +2009,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2148,7 +2103,6 @@
                     "source_mapping": {
                         "start": 612,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2166,7 +2120,6 @@
                             "source_mapping": {
                                 "start": 496,
                                 "length": 135,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2188,7 +2141,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2295,7 +2247,6 @@
                     "source_mapping": {
                         "start": 335,
                         "length": 155,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2319,7 +2270,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 1569,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2409,7 +2359,6 @@
                     "source_mapping": {
                         "start": 368,
                         "length": 37,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2427,7 +2376,6 @@
                             "source_mapping": {
                                 "start": 335,
                                 "length": 155,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2451,7 +2399,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2546,7 +2493,6 @@
                     "source_mapping": {
                         "start": 368,
                         "length": 37,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2564,7 +2510,6 @@
                             "source_mapping": {
                                 "start": 335,
                                 "length": 155,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2588,7 +2533,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2683,7 +2627,6 @@
                     "source_mapping": {
                         "start": 471,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2701,7 +2644,6 @@
                             "source_mapping": {
                                 "start": 335,
                                 "length": 155,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2725,7 +2667,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2832,7 +2773,6 @@
                     "source_mapping": {
                         "start": 1017,
                         "length": 172,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2855,7 +2795,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 1569,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2945,7 +2884,6 @@
                     "source_mapping": {
                         "start": 1064,
                         "length": 22,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2963,7 +2901,6 @@
                             "source_mapping": {
                                 "start": 1017,
                                 "length": 172,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -2986,7 +2923,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3081,7 +3017,6 @@
                     "source_mapping": {
                         "start": 1387,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3099,7 +3034,6 @@
                             "source_mapping": {
                                 "start": 1329,
                                 "length": 89,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3119,7 +3053,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3214,7 +3147,6 @@
                     "source_mapping": {
                         "start": 1096,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3232,7 +3164,6 @@
                             "source_mapping": {
                                 "start": 1017,
                                 "length": 172,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3255,7 +3186,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3350,7 +3280,6 @@
                     "source_mapping": {
                         "start": 1477,
                         "length": 33,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3368,7 +3297,6 @@
                             "source_mapping": {
                                 "start": 1424,
                                 "length": 93,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3388,7 +3316,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3483,7 +3410,6 @@
                     "source_mapping": {
                         "start": 1064,
                         "length": 22,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3501,7 +3427,6 @@
                             "source_mapping": {
                                 "start": 1017,
                                 "length": 172,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3524,7 +3449,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3619,7 +3543,6 @@
                     "source_mapping": {
                         "start": 1387,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3637,7 +3560,6 @@
                             "source_mapping": {
                                 "start": 1329,
                                 "length": 89,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3657,7 +3579,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3752,7 +3673,6 @@
                     "source_mapping": {
                         "start": 1096,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3770,7 +3690,6 @@
                             "source_mapping": {
                                 "start": 1017,
                                 "length": 172,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3793,7 +3712,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3888,7 +3806,6 @@
                     "source_mapping": {
                         "start": 1477,
                         "length": 33,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3906,7 +3823,6 @@
                             "source_mapping": {
                                 "start": 1424,
                                 "length": 93,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -3926,7 +3842,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4021,7 +3936,6 @@
                     "source_mapping": {
                         "start": 1127,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4039,7 +3953,6 @@
                             "source_mapping": {
                                 "start": 1017,
                                 "length": 172,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4062,7 +3975,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4158,7 +4070,6 @@
                     "source_mapping": {
                         "start": 1563,
                         "length": 25,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4176,7 +4087,6 @@
                             "source_mapping": {
                                 "start": 1523,
                                 "length": 72,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4196,7 +4106,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4303,7 +4212,6 @@
                     "source_mapping": {
                         "start": 1195,
                         "length": 128,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4325,7 +4233,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 1569,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4415,7 +4322,6 @@
                     "source_mapping": {
                         "start": 1242,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4433,7 +4339,6 @@
                             "source_mapping": {
                                 "start": 1195,
                                 "length": 128,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4455,7 +4360,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4550,7 +4454,6 @@
                     "source_mapping": {
                         "start": 1477,
                         "length": 33,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4568,7 +4471,6 @@
                             "source_mapping": {
                                 "start": 1424,
                                 "length": 93,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4588,7 +4490,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4683,7 +4584,6 @@
                     "source_mapping": {
                         "start": 1273,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4701,7 +4601,6 @@
                             "source_mapping": {
                                 "start": 1195,
                                 "length": 128,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4723,7 +4622,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4819,7 +4717,6 @@
                     "source_mapping": {
                         "start": 1563,
                         "length": 25,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4837,7 +4734,6 @@
                             "source_mapping": {
                                 "start": 1523,
                                 "length": 72,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
@@ -4857,7 +4753,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 1569,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-benign/0.6.11/reentrancy-benign.sol",

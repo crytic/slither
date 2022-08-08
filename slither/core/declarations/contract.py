@@ -21,6 +21,8 @@ from slither.utils.erc import (
     ERC777_signatures,
     ERC1155_signatures,
     ERC2612_signatures,
+    ERC1363_signatures,
+    ERC4524_signatures,
     ERC4626_signatures,
 )
 from slither.utils.tests_pattern import is_test_contract
@@ -75,9 +77,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._custom_errors: Dict[str, "CustomErrorContract"] = {}
 
         # The only str is "*"
-        self._using_for: Dict[Union[str, Type], List[str]] = {}
+        self._using_for: Dict[Union[str, Type], List[Type]] = {}
         self._kind: Optional[str] = None
         self._is_interface: bool = False
+        self._is_library: bool = False
 
         self._signatures: Optional[List[str]] = None
         self._signatures_declared: Optional[List[str]] = None
@@ -143,6 +146,14 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @is_interface.setter
     def is_interface(self, is_interface: bool):
         self._is_interface = is_interface
+
+    @property
+    def is_library(self) -> bool:
+        return self._is_library
+
+    @is_library.setter
+    def is_library(self, is_library: bool):
+        self._is_library = is_library
 
     # endregion
     ###################################################################################
@@ -245,7 +256,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def using_for(self) -> Dict[Union[str, Type], List[str]]:
+    def using_for(self) -> Dict[Union[str, Type], List[Type]]:
         return self._using_for
 
     # endregion
@@ -639,6 +650,21 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         return [f for f in self.functions if f.is_writing(variable)]
 
+    def get_function_from_full_name(self, full_name: str) -> Optional["Function"]:
+        """
+            Return a function from a full name
+            The full name differs from the solidity's signature are the type are conserved
+            For example contract type are kept, structure are not unrolled, etc
+        Args:
+            full_name (str): signature of the function (without return statement)
+        Returns:
+            Function
+        """
+        return next(
+            (f for f in self.functions if f.full_name == full_name and not f.is_shadowed),
+            None,
+        )
+
     def get_function_from_signature(self, function_signature: str) -> Optional["Function"]:
         """
             Return a function from a signature
@@ -648,7 +674,11 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             Function
         """
         return next(
-            (f for f in self.functions if f.full_name == function_signature and not f.is_shadowed),
+            (
+                f
+                for f in self.functions
+                if f.solidity_signature == function_signature and not f.is_shadowed
+            ),
             None,
         )
 
@@ -903,6 +933,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             ("ERC721", self.is_erc721),
             ("ERC777", self.is_erc777),
             ("ERC2612", self.is_erc2612),
+            ("ERC1363", self.is_erc1363),
             ("ERC4626", self.is_erc4626),
         ]
 
@@ -998,6 +1029,26 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         full_names = self.functions_signatures
         return all(s in full_names for s in ERC2612_signatures)
 
+    def is_erc1363(self) -> bool:
+        """
+            Check if the contract is an erc1363
+
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc1363
+        """
+        full_names = self.functions_signatures
+        return all(s in full_names for s in ERC1363_signatures)
+
+    def is_erc4524(self) -> bool:
+        """
+            Check if the contract is an erc4524
+
+            Note: it does not check for correct return values
+        :return: Returns a true if the contract is an erc4524
+        """
+        full_names = self.functions_signatures
+        return all(s in full_names for s in ERC4524_signatures)
+
     @property
     def is_token(self) -> bool:
         """
@@ -1061,7 +1112,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def is_from_dependency(self) -> bool:
         return self.compilation_unit.core.crytic_compile.is_dependency(
-            self.source_mapping["filename_absolute"]
+            self.source_mapping.filename.absolute
         )
 
     # endregion
@@ -1079,7 +1130,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         if self.compilation_unit.core.crytic_compile.platform == PlatformType.TRUFFLE:
             if self.name == "Migrations":
-                paths = Path(self.source_mapping["filename_absolute"]).parts
+                paths = Path(self.source_mapping.filename.absolute).parts
                 if len(paths) >= 2:
                     return paths[-2] == "contracts" and paths[-1] == "migrations.sol"
         return False

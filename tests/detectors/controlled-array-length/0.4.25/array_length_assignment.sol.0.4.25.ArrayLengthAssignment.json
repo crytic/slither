@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 1055,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -71,7 +70,6 @@
                     "source_mapping": {
                         "start": 527,
                         "length": 18,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -89,7 +87,6 @@
                             "source_mapping": {
                                 "start": 406,
                                 "length": 647,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -130,7 +127,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1055,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -209,7 +205,6 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 1055,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -272,7 +267,6 @@
                     "source_mapping": {
                         "start": 964,
                         "length": 32,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -290,7 +284,6 @@
                             "source_mapping": {
                                 "start": 406,
                                 "length": 647,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -331,7 +324,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1055,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -410,7 +402,6 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 1055,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -473,7 +464,6 @@
                     "source_mapping": {
                         "start": 818,
                         "length": 18,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -491,7 +481,6 @@
                             "source_mapping": {
                                 "start": 406,
                                 "length": 647,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
@@ -532,7 +521,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1055,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/controlled-array-length/0.4.25/array_length_assignment.sol",

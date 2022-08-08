@@ -11,7 +11,7 @@ on:
     branches: [master, dev]
   schedule:
     # run CI every day even if no PRs/merges occur
-    - cron:  '0 12 * * *'
+    - cron: '0 12 * * *'
 
 jobs:
   build:
@@ -22,21 +22,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.6
+          python-version: 3.8
 
       - name: Install dependencies
         run: |
-          pip install .
-          pip install deepdiff numpy
-
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
 
       - name: Black
-        uses: github/super-linter/slim@v4.8.7
+        uses: github/super-linter/slim@v4.9.2
         if: always()
         env:
           # run linter on everything to catch preexisting problems

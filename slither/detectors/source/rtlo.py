@@ -1,7 +1,7 @@
 import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
-
+# pylint: disable=bidirectional-unicode
 class RightToLeftOverride(AbstractDetector):
     """
     Detect the usage of a Right-To-Left-Override (U+202E) character

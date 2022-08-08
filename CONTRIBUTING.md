@@ -20,13 +20,28 @@ Some pull request guidelines:
 - Fill out the pull request description with a summary of what your patch does, key changes that have been made, and any further points of discussion, if applicable.
 - Title your pull request with a brief description of what it's changing. "Fixes #123" is a good comment to add to the description, but makes for an unclear title on its own.
 
+## Directory Structure
+
+Below is a rough outline of slither's design:
+```text
+.
+├── analyses # Provides additional info such as data dependency 
+├── core # Ties everything together
+├── detectors # Rules that define and identify issues 
+├── slither.py # Main entry point
+├── slithir # Contains the semantics of slither's intermediate representation
+├── solc_parsing # Responsible for parsing the solc AST
+├── tools # Miscellaneous tools built on top of slither
+├── visitors # Parses expressions and converts to slithir
+└── ...
+```
+
+A code walkthrough is available [here](https://www.youtube.com/watch?v=EUl3UlYSluU).
+
 ## Development Environment
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
-To run the unit tests, you need
-- `deepdiff` installed (`pip install deepdiff`).
-- `pycov` installed (`pip install pytest-cov`).
-- [`solc-select`](https://github.com/crytic/solc-select) installed.
+To run the unit tests, you need to clone this repository and run `pip install ".[dev]"`.
 
 ### Linters
 
@@ -37,7 +52,8 @@ To run them locally in the root dir of the repository:
 - `pylint slither tests --rcfile pyproject.toml`
 - `black . --config pyproject.toml`
 
-We use pylint `2.12.2` black `21.10b0`.
+We use pylint `2.13.4`, black `22.3.0`.
+
 ### Detectors tests
 
 For each new detector, at least one regression tests must be present.
@@ -45,6 +61,7 @@ For each new detector, at least one regression tests must be present.
 - Create a test in `tests`
 - Update `ALL_TEST` in `tests/test_detectors.py`
 - Run `python ./tests/test_detectors.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git.
+  - If updating an existing detector, identify the respective json artifacts and then delete them, or run `python ./tests/test_detectors.py --overwrite` instead.
 - Run `pytest ./tests/test_detectors.py` and check that everything worked.
 
 To see the tests coverage, run `pytest  tests/test_detectors.py  --cov=slither/detectors --cov-branch --cov-report html`

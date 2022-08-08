@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/pragma/0.6.11/pragma.0.6.10.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/pragma/0.6.11/pragma.0.6.10.sol",
@@ -34,7 +33,6 @@
                     "source_mapping": {
                         "start": 0,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/pragma/0.6.11/pragma.0.6.11.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/pragma/0.6.11/pragma.0.6.11.sol",
@@ -55,10 +53,10 @@
                     }
                 }
             ],
-            "description": "Different versions of Solidity is used:\n\t- Version used: ['^0.6.10', '^0.6.11']\n\t- ^0.6.10 (tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#1)\n\t- ^0.6.11 (tests/detectors/pragma/0.6.11/pragma.0.6.11.sol#1)\n",
-            "markdown": "Different versions of Solidity is used:\n\t- Version used: ['^0.6.10', '^0.6.11']\n\t- [^0.6.10](tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#L1)\n\t- [^0.6.11](tests/detectors/pragma/0.6.11/pragma.0.6.11.sol#L1)\n",
+            "description": "Different versions of Solidity are used:\n\t- Version used: ['^0.6.10', '^0.6.11']\n\t- ^0.6.10 (tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#1)\n\t- ^0.6.11 (tests/detectors/pragma/0.6.11/pragma.0.6.11.sol#1)\n",
+            "markdown": "Different versions of Solidity are used:\n\t- Version used: ['^0.6.10', '^0.6.11']\n\t- [^0.6.10](tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#L1)\n\t- [^0.6.11](tests/detectors/pragma/0.6.11/pragma.0.6.11.sol#L1)\n",
             "first_markdown_element": "tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#L1",
-            "id": "cca73553e40b6b9e04136a89efd83aea4283d56c8b3e49371384fc39e0a905e9",
+            "id": "05ad5ab9a596fc401c485ede8f164ebd0df3052e307bb036f70a64d47cbc2933",
             "check": "pragma",
             "impact": "Informational",
             "confidence": "High"

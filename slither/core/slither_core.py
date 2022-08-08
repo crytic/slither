@@ -4,16 +4,24 @@
 import json
 import logging
 import os
+import pathlib
+import posixpath
 import re
+from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union
 
 from crytic_compile import CryticCompile
+from crytic_compile.utils.naming import Filename
 
+from slither.core.children.child_contract import ChildContract
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.context.context import Context
-from slither.core.declarations import Contract
+from slither.core.declarations import Contract, FunctionContract
+from slither.core.declarations.top_level import TopLevel
+from slither.core.source_mapping.source_mapping import SourceMapping, Source
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
+from slither.utils.source_mapping import get_definition, get_references, get_implementation
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -46,7 +54,7 @@ class SlitherCore(Context):
         self._previous_results_ids: Set[str] = set()
         # Every slither object has a list of result from detector
         # Because of the multiple compilation support, we might analyze
-        # Multiple time the same result, so we remove dupplicate
+        # Multiple time the same result, so we remove duplicates
         self._currently_seen_resuts: Set[str] = set()
         self._paths_to_filter: Set[str] = set()
 
@@ -67,6 +75,16 @@ class SlitherCore(Context):
 
         self._contracts: List[Contract] = []
         self._contracts_derived: List[Contract] = []
+
+        self._offset_to_objects: Optional[Dict[Filename, Dict[int, Set[SourceMapping]]]] = None
+        self._offset_to_references: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
+        self._offset_to_implementations: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
+        self._offset_to_definitions: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
+
+        # Line prefix is used during the source mapping generation
+        # By default we generate file.sol#1
+        # But we allow to alter this (ex: file.sol:1) for vscode integration
+        self.line_prefix: str = "#"
 
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
@@ -157,6 +175,108 @@ class SlitherCore(Context):
                 for f in c.functions:
                     f.cfg_to_dot(os.path.join(d, f"{c.name}.{f.name}.dot"))
 
+    def offset_to_objects(self, filename_str: str, offset: int) -> Set[SourceMapping]:
+        if self._offset_to_objects is None:
+            self._compute_offsets_to_ref_impl_decl()
+        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        return self._offset_to_objects[filename][offset]
+
+    def _compute_offsets_from_thing(self, thing: SourceMapping):
+        definition = get_definition(thing, self.crytic_compile)
+        references = get_references(thing)
+        implementation = get_implementation(thing)
+
+        for offset in range(definition.start, definition.end + 1):
+
+            if (
+                isinstance(thing, TopLevel)
+                or (
+                    isinstance(thing, FunctionContract)
+                    and thing.contract_declarer == thing.contract
+                )
+                or (isinstance(thing, ChildContract) and not isinstance(thing, FunctionContract))
+            ):
+                self._offset_to_objects[definition.filename][offset].add(thing)
+
+            self._offset_to_definitions[definition.filename][offset].add(definition)
+            self._offset_to_implementations[definition.filename][offset].add(implementation)
+            self._offset_to_references[definition.filename][offset] |= set(references)
+
+        for ref in references:
+            for offset in range(ref.start, ref.end + 1):
+
+                if (
+                    isinstance(thing, TopLevel)
+                    or (
+                        isinstance(thing, FunctionContract)
+                        and thing.contract_declarer == thing.contract
+                    )
+                    or (
+                        isinstance(thing, ChildContract) and not isinstance(thing, FunctionContract)
+                    )
+                ):
+                    self._offset_to_objects[definition.filename][offset].add(thing)
+
+                self._offset_to_definitions[ref.filename][offset].add(definition)
+                self._offset_to_implementations[ref.filename][offset].add(implementation)
+                self._offset_to_references[ref.filename][offset] |= set(references)
+
+    def _compute_offsets_to_ref_impl_decl(self):  # pylint: disable=too-many-branches
+        self._offset_to_references = defaultdict(lambda: defaultdict(lambda: set()))
+        self._offset_to_definitions = defaultdict(lambda: defaultdict(lambda: set()))
+        self._offset_to_implementations = defaultdict(lambda: defaultdict(lambda: set()))
+        self._offset_to_objects = defaultdict(lambda: defaultdict(lambda: set()))
+
+        for compilation_unit in self._compilation_units:
+            for contract in compilation_unit.contracts:
+                self._compute_offsets_from_thing(contract)
+
+                for function in contract.functions:
+                    self._compute_offsets_from_thing(function)
+                    for variable in function.local_variables:
+                        self._compute_offsets_from_thing(variable)
+                for modifier in contract.modifiers:
+                    self._compute_offsets_from_thing(modifier)
+                    for variable in modifier.local_variables:
+                        self._compute_offsets_from_thing(variable)
+
+                for st in contract.structures:
+                    self._compute_offsets_from_thing(st)
+
+                for enum in contract.enums:
+                    self._compute_offsets_from_thing(enum)
+
+                for event in contract.events:
+                    self._compute_offsets_from_thing(event)
+            for enum in compilation_unit.enums_top_level:
+                self._compute_offsets_from_thing(enum)
+            for function in compilation_unit.functions_top_level:
+                self._compute_offsets_from_thing(function)
+            for st in compilation_unit.structures_top_level:
+                self._compute_offsets_from_thing(st)
+            for import_directive in compilation_unit.import_directives:
+                self._compute_offsets_from_thing(import_directive)
+            for pragma in compilation_unit.pragma_directives:
+                self._compute_offsets_from_thing(pragma)
+
+    def offset_to_references(self, filename_str: str, offset: int) -> Set[Source]:
+        if self._offset_to_references is None:
+            self._compute_offsets_to_ref_impl_decl()
+        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        return self._offset_to_references[filename][offset]
+
+    def offset_to_implementations(self, filename_str: str, offset: int) -> Set[Source]:
+        if self._offset_to_implementations is None:
+            self._compute_offsets_to_ref_impl_decl()
+        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        return self._offset_to_implementations[filename][offset]
+
+    def offset_to_definitions(self, filename_str: str, offset: int) -> Set[Source]:
+        if self._offset_to_definitions is None:
+            self._compute_offsets_to_ref_impl_decl()
+        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        return self._offset_to_definitions[filename][offset]
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -172,7 +292,7 @@ class SlitherCore(Context):
             return False
         mapping_elements_with_lines = (
             (
-                os.path.normpath(elem["source_mapping"]["filename_absolute"]),
+                posixpath.normpath(elem["source_mapping"]["filename_absolute"]),
                 elem["source_mapping"]["lines"],
             )
             for elem in r["elements"]
@@ -207,7 +327,7 @@ class SlitherCore(Context):
             - There is an ignore comment on the preceding line
         """
 
-        # Remove dupplicate due to the multiple compilation support
+        # Remove duplicate due to the multiple compilation support
         if r["id"] in self._currently_seen_resuts:
             return False
         self._currently_seen_resuts.add(r["id"])
@@ -217,8 +337,12 @@ class SlitherCore(Context):
             for elem in r["elements"]
             if "source_mapping" in elem
         ]
-        source_mapping_elements = map(
-            lambda x: os.path.normpath(x) if x else x, source_mapping_elements
+
+        # Use POSIX-style paths so that filter_paths works across different
+        # OSes. Convert to a list so elements don't get consumed and are lost
+        # while evaluating the first pattern
+        source_mapping_elements = list(
+            map(lambda x: pathlib.Path(x).resolve().as_posix() if x else x, source_mapping_elements)
         )
         matching = False
 
@@ -239,16 +363,21 @@ class SlitherCore(Context):
 
         if r["elements"] and matching:
             return False
-        if r["elements"] and self._exclude_dependencies:
-            return not all(element["source_mapping"]["is_dependency"] for element in r["elements"])
+
         if self._show_ignored_findings:
             return True
-        if r["id"] in self._previous_results_ids:
-            return False
         if self.has_ignore_comment(r):
             return False
+        if r["id"] in self._previous_results_ids:
+            return False
+        if r["elements"] and self._exclude_dependencies:
+            if all(element["source_mapping"]["is_dependency"] for element in r["elements"]):
+                return False
         # Conserve previous result filtering. This is conserved for compatibility, but is meant to be removed
-        return not r["description"] in [pr["description"] for pr in self._previous_results]
+        if r["description"] in [pr["description"] for pr in self._previous_results]:
+            return False
+
+        return True
 
     def load_previous_results(self):
         filename = self._previous_results_filename
