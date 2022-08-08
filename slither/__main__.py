@@ -887,7 +887,7 @@ def main_impl(
             result["impact"] in ["Low", "Medium", "High"] for result in results_detectors
         )
     elif args.fail_pedantic:
-        fail_on_detection = bool(len(results_detectors))
+        fail_on_detection = bool(results_detectors)
     else:
         fail_on_detection = False
 
