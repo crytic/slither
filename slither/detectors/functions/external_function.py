@@ -1,10 +1,15 @@
-from slither.core.solidity_types.array_type import ArrayType
+from typing import List, Set
+
+from slither.core.declarations import Function, FunctionContract, Contract
 from slither.core.declarations.structure import Structure
+from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import SolidityCall
-from slither.slithir.operations import InternalCall, InternalDynamicCall
 from slither.formatters.functions.external_function import custom_format
+from slither.slithir.operations import InternalCall, InternalDynamicCall
+from slither.slithir.operations import SolidityCall
+from slither.utils.output import Output
 
 
 class ExternalFunction(AbstractDetector):
@@ -27,7 +32,7 @@ class ExternalFunction(AbstractDetector):
     WIKI_RECOMMENDATION = "Use the `external` attribute for functions never called from the contract, and change the location of immutable parameters to `calldata` to save gas."
 
     @staticmethod
-    def detect_functions_called(contract):
+    def detect_functions_called(contract: Contract) -> List[Function]:
         """Returns a list of InternallCall, SolidityCall
             calls made in a function
 
@@ -38,6 +43,8 @@ class ExternalFunction(AbstractDetector):
 
         # Obtain all functions reachable by this contract.
         for func in contract.all_functions_called:
+            if not isinstance(func, Function):
+                continue
             # Loop through all nodes in the function, add all calls to a list.
             for node in func.nodes:
                 for ir in node.irs:
@@ -46,7 +53,7 @@ class ExternalFunction(AbstractDetector):
         return result
 
     @staticmethod
-    def _contains_internal_dynamic_call(contract):
+    def _contains_internal_dynamic_call(contract: Contract) -> bool:
         """
         Checks if a contract contains a dynamic call either in a direct definition, or through inheritance.
 
@@ -54,6 +61,8 @@ class ExternalFunction(AbstractDetector):
             (boolean): True if this contract contains a dynamic call (including through inheritance).
         """
         for func in contract.all_functions_called:
+            if not isinstance(func, Function):
+                continue
             for node in func.nodes:
                 for ir in node.irs:
                     if isinstance(ir, (InternalDynamicCall)):
@@ -61,7 +70,7 @@ class ExternalFunction(AbstractDetector):
         return False
 
     @staticmethod
-    def get_base_most_function(function):
+    def get_base_most_function(function: FunctionContract) -> FunctionContract:
         """
         Obtains the base function definition for the provided function. This could be used to obtain the original
         definition of a function, if the provided function is an override.
@@ -85,7 +94,9 @@ class ExternalFunction(AbstractDetector):
         raise Exception("Could not resolve the base-most function for the provided function.")
 
     @staticmethod
-    def get_all_function_definitions(base_most_function):
+    def get_all_function_definitions(
+        base_most_function: FunctionContract,
+    ) -> List[FunctionContract]:
         """
         Obtains all function definitions given a base-most function. This includes the provided function, plus any
         overrides of that function.
@@ -100,26 +111,28 @@ class ExternalFunction(AbstractDetector):
             for derived_contract in base_most_function.contract.derived_contracts
             for function in derived_contract.functions
             if function.full_name == base_most_function.full_name
+            and isinstance(function, FunctionContract)
         ]
 
     @staticmethod
-    def function_parameters_written(function):
+    def function_parameters_written(function: Function) -> bool:
         return any(p in function.variables_written for p in function.parameters)
 
     @staticmethod
-    def is_reference_type(parameter):
-        if isinstance(parameter.type, ArrayType):
+    def is_reference_type(parameter: Variable) -> bool:
+        parameter_type = parameter.type
+        if isinstance(parameter_type, ArrayType):
             return True
-        if isinstance(parameter.type, UserDefinedType) and isinstance(
-            parameter.type.type, Structure
+        if isinstance(parameter_type, UserDefinedType) and isinstance(
+            parameter_type.type, Structure
         ):
             return True
-        if str(parameter.type) in ["bytes", "string"]:
+        if str(parameter_type) in ["bytes", "string"]:
             return True
         return False
 
-    def _detect(self):  # pylint: disable=too-many-locals,too-many-branches
-        results = []
+    def _detect(self) -> List[Output]:  # pylint: disable=too-many-locals,too-many-branches
+        results: List[Output] = []
 
         # After solc 0.6.9, calldata arguments are allowed in public functions
         if self.compilation_unit.solc_version >= "0.7." or self.compilation_unit.solc_version in [
@@ -132,11 +145,11 @@ class ExternalFunction(AbstractDetector):
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be
         # calling functions internally, and thus we can't assume any function in such contracts isn't called by them.
-        dynamic_call_contracts = set()
+        dynamic_call_contracts: Set[Contract] = set()
 
         # Create a completed functions set to skip over functions already processed (any functions which are the base
         # of, or override hierarchically are processed together).
-        completed_functions = set()
+        completed_functions: Set[Function] = set()
 
         # First we build our set of all contracts with dynamic calls
         for contract in self.contracts:
@@ -219,10 +232,12 @@ class ExternalFunction(AbstractDetector):
 
                 # As we collect all shadowed functions in get_all_function_definitions
                 # Some function coming from a base might already been declared as external
-                all_function_definitions = [
+                all_function_definitions: List[FunctionContract] = [
                     f
                     for f in all_function_definitions
-                    if f.visibility == "public" and f.contract == f.contract_declarer
+                    if isinstance(f, FunctionContract)
+                    and f.visibility == "public"
+                    and f.contract == f.contract_declarer
                 ]
                 if all_function_definitions:
                     all_function_definitions = sorted(
