@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 151,
                         "length": 195,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -32,7 +31,6 @@
                             "source_mapping": {
                                 "start": 2,
                                 "length": 917,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -92,7 +90,6 @@
                     "source_mapping": {
                         "start": 211,
                         "length": 25,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -110,7 +107,6 @@
                             "source_mapping": {
                                 "start": 151,
                                 "length": 195,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -134,7 +130,6 @@
                                     "source_mapping": {
                                         "start": 2,
                                         "length": 917,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -207,7 +202,6 @@
                     "source_mapping": {
                         "start": 151,
                         "length": 195,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -231,7 +225,6 @@
                             "source_mapping": {
                                 "start": 2,
                                 "length": 917,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -291,7 +284,6 @@
                     "source_mapping": {
                         "start": 246,
                         "length": 29,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -309,7 +301,6 @@
                             "source_mapping": {
                                 "start": 151,
                                 "length": 195,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -333,7 +324,6 @@
                                     "source_mapping": {
                                         "start": 2,
                                         "length": 917,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -406,7 +396,6 @@
                     "source_mapping": {
                         "start": 151,
                         "length": 195,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -430,7 +419,6 @@
                             "source_mapping": {
                                 "start": 2,
                                 "length": 917,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -490,7 +478,6 @@
                     "source_mapping": {
                         "start": 183,
                         "length": 18,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -508,7 +495,6 @@
                             "source_mapping": {
                                 "start": 151,
                                 "length": 195,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -532,7 +518,6 @@
                                     "source_mapping": {
                                         "start": 2,
                                         "length": 917,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -605,7 +590,6 @@
                     "source_mapping": {
                         "start": 151,
                         "length": 195,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -629,7 +613,6 @@
                             "source_mapping": {
                                 "start": 2,
                                 "length": 917,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -689,7 +672,6 @@
                     "source_mapping": {
                         "start": 285,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -707,7 +689,6 @@
                             "source_mapping": {
                                 "start": 151,
                                 "length": 195,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -731,7 +712,6 @@
                                     "source_mapping": {
                                         "start": 2,
                                         "length": 917,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -804,7 +784,6 @@
                     "source_mapping": {
                         "start": 430,
                         "length": 113,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -826,7 +805,6 @@
                             "source_mapping": {
                                 "start": 2,
                                 "length": 917,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -886,7 +864,6 @@
                     "source_mapping": {
                         "start": 486,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -904,7 +881,6 @@
                             "source_mapping": {
                                 "start": 430,
                                 "length": 113,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
@@ -926,7 +902,6 @@
                                     "source_mapping": {
                                         "start": 2,
                                         "length": 917,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/too-many-digits/0.7.6/too_many_digits.sol",

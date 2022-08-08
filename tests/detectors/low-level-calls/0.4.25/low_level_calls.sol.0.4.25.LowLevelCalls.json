@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 51,
                         "length": 112,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
@@ -28,7 +27,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 136,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
@@ -53,7 +51,6 @@
                     "source_mapping": {
                         "start": 111,
                         "length": 45,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
@@ -71,7 +68,6 @@
                             "source_mapping": {
                                 "start": 51,
                                 "length": 112,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
@@ -91,7 +87,6 @@
                                     "source_mapping": {
                                         "start": 29,
                                         "length": 136,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/low-level-calls/0.4.25/low_level_calls.sol",

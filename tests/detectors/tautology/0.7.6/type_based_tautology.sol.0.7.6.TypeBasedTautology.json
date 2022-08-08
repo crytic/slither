@@ -4,154 +4,10 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "f",
-                    "source_mapping": {
-                        "start": 14,
-                        "length": 133,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            2,
-                            3,
-                            4,
-                            5,
-                            6,
-                            7
-                        ],
-                        "starting_column": 2,
-                        "ending_column": 3
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "A",
-                            "source_mapping": {
-                                "start": 0,
-                                "length": 232,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 0
-                            }
-                        },
-                        "signature": "f(uint256)"
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "x >= 0",
-                    "source_mapping": {
-                        "start": 69,
-                        "length": 6,
-                        "filename_used": "/GENERIC_PATH",
-                        "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            3
-                        ],
-                        "starting_column": 13,
-                        "ending_column": 19
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "f",
-                            "source_mapping": {
-                                "start": 14,
-                                "length": 133,
-                                "filename_used": "/GENERIC_PATH",
-                                "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7
-                                ],
-                                "starting_column": 2,
-                                "ending_column": 3
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "A",
-                                    "source_mapping": {
-                                        "start": 0,
-                                        "length": 232,
-                                        "filename_used": "/GENERIC_PATH",
-                                        "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            1,
-                                            2,
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 0
-                                    }
-                                },
-                                "signature": "f(uint256)"
-                            }
-                        }
-                    }
-                }
-            ],
-            "description": "A.f(uint256) (tests/detectors/tautology/0.7.6/type_based_tautology.sol#2-7) contains a tautology or contradiction:\n\t- x >= 0 (tests/detectors/tautology/0.7.6/type_based_tautology.sol#3)\n",
-            "markdown": "[A.f(uint256)](tests/detectors/tautology/0.7.6/type_based_tautology.sol#L2-L7) contains a tautology or contradiction:\n\t- [x >= 0](tests/detectors/tautology/0.7.6/type_based_tautology.sol#L3)\n",
-            "first_markdown_element": "tests/detectors/tautology/0.7.6/type_based_tautology.sol#L2-L7",
-            "id": "e444c1c7287bff97cae3505472d10d8ef5e01aa1f2e7660c81a3beb11eeaea0e",
-            "check": "tautology",
-            "impact": "Medium",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
                     "name": "g",
                     "source_mapping": {
                         "start": 150,
                         "length": 80,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
@@ -171,7 +27,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 232,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
@@ -204,7 +59,6 @@
                     "source_mapping": {
                         "start": 202,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
@@ -222,7 +76,6 @@
                             "source_mapping": {
                                 "start": 150,
                                 "length": 80,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
@@ -242,7 +95,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 232,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
@@ -276,6 +128,144 @@
             "markdown": "[A.g(uint8)](tests/detectors/tautology/0.7.6/type_based_tautology.sol#L9-L11) contains a tautology or contradiction:\n\t- [(y < 512)](tests/detectors/tautology/0.7.6/type_based_tautology.sol#L10)\n",
             "first_markdown_element": "tests/detectors/tautology/0.7.6/type_based_tautology.sol#L9-L11",
             "id": "036b1ecab6ee0dcb07806dbd8ffb05abf29941bbbcbb161da0013b31be51b3de",
+            "check": "tautology",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
+                        "start": 14,
+                        "length": 133,
+                        "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7
+                        ],
+                        "starting_column": 2,
+                        "ending_column": 3
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 232,
+                                "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "f(uint256)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "x >= 0",
+                    "source_mapping": {
+                        "start": 69,
+                        "length": 6,
+                        "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 19
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "f",
+                            "source_mapping": {
+                                "start": 14,
+                                "length": 133,
+                                "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7
+                                ],
+                                "starting_column": 2,
+                                "ending_column": 3
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "A",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 232,
+                                        "filename_relative": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/tautology/0.7.6/type_based_tautology.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "f(uint256)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "A.f(uint256) (tests/detectors/tautology/0.7.6/type_based_tautology.sol#2-7) contains a tautology or contradiction:\n\t- x >= 0 (tests/detectors/tautology/0.7.6/type_based_tautology.sol#3)\n",
+            "markdown": "[A.f(uint256)](tests/detectors/tautology/0.7.6/type_based_tautology.sol#L2-L7) contains a tautology or contradiction:\n\t- [x >= 0](tests/detectors/tautology/0.7.6/type_based_tautology.sol#L3)\n",
+            "first_markdown_element": "tests/detectors/tautology/0.7.6/type_based_tautology.sol#L2-L7",
+            "id": "e444c1c7287bff97cae3505472d10d8ef5e01aa1f2e7660c81a3beb11eeaea0e",
             "check": "tautology",
             "impact": "Medium",
             "confidence": "High"

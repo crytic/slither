@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 653,
                         "length": 85,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
@@ -28,7 +27,6 @@
                             "source_mapping": {
                                 "start": 55,
                                 "length": 685,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
@@ -78,7 +76,6 @@
                     "source_mapping": {
                         "start": 210,
                         "length": 88,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
@@ -99,7 +96,6 @@
                             "source_mapping": {
                                 "start": 55,
                                 "length": 685,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
@@ -149,7 +145,6 @@
                     "source_mapping": {
                         "start": 184,
                         "length": 19,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",
@@ -167,7 +162,6 @@
                             "source_mapping": {
                                 "start": 55,
                                 "length": 685,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/protected-vars/0.8.2/comment.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/protected-vars/0.8.2/comment.sol",

@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 239,
                         "length": 43,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/external-function/0.4.25/external_function_3.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.4.25/external_function_3.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 330,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/external-function/0.4.25/external_function_3.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.4.25/external_function_3.sol",
@@ -69,7 +67,6 @@
                     "source_mapping": {
                         "start": 196,
                         "length": 38,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/external-function/0.4.25/external_function_3.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.4.25/external_function_3.sol",
@@ -87,7 +84,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 330,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/external-function/0.4.25/external_function_3.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.4.25/external_function_3.sol",
@@ -130,7 +126,6 @@
                     "source_mapping": {
                         "start": 287,
                         "length": 40,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/external-function/0.4.25/external_function_3.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.4.25/external_function_3.sol",
@@ -148,7 +143,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 330,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/external-function/0.4.25/external_function_3.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.4.25/external_function_3.sol",

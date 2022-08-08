@@ -486,6 +486,14 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     )
 
     group_misc.add_argument(
+        "--change-line-prefix",
+        help="Change the line prefix (default #) for the displayed source codes (i.e. file.sol#1).",
+        action="store",
+        dest="change_line_prefix",
+        default="#",
+    )
+
+    group_misc.add_argument(
         "--solc-ast",
         help="Provide the contract as a json AST",
         action="store_true",

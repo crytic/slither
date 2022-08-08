@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 524,
                         "length": 40,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/external-function/0.5.16/external_function_3.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.5.16/external_function_3.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 35,
                                 "length": 532,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/external-function/0.5.16/external_function_3.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.5.16/external_function_3.sol",
@@ -76,7 +74,6 @@
                     "source_mapping": {
                         "start": 475,
                         "length": 44,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/external-function/0.5.16/external_function_3.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.5.16/external_function_3.sol",
@@ -94,7 +91,6 @@
                             "source_mapping": {
                                 "start": 35,
                                 "length": 532,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/external-function/0.5.16/external_function_3.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.5.16/external_function_3.sol",
@@ -144,7 +140,6 @@
                     "source_mapping": {
                         "start": 427,
                         "length": 43,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/external-function/0.5.16/external_function_3.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.5.16/external_function_3.sol",
@@ -162,7 +157,6 @@
                             "source_mapping": {
                                 "start": 35,
                                 "length": 532,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/external-function/0.5.16/external_function_3.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.5.16/external_function_3.sol",
@@ -212,7 +206,6 @@
                     "source_mapping": {
                         "start": 384,
                         "length": 38,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/external-function/0.5.16/external_function_3.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/external-function/0.5.16/external_function_3.sol",
@@ -230,7 +223,6 @@
                             "source_mapping": {
                                 "start": 35,
                                 "length": 532,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/external-function/0.5.16/external_function_3.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/external-function/0.5.16/external_function_3.sol",
