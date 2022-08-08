@@ -15,11 +15,9 @@ nix-env -f "$HOME/.dapp/dapptools" -iA dapp seth solc hevm ethsign
 
 dapp init
 
-slither . --fail-pedantic
-
-if [ $? -ne 255 ]
-then
-    echo "Truffle test failed"
-    exit 255
+if slither . --detect external-function --fail-pedantic; then
+    exit 0
 fi
 
+echo "Dapp test failed"
+exit 255

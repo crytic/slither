@@ -1,6 +1,7 @@
 """
     Module printing summary of the contract
 """
+from slither.core.source_mapping.source_mapping import Source
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils import output
 
@@ -11,11 +12,11 @@ class ConstructorPrinter(AbstractPrinter):
     HELP = "Print the constructors executed"
 
     def _get_soruce_code(self, cst):
-        src_mapping = cst.source_mapping
-        content = self.slither.source_code[src_mapping["filename_absolute"]]
-        start = src_mapping["start"]
-        end = src_mapping["start"] + src_mapping["length"]
-        initial_space = src_mapping["starting_column"]
+        src_mapping: Source = cst.source_mapping
+        content = self.slither.source_code[src_mapping.filename.absolute]
+        start = src_mapping.start
+        end = src_mapping.start + src_mapping.length
+        initial_space = src_mapping.starting_column
         return " " * initial_space + content[start:end]
 
     def output(self, _filename):

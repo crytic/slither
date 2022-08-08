@@ -69,12 +69,17 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
             embark_ignore_compile (bool): do not run embark build (default False)
             embark_overwrite_config (bool): overwrite original config file (default false)
 
+            change_line_prefix (str): Change the line prefix (default #)
+                for the displayed source codes (i.e. file.sol#1).
+
         """
         super().__init__()
 
         self._disallow_partial: bool = kwargs.get("disallow_partial", False)
         self._skip_assembly: bool = kwargs.get("skip_assembly", False)
         self._show_ignored_findings: bool = kwargs.get("show_ignored_findings", False)
+
+        self.line_prefix = kwargs.get("change_line_prefix", "#")
 
         self._parsers: List[SlitherCompilationUnitSolc] = []
         try:

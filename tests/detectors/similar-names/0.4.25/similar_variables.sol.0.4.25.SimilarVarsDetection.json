@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 69,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 23,
                                 "length": 149,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
@@ -48,7 +46,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 174,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
@@ -78,7 +75,6 @@
                     "source_mapping": {
                         "start": 100,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
@@ -96,7 +92,6 @@
                             "source_mapping": {
                                 "start": 23,
                                 "length": 149,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
@@ -118,7 +113,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 174,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/similar-names/0.4.25/similar_variables.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/similar-names/0.4.25/similar_variables.sol",

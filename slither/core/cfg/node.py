@@ -912,7 +912,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                     except AttributeError as error:
                         #  pylint: disable=raise-missing-from
                         raise SlitherException(
-                            f"Function not found on IR: {ir}.\nNode: {self} ({self.source_mapping_str})\nFunction: {self.function}\nPlease try compiling with a recent Solidity version. {error}"
+                            f"Function not found on IR: {ir}.\nNode: {self} ({self.source_mapping})\nFunction: {self.function}\nPlease try compiling with a recent Solidity version. {error}"
                         )
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)

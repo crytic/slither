@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 775,
                         "length": 243,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -32,7 +31,6 @@
                     "source_mapping": {
                         "start": 495,
                         "length": 42,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -50,7 +48,6 @@
                             "source_mapping": {
                                 "start": 465,
                                 "length": 74,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -84,7 +81,6 @@
                     "source_mapping": {
                         "start": 541,
                         "length": 232,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -108,7 +104,6 @@
                     "source_mapping": {
                         "start": 495,
                         "length": 42,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -126,7 +121,6 @@
                             "source_mapping": {
                                 "start": 465,
                                 "length": 74,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -160,7 +154,6 @@
                     "source_mapping": {
                         "start": 185,
                         "length": 133,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -182,7 +175,6 @@
                     "source_mapping": {
                         "start": 72,
                         "length": 37,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -200,7 +192,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 111,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -224,7 +215,6 @@
                     "source_mapping": {
                         "start": 144,
                         "length": 37,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -242,7 +232,6 @@
                             "source_mapping": {
                                 "start": 113,
                                 "length": 70,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -276,7 +265,6 @@
                     "source_mapping": {
                         "start": 320,
                         "length": 143,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -299,7 +287,6 @@
                     "source_mapping": {
                         "start": 357,
                         "length": 37,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
@@ -317,7 +304,6 @@
                             "source_mapping": {
                                 "start": 320,
                                 "length": 143,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/unimplemented-functions/0.4.25/unimplemented.sol",

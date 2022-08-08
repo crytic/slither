@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 265,
                         "length": 47,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/public-mappings-nested/0.4.25/public_mappings_nested.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/public-mappings-nested/0.4.25/public_mappings_nested.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 138,
                                 "length": 345,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/public-mappings-nested/0.4.25/public_mappings_nested.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/public-mappings-nested/0.4.25/public_mappings_nested.sol",
