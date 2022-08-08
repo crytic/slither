@@ -16,7 +16,7 @@ embark demo
 cd embark_demo || exit 255
 npm install
 
-if slither . --embark-overwrite-config; then
+if ! slither . --embark-overwrite-config; then
     echo "Embark test failed"
     exit 255
 fi
