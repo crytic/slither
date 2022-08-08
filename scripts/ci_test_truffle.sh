@@ -13,11 +13,10 @@ nvm use --lts
 
 npm install -g truffle
 truffle unbox metacoin
-slither .
 
-if [ $? -ne 0 ]
-then
+if slither .; then
     echo "Truffle test failed"
-    exit 255
+    exit 1
 fi
 
+exit 0

@@ -47,7 +47,6 @@ defaults_flag_in_config = {
     # debug command
     "skip_assembly": False,
     "legacy_ast": False,
-    "ignore_return_value": False,
     "zip": None,
     "zip_type": "lzma",
     "show_ignored_findings": False,

@@ -574,13 +574,6 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     )
 
     parser.add_argument(
-        "--ignore-return-value",
-        help=argparse.SUPPRESS,
-        action="store_true",
-        default=defaults_flag_in_config["ignore_return_value"],
-    )
-
-    parser.add_argument(
         "--perf",
         help=argparse.SUPPRESS,
         action="store_true",
@@ -845,8 +838,6 @@ def main_impl(
                 len(detector_classes),
                 len(results_detectors),
             )
-        if args.ignore_return_value:
-            return
 
     except SlitherException as slither_exception:
         output_error = str(slither_exception)

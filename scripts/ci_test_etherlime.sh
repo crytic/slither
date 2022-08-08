@@ -13,10 +13,10 @@ nvm use 10.17.0
 
 npm i -g etherlime
 etherlime init
-slither . --fail-pedantic
 
-if [ $? -ne 255 ]
-then
+if slither .; then
     echo "Etherlime test failed"
-    exit 255
+    exit 1
 fi
+
+exit 0
