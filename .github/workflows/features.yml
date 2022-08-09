@@ -50,3 +50,4 @@ jobs:
           pytest tests/test_functions_ids.py
           pytest tests/test_function.py
           pytest tests/test_source_mapping.py
+          pytest tests/test_detectors_mocked_contract.py
