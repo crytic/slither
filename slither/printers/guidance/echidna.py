@@ -35,8 +35,10 @@ from slither.slithir.variables import Constant
 def _get_name(f: Union[Function, Variable]) -> str:
     # Return the name of the function or variable
     if isinstance(f, Function):
-        if f.is_fallback or f.is_receive:
-            return "()"
+        if f.is_fallback:
+            return "fallback()"
+        elif f.is_receive:
+            return "receive()"
     return f.solidity_signature
 
 
