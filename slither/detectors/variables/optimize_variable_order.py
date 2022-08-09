@@ -6,9 +6,9 @@ class OtimizeVariableOrder(AbstractDetector):
     Documentation
     """
 
-    ARGUMENT = "optimize_var_order"
+    ARGUMENT = "optimize-var-order"
     HELP = "Find space optimizations from reordering variables"
-    IMPACT = DetectorClassification.HIGHINFORMATIONAL
+    IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Optimizing-variable-order-detector"
