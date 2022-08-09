@@ -40,7 +40,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
 
     @staticmethod
     def find_slots_used(elem_order):
-        """returns the number of slots the current element order in @elem_order uses"""
+        """returns the number of slots @elem_order uses"""
         slot_count = 0
         slot_bytes_used = 0
         for elem in elem_order:
@@ -61,7 +61,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
     @staticmethod
     def find_smallest_pack_order(target_elems):
         """finds smallest packed size order of @target_elems. 
-        Currently uses dirty O(n^2) by finding minimum by trying all order combos"""
+        Currently uses dirty O(n^2) algo by finding minimum by trying all order combos"""
         smallest_pack_order = target_elems[:]
         smallest_pack_order_slots =  OtimizeVariableOrder.find_slots_used(smallest_pack_order)
 
@@ -76,7 +76,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
 
     @staticmethod
     def find_optimized_struct_ordering(target_struct):
-        """returns an optimized version of @target_struct or None if there's no better optimization"""
+        """returns an optimized version of @target_struct or None if there isn't a better optimization"""
 
         packable_vars = []
         unpackable_vars = []
