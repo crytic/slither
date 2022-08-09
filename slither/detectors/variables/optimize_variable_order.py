@@ -40,8 +40,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
 
     @staticmethod
     def find_slots_used(elem_order):
-        """returns the number of structs the current order of @target_struct uses"""
-        # structs[1].elems['a'].type.storage_size[0]
+        """returns the number of slots the current element order in @elem_order uses"""
         slot_count = 0
         slot_bytes_used = 0
         for elem in elem_order:
@@ -51,7 +50,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
             else:
                 # new slot
                 slot_count += 1
-                slot_bytes_used = 0
+                slot_bytes_used = elem.type.storage_size[0]
 
         # if used any bits of next slot, need all of new slot
         if slot_bytes_used > 0:
@@ -92,7 +91,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
             return None
 
         best_packable_order = OtimizeVariableOrder.find_smallest_pack_order(packable_vars)
-        best_packable_order += unpackable_vars # add unpackable elements at the end
+        best_packable_order += tuple(unpackable_vars) # add unpackable elements at the end
 
         if OtimizeVariableOrder.find_slots_used(best_packable_order) < \
             OtimizeVariableOrder.find_slots_used(target_struct.elems_ordered):
