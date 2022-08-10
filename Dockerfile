@@ -3,7 +3,8 @@ FROM ubuntu:jammy AS python-wheels
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
-    python3-pip
+    python3-pip \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY . /slither
 
@@ -22,7 +23,8 @@ LABEL desc="Static Analyzer for Solidity"
 
 RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get update \
-  && apt-get install -y --no-install-recommends python3-pip
+  && apt-get install -y --no-install-recommends python3-pip \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m slither
 USER slither
