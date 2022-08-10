@@ -3,7 +3,7 @@ from slither.core.cfg.node import NodeType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
-class DoubleEntryAlert(AbstractDetector):
+class DoubleEntryTokenPossiblity(AbstractDetector):
     """
     Sees if contract contains a function wich is vulnurable to double-entry tokens attack
     """

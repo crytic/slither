@@ -54,8 +54,15 @@ def set_solc(test_item: Test):  # pylint: disable=too-many-lines
 def id_test(test_item: Test):
     return f"{test_item.detector}: {test_item.solc_ver}/{test_item.test_file}"
 
+# for d in all_detectors:
+# print(all_detectors)
+
 
 ALL_TEST_OBJECTS = [
+    Test(all_detectors.DoubleEntryTokenPossiblity,
+        "double_entry_token_alert.sol",
+        "0.8.2",
+    ),
     Test(
         all_detectors.UninitializedFunctionPtrsConstructor,
         "uninitialized_function_ptr_constructor.sol",

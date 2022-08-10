@@ -1,6 +1,5 @@
 # pylint: disable=unused-import,relative-beyond-top-level
-from .custom.double_entry_token_alert import DoubleEntryAlert
-from .custom.unprotected_setter import UnprotectedSetter
+from .custom.double_entry_token_possibility import DoubleEntryTokenPossiblity
 
 from .examples.backdoor import Backdoor
 from .variables.uninitialized_state_variables import UninitializedStateVarsDetection

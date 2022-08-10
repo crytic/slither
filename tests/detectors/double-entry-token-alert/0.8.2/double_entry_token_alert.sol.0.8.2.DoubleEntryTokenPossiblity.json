@@ -1,0 +1,88 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "flashLoan",
+                    "source_mapping": {
+                        "start": 263,
+                        "length": 212,
+                        "filename_relative": "tests/detectors/double-entry-token-alert/0.8.2/double_entry_token_alert.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/double-entry-token-alert/0.8.2/double_entry_token_alert.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23
+                        ],
+                        "starting_column": 2,
+                        "ending_column": 3
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "DoubleEntryTokenPossiblityTest",
+                            "source_mapping": {
+                                "start": 171,
+                                "length": 481,
+                                "filename_relative": "tests/detectors/double-entry-token-alert/0.8.2/double_entry_token_alert.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/double-entry-token-alert/0.8.2/double_entry_token_alert.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "flashLoan(address,IERC20[],uint256[])"
+                    }
+                }
+            ],
+            "description": "DoubleEntryTokenPossiblityTest DoubleEntryTokenPossiblityTest.flashLoan(address,IERC20[],uint256[]) (tests/detectors/double-entry-token-alert/0.8.2/double_entry_token_alert.sol#13-23) might be vulnerauble to double-entry token exploit\n",
+            "markdown": "DoubleEntryTokenPossiblityTest [DoubleEntryTokenPossiblityTest.flashLoan(address,IERC20[],uint256[])](tests/detectors/double-entry-token-alert/0.8.2/double_entry_token_alert.sol#L13-L23) might be vulnerauble to double-entry token exploit\n",
+            "first_markdown_element": "tests/detectors/double-entry-token-alert/0.8.2/double_entry_token_alert.sol#L13-L23",
+            "id": "dd0afb9ad23ea3ae5e18191d924a44ca632d873e0c9d195f3741c5b723e691b6",
+            "check": "double-entry-token-alert",
+            "impact": "High",
+            "confidence": "Low"
+        }
+    ]
+]
