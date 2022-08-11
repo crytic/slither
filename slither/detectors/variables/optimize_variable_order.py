@@ -63,23 +63,24 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         slot_count = 0
         slot_bytes_used = 0
         for i, elem in enumerate(elem_order):
-            # rule 5
-            if i != 0 and elem_order[i-1].type.name:
-                # need new slot
-                slot_count += 1
-                slot_bytes_used = elem.type.storage_size[0]
-
-            # rule 3, 4
-            if elem.type.storage_size[1] or \
+            # rule 5 or 3 or 4
+            if (i != 0 and elem_order[i-1].type.storage_size[1]) or \
+                elem.type.storage_size[1] or \
                 elem.type.storage_size[0] > (OptimizeVariableOrder.BYTES_PER_SLOT - slot_bytes_used):
-                # new slot
-                slot_count += 1
-                slot_bytes_used = elem.type.storage_size[0]
+                # need own slot
+
+                if slot_bytes_used == 0:
+                    # slot is empty, just use this one
+                    slot_bytes_used = elem.type.storage_size[0]
+                else:
+                    # new slot
+                    slot_count += 1
+                    slot_bytes_used = elem.type.storage_size[0]
             else:                
-                # room in current slot
+                # pack into current slot
                 slot_bytes_used += elem.type.storage_size[0]
 
-        # if used any bits of next slot, need all of new slot
+        # if used any bits of current slot, need all of new slot
         if slot_bytes_used > 0:
             slot_count += 1
 
@@ -108,7 +109,8 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         packable_vars = []
         unpackable_vars = []
         for elem in target_struct.elems_ordered:
-            if elem.type.storage_size[0] < OptimizeVariableOrder.BYTES_PER_SLOT:
+            if not elem.type.storage_size[1] and \
+                elem.type.storage_size[0] < OptimizeVariableOrder.BYTES_PER_SLOT:
                 packable_vars.append(elem)
             else:
                 unpackable_vars.append(elem)
