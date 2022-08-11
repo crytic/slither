@@ -129,20 +129,18 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
             return None
 
     def _detect(self):
-        # optimized_structs_pair = []
         results = []
         for contract in self.compilation_unit.contracts_derived:
             for struct in contract.structures:
                 if optimized_struct := OptimizeVariableOrder.find_optimized_struct_ordering(struct):
-                    # optimized_structs_pair.append([struct.elems_ordered, optimized_struct])
-                    info = ["Optimization opporunity in contract ", contract.name, ":\n"]
-                    info += ["\toriginal ", struct.name, " struct (size: ", \
+                    info = ["Optimization opporunity in contract ", struct.canonical_name, ":\n"]
+                    info += ["\toriginal ", struct.canonical_name, " struct (size: ", \
                         str(OptimizeVariableOrder.find_slots_used(struct.elems_ordered))," slots)\n"]
                     info += ["\t{\n"]
                     for e in struct.elems_ordered:
                         info += ["\t\t", str(e.type), " ", str(e.name), "\n"]
                     info += ["\t}\n"]
-                    info += ["\toptimized ", struct.name, "struct (size: ", \
+                    info += ["\toptimized ", struct.canonical_name, " struct (size: ", \
                         str(OptimizeVariableOrder.find_slots_used(optimized_struct))," slots)\n"]
                     info += ["\t{\n"]
                     for e in optimized_struct:
