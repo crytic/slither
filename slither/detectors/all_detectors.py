@@ -85,4 +85,4 @@ from .statements.msg_value_in_loop import MsgValueInLoop
 from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
 
-from .variables.optimize_variable_order import OtimizeVariableOrder
+from .variables.optimize_variable_order import OptimizeVariableOrder

@@ -1,7 +1,7 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 import itertools
 
-class OtimizeVariableOrder(AbstractDetector):
+class OptimizeVariableOrder(AbstractDetector):
     """
     Documentation
     """
@@ -43,17 +43,41 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         """
         returns the number of slots @elem_order uses
         calculated per https://docs.soliditylang.org/en/v0.8.15/internals/layout_in_storage.html#layout-of-state-variables-in-storage
+
+        rules:
+        1. The first item in a storage slot is stored lower-order aligned.
+
+        2. Value types use only as many bytes as are necessary to store them.
+
+        3. If a value type does not fit the remaining part of a storage slot, it is stored in the next storage slot.
+
+        4. Structs and array data always start a new slot and their items are packed tightly according to these rules.
+
+        5. Items following struct or array data always start a new storage slot.
+
+        reminder:
+        storage_size[0] = size in bytes
+        storage_size[1] = if forced to have own storage spot
         """
+        
         slot_count = 0
         slot_bytes_used = 0
-        for elem in elem_order:
-            if elem.type.storage_size[0] <= (OtimizeVariableOrder.BYTES_PER_SLOT - slot_bytes_used):
-                # room in current slot
-                slot_bytes_used += elem.type.storage_size[0]
-            else:
+        for i, elem in enumerate(elem_order):
+            # rule 5
+            if i != 0 and elem_order[i-1].type.name:
+                # need new slot
+                slot_count += 1
+                slot_bytes_used = elem.type.storage_size[0]
+
+            # rule 3, 4
+            if elem.type.storage_size[1] or \
+                elem.type.storage_size[0] > (OptimizeVariableOrder.BYTES_PER_SLOT - slot_bytes_used):
                 # new slot
                 slot_count += 1
                 slot_bytes_used = elem.type.storage_size[0]
+            else:                
+                # room in current slot
+                slot_bytes_used += elem.type.storage_size[0]
 
         # if used any bits of next slot, need all of new slot
         if slot_bytes_used > 0:
@@ -66,14 +90,14 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         """finds smallest packed size order of @target_elems. 
         Currently uses dirty O(n^2) algo by finding minimum by trying all order combos"""
         smallest_pack_order = target_elems[:]
-        smallest_pack_order_slots =  OtimizeVariableOrder.find_slots_used(smallest_pack_order)
+        smallest_pack_order_slots =  OptimizeVariableOrder.find_slots_used(smallest_pack_order)
 
         for possible_smallest in itertools.permutations(target_elems):
-            if OtimizeVariableOrder.find_slots_used(possible_smallest) < \
-                OtimizeVariableOrder.find_slots_used(smallest_pack_order):
+            if OptimizeVariableOrder.find_slots_used(possible_smallest) < \
+                OptimizeVariableOrder.find_slots_used(smallest_pack_order):
                 # change smallest order
                 smallest_pack_order = possible_smallest[:]
-                smallest_pack_order_slots = OtimizeVariableOrder.find_slots_used(possible_smallest)
+                smallest_pack_order_slots = OptimizeVariableOrder.find_slots_used(possible_smallest)
         
         return smallest_pack_order
 
@@ -84,7 +108,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         packable_vars = []
         unpackable_vars = []
         for elem in target_struct.elems_ordered:
-            if elem.type.storage_size[0] < OtimizeVariableOrder.BYTES_PER_SLOT:
+            if elem.type.storage_size[0] < OptimizeVariableOrder.BYTES_PER_SLOT:
                 packable_vars.append(elem)
             else:
                 unpackable_vars.append(elem)
@@ -93,11 +117,11 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
             # no way can pack anything
             return None
 
-        best_packable_order = OtimizeVariableOrder.find_smallest_pack_order(packable_vars)
+        best_packable_order = OptimizeVariableOrder.find_smallest_pack_order(packable_vars)
         best_packable_order += tuple(unpackable_vars) # add unpackable elements at the end
 
-        if OtimizeVariableOrder.find_slots_used(best_packable_order) < \
-            OtimizeVariableOrder.find_slots_used(target_struct.elems_ordered):
+        if OptimizeVariableOrder.find_slots_used(best_packable_order) < \
+            OptimizeVariableOrder.find_slots_used(target_struct.elems_ordered):
             return best_packable_order
         else:
             return None
@@ -107,17 +131,17 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         results = []
         for contract in self.compilation_unit.contracts_derived:
             for struct in contract.structures:
-                if optimized_struct := OtimizeVariableOrder.find_optimized_struct_ordering(struct):
+                if optimized_struct := OptimizeVariableOrder.find_optimized_struct_ordering(struct):
                     # optimized_structs_pair.append([struct.elems_ordered, optimized_struct])
                     info = ["Optimization opporunity in contract ", contract.name, ":\n"]
                     info += ["\toriginal ", struct.name, " struct (size: ", \
-                        str(OtimizeVariableOrder.find_slots_used(struct.elems_ordered))," slots)\n"]
+                        str(OptimizeVariableOrder.find_slots_used(struct.elems_ordered))," slots)\n"]
                     info += ["\t{\n"]
                     for e in struct.elems_ordered:
                         info += ["\t\t", str(e.type), " ", str(e.name), "\n"]
                     info += ["\t}\n"]
                     info += ["\toptimized ", struct.name, "struct (size: ", \
-                        str(OtimizeVariableOrder.find_slots_used(optimized_struct))," slots)\n"]
+                        str(OptimizeVariableOrder.find_slots_used(optimized_struct))," slots)\n"]
                     info += ["\t{\n"]
                     for e in optimized_struct:
                         info += ["\t\t", str(e.type), " ", str(e.name), "\n"]
