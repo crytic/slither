@@ -1,0 +1,14 @@
+[
+    [
+        {
+            "elements": [],
+            "description": "Optimization opporunity in contract C.findme:\n\toriginal C.findme struct (size: 4 slots)\n\t{\n\t\tuint256 a\n\t\tuint8 small1\n\t\tuint256 b\n\t\tuint8 small2\n\t}\n\toptimized C.findme struct (size: 3 slots)\n\t{\n\t\tuint8 small1\n\t\tuint8 small2\n\t\tuint256 a\n\t\tuint256 b\n\t}\n",
+            "markdown": "Optimization opporunity in contract C.findme:\n\toriginal C.findme struct (size: 4 slots)\n\t{\n\t\tuint256 a\n\t\tuint8 small1\n\t\tuint256 b\n\t\tuint8 small2\n\t}\n\toptimized C.findme struct (size: 3 slots)\n\t{\n\t\tuint8 small1\n\t\tuint8 small2\n\t\tuint256 a\n\t\tuint256 b\n\t}\n",
+            "first_markdown_element": "",
+            "id": "c39269af481b28ac659535ab35385c0f31653cdaf8d3e9295380fbe91baa07ba",
+            "check": "optimize-var-order",
+            "impact": "Optimization",
+            "confidence": "High"
+        }
+    ]
+]
