@@ -107,3 +107,6 @@ ENV/
 
 # Test results
 test_artifacts/
+
+# crytic export 
+crytic-export/

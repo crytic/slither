@@ -2,7 +2,7 @@
     Function module
 """
 import logging
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod, ABCMeta
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby
@@ -20,11 +20,11 @@ from slither.core.expressions import (
     MemberAccess,
     UnaryOperation,
 )
-from slither.core.solidity_types import UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.utils.type import convert_type_for_solidity_signature_to_string
 from slither.utils.utils import unroll
 
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
@@ -265,6 +265,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         str: func_name(type1,type2)
         Return the function signature without the return values
+        The difference between this function and solidity_function is that full_name does not translate the underlying
+        type (ex: structure, contract to address, ...)
         """
         if self._full_name is None:
             name, parameters, _ = self.signature
@@ -538,7 +540,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._nodes = nodes
 
     @property
-    def entry_point(self) -> "Node":
+    def entry_point(self) -> Optional["Node"]:
         """
         Node: Entry point of the function
         """
@@ -952,14 +954,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
     ###################################################################################
 
-    @staticmethod
-    def _convert_type_for_solidity_signature(t: Type):
-        from slither.core.declarations import Contract
-
-        if isinstance(t, UserDefinedType) and isinstance(t.type, Contract):
-            return "address"
-        return str(t)
-
     @property
     def solidity_signature(self) -> str:
         """
@@ -969,7 +963,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._solidity_signature is None:
             parameters = [
-                self._convert_type_for_solidity_signature(x.type) for x in self.parameters
+                convert_type_for_solidity_signature_to_string(x.type) for x in self.parameters
             ]
             self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
         return self._solidity_signature

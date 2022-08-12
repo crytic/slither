@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 1794,
                         "length": 249,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -29,7 +28,6 @@
                             "source_mapping": {
                                 "start": 613,
                                 "length": 1433,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -88,7 +86,6 @@
                     "source_mapping": {
                         "start": 1986,
                         "length": 50,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -106,7 +103,6 @@
                             "source_mapping": {
                                 "start": 1794,
                                 "length": 249,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -127,7 +123,6 @@
                                     "source_mapping": {
                                         "start": 613,
                                         "length": 1433,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -199,7 +194,6 @@
                     "source_mapping": {
                         "start": 843,
                         "length": 232,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -220,7 +214,6 @@
                             "source_mapping": {
                                 "start": 613,
                                 "length": 1433,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -279,7 +272,6 @@
                     "source_mapping": {
                         "start": 1033,
                         "length": 35,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -297,7 +289,6 @@
                             "source_mapping": {
                                 "start": 843,
                                 "length": 232,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -318,7 +309,6 @@
                                     "source_mapping": {
                                         "start": 613,
                                         "length": 1433,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -390,7 +380,6 @@
                     "source_mapping": {
                         "start": 1546,
                         "length": 238,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -411,7 +400,6 @@
                             "source_mapping": {
                                 "start": 613,
                                 "length": 1433,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -470,7 +458,6 @@
                     "source_mapping": {
                         "start": 1738,
                         "length": 39,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -488,7 +475,6 @@
                             "source_mapping": {
                                 "start": 1546,
                                 "length": 238,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -509,7 +495,6 @@
                                     "source_mapping": {
                                         "start": 613,
                                         "length": 1433,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -581,7 +566,6 @@
                     "source_mapping": {
                         "start": 1294,
                         "length": 246,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -602,7 +586,6 @@
                             "source_mapping": {
                                 "start": 613,
                                 "length": 1433,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -661,7 +644,6 @@
                     "source_mapping": {
                         "start": 1498,
                         "length": 35,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -679,7 +661,6 @@
                             "source_mapping": {
                                 "start": 1294,
                                 "length": 246,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
@@ -700,7 +681,6 @@
                                     "source_mapping": {
                                         "start": 613,
                                         "length": 1433,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol",

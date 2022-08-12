@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 425,
                         "length": 84,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -28,7 +27,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 763,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -78,7 +76,6 @@
                     "source_mapping": {
                         "start": 478,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -96,7 +93,6 @@
                             "source_mapping": {
                                 "start": 425,
                                 "length": 84,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -116,7 +112,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 763,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -179,7 +174,6 @@
                     "source_mapping": {
                         "start": 61,
                         "length": 179,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -201,7 +195,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 763,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -251,7 +244,6 @@
                     "source_mapping": {
                         "start": 188,
                         "length": 35,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -269,7 +261,6 @@
                             "source_mapping": {
                                 "start": 61,
                                 "length": 179,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -291,7 +282,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 763,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -354,7 +344,6 @@
                     "source_mapping": {
                         "start": 515,
                         "length": 245,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -378,7 +367,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 763,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -428,7 +416,6 @@
                     "source_mapping": {
                         "start": 694,
                         "length": 35,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -446,7 +433,6 @@
                             "source_mapping": {
                                 "start": 515,
                                 "length": 245,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
@@ -470,7 +456,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 763,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/msg-value-loop/0.6.11/msg_value_loop.sol",

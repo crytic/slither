@@ -406,11 +406,19 @@ ALL_TESTS = [
     Test("custom_error_with_state_variable.sol", make_version(8, 4, 12)),
     Test("complex_imports/import_aliases/test.sol", VERSIONS_08),
     # 0.8.9 crashes on our testcase
-    Test("user_defined_types.sol", ["0.8.8"] + make_version(8, 10, 12)),
+    Test(
+        "user_defined_value_type/user_defined_types-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)
+    ),
+    Test("user_defined_value_type/argument-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/calldata-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/constant-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/erc20-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/in_parenthesis-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("bytes_call.sol", ["0.8.12"]),
     Test("free_functions/libraries_from_free.sol", ["0.8.12"]),
     Test("free_functions/new_operator.sol", ["0.8.12"]),
     Test("free_functions/library_constant_function_collision.sol", ["0.8.12"]),
+    Test("ternary-with-max.sol", ["0.8.15"]),
 ]
 # create the output folder if needed
 try:
