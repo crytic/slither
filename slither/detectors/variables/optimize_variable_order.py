@@ -133,18 +133,18 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         for contract in self.compilation_unit.contracts_derived:
             for struct in contract.structures:
                 if optimized_struct := OptimizeVariableOrder.find_optimized_struct_ordering(struct):
-                    info = ["Optimization opportunity in contract ", struct.canonical_name, ":\n"]
-                    info += ["\toriginal ", struct.canonical_name, " struct (size: ", \
+                    info = [f"Optimization opportunity in contract {struct.canonical_name}:\n"]
+                    info += [f"\toriginal {struct.canonical_name} struct (size: ", \
                         str(OptimizeVariableOrder.find_slots_used(struct.elems_ordered))," slots)\n"]
                     info += ["\t{\n"]
                     for e in struct.elems_ordered:
-                        info += ["\t\t", str(e.type), " ", str(e.name), "\n"]
+                        info += [f"\t\t {e.type} {e.name}\n"]
                     info += ["\t}\n"]
-                    info += ["\toptimized ", struct.canonical_name, " struct (size: ", \
+                    info += [f"\toptimized {struct.canonical_name} struct (size: ", \
                         str(OptimizeVariableOrder.find_slots_used(optimized_struct))," slots)\n"]
                     info += ["\t{\n"]
                     for e in optimized_struct:
-                        info += ["\t\t", str(e.type), " ", str(e.name), "\n"]
+                        info += [f"\t\t {e.type} {e.name}\n"]
                     info += ["\t}\n"]
 
                     res = self.generate_result(info)
