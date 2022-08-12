@@ -200,6 +200,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._can_send_eth: Optional[bool] = None
 
         self._nodes_ordered_dominators: Optional[List["Node"]] = None
+        self._nodes_ordered_post_dominators: Optional[List["Node"]] = None
 
         self._counter_nodes = 0
 
@@ -571,6 +572,25 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                     self._compute_nodes_ordered_dominators(node)
 
         return self._nodes_ordered_dominators
+    
+    @property
+    def nodes_ordered_post_dominators(self) -> List["Node"]:
+        # TODO: does not work properly; most likely due to modifier call
+        # This will not work for modifier call that lead to multiple nodes
+        # from slither.core.cfg.node import NodeType
+        if self._nodes_ordered_post_dominators is None:
+            self._nodes_ordered_post_dominators = []
+
+            #TODO plotchy this probably needs to be returns?
+            if self.entry_point:
+                self._compute_nodes_ordered_post_dominators(self.entry_point)
+
+            for node in self.nodes:
+                # if node.type == NodeType.OTHER_ENTRYPOINT:
+                if not node in self._nodes_ordered_post_dominators:
+                    self._compute_nodes_ordered_post_dominators(node)
+
+        return self._nodes_ordered_post_dominators
 
     def _compute_nodes_ordered_dominators(self, node: "Node"):
         assert self._nodes_ordered_dominators is not None
@@ -579,6 +599,14 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._nodes_ordered_dominators.append(node)
         for dom in node.dominance_exploration_ordered:
             self._compute_nodes_ordered_dominators(dom)
+
+    def _compute_nodes_ordered_post_dominators(self, node: "Node"):
+        assert self._nodes_ordered_post_dominators is not None
+        if node in self._nodes_ordered_post_dominators:
+            return
+        self._nodes_ordered_post_dominators.append(node)
+        for dom in node.post_dominance_exploration_ordered:
+            self._compute_nodes_ordered_post_dominators(dom)
 
     # endregion
     ###################################################################################
@@ -1324,6 +1352,29 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                 f.write(f'{node.node_id}[label="{description(node)}"];\n')
                 if node.immediate_dominator:
                     f.write(f"{node.immediate_dominator.node_id}->{node.node_id};\n")
+
+            f.write("}\n")
+    
+    def post_dominator_tree_to_dot(self, filename: str):
+        """
+            Export the post dominator tree of the function to a dot file
+        Args:
+            filename (str)
+        """
+
+        def description(node):
+            desc = f"{node}\n"
+            desc += f"id: {node.node_id}"
+            if node.post_dominance_frontier:
+                desc += f"\npost dominance frontier: {[n.node_id for n in node.post_dominance_frontier]}"
+            return desc
+
+        with open(filename, "w", encoding="utf8") as f:
+            f.write("digraph{\n")
+            for node in self.nodes:
+                f.write(f'{node.node_id}[label="{description(node)}"];\n')
+                if node.immediate_post_dominator:
+                    f.write(f"{node.immediate_post_dominator.node_id}->{node.node_id};\n")
 
             f.write("}\n")
 

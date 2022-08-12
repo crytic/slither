@@ -101,10 +101,14 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
         from slither.core.dominators.utils import (
             compute_dominance_frontier,
             compute_dominators,
+            compute_post_dominance_frontier,
+            compute_post_dominators,
         )
 
         compute_dominators(self.nodes)
+        compute_post_dominators(self.nodes)
         compute_dominance_frontier(self.nodes)
+        compute_post_dominance_frontier(self.nodes)
         transform_slithir_vars_to_ssa(self)
         if not self.contract.is_incorrectly_constructed:
             add_ssa_ir(self, all_ssa_state_variables_instances)

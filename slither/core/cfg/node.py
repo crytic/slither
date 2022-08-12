@@ -169,12 +169,16 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         ## Dominators info
         # Dominators nodes
         self._dominators: Set["Node"] = set()
+        self._post_dominators: Set["Node"] = set()
         self._immediate_dominator: Optional["Node"] = None
+        self._immediate_post_dominator: Optional["Node"] = None
         ## Nodes of the dominators tree
         # self._dom_predecessors = set()
         self._dom_successors: Set["Node"] = set()
+        self._post_dom_successors: Set["Node"] = set()
         # Dominance frontier
         self._dominance_frontier: Set["Node"] = set()
+        self._post_dominance_frontier: Set["Node"] = set()
         # Phi origin
         # key are variable name
         self._phi_origins_state_variables: Dict[str, Tuple[StateVariable, Set["Node"]]] = {}
@@ -399,7 +403,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @property
     def solidity_calls(self) -> List[SolidityFunction]:
         """
-        list(SolidityFunction): List of Soldity calls
+        list(SolidityFunction): List of Solidity calls
         """
         return list(self._solidity_calls)
 
@@ -757,6 +761,18 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._dominators = dom
 
     @property
+    def post_dominators(self) -> Set["Node"]:
+        """
+        Returns:
+            set(Node)
+        """
+        return self._post_dominators
+
+    @post_dominators.setter
+    def post_dominators(self, dom: Set["Node"]):
+        self._post_dominators = dom
+
+    @property
     def immediate_dominator(self) -> Optional["Node"]:
         """
         Returns:
@@ -767,6 +783,18 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     @immediate_dominator.setter
     def immediate_dominator(self, idom: "Node"):
         self._immediate_dominator = idom
+
+    @property
+    def immediate_post_dominator(self) -> Optional["Node"]:
+        """
+        Returns:
+            Node or None
+        """
+        return self._immediate_post_dominator
+
+    @immediate_post_dominator.setter
+    def immediate_post_dominator(self, idom: "Node"):
+        self._immediate_post_dominator = idom
 
     @property
     def dominance_frontier(self) -> Set["Node"]:
@@ -785,8 +813,28 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._dominance_frontier = doms
 
     @property
+    def post_dominance_frontier(self) -> Set["Node"]:
+        """
+        Returns:
+            set(Node)
+        """
+        return self._post_dominance_frontier
+
+    @post_dominance_frontier.setter
+    def post_dominance_frontier(self, post_doms: Set["Node"]):
+        """
+        Returns:
+            set(Node)
+        """
+        self._post_dominance_frontier = post_doms
+
+    @property
     def dominator_successors(self):
         return self._dom_successors
+
+    @property
+    def post_dominator_successors(self):
+        return self._post_dom_successors
 
     @property
     def dominance_exploration_ordered(self) -> List["Node"]:
@@ -802,6 +850,22 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         # We need to explore it because the sub of the direct dominance
         # Might not be dominator of their own sub
         to_explore += sorted(list(self.dominance_frontier), key=lambda x: x.node_id)
+        return to_explore
+
+    @property
+    def post_dominance_exploration_ordered(self) -> List["Node"]:
+        """
+        Sorted list of all the nodes to explore to follow the dom
+        :return: list(nodes)
+        """
+        # Explore direct post dominance
+        to_explore = sorted(list(self.post_dominator_successors), key=lambda x: x.node_id)
+
+        # Explore post dominance frontier
+        # The frontier is the limit where this node post-dominates
+        # We need to explore it because the sub of the direct post dominance
+        # Might not be post dominator of their own sub
+        to_explore += sorted(list(self.post_dominance_frontier), key=lambda x: x.node_id)
         return to_explore
 
     # endregion
