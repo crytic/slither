@@ -2,10 +2,50 @@
     [
         {
             "elements": [],
-            "description": "Optimization opporunity in contract C.findme:\n\toriginal C.findme struct (size: 4 slots)\n\t{\n\t\tuint256 a\n\t\tuint8 small1\n\t\tuint256 b\n\t\tuint8 small2\n\t}\n\toptimized C.findme struct (size: 3 slots)\n\t{\n\t\tuint8 small1\n\t\tuint8 small2\n\t\tuint256 a\n\t\tuint256 b\n\t}\n",
-            "markdown": "Optimization opporunity in contract C.findme:\n\toriginal C.findme struct (size: 4 slots)\n\t{\n\t\tuint256 a\n\t\tuint8 small1\n\t\tuint256 b\n\t\tuint8 small2\n\t}\n\toptimized C.findme struct (size: 3 slots)\n\t{\n\t\tuint8 small1\n\t\tuint8 small2\n\t\tuint256 a\n\t\tuint256 b\n\t}\n",
+            "description": "Optimization opporunity in contract C.hard_struct1:\n\toriginal C.hard_struct1 struct (size: 4 slots)\n\t{\n\t\tuint248 s31bytes1\n\t\tuint248 s31bytes2\n\t\tuint248 s31bytes3\n\t\tuint8 s1byte1\n\t\tuint8 s1byte2\n\t\tuint8 s1byte3\n\t}\n\toptimized C.hard_struct1 struct (size: 3 slots)\n\t{\n\t\tuint248 s31bytes1\n\t\tuint8 s1byte1\n\t\tuint248 s31bytes2\n\t\tuint8 s1byte2\n\t\tuint248 s31bytes3\n\t\tuint8 s1byte3\n\t}\n",
+            "markdown": "Optimization opporunity in contract C.hard_struct1:\n\toriginal C.hard_struct1 struct (size: 4 slots)\n\t{\n\t\tuint248 s31bytes1\n\t\tuint248 s31bytes2\n\t\tuint248 s31bytes3\n\t\tuint8 s1byte1\n\t\tuint8 s1byte2\n\t\tuint8 s1byte3\n\t}\n\toptimized C.hard_struct1 struct (size: 3 slots)\n\t{\n\t\tuint248 s31bytes1\n\t\tuint8 s1byte1\n\t\tuint248 s31bytes2\n\t\tuint8 s1byte2\n\t\tuint248 s31bytes3\n\t\tuint8 s1byte3\n\t}\n",
             "first_markdown_element": "",
-            "id": "c39269af481b28ac659535ab35385c0f31653cdaf8d3e9295380fbe91baa07ba",
+            "id": "141dbda9990f8e4c0f381e0227cfc742ea3fd3dbce4c299fdce33cbbca312541",
+            "check": "optimize-var-order",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Optimization opporunity in contract C.hard_struct2:\n\toriginal C.hard_struct2 struct (size: 4 slots)\n\t{\n\t\tuint232 s29bytes\n\t\tuint240 s30bytes\n\t\tuint248 s31bytes\n\t\tuint24 s3bytes\n\t\tuint16 s2bytes\n\t\tuint8 s1byte\n\t}\n\toptimized C.hard_struct2 struct (size: 3 slots)\n\t{\n\t\tuint232 s29bytes\n\t\tuint24 s3bytes\n\t\tuint240 s30bytes\n\t\tuint16 s2bytes\n\t\tuint248 s31bytes\n\t\tuint8 s1byte\n\t}\n",
+            "markdown": "Optimization opporunity in contract C.hard_struct2:\n\toriginal C.hard_struct2 struct (size: 4 slots)\n\t{\n\t\tuint232 s29bytes\n\t\tuint240 s30bytes\n\t\tuint248 s31bytes\n\t\tuint24 s3bytes\n\t\tuint16 s2bytes\n\t\tuint8 s1byte\n\t}\n\toptimized C.hard_struct2 struct (size: 3 slots)\n\t{\n\t\tuint232 s29bytes\n\t\tuint24 s3bytes\n\t\tuint240 s30bytes\n\t\tuint16 s2bytes\n\t\tuint248 s31bytes\n\t\tuint8 s1byte\n\t}\n",
+            "first_markdown_element": "",
+            "id": "22422a8c0a5f36b6cac0c0a0cf9ce05a3d9b5ea0bc459cc9144e7b8b4ef0c84e",
+            "check": "optimize-var-order",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Optimization opporunity in contract C.cant_pack_arrays_can_pack_others:\n\toriginal C.cant_pack_arrays_can_pack_others struct (size: 5 slots)\n\t{\n\t\tbytes16[1] arr1\n\t\tuint128 half1\n\t\tuint256 big1\n\t\tuint128 half2\n\t\tbytes16[1] arr2\n\t}\n\toptimized C.cant_pack_arrays_can_pack_others struct (size: 4 slots)\n\t{\n\t\tuint128 half1\n\t\tuint128 half2\n\t\tbytes16[1] arr1\n\t\tuint256 big1\n\t\tbytes16[1] arr2\n\t}\n",
+            "markdown": "Optimization opporunity in contract C.cant_pack_arrays_can_pack_others:\n\toriginal C.cant_pack_arrays_can_pack_others struct (size: 5 slots)\n\t{\n\t\tbytes16[1] arr1\n\t\tuint128 half1\n\t\tuint256 big1\n\t\tuint128 half2\n\t\tbytes16[1] arr2\n\t}\n\toptimized C.cant_pack_arrays_can_pack_others struct (size: 4 slots)\n\t{\n\t\tuint128 half1\n\t\tuint128 half2\n\t\tbytes16[1] arr1\n\t\tuint256 big1\n\t\tbytes16[1] arr2\n\t}\n",
+            "first_markdown_element": "",
+            "id": "7143257e55f6899b7e0d9401ecae91b41f93ce83c6c49731f0d078b1d915e39b",
+            "check": "optimize-var-order",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Optimization opporunity in contract C.small_random_party:\n\toriginal C.small_random_party struct (size: 7 slots)\n\t{\n\t\tbool short1\n\t\taddress addr1\n\t\tbytes27 var6\n\t\tuint200 var1\n\t\tint24 var2\n\t\tuint168 var4\n\t\tbytes31 long1\n\t\tint24 var5\n\t\tstring long2\n\t}\n\toptimized C.small_random_party struct (size: 6 slots)\n\t{\n\t\tbool short1\n\t\taddress addr1\n\t\tbytes27 var6\n\t\tuint200 var1\n\t\tint24 var2\n\t\tuint168 var4\n\t\tint24 var5\n\t\tbytes31 long1\n\t\tstring long2\n\t}\n",
+            "markdown": "Optimization opporunity in contract C.small_random_party:\n\toriginal C.small_random_party struct (size: 7 slots)\n\t{\n\t\tbool short1\n\t\taddress addr1\n\t\tbytes27 var6\n\t\tuint200 var1\n\t\tint24 var2\n\t\tuint168 var4\n\t\tbytes31 long1\n\t\tint24 var5\n\t\tstring long2\n\t}\n\toptimized C.small_random_party struct (size: 6 slots)\n\t{\n\t\tbool short1\n\t\taddress addr1\n\t\tbytes27 var6\n\t\tuint200 var1\n\t\tint24 var2\n\t\tuint168 var4\n\t\tint24 var5\n\t\tbytes31 long1\n\t\tstring long2\n\t}\n",
+            "first_markdown_element": "",
+            "id": "a567e70741d58d848d381dae470afcae0048b3ff85c8de11e4042aa134a8e044",
+            "check": "optimize-var-order",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Optimization opporunity in contract C.easy_fix:\n\toriginal C.easy_fix struct (size: 3 slots)\n\t{\n\t\tuint8 small1\n\t\tuint256 big\n\t\tuint8 small2\n\t}\n\toptimized C.easy_fix struct (size: 2 slots)\n\t{\n\t\tuint8 small1\n\t\tuint8 small2\n\t\tuint256 big\n\t}\n",
+            "markdown": "Optimization opporunity in contract C.easy_fix:\n\toriginal C.easy_fix struct (size: 3 slots)\n\t{\n\t\tuint8 small1\n\t\tuint256 big\n\t\tuint8 small2\n\t}\n\toptimized C.easy_fix struct (size: 2 slots)\n\t{\n\t\tuint8 small1\n\t\tuint8 small2\n\t\tuint256 big\n\t}\n",
+            "first_markdown_element": "",
+            "id": "f5fe42200a769972f654745e36340eb279da4634cb2af88d09c298b7fda09cce",
             "check": "optimize-var-order",
             "impact": "Optimization",
             "confidence": "High"
