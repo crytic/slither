@@ -1,4 +1,4 @@
-contract Initializable{
+contract Initializable {
     uint8 private _initialized;
     bool private _initializing;
 
