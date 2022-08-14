@@ -21,12 +21,22 @@ def _can_be_destroyed(contract: Contract) -> List[Function]:
                 break
     return targets
 
+def _has_initializing_protection(functions: List[Function]) -> bool:
+    # Detects "initializer" constructor modifiers and "_disableInitializers()" constructor internal calls
+    # https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializing_the_implementation_contract
 
-def _has_initializer_modifier(functions: List[Function]) -> bool:
     for f in functions:
         for m in f.modifiers:
             if m.name == "initializer":
                 return True
+        # filtering out SolidityFunction from the internal calls as we don't need to match against those names
+        internal_func_calls = [c for c in f.all_internal_calls() if not isinstance(c, SolidityFunction)]
+        for ifc in internal_func_calls:
+            if ifc.name == "_disableInitializers":
+                return True
+
+    # to avoid future FPs in different modifier + function naming implementations, we can also implement a broader check for state var "_initialized" being written to in the constructor
+    #   though this is still subject to naming false positives... 
     return False
 
 
@@ -82,7 +92,7 @@ class UnprotectedUpgradeable(AbstractDetector):
 
         for contract in self.compilation_unit.contracts_derived:
             if contract.is_upgradeable:
-                if not _has_initializer_modifier(contract.constructors):
+                if not _has_initializing_protection(contract.constructors):
                     functions_that_can_destroy = _can_be_destroyed(contract)
                     if functions_that_can_destroy:
                         initialize_functions = _initialize_functions(contract)
