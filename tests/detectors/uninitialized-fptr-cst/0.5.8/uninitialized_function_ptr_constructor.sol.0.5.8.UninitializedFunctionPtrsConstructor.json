@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 178,
                         "length": 306,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -33,7 +32,6 @@
                     "source_mapping": {
                         "start": 472,
                         "length": 5,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -51,7 +49,6 @@
                             "source_mapping": {
                                 "start": 196,
                                 "length": 286,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -74,7 +71,6 @@
                                     "source_mapping": {
                                         "start": 178,
                                         "length": 306,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -115,7 +111,6 @@
                     "source_mapping": {
                         "start": 486,
                         "length": 199,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -142,7 +137,6 @@
                     "source_mapping": {
                         "start": 671,
                         "length": 7,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -160,7 +154,6 @@
                             "source_mapping": {
                                 "start": 628,
                                 "length": 55,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -181,7 +174,6 @@
                                     "source_mapping": {
                                         "start": 486,
                                         "length": 199,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -224,7 +216,6 @@
                     "source_mapping": {
                         "start": 27,
                         "length": 149,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -248,7 +239,6 @@
                     "source_mapping": {
                         "start": 164,
                         "length": 5,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -266,7 +256,6 @@
                             "source_mapping": {
                                 "start": 45,
                                 "length": 129,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -288,7 +277,6 @@
                                     "source_mapping": {
                                         "start": 27,
                                         "length": 149,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -328,7 +316,6 @@
                     "source_mapping": {
                         "start": 687,
                         "length": 269,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -357,7 +344,6 @@
                     "source_mapping": {
                         "start": 858,
                         "length": 5,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -375,7 +361,6 @@
                             "source_mapping": {
                                 "start": 831,
                                 "length": 50,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
@@ -396,7 +381,6 @@
                                     "source_mapping": {
                                         "start": 687,
                                         "length": 269,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/uninitialized-fptr-cst/0.5.8/uninitialized_function_ptr_constructor.sol",

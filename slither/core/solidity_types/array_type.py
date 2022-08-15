@@ -30,6 +30,10 @@ class ArrayType(Type):
         return self._type
 
     @property
+    def is_dynamic(self) -> bool:
+        return self.length is None
+
+    @property
     def length(self) -> Optional[Expression]:
         return self._length
 

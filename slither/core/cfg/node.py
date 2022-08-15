@@ -39,12 +39,11 @@ from slither.slithir.variables import (
     TupleVariable,
 )
 from slither.all_exceptions import SlitherException
-from slither.core.declarations import Contract
+from slither.core.declarations import Contract, Function
 
 from slither.core.expressions.expression import Expression
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Function
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.utils.type_helpers import (
@@ -913,10 +912,11 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                     except AttributeError as error:
                         #  pylint: disable=raise-missing-from
                         raise SlitherException(
-                            f"Function not found on IR: {ir}.\nNode: {self} ({self.source_mapping_str})\nFunction: {self.function}\nPlease try compiling with a recent Solidity version. {error}"
+                            f"Function not found on IR: {ir}.\nNode: {self} ({self.source_mapping})\nFunction: {self.function}\nPlease try compiling with a recent Solidity version. {error}"
                         )
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
+                assert isinstance(ir.function, Function)
                 self._high_level_calls.append((ir.destination, ir.function))
                 self._library_calls.append((ir.destination, ir.function))
 

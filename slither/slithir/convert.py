@@ -33,6 +33,7 @@ from slither.core.solidity_types.elementary_type import (
     MaxValues,
 )
 from slither.core.solidity_types.type import Type
+from slither.core.solidity_types.type_alias import TypeAlias
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
@@ -399,6 +400,13 @@ def propagate_type_and_convert_call(result, node):
                 ins = new_ins
                 result[idx] = ins
 
+        # If there's two consecutive type conversions, keep only the last
+        # ARG_CALL x                             call_data = [x]
+        # TMP_4 = CONVERT x to Fix               call_data = []
+        # TMP_5 = CONVERT TMP_4 to uint192       call_data = [TMP_5]
+        if isinstance(ins, TypeConversion) and ins.variable in call_data:
+            call_data.remove(ins.variable)
+
         if isinstance(ins, Argument):
             # In case of dupplicate arguments we overwrite the value
             # This can happen because of addr.call.value(1).value(2)
@@ -531,7 +539,9 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                         return convert_type_of_high_and_internal_level_call(ir, contract)
 
                 # Convert HighLevelCall to LowLevelCall
-                if isinstance(t, ElementaryType) and t.name == "address":
+                if (isinstance(t, ElementaryType) and t.name == "address") or (
+                    isinstance(t, TypeAlias) and t.underlying_type.name == "address"
+                ):
                     # Cannot be a top level function with this.
                     assert isinstance(node_function, FunctionContract)
                     if ir.destination.name == "this":
@@ -817,11 +827,27 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             # lib L { event E()}
             # ...
             # emit L.E();
-            if str(ins.ori.variable_right) in [f.name for f in ins.ori.variable_left.events]:
+            if str(ins.ori.variable_right) in ins.ori.variable_left.events_as_dict:
                 eventcall = EventCall(ins.ori.variable_right)
                 eventcall.set_expression(ins.expression)
                 eventcall.call_id = ins.call_id
                 return eventcall
+
+            # lib Lib { error Error()} ... revert Lib.Error()
+            if str(ins.ori.variable_right) in ins.ori.variable_left.custom_errors_as_dict:
+                custom_error = ins.ori.variable_left.custom_errors_as_dict[
+                    str(ins.ori.variable_right)
+                ]
+                assert isinstance(
+                    custom_error,
+                    CustomError,
+                )
+                sol_function = SolidityCustomRevert(custom_error)
+                solidity_call = SolidityCall(
+                    sol_function, ins.nbr_arguments, ins.lvalue, ins.type_call
+                )
+                solidity_call.set_expression(ins.expression)
+                return solidity_call
 
             libcall = LibraryCall(
                 ins.ori.variable_left,
@@ -909,14 +935,14 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             # For top level import, where the import statement renames the filename
             # See https://blog.soliditylang.org/2020/09/02/solidity-0.7.1-release-announcement/
 
-            current_path = Path(ins.ori.variable_left.source_mapping["filename_absolute"]).parent
+            current_path = Path(ins.ori.variable_left.source_mapping.filename.absolute).parent
             target = str(
                 Path(current_path, ins.ori.variable_left.import_directive.filename).absolute()
             )
             top_level_function_targets = [
                 f
                 for f in ins.compilation_unit.functions_top_level
-                if f.source_mapping["filename_absolute"] == target
+                if f.source_mapping.filename.absolute == target
                 and f.name == ins.ori.variable_right
                 and len(f.parameters) == ins.nbr_arguments
             ]
@@ -1369,7 +1395,11 @@ def convert_type_library_call(ir: HighLevelCall, lib_contract: Contract):
 
     if len(candidates) == 1:
         func = candidates[0]
-    if func is None:
+    # We can discard if there are arguments here because libraries only support constant variables
+    # And constant variables cannot have non-value type
+    # i.e. "uint[2] constant arr = [1,2];" is not possible in Solidity
+    # If this were to change, the following condition might be broken
+    if func is None and not ir.arguments:
         # TODO: handle collision with multiple state variables/functions
         func = lib_contract.get_state_variable_from_name(ir.function_name)
     if func is None and candidates:
@@ -1657,7 +1687,10 @@ def convert_constant_types(irs):
                         if isinstance(ir.rvalue, TupleVariable):
                             # TODO: fix missing Unpack conversion
                             continue
-                        if ir.rvalue.type.type not in ElementaryTypeInt:
+                        if isinstance(ir.rvalue.type, TypeAlias):
+                            ir.rvalue.set_type(ElementaryType(ir.lvalue.type.name))
+                            was_changed = True
+                        elif ir.rvalue.type.type not in ElementaryTypeInt:
                             ir.rvalue.set_type(ElementaryType(ir.lvalue.type.type))
                             was_changed = True
             if isinstance(ir, Binary):
@@ -1676,6 +1709,7 @@ def convert_constant_types(irs):
                         # TODO: add  POP instruction
                         break
                     types = [p.type for p in func.parameters]
+                assert len(types) == len(ir.arguments)
                 for idx, arg in enumerate(ir.arguments):
                     t = types[idx]
                     if isinstance(t, ElementaryType):
@@ -1726,6 +1760,21 @@ def convert_delete(irs):
 # endregion
 ###################################################################################
 ###################################################################################
+# region Source Mapping
+###################################################################################
+###################################################################################
+
+
+def _find_source_mapping_references(irs: List[Operation]):
+    for ir in irs:
+
+        if isinstance(ir, NewContract):
+            ir.contract_created.references.append(ir.expression.source_mapping)
+
+
+# endregion
+###################################################################################
+###################################################################################
 # region Heuristics selection
 ###################################################################################
 ###################################################################################
@@ -1743,5 +1792,7 @@ def apply_ir_heuristics(irs, node):
     find_references_origin(irs)
     convert_constant_types(irs)
     convert_delete(irs)
+
+    _find_source_mapping_references(irs)
 
     return irs

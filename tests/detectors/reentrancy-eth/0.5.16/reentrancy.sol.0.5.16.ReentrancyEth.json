@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 1839,
                         "length": 393,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -35,7 +34,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 2209,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -118,7 +116,6 @@
                     "source_mapping": {
                         "start": 2084,
                         "length": 64,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -136,7 +133,6 @@
                             "source_mapping": {
                                 "start": 1839,
                                 "length": 393,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -163,7 +159,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 2209,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -251,7 +246,6 @@
                     "source_mapping": {
                         "start": 2183,
                         "length": 32,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -269,7 +263,6 @@
                             "source_mapping": {
                                 "start": 1839,
                                 "length": 393,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -296,7 +289,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 2209,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -396,7 +388,6 @@
                     "source_mapping": {
                         "start": 703,
                         "length": 357,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -422,7 +413,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 2209,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -505,7 +495,6 @@
                     "source_mapping": {
                         "start": 882,
                         "length": 81,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -523,7 +512,6 @@
                             "source_mapping": {
                                 "start": 703,
                                 "length": 357,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -549,7 +537,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 2209,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -637,7 +624,6 @@
                     "source_mapping": {
                         "start": 1026,
                         "length": 27,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -655,7 +641,6 @@
                             "source_mapping": {
                                 "start": 703,
                                 "length": 357,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
@@ -681,7 +666,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 2209,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy.sol",

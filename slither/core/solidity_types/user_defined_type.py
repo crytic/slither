@@ -21,6 +21,10 @@ class UserDefinedType(Type):
         self._type = t
 
     @property
+    def is_dynamic(self) -> bool:
+        return False
+
+    @property
     def type(self) -> Union["Contract", "Enum", "Structure"]:
         return self._type
 

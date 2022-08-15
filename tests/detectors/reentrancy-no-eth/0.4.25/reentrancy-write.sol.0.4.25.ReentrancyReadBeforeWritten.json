@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 326,
                         "length": 153,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -32,7 +31,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 776,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -89,7 +87,6 @@
                     "source_mapping": {
                         "start": 391,
                         "length": 20,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -107,7 +104,6 @@
                             "source_mapping": {
                                 "start": 326,
                                 "length": 153,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -131,7 +127,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 776,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -193,7 +188,6 @@
                     "source_mapping": {
                         "start": 455,
                         "length": 17,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -211,7 +205,6 @@
                             "source_mapping": {
                                 "start": 326,
                                 "length": 153,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -235,7 +228,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 776,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -309,7 +301,6 @@
                     "source_mapping": {
                         "start": 485,
                         "length": 158,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -332,7 +323,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 776,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -389,7 +379,6 @@
                     "source_mapping": {
                         "start": 560,
                         "length": 34,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -407,7 +396,6 @@
                             "source_mapping": {
                                 "start": 485,
                                 "length": 158,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -430,7 +418,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 776,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -492,7 +479,6 @@
                     "source_mapping": {
                         "start": 630,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -510,7 +496,6 @@
                             "source_mapping": {
                                 "start": 485,
                                 "length": 158,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -533,7 +518,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 776,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -595,7 +579,6 @@
                     "source_mapping": {
                         "start": 391,
                         "length": 20,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -613,7 +596,6 @@
                             "source_mapping": {
                                 "start": 326,
                                 "length": 153,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -637,7 +619,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 776,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -699,7 +680,6 @@
                     "source_mapping": {
                         "start": 630,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -717,7 +697,6 @@
                             "source_mapping": {
                                 "start": 485,
                                 "length": 158,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -740,7 +719,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 776,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -803,7 +781,6 @@
                     "source_mapping": {
                         "start": 455,
                         "length": 17,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -821,7 +798,6 @@
                             "source_mapping": {
                                 "start": 326,
                                 "length": 153,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
@@ -845,7 +821,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 776,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.4.25/reentrancy-write.sol",

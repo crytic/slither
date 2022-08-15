@@ -10,16 +10,28 @@ setup(
     author="Trail of Bits",
     version="0.8.3",
     packages=find_packages(),
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     install_requires=[
         "prettytable>=0.7.2",
         "pysha3>=1.0.2",
         # "crytic-compile>=0.2.3",
         "crytic-compile",
     ],
+    extras_require={
+        "dev": [
+            "black==22.3.0",
+            "pylint==2.13.4",
+            "pytest",
+            "pytest-cov",
+            "deepdiff",
+            "numpy",
+            "solc-select>=v1.0.0b1",
+        ]
+    },
     dependency_links=["git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile"],
     license="AGPL-3.0",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     entry_points={
         "console_scripts": [
             "slither = slither.__main__:main",

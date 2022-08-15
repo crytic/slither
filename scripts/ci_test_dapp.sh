@@ -15,13 +15,9 @@ nix-env -f "$HOME/.dapp/dapptools" -iA dapp seth solc hevm ethsign
 
 dapp init
 
-slither . --detect external-function
-
-# TODO: make more elaborate test
-if [ $? -eq 4 ]
-then
-    exit 0
+if ! slither . --detect external-function; then
+    echo "Dapp test failed"
+    exit 1
 fi
 
-echo "Dapp test failed"
-exit 255
+exit 0

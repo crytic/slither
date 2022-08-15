@@ -1,7 +1,7 @@
-INFO:Slither:[92m
+INFO:Slither:
 Initializable contract not found, the contract does not follow a standard initalization schema.
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing[0m
-INFO:Slither:[91m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing
+INFO:Slither:
 ContractV1.destination (tests/check-upgradeability/contract_v1_var_init.sol#2) is a state variable with an initial value.
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#state-variable-initialized[0m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#state-variable-initialized
 INFO:Slither:2 findings, 8 detectors run

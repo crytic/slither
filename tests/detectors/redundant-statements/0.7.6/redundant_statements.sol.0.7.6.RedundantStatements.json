@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 287,
                         "length": 4,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 209,
                                 "length": 109,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -49,7 +47,6 @@
                                     "source_mapping": {
                                         "start": 66,
                                         "length": 254,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -87,7 +84,6 @@
                     "source_mapping": {
                         "start": 66,
                         "length": 254,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -131,7 +127,6 @@
                     "source_mapping": {
                         "start": 155,
                         "length": 4,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -149,7 +144,6 @@
                             "source_mapping": {
                                 "start": 110,
                                 "length": 93,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -171,7 +165,6 @@
                                     "source_mapping": {
                                         "start": 66,
                                         "length": 254,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -209,7 +202,6 @@
                     "source_mapping": {
                         "start": 66,
                         "length": 254,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -253,7 +245,6 @@
                     "source_mapping": {
                         "start": 271,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -271,7 +262,6 @@
                             "source_mapping": {
                                 "start": 209,
                                 "length": 109,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -294,7 +284,6 @@
                                     "source_mapping": {
                                         "start": 66,
                                         "length": 254,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -332,7 +321,6 @@
                     "source_mapping": {
                         "start": 66,
                         "length": 254,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -376,7 +364,6 @@
                     "source_mapping": {
                         "start": 169,
                         "length": 27,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -394,7 +381,6 @@
                             "source_mapping": {
                                 "start": 110,
                                 "length": 93,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -416,7 +402,6 @@
                                     "source_mapping": {
                                         "start": 66,
                                         "length": 254,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -454,7 +439,6 @@
                     "source_mapping": {
                         "start": 66,
                         "length": 254,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -498,7 +482,6 @@
                     "source_mapping": {
                         "start": 141,
                         "length": 4,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -516,7 +499,6 @@
                             "source_mapping": {
                                 "start": 110,
                                 "length": 93,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -538,7 +520,6 @@
                                     "source_mapping": {
                                         "start": 66,
                                         "length": 254,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -576,7 +557,6 @@
                     "source_mapping": {
                         "start": 66,
                         "length": 254,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -620,7 +600,6 @@
                     "source_mapping": {
                         "start": 257,
                         "length": 4,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -638,7 +617,6 @@
                             "source_mapping": {
                                 "start": 209,
                                 "length": 109,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -661,7 +639,6 @@
                                     "source_mapping": {
                                         "start": 66,
                                         "length": 254,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
@@ -699,7 +676,6 @@
                     "source_mapping": {
                         "start": 66,
                         "length": 254,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/redundant-statements/0.7.6/redundant_statements.sol",

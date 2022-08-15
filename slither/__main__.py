@@ -10,7 +10,7 @@ import os
 import pstats
 import sys
 import traceback
-from typing import Optional
+from typing import Tuple, Optional, List, Dict
 
 from pkg_resources import iter_entry_points, require
 
@@ -54,7 +54,12 @@ logger = logging.getLogger("Slither")
 ###################################################################################
 
 
-def process_single(target, args, detector_classes, printer_classes):
+def process_single(
+    target: str,
+    args: argparse.Namespace,
+    detector_classes: List[AbstractDetector],
+    printer_classes: List[AbstractPrinter],
+) -> Tuple[Slither, List[Dict], List[Dict], int]:
     """
     The core high-level code for running Slither static analysis.
 
@@ -72,7 +77,12 @@ def process_single(target, args, detector_classes, printer_classes):
     return _process(slither, detector_classes, printer_classes)
 
 
-def process_all(target, args, detector_classes, printer_classes):
+def process_all(
+    target: str,
+    args: argparse.Namespace,
+    detector_classes: List[AbstractDetector],
+    printer_classes: List[AbstractPrinter],
+) -> Tuple[List[Slither], List[Dict], List[Dict], int]:
     compilations = compile_all(target, **vars(args))
     slither_instances = []
     results_detectors = []
@@ -97,7 +107,11 @@ def process_all(target, args, detector_classes, printer_classes):
     )
 
 
-def _process(slither, detector_classes, printer_classes):
+def _process(
+    slither: Slither,
+    detector_classes: List[AbstractDetector],
+    printer_classes: List[AbstractPrinter],
+) -> Tuple[Slither, List[Dict], List[Dict], int]:
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
 
@@ -123,7 +137,12 @@ def _process(slither, detector_classes, printer_classes):
     return slither, results_detectors, results_printers, analyzed_contracts_count
 
 
-def process_from_asts(filenames, args, detector_classes, printer_classes):
+def process_from_asts(
+    filenames: List[str],
+    args: argparse.Namespace,
+    detector_classes: List[AbstractDetector],
+    printer_classes: List[AbstractPrinter],
+):
     all_contracts = []
 
     for filename in filenames:
@@ -137,29 +156,13 @@ def process_from_asts(filenames, args, detector_classes, printer_classes):
 # endregion
 ###################################################################################
 ###################################################################################
-# region Exit
-###################################################################################
-###################################################################################
 
-
-def my_exit(results):
-    if not results:
-        sys.exit(0)
-    sys.exit(len(results))
-
-
-# endregion
-###################################################################################
-###################################################################################
 # region Detectors and printers
 ###################################################################################
 ###################################################################################
 
 
 def get_detectors_and_printers():
-    """
-    NOTE: This contains just a few detectors and printers that we made public.
-    """
 
     detectors = [getattr(all_detectors, name) for name in dir(all_detectors)]
     detectors = [d for d in detectors if inspect.isclass(d) and issubclass(d, AbstractDetector)]
@@ -190,7 +193,9 @@ def get_detectors_and_printers():
 
 
 # pylint: disable=too-many-branches
-def choose_detectors(args, all_detector_classes):
+def choose_detectors(
+    args: argparse.Namespace, all_detector_classes: List[AbstractDetector]
+) -> List[AbstractDetector]:
     # If detectors are specified, run only these ones
 
     detectors_to_run = []
@@ -212,22 +217,22 @@ def choose_detectors(args, all_detector_classes):
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
-    if args.exclude_optimization:
+    if args.exclude_optimization and not args.fail_pedantic:
         detectors_to_run = [
             d for d in detectors_to_run if d.IMPACT != DetectorClassification.OPTIMIZATION
         ]
 
-    if args.exclude_informational:
+    if args.exclude_informational and not args.fail_pedantic:
         detectors_to_run = [
             d for d in detectors_to_run if d.IMPACT != DetectorClassification.INFORMATIONAL
         ]
-    if args.exclude_low:
+    if args.exclude_low and not args.fail_low:
         detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.LOW]
-    if args.exclude_medium:
+    if args.exclude_medium and not args.fail_medium:
         detectors_to_run = [
             d for d in detectors_to_run if d.IMPACT != DetectorClassification.MEDIUM
         ]
-    if args.exclude_high:
+    if args.exclude_high and not args.fail_high:
         detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.HIGH]
     if args.detectors_to_exclude:
         detectors_to_run = [
@@ -239,7 +244,9 @@ def choose_detectors(args, all_detector_classes):
     return detectors_to_run
 
 
-def choose_printers(args, all_printer_classes):
+def choose_printers(
+    args: argparse.Namespace, all_printer_classes: List[AbstractPrinter]
+) -> List[AbstractPrinter]:
     printers_to_run = []
 
     # disable default printer
@@ -315,7 +322,7 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
 
     group_printer.add_argument(
         "--print",
-        help="Comma-separated list fo contract information printers, "
+        help="Comma-separated list of contract information printers, "
         f"available printers: {', '.join(d.ARGUMENT for d in printer_classes)}",
         action="store",
         dest="printers_to_run",
@@ -386,6 +393,34 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         help="Exclude high impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_high"],
+    )
+
+    group_detector.add_argument(
+        "--fail-pedantic",
+        help="Fail if any finding is detected",
+        action="store_true",
+        default=defaults_flag_in_config["fail_pedantic"],
+    )
+
+    group_detector.add_argument(
+        "--fail-low",
+        help="Fail if low or greater impact finding is detected",
+        action="store_true",
+        default=defaults_flag_in_config["fail_low"],
+    )
+
+    group_detector.add_argument(
+        "--fail-medium",
+        help="Fail if medium or greater impact finding is detected",
+        action="store_true",
+        default=defaults_flag_in_config["fail_medium"],
+    )
+
+    group_detector.add_argument(
+        "--fail-high",
+        help="Fail if high impact finding is detected",
+        action="store_true",
+        default=defaults_flag_in_config["fail_high"],
     )
 
     group_detector.add_argument(
@@ -486,6 +521,14 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     )
 
     group_misc.add_argument(
+        "--change-line-prefix",
+        help="Change the line prefix (default #) for the displayed source codes (i.e. file.sol#1).",
+        action="store",
+        dest="change_line_prefix",
+        default="#",
+    )
+
+    group_misc.add_argument(
         "--solc-ast",
         help="Provide the contract as a json AST",
         action="store_true",
@@ -528,13 +571,6 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         help=argparse.SUPPRESS,
         action="store_true",
         default=defaults_flag_in_config["skip_assembly"],
-    )
-
-    parser.add_argument(
-        "--ignore-return-value",
-        help=argparse.SUPPRESS,
-        action="store_true",
-        default=defaults_flag_in_config["ignore_return_value"],
     )
 
     parser.add_argument(
@@ -644,7 +680,9 @@ def main():
 
 
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
-def main_impl(all_detector_classes, all_printer_classes):
+def main_impl(
+    all_detector_classes: List[AbstractDetector], all_printer_classes: List[AbstractPrinter]
+):
     """
     :param all_detector_classes: A list of all detectors that can be included/excluded.
     :param all_printer_classes: A list of all printers that can be included.
@@ -659,7 +697,7 @@ def main_impl(all_detector_classes, all_printer_classes):
         cp.enable()
 
     # Set colorization option
-    set_colorization_enabled(not args.disable_color)
+    set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
 
     # Define some variables for potential JSON output
     json_results = {}
@@ -800,8 +838,6 @@ def main_impl(all_detector_classes, all_printer_classes):
                 len(detector_classes),
                 len(results_detectors),
             )
-        if args.ignore_return_value:
-            return
 
     except SlitherException as slither_exception:
         output_error = str(slither_exception)
@@ -840,11 +876,26 @@ def main_impl(all_detector_classes, all_printer_classes):
         stats = pstats.Stats(cp).sort_stats("cumtime")
         stats.print_stats()
 
-    # Exit with the appropriate status code
-    if output_error:
+    if args.fail_high:
+        fail_on_detection = any(result["impact"] == "High" for result in results_detectors)
+    elif args.fail_medium:
+        fail_on_detection = any(
+            result["impact"] in ["Medium", "High"] for result in results_detectors
+        )
+    elif args.fail_low:
+        fail_on_detection = any(
+            result["impact"] in ["Low", "Medium", "High"] for result in results_detectors
+        )
+    elif args.fail_pedantic:
+        fail_on_detection = bool(results_detectors)
+    else:
+        fail_on_detection = False
+
+    # Exit with them appropriate status code
+    if output_error or fail_on_detection:
         sys.exit(-1)
     else:
-        my_exit(results_detectors)
+        sys.exit(0)
 
 
 if __name__ == "__main__":

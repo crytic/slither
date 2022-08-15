@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 186,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -28,7 +27,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 759,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -87,7 +85,6 @@
                     "source_mapping": {
                         "start": 224,
                         "length": 23,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -105,7 +102,6 @@
                             "source_mapping": {
                                 "start": 186,
                                 "length": 66,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -125,7 +121,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 759,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -197,7 +192,6 @@
                     "source_mapping": {
                         "start": 77,
                         "length": 57,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -217,7 +211,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 759,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -276,7 +269,6 @@
                     "source_mapping": {
                         "start": 106,
                         "length": 23,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -294,7 +286,6 @@
                             "source_mapping": {
                                 "start": 77,
                                 "length": 57,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -314,7 +305,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 759,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -386,7 +376,6 @@
                     "source_mapping": {
                         "start": 398,
                         "length": 55,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -406,7 +395,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 759,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -465,7 +453,6 @@
                     "source_mapping": {
                         "start": 427,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -483,7 +470,6 @@
                             "source_mapping": {
                                 "start": 398,
                                 "length": 55,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
@@ -503,7 +489,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 759,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/assert-state-change/0.5.16/assert_state_change.sol",

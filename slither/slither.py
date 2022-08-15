@@ -53,7 +53,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         Keyword Args:
             solc (str): solc binary location (default 'solc')
             disable_solc_warnings (bool): True to disable solc warnings (default false)
-            solc_arguments (str): solc arguments (default '')
+            solc_args (str): solc arguments (default '')
             ast_format (str): ast format (default '--ast-compact-json')
             filter_paths (list(str)): list of path to filter (default [])
             triage_mode (bool): if true, switch to triage mode (default false)
@@ -69,12 +69,17 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
             embark_ignore_compile (bool): do not run embark build (default False)
             embark_overwrite_config (bool): overwrite original config file (default false)
 
+            change_line_prefix (str): Change the line prefix (default #)
+                for the displayed source codes (i.e. file.sol#1).
+
         """
         super().__init__()
 
         self._disallow_partial: bool = kwargs.get("disallow_partial", False)
         self._skip_assembly: bool = kwargs.get("skip_assembly", False)
         self._show_ignored_findings: bool = kwargs.get("show_ignored_findings", False)
+
+        self.line_prefix = kwargs.get("change_line_prefix", "#")
 
         self._parsers: List[SlitherCompilationUnitSolc] = []
         try:

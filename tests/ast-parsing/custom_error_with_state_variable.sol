@@ -9,5 +9,14 @@ error ErrorWithParam(uint256 value);
 uint256 constant ONE = 1;
 uint256 constant TWO = ONE + 1;
 function foo() pure { revert ErrorWithParam(0); }
-contract Bar { }
+
+library CustomErrors {
+     error LibraryError();
+}
+
+contract Bar { 
+    function baz() external {
+            revert CustomErrors.LibraryError();
+    }
+}
 

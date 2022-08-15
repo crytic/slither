@@ -98,7 +98,7 @@ def _find_variable_in_function_parser(
     return None
 
 
-def _find_top_level(
+def find_top_level(
     var_name: str, scope: "FileScope"
 ) -> Tuple[
     Optional[Union[Enum, Structure, SolidityImportPlaceHolder, CustomError, TopLevelVariable]], bool
@@ -413,7 +413,7 @@ def find_variable(
         return SolidityFunction(var_name), False
 
     # Top level must be at the end, if nothing else was found
-    ret, var_was_created = _find_top_level(var_name, current_scope)
+    ret, var_was_created = find_top_level(var_name, current_scope)
     if ret:
         return ret, var_was_created
 
