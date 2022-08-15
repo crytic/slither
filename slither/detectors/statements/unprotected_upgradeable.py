@@ -29,9 +29,7 @@ def _has_initializing_protection(functions: List[Function]) -> bool:
         for m in f.modifiers:
             if m.name == "initializer":
                 return True
-        # filtering out SolidityFunction from the internal calls as we don't need to match against those names
-        internal_func_calls = [c for c in f.all_internal_calls() if not isinstance(c, SolidityFunction)]
-        for ifc in internal_func_calls:
+        for ifc in f.all_internal_calls() :
             if ifc.name == "_disableInitializers":
                 return True
 
