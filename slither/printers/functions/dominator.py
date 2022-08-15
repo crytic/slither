@@ -1,6 +1,3 @@
-from typing import List
-
-from slither.core.declarations import Function
 from slither.printers.abstract_printer import AbstractPrinter
 
 
