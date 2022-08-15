@@ -21,6 +21,7 @@ def _can_be_destroyed(contract: Contract) -> List[Function]:
                 break
     return targets
 
+
 def _has_initializing_protection(functions: List[Function]) -> bool:
     # Detects "initializer" constructor modifiers and "_disableInitializers()" constructor internal calls
     # https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializing_the_implementation_contract
@@ -29,12 +30,12 @@ def _has_initializing_protection(functions: List[Function]) -> bool:
         for m in f.modifiers:
             if m.name == "initializer":
                 return True
-        for ifc in f.all_internal_calls() :
+        for ifc in f.all_internal_calls():
             if ifc.name == "_disableInitializers":
                 return True
 
     # to avoid future FPs in different modifier + function naming implementations, we can also implement a broader check for state var "_initialized" being written to in the constructor
-    #   though this is still subject to naming false positives... 
+    #   though this is still subject to naming false positives...
     return False
 
 
