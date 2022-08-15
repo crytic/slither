@@ -22,7 +22,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("Slither")
 
-
 ###################################################################################
 ###################################################################################
 # region Output
@@ -359,7 +358,7 @@ class Output:
         else:
             info = info_
 
-        self._data: Dict[str, Any] = OrderedDict()
+        self._data = OrderedDict()
         self._data["elements"] = []
         self._data["description"] = "".join(_convert_to_description(d) for d in info)
         self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
