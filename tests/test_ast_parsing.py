@@ -415,6 +415,7 @@ ALL_TESTS = [
     Test("user_defined_value_type/erc20-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("user_defined_value_type/in_parenthesis-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("bytes_call.sol", ["0.8.12"]),
+    Test("modifier_identifier_path.sol", VERSIONS_08),
     Test("free_functions/libraries_from_free.sol", ["0.8.12"]),
     Test("free_functions/new_operator.sol", ["0.8.12"]),
     Test("free_functions/library_constant_function_collision.sol", ["0.8.12"]),
