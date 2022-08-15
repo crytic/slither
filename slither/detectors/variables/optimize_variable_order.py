@@ -95,7 +95,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
 
         for possible_smallest in itertools.permutations(target_elems):
             if OptimizeVariableOrder.find_slots_used(possible_smallest) < \
-                OptimizeVariableOrder.find_slots_used(smallest_pack_order):
+                smallest_pack_order_slots:
                 # change smallest order
                 smallest_pack_order = possible_smallest[:]
                 smallest_pack_order_slots = OptimizeVariableOrder.find_slots_used(possible_smallest)
