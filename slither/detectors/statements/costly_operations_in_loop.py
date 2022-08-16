@@ -98,7 +98,8 @@ Incrementing `state_variable` in a loop incurs a lot of gas because of expensive
             values = detect_costly_operations_in_loop(c)
             for node in values:
                 func = node.function
-                info = [func, " has costly operations inside a loop:\n"]
+                # info = [func, " has costly operations inside a loop:\n"]
+                info = [func, " 循环中有易造成损失的操作:\n"]
                 info += ["\t- ", node, "\n"]
                 res = self.generate_result(info)
                 results.append(res)

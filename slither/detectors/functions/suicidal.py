@@ -74,7 +74,8 @@ Bob calls `kill` and destructs the contract."""
             functions = self.detect_suicidal(c)
             for func in functions:
 
-                info = [func, " allows anyone to destruct the contract\n"]
+                # info = [func, " allows anyone to destruct the contract\n"]
+                info = [func, " 允许任何人破坏 contract\n"]
 
                 res = self.generate_result(info)
 

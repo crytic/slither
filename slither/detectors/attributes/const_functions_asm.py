@@ -67,7 +67,8 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
                     if f.contains_assembly:
                         attr = "view" if f.view else "pure"
 
-                        info = [f, f" is declared {attr} but contains assembly code\n"]
+                        # info = [f, f" is declared {attr} but contains assembly code\n"]
+                        info = [f, f" 声明 {attr} 但是包含了组合代码\n"]
                         res = self.generate_result(info, {"contains_assembly": True})
 
                         results.append(res)

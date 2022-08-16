@@ -130,7 +130,8 @@ class WriteAfterWrite(AbstractDetector):
                     ret = []
                     _detect_write_after_write(function.entry_point, set(), {}, ret)
                     for var, node1, node2 in ret:
-                        info = [var, " is written in both\n\t", node1, "\n\t", node2, "\n"]
+                        # info = [var, " is written in both\n\t", node1, "\n\t", node2, "\n"]
+                        info = [var, " 使用这两种\n\t", node1, "写的", "\n\t", node2, "\n"]
 
                         res = self.generate_result(info)
                         results.append(res)

@@ -55,7 +55,8 @@ Bob calls `delegate` and delegates the execution to his malicious contract. As a
                 if nodes:
                     func_info = [
                         f,
-                        " uses delegatecall to a input-controlled function id\n",
+                        # " uses delegatecall to a input-controlled function id\n",
+                        " 使用 delegatecall 来控制输入函数id\n",
                     ]
 
                     for node in nodes:

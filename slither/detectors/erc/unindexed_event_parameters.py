@@ -82,7 +82,8 @@ Failure to include these keywords will exclude the parameter data in the transac
                     info = [
                         "ERC20 event ",
                         event,
-                        f"does not index parameter {parameter}\n",
+                        # f"does not index parameter {parameter}\n",
+                        f"没有索引参数 {parameter}\n",
                     ]
 
                     # Add the events to the JSON (note: we do not add the params/vars as they have no source mapping).

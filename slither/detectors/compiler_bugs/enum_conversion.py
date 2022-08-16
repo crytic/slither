@@ -77,10 +77,12 @@ Attackers can trigger unexpected behaviour by calling `bug(1)`."""
         for c in self.compilation_unit.contracts:
             ret = _detect_dangerous_enum_conversions(c)
             for node, var in ret:
-                func_info = [node, " has a dangerous enum conversion\n"]
+                # func_info = [node, " has a dangerous enum conversion\n"]
+                func_info = [node, " 存在危险的enum转变\n"]
                 # Output each node with the function info header as a separate result.
-                variable_info = ["\t- Variable: ", var, f" of type: {str(var.type)}\n"]
-                node_info = ["\t- Enum conversion: ", node, "\n"]
+                variable_info = ["\t- 变量: ", var, f" of type: {str(var.type)}\n"]
+                # node_info = ["\t- Enum conversion: ", node, "\n"]
+                node_info = ["\t- enum转变: ", node, "\n"]
                 json = self.generate_result(func_info + variable_info + node_info)
                 results.append(json)
 

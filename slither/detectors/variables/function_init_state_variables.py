@@ -103,10 +103,12 @@ Special care must be taken when initializing state variables from an immediate f
                 for state_variable in state_variables:
                     info = [
                         state_variable,
-                        " is set pre-construction with a non-constant function or state variable:\n",
+                        # " is set pre-construction with a non-constant function or state variable:\n",
+                        " 用非常量函数或状态变量预先构造:\n",
                     ]
                     info += [f"\t- {state_variable.expression}\n"]
                     json = self.generate_result(info)
                     results.append(json)
+
 
         return results

@@ -77,9 +77,11 @@ class Timestamp(AbstractDetector):
             dangerous_timestamp = _detect_dangerous_timestamp(c)
             for (func, nodes) in dangerous_timestamp:
 
-                info = [func, " uses timestamp for comparisons\n"]
+                # info = [func, " uses timestamp for comparisons\n"]
+                info = [func, " 使用时间戳进行对比\n"]
 
-                info += ["\tDangerous comparisons:\n"]
+                # info += ["\tDangerous comparisons:\n"]
+                info += ["\t危险的对比:\n"]
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)

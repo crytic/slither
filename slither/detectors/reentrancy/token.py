@@ -87,7 +87,9 @@ If you do, ensure your users are aware of the potential issues."""
         for contract in self.compilation_unit.contracts_derived:
             vulns = _detect_token_reentrant(contract)
             for function, nodes in vulns.items():
-                info = [function, " is an reentrancy unsafe token function:\n"]
+                # info = [function, " is an reentrancy unsafe token function:\n"]
+                info = [function, " 是一个重复不安全的token功能:\n"]
+
                 for node in nodes:
                     info += ["\t-", node, "\n"]
                 json = self.generate_result(info)

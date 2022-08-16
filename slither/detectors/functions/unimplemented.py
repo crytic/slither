@@ -98,7 +98,8 @@ All unimplemented functions must be implemented on a contract that is meant to b
         for contract in self.compilation_unit.contracts_derived:
             functions = self._detect_unimplemented_function(contract)
             if functions:
-                info = [contract, " does not implement functions:\n"]
+                # info = [contract, " does not implement functions:\n"]
+                info = [contract, " 不是有效的功能:\n"]
 
                 for function in sorted(functions, key=lambda x: x.full_name):
                     info += ["\t- ", function, "\n"]

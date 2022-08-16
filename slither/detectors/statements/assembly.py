@@ -48,7 +48,8 @@ class Assembly(AbstractDetector):
         for c in self.contracts:
             values = self.detect_assembly(c)
             for func, nodes in values:
-                info = [func, " uses assembly\n"]
+                # info = [func, " uses assembly\n"]
+                info = [func, " 使用组件\n"]
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)

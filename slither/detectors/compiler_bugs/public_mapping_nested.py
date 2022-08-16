@@ -84,7 +84,8 @@ class PublicMappingNested(AbstractDetector):
             public_nested_mappings = detect_public_nested_mappings(contract)
             if public_nested_mappings:
                 for public_nested_mapping in public_nested_mappings:
-                    info = [public_nested_mapping, " is a public mapping with nested variables\n"]
+                    # info = [public_nested_mapping, " is a public mapping with nested variables\n"]
+                    info = [public_nested_mapping, " 是一个有嵌套变量的公开映射\n"]
                     json = self.generate_result(info)
                     results.append(json)
 

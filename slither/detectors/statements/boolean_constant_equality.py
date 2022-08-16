@@ -79,7 +79,8 @@ Boolean constants can be used directly and do not need to be compare to `true` o
                 for node in nodes:
                     info = [
                         func,
-                        " compares to a boolean constant:\n\t-",
+                        # " compares to a boolean constant:\n\t-",
+                        " 比较布尔类常量:\n\t-",
                         node,
                         "\n",
                     ]

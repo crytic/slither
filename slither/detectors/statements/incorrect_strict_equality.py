@@ -145,7 +145,8 @@ contract Crowdsale{
             ret = sorted(list(ret.items()), key=lambda x: x[0].name)
             for f, nodes in ret:
 
-                func_info = [f, " uses a dangerous strict equality:\n"]
+                # func_info = [f, " uses a dangerous strict equality:\n"]
+                func_info = [f, " 使用危险的严格等式:\n"]
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)

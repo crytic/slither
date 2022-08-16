@@ -139,13 +139,15 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
             return results
 
         for contract in self.compilation_unit.contracts:
-            contract_info = ["Contract ", contract, " \n"]
+            # contract_info = ["Contract ", contract, " \n"]
+            contract_info = ["合约 ", contract, " \n"]
             nodes = self._detect_uninitialized_function_ptr_in_constructor(contract)
             for node in nodes:
                 node_info = [
                     "\t ",
                     node,
-                    " is an unintialized function pointer call in a constructor\n",
+                    # " is an unintialized function pointer call in a constructor\n",
+                    " 是一个没有被初始化的功能点调用在程序中\n",
                 ]
                 json = self.generate_result(contract_info + node_info)
                 results.append(json)

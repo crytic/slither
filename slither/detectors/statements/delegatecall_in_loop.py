@@ -94,7 +94,8 @@ Carefully check that the function called by `delegatecall` is not payable/doesn'
             for node in values:
                 func = node.function
 
-                info = [func, " has delegatecall inside a loop in a payable function: ", node, "\n"]
+                # info = [func, " has delegatecall inside a loop in a payable function: ", node, "\n"]
+                info = [func, " 在具有支付功能的函数的循环内有delegatecall: ", node, "\n"]
                 res = self.generate_result(info)
                 results.append(res)
 

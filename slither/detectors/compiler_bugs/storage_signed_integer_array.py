@@ -145,9 +145,11 @@ contract A {
         for contract in self.contracts:
             storage_signed_integer_arrays = self.detect_storage_signed_integer_arrays(contract)
             for function, node in storage_signed_integer_arrays:
-                contract_info = ["Contract ", contract, " \n"]
+                # contract_info = ["Contract ", contract, " \n"]
+                contract_info = ["合约 ", contract, " \n"]
                 function_info = ["\t- Function ", function, "\n"]
-                node_info = ["\t\t- ", node, " has a storage signed integer array assignment\n"]
+                # node_info = ["\t\t- ", node, " has a storage signed integer array assignment\n"]
+                node_info = ["\t\t- ", node, " 是一个存储有符号整数的数组\n"]
                 res = self.generate_result(contract_info + function_info + node_info)
                 results.append(res)
 

@@ -80,12 +80,14 @@ As a result, the second contract cannot be analyzed.
             info = [contract_name, " is re-used:\n"]
             for file in files:
                 if file is None:
-                    info += ["\t- In an file not found, most likely in\n"]
+                    # info += ["\t- In an file not found, most likely in\n"]
+                    info += ["\t- 没有找到该文件，好像是在:\n"]
                 else:
                     info += ["\t- ", file, "\n"]
 
             if contract_name in inheritance_corrupted:
-                info += ["\tAs a result, the inherited contracts are not correctly analyzed:\n"]
+                # info += ["\tAs a result, the inherited contracts are not correctly analyzed:\n"]
+                info += ["\t通过结果可知，继承下来的contracts没有正确的分析:\n"]
             for corrupted in inheritance_corrupted[contract_name]:
                 info += ["\t\t- ", corrupted, "\n"]
             res = self.generate_result(info)
@@ -96,16 +98,22 @@ As a result, the second contract cannot be analyzed.
         most_base_with_missing_inheritance = _find_missing_inheritance(compilation_unit)
 
         for b in most_base_with_missing_inheritance:
-            info = [b, " inherits from a contract for which the name is reused.\n"]
+            # info = [b, " inherits from a contract for which the name is reused.\n"]
+            info = [b, " 继承重命名的合约.\n"]
             if b.inheritance:
-                info += ["\t- Slither could not determine which contract has a duplicate name:\n"]
+                # info += ["\t- Slither could not determine which contract has a duplicate name:\n"]
+                info += ["\t- Slither 不能决定哪一个 contract 有重复的名字:\n"]
                 for inheritance in b.inheritance:
                     info += ["\t\t-", inheritance, "\n"]
                 info += ["\t- Check if:\n"]
-                info += ["\t\t- A inherited contract is missing from this list,\n"]
-                info += ["\t\t- The contract are imported from the correct files.\n"]
+                # info += ["\t\t- A inherited contract is missing from this list,\n"]
+                info += ["\t\t- 列表中缺少继承的contract,\n"]
+                # info += ["\t\t- The contract are imported from the correct files.\n"]
+                info += ["\t\t- contract从正确的文件中导入.\n"]
             if b.derived_contracts:
-                info += [f"\t- This issue impacts the contracts inheriting from {b.name}:\n"]
+
+                # info += [f"\t- This issue impacts the contracts inheriting from {b.name}:\n"]
+                info += [f"\t- 这个问题影响了contracts继承自 {b.name}:\n"]
                 for derived in b.derived_contracts:
                     info += ["\t\t-", derived, "\n"]
             res = self.generate_result(info)

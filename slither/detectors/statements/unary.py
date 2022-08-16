@@ -71,14 +71,16 @@ contract Bug{
                     variable.expression
                     and InvalidUnaryStateVariableDetector(variable.expression).result()
                 ):
-                    info = [variable, f" uses an dangerous unary operator: {variable.expression}\n"]
+                    # info = [variable, f" uses an dangerous unary operator: {variable.expression}\n"]
+                    info = [variable, f" 使用危险的 unary 操作: {variable.expression}\n"]
                     json = self.generate_result(info)
                     results.append(json)
 
             for f in c.functions_and_modifiers_declared:
                 for node in f.nodes:
                     if node.expression and InvalidUnaryExpressionDetector(node.expression).result():
-                        info = [node.function, " uses an dangerous unary operator: ", node, "\n"]
+                        # info = [node.function, " uses an dangerous unary operator: ", node, "\n"]
+                        info = [node.function, " 使用危险的 unary 操作: ", node, "\n"]
                         res = self.generate_result(info)
                         results.append(res)
 

@@ -84,7 +84,8 @@ Each commented line references types/identifiers, but performs no action with th
             if redundant_statements:
 
                 for redundant_statement in redundant_statements:
-                    info = ['Redundant expression "', redundant_statement, '" in', contract, "\n"]
+                    # info = ['Redundant expression "', redundant_statement, '" in', contract, "\n"]
+                    info = ['冗余表达 "', redundant_statement, '" in', contract, "\n"]
                     json = self.generate_result(info)
                     results.append(json)
 

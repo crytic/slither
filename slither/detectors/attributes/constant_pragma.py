@@ -29,8 +29,10 @@ class ConstantPragma(AbstractDetector):
         versions = sorted(list(set(versions)))
 
         if len(versions) > 1:
-            info = ["Different versions of Solidity are used:\n"]
-            info += [f"\t- Version used: {[str(v) for v in versions]}\n"]
+            # info = ["Different versions of Solidity are used:\n"]
+            info = ["使用了不同的solidity版本:\n"]
+            # info += [f"\t- Version used: {[str(v) for v in versions]}\n"]
+            info += [f"\t- 当前版本: {[str(v) for v in versions]}\n"]
 
             for p in pragma:
                 info += ["\t- ", p, "\n"]

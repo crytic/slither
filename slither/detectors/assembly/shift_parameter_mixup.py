@@ -46,7 +46,8 @@ The shift statement will right-shift the constant 8 by `a` bits"""
                     BinaryType.RIGHT_SHIFT,
                 ]:
                     if isinstance(ir.variable_left, Constant):
-                        info = [f, " contains an incorrect shift operation: ", node, "\n"]
+                        # info = [f, " contains an incorrect shift operation: ", node, "\n"]
+                        info = [f, " 包含了不正确的转换操作: ", node, "\n"]
                         json = self.generate_result(info)
 
                         results.append(json)

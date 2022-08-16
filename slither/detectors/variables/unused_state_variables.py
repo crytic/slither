@@ -61,7 +61,8 @@ class UnusedStateVars(AbstractDetector):
             unusedVars = detect_unused(c)
             if unusedVars:
                 for var in unusedVars:
-                    info = [var, " is never used in ", c, "\n"]
+                    # info = [var, " is never used in ", c, "\n"]
+                    info = [var, " 没有被使用在 ", c, "\n"]
                     json = self.generate_result(info)
                     results.append(json)
 

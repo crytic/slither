@@ -182,7 +182,8 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
 
                     info = [
                         func,
-                        " performs a multiplication on the result of a division:\n",
+                        # " performs a multiplication on the result of a division:\n",
+                        " 本来做的是除法结果做成了乘法:\n",
                     ]
 
                     # sort the nodes to get deterministic results

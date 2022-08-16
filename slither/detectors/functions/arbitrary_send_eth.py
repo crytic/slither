@@ -128,8 +128,10 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
             arbitrary_send_result = detect_arbitrary_send(c)
             for (func, nodes) in arbitrary_send_result:
 
-                info = [func, " sends eth to arbitrary user\n"]
-                info += ["\tDangerous calls:\n"]
+                # info = [func, " sends eth to arbitrary user\n"]
+                info = [func, " 发送 eth 给任意用户\n"]
+                # info += ["\tDangerous calls:\n"]
+                info += ["\t危险的调用:\n"]
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)

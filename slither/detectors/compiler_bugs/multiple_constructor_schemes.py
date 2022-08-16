@@ -55,7 +55,8 @@ In Solidity [0.4.22](https://github.com/ethereum/solidity/releases/tag/v0.4.23),
 
             # If there is more than one, we encountered the described issue occurring.
             if constructors and len(constructors) > 1:
-                info = [contract, " contains multiple constructors in the same contract:\n"]
+                # info = [contract, " contains multiple constructors in the same contract:\n"]
+                info = [contract, " 包含了多个组件在一个结构体当中:\n"]
                 for constructor in constructors:
                     info += ["\t- ", constructor, "\n"]
 

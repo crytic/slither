@@ -112,7 +112,8 @@ contract C {
         for contract in self.compilation_unit.contracts_derived:
             missing_events = self._detect_missing_events(contract)
             for (function, nodes) in missing_events:
-                info = [function, " should emit an event for: \n"]
+                # info = [function, " should emit an event for: \n"]
+                info = [function, " 应该emit为了以下事件: \n"]
                 for (node, _) in nodes:
                     info += ["\t- ", node, " \n"]
                 res = self.generate_result(info)

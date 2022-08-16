@@ -115,7 +115,8 @@ contract Token{
                 for function in functions:
                     info = [
                         c,
-                        " has incorrect ERC721 function interface:",
+                        # " has incorrect ERC721 function interface:",
+                        " 具有不正确的 ERC721 功能界面:",
                         function,
                         "\n",
                     ]

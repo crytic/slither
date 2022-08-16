@@ -82,11 +82,14 @@ Every Ether sent to `Locked` will be lost."""
             funcs_payable = [function for function in contract.functions if function.payable]
             if funcs_payable:
                 if self.do_no_send_ether(contract):
-                    info = ["Contract locking ether found:\n"]
-                    info += ["\tContract ", contract, " has payable functions:\n"]
+                    # info = ["Contract locking ether found:\n"]
+                    info = ["合约 locking ether 被建立:\n"]
+                    # info += ["\tContract ", contract, " has payable functions:\n"]
+                    info += ["\t合约 ", contract, " 有可支付功能:\n"]
                     for function in funcs_payable:
                         info += ["\t - ", function, "\n"]
-                    info += "\tBut does not have a function to withdraw the ether\n"
+                    # info += "\tBut does not have a function to withdraw the ether\n"
+                    info += "\t但是没有返回ether的功能\n"
 
                     json = self.generate_result(info)
 

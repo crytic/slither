@@ -86,7 +86,8 @@ Track msg.value through a local variable and decrease its amount on every iterat
             for node in values:
                 func = node.function
 
-                info = [func, " use msg.value in a loop: ", node, "\n"]
+                # info = [func, " use msg.value in a loop: ", node, "\n"]
+                info = [func, " 在循环中使用msg值: ", node, "\n"]
                 res = self.generate_result(info)
                 results.append(res)
 

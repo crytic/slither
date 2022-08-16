@@ -46,7 +46,8 @@ class LowLevelCalls(AbstractDetector):
         for c in self.contracts:
             values = self.detect_low_level_calls(c)
             for func, nodes in values:
-                info = ["Low level call in ", func, ":\n"]
+                # info = ["Low level call in ", func, ":\n"]
+                info = ["低级调用在 ", func, ":\n"]
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)

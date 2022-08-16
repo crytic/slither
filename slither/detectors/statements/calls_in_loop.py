@@ -94,7 +94,8 @@ If one of the destinations has a fallback function that reverts, `bad` will alwa
             for node in values:
                 func = node.function
 
-                info = [func, " has external calls inside a loop: ", node, "\n"]
+                # info = [func, " has external calls inside a loop: ", node, "\n"]
+                info = [func, " 在循环中有外部调用: ", node, "\n"]
                 res = self.generate_result(info)
                 results.append(res)
 

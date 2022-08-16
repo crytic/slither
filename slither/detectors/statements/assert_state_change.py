@@ -77,10 +77,12 @@ The assert in `bad()` increments the state variable `s_a` while checking for the
         for contract in self.contracts:
             assert_state_change = detect_assert_state_change(contract)
             for (func, node) in assert_state_change:
-                info = [func, " has an assert() call which possibly changes state.\n"]
+                # info = [func, " has an assert() call which possibly changes state.\n"]
+                info = [func, " 存在assert()调用，可能会改变状态.\n"]
                 info += ["\t-", node, "\n"]
                 info += [
-                    "Consider using require() or change the invariant to not modify the state.\n"
+                    # "Consider using require() or change the invariant to not modify the state.\n"
+                    "考虑使用require（）或更改 invariant 以不修改状态.\n"
                 ]
                 res = self.generate_result(info)
                 results.append(res)

@@ -163,7 +163,8 @@ Consider using the latest version of Solidity for testing."""
                 info = [
                     "solc-",
                     self.compilation_unit.solc_version,
-                    " is not recommended for deployment\n",
+                    # " is not recommended for deployment\n",
+                    " 不建议部署\n",
                 ]
 
             json = self.generate_result(info)

@@ -201,7 +201,8 @@ class ExternalFunction(AbstractDetector):
                     function_definition = all_function_definitions[0]
                     all_function_definitions = all_function_definitions[1:]
 
-                    info = [f"{function_definition.full_name} should be declared external:\n"]
+                    # info = [f"{function_definition.full_name} should be declared external:\n"]
+                    info = [f"{function_definition.full_name} 应该声明 external:\n"]
                     info += ["\t- ", function_definition, "\n"]
                     for other_function_definition in all_function_definitions:
                         info += ["\t- ", other_function_definition, "\n"]

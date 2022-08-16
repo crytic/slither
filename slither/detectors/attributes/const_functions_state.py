@@ -70,7 +70,8 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
 
                         info = [
                             f,
-                            f" is declared {attr} but changes state variables:\n",
+                            # f" is declared {attr} but changes state variables:\n",
+                            f" 声明了 {attr} 但改变了状态变量:\n",
                         ]
 
                         for variable_written in variables_written:

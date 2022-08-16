@@ -25,7 +25,8 @@ class Backdoor(AbstractDetector):
             for f in contract.functions:
                 if "backdoor" in f.name:
                     # Info to be printed
-                    info = ["Backdoor function found in ", f, "\n"]
+                    # info = ["Backdoor function found in ", f, "\n"]
+                    info = ["Backdoor 功能建立在 ", f, "\n"]
 
                     # Add the result in result
                     res = self.generate_result(info)

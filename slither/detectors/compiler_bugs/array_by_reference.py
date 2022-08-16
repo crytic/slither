@@ -150,11 +150,14 @@ As a result, Bob's usage of the contract is incorrect."""
             for calling_node, affected_argument, invoked_function in problematic_calls:
                 info = [
                     calling_node.function,
-                    " passes array ",
+                    # " passes array ",
+                    " 传递数组 ",
                     affected_argument,
-                    "by reference to ",
+                    # "by reference to ",
+                    " 通过参考 ",
                     invoked_function,
-                    "which only takes arrays by value\n",
+                    # "which only takes arrays by value\n",
+                    "只是通过值来获取数组\n",
                 ]
 
                 res = self.generate_result(info)

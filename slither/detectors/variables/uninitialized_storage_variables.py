@@ -106,7 +106,8 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
         for (function, uninitialized_storage_variable) in self.results:
             info = [
                 uninitialized_storage_variable,
-                " is a storage variable never initialized\n",
+                # " is a storage variable never initialized\n",
+                " 存储变量没有被初始化\n",
             ]
             json = self.generate_result(info)
             results.append(json)

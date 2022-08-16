@@ -143,9 +143,11 @@ The constructor of `A` is called multiple times in `D` and `E`:
                 # Generate data to output.
                 info = [
                     contract,
-                    " gives base constructor ",
+                    # " gives base constructor ",
+                    " 给出基础组件 ",
                     base_constructor,
-                    " arguments more than once in inheritance hierarchy:\n",
+                    # " arguments more than once in inheritance hierarchy:\n",
+                    " 继承层次结构中的参数不止一次:\n",
                 ]
 
                 for (calling_contract, called_by_constructor) in call_list:

@@ -116,7 +116,8 @@ Otherwise, thoroughly review the contract to ensure a user-controlled variable c
             if array_length_assignments:
                 contract_info = [
                     contract,
-                    " contract sets array length with a user-controlled value:\n",
+                    # " contract sets array length with a user-controlled value:\n",
+                    " contract 使用用户控制的值设置数组长度:\n",
                 ]
                 for node in array_length_assignments:
                     node_info = contract_info + ["\t- ", node, "\n"]

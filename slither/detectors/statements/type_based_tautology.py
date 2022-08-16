@@ -161,7 +161,8 @@ contract A {
             if tautologies:
                 for (func, nodes) in tautologies:
                     for node in nodes:
-                        info = [func, " contains a tautology or contradiction:\n"]
+                        # info = [func, " contains a tautology or contradiction:\n"]
+                        info = [func, " 包含重复或矛盾:\n"]
                         info += ["\t- ", node, "\n"]
 
                         res = self.generate_result(info)

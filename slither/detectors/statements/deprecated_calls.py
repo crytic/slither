@@ -165,11 +165,13 @@ contract ContractWithDeprecatedReferences {
                 for deprecated_reference in deprecated_references:
                     source_object = deprecated_reference[0]
                     deprecated_entries = deprecated_reference[1]
-                    info = ["Deprecated standard detected ", source_object, ":\n"]
+                    # info = ["Deprecated standard detected ", source_object, ":\n"]
+                    info = ["检测到被废弃的标准 ", source_object, ":\n"]
 
                     for (_dep_id, original_desc, recommended_disc) in deprecated_entries:
                         info += [
-                            f'\t- Usage of "{original_desc}" should be replaced with "{recommended_disc}"\n'
+                            # f'\t- Usage of "{original_desc}" should be replaced with "{recommended_disc}"\n'
+                            f'\t- Usage of "{original_desc}" 需被替换成 "{recommended_disc}"\n'
                         ]
 
                     res = self.generate_result(info)

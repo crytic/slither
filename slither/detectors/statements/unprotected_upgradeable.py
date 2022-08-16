@@ -102,11 +102,13 @@ class UnprotectedUpgradeable(AbstractDetector):
                             info = (
                                 [
                                     contract,
-                                    " is an upgradeable contract that does not protect its initialize functions: ",
+                                    # " is an upgradeable contract that does not protect its initialize functions: ",
+                                    " 是一个可升级的contract，不能保护它的初始化函数: ",
                                 ]
                                 + initialize_functions
                                 + [
-                                    ". Anyone can delete the contract with: ",
+                                    # ". Anyone can delete the contract with: ",
+                                    ". 任何人都可以删除contract通过: ",
                                 ]
                                 + functions_that_can_destroy
                             )

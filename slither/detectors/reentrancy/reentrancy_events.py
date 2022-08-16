@@ -92,21 +92,25 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
             send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
             events = sorted(events, key=lambda x: (str(x.variable.name), x.node.node_id))
 
-            info = ["Reentrancy in ", func, ":\n"]
-            info += ["\tExternal calls:\n"]
+            # info = ["Reentrancy in ", func, ":\n"]
+            # info += ["\tExternal calls:\n"]
+            info = ["Reentrancy 在 ", func, ":\n"]
+            info += ["\t外部调用:\n"]
             for (call_info, calls_list) in calls:
                 info += ["\t- ", call_info, "\n"]
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         info += ["\t\t- ", call_list_info, "\n"]
             if calls != send_eth and send_eth:
-                info += ["\tExternal calls sending eth:\n"]
+                # info += ["\tExternal calls sending eth:\n"]
+                info += ["\t外部调用发送 eth:\n"]
                 for (call_info, calls_list) in send_eth:
                     info += ["\t- ", call_info, "\n"]
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             info += ["\t\t- ", call_list_info, "\n"]
-            info += ["\tEvent emitted after the call(s):\n"]
+            # info += ["\tEvent emitted after the call(s):\n"]
+            info += ["\tEvent emitted 在调用后:\n"]
             for finding_value in events:
                 info += ["\t- ", finding_value.node, "\n"]
                 for other_node in finding_value.nodes:

@@ -146,7 +146,8 @@ contract A {
         for contract in self.contracts:
             storage_abiencoderv2_arrays = self._detect_storage_abiencoderv2_arrays(contract)
             for function, node in storage_abiencoderv2_arrays:
-                info = ["Function ", function, " trigger an abi encoding bug:\n\t- ", node, "\n"]
+                # info = ["Function ", function, " trigger an abi encoding bug:\n\t- ", node, "\n"]
+                info = ["Function ", function, " 触发了一个abi编码bug:\n\t- ", node, "\n"]
                 res = self.generate_result(info)
                 results.append(res)
 

@@ -132,7 +132,8 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             ret = self._detect_uninitialized(c)
             for variable, functions in ret:
 
-                info = [variable, " is never initialized. It is used in:\n"]
+                # info = [variable, " is never initialized. It is used in:\n"]
+                info = [variable, " 没有初始化. 被使用在:\n"]
 
                 for f in functions:
                     info += ["\t- ", f, "\n"]

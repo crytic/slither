@@ -103,21 +103,25 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
             send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
             varsWritten = sorted(varsWritten, key=lambda x: (x.variable.name, x.node.node_id))
 
-            info = ["Reentrancy in ", func, ":\n"]
-            info += ["\tExternal calls:\n"]
+            # info = ["Reentrancy in ", func, ":\n"]
+            info = ["Reentrancy 在 ", func, ":\n"]
+            # info += ["\tExternal calls:\n"]
+            info += ["\t外部调用:\n"]
             for (call_info, calls_list) in calls:
                 info += ["\t- ", call_info, "\n"]
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         info += ["\t\t- ", call_list_info, "\n"]
             if calls != send_eth and send_eth:
-                info += ["\tExternal calls sending eth:\n"]
+                # info += ["\tExternal calls sending eth:\n"]
+                info += ["\t外部调用发送 eth:\n"]
                 for (call_info, calls_list) in send_eth:
                     info += ["\t- ", call_info, "\n"]
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             info += ["\t\t- ", call_list_info, "\n"]
-            info += ["\tState variables written after the call(s):\n"]
+            # info += ["\tState variables written after the call(s):\n"]
+            info += ["\t调用后写入变量状态):\n"]
             for finding_value in varsWritten:
                 info += ["\t- ", finding_value.node, "\n"]
                 for other_node in finding_value.nodes:

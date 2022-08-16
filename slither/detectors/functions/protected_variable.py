@@ -60,9 +60,11 @@ contract Buggy{
                     if function_protection not in function.all_internal_calls():
                         info = [
                             function,
-                            " should have ",
+                            # " should have ",
+                            " 应该有 ",
                             function_protection,
-                            " to protect ",
+                            # " to protect ",
+                            " 去保护 ",
                             state_variable_written,
                             "\n",
                         ]

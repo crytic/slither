@@ -81,7 +81,8 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
                         node = None
                 else:
                     # Nothing was found in the outer scope
-                    info = ["Modifier ", mod, " does not always execute _; or revert"]
+                    # info = ["Modifier ", mod, " does not always execute _; or revert"]
+                    info = ["Modifier ", mod, " 不会一直执行 _; 或转换"]
 
                     res = self.generate_result(info)
                     results.append(res)

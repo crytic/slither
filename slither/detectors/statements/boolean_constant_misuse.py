@@ -115,7 +115,8 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
                 for node in nodes:
                     info = [
                         func,
-                        " uses a Boolean constant improperly:\n\t-",
+                        # " uses a Boolean constant improperly:\n\t-",
+                        " 不正确的使用布尔值:\n\t-",
                         node,
                         "\n",
                     ]

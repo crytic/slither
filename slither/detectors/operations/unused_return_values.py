@@ -84,7 +84,8 @@ contract MyConc{
                 if unused_return:
 
                     for node in unused_return:
-                        info = [f, " ignores return value by ", node, "\n"]
+                        # info = [f, " ignores return value by ", node, "\n"]
+                        info = [f, " 被 ", node, " 忽略返回值", "\n"]
 
                         res = self.generate_result(info)
 

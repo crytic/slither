@@ -83,7 +83,8 @@ Use:
                 # iterate over all the nodes
                 ret = self._detect_too_many_digits(f)
                 if ret:
-                    func_info = [f, " uses literals with too many digits:"]
+                    # func_info = [f, " uses literals with too many digits:"]
+                    func_info = [f, " 使用了过多的数字常量:"]
                     for node in ret:
                         node_info = func_info + ["\n\t- ", node, "\n"]
 

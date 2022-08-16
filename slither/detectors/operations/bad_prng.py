@@ -124,7 +124,8 @@ As a result, Eve wins the game."""
             for func, nodes in values:
 
                 for node in nodes:
-                    info: List[AllSupportedOutput] = [func, ' uses a weak PRNG: "', node, '" \n']
+                    # info: List[AllSupportedOutput] = [func, ' uses a weak PRNG: "', node, '" \n']
+                    info: List[AllSupportedOutput] = [func, ' 使用了弱 PRNG: "', node, '" \n']
                     res = self.generate_result(info)
                     results.append(res)
 

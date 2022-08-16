@@ -135,11 +135,14 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
                         predeclared_usage_local_variable,
                     ) in predeclared_usage_nodes:
                         info = [
-                            "Variable '",
+                            # "Variable '",
+                            "变量 '",
                             predeclared_usage_local_variable,
-                            "' in ",
+                            # "' in ",
+                            "' 在 ",
                             predeclared_usage_function,
-                            " potentially used before declaration: ",
+                            # " potentially used before declaration: ",
+                            " 在声明之前使用 ",
                             predeclared_usage_node,
                             "\n",
                         ]

@@ -106,7 +106,8 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
 
             info = [
                 uninitialized_local_variable,
-                " is a local variable never initialized\n",
+                # " is a local variable never initialized\n",
+                " 局部变量没有初始化\n",
             ]
             json = self.generate_result(info)
             results.append(json)
