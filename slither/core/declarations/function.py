@@ -1037,10 +1037,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             functions: Set["Function"] = set()
 
             new_functions = self.reachable_from_functions
-            print([str(f) for f in new_functions])
             # iterate until we have are finding new functions
             while new_functions and new_functions not in functions:
-                print([str(f) for f in new_functions])
                 functions = functions.union(new_functions)
                 # Use a temporary set, because we iterate over new_functions
                 new_functionss: Set["Function"] = set()

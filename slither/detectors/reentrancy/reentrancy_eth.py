@@ -75,6 +75,10 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                                 )
                                 for (v, nodes) in node.context[self.KEY].written.items()
                                 if v in node.context[self.KEY].reads_prior_calls[c]
+                                and (
+                                    f.is_reentrant
+                                    or v in contract.state_variables_written_in_reentrant_targets
+                                )
                             }
 
                         if read_then_written:

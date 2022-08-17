@@ -1,0 +1,506 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "withdraw",
+                    "source_mapping": {
+                        "start": 181,
+                        "length": 207,
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13,
+                            14,
+                            15,
+                            16,
+                            17
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "TestWithBug",
+                            "source_mapping": {
+                                "start": 67,
+                                "length": 506,
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "withdraw(uint256)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "Receiver(msg.sender).send_funds{value: amount}()",
+                    "source_mapping": {
+                        "start": 292,
+                        "length": 48,
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            15
+                        ],
+                        "starting_column": 10,
+                        "ending_column": 58
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "withdraw",
+                            "source_mapping": {
+                                "start": 181,
+                                "length": 207,
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "TestWithBug",
+                                    "source_mapping": {
+                                        "start": 67,
+                                        "length": 506,
+                                        "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "withdraw(uint256)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "external_calls"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "balances[msg.sender] -= amount",
+                    "source_mapping": {
+                        "start": 351,
+                        "length": 30,
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            16
+                        ],
+                        "starting_column": 10,
+                        "ending_column": 40
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "withdraw",
+                            "source_mapping": {
+                                "start": 181,
+                                "length": 207,
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "TestWithBug",
+                                    "source_mapping": {
+                                        "start": 67,
+                                        "length": 506,
+                                        "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "withdraw(uint256)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "variables_written",
+                        "variable_name": "balances"
+                    }
+                }
+            ],
+            "description": "Reentrancy in TestWithBug.withdraw(uint256) (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#13-17):\n\tExternal calls:\n\t- Receiver(msg.sender).send_funds{value: amount}() (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#15)\n\tState variables written after the call(s):\n\t- balances[msg.sender] -= amount (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#16)\n",
+            "markdown": "Reentrancy in [TestWithBug.withdraw(uint256)](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L13-L17):\n\tExternal calls:\n\t- [Receiver(msg.sender).send_funds{value: amount}()](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L15)\n\tState variables written after the call(s):\n\t- [balances[msg.sender] -= amount](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L16)\n",
+            "first_markdown_element": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L13-L17",
+            "id": "746b848eb5d1102128ce24fa085ea13e78073daa2e2934383a204dfdcf8f02c0",
+            "check": "reentrancy-eth",
+            "impact": "High",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "withdraw_internal",
+                    "source_mapping": {
+                        "start": 1320,
+                        "length": 205,
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            62,
+                            63,
+                            64,
+                            65,
+                            66
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "TestWithBugInternal",
+                            "source_mapping": {
+                                "start": 1100,
+                                "length": 698,
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66,
+                                    67,
+                                    68,
+                                    69,
+                                    70,
+                                    71,
+                                    72,
+                                    73,
+                                    74,
+                                    75,
+                                    76,
+                                    77,
+                                    78
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "withdraw_internal(uint256)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "Receiver(msg.sender).send_funds{value: amount}()",
+                    "source_mapping": {
+                        "start": 1429,
+                        "length": 48,
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            64
+                        ],
+                        "starting_column": 10,
+                        "ending_column": 58
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "withdraw_internal",
+                            "source_mapping": {
+                                "start": 1320,
+                                "length": 205,
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "TestWithBugInternal",
+                                    "source_mapping": {
+                                        "start": 1100,
+                                        "length": 698,
+                                        "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64,
+                                            65,
+                                            66,
+                                            67,
+                                            68,
+                                            69,
+                                            70,
+                                            71,
+                                            72,
+                                            73,
+                                            74,
+                                            75,
+                                            76,
+                                            77,
+                                            78
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "withdraw_internal(uint256)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "external_calls"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "balances[msg.sender] -= amount",
+                    "source_mapping": {
+                        "start": 1488,
+                        "length": 30,
+                        "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            65
+                        ],
+                        "starting_column": 10,
+                        "ending_column": 40
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "withdraw_internal",
+                            "source_mapping": {
+                                "start": 1320,
+                                "length": 205,
+                                "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "TestWithBugInternal",
+                                    "source_mapping": {
+                                        "start": 1100,
+                                        "length": 698,
+                                        "filename_relative": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64,
+                                            65,
+                                            66,
+                                            67,
+                                            68,
+                                            69,
+                                            70,
+                                            71,
+                                            72,
+                                            73,
+                                            74,
+                                            75,
+                                            76,
+                                            77,
+                                            78
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "withdraw_internal(uint256)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "variables_written",
+                        "variable_name": "balances"
+                    }
+                }
+            ],
+            "description": "Reentrancy in TestWithBugInternal.withdraw_internal(uint256) (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#62-66):\n\tExternal calls:\n\t- Receiver(msg.sender).send_funds{value: amount}() (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#64)\n\tState variables written after the call(s):\n\t- balances[msg.sender] -= amount (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#65)\n",
+            "markdown": "Reentrancy in [TestWithBugInternal.withdraw_internal(uint256)](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L62-L66):\n\tExternal calls:\n\t- [Receiver(msg.sender).send_funds{value: amount}()](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L64)\n\tState variables written after the call(s):\n\t- [balances[msg.sender] -= amount](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L65)\n",
+            "first_markdown_element": "tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L62-L66",
+            "id": "d0680f2465dbe3b98cba27b175607d789949a9d1a1b686bd373b584caf3a0913",
+            "check": "reentrancy-eth",
+            "impact": "High",
+            "confidence": "Medium"
+        }
+    ]
+]
