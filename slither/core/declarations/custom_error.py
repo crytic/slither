@@ -16,6 +16,7 @@ class CustomError(SourceMapping):
         self._compilation_unit = compilation_unit
 
         self._solidity_signature: Optional[str] = None
+        self._full_name: Optional[str] = None
 
     @property
     def name(self) -> str:
@@ -50,7 +51,7 @@ class CustomError(SourceMapping):
         return str(t)
 
     @property
-    def solidity_signature(self) -> str:
+    def solidity_signature(self) -> Optional[str]:
         """
         Return a signature following the Solidity Standard
         Contract and converted into address
@@ -71,8 +72,21 @@ class CustomError(SourceMapping):
         Returns:
 
         """
-        parameters = [self._convert_type_for_solidity_signature(x.type) for x in self.parameters]
-        self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
+        parameters = [x.type for x in self.parameters]
+        self._full_name = self.name + "(" + ",".join(map(str, parameters)) + ")"
+        solidity_parameters = map(self._convert_type_for_solidity_signature, parameters)
+        self._solidity_signature = self.name + "(" + ",".join(solidity_parameters) + ")"
+
+    @property
+    def full_name(self) -> Optional[str]:
+        """
+        Return the error signature without
+        converting contract into address
+        :return: the error signature
+        """
+        if self._full_name is None:
+            raise ValueError("Custom Error not yet built")
+        return self._full_name
 
     # endregion
     ###################################################################################
