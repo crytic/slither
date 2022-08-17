@@ -224,7 +224,7 @@ def _find_in_contract(
     custom_errors = contract.custom_errors
     try:
         for custom_error in custom_errors:
-            if var_name == custom_error.solidity_signature:
+            if var_name in [custom_error.solidity_signature, custom_error.full_name]:
                 return custom_error
     except ValueError:
         # This can happen as custom error sol signature might not have been built
