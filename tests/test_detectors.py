@@ -929,6 +929,21 @@ ALL_TEST_OBJECTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.UnprotectedUpgradeable,
+        "Buggy.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "Fixed.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "whitelisted.sol",
+        "0.8.15",
+    ),
+    Test(
         all_detectors.ABIEncoderV2Array,
         "storage_ABIEncoderV2_array.sol",
         "0.4.25",
