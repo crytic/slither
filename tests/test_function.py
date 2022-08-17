@@ -247,6 +247,7 @@ def test_functions():
 
 
 def test_function_can_send_eth():
+    solc_select.switch_global_version("0.6.12", always_install=True)
     slither = Slither("tests/test_function.sol")
     compilation_unit = slither.compilation_units[0]
     functions = compilation_unit.get_contract_from_name("TestFunctionCanSendEth")[
@@ -267,3 +268,19 @@ def test_function_can_send_eth():
     assert functions["transfer_via_external()"].can_send_eth() is False
     assert functions["call_via_external()"].can_send_eth() is False
     assert functions["highlevel_call_via_external()"].can_send_eth() is False
+
+
+def test_reentrant():
+    solc_select.switch_global_version("0.8.10", always_install=True)
+    slither = Slither("tests/test_function_reentrant.sol")
+    compilation_unit = slither.compilation_units[0]
+    functions = compilation_unit.get_contract_from_name("TestReentrant")[
+        0
+    ].available_functions_as_dict()
+
+    assert functions["is_reentrant()"].is_reentrant
+    assert not functions["is_non_reentrant()"].is_reentrant
+    assert not functions["internal_and_not_reentrant()"].is_reentrant
+    assert not functions["internal_and_not_reentrant2()"].is_reentrant
+    assert functions["internal_and_could_be_reentrant()"].is_reentrant
+    assert functions["internal_and_reentrant()"].is_reentrant
