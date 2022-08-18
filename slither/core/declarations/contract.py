@@ -376,7 +376,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 for ir in function.all_slithir_operations():
                     state_variables = [v for v in ir.used if isinstance(v, StateVariable)]
                     for state_variable in state_variables:
-                        variables_used[state_variable].add(ir.function)
+                        variables_used[state_variable].add(ir.node.function)
             for variable in [v for v in self.state_variables if v.visibility == "public"]:
                 variables_used[variable].add(variable)
             self._state_variables_used_in_reentrant_targets = variables_used
