@@ -52,4 +52,21 @@ contract B is A{
     }
 }
 
+contract ContractArgCustomError {
+    error E(ContractArgCustomError a);
+
+    function f() payable external {
+      g();
+    }
+    
+    function g() private {
+      bool something = h();
+      if (something) {
+        revert E(this);
+      }
+    }
+
+    function h() private returns (bool something) {
+    }
+}
 

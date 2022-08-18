@@ -4,12 +4,13 @@ contract Fixed is Initializable{
     address payable owner;
 
     constructor() {
-        owner = msg.sender;
+        owner = payable(msg.sender);
     }
 
     function initialize() external initializer{
         require(owner == address(0));
-        owner = msg.sender;
+        owner = payable(msg.sender);
+
     }
     function kill() external{
         require(msg.sender == owner);
@@ -28,12 +29,12 @@ contract UpgradeableNoDestruct is Initializable{
     address payable owner;
 
     constructor() {
-        owner = msg.sender;
+        owner = payable(msg.sender);
     }
 
     function initialize() external initializer{
         require(owner == address(0));
-        owner = msg.sender;
+        owner = payable(msg.sender);
     }
 }
 
@@ -44,7 +45,7 @@ contract Fixed2 is Initializable {
 
     function initialize() external initializer {
         require(owner == address(0));
-        owner = msg.sender;
+        owner = payable(msg.sender);
     }
 
     function kill() external {

@@ -323,7 +323,7 @@ ALL_TESTS = [
         "custom_error-0.4.0.sol",
         ALL_VERSIONS,
     ),
-    Test("custom_error-0.8.4.sol", make_version(8, 4, 9)),
+    Test("custom_error-0.8.4.sol", make_version(8, 4, 15)),
     Test(
         "top-level-0.4.0.sol",
         VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"],
