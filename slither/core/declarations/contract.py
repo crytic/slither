@@ -2,8 +2,9 @@
     Contract module
 """
 import logging
+from collections import defaultdict
 from pathlib import Path
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
+from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set
 
 from crytic_compile.platform import Type as PlatformType
 
@@ -101,7 +102,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self.file_scope: "FileScope" = scope
 
         # memoize
-        self._state_variables_written_in_reentrant_targets: Optional[List["StateVariable"]] = None
+        self._state_variables_used_in_reentrant_targets: Optional[Dict["StateVariable", Set[Union["StateVariable", "Function"]]]]= None
 
     ###################################################################################
     ###################################################################################
@@ -353,14 +354,26 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return list(set(slithir_variables))
 
     @property
-    def state_variables_written_in_reentrant_targets(self) -> List["StateVariable"]:
-        if self._state_variables_written_in_reentrant_targets is None:
-            reentrant_functions = [f for f in self.functions if f.is_reentrant]
-            variables_writtenss = [f.all_state_variables_written() for f in reentrant_functions]
-            self._state_variables_written_in_reentrant_targets = [
-                item for sublist in variables_writtenss for item in sublist
-            ]
-        return self._state_variables_written_in_reentrant_targets
+    def state_variables_used_in_reentrant_targets(self) -> Dict["StateVariable", Set[Union["StateVariable", "Function"]]]:
+        """
+        Returns the state variables used in reentrant targets. Heuristics:
+        - Variable used (read/write) in entry points that are reentrant
+        - State variables that are public
+
+        """
+        from slither.core.variables.state_variable import StateVariable
+        if self._state_variables_used_in_reentrant_targets is None:
+            reentrant_functions = [f for f in self.functions_entry_points if f.is_reentrant]
+            variables_used: Dict[StateVariable, Set[Union[StateVariable, "Function"]]] = defaultdict(set)
+            for function in reentrant_functions:
+                for ir in function.all_slithir_operations():
+                    state_variables = [v for v in ir.used if isinstance(v, StateVariable)]
+                    for state_variable in state_variables:
+                        variables_used[state_variable].add(ir.function)
+            for variable in [v for v in self.state_variables if v.visibility == "public"]:
+                variables_used[variable].add(variable)
+            self._state_variables_used_in_reentrant_targets = variables_used
+        return self._state_variables_used_in_reentrant_targets
 
     # endregion
     ###################################################################################
