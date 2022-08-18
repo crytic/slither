@@ -102,7 +102,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self.file_scope: "FileScope" = scope
 
         # memoize
-        self._state_variables_used_in_reentrant_targets: Optional[Dict["StateVariable", Set[Union["StateVariable", "Function"]]]]= None
+        self._state_variables_used_in_reentrant_targets: Optional[
+            Dict["StateVariable", Set[Union["StateVariable", "Function"]]]
+        ] = None
 
     ###################################################################################
     ###################################################################################
@@ -354,7 +356,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return list(set(slithir_variables))
 
     @property
-    def state_variables_used_in_reentrant_targets(self) -> Dict["StateVariable", Set[Union["StateVariable", "Function"]]]:
+    def state_variables_used_in_reentrant_targets(
+        self,
+    ) -> Dict["StateVariable", Set[Union["StateVariable", "Function"]]]:
         """
         Returns the state variables used in reentrant targets. Heuristics:
         - Variable used (read/write) in entry points that are reentrant
@@ -362,9 +366,12 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         """
         from slither.core.variables.state_variable import StateVariable
+
         if self._state_variables_used_in_reentrant_targets is None:
             reentrant_functions = [f for f in self.functions_entry_points if f.is_reentrant]
-            variables_used: Dict[StateVariable, Set[Union[StateVariable, "Function"]]] = defaultdict(set)
+            variables_used: Dict[
+                StateVariable, Set[Union[StateVariable, "Function"]]
+            ] = defaultdict(set)
             for function in reentrant_functions:
                 for ir in function.all_slithir_operations():
                     state_variables = [v for v in ir.used if isinstance(v, StateVariable)]

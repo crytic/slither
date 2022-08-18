@@ -74,14 +74,11 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                                     v,
                                     node,
                                     tuple(sorted(nodes, key=lambda x: x.node_id)),
-                                    tuple(variables_used_in_reentrancy[v])
+                                    tuple(variables_used_in_reentrancy[v]),
                                 )
                                 for (v, nodes) in node.context[self.KEY].written.items()
                                 if v in node.context[self.KEY].reads_prior_calls[c]
-                                and (
-                                    f.is_reentrant
-                                    or v in variables_used_in_reentrancy
-                                )
+                                and (f.is_reentrant or v in variables_used_in_reentrancy)
                             }
 
                         if read_then_written:
@@ -132,7 +129,11 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                     if other_node != finding_value.node:
                         info += ["\t\t- ", other_node, "\n"]
                 if finding_value.cross_functions:
-                    info += ["\t", finding_value.variable," can be used in cross function reentrancies:\n"]
+                    info += [
+                        "\t",
+                        finding_value.variable,
+                        " can be used in cross function reentrancies:\n",
+                    ]
                     for cross in finding_value.cross_functions:
                         info += ["\t- ", cross, "\n"]
 
