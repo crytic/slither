@@ -51,6 +51,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
 
     STANDARD_JSON = False
 
+    # pylint: disable=too-many-locals
     def find_reentrancies(self) -> Dict[FindingKey, Set[FindingValue]]:
         result: Dict[FindingKey, Set[FindingValue]] = defaultdict(set)
         for contract in self.contracts:  # pylint: disable=too-many-nested-blocks
