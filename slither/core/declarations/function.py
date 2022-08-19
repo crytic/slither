@@ -962,10 +962,28 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         :return: the solidity signature
         """
         if self._solidity_signature is None:
-            parameters = [
-                convert_type_for_solidity_signature_to_string(x.type) for x in self.parameters
-            ]
-            self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
+            # Solidity allows recursive type for structure definition if its not used in public /external
+            # When this happens we can reach an infinite loop in convert_type_for_solidity_signature_to_string
+            # A quick workaround is to just return full_name for internal
+            # contract A{
+            #
+            #     struct St{
+            #         St[] a;
+            #         uint b;
+            #     }
+            #
+            #     function f(St memory s) internal{
+            #
+            #     }
+            #
+            # }
+            if self.visibility in ["public", "external"]:
+                parameters = [
+                    convert_type_for_solidity_signature_to_string(x.type) for x in self.parameters
+                ]
+                self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
+            else:
+                self._solidity_signature = self.full_name
         return self._solidity_signature
 
     @property
