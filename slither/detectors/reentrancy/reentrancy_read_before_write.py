@@ -71,7 +71,11 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                                     v,
                                     node,
                                     tuple(sorted(nodes, key=lambda x: x.node_id)),
-                                    tuple(variables_used_in_reentrancy[v]),
+                                    tuple(
+                                        sorted(
+                                            variables_used_in_reentrancy[v], key=lambda x: str(x)
+                                        )
+                                    ),
                                 )
                                 for (v, nodes) in node.context[self.KEY].written.items()
                                 if v in node.context[self.KEY].reads_prior_calls[c]
