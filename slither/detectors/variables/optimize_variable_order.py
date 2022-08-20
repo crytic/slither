@@ -122,17 +122,17 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         return optimized_order
 
     @staticmethod
-    def find_optimized_struct_ordering(target_struct):
-        """returns an optimized version of @target_struct or None if there isn't a better optimization"""
+    def find_optimized_struct_ordering(target_collection_elems):
+        """returns an optimized version of @target_collection_elems or None if there isn't a better optimization"""
 
-        if len(target_struct.elems_ordered) < 2:
+        if len(target_collection_elems) < 2:
             # packing order doesn't matter. Nothing to optimize
             return None
         
         # preprocessing elements to ensure only re-ordering elements that can result in optimizations
         packable_vars = []
         unpackable_vars = []
-        for elem in target_struct.elems_ordered:
+        for elem in target_collection_elems:
             if not elem.type.storage_size[1] and \
                 elem.type.storage_size[0] < OptimizeVariableOrder.BYTES_PER_SLOT:
                 packable_vars.append(elem)
@@ -142,7 +142,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         best_packable_order = OptimizeVariableOrder.find_smallest_pack_order(packable_vars)
         best_packable_order += tuple(unpackable_vars) # add unpackable elements at the end
         if OptimizeVariableOrder.find_slots_used(best_packable_order) < \
-            OptimizeVariableOrder.find_slots_used(target_struct.elems_ordered):
+            OptimizeVariableOrder.find_slots_used(target_collection_elems):
             return best_packable_order
         else:
             return None
@@ -150,24 +150,34 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
     def _detect(self):
         results = []
 
-        all_structs = self.compilation_unit.structures_top_level
-        for contract in self.compilation_unit.contracts_derived:
-            for struct in contract.structures:
-                all_structs.append(struct)
+        # file & contract-specific structs, contract-specific storage vars
+        all_var_collections = [] 
 
-        for struct in all_structs:
-            if optimized_struct := OptimizeVariableOrder.find_optimized_struct_ordering(struct):
-                info = [f"Optimization opportunity in contract {struct.canonical_name}:\n"]
-                info += [f"\toriginal {struct.canonical_name} struct (size: ", \
-                    str(OptimizeVariableOrder.find_slots_used(struct.elems_ordered))," slots)\n"]
+        for top_level_struct in self.compilation_unit.structures_top_level:
+            all_var_collections.append(top_level_struct.elems_ordered)
+
+        for contract in self.compilation_unit.contracts:
+            print("contract.name:", contract.name)
+            if len(contract.state_variables_declared) != 0:
+                all_var_collections.append(contract.state_variables_declared)
+            for struct in contract.structures:
+                all_var_collections.append(struct.elems_ordered)
+
+        # also know to handle storage: s.contracts[X].state_variables_declared
+        
+        for elem_collecetion in all_var_collections:
+            if optimized_elem_collecetion := OptimizeVariableOrder.find_optimized_struct_ordering(elem_collecetion):
+                info = [f"Optimization opportunity in contract GNOTE-IDK:\n"]
+                info += [f"\toriginal GNOTE-IDK struct (size: ", \
+                    str(OptimizeVariableOrder.find_slots_used(elem_collecetion))," slots)\n"]
                 info += ["\t{\n"]
-                for e in struct.elems_ordered:
+                for e in elem_collecetion:
                     info += [f"\t\t {e.type} {e.name}\n"]
                 info += ["\t}\n"]
-                info += [f"\toptimized {struct.canonical_name} struct (size: ", \
-                    str(OptimizeVariableOrder.find_slots_used(optimized_struct))," slots)\n"]
+                info += [f"\toptimized GNOTE-IDK struct (size: ", \
+                    str(OptimizeVariableOrder.find_slots_used(optimized_elem_collecetion))," slots)\n"]
                 info += ["\t{\n"]
-                for e in optimized_struct:
+                for e in optimized_elem_collecetion:
                     info += [f"\t\t {e.type} {e.name}\n"]
                 info += ["\t}\n"]
 
