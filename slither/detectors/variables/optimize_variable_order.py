@@ -151,35 +151,41 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         results = []
 
         # file & contract-specific structs, contract-specific storage vars
+        # format: [("description/location", [elements...]), ...]
         all_var_collections = [] 
 
         for top_level_struct in self.compilation_unit.structures_top_level:
-            all_var_collections.append(top_level_struct.elems_ordered)
+            all_var_collections.append((\
+                f"struct {top_level_struct.canonical_name} ({top_level_struct.source_mapping})",\
+                     top_level_struct.elems_ordered))
 
         for contract in self.compilation_unit.contracts:
-            print("contract.name:", contract.name)
-            if len(contract.state_variables_declared) != 0:
-                all_var_collections.append(contract.state_variables_declared)
-            for struct in contract.structures:
-                all_var_collections.append(struct.elems_ordered)
+            if len(contract.state_variables_declared) > 1:
+                # since @state_variables_declared is list, it doesn't have .source_mapping of relevant line range
+                # so need to build it oursevles from the first and last variable in the list
+                lines_str = f"{contract.state_variables_declared[0].source_mapping}-{contract.state_variables_declared[-1].source_mapping.lines[-1]}"
+                all_var_collections.append((\
+                    f"{contract.name} contract storage variables ({lines_str})",\
+                         contract.state_variables_declared))
 
-        # also know to handle storage: s.contracts[X].state_variables_declared
+            for struct in contract.structures:
+                 all_var_collections.append((f"struct {struct.canonical_name} ({struct.source_mapping})", \
+                    struct.elems_ordered))
         
-        for elem_collecetion in all_var_collections:
+        for elem_desc, elem_collecetion in all_var_collections:
             if optimized_elem_collecetion := OptimizeVariableOrder.find_optimized_struct_ordering(elem_collecetion):
-                info = [f"Optimization opportunity in contract GNOTE-IDK:\n"]
-                info += [f"\toriginal GNOTE-IDK struct (size: ", \
+                info = [f"Optimization opportunity in {elem_desc}:\n"]
+                info += ["\toriginal variable order (size: ", \
                     str(OptimizeVariableOrder.find_slots_used(elem_collecetion))," slots)\n"]
-                info += ["\t{\n"]
+                
                 for e in elem_collecetion:
                     info += [f"\t\t {e.type} {e.name}\n"]
-                info += ["\t}\n"]
-                info += [f"\toptimized GNOTE-IDK struct (size: ", \
+                info += ["\toptimized variable order (size: ", \
                     str(OptimizeVariableOrder.find_slots_used(optimized_elem_collecetion))," slots)\n"]
-                info += ["\t{\n"]
+                
                 for e in optimized_elem_collecetion:
                     info += [f"\t\t {e.type} {e.name}\n"]
-                info += ["\t}\n"]
+                info += ["\n"]
 
                 res = self.generate_result(info)
 
