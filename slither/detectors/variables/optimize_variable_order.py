@@ -88,24 +88,48 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
 
     @staticmethod
     def find_smallest_pack_order(target_elems):
-        """finds smallest packed size order of @target_elems. 
-        Currently uses dirty O(n^2) algo by finding minimum by trying all order combos"""
-        smallest_pack_order = target_elems[:]
-        smallest_pack_order_slots =  OptimizeVariableOrder.find_slots_used(smallest_pack_order)
+        """
+        Finds smallest packed size order of @target_elems. Note: asumes none of the elements need their own slot
 
-        for possible_smallest in itertools.permutations(target_elems):
-            if OptimizeVariableOrder.find_slots_used(possible_smallest) < \
-                smallest_pack_order_slots:
-                # change smallest order
-                smallest_pack_order = possible_smallest[:]
-                smallest_pack_order_slots = OptimizeVariableOrder.find_slots_used(possible_smallest)
+        This is a "Bin Packing" problem and a First Fit Decreasing algorithm is used.
+        More information: https://en.wikipedia.org/wiki/First-fit-decreasing_bin_packing
+        """
+                
+        if len(target_elems) < 2:
+            # packing order doesn't matter
+            return target_elems
+
+         # biggest first, acc to storage size
+        target_elems.sort(reverse=True, key=lambda x: x.type.storage_size[0])
+
+        slots = []
+
+        for elem in target_elems:
+            for slot in slots:
+                if (slot["sum"] + elem.type.storage_size[0]) \
+                     <= OptimizeVariableOrder.BYTES_PER_SLOT:
+                     # add to this slot
+                     slot["vars"].append(elem)
+                     slot["sum"] += elem.type.storage_size[0]
+                     break
+            else:
+                # didn't 'break' from loop. Create new slot
+                slots.append({"sum": elem.type.storage_size[0], "vars": [elem]})
         
-        return smallest_pack_order
+        optimized_order = []
+        for s in slots:
+            optimized_order += s["vars"]
+        return optimized_order
 
     @staticmethod
     def find_optimized_struct_ordering(target_struct):
         """returns an optimized version of @target_struct or None if there isn't a better optimization"""
 
+        if len(target_struct) < 2:
+            # packing order doesn't matter. Nothing to optimize
+            return None
+        
+        # preprocessing elements to ensure only re-ordering elements that can result in optimizations
         packable_vars = []
         unpackable_vars = []
         for elem in target_struct.elems_ordered:
@@ -115,13 +139,8 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
             else:
                 unpackable_vars.append(elem)
 
-        if len(packable_vars) < 2:
-            # no way can pack anything
-            return None
-
         best_packable_order = OptimizeVariableOrder.find_smallest_pack_order(packable_vars)
         best_packable_order += tuple(unpackable_vars) # add unpackable elements at the end
-
         if OptimizeVariableOrder.find_slots_used(best_packable_order) < \
             OptimizeVariableOrder.find_slots_used(target_struct.elems_ordered):
             return best_packable_order
