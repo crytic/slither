@@ -959,31 +959,18 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         Return a signature following the Solidity Standard
         Contract and converted into address
+
+        It might still keep internal types (ex: structure name) for internal functions.
+        The reason is that internal functions allows recursive structure definition, which
+        can't be converted following the Solidity stand ard
+
         :return: the solidity signature
         """
         if self._solidity_signature is None:
-            # Solidity allows recursive type for structure definition if its not used in public /external
-            # When this happens we can reach an infinite loop in convert_type_for_solidity_signature_to_string
-            # A quick workaround is to just return full_name for internal
-            # contract A{
-            #
-            #     struct St{
-            #         St[] a;
-            #         uint b;
-            #     }
-            #
-            #     function f(St memory s) internal{
-            #
-            #     }
-            #
-            # }
-            if self.visibility in ["public", "external"]:
-                parameters = [
-                    convert_type_for_solidity_signature_to_string(x.type) for x in self.parameters
-                ]
-                self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
-            else:
-                self._solidity_signature = self.full_name
+            parameters = [
+                convert_type_for_solidity_signature_to_string(x.type) for x in self.parameters
+            ]
+            self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
         return self._solidity_signature
 
     @property
