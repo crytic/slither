@@ -125,7 +125,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
     def find_optimized_struct_ordering(target_struct):
         """returns an optimized version of @target_struct or None if there isn't a better optimization"""
 
-        if len(target_struct) < 2:
+        if len(target_struct.elems_ordered) < 2:
             # packing order doesn't matter. Nothing to optimize
             return None
         
