@@ -165,7 +165,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
                 # so need to build it oursevles from the first and last variable in the list
                 lines_str = f"{contract.state_variables_declared[0].source_mapping}-{contract.state_variables_declared[-1].source_mapping.lines[-1]}"
                 all_var_collections.append((\
-                    f"{contract.name} contract storage variables ({lines_str})",\
+                    f"contract {contract.name} storage variables ({lines_str})",\
                          contract.state_variables_declared))
 
             for struct in contract.structures:
