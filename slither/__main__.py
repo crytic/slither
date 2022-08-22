@@ -329,6 +329,14 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         default=defaults_flag_in_config["printers_to_run"],
     )
 
+    group_printer.add_argument(
+        "--exclude-interfaces",
+        help= "Exclude interfaces from inheritance-graph printer",
+        action="store_true",
+        dest="exclude_interfaces",
+        default=False,
+    )
+
     group_detector.add_argument(
         "--list-detectors",
         help="List available detectors",

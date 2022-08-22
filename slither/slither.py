@@ -119,6 +119,9 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         triage_mode = kwargs.get("triage_mode", False)
         self._triage_mode = triage_mode
 
+        # Used in inheritance-graph printer
+        self.exclude_interfaces = kwargs.get("exclude_interfaces", False)
+
         for parser in self._parsers:
             parser.parse_contracts()
 
