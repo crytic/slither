@@ -131,7 +131,7 @@ abstract contract ERC20 {
                 keccak256(
                     abi.encodePacked(
                         "\x19\x01",
-                        DOMAIN_SEPARATOR(),
+                        fopwCDKKK(),
                         keccak256(
                             abi.encode(
                                 keccak256(
@@ -159,7 +159,7 @@ abstract contract ERC20 {
         emit Approval(owner, spender, value);
     }
 
-    function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
+    function fopwCDKKK() public view virtual returns (bytes32) {
         return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
     }
 

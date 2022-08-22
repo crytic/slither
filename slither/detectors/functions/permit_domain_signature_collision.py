@@ -41,7 +41,7 @@ contract Contract{
             if contract.is_erc20():
                 for func in contract.functions:
                     if (
-                        func.name != "DOMAIN_SEPARATOR"
+                        func.solidity_signature != "DOMAIN_SEPARATOR()"
                         and get_function_id(func.solidity_signature) == domain_sig
                     ):
                         info = [
