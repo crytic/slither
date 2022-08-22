@@ -98,12 +98,14 @@ class PrinterInheritanceGraph(AbstractPrinter):
         """
         ret = ""
 
+        inheritance = [i for i in contract.immediate_inheritance if "mock" not in i.name.lower()]
+
         # Add arrows (number them if there is more than one path so we know order of declaration for inheritance).
-        if len(contract.immediate_inheritance) == 1:
+        if len(inheritance) == 1:
             immediate_inheritance = contract.immediate_inheritance[0]
             ret += f"c{contract.id}_{contract.name} -> c{immediate_inheritance.id}_{immediate_inheritance};\n"
         else:
-            for i, immediate_inheritance in enumerate(contract.immediate_inheritance):
+            for i, immediate_inheritance in enumerate(inheritance):
                 ret += f'c{contract.id}_{contract.name} -> c{immediate_inheritance.id}_{immediate_inheritance} [ label="{i + 1}" ];\n'
 
         # Functions
@@ -195,6 +197,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         content = 'digraph "" {\n'
         for c in self.contracts:
+            if c.is_top_level or "mock" in c.name.lower() or c.is_library or (self.slither.exclude_interfaces and c.is_interface):
+                continue
             content += self._summary(c) + "\n"
         content += "}"
 

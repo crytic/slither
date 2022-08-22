@@ -196,10 +196,12 @@ class Slither(
         if printers_to_run == "echidna":
             self.skip_data_dependency = True
 
+        # Used in inheritance-graph printer
+        self.exclude_interfaces = kwargs.get("exclude_interfaces", False)
+
         self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
 
     def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:
-
         for parser in self._parsers:
             try:
                 parser.parse_contracts()
