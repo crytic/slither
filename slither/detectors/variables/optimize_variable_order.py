@@ -149,6 +149,7 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
 
     def _detect(self):
         results = []
+        slots_saved_total = 0
 
         # file & contract-specific structs, contract-specific storage vars
         # format: [("description/location", [elements...]), ...]
@@ -175,20 +176,29 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         for elem_desc, elem_collecetion in all_var_collections:
             if optimized_elem_collecetion := OptimizeVariableOrder.find_optimized_struct_ordering(elem_collecetion):
                 info = [f"Optimization opportunity in {elem_desc}:\n"]
+                original_slot_count = OptimizeVariableOrder.find_slots_used(elem_collecetion)
                 info += ["\toriginal variable order (size: ", \
-                    str(OptimizeVariableOrder.find_slots_used(elem_collecetion))," slots)\n"]
+                    str(original_slot_count)," slots)\n"]
                 
                 for e in elem_collecetion:
                     info += [f"\t\t {e.type} {e.name}\n"]
+                optimized_slot_count = OptimizeVariableOrder.find_slots_used(optimized_elem_collecetion)
                 info += ["\toptimized variable order (size: ", \
-                    str(OptimizeVariableOrder.find_slots_used(optimized_elem_collecetion))," slots)\n"]
+                    str(optimized_slot_count)," slots)\n"]
                 
                 for e in optimized_elem_collecetion:
                     info += [f"\t\t {e.type} {e.name}\n"]
                 info += ["\n"]
 
+                slots_saved_total += original_slot_count - optimized_slot_count
                 res = self.generate_result(info)
 
                 results.append(res)
-            
+
+        if slots_saved_total != 0:
+            info = [f"Recomended optimizations will save {slots_saved_total} slots.\n"]
+        else:
+            info = [f"No recomended optimizations found.\n"]
+        results.append(self.generate_result(info))
+        
         return results
