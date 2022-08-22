@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.8.0;
 
 /// @notice Modern and gas efficient ERC20 + EIP-2612 implementation.
 /// @author Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC20.sol)
 /// @author Modified from Uniswap (https://github.com/Uniswap/uniswap-v2-core/blob/master/contracts/UniswapV2ERC20.sol)
 /// @dev Do not manually set balances without updating totalSupply, as the sum of all user balances must not exceed it.
-abstract contract ERC20 {
+contract ERC20 {
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
@@ -22,7 +21,7 @@ abstract contract ERC20 {
 
     string public symbol;
 
-    uint8 public immutable decimals;
+    uint8 public decimals;
 
     /*//////////////////////////////////////////////////////////////
                               ERC20 STORAGE
@@ -38,9 +37,9 @@ abstract contract ERC20 {
                             EIP-2612 STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    uint256 internal immutable INITIAL_CHAIN_ID;
+    uint256 internal INITIAL_CHAIN_ID;
 
-    bytes32 internal immutable INITIAL_DOMAIN_SEPARATOR;
+    bytes32 internal INITIAL_DOMAIN_SEPARATOR;
 
     mapping(address => uint256) public nonces;
 
@@ -52,12 +51,12 @@ abstract contract ERC20 {
         string memory _name,
         string memory _symbol,
         uint8 _decimals
-    ) {
+    ) public {
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
 
-        INITIAL_CHAIN_ID = block.chainid;
+        INITIAL_CHAIN_ID = 1;
         INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
     }
 
@@ -65,7 +64,7 @@ abstract contract ERC20 {
                                ERC20 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function approve(address spender, uint256 amount) public virtual returns (bool) {
+    function approve(address spender, uint256 amount) public  returns (bool) {
         allowance[msg.sender][spender] = amount;
 
         emit Approval(msg.sender, spender, amount);
@@ -73,14 +72,14 @@ abstract contract ERC20 {
         return true;
     }
 
-    function transfer(address to, uint256 amount) public virtual returns (bool) {
+    function transfer(address to, uint256 amount) public  returns (bool) {
         balanceOf[msg.sender] -= amount;
 
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
-        unchecked {
+        
             balanceOf[to] += amount;
-        }
+        
 
         emit Transfer(msg.sender, to, amount);
 
@@ -91,18 +90,18 @@ abstract contract ERC20 {
         address from,
         address to,
         uint256 amount
-    ) public virtual returns (bool) {
+    ) public  returns (bool) {
         uint256 allowed = allowance[from][msg.sender]; // Saves gas for limited approvals.
 
-        if (allowed != type(uint256).max) allowance[from][msg.sender] = allowed - amount;
+        if (allowed != 115792089237316195423570985008687907853269984665640564039457584007913129639935) allowance[from][msg.sender] = allowed - amount;
 
         balanceOf[from] -= amount;
 
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
-        unchecked {
+        
             balanceOf[to] += amount;
-        }
+        
 
         emit Transfer(from, to, amount);
 
@@ -121,14 +120,14 @@ abstract contract ERC20 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual {
+    ) public  {
         require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
 
         // Unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow.
-        unchecked {
+        
             address recoveredAddress = ecrecover(
-                keccak256(
+               keccak256(
                     abi.encodePacked(
                         "\x19\x01",
                         fopwCDKKK(),
@@ -154,23 +153,23 @@ abstract contract ERC20 {
             require(recoveredAddress != address(0) && recoveredAddress == owner, "INVALID_SIGNER");
 
             allowance[recoveredAddress][spender] = value;
-        }
+         
 
         emit Approval(owner, spender, value);
     }
 
-    function fopwCDKKK() public view virtual returns (bytes32) {
-        return block.chainid == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
+    function fopwCDKKK() public view returns (bytes32) {
+        return 1 == INITIAL_CHAIN_ID ? INITIAL_DOMAIN_SEPARATOR : computeDomainSeparator();
     }
 
-    function computeDomainSeparator() internal view virtual returns (bytes32) {
+    function computeDomainSeparator() internal view returns (bytes32) {
         return
             keccak256(
                 abi.encode(
                     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                     keccak256(bytes(name)),
                     keccak256("1"),
-                    block.chainid,
+                    1,
                     address(this)
                 )
             );
@@ -180,26 +179,26 @@ abstract contract ERC20 {
                         INTERNAL MINT/BURN LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function _mint(address to, uint256 amount) internal virtual {
+    function _mint(address to, uint256 amount) internal {
         totalSupply += amount;
 
         // Cannot overflow because the sum of all user
         // balances can't exceed the max uint256 value.
-        unchecked {
-            balanceOf[to] += amount;
-        }
+        
+        balanceOf[to] += amount;
+        
 
         emit Transfer(address(0), to, amount);
     }
 
-    function _burn(address from, uint256 amount) internal virtual {
+    function _burn(address from, uint256 amount) internal {
         balanceOf[from] -= amount;
 
         // Cannot underflow because a user's balance
         // will never be larger than the total supply.
-        unchecked {
-            totalSupply -= amount;
-        }
+        
+        totalSupply -= amount;
+        
 
         emit Transfer(from, address(0), amount);
     }
