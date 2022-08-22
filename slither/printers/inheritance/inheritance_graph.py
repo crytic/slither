@@ -98,7 +98,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
         """
         ret = ""
 
-        inheritance = [i for i in contract.immediate_inheritance if "mock" not in i.name.lower() and (self.slither.exclude_interfaces and not i.is_interface)]
+        # Remove contracts that have "mock" in the name and if --exclude-interface removes inherited interfaces
+        inheritance = [i for i in contract.immediate_inheritance if "mock" not in i.name.lower() and (not self.slither.exclude_interfaces or self.slither.exclude_interfaces and not i.is_interface)]
 
         # Add arrows (number them if there is more than one path so we know order of declaration for inheritance).
         if len(inheritance) == 1:
