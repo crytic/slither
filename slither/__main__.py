@@ -288,6 +288,12 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     usage += "\t- 0x.. // a contract on mainet\n"
     usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x[:-1] for x in SUPPORTED_NETWORK)}\n"
 
+    class NoFailPedanticAction(argparse.Action):
+        """Custom argparse action that sets args.fail_pedantic to False if --no-fail-pedantic is used"""
+
+        def __call__(self, parser, namespace, values, option_string=None):
+            setattr(namespace, "fail_pedantic", False)
+
     parser = argparse.ArgumentParser(
         description="For usage information, see https://github.com/crytic/slither/wiki/Usage",
         usage=usage,
@@ -400,6 +406,12 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
         help="Fail if any finding is detected",
         action="store_true",
         default=defaults_flag_in_config["fail_pedantic"],
+    )
+
+    group_detector.add_argument(
+        "--no-fail-pedantic",
+        help="Don't fail immediately if a finding is detected",
+        action=NoFailPedanticAction,
     )
 
     group_detector.add_argument(
