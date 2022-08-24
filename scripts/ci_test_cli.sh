@@ -4,7 +4,7 @@
 
 solc-select use 0.7.0
 
-if ! slither "tests/config/test.sol" --solc-ast; then
+if ! slither "tests/config/test.sol" --solc-ast --no-fail-pedantic; then
     echo "--solc-ast failed"
     exit 1
 fi
