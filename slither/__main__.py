@@ -411,7 +411,9 @@ def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-s
     group_detector.add_argument(
         "--no-fail-pedantic",
         help="Don't fail immediately if a finding is detected",
+        nargs=0,
         action=NoFailPedanticAction,
+        required=False,
     )
 
     group_detector.add_argument(
