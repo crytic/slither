@@ -34,7 +34,7 @@ defaults_flag_in_config = {
     "exclude_low": False,
     "exclude_medium": False,
     "exclude_high": False,
-    "fail_pedantic": False,
+    "fail_pedantic": True,
     "fail_low": False,
     "fail_medium": False,
     "fail_high": False,
