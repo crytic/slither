@@ -9,12 +9,12 @@ if ! slither "tests/config/test.sol" --solc-ast --no-fail-pedantic; then
     exit 1
 fi
 
-if ! slither "tests/config/test.sol" --solc-disable-warnings; then
+if ! slither "tests/config/test.sol" --solc-disable-warnings --no-fail-pedantic; then
     echo "--solc-disable-warnings failed"
     exit 1
 fi
 
-if ! slither "tests/config/test.sol" --disable-color; then
+if ! slither "tests/config/test.sol" --disable-color --no-fail-pedantic; then
     echo "--disable-color failed"
     exit 1
 fi
