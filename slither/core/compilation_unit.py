@@ -16,6 +16,7 @@ from slither.core.declarations import (
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
+from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.scope.scope import FileScope
 from slither.core.variables.state_variable import StateVariable
@@ -41,6 +42,7 @@ class SlitherCompilationUnit(Context):
         self._enums_top_level: List[EnumTopLevel] = []
         self._variables_top_level: List[TopLevelVariable] = []
         self._functions_top_level: List[FunctionTopLevel] = []
+        self._using_for_top_level: List[UsingForTopLevel] = []
         self._pragma_directives: List[Pragma] = []
         self._import_directives: List[Import] = []
         self._custom_errors: List[CustomError] = []
@@ -204,6 +206,10 @@ class SlitherCompilationUnit(Context):
     @property
     def functions_top_level(self) -> List[FunctionTopLevel]:
         return self._functions_top_level
+
+    @property
+    def using_for_top_level(self) -> List[UsingForTopLevel]:
+        return self._using_for_top_level
 
     @property
     def custom_errors(self) -> List[CustomError]:

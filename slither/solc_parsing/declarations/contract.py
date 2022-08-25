@@ -578,17 +578,33 @@ class ContractSolc(CallerContextExpression):
         try:
             for father in self._contract.inheritance:
                 self._contract.using_for.update(father.using_for)
-
             if self.is_compact_ast:
                 for using_for in self._usingForNotParsed:
-                    lib_name = parse_type(using_for["libraryName"], self)
                     if "typeName" in using_for and using_for["typeName"]:
                         type_name = parse_type(using_for["typeName"], self)
                     else:
                         type_name = "*"
                     if type_name not in self._contract.using_for:
                         self._contract.using_for[type_name] = []
-                    self._contract.using_for[type_name].append(lib_name)
+
+                    if "libraryName" in using_for:
+                        self._contract.using_for[type_name].append(
+                            parse_type(using_for["libraryName"], self)
+                        )
+                    else:
+                        # We have a list of functions. A function can be topLevel or a library function
+                        # at this point library function are yet to be parsed so we add the function name
+                        # and add the real function later
+                        for f in using_for["functionList"]:
+                            function_name = f["function"]["name"]
+                            if function_name.find(".") != -1:
+                                # Library function
+                                self._contract.using_for[type_name].append(function_name)
+                            else:
+                                # Top level function
+                                for tl_function in self.compilation_unit.functions_top_level:
+                                    if tl_function.name == function_name:
+                                        self._contract.using_for[type_name].append(tl_function)
             else:
                 for using_for in self._usingForNotParsed:
                     children = using_for[self.get_children()]
@@ -605,6 +621,35 @@ class ContractSolc(CallerContextExpression):
             self._usingForNotParsed = []
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing using for {e}")
+
+    def analyze_library_function_using_for(self):
+        for type_name, full_names in self._contract.using_for.items():
+            # If it's a string is a library function e.g. L.a
+            # We add the actual function and remove the string
+            for full_name in full_names:
+                if isinstance(full_name, str):
+                    full_name_split = full_name.split(".")
+                    # TODO this doesn't handle the case if there is an import with an alias
+                    # e.g. MyImport.MyLib.a
+                    if len(full_name_split) == 2:
+                        library_name = full_name_split[0]
+                        function_name = full_name_split[1]
+                        # Get the library function
+                        found = False
+                        for c in self.compilation_unit.contracts:
+                            if found:
+                                break
+                            if c.name == library_name:
+                                for f in c.functions:
+                                    if f.name == function_name:
+                                        self._contract.using_for[type_name].append(f)
+                                        found = True
+                                        break
+                        self._contract.using_for[type_name].remove(full_name)
+                    else:
+                        self.log_incorrect_parsing(
+                            f"Expected library function instead received {full_name}"
+                        )
 
     def analyze_enums(self):
         try:

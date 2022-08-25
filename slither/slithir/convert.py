@@ -171,10 +171,10 @@ def _fits_under_integer(val: int, can_be_int: bool, can_be_uint) -> List[str]:
     assert can_be_int | can_be_uint
     while n <= 256:
         if can_be_uint:
-            if val <= 2**n - 1:
+            if val <= 2 ** n - 1:
                 ret.append(f"uint{n}")
         if can_be_int:
-            if val <= (2**n) / 2 - 1:
+            if val <= (2 ** n) / 2 - 1:
                 ret.append(f"int{n}")
         n = n + 8
     return ret
@@ -498,7 +498,9 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
     using_for = (
-        node_function.contract.using_for if isinstance(node_function, FunctionContract) else {}
+        node_function.contract.using_for_complete
+        if isinstance(node_function, FunctionContract)
+        else {}
     )
     if isinstance(ir, OperationWithLValue):
         # Force assignment in case of missing previous correct type
@@ -879,7 +881,9 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             # }
             node_func = ins.node.function
             using_for = (
-                node_func.contract.using_for if isinstance(node_func, FunctionContract) else {}
+                node_func.contract.using_for_complete
+                if isinstance(node_func, FunctionContract)
+                else {}
             )
 
             targeted_libraries = (
@@ -892,10 +896,14 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
                     lib_contract_type.type, Contract
                 ):
                     continue
-                lib_contract = lib_contract_type.type
-                for lib_func in lib_contract.functions:
-                    if lib_func.name == ins.ori.variable_right:
-                        candidates.append(lib_func)
+                if isinstance(lib_contract_type, FunctionContract):
+                    # Using for with list of functions, this is the function called
+                    candidates.append(lib_contract_type)
+                else:
+                    lib_contract = lib_contract_type.type
+                    for lib_func in lib_contract.functions:
+                        if lib_func.name == ins.ori.variable_right:
+                            candidates.append(lib_func)
 
             if len(candidates) == 1:
                 lib_func = candidates[0]
@@ -1325,7 +1333,10 @@ def convert_to_pop(ir, node):
 
 def look_for_library(contract, ir, using_for, t):
     for destination in using_for[t]:
-        lib_contract = contract.file_scope.get_contract_from_name(str(destination))
+        if isinstance(destination, FunctionContract) and destination.contract.is_library:
+            lib_contract = destination.contract
+        else:
+            lib_contract = contract.file_scope.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
                 lib_contract,

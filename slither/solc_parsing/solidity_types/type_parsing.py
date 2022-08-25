@@ -224,6 +224,7 @@ def parse_type(
     from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
     from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
     from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
@@ -259,11 +260,16 @@ def parse_type(
         all_enums += enums_direct_access
         contracts = sl.contracts
         functions = []
-    elif isinstance(caller_context, (StructureTopLevelSolc, CustomErrorSolc, TopLevelVariableSolc)):
+    elif isinstance(
+        caller_context,
+        (StructureTopLevelSolc, CustomErrorSolc, TopLevelVariableSolc, UsingForTopLevelSolc),
+    ):
         if isinstance(caller_context, StructureTopLevelSolc):
             scope = caller_context.underlying_structure.file_scope
         elif isinstance(caller_context, TopLevelVariableSolc):
             scope = caller_context.underlying_variable.file_scope
+        elif isinstance(caller_context, UsingForTopLevelSolc):
+            scope = caller_context.underlying_using_for.file_scope
         else:
             assert isinstance(caller_context, CustomErrorSolc)
             custom_error = caller_context.underlying_custom_error

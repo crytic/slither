@@ -14,6 +14,7 @@ from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.structure_top_level import StructureTopLevel
+from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.scope.scope import FileScope
 from slither.core.solidity_types import ElementaryType, TypeAliasTopLevel
 from slither.core.variables.top_level_variable import TopLevelVariable
@@ -22,6 +23,7 @@ from slither.solc_parsing.declarations.contract import ContractSolc
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
+from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
 from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
@@ -71,6 +73,7 @@ class SlitherCompilationUnitSolc:
         self._custom_error_parser: List[CustomErrorSolc] = []
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
         self._functions_top_level_parser: List[FunctionSolc] = []
+        self._using_for_top_level_parser: List[UsingForTopLevelSolc] = []
 
         self._is_compact_ast = False
         # self._core: SlitherCore = core
@@ -221,6 +224,17 @@ class SlitherCompilationUnitSolc:
                     scope.pragmas.add(pragma)
                 pragma.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.pragma_directives.append(pragma)
+
+            elif top_level_data[self.get_key()] == "UsingForDirective":
+                scope = self.compilation_unit.get_scope(filename)
+                usingFor = UsingForTopLevel(scope)
+                usingFor_parser = UsingForTopLevelSolc(usingFor, top_level_data, self)
+                usingFor.set_offset(top_level_data["src"], self._compilation_unit)
+                scope.usingFor.add(usingFor)
+
+                self._compilation_unit.using_for_top_level.append(usingFor)
+                self._using_for_top_level_parser.append(usingFor_parser)
+
             elif top_level_data[self.get_key()] == "ImportDirective":
                 if self.is_compact_ast:
                     import_directive = Import(
@@ -495,6 +509,12 @@ Please rename it, this name is reserved for Slither's internals"""
         # Then we analyse state variables, functions and modifiers
         self._analyze_third_part(contracts_to_be_analyzed, libraries)
 
+        self._analyze_top_level_using_for()
+
+        # Convert library function (at the moment are string) in using for that specifies list of functions
+        # to actual function
+        self._analyze_library_function_using_for(contracts_to_be_analyzed)
+
         self._parsed = True
 
     def analyze_contracts(self):  # pylint: disable=too-many-statements,too-many-branches
@@ -605,6 +625,10 @@ Please rename it, this name is reserved for Slither's internals"""
             else:
                 contracts_to_be_analyzed += [contract]
 
+    def _analyze_library_function_using_for(self, contracts_to_be_analyzed: List[ContractSolc]):
+        for c in contracts_to_be_analyzed:
+            c.analyze_library_function_using_for()
+
     def _analyze_enums(self, contract: ContractSolc):
         # Enum must be analyzed first
         contract.analyze_enums()
@@ -650,6 +674,10 @@ Please rename it, this name is reserved for Slither's internals"""
         for func_parser in self._functions_top_level_parser:
             func_parser.analyze_params()
             self._compilation_unit.add_function(func_parser.underlying_function)
+
+    def _analyze_top_level_using_for(self):
+        for using_for in self._using_for_top_level_parser:
+            using_for.analyze()
 
     def _analyze_params_custom_error(self):
         for custom_error_parser in self._custom_error_parser:
