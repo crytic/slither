@@ -420,6 +420,13 @@ ALL_TESTS = [
     Test("free_functions/new_operator.sol", ["0.8.12"]),
     Test("free_functions/library_constant_function_collision.sol", ["0.8.12"]),
     Test("ternary-with-max.sol", ["0.8.15"]),
+    Test("using-for-1-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-2-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-functions-list-1-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-functions-list-2-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-functions-list-3-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-functions-list-4-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-global-0.8.0.sol", ["0.8.15"]),
 ]
 # create the output folder if needed
 try:
