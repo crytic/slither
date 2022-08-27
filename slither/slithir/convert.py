@@ -15,6 +15,7 @@ from slither.core.declarations import (
 )
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.declarations.solidity_variables import SolidityCustomRevert
 from slither.core.expressions import Identifier, Literal
@@ -527,9 +528,9 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     if can_be_solidity_func(ir):
                         return convert_to_solidity_func(ir)
 
-                # convert library
+                # convert library or top level function
                 if t in using_for or "*" in using_for:
-                    new_ir = convert_to_library(ir, node, using_for)
+                    new_ir = convert_to_library_or_top_level(ir, node, using_for)
                     if new_ir:
                         return new_ir
 
@@ -1331,8 +1332,24 @@ def convert_to_pop(ir, node):
     return ret
 
 
-def look_for_library(contract, ir, using_for, t):
+def look_for_library_or_top_level(contract, ir, using_for, t):
     for destination in using_for[t]:
+        if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
+            internalcall = InternalCall(destination, ir.nbr_arguments, ir.lvalue, ir.type_call)
+            internalcall.set_expression(ir.expression)
+            internalcall.set_node(ir.node)
+            internalcall.call_gas = ir.call_gas
+            internalcall.arguments = [ir.destination] + ir.arguments
+            return_type = internalcall.function.return_type
+            if return_type:
+                if len(return_type) == 1:
+                    internalcall.lvalue.set_type(return_type[0])
+                elif len(return_type) > 1:
+                    internalcall.lvalue.set_type(return_type)
+            else:
+                internalcall.lvalue = None
+            return internalcall
+
         if isinstance(destination, FunctionContract) and destination.contract.is_library:
             lib_contract = destination.contract
         else:
@@ -1356,19 +1373,19 @@ def look_for_library(contract, ir, using_for, t):
     return None
 
 
-def convert_to_library(ir, node, using_for):
+def convert_to_library_or_top_level(ir, node, using_for):
     # We use contract_declarer, because Solidity resolve the library
     # before resolving the inheritance.
     # Though we could use .contract as libraries cannot be shadowed
     contract = node.function.contract_declarer
     t = ir.destination.type
     if t in using_for:
-        new_ir = look_for_library(contract, ir, using_for, t)
+        new_ir = look_for_library_or_top_level(contract, ir, using_for, t)
         if new_ir:
             return new_ir
 
     if "*" in using_for:
-        new_ir = look_for_library(contract, ir, using_for, "*")
+        new_ir = look_for_library_or_top_level(contract, ir, using_for, "*")
         if new_ir:
             return new_ir
 
