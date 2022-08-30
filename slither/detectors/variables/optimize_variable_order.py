@@ -152,30 +152,27 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         slots_saved_total = 0
 
         # file & contract-specific structs, contract-specific storage vars
-        # format: [("description/location", [elements...]), ...]
+        # format: [([description/location, ...], [elements...]), ...]
         all_var_collections = [] 
 
         for top_level_struct in self.compilation_unit.structures_top_level:
-            all_var_collections.append((\
-                f"struct {top_level_struct.canonical_name} ({top_level_struct.source_mapping})",\
-                     top_level_struct.elems_ordered))
+            all_var_collections.append((["struct ", top_level_struct], top_level_struct.elems_ordered))
 
         for contract in self.compilation_unit.contracts:
             if len(contract.state_variables_declared) > 1:
-                # since @state_variables_declared is list, it doesn't have .source_mapping of relevant line range
-                # so need to build it oursevles from the first and last variable in the list
-                lines_str = f"{contract.state_variables_declared[0].source_mapping}-{contract.state_variables_declared[-1].source_mapping.lines[-1]}"
                 all_var_collections.append((\
-                    f"contract {contract.name} storage variables ({lines_str})",\
+                    # f"contract {contract.name} storage variables ({lines_str})",\
+                        ["contract ", contract, " stroage variables"],
                          contract.state_variables_declared))
 
             for struct in contract.structures:
-                 all_var_collections.append((f"struct {struct.canonical_name} ({struct.source_mapping})", \
-                    struct.elems_ordered))
+                 all_var_collections.append((["struct ", struct], struct.elems_ordered))
         
         for elem_desc, elem_collecetion in all_var_collections:
             if optimized_elem_collecetion := OptimizeVariableOrder.find_optimized_struct_ordering(elem_collecetion):
-                info = [f"Optimization opportunity in {elem_desc}:\n"]
+                info = ["Optimization opportunity in "]
+                info += elem_desc
+                info += ["\n"]
                 original_slot_count = OptimizeVariableOrder.find_slots_used(elem_collecetion)
                 info += ["\toriginal variable order (size: ", \
                     str(original_slot_count)," slots)\n"]
