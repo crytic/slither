@@ -161,7 +161,6 @@ The struct's variables are reordered to take advantage of Solidity's variable pa
         for contract in self.compilation_unit.contracts:
             if len(contract.state_variables_declared) > 1:
                 all_var_collections.append((\
-                    # f"contract {contract.name} storage variables ({lines_str})",\
                         ["contract ", contract, " stroage variables"],
                          contract.state_variables_declared))
 
