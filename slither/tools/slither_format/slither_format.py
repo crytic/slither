@@ -1,5 +1,9 @@
 import logging
 from pathlib import Path
+from typing import Type, List, Dict
+
+from slither import Slither
+from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors.variables.unused_state_variables import UnusedStateVars
 from slither.detectors.attributes.incorrect_solc import IncorrectSolc
 from slither.detectors.attributes.constant_pragma import ConstantPragma
@@ -13,7 +17,7 @@ from slither.utils.colors import yellow
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Slither.Format")
 
-all_detectors = {
+all_detectors: Dict[str, Type[AbstractDetector]] = {
     "unused-state": UnusedStateVars,
     "solc-version": IncorrectSolc,
     "pragma": ConstantPragma,
@@ -25,7 +29,7 @@ all_detectors = {
 }
 
 
-def slither_format(slither, **kwargs):  # pylint: disable=too-many-locals
+def slither_format(slither: Slither, **kwargs: Dict) -> None:  # pylint: disable=too-many-locals
     """'
     Keyword Args:
         detectors_to_run (str): Comma-separated list of detectors, defaults to all
@@ -85,9 +89,11 @@ def slither_format(slither, **kwargs):  # pylint: disable=too-many-locals
 ###################################################################################
 
 
-def choose_detectors(detectors_to_run, detectors_to_exclude):
+def choose_detectors(
+    detectors_to_run: str, detectors_to_exclude: str
+) -> List[Type[AbstractDetector]]:
     # If detectors are specified, run only these ones
-    cls_detectors_to_run = []
+    cls_detectors_to_run: List[Type[AbstractDetector]] = []
     exclude = detectors_to_exclude.split(",")
     if detectors_to_run == "all":
         for key, detector in all_detectors.items():
@@ -114,7 +120,7 @@ def choose_detectors(detectors_to_run, detectors_to_exclude):
 ###################################################################################
 
 
-def print_patches(number_of_slither_results, patches):
+def print_patches(number_of_slither_results: int, patches: Dict) -> None:
     logger.info("Number of Slither results: " + str(number_of_slither_results))
     number_of_patches = 0
     for file in patches:
@@ -130,7 +136,7 @@ def print_patches(number_of_slither_results, patches):
             logger.info("Location end: " + str(patch["end"]))
 
 
-def print_patches_json(number_of_slither_results, patches):
+def print_patches_json(number_of_slither_results: int, patches: Dict) -> None:
     print("{", end="")
     print('"Number of Slither results":' + '"' + str(number_of_slither_results) + '",')
     print('"Number of patchlets":' + '"' + str(len(patches)) + '"', ",")

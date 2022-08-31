@@ -10,11 +10,11 @@ import os
 import pstats
 import sys
 import traceback
-from typing import Tuple, Optional, List, Dict
+from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
 
 from pkg_resources import iter_entry_points, require
 
-from crytic_compile import cryticparser
+from crytic_compile import cryticparser, CryticCompile
 from crytic_compile.platform.standard import generate_standard_export
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile import compile_all, is_supported
@@ -55,10 +55,10 @@ logger = logging.getLogger("Slither")
 
 
 def process_single(
-    target: str,
+    target: Union[str, CryticCompile],
     args: argparse.Namespace,
-    detector_classes: List[AbstractDetector],
-    printer_classes: List[AbstractPrinter],
+    detector_classes: List[Type[AbstractDetector]],
+    printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[Slither, List[Dict], List[Dict], int]:
     """
     The core high-level code for running Slither static analysis.
@@ -80,8 +80,8 @@ def process_single(
 def process_all(
     target: str,
     args: argparse.Namespace,
-    detector_classes: List[AbstractDetector],
-    printer_classes: List[AbstractPrinter],
+    detector_classes: List[Type[AbstractDetector]],
+    printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[List[Slither], List[Dict], List[Dict], int]:
     compilations = compile_all(target, **vars(args))
     slither_instances = []
@@ -109,8 +109,8 @@ def process_all(
 
 def _process(
     slither: Slither,
-    detector_classes: List[AbstractDetector],
-    printer_classes: List[AbstractPrinter],
+    detector_classes: List[Type[AbstractDetector]],
+    printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[Slither, List[Dict], List[Dict], int]:
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
@@ -137,13 +137,14 @@ def _process(
     return slither, results_detectors, results_printers, analyzed_contracts_count
 
 
+# TODO: delete me?
 def process_from_asts(
     filenames: List[str],
     args: argparse.Namespace,
-    detector_classes: List[AbstractDetector],
-    printer_classes: List[AbstractPrinter],
-):
-    all_contracts = []
+    detector_classes: List[Type[AbstractDetector]],
+    printer_classes: List[Type[AbstractPrinter]],
+) -> Tuple[Slither, List[Dict], List[Dict], int]:
+    all_contracts: List[str] = []
 
     for filename in filenames:
         with open(filename, encoding="utf8") as file_open:
@@ -162,13 +163,15 @@ def process_from_asts(
 ###################################################################################
 
 
-def get_detectors_and_printers():
+def get_detectors_and_printers() -> Tuple[
+    List[Type[AbstractDetector]], List[Type[AbstractPrinter]]
+]:
 
-    detectors = [getattr(all_detectors, name) for name in dir(all_detectors)]
-    detectors = [d for d in detectors if inspect.isclass(d) and issubclass(d, AbstractDetector)]
+    detectors_ = [getattr(all_detectors, name) for name in dir(all_detectors)]
+    detectors = [d for d in detectors_ if inspect.isclass(d) and issubclass(d, AbstractDetector)]
 
-    printers = [getattr(all_printers, name) for name in dir(all_printers)]
-    printers = [p for p in printers if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
+    printers_ = [getattr(all_printers, name) for name in dir(all_printers)]
+    printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
     for entry_point in iter_entry_points(group="slither_analyzer.plugin", name=None):
@@ -194,8 +197,8 @@ def get_detectors_and_printers():
 
 # pylint: disable=too-many-branches
 def choose_detectors(
-    args: argparse.Namespace, all_detector_classes: List[AbstractDetector]
-) -> List[AbstractDetector]:
+    args: argparse.Namespace, all_detector_classes: List[Type[AbstractDetector]]
+) -> List[Type[AbstractDetector]]:
     # If detectors are specified, run only these ones
 
     detectors_to_run = []
@@ -245,8 +248,8 @@ def choose_detectors(
 
 
 def choose_printers(
-    args: argparse.Namespace, all_printer_classes: List[AbstractPrinter]
-) -> List[AbstractPrinter]:
+    args: argparse.Namespace, all_printer_classes: List[Type[AbstractPrinter]]
+) -> List[Type[AbstractPrinter]]:
     printers_to_run = []
 
     # disable default printer
@@ -273,13 +276,16 @@ def choose_printers(
 ###################################################################################
 
 
-def parse_filter_paths(args):
+def parse_filter_paths(args: argparse.Namespace) -> List[str]:
     if args.filter_paths:
         return args.filter_paths.split(",")
     return []
 
 
-def parse_args(detector_classes, printer_classes):  # pylint: disable=too-many-statements
+# pylint: disable=too-many-statements
+def parse_args(
+    detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
+) -> argparse.Namespace:
 
     usage = "slither target [flag]\n"
     usage += "\ntarget can be:\n"
@@ -622,7 +628,9 @@ class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
 
 
 class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
         detectors, _ = get_detectors_and_printers()
         detector_types_json = output_detectors_json(detectors)
         print(json.dumps(detector_types_json))
@@ -630,22 +638,38 @@ class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-meth
 
 
 class ListPrinters(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
         _, printers = get_detectors_and_printers()
         output_printers(printers)
         parser.exit()
 
 
 class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, args, values, option_string=None):
+    def __call__(
+        self,
+        parser: Any,
+        args: Any,
+        values: Optional[Union[str, Sequence[Any]]],
+        option_string: Any = None,
+    ) -> None:
         detectors, printers = get_detectors_and_printers()
+        assert isinstance(values, str)
         output_to_markdown(detectors, printers, values)
         parser.exit()
 
 
 class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, args, values, option_string=None):
+    def __call__(
+        self,
+        parser: Any,
+        args: Any,
+        values: Optional[Union[str, Sequence[Any]]],
+        option_string: Any = None,
+    ) -> None:
         detectors, _ = get_detectors_and_printers()
+        assert isinstance(values, str)
         output_wiki(detectors, values)
         parser.exit()
 
@@ -678,7 +702,7 @@ class FormatterCryticCompile(logging.Formatter):
 ###################################################################################
 
 
-def main():
+def main() -> None:
     # Codebase with complex domninators can lead to a lot of SSA recursive call
     sys.setrecursionlimit(1500)
 
@@ -689,8 +713,9 @@ def main():
 
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main_impl(
-    all_detector_classes: List[AbstractDetector], all_printer_classes: List[AbstractPrinter]
-):
+    all_detector_classes: List[Type[AbstractDetector]],
+    all_printer_classes: List[Type[AbstractPrinter]],
+) -> None:
     """
     :param all_detector_classes: A list of all detectors that can be included/excluded.
     :param all_printer_classes: A list of all printers that can be included.
@@ -756,8 +781,8 @@ def main_impl(
     crytic_compile_error.propagate = False
     crytic_compile_error.setLevel(logging.INFO)
 
-    results_detectors = []
-    results_printers = []
+    results_detectors: List[Dict] = []
+    results_printers: List[Dict] = []
     try:
         filename = args.filename
 
@@ -806,6 +831,7 @@ def main_impl(
             if "compilations" in args.json_types:
                 compilation_results = []
                 for slither_instance in slither_instances:
+                    assert slither_instance.crytic_compile
                     compilation_results.append(
                         generate_standard_export(slither_instance.crytic_compile)
                     )
@@ -856,7 +882,7 @@ def main_impl(
 
     except Exception:  # pylint: disable=broad-except
         output_error = traceback.format_exc()
-        logging.error(traceback.print_exc())
+        traceback.print_exc()
         logging.error(f"Error in {args.filename}")  # pylint: disable=logging-fstring-interpolation
         logging.error(output_error)
 
@@ -879,7 +905,7 @@ def main_impl(
     if outputting_zip:
         output_to_zip(args.zip, output_error, json_results, args.zip_type)
 
-    if args.perf:
+    if args.perf and cp:
         cp.disable()
         stats = pstats.Stats(cp).sort_stats("cumtime")
         stats.print_stats()

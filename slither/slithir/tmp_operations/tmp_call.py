@@ -63,13 +63,13 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
     def call_id(self):
         return self._callid
 
-    @property
-    def read(self):
-        return [self.called]
-
     @call_id.setter
     def call_id(self, c):
         self._callid = c
+
+    @property
+    def read(self):
+        return [self.called]
 
     @property
     def called(self):
