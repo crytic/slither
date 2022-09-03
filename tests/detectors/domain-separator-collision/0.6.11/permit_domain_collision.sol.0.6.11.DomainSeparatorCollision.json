@@ -240,10 +240,10 @@
                     }
                 }
             ],
-            "description": "ERC20.fopwCDKKK() (tests/detectors/domain-separator-collision/0.6.11/permit_domain_collision.sol#161-163)'s function signature collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
-            "markdown": "[ERC20.fopwCDKKK()](tests/detectors/domain-separator-collision/0.6.11/permit_domain_collision.sol#L161-L163)'s function signature collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
+            "description": "The function signature of ERC20.fopwCDKKK() (tests/detectors/domain-separator-collision/0.6.11/permit_domain_collision.sol#161-163) collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
+            "markdown": "The function signature of [ERC20.fopwCDKKK()](tests/detectors/domain-separator-collision/0.6.11/permit_domain_collision.sol#L161-L163) collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
             "first_markdown_element": "tests/detectors/domain-separator-collision/0.6.11/permit_domain_collision.sol#L161-L163",
-            "id": "89af79b93e8de48fb8f88ab4dabbc97b0bb35ab39b6544e255b16aa924286eab",
+            "id": "cb8ae27add92ad3163cbe9c0fb29a2a0032ba46384bbd5541d1d750251f5c83e",
             "check": "domain-separator-collision",
             "impact": "Medium",
             "confidence": "High"

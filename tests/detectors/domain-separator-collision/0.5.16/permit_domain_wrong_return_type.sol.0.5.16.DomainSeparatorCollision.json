@@ -4,13 +4,13 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "fopwCDKKK",
+                    "name": "DOMAIN_SEPARATOR",
                     "source_mapping": {
-                        "start": 5248,
-                        "length": 150,
-                        "filename_relative": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol",
+                        "start": 5255,
+                        "length": 90,
+                        "filename_relative": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_wrong_return_type.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol",
+                        "filename_short": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_wrong_return_type.sol",
                         "is_dependency": false,
                         "lines": [
                             161,
@@ -26,10 +26,10 @@
                             "name": "ERC20",
                             "source_mapping": {
                                 "start": 449,
-                                "length": 6188,
-                                "filename_relative": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol",
+                                "length": 6135,
+                                "filename_relative": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_wrong_return_type.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol",
+                                "filename_short": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_wrong_return_type.sol",
                                 "is_dependency": false,
                                 "lines": [
                                     7,
@@ -236,14 +236,14 @@
                                 "ending_column": 2
                             }
                         },
-                        "signature": "fopwCDKKK()"
+                        "signature": "DOMAIN_SEPARATOR()"
                     }
                 }
             ],
-            "description": "The function signature of ERC20.fopwCDKKK() (tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol#161-163) collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
-            "markdown": "The function signature of [ERC20.fopwCDKKK()](tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol#L161-L163) collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
-            "first_markdown_element": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol#L161-L163",
-            "id": "cb8ae27add92ad3163cbe9c0fb29a2a0032ba46384bbd5541d1d750251f5c83e",
+            "description": "The function signature of ERC20.DOMAIN_SEPARATOR() (tests/detectors/domain-separator-collision/0.5.16/permit_domain_wrong_return_type.sol#161-163) collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
+            "markdown": "The function signature of [ERC20.DOMAIN_SEPARATOR()](tests/detectors/domain-separator-collision/0.5.16/permit_domain_wrong_return_type.sol#L161-L163) collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
+            "first_markdown_element": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_wrong_return_type.sol#L161-L163",
+            "id": "17ee24b60ef7d108871021639c374d6711feb1c8e3aad52ab266a680c03831cb",
             "check": "domain-separator-collision",
             "impact": "Medium",
             "confidence": "High"

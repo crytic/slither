@@ -3,6 +3,7 @@ Module detecting EIP-2612 domain separator collision
 """
 from slither.utils.function import get_function_id
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 
 class DomainSeparatorCollision(AbstractDetector):
@@ -35,21 +36,29 @@ contract Contract{
     WIKI_RECOMMENDATION = "Remove or rename the function that collides with DOMAIN_SEPARATOR()."
 
     def _detect(self):
-        results = []
         domain_sig = get_function_id("DOMAIN_SEPARATOR()")
         for contract in self.compilation_unit.contracts_derived:
             if contract.is_erc20():
-                for func in contract.functions:
-                    if (
+                for func in contract.functions_entry_points + contract.state_variables:
+                    # Skip internal and private variables
+                    if func.solidity_signature is None:
+                        continue
+                    # External/ public function names should not collide with DOMAIN_SEPARATOR()
+                    hash_collision = (
                         func.solidity_signature != "DOMAIN_SEPARATOR()"
                         and get_function_id(func.solidity_signature) == domain_sig
-                    ):
+                    )
+                    # DOMAIN_SEPARATOR() should return bytes32
+                    incorrect_return_type = (
+                        func.solidity_signature == "DOMAIN_SEPARATOR()"
+                        and func.return_type[0] != ElementaryType("bytes32")
+                    )
+                    if hash_collision or incorrect_return_type:
                         info = [
+                            "The function signature of ",
                             func,
-                            "'s function signature collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
+                            " collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
                         ]
                         res = self.generate_result(info)
-                        results.append(res)
-                        break
-
-        return results
+                        return [res]
+        return []

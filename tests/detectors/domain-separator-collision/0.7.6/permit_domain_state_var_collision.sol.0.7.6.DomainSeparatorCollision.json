@@ -3,22 +3,20 @@
         {
             "elements": [
                 {
-                    "type": "function",
+                    "type": "variable",
                     "name": "fopwCDKKK",
                     "source_mapping": {
-                        "start": 5248,
-                        "length": 150,
-                        "filename_relative": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol",
+                        "start": 1735,
+                        "length": 24,
+                        "filename_relative": "tests/detectors/domain-separator-collision/0.7.6/permit_domain_state_var_collision.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol",
+                        "filename_short": "tests/detectors/domain-separator-collision/0.7.6/permit_domain_state_var_collision.sol",
                         "is_dependency": false,
                         "lines": [
-                            161,
-                            162,
-                            163
+                            46
                         ],
                         "starting_column": 5,
-                        "ending_column": 6
+                        "ending_column": 29
                     },
                     "type_specific_fields": {
                         "parent": {
@@ -26,10 +24,10 @@
                             "name": "ERC20",
                             "source_mapping": {
                                 "start": 449,
-                                "length": 6188,
-                                "filename_relative": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol",
+                                "length": 6061,
+                                "filename_relative": "tests/detectors/domain-separator-collision/0.7.6/permit_domain_state_var_collision.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol",
+                                "filename_short": "tests/detectors/domain-separator-collision/0.7.6/permit_domain_state_var_collision.sol",
                                 "is_dependency": false,
                                 "lines": [
                                     7,
@@ -228,22 +226,19 @@
                                     200,
                                     201,
                                     202,
-                                    203,
-                                    204,
-                                    205
+                                    203
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
                             }
-                        },
-                        "signature": "fopwCDKKK()"
+                        }
                     }
                 }
             ],
-            "description": "The function signature of ERC20.fopwCDKKK() (tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol#161-163) collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
-            "markdown": "The function signature of [ERC20.fopwCDKKK()](tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol#L161-L163) collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
-            "first_markdown_element": "tests/detectors/domain-separator-collision/0.5.16/permit_domain_collision.sol#L161-L163",
-            "id": "cb8ae27add92ad3163cbe9c0fb29a2a0032ba46384bbd5541d1d750251f5c83e",
+            "description": "The function signature of ERC20.fopwCDKKK (tests/detectors/domain-separator-collision/0.7.6/permit_domain_state_var_collision.sol#46) collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
+            "markdown": "The function signature of [ERC20.fopwCDKKK](tests/detectors/domain-separator-collision/0.7.6/permit_domain_state_var_collision.sol#L46) collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
+            "first_markdown_element": "tests/detectors/domain-separator-collision/0.7.6/permit_domain_state_var_collision.sol#L46",
+            "id": "8d18da367a9cfe0bee2ee48ee8a76072af23567d852cc81ed75dd90531cbe3d5",
             "check": "domain-separator-collision",
             "impact": "Medium",
             "confidence": "High"
