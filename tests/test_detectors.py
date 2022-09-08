@@ -715,6 +715,16 @@ ALL_TEST_OBJECTS = [
         "shadowing_state_variable.sol",
         "0.7.6",
     ),
+    Test(
+        all_detectors.ReturnShadowsLocal,
+        "example_github_issue.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ReturnShadowsLocal,
+        "return_shadows_local.sol",
+        "0.8.0",
+    ),
     Test(all_detectors.Timestamp, "timestamp.sol", "0.4.25"),
     Test(all_detectors.Timestamp, "timestamp.sol", "0.5.16"),
     Test(all_detectors.Timestamp, "timestamp.sol", "0.6.11"),

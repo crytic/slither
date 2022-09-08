@@ -32,6 +32,7 @@ from .attributes.const_functions_state import ConstantFunctionsState
 from .shadowing.abstract import ShadowingAbstractDetection
 from .shadowing.state import StateShadowing
 from .shadowing.local import LocalShadowing
+from .shadowing.return_local import ReturnShadowsLocal
 from .shadowing.builtin_symbols import BuiltinSymbolShadowing
 from .operations.block_timestamp import Timestamp
 from .statements.calls_in_loop import MultipleCallsInLoop
