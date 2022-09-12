@@ -1,7 +1,7 @@
 // https://github.com/crytic/slither/issues/1361
 
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.6.0 <=0.9.0;
+pragma solidity 0.7.6;
 
 library ArrayUtils {
     function getMax(uint[] calldata a) public pure returns (uint max) {

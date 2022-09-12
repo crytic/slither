@@ -1,4 +1,4 @@
-pragma solidity ^0.8.0;
+pragma solidity 0.8.7;
 
 contract Shadowed {
 
@@ -21,28 +21,28 @@ contract Shadowed {
     } //returns: 1, 0 (instead of 1, 2)
 }
 
-contract Nonamed {
+contract Unnamed {
 
-    function nonamed0() external view returns(uint) {
-        uint nonamed_var = 1;
+    function unnamed0() external view returns(uint) {
+        uint unnamed_var = 1;
     } //returns: 0 (instead of 1)
 
-    function nonamed1() external view returns(uint, uint nonamed_var2) {
-        uint nonamed_var1 = 1;
-        nonamed_var2 = 2;
+    function unnamed1() external view returns(uint, uint unnamed_var2) {
+        uint unnamed_var1 = 1;
+        unnamed_var2 = 2;
     } //returns: 0, 2 (instead of 1, 2)
 
-    function nonamed2() external view returns(uint nonamed_var1, uint) {
-        nonamed_var1 = 1;
-        uint nonamed_var2 = 2;
+    function unnamed2() external view returns(uint unnamed_var1, uint) {
+        unnamed_var1 = 1;
+        uint unnamed_var2 = 2;
     } //returns: 1, 0 (instead of 1, 2)
 
-    function nonamed3() external view returns(uint nonamed_var2, uint nonamed_var1) {
-        return this.nonamed2();
+    function unnamed3() external view returns(uint unnamed_var2, uint unnamed_var1) {
+        return this.unnamed2();
     } //returns: 1, 0 (instead of 1, 2)
 }
 
-contract ReturnShadowsLocal is Shadowed, Nonamed {
+contract ReturnShadowsLocal is Shadowed, Unnamed {
 }
 
 /* !note Tested to not throw errors correct contracts on OpenZeppelin contracts */

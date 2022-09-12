@@ -30,7 +30,7 @@ contract Bug {
         uint value = 1;
     } //returns 0
 
-    function nonamed() external view returns(uint) {
+    function unnamed() external view returns(uint) {
         uint value = 1;
     } //returns 0
 }
@@ -42,13 +42,13 @@ contract Bug {
     2. Don't re-declare the type of return variables.
     3. Add a `return` statement at the end of the function."""
 
-    def info(self, err_nonamed, err_shadowed): #4/4 (end) ↰
+    def info(self, err_unnamed, err_shadowed): #4/4 (end) ↰
         info = []
-        if len(err_nonamed)>0:
-            info.append(self.generate_result('💥💥💥 DETECTED NONAMED RETURN VARIABLE 💥💥💥\n'))
+        if len(err_unnamed)>0:
+            info.append(self.generate_result('💥💥💥 DETECTED UNNAMED RETURN VARIABLE 💥💥💥\n'))
             info_tmp=''
-            for bug_location, nonamed_vars in err_nonamed.items():
-                for var in nonamed_vars:
+            for bug_location, unnamed_vars in err_unnamed.items():
+                for var in unnamed_vars:
                     info_tmp+=f'\n      * "{var.type}"'
                 info.append(self.generate_result([
                     '  * In: ', bug_location, '\n    * inside "returns(...)", set name for:', info_tmp, '\n'
@@ -73,22 +73,22 @@ contract Bug {
                 try: # to prevent e.g. wrong format errors
                     #get shadowing info, e.g., from name_scope_0; extract _scope_0
                     scope_part = re.sub(f'^{return_var.name}', "", local_var.name)
-                    #save "return_var" if shadows "local_var" (return_var=local_var without scope)
+                    #save "return_var" if shadows "local_var"
                     if re.search('^_scope_[0-9]$', scope_part):
-                        shadowed_local_vars.append(return_var)
+                        shadowed_local_vars.append(return_var) #(return=local without scope)
                 except Exception as e:
                     print(e); continue
 
         return shadowed_local_vars
 
-    def detect_nonamed_return_vars(self, function): #2/4 ↑
-        nonamed_return_vars = []
+    def detect_unnamed_return_vars(self, function): #2/4 ↑
+        unnamed_return_vars = []
 
         for var in function.returns:
             if str(var)=='':
-                nonamed_return_vars.append(var)
+                unnamed_return_vars.append(var)
 
-        return nonamed_return_vars
+        return unnamed_return_vars
 
     def no_return_statment_in(self, function): #1/4 ↑
         if len(function.nodes)==0: return False #ignore inherited interfaces
@@ -98,20 +98,20 @@ contract Bug {
         return True
 
     def _detect(self): # 0/4 (start) ⤴
-        err_nonamed = {}; err_shadowed = {}
+        err_unnamed = {}; err_shadowed = {}
 
-        for contract in self.contracts: #for function in contract.functions + contract.modifiers:
+        for contract in self.contracts:
             if contract.is_interface: continue #ignore interfaces
             for function in contract.functions:
                 if function.return_type and self.no_return_statment_in(function):
                                 # ↓↓↓ error-potential zone ↓↓↓
-                    nonamed_return_vars = self.detect_nonamed_return_vars(function)
-                    if nonamed_return_vars:
-                        err_nonamed[function] = nonamed_return_vars
+                    unnamed_return_vars = self.detect_unnamed_return_vars(function)
+                    if unnamed_return_vars:
+                        err_unnamed[function] = unnamed_return_vars
                         continue #goto↓ after naming return vars
 
                     shadowed_local_vars = self.detect_shadowed_local_vars(function)
                     if shadowed_local_vars:
                         err_shadowed[function] = shadowed_local_vars
 
-        return self.info(err_nonamed, err_shadowed)
+        return self.info(err_unnamed, err_shadowed)

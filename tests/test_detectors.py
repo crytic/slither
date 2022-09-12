@@ -723,7 +723,7 @@ ALL_TEST_OBJECTS = [
     Test(
         all_detectors.ReturnShadowsLocal,
         "return_shadows_local.sol",
-        "0.8.0",
+        "0.8.7",
     ),
     Test(all_detectors.Timestamp, "timestamp.sol", "0.4.25"),
     Test(all_detectors.Timestamp, "timestamp.sol", "0.5.16"),

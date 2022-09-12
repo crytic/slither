@@ -6,7 +6,7 @@
                     "type": "function",
                     "name": "getMax",
                     "source_mapping": {
-                        "start": 141,
+                        "start": 131,
                         "length": 283,
                         "filename_relative": "tests/detectors/shadowing-return/0.7.6/example_github_issue.sol",
                         "filename_absolute": "/GENERIC_PATH",
@@ -32,7 +32,7 @@
                             "type": "contract",
                             "name": "ArrayUtils",
                             "source_mapping": {
-                                "start": 116,
+                                "start": 106,
                                 "length": 484,
                                 "filename_relative": "tests/detectors/shadowing-return/0.7.6/example_github_issue.sol",
                                 "filename_absolute": "/GENERIC_PATH",
