@@ -2,6 +2,7 @@ from typing import Optional, Union, TYPE_CHECKING
 
 from slither.core.expressions.expression import Expression
 from slither.utils.arithmetic import convert_subdenomination
+from slither.utils.integer_conversion import convert_string_to_int
 
 if TYPE_CHECKING:
     from slither.core.solidity_types.type import Type
@@ -29,8 +30,7 @@ class Literal(Expression):
     def __str__(self):
         if self.subdenomination:
             return str(convert_subdenomination(self._value, self.subdenomination))
-        # be sure to handle any character
-        return str(self._value)
+        return str(convert_string_to_int(self._value))
 
     def __eq__(self, other):
         if not isinstance(other, Literal):

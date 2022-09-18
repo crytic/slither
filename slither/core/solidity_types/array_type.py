@@ -53,7 +53,7 @@ class ArrayType(Type):
     def storage_size(self) -> Tuple[int, bool]:
         if self._length_value:
             elem_size, _ = self._type.storage_size
-            return elem_size * int(self._length_value.value), True
+            return elem_size * int(str(self._length_value)), True
         return 32, True
 
     def __str__(self):
