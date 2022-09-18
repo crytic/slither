@@ -1,6 +1,12 @@
-from decimal import Decimal
+from decimal import Decimal, getcontext
 
 from slither.exceptions import SlitherException
+
+def configure_decimal_precision():
+    # Configure decimal precision high enough for 2 ** 256
+    # Otherwise, large constant arithmetic may get truncated
+    if getcontext().prec < 80:
+        getcontext().prec = 80
 
 # pylint: disable=too-many-branches
 def convert_subdenomination(

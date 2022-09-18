@@ -1,0 +1,3 @@
+from slither.utils.arithmetic import configure_decimal_precision
+
+configure_decimal_precision()
