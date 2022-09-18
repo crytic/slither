@@ -11,7 +11,7 @@ def convert_string_to_fraction(val: Union[str, int]) -> Fraction:
         return Fraction(int(val, 16))
 
     # Fractions do not support underscore separators (on Python <3.11)
-    val = val.replace('_', '')
+    val = val.replace("_", "")
 
     if "e" in val or "E" in val:
         base, expo = val.split("e") if "e" in val else val.split("E")
@@ -29,6 +29,7 @@ def convert_string_to_fraction(val: Union[str, int]) -> Fraction:
         return Fraction(base) * Fraction(10**expo)
 
     return Fraction(val)
+
 
 def convert_string_to_int(val: Union[str, int]) -> int:
     return int(convert_string_to_fraction(val))

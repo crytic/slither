@@ -79,8 +79,8 @@ class ConstantFolding(ExpressionVisitor):
     def _post_literal(self, expression):
         try:
             set_val(expression, convert_string_to_fraction(expression.value))
-        except ValueError:
-            raise NotConstant
+        except ValueError as e:
+            raise NotConstant from e
 
     def _post_assignement_operation(self, expression):
         raise NotConstant

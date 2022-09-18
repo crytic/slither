@@ -31,7 +31,8 @@ class Literal(Expression):
     def __str__(self):
         if self.subdenomination:
             return str(convert_subdenomination(self._value, self.subdenomination))
-        elif self.type in Int + Uint + Fixed + Ufixed + ["address"]:
+
+        if self.type in Int + Uint + Fixed + Ufixed + ["address"]:
             return str(convert_string_to_int(self._value))
 
         # be sure to handle any character

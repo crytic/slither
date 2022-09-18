@@ -1,5 +1,3 @@
-from fractions import Fraction
-
 from slither.exceptions import SlitherException
 from slither.utils.integer_conversion import convert_string_to_int
 
