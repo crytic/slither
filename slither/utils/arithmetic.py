@@ -1,12 +1,6 @@
-from decimal import Decimal, getcontext
+from fractions import Fraction
 
 from slither.exceptions import SlitherException
-
-def configure_decimal_precision():
-    # Configure decimal precision high enough for 2 ** 256
-    # Otherwise, large constant arithmetic may get truncated
-    if getcontext().prec < 80:
-        getcontext().prec = 80
 
 # pylint: disable=too-many-branches
 def convert_subdenomination(
@@ -15,9 +9,9 @@ def convert_subdenomination(
 
     # to allow 0.1 ether conversion
     if value[0:2] == "0x":
-        decimal_value = Decimal(int(value, 16))
+        decimal_value = Fraction(int(value, 16))
     else:
-        decimal_value = Decimal(value)
+        decimal_value = Fraction(value)
     if sub == "wei":
         return int(decimal_value)
     if sub == "gwei":

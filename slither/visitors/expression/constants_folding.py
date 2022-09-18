@@ -1,4 +1,4 @@
-from decimal import Decimal, InvalidOperation
+from fractions import Fraction
 from slither.core.expressions import BinaryOperationType, Literal, UnaryOperationType
 from slither.utils.integer_conversion import convert_string_to_int
 from slither.visitors.expression.expression import ExpressionVisitor
@@ -79,8 +79,8 @@ class ConstantFolding(ExpressionVisitor):
 
     def _post_literal(self, expression):
         try:
-            set_val(expression, Decimal(expression.value))
-        except InvalidOperation:
+            set_val(expression, Fraction(expression.value))
+        except ValueError:
             raise NotConstant
 
     def _post_assignement_operation(self, expression):
