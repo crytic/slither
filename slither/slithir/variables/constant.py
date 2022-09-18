@@ -1,4 +1,3 @@
-from fractions import Fraction
 from functools import total_ordering
 
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
@@ -33,7 +32,7 @@ class Constant(SlithIRVariable):
         else:
             if val.isdigit():
                 self._type = ElementaryType("uint256")
-                self._val = int(Fraction(val))
+                self._val = convert_string_to_int(val)
             else:
                 self._type = ElementaryType("string")
                 self._val = val

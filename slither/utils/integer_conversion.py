@@ -4,11 +4,14 @@ from typing import Union
 from slither.exceptions import SlitherError
 
 
-def convert_string_to_int(val: Union[str, int]) -> int:
+def convert_string_to_fraction(val: Union[str, int]) -> Fraction:
     if isinstance(val, int):
-        return val
+        return Fraction(val)
     if val.startswith(("0x", "0X")):
-        return int(val, 16)
+        return Fraction(int(val, 16))
+
+    # Fractions do not support underscore separators (on Python <3.11)
+    val = val.replace('_', '')
 
     if "e" in val or "E" in val:
         base, expo = val.split("e") if "e" in val else val.split("E")
@@ -23,6 +26,9 @@ def convert_string_to_int(val: Union[str, int]) -> int:
                     f"{base}e{expo} is too large to fit in any Solidity integer size"
                 )
             return 0
-        return int(Fraction(base) * Fraction(10**expo))
+        return Fraction(base) * Fraction(10**expo)
 
-    return int(Fraction(val))
+    return Fraction(val)
+
+def convert_string_to_int(val: Union[str, int]) -> int:
+    return int(convert_string_to_fraction(val))
