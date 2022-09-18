@@ -12,13 +12,13 @@ def convert_subdenomination(
     if sub == "wei":
         return decimal_value
     if sub == "gwei":
-        return decimal_value * 1e9
+        return decimal_value * int(1e9)
     if sub == "szabo":
-        return decimal_value * 1e12
+        return decimal_value * int(1e12)
     if sub == "finney":
-        return decimal_value * 1e15
+        return decimal_value * int(1e15)
     if sub == "ether":
-        return decimal_value * 1e18
+        return decimal_value * int(1e18)
     if sub == "seconds":
         return decimal_value
     if sub == "minutes":

@@ -1,7 +1,7 @@
 from typing import Optional, Union, TYPE_CHECKING
 
 from slither.core.expressions.expression import Expression
-from slither.core.solidity_types.elementary_type import Byte, Fixed, Int, Ufixed, Uint
+from slither.core.solidity_types.elementary_type import Fixed, Int, Ufixed, Uint
 from slither.utils.arithmetic import convert_subdenomination
 from slither.utils.integer_conversion import convert_string_to_int
 
