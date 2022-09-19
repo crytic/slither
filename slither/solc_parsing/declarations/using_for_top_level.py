@@ -6,10 +6,8 @@ from typing import TYPE_CHECKING, Dict, Union
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
-from slither.core.solidity_types import Type, TypeAliasTopLevel
+from slither.core.solidity_types import TypeAliasTopLevel
 from slither.core.declarations import (
-    FunctionContract,
-    FunctionTopLevel,
     StructureTopLevel,
     EnumTopLevel,
 )
@@ -28,15 +26,12 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
     UsingFor class
     """
 
-    # elems = [(type, name)]
-
     def __init__(  # pylint: disable=too-many-arguments
         self,
         uftl: UsingForTopLevel,
         top_level_data: Dict,
         slither_parser: "SlitherCompilationUnitSolc",
     ):
-        # TODO think if save global here is useful
         self._type_name = top_level_data["typeName"]
         self._global = top_level_data["global"]
 
@@ -48,14 +43,14 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         self._using_for = uftl
         self._slither_parser = slither_parser
 
-    def analyze(self):
+    def analyze(self) -> None:
         type_name = parse_type(self._type_name, self)
         self._using_for.using_for[type_name] = []
 
         if hasattr(self, "_library_name"):
             library_name = parse_type(self._library_name, self)
             self._using_for.using_for[type_name].append(library_name)
-            self._propagate_global(type_name, library_name)
+            self._propagate_global(type_name)
         else:
             for f in self._functions:
                 full_name_split = f["function"]["name"].split(".")
@@ -65,7 +60,8 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                     for tl_function in self.compilation_unit.functions_top_level:
                         if tl_function.name == function_name:
                             self._using_for.using_for[type_name].append(tl_function)
-                            self._propagate_global(type_name, tl_function)
+                            self._propagate_global(type_name)
+                            break
                 elif len(full_name_split) == 2:
                     # Library function
                     library_name = full_name_split[0]
@@ -78,17 +74,18 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                             for cf in c.functions:
                                 if cf.name == function_name:
                                     self._using_for.using_for[type_name].append(cf)
-                                    self._propagate_global(type_name, cf)
+                                    self._propagate_global(type_name)
                                     found = True
                                     break
                 else:
                     # probably case if there is an import with an alias we don't handle it for now
                     # e.g. MyImport.MyLib.a
-                    return
+                    LOGGER.warning(
+                        f"Using for directive for function {f['function']['name']} not supported"
+                    )
+                    continue
 
-    def _propagate_global(
-        self, type_name: Type, to_add: Union[FunctionTopLevel, FunctionContract, UserDefinedType]
-    ):
+    def _propagate_global(self, type_name: Union[TypeAliasTopLevel, UserDefinedType]) -> None:
         if self._global:
             for scope in self.compilation_unit.scopes.values():
                 if isinstance(type_name, TypeAliasTopLevel):
@@ -107,11 +104,11 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                                 scope.usingFor.add(self._using_for)
                     else:
                         LOGGER.error(
-                            f"Error propagating global {underlying} {type(underlying)} not a StructTopLevel or EnumTopLevel"
+                            f"Error when propagating global {underlying} {type(underlying)} not a StructTopLevel or EnumTopLevel"
                         )
                 else:
                     LOGGER.error(
-                        f"Found {to_add} {type(to_add)} when propagating global using for {type_name} {type(type_name)}"
+                        f"Error when propagating global using for {type_name} {type(type_name)}"
                     )
 
     @property
