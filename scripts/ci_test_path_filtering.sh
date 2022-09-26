@@ -2,7 +2,7 @@
 
 ### Test path filtering across POSIX and Windows
 
-slither "tests/test_path_filtering/test_path_filtering.sol" --config "tests/test_path_filtering/slither.config.json" --json "output.json" > "output.txt" 2>&1
+slither "tests/test_path_filtering/test_path_filtering.sol" --config "tests/test_path_filtering/slither.config.json" > "output.txt" 2>&1
 
 if ! grep -q "0 result(s) found" "output.txt"
 then
