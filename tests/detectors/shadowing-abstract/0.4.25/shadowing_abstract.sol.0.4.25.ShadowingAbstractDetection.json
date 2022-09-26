@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 92,
                         "length": 13,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-abstract/0.4.25/shadowing_abstract.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-abstract/0.4.25/shadowing_abstract.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 46,
                                 "length": 63,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-abstract/0.4.25/shadowing_abstract.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-abstract/0.4.25/shadowing_abstract.sol",
@@ -49,7 +47,6 @@
                     "source_mapping": {
                         "start": 27,
                         "length": 13,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-abstract/0.4.25/shadowing_abstract.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-abstract/0.4.25/shadowing_abstract.sol",
@@ -67,7 +64,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 44,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-abstract/0.4.25/shadowing_abstract.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-abstract/0.4.25/shadowing_abstract.sol",

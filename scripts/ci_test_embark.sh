@@ -15,13 +15,10 @@ npm install -g embark@4.2.0
 embark demo
 cd embark_demo || exit 255
 npm install
-slither . --embark-overwrite-config
 
-if [ $? -eq 4 ]
-then
-    exit 0
+if ! slither . --embark-overwrite-config; then
+    echo "Embark test failed"
+    exit 255
 fi
 
-echo "Embark test failed"
-exit 255
-
+exit 0

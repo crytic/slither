@@ -10,6 +10,9 @@ from slither.slithir.variables.temporary import TemporaryVariable
 
 
 def visit_node(node, visited):
+    if node is None:
+        return
+
     if node in visited:
         return
 

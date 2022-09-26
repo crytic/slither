@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 1131,
                         "length": 343,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -33,7 +32,6 @@
                             "source_mapping": {
                                 "start": 496,
                                 "length": 1899,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -105,7 +103,6 @@
                     "source_mapping": {
                         "start": 1363,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -123,7 +120,6 @@
                             "source_mapping": {
                                 "start": 1131,
                                 "length": 343,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -148,7 +144,6 @@
                                     "source_mapping": {
                                         "start": 496,
                                         "length": 1899,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -233,7 +228,6 @@
                     "source_mapping": {
                         "start": 1855,
                         "length": 60,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -253,7 +247,6 @@
                             "source_mapping": {
                                 "start": 496,
                                 "length": 1899,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -325,7 +318,6 @@
                     "source_mapping": {
                         "start": 1894,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -343,7 +335,6 @@
                             "source_mapping": {
                                 "start": 1855,
                                 "length": 60,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -363,7 +354,6 @@
                                     "source_mapping": {
                                         "start": 496,
                                         "length": 1899,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -448,7 +438,6 @@
                     "source_mapping": {
                         "start": 102,
                         "length": 389,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -470,7 +459,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 494,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -501,7 +489,6 @@
                     "source_mapping": {
                         "start": 271,
                         "length": 21,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -519,7 +506,6 @@
                             "source_mapping": {
                                 "start": 102,
                                 "length": 389,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -541,7 +527,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 494,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -585,7 +570,6 @@
                     "source_mapping": {
                         "start": 754,
                         "length": 373,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -607,7 +591,6 @@
                             "source_mapping": {
                                 "start": 496,
                                 "length": 1899,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -679,7 +662,6 @@
                     "source_mapping": {
                         "start": 912,
                         "length": 16,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -697,7 +679,6 @@
                             "source_mapping": {
                                 "start": 754,
                                 "length": 373,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
@@ -719,7 +700,6 @@
                                     "source_mapping": {
                                         "start": 496,
                                         "length": 1899,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol",

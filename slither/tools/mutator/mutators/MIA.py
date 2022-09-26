@@ -20,13 +20,13 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
                 for node in function.nodes:
                     if node.type == NodeType.IF:
                         # Retrieve the file
-                        in_file = contract.source_mapping["filename_absolute"]
+                        in_file = contract.source_mapping.filename.absolute
                         # Retrieve the source code
-                        in_file_str = contract.slither.source_code[in_file]
+                        in_file_str = contract.compilation_unit.core.source_code[in_file]
 
                         # Get the string
-                        start = node.source_mapping["start"]
-                        stop = start + node.source_mapping["length"]
+                        start = node.source_mapping.start
+                        stop = start + node.source_mapping.length
                         old_str = in_file_str[start:stop]
 
                         # Replace the expression with true

@@ -31,3 +31,8 @@ class Literal(Expression):
             return str(convert_subdenomination(self._value, self.subdenomination))
         # be sure to handle any character
         return str(self._value)
+
+    def __eq__(self, other):
+        if not isinstance(other, Literal):
+            return False
+        return (self.value, self.subdenomination) == (other.value, other.subdenomination)

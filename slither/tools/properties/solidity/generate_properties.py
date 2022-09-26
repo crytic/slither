@@ -14,7 +14,7 @@ def generate_solidity_properties(
 ) -> Path:
 
     solidity_import = 'import "./interfaces.sol";\n'
-    solidity_import += f'import "../{contract.source_mapping["filename_short"]}";'
+    solidity_import += f'import "../{contract.source_mapping.filename.short}";'
 
     test_contract_name = f"Properties{contract.name}{type_property}"
 

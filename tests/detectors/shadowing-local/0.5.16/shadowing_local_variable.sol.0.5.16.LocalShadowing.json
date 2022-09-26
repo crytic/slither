@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 379,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 354,
                                 "length": 79,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -44,7 +42,6 @@
                                     "source_mapping": {
                                         "start": 200,
                                         "length": 235,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -77,7 +74,6 @@
                     "source_mapping": {
                         "start": 259,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -95,7 +91,6 @@
                             "source_mapping": {
                                 "start": 200,
                                 "length": 235,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -125,7 +120,6 @@
                     "source_mapping": {
                         "start": 136,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -143,7 +137,6 @@
                             "source_mapping": {
                                 "start": 88,
                                 "length": 110,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -169,7 +162,6 @@
                     "source_mapping": {
                         "start": 57,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -187,7 +179,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 57,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -221,7 +212,6 @@
                     "source_mapping": {
                         "start": 401,
                         "length": 5,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -239,7 +229,6 @@
                             "source_mapping": {
                                 "start": 354,
                                 "length": 79,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -257,7 +246,6 @@
                                     "source_mapping": {
                                         "start": 200,
                                         "length": 235,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -290,7 +278,6 @@
                     "source_mapping": {
                         "start": 73,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -308,7 +295,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 57,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -342,7 +328,6 @@
                     "source_mapping": {
                         "start": 424,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -360,7 +345,6 @@
                             "source_mapping": {
                                 "start": 354,
                                 "length": 79,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -378,7 +362,6 @@
                                     "source_mapping": {
                                         "start": 200,
                                         "length": 235,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -411,7 +394,6 @@
                     "source_mapping": {
                         "start": 186,
                         "length": 10,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -429,7 +411,6 @@
                             "source_mapping": {
                                 "start": 88,
                                 "length": 110,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -467,7 +448,6 @@
                     "source_mapping": {
                         "start": 416,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -485,7 +465,6 @@
                             "source_mapping": {
                                 "start": 354,
                                 "length": 79,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -503,7 +482,6 @@
                                     "source_mapping": {
                                         "start": 200,
                                         "length": 235,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -536,7 +514,6 @@
                     "source_mapping": {
                         "start": 277,
                         "length": 71,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -557,7 +534,6 @@
                             "source_mapping": {
                                 "start": 200,
                                 "length": 235,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -599,7 +575,6 @@
                     "source_mapping": {
                         "start": 408,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -617,7 +592,6 @@
                             "source_mapping": {
                                 "start": 354,
                                 "length": 79,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -635,7 +609,6 @@
                                     "source_mapping": {
                                         "start": 200,
                                         "length": 235,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -668,7 +641,6 @@
                     "source_mapping": {
                         "start": 153,
                         "length": 27,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
@@ -686,7 +658,6 @@
                             "source_mapping": {
                                 "start": 88,
                                 "length": 110,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol",

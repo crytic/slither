@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 738,
                         "length": 312,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -32,7 +31,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 1053,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -86,7 +84,6 @@
                     "source_mapping": {
                         "start": 931,
                         "length": 88,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -104,7 +101,6 @@
                             "source_mapping": {
                                 "start": 738,
                                 "length": 312,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -128,7 +124,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1053,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -195,7 +190,6 @@
                     "source_mapping": {
                         "start": 496,
                         "length": 236,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -217,7 +211,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 1053,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -271,7 +264,6 @@
                     "source_mapping": {
                         "start": 627,
                         "length": 88,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -289,7 +281,6 @@
                             "source_mapping": {
                                 "start": 496,
                                 "length": 236,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -311,7 +302,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1053,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -378,7 +368,6 @@
                     "source_mapping": {
                         "start": 61,
                         "length": 232,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -400,7 +389,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 1053,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -454,7 +442,6 @@
                     "source_mapping": {
                         "start": 188,
                         "length": 88,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -472,7 +459,6 @@
                             "source_mapping": {
                                 "start": 61,
                                 "length": 232,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
@@ -494,7 +480,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1053,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/delegatecall-loop/0.4.25/delegatecall_loop.sol",

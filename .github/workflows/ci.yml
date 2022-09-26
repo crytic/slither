@@ -28,7 +28,7 @@ jobs:
                "path_filtering",
                # "embark",
                "erc",
-               "etherlime",
+               # "etherlime",
                # "etherscan"
                "find_paths",
                "flat",
@@ -45,25 +45,16 @@ jobs:
             type: dapp
           # Requires nvm
           - os: windows-2022
-            type: etherlime
-          # Requires nvm
-          - os: windows-2022
             type: truffle
     steps:
       - uses: actions/checkout@v1
-
       - name: Set up Python 3.8
         uses: actions/setup-python@v3
         with:
           python-version: 3.8
       - name: Install dependencies
         run: |
-
-          python setup.py install
-          # Used by ci_test.sh
-          pip install deepdiff
-
-          pip install "solc-select>=v1.0.0b1"
+          pip install ".[dev]"
           solc-select install all
           solc-select use 0.5.1
           pip install typing_extensions==4.1.1

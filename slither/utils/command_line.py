@@ -34,6 +34,10 @@ defaults_flag_in_config = {
     "exclude_low": False,
     "exclude_medium": False,
     "exclude_high": False,
+    "fail_pedantic": True,
+    "fail_low": False,
+    "fail_medium": False,
+    "fail_high": False,
     "json": None,
     "sarif": None,
     "json-types": ",".join(DEFAULT_JSON_OUTPUT_TYPES),
@@ -43,7 +47,6 @@ defaults_flag_in_config = {
     # debug command
     "skip_assembly": False,
     "legacy_ast": False,
-    "ignore_return_value": False,
     "zip": None,
     "zip_type": "lzma",
     "show_ignored_findings": False,
