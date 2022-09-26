@@ -55,7 +55,9 @@ def coerce_type(
     return value.hex()
 
 
-def get_storage_data(web3, checksum_address: ChecksumAddress, slot: bytes, block: Union[int, str]) -> bytes:
+def get_storage_data(
+    web3, checksum_address: ChecksumAddress, slot: bytes, block: Union[int, str]
+) -> bytes:
     """
     Retrieves the storage data from the blockchain at target address and slot.
     Args:
