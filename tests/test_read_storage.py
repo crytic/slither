@@ -112,6 +112,7 @@ def test_read_storage(web3, ganache) -> None:
 
     srs = SlitherReadStorage(contracts, 100)
     srs.rpc = ganache.provider
+    srs.block = "latest"
     srs.storage_address = address
     srs.get_all_storage_variables()
     srs.get_storage_layout()
