@@ -1,4 +1,5 @@
 import argparse
+import logging
 from pathlib import Path
 
 from crytic_compile import cryticparser
@@ -62,15 +63,39 @@ def detect_platform(project: str, **kwargs):
         )
     elif platform_qty > 1:
         print(red("More than one platform was detected! This doesn't sound right."))
-        print(red("Please use `--compile-force-framework` in Slither to force the correct framework."))
+        print(
+            red("Please use `--compile-force-framework` in Slither to force the correct framework.")
+        )
     else:
         print(green("A single platform was detected."), yellow("Is it the one you expected?"))
+
+    print(end="\n\n")
+
+
+def compile_project(project: str, **kwargs):
+    print("## Project compilation")
+    print()
+
+    print("Invoking crytic-compile on the project, please wait...")
+
+    try:
+        crytic_compile.CryticCompile(project, **kwargs)
+    except Exception as e:
+        print(red("Project compilation failed :( The following error was generated:"), end="\n\n")
+        print(yellow("---- snip 8< ----"))
+        logging.exception(e)
+        print(yellow("---- >8 snip ----"))
+
+    print(end="\n\n")
 
 
 def main():
     args = parse_args()
 
-    detect_platform(args.project)
+    kwargs = vars(args)
+
+    detect_platform(**kwargs)
+    compile_project(**kwargs)
 
     # TODO other checks
 
