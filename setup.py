@@ -45,6 +45,7 @@ setup(
             "slither-prop = slither.tools.properties.__main__:main",
             "slither-mutate = slither.tools.mutator.__main__:main",
             "slither-read-storage = slither.tools.read_storage.__main__:main",
+            "slither-doctor = slither.tools.doctor.__main__:main",
         ]
     },
 )
