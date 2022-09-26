@@ -21,6 +21,7 @@ optional arguments:
   --layout                          Toggle used to write a JSON file with the entire storage layout.
   --value                           Toggle used to include values in output.
   --max-depth MAX_DEPTH             Max depth to search in data structure.
+  --block BLOCK_NUMBER              Block number to retrieve storage from (requires archive rpc node)
 ```
 
 ### Examples

@@ -98,6 +98,12 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("--max-depth", help="Max depth to search in data structure.", default=20)
 
+    parser.add_argument(
+        "--block",
+        help="The block number to read storage from. Requires an archive node to be provided as the RPC url.",
+        default="latest",
+    )
+
     cryticparser.init(parser)
 
     return parser.parse_args()
@@ -121,6 +127,12 @@ def main() -> None:
         contracts = slither.contracts
 
     srs = SlitherReadStorage(contracts, args.max_depth)
+
+    if args.block:
+        try:
+            srs.block = int(args.block)
+        except ValueError:
+            srs.block = str(args.block)
 
     if args.rpc_url:
         # Remove target prefix e.g. rinkeby:0x0 -> 0x0.

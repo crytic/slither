@@ -55,16 +55,17 @@ def coerce_type(
     return value.hex()
 
 
-def get_storage_data(web3, checksum_address: ChecksumAddress, slot: bytes) -> bytes:
+def get_storage_data(web3, checksum_address: ChecksumAddress, slot: bytes, block: Union[int, str]) -> bytes:
     """
     Retrieves the storage data from the blockchain at target address and slot.
     Args:
         web3: Web3 instance provider.
         checksum_address (ChecksumAddress): The address to query.
         slot (bytes): The slot to retrieve data from.
+        block (optional int|str): The block number to retrieve data from
     Returns:
         (HexBytes): The slot's storage data.
     """
-    return bytes(web3.eth.get_storage_at(checksum_address, slot)).rjust(
+    return bytes(web3.eth.get_storage_at(checksum_address, slot, block)).rjust(
         32, bytes(1)
     )  # pad to 32 bytes
