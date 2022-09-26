@@ -26,6 +26,14 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get install -y --no-install-recommends python3-pip \
   && rm -rf /var/lib/apt/lists/*
 
+# improve compatibility with amd64 solc in non-amd64 environments (e.g. Docker Desktop on M1 Mac)
+ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
+RUN if [ ! "$(uname -m)" = "x86_64" ]; then \
+  export DEBIAN_FRONTEND=noninteractive \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends libc6-amd64-cross \
+  && rm -rf /var/lib/apt/lists/*; fi
+
 RUN useradd -m slither
 USER slither
 
