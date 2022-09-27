@@ -4,6 +4,8 @@ from pathlib import Path
 
 from crytic_compile import cryticparser
 import crytic_compile.crytic_compile as crytic_compile
+
+from slither.tools.doctor.packages import get_installed_version, get_github_version
 from slither.utils.colors import red, yellow, green
 
 
@@ -25,9 +27,43 @@ def parse_args():
     return parser.parse_args()
 
 
+def show_versions():
+    print("## Software versions", end="\n\n")
+    versions = {
+        "Slither": (get_installed_version("slither-analyzer"), get_github_version("slither")),
+        "crytic-compile": (
+            get_installed_version("crytic-compile"),
+            get_github_version("crytic-compile"),
+        ),
+        "solc-select": (get_installed_version("solc-select"), get_github_version("solc-select")),
+    }
+
+    outdated = {
+        name
+        for name, (installed, latest) in versions.items()
+        if not installed or not latest or latest > installed
+    }
+
+    for name, (installed, latest) in versions.items():
+        color = yellow if name in outdated else green
+        print(f"{name + ':':<16}{color(installed or 'N/A'):<16} (latest is {latest or 'Unknown'})")
+
+    if len(outdated) > 0:
+        print()
+        print(
+            yellow(
+                f"Please update {', '.join(outdated)} to the latest release before creating a bug report."
+            )
+        )
+    else:
+        print()
+        print(green("Your tools are up to date."))
+
+    print(end="\n\n")
+
+
 def detect_platform(project: str, **kwargs):
-    print("## Project platform")
-    print()
+    print("## Project platform", end="\n\n")
 
     path = Path(project)
     if path.is_file():
@@ -73,8 +109,7 @@ def detect_platform(project: str, **kwargs):
 
 
 def compile_project(project: str, **kwargs):
-    print("## Project compilation")
-    print()
+    print("## Project compilation", end="\n\n")
 
     print("Invoking crytic-compile on the project, please wait...")
 
@@ -91,9 +126,9 @@ def compile_project(project: str, **kwargs):
 
 def main():
     args = parse_args()
-
     kwargs = vars(args)
 
+    show_versions()
     detect_platform(**kwargs)
     compile_project(**kwargs)
 
