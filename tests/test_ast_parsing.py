@@ -470,15 +470,15 @@ def test_parsing(test_item: Test):
                 path_list = re.findall(r"\['(.*?)'\]", change.path())
                 path = "_".join(path_list)
                 with open(
-                        f"test_artifacts/{test_item.test_file}_{path}_expected.dot",
-                        "w",
-                        encoding="utf8",
+                    f"test_artifacts/{test_item.test_file}_{path}_expected.dot",
+                    "w",
+                    encoding="utf8",
                 ) as f:
                     f.write(change.t1)
                 with open(
-                        f"test_artifacts/{test_item.test_file}_{version}_{flavor}_{path}_actual.dot",
-                        "w",
-                        encoding="utf8",
+                    f"test_artifacts/{test_item.test_file}_{version}_{flavor}_{path}_actual.dot",
+                    "w",
+                    encoding="utf8",
                 ) as f:
                     f.write(change.t2)
 
