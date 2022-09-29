@@ -65,15 +65,7 @@ Consider using the latest version of Solidity for testing."""
     )
 
     # Indicates the allowed versions. Must be formatted in increasing order.
-    ALLOWED_VERSIONS = [
-        "0.5.16",
-        "0.5.17",
-        "0.6.11",
-        "0.6.12",
-        "0.7.5",
-        "0.7.6",
-        "0.8.16"
-    ]
+    ALLOWED_VERSIONS = ["0.5.16", "0.5.17", "0.6.11", "0.6.12", "0.7.5", "0.7.6", "0.8.16"]
 
     # Indicates the versions that should not be used.
     BUGGY_VERSIONS = [
