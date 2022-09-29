@@ -37,10 +37,8 @@ class ConstCandidateStateVars(AbstractDetector):
         t = v.type
         if isinstance(t, ElementaryType):
             return True
-        if isinstance(t, UserDefinedType):
-            type_t = t.type
-            if isinstance(type_t, Contract):
-                return True
+        if isinstance(t, UserDefinedType) and isinstance(t.type, Contract):
+            return True
         return False
         
 
