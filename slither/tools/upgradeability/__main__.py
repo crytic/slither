@@ -166,7 +166,7 @@ def _checks_on_contract(
         for d in detectors
         if (not d.REQUIRE_PROXY and not d.REQUIRE_CONTRACT_V2)
     ]
-    return _run_checks(detectors_), len(detectors)
+    return _run_checks(detectors_), len(detectors_)
 
 
 def _checks_on_contract_update(
@@ -175,14 +175,14 @@ def _checks_on_contract_update(
     detectors_ = [
         d(logger, contract_v1, contract_v2=contract_v2) for d in detectors if d.REQUIRE_CONTRACT_V2
     ]
-    return _run_checks(detectors_), len(detectors)
+    return _run_checks(detectors_), len(detectors_)
 
 
 def _checks_on_contract_and_proxy(
     detectors: List[Type[AbstractCheck]], contract: Contract, proxy: Contract
 ) -> Tuple[List[Dict], int]:
     detectors_ = [d(logger, contract, proxy=proxy) for d in detectors if d.REQUIRE_PROXY]
-    return _run_checks(detectors_), len(detectors)
+    return _run_checks(detectors_), len(detectors_)
 
 
 # endregion
@@ -279,7 +279,7 @@ def main() -> None:
             number_detectors_run += number_detectors
 
             # If there is a V2, we run the contract-only check on the V2
-            detectors_results, _ = _checks_on_contract(detectors, v2_contract)
+            detectors_results, number_detectors = _checks_on_contract(detectors, v2_contract)
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 
