@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 393,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 370,
                                 "length": 114,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -46,7 +44,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -139,7 +136,6 @@
                     "source_mapping": {
                         "start": 427,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -157,7 +153,6 @@
                             "source_mapping": {
                                 "start": 370,
                                 "length": 114,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -177,7 +172,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -281,7 +275,6 @@
                     "source_mapping": {
                         "start": 511,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -299,7 +292,6 @@
                             "source_mapping": {
                                 "start": 488,
                                 "length": 195,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -320,7 +312,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -413,7 +404,6 @@
                     "source_mapping": {
                         "start": 545,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -431,7 +421,6 @@
                             "source_mapping": {
                                 "start": 488,
                                 "length": 195,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -452,7 +441,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -556,7 +544,6 @@
                     "source_mapping": {
                         "start": 706,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -574,7 +561,6 @@
                             "source_mapping": {
                                 "start": 687,
                                 "length": 112,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -594,7 +580,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -687,7 +672,6 @@
                     "source_mapping": {
                         "start": 740,
                         "length": 30,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -705,7 +689,6 @@
                             "source_mapping": {
                                 "start": 687,
                                 "length": 112,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -725,7 +708,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -829,7 +811,6 @@
                     "source_mapping": {
                         "start": 149,
                         "length": 17,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -847,7 +828,6 @@
                             "source_mapping": {
                                 "start": 125,
                                 "length": 108,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -867,7 +847,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -960,7 +939,6 @@
                     "source_mapping": {
                         "start": 188,
                         "length": 17,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -978,7 +956,6 @@
                             "source_mapping": {
                                 "start": 125,
                                 "length": 108,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -998,7 +975,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -1102,7 +1078,6 @@
                     "source_mapping": {
                         "start": 256,
                         "length": 12,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -1120,7 +1095,6 @@
                             "source_mapping": {
                                 "start": 237,
                                 "length": 129,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -1141,7 +1115,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -1234,7 +1207,6 @@
                     "source_mapping": {
                         "start": 290,
                         "length": 20,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -1252,7 +1224,6 @@
                             "source_mapping": {
                                 "start": 237,
                                 "length": 129,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -1273,7 +1244,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -1366,7 +1336,6 @@
                     "source_mapping": {
                         "start": 340,
                         "length": 20,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -1384,7 +1353,6 @@
                             "source_mapping": {
                                 "start": 237,
                                 "length": 129,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
@@ -1405,7 +1373,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 1977,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/missing-zero-check/0.4.25/missing_zero_address_validation.sol",

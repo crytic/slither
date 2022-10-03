@@ -147,7 +147,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     # pylint: disable=too-many-branches
     def detect(self) -> List[Dict]:
         results: List[Dict] = []
-        # only keep valid result, and remove dupplicate
+        # only keep valid result, and remove duplicate
         # Keep only dictionaries
         for r in [output.data for output in self._detect()]:
             if self.compilation_unit.core.valid_result(r) and r not in results:

@@ -30,6 +30,10 @@ class ArrayType(Type):
         return self._type
 
     @property
+    def is_dynamic(self) -> bool:
+        return self.length is None
+
+    @property
     def length(self) -> Optional[Expression]:
         return self._length
 
@@ -49,7 +53,7 @@ class ArrayType(Type):
     def storage_size(self) -> Tuple[int, bool]:
         if self._length_value:
             elem_size, _ = self._type.storage_size
-            return elem_size * int(self._length_value.value), True
+            return elem_size * int(str(self._length_value)), True
         return 32, True
 
     def __str__(self):

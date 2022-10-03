@@ -21,9 +21,9 @@ def parse_args() -> argparse.Namespace:
             "\nTo retrieve a single variable's value:\n"
             + "\tslither-read-storage $TARGET address --variable-name $NAME\n"
             + "To retrieve a contract's storage layout:\n"
-            + "\tslither-read-storage $TARGET address --contract-name $NAME --layout\n"
+            + "\tslither-read-storage $TARGET address --contract-name $NAME --json storage_layout.json\n"
             + "To retrieve a contract's storage layout and values:\n"
-            + "\tslither-read-storage $TARGET address --contract-name $NAME --layout --values\n"
+            + "\tslither-read-storage $TARGET address --contract-name $NAME --json storage_layout.json --value\n"
             + "TARGET can be a contract address or project directory"
         ),
     )
@@ -73,15 +73,27 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--layout",
-        action="store_true",
-        help="Toggle used to write a JSON file with the entire storage layout.",
+        "--json",
+        action="store",
+        help="Save the result in a JSON file.",
     )
 
     parser.add_argument(
         "--value",
         action="store_true",
         help="Toggle used to include values in output.",
+    )
+
+    parser.add_argument(
+        "--table",
+        action="store_true",
+        help="Print table view of storage layout",
+    )
+
+    parser.add_argument(
+        "--silent",
+        action="store_true",
+        help="Silence log outputs",
     )
 
     parser.add_argument("--max-depth", help="Max depth to search in data structure.", default=20)
@@ -120,25 +132,28 @@ def main() -> None:
 
         srs.rpc = args.rpc_url
 
-    if args.layout:
-        srs.get_all_storage_variables()
-        srs.get_storage_layout()
-    else:
-        assert args.variable_name
+    if args.variable_name:
         # Use a lambda func to only return variables that have same name as target.
         # x is a tuple (`Contract`, `StateVariable`).
         srs.get_all_storage_variables(lambda x: bool(x[1].name == args.variable_name))
         srs.get_target_variables(**vars(args))
+    else:
+        srs.get_all_storage_variables()
+        srs.get_storage_layout()
 
     # To retrieve slot values an rpc url is required.
     if args.value:
         assert args.rpc_url
-        srs.get_slot_values()
+        srs.walk_slot_info(srs.get_slot_values)
 
-    # Only write file if storage layout is used.
-    if len(srs.slot_info) > 1:
-        with open("storage_layout.json", "w", encoding="utf-8") as file:
-            json.dump(srs.slot_info, file, indent=4)
+    if args.table:
+        srs.walk_slot_info(srs.convert_slot_info_to_rows)
+        print(srs.table)
+
+    if args.json:
+        with open(args.json, "w", encoding="utf-8") as file:
+            slot_infos_json = srs.to_json()
+            json.dump(slot_infos_json, file, indent=4)
 
 
 if __name__ == "__main__":

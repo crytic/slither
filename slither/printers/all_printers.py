@@ -18,3 +18,5 @@ from .summary.constructor_calls import ConstructorPrinter
 from .guidance.echidna import Echidna
 from .summary.evm import PrinterEVM
 from .summary.when_not_paused import PrinterWhenNotPaused
+from .summary.declaration import Declaration
+from .functions.dominator import Dominator

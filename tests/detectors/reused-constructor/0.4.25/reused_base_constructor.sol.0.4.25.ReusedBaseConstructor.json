@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -30,7 +29,6 @@
                     "source_mapping": {
                         "start": 34,
                         "length": 51,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -50,7 +48,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 87,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -76,7 +73,6 @@
                     "source_mapping": {
                         "start": 157,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -98,7 +94,6 @@
                     "source_mapping": {
                         "start": 89,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -131,7 +126,6 @@
                     "source_mapping": {
                         "start": 157,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -153,7 +147,6 @@
                     "source_mapping": {
                         "start": 34,
                         "length": 51,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -173,7 +166,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 87,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -199,7 +191,6 @@
                     "source_mapping": {
                         "start": 157,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -221,7 +212,6 @@
                     "source_mapping": {
                         "start": 89,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -254,7 +244,6 @@
                     "source_mapping": {
                         "start": 299,
                         "length": 78,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -276,7 +265,6 @@
                     "source_mapping": {
                         "start": 178,
                         "length": 43,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -296,7 +284,6 @@
                             "source_mapping": {
                                 "start": 157,
                                 "length": 66,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -321,7 +308,6 @@
                     "source_mapping": {
                         "start": 299,
                         "length": 78,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -343,7 +329,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -365,7 +350,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -398,7 +382,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -420,7 +403,6 @@
                     "source_mapping": {
                         "start": 110,
                         "length": 43,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -440,7 +422,6 @@
                             "source_mapping": {
                                 "start": 89,
                                 "length": 66,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -465,7 +446,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -487,7 +467,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -520,7 +499,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -542,7 +520,6 @@
                     "source_mapping": {
                         "start": 178,
                         "length": 43,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -562,7 +539,6 @@
                             "source_mapping": {
                                 "start": 157,
                                 "length": 66,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -587,7 +563,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -609,7 +584,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -642,7 +616,6 @@
                     "source_mapping": {
                         "start": 380,
                         "length": 58,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -665,7 +638,6 @@
                     "source_mapping": {
                         "start": 34,
                         "length": 51,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -685,7 +657,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 87,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -711,7 +682,6 @@
                     "source_mapping": {
                         "start": 380,
                         "length": 58,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -734,7 +704,6 @@
                     "source_mapping": {
                         "start": 89,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -767,7 +736,6 @@
                     "source_mapping": {
                         "start": 299,
                         "length": 78,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -789,7 +757,6 @@
                     "source_mapping": {
                         "start": 110,
                         "length": 43,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -809,7 +776,6 @@
                             "source_mapping": {
                                 "start": 89,
                                 "length": 66,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -834,7 +800,6 @@
                     "source_mapping": {
                         "start": 299,
                         "length": 78,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -856,7 +821,6 @@
                     "source_mapping": {
                         "start": 299,
                         "length": 78,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -878,7 +842,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -900,7 +863,6 @@
                     "source_mapping": {
                         "start": 225,
                         "length": 72,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -933,7 +895,6 @@
                     "source_mapping": {
                         "start": 299,
                         "length": 78,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -955,7 +916,6 @@
                     "source_mapping": {
                         "start": 34,
                         "length": 51,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -975,7 +935,6 @@
                             "source_mapping": {
                                 "start": 0,
                                 "length": 87,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -1001,7 +960,6 @@
                     "source_mapping": {
                         "start": 157,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
@@ -1023,7 +981,6 @@
                     "source_mapping": {
                         "start": 89,
                         "length": 66,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reused-constructor/0.4.25/reused_base_constructor.sol",

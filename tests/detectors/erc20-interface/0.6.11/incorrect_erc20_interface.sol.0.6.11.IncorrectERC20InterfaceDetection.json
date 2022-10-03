@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 29,
                         "length": 412,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -33,7 +32,6 @@
                     "source_mapping": {
                         "start": 122,
                         "length": 63,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -51,7 +49,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 412,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -90,7 +87,6 @@
                     "source_mapping": {
                         "start": 29,
                         "length": 412,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -115,7 +111,6 @@
                     "source_mapping": {
                         "start": 371,
                         "length": 68,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -133,7 +128,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 412,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -172,7 +166,6 @@
                     "source_mapping": {
                         "start": 29,
                         "length": 412,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -197,7 +190,6 @@
                     "source_mapping": {
                         "start": 317,
                         "length": 49,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -215,7 +207,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 412,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -254,7 +245,6 @@
                     "source_mapping": {
                         "start": 29,
                         "length": 412,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -279,7 +269,6 @@
                     "source_mapping": {
                         "start": 190,
                         "length": 77,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -297,7 +286,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 412,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -336,7 +324,6 @@
                     "source_mapping": {
                         "start": 29,
                         "length": 412,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -361,7 +348,6 @@
                     "source_mapping": {
                         "start": 272,
                         "length": 40,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -379,7 +365,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 412,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -418,7 +403,6 @@
                     "source_mapping": {
                         "start": 29,
                         "length": 412,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -443,7 +427,6 @@
                     "source_mapping": {
                         "start": 58,
                         "length": 59,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
@@ -461,7 +444,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 412,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol",

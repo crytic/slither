@@ -112,7 +112,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     if not var_type:
         if name.startswith("function "):
             found = re.findall(
-                "function \(([ ()\[\]a-zA-Z0-9\.,]*?)\)(?: payable)?(?: (?:external|internal|pure|view))?(?: returns \(([a-zA-Z0-9() \.,]*)\))?",
+                r"function \(([ ()\[\]a-zA-Z0-9\.,]*?)\)(?: payable)?(?: (?:external|internal|pure|view))?(?: returns \(([a-zA-Z0-9() \.,]*)\))?",
                 name,
             )
             assert len(found) == 1
@@ -159,10 +159,10 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         if name.startswith("mapping("):
             # nested mapping declared with var
             if name.count("mapping(") == 1:
-                found = re.findall("mapping\(([a-zA-Z0-9\.]*) => ([ a-zA-Z0-9\.\[\]]*)\)", name)
+                found = re.findall(r"mapping\(([a-zA-Z0-9\.]*) => ([ a-zA-Z0-9\.\[\]]*)\)", name)
             else:
                 found = re.findall(
-                    "mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
+                    r"mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
                     name,
                 )
             assert len(found) == 1
@@ -193,6 +193,12 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     if not var_type:
         raise ParsingError("Type not found " + str(name))
     return UserDefinedType(var_type)
+
+
+def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit"):
+
+    if isinstance(type_found, UserDefinedType):
+        type_found.type.add_reference_from_raw_source(src, sl)
 
 
 # TODO: since the add of FileScope, we can probably refactor this function and makes it a lot simpler
@@ -267,19 +273,25 @@ def parse_type(
                 assert isinstance(custom_error, CustomErrorContract)
                 scope = custom_error.contract.file_scope
 
+        sl = caller_context.compilation_unit
         next_context = caller_context.slither_parser
         structures_direct_access = list(scope.structures.values())
         all_structuress = [c.structures for c in scope.contracts.values()]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += structures_direct_access
+
         enums_direct_access = []
-        all_enums = scope.enums.values()
+        all_enumss = [c.enums for c in scope.contracts.values()]
+        all_enums = [item for sublist in all_enumss for item in sublist]
+        all_enums += scope.enums.values()
+
         contracts = scope.contracts.values()
         functions = list(scope.functions)
 
         renaming = scope.renaming
         user_defined_types = scope.user_defined_types
     elif isinstance(caller_context, (ContractSolc, FunctionSolc)):
+        sl = caller_context.compilation_unit
         if isinstance(caller_context, FunctionSolc):
             underlying_func = caller_context.underlying_function
             # If contract_parser is set to None, then underlying_function is a functionContract
@@ -345,7 +357,7 @@ def parse_type(
                 name = renaming[name]
             if name in user_defined_types:
                 return user_defined_types[name]
-            return _find_from_type_name(
+            type_found = _find_from_type_name(
                 name,
                 functions,
                 contracts,
@@ -354,6 +366,8 @@ def parse_type(
                 enums_direct_access,
                 all_enums,
             )
+            _add_type_references(type_found, t["src"], sl)
+            return type_found
 
         # Determine if we have a type node (otherwise we use the name node, as some older solc did not have 'type').
         type_name_key = "type" if "type" in t["attributes"] else key
@@ -363,7 +377,7 @@ def parse_type(
             name = renaming[name]
         if name in user_defined_types:
             return user_defined_types[name]
-        return _find_from_type_name(
+        type_found = _find_from_type_name(
             name,
             functions,
             contracts,
@@ -372,6 +386,8 @@ def parse_type(
             enums_direct_access,
             all_enums,
         )
+        _add_type_references(type_found, t["src"], sl)
+        return type_found
 
     # Introduced with Solidity 0.8
     if t[key] == "IdentifierPath":
@@ -381,7 +397,7 @@ def parse_type(
                 name = renaming[name]
             if name in user_defined_types:
                 return user_defined_types[name]
-            return _find_from_type_name(
+            type_found = _find_from_type_name(
                 name,
                 functions,
                 contracts,
@@ -390,6 +406,8 @@ def parse_type(
                 enums_direct_access,
                 all_enums,
             )
+            _add_type_references(type_found, t["src"], sl)
+            return type_found
 
         raise SlitherError("Solidity 0.8 not supported with the legacy AST")
 

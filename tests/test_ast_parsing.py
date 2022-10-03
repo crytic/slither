@@ -12,12 +12,12 @@ from solc_select.solc_select import installed_versions as get_installed_solc_ver
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
-
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
 
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "ast-parsing")
+
 
 # pylint: disable=too-few-public-methods
 class Test:
@@ -60,7 +60,7 @@ VERSIONS_04 = make_version(4, 0, 26)
 VERSIONS_05 = make_version(5, 0, 17)
 VERSIONS_06 = make_version(6, 0, 12)
 VERSIONS_07 = make_version(7, 0, 6)
-VERSIONS_08 = make_version(8, 0, 12)
+VERSIONS_08 = make_version(8, 0, 15)
 
 ALL_VERSIONS = VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08
 
@@ -282,7 +282,11 @@ ALL_TESTS = [
     ),
     Test(
         "modifier-all.sol",
-        ALL_VERSIONS,
+        VERSIONS_04 + VERSIONS_05 + VERSIONS_06,
+    ),
+    Test(
+        "modifier-0.7.0.sol",
+        VERSIONS_07 + VERSIONS_08,
     ),
     Test("library_implicit_conversion-0.4.0.sol", VERSIONS_04),
     Test(
@@ -310,6 +314,10 @@ ALL_TESTS = [
         "minmax-0.6.8.sol",
         make_version(6, 8, 9) + VERSIONS_07 + VERSIONS_08,
     ),
+    Test(
+        "minmax-0.8.8.sol",
+        make_version(8, 8, 15),
+    ),
     Test("dowhile-0.4.0.sol", VERSIONS_04),
     Test(
         "dowhile-0.4.5.sol",
@@ -319,7 +327,7 @@ ALL_TESTS = [
         "custom_error-0.4.0.sol",
         ALL_VERSIONS,
     ),
-    Test("custom_error-0.8.4.sol", make_version(8, 4, 9)),
+    Test("custom_error-0.8.4.sol", make_version(8, 4, 15)),
     Test(
         "top-level-0.4.0.sol",
         VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"],
@@ -402,8 +410,20 @@ ALL_TESTS = [
     Test("custom_error_with_state_variable.sol", make_version(8, 4, 12)),
     Test("complex_imports/import_aliases/test.sol", VERSIONS_08),
     # 0.8.9 crashes on our testcase
-    Test("user_defined_types.sol", ["0.8.8"] + make_version(8, 10, 12)),
+    Test(
+        "user_defined_value_type/user_defined_types-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)
+    ),
+    Test("user_defined_value_type/argument-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/calldata-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/constant-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/erc20-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/in_parenthesis-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("bytes_call.sol", ["0.8.12"]),
+    Test("modifier_identifier_path.sol", VERSIONS_08),
+    Test("free_functions/libraries_from_free.sol", ["0.8.12"]),
+    Test("free_functions/new_operator.sol", ["0.8.12"]),
+    Test("free_functions/library_constant_function_collision.sol", ["0.8.12"]),
+    Test("ternary-with-max.sol", ["0.8.15"]),
 ]
 # create the output folder if needed
 try:

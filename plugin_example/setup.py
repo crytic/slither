@@ -7,7 +7,7 @@ setup(
     author="Trail of Bits",
     version="0.0",
     packages=find_packages(),
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     install_requires=["slither-analyzer==0.1"],
     entry_points={
         "slither_analyzer.plugin": "slither my-plugin=slither_my_plugin:make_plugin",

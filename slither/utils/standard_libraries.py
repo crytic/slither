@@ -1,15 +1,17 @@
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
+from hashlib import sha1
+from slither.utils.oz_hashes import oz_hashes
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract
 
 libraries = {
-    "Openzeppelin-SafeMath": lambda x: is_openzepellin_safemath(x),
-    "Openzeppelin-ECRecovery": lambda x: is_openzepellin_ecrecovery(x),
-    "Openzeppelin-Ownable": lambda x: is_openzepellin_ownable(x),
-    "Openzeppelin-ERC20": lambda x: is_openzepellin_erc20(x),
-    "Openzeppelin-ERC721": lambda x: is_openzepellin_erc721(x),
+    "Openzeppelin-SafeMath": lambda x: is_openzeppelin_safemath(x),
+    "Openzeppelin-ECRecovery": lambda x: is_openzeppelin_ecrecovery(x),
+    "Openzeppelin-Ownable": lambda x: is_openzeppelin_ownable(x),
+    "Openzeppelin-ERC20": lambda x: is_openzeppelin_erc20(x),
+    "Openzeppelin-ERC721": lambda x: is_openzeppelin_erc721(x),
     "Zos-Upgrade": lambda x: is_zos_initializable(x),
     "Dapphub-DSAuth": lambda x: is_dapphub_ds_auth(x),
     "Dapphub-DSMath": lambda x: is_dapphub_ds_math(x),
@@ -51,11 +53,11 @@ def is_standard_library(contract: "Contract") -> Optional[str]:
 ###################################################################################
 
 
-def is_openzepellin(contract: "Contract") -> bool:
+def is_openzeppelin(contract: "Contract") -> bool:
     if not contract.is_from_dependency():
         return False
-    path = Path(contract.source_mapping["filename_absolute"]).parts
-    is_zep = "openzeppelin-solidity" in Path(contract.source_mapping["filename_absolute"]).parts
+    path = Path(contract.source_mapping.filename.absolute).parts
+    is_zep = "openzeppelin-solidity" in Path(contract.source_mapping.filename.absolute).parts
     try:
         is_zep |= path[path.index("@openzeppelin") + 1] == "contracts"
     except IndexError:
@@ -65,16 +67,26 @@ def is_openzepellin(contract: "Contract") -> bool:
     return is_zep
 
 
+def is_openzeppelin_strict(contract: "Contract") -> bool:
+    start = contract.source_mapping.start
+    end = start + contract.source_mapping.length
+    source_code = contract.compilation_unit.core.source_code[
+        contract.source_mapping.filename.absolute
+    ][start:end]
+    source_hash = sha1(source_code.encode("utf-8")).hexdigest()
+    return source_hash in oz_hashes
+
+
 def is_zos(contract: "Contract") -> bool:
     if not contract.is_from_dependency():
         return False
-    return "zos-lib" in Path(contract.source_mapping["filename_absolute"]).parts
+    return "zos-lib" in Path(contract.source_mapping.filename.absolute).parts
 
 
 def is_aragonos(contract: "Contract") -> bool:
     if not contract.is_from_dependency():
         return False
-    return "@aragon/os" in Path(contract.source_mapping["filename_absolute"]).parts
+    return "@aragon/os" in Path(contract.source_mapping.filename.absolute).parts
 
 
 # endregion
@@ -89,8 +101,8 @@ def is_safemath(contract: "Contract") -> bool:
     return contract.name == "SafeMath"
 
 
-def is_openzepellin_safemath(contract: "Contract") -> bool:
-    return is_safemath(contract) and is_openzepellin(contract)
+def is_openzeppelin_safemath(contract: "Contract") -> bool:
+    return is_safemath(contract) and is_openzeppelin(contract)
 
 
 def is_aragonos_safemath(contract: "Contract") -> bool:
@@ -109,8 +121,8 @@ def is_ecrecovery(contract: "Contract") -> bool:
     return contract.name == "ECRecovery"
 
 
-def is_openzepellin_ecrecovery(contract: "Contract") -> bool:
-    return is_ecrecovery(contract) and is_openzepellin(contract)
+def is_openzeppelin_ecrecovery(contract: "Contract") -> bool:
+    return is_ecrecovery(contract) and is_openzeppelin(contract)
 
 
 # endregion
@@ -125,8 +137,8 @@ def is_ownable(contract: "Contract") -> bool:
     return contract.name == "Ownable"
 
 
-def is_openzepellin_ownable(contract: "Contract") -> bool:
-    return is_ownable(contract) and is_openzepellin(contract)
+def is_openzeppelin_ownable(contract: "Contract") -> bool:
+    return is_ownable(contract) and is_openzeppelin(contract)
 
 
 # endregion
@@ -141,8 +153,8 @@ def is_erc20(contract: "Contract") -> bool:
     return contract.name == "ERC20"
 
 
-def is_openzepellin_erc20(contract: "Contract") -> bool:
-    return is_erc20(contract) and is_openzepellin(contract)
+def is_openzeppelin_erc20(contract: "Contract") -> bool:
+    return is_erc20(contract) and is_openzeppelin(contract)
 
 
 def is_aragonos_erc20(contract: "Contract") -> bool:
@@ -161,8 +173,8 @@ def is_erc721(contract: "Contract") -> bool:
     return contract.name == "ERC721"
 
 
-def is_openzepellin_erc721(contract: "Contract") -> bool:
-    return is_erc721(contract) and is_openzepellin(contract)
+def is_openzeppelin_erc721(contract: "Contract") -> bool:
+    return is_erc721(contract) and is_openzeppelin(contract)
 
 
 # endregion
@@ -204,7 +216,7 @@ def _is_ds(contract: "Contract", name: str) -> bool:
 def _is_dappdhub_ds(contract: "Contract", name: str) -> bool:
     if not contract.is_from_dependency():
         return False
-    if not dapphubs[name] in Path(contract.source_mapping["filename_absolute"]).parts:
+    if not dapphubs[name] in Path(contract.source_mapping.filename.absolute).parts:
         return False
     return _is_ds(contract, name)
 

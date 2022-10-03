@@ -13,12 +13,10 @@ nvm use 10.17.0
 
 npm i -g etherlime
 etherlime init
-slither .
 
-if [ $? -eq 7 ]
-then
-    exit 0
+if ! slither .; then
+    echo "Etherlime test failed"
+    exit 1
 fi
 
-echo "Etherlime test failed"
-exit 255
+exit 0

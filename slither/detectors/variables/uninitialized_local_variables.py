@@ -88,7 +88,11 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
 
         for contract in self.compilation_unit.contracts:
             for function in contract.functions:
-                if function.is_implemented and function.contract_declarer == contract:
+                if (
+                    function.is_implemented
+                    and function.contract_declarer == contract
+                    and function.entry_point
+                ):
                     if function.contains_assembly:
                         continue
                     # dont consider storage variable, as they are detected by another detector

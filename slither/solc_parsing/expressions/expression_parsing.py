@@ -14,21 +14,24 @@ from slither.core.expressions.binary_operation import (
     BinaryOperation,
     BinaryOperationType,
 )
-from slither.core.expressions.call_expression import CallExpression
-from slither.core.expressions.conditional_expression import ConditionalExpression
-from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
-from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.index_access import IndexAccess
-from slither.core.expressions.literal import Literal
-from slither.core.expressions.member_access import MemberAccess
-from slither.core.expressions.new_array import NewArray
-from slither.core.expressions.new_contract import NewContract
-from slither.core.expressions.new_elementary_type import NewElementaryType
-from slither.core.expressions.super_call_expression import SuperCallExpression
-from slither.core.expressions.super_identifier import SuperIdentifier
-from slither.core.expressions.tuple_expression import TupleExpression
-from slither.core.expressions.type_conversion import TypeConversion
-from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
+from slither.core.expressions import (
+    CallExpression,
+    ConditionalExpression,
+    ElementaryTypeNameExpression,
+    Identifier,
+    IndexAccess,
+    Literal,
+    MemberAccess,
+    NewArray,
+    NewContract,
+    NewElementaryType,
+    SuperCallExpression,
+    SuperIdentifier,
+    TupleExpression,
+    TypeConversion,
+    UnaryOperation,
+    UnaryOperationType,
+)
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
@@ -445,7 +448,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 t = expression["attributes"]["type"]
 
         if t:
-            found = re.findall("[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
+            found = re.findall(r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
             assert len(found) <= 1
             if found:
                 value = value + "(" + found[0] + ")"
@@ -455,13 +458,14 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             referenced_declaration = expression["referencedDeclaration"]
         else:
             referenced_declaration = None
-
         var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)
 
         identifier = Identifier(var)
         identifier.set_offset(src, caller_context.compilation_unit)
+        var.references.append(identifier.source_mapping)
+
         return identifier
 
     if name == "IndexAccess":
@@ -515,6 +519,9 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 var.set_offset(src, caller_context.compilation_unit)
             sup = SuperIdentifier(var)
             sup.set_offset(src, caller_context.compilation_unit)
+
+            var.references.append(sup.source_mapping)
+
             return sup
         member_access = MemberAccess(member_name, member_type, member_expression)
         member_access.set_offset(src, caller_context.compilation_unit)
@@ -636,12 +643,17 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             else:
                 referenced_declaration = None
 
-            var, was_created = find_variable(value, caller_context, referenced_declaration)
+            var, was_created = find_variable(
+                value, caller_context, referenced_declaration, is_identifier_path=True
+            )
             if was_created:
                 var.set_offset(src, caller_context.compilation_unit)
 
             identifier = Identifier(var)
             identifier.set_offset(src, caller_context.compilation_unit)
+
+            var.references.append(identifier.source_mapping)
+
             return identifier
 
         raise ParsingError("IdentifierPath not currently supported for the legacy ast")
