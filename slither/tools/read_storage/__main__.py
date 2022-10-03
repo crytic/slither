@@ -128,11 +128,10 @@ def main() -> None:
 
     srs = SlitherReadStorage(contracts, args.max_depth)
 
-    if args.block:
-        try:
-            srs.block = int(args.block)
-        except ValueError:
-            srs.block = str(args.block)
+    try:
+        srs.block = int(args.block)
+    except ValueError:
+        srs.block = str(args.block or "latest")
 
     if args.rpc_url:
         # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
