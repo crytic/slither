@@ -5,6 +5,7 @@ from argparse import ArgumentParser, Namespace
 
 from crytic_compile import cryticparser
 from slither import Slither
+from slither.core.declarations import FunctionContract
 from slither.utils.colors import red
 from slither.tools.possible_paths.possible_paths import (
     find_target_paths,
@@ -58,7 +59,11 @@ def main() -> None:
     # Print out all target functions.
     print("Target functions:")
     for target in targets:
-        print(f"- {target.contract_declarer.name}.{target.full_name}")
+        if isinstance(target, FunctionContract):
+            print(f"- {target.contract_declarer.name}.{target.full_name}")
+        else:
+            pass
+            # TODO implement me
     print("\n")
 
     # Obtain all paths which reach the target functions.
