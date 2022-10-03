@@ -509,11 +509,7 @@ Please rename it, this name is reserved for Slither's internals"""
         # Then we analyse state variables, functions and modifiers
         self._analyze_third_part(contracts_to_be_analyzed, libraries)
 
-        self._analyze_top_level_using_for()
-
-        # Convert library function (at the moment are string) in using for that specifies list of functions
-        # to actual function
-        self._analyze_library_function_using_for(contracts_to_be_analyzed)
+        self._analyze_using_for(contracts_to_be_analyzed)
 
         self._parsed = True
 
@@ -625,9 +621,11 @@ Please rename it, this name is reserved for Slither's internals"""
             else:
                 contracts_to_be_analyzed += [contract]
 
-    def _analyze_library_function_using_for(self, contracts_to_be_analyzed: List[ContractSolc]):
+    def _analyze_using_for(self, contracts_to_be_analyzed: List[ContractSolc]):
+        self._analyze_top_level_using_for()
+
         for c in contracts_to_be_analyzed:
-            c.analyze_library_function_using_for()
+            c.analyze_using_for()
 
     def _analyze_enums(self, contract: ContractSolc):
         # Enum must be analyzed first
@@ -651,7 +649,6 @@ Please rename it, this name is reserved for Slither's internals"""
         # Event can refer to struct
         contract.analyze_events()
 
-        contract.analyze_using_for()
         contract.analyze_custom_errors()
 
         contract.set_is_analyzed(True)

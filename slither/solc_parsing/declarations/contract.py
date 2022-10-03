@@ -5,7 +5,7 @@ from slither.core.declarations import Modifier, Event, EnumContract, StructureCo
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract
-from slither.core.solidity_types import ElementaryType, TypeAliasContract
+from slither.core.solidity_types import ElementaryType, TypeAliasContract, Type
 from slither.core.variables.state_variable import StateVariable
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
@@ -574,7 +574,7 @@ class ContractSolc(CallerContextExpression):
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing state variable {e}")
 
-    def analyze_using_for(self):
+    def analyze_using_for(self):  # pylint: disable=too-many-branches
         try:
             for father in self._contract.inheritance:
                 self._contract.using_for.update(father.using_for)
@@ -593,18 +593,7 @@ class ContractSolc(CallerContextExpression):
                         )
                     else:
                         # We have a list of functions. A function can be topLevel or a library function
-                        # at this point library function are yet to be parsed so we add the function name
-                        # and add the real function later
-                        for f in using_for["functionList"]:
-                            function_name = f["function"]["name"]
-                            if function_name.find(".") != -1:
-                                # Library function
-                                self._contract.using_for[type_name].append(function_name)
-                            else:
-                                # Top level function
-                                for tl_function in self.compilation_unit.functions_top_level:
-                                    if tl_function.name == function_name:
-                                        self._contract.using_for[type_name].append(tl_function)
+                        self._analyze_function_list(using_for["functionList"], type_name)
             else:
                 for using_for in self._usingForNotParsed:
                     children = using_for[self.get_children()]
@@ -622,34 +611,42 @@ class ContractSolc(CallerContextExpression):
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing using for {e}")
 
-    def analyze_library_function_using_for(self):
-        for type_name, full_names in self._contract.using_for.items():
-            # If it's a string is a library function e.g. L.a
-            # We add the actual function and remove the string
-            for full_name in full_names:
-                if isinstance(full_name, str):
-                    full_name_split = full_name.split(".")
-                    # TODO this doesn't handle the case if there is an import with an alias
-                    # e.g. MyImport.MyLib.a
-                    if len(full_name_split) == 2:
-                        library_name = full_name_split[0]
-                        function_name = full_name_split[1]
-                        # Get the library function
-                        found = False
-                        for c in self.compilation_unit.contracts:
-                            if found:
-                                break
-                            if c.name == library_name:
-                                for f in c.functions:
-                                    if f.name == function_name:
-                                        self._contract.using_for[type_name].append(f)
-                                        found = True
-                                        break
-                        self._contract.using_for[type_name].remove(full_name)
-                    else:
-                        self.log_incorrect_parsing(
-                            f"Expected library function instead received {full_name}"
-                        )
+    def _analyze_function_list(self, function_list: List, type_name: Type):
+        for f in function_list:
+            function_name = f["function"]["name"]
+            if function_name.find(".") != -1:
+                # Library function
+                self._analyze_library_function(function_name, type_name)
+            else:
+                # Top level function
+                for tl_function in self.compilation_unit.functions_top_level:
+                    if tl_function.name == function_name:
+                        self._contract.using_for[type_name].append(tl_function)
+
+    def _analyze_library_function(self, function_name: str, type_name: Type) -> None:
+        function_name_split = function_name.split(".")
+        # TODO this doesn't handle the case if there is an import with an alias
+        # e.g. MyImport.MyLib.a
+        if len(function_name_split) == 2:
+            library_name = function_name_split[0]
+            function_name = function_name_split[1]
+            # Get the library function
+            found = False
+            for c in self.compilation_unit.contracts:
+                if found:
+                    break
+                if c.name == library_name:
+                    for f in c.functions:
+                        if f.name == function_name:
+                            self._contract.using_for[type_name].append(f)
+                            found = True
+                            break
+            if not found:
+                self.log_incorrect_parsing(f"Library function not found {function_name}")
+        else:
+            self.log_incorrect_parsing(
+                f"Expected library function instead received {function_name}"
+            )
 
     def analyze_enums(self):
         try:
