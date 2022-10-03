@@ -43,7 +43,7 @@ class ConstantFolding(ExpressionVisitor):
         left = get_val(expression.expression_left)
         right = get_val(expression.expression_right)
         if expression.type == BinaryOperationType.POWER:
-            set_val(expression, left ** right)
+            set_val(expression, left**right)
         elif expression.type == BinaryOperationType.MULTIPLICATION:
             set_val(expression, left * right)
         elif expression.type == BinaryOperationType.DIVISION:
