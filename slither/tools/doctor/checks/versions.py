@@ -1,8 +1,9 @@
 from importlib import metadata
 import json
 from typing import Optional
-from packaging.version import parse, LegacyVersion, Version
 import urllib
+
+from packaging.version import parse, LegacyVersion, Version
 
 from slither.utils.colors import yellow, green
 
@@ -22,11 +23,11 @@ def get_github_version(name: str) -> Optional[LegacyVersion | Version]:
             text = response.read()
             data = json.loads(text)
             return parse(data["tag_name"])
-    except:
+    except:  # pylint: disable=bare-except
         return None
 
 
-def show_versions(**kwargs) -> None:
+def show_versions(**_kwargs) -> None:
     versions = {
         "Slither": (get_installed_version("slither-analyzer"), get_github_version("slither")),
         "crytic-compile": (

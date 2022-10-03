@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-import crytic_compile.crytic_compile as crytic_compile
+from crytic_compile import crytic_compile
 
 from slither.tools.doctor.utils import snip_section
 from slither.utils.colors import red, yellow, green
@@ -54,6 +54,6 @@ def compile_project(project: str, **kwargs):
 
     try:
         crytic_compile.CryticCompile(project, **kwargs)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         with snip_section("Project compilation failed :( The following error was generated:"):
             logging.exception(e)
