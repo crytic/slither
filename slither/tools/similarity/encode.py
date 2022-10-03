@@ -74,7 +74,7 @@ def parse_target(target):
     return None
 
 
-def load_and_encode(infile, vmodel, ext=None, nsamples=None, **kwargs):
+def load_and_encode(infile: str, vmodel, ext=None, nsamples=None, **kwargs):
     r = {}
     if infile.endswith(".npz"):
         r = load_cache(infile, nsamples=nsamples)
