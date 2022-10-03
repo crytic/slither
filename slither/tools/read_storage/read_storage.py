@@ -53,15 +53,16 @@ class SlitherReadStorageException(Exception):
 # pylint: disable=too-many-instance-attributes
 class SlitherReadStorage:
     def __init__(self, contracts: List[Contract], max_depth: int) -> None:
+        self._checksum_address: Optional[ChecksumAddress] = None
         self._contracts: List[Contract] = contracts
-        self._max_depth: int = max_depth
         self._log: str = ""
+        self._max_depth: int = max_depth
         self._slot_info: Dict[str, SlotInfo] = {}
         self._target_variables: List[Tuple[Contract, StateVariable]] = []
         self._web3: Optional[Web3] = None
-        self._checksum_address: Optional[ChecksumAddress] = None
-        self.storage_address: Optional[str] = None
+        self.block: Union[str, int] = "latest"
         self.rpc: Optional[str] = None
+        self.storage_address: Optional[str] = None
         self.table: Optional[MyPrettyTable] = None
 
     @property
