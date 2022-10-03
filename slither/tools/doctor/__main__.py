@@ -6,10 +6,11 @@ from crytic_compile import cryticparser
 import crytic_compile.crytic_compile as crytic_compile
 
 from slither.tools.doctor.packages import get_installed_version, get_github_version
+from slither.tools.doctor.utils import report_section, snip_section
 from slither.utils.colors import red, yellow, green
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
@@ -27,8 +28,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def show_versions():
-    print("## Software versions", end="\n\n")
+def show_versions() -> None:
     versions = {
         "Slither": (get_installed_version("slither-analyzer"), get_github_version("slither")),
         "crytic-compile": (
@@ -59,12 +59,8 @@ def show_versions():
         print()
         print(green("Your tools are up to date."))
 
-    print(end="\n\n")
 
-
-def detect_platform(project: str, **kwargs):
-    print("## Project platform", end="\n\n")
-
+def detect_platform(project: str, **kwargs) -> None:
     path = Path(project)
     if path.is_file():
         print(
@@ -105,32 +101,29 @@ def detect_platform(project: str, **kwargs):
     else:
         print(green("A single platform was detected."), yellow("Is it the one you expected?"))
 
-    print(end="\n\n")
-
 
 def compile_project(project: str, **kwargs):
-    print("## Project compilation", end="\n\n")
-
     print("Invoking crytic-compile on the project, please wait...")
 
     try:
         crytic_compile.CryticCompile(project, **kwargs)
     except Exception as e:
-        print(red("Project compilation failed :( The following error was generated:"), end="\n\n")
-        print(yellow("---- snip 8< ----"))
-        logging.exception(e)
-        print(yellow("---- >8 snip ----"))
-
-    print(end="\n\n")
+        with snip_section("Project compilation failed :( The following error was generated:"):
+            logging.exception(e)
 
 
 def main():
     args = parse_args()
     kwargs = vars(args)
 
-    show_versions()
-    detect_platform(**kwargs)
-    compile_project(**kwargs)
+    with report_section("Software versions"):
+        show_versions()
+
+    with report_section("Project platform"):
+        detect_platform(**kwargs)
+
+    with report_section("Project compilation"):
+        compile_project(**kwargs)
 
     # TODO other checks
 
