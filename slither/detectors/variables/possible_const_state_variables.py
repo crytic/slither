@@ -44,7 +44,7 @@ class ConstCandidateStateVars(AbstractDetector):
 
     @staticmethod
     def _valid_candidate(v):
-        return self._is_valid_type(v) and not (v.is_constant or v.is_immutable)
+        return ConstCandidateStateVars._is_valid_type(v) and not (v.is_constant or v.is_immutable)
 
     # https://solidity.readthedocs.io/en/v0.5.2/contracts.html#constant-state-variables
     valid_solidity_function = [
