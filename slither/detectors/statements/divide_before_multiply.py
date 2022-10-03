@@ -189,7 +189,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
                     nodes.sort(key=lambda x: x.node_id)
 
                     for node in nodes:
-                        info += ["\t-", node, "\n"]
+                        info += ["\t- ", node, "\n"]
 
                     res = self.generate_result(info)
                     results.append(res)

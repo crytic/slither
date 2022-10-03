@@ -1,17 +1,12 @@
-from decimal import Decimal
-
 from slither.exceptions import SlitherException
+from slither.utils.integer_conversion import convert_string_to_fraction
 
 # pylint: disable=too-many-branches
 def convert_subdenomination(
     value: str, sub: str
 ) -> int:  # pylint: disable=too-many-return-statements
 
-    # to allow 0.1 ether conversion
-    if value[0:2] == "0x":
-        decimal_value = Decimal(int(value, 16))
-    else:
-        decimal_value = Decimal(value)
+    decimal_value = convert_string_to_fraction(value)
     if sub == "wei":
         return int(decimal_value)
     if sub == "gwei":

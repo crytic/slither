@@ -21,9 +21,9 @@ def parse_args() -> argparse.Namespace:
             "\nTo retrieve a single variable's value:\n"
             + "\tslither-read-storage $TARGET address --variable-name $NAME\n"
             + "To retrieve a contract's storage layout:\n"
-            + "\tslither-read-storage $TARGET address --contract-name $NAME --layout\n"
+            + "\tslither-read-storage $TARGET address --contract-name $NAME --json storage_layout.json\n"
             + "To retrieve a contract's storage layout and values:\n"
-            + "\tslither-read-storage $TARGET address --contract-name $NAME --layout --value\n"
+            + "\tslither-read-storage $TARGET address --contract-name $NAME --json storage_layout.json --value\n"
             + "TARGET can be a contract address or project directory"
         ),
     )

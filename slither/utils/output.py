@@ -4,7 +4,7 @@ import json
 import logging
 import zipfile
 from collections import OrderedDict
-from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING
+from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
 from zipfile import ZipFile
 from pkg_resources import require
 
@@ -129,7 +129,7 @@ def _output_result_to_sarif(
 
 
 def output_to_sarif(
-    filename: Optional[str], results: Dict, detectors_classes: List["AbstractDetector"]
+    filename: Optional[str], results: Dict, detectors_classes: List[Type["AbstractDetector"]]
 ) -> None:
     """
 

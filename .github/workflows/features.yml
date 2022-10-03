@@ -45,7 +45,7 @@ jobs:
       - name: Test with pytest
         run: |
           pytest tests/test_features.py
-          pytest tests/test_constant_folding_unary.py
+          pytest tests/test_constant_folding.py
           pytest tests/slithir/test_ternary_expressions.py
           pytest tests/test_functions_ids.py
           pytest tests/test_function.py
