@@ -12,12 +12,12 @@ from solc_select.solc_select import installed_versions as get_installed_solc_ver
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
-
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
 
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "ast-parsing")
+
 
 # pylint: disable=too-few-public-methods
 class Test:
@@ -282,7 +282,11 @@ ALL_TESTS = [
     ),
     Test(
         "modifier-all.sol",
-        ALL_VERSIONS,
+        VERSIONS_04 + VERSIONS_05 + VERSIONS_06,
+    ),
+    Test(
+        "modifier-0.7.0.sol",
+        VERSIONS_07 + VERSIONS_08,
     ),
     Test("library_implicit_conversion-0.4.0.sol", VERSIONS_04),
     Test(

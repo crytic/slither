@@ -62,7 +62,7 @@ class ModifierSolc(FunctionSolc):
         self._content_was_analyzed = True
 
         if self.is_compact_ast:
-            body = self._functionNotParsed["body"]
+            body = self._functionNotParsed.get("body", None)
 
             if body and body[self.get_key()] == "Block":
                 self._function.is_implemented = True

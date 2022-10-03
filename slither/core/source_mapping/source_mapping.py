@@ -162,13 +162,15 @@ def _convert_source_mapping(
 
 
 class SourceMapping(Context, metaclass=ABCMeta):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         #        self._source_mapping: Optional[Dict] = None
         self.source_mapping: Source = Source()
         self.references: List[Source] = []
 
-    def set_offset(self, offset: Union["Source", str], compilation_unit: "SlitherCompilationUnit"):
+    def set_offset(
+        self, offset: Union["Source", str], compilation_unit: "SlitherCompilationUnit"
+    ) -> None:
         if isinstance(offset, Source):
             self.source_mapping.start = offset.start
             self.source_mapping.length = offset.length
@@ -184,6 +186,6 @@ class SourceMapping(Context, metaclass=ABCMeta):
 
     def add_reference_from_raw_source(
         self, offset: str, compilation_unit: "SlitherCompilationUnit"
-    ):
+    ) -> None:
         s = _convert_source_mapping(offset, compilation_unit)
         self.references.append(s)
