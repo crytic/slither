@@ -1,23 +1,21 @@
-from typing import List
-
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.solidity_types.elementary_type import ElementaryType
 
 
 class TmpNewElementaryType(OperationWithLValue):
-    def __init__(self, new_type: ElementaryType, lvalue):
+    def __init__(self, new_type, lvalue):
         assert isinstance(new_type, ElementaryType)
         super().__init__()
-        self._type: ElementaryType = new_type
+        self._type = new_type
         self._lvalue = lvalue
 
     @property
-    def read(self) -> List:
+    def read(self):
         return []
 
     @property
-    def type(self) -> ElementaryType:
+    def type(self):
         return self._type
 
-    def __str__(self) -> str:
+    def __str__(self):
         return f"{self.lvalue} = new {self._type}"

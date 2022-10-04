@@ -1,4 +1,3 @@
-import argparse
 import logging
 import os
 import sys
@@ -11,7 +10,7 @@ from slither.tools.similarity.model import train_unsupervised
 logger = logging.getLogger("Slither-simil")
 
 
-def train(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
+def train(args):  # pylint: disable=too-many-locals
 
     try:
         last_data_train_filename = "last_data_train.txt"
