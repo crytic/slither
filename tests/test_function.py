@@ -266,14 +266,15 @@ def test_function_can_send_eth():
     assert functions["highlevel_call_via_external()"].can_send_eth() is False
 
 
-def test_public_variable():
+def test_public_variable() -> None:
     solc_select.switch_global_version("0.6.12", always_install=True)
     slither = Slither("tests/test_function.sol")
     contracts = slither.get_contract_from_name("TestFunction")
     assert len(contracts) == 1
     contract = contracts[0]
     var = contract.get_state_variable_from_name("info")
+    assert var
     assert var.solidity_signature == "info()"
     assert var.signature_str == "info() returns(bytes32)"
     assert var.visibility == "public"
-    assert var.return_type[0] == ElementaryType("bytes32")
+    assert var.type == ElementaryType("bytes32")
