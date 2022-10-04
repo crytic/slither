@@ -1,14 +1,12 @@
 import math
-from typing import List, Union, Set
+from typing import List, Union
 
 from slither.core.solidity_types import ArrayType, MappingType, ElementaryType, UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.variables.variable import Variable
 
 
-def _convert_type_for_solidity_signature_to_string(
-    types: Union[Type, List[Type]], seen: Set[Type]
-) -> str:
+def _convert_type_for_solidity_signature_to_string(types: Union[Type, List[Type]]) -> str:
     if isinstance(types, Type):
         # Array might be struct, so we need to go again through the conversion here
         # We could have this logic in convert_type_for_solidity_signature
@@ -17,10 +15,8 @@ def _convert_type_for_solidity_signature_to_string(
         # Which is currently not supported. This comes down to (uint, uint)[] not being possible in Solidity
         # While having an array of a struct of two uint leads to a (uint, uint)[] signature
         if isinstance(types, ArrayType):
-            underlying_type = convert_type_for_solidity_signature(types.type, seen)
-            underlying_type_str = _convert_type_for_solidity_signature_to_string(
-                underlying_type, seen
-            )
+            underlying_type = convert_type_for_solidity_signature(types.type)
+            underlying_type_str = _convert_type_for_solidity_signature_to_string(underlying_type)
             return underlying_type_str + "[]"
 
         return str(types)
@@ -30,9 +26,9 @@ def _convert_type_for_solidity_signature_to_string(
     ret = "("
     for underlying_type in types:
         if first_item:
-            ret += _convert_type_for_solidity_signature_to_string(underlying_type, seen)
+            ret += _convert_type_for_solidity_signature_to_string(underlying_type)
         else:
-            ret += "," + _convert_type_for_solidity_signature_to_string(underlying_type, seen)
+            ret += "," + _convert_type_for_solidity_signature_to_string(underlying_type)
         first_item = False
 
     ret += ")"
@@ -40,32 +36,13 @@ def _convert_type_for_solidity_signature_to_string(
 
 
 def convert_type_for_solidity_signature_to_string(t: Type) -> str:
-    seen: Set[Type] = set()
-    types = convert_type_for_solidity_signature(t, seen)
-    return _convert_type_for_solidity_signature_to_string(types, seen)
+    types = convert_type_for_solidity_signature(t)
+    return _convert_type_for_solidity_signature_to_string(types)
 
 
-def convert_type_for_solidity_signature(t: Type, seen: Set[Type]) -> Union[Type, List[Type]]:
+def convert_type_for_solidity_signature(t: Type) -> Union[Type, List[Type]]:
     # pylint: disable=import-outside-toplevel
     from slither.core.declarations import Contract, Enum, Structure
-
-    # Solidity allows recursive type for structure definition if its not used in public /external
-    # When this happens we can reach an infinite loop. If we detect a loop, we just stop converting the underlying type
-    # This is ok, because it wont happen for public/external function
-    #
-    # contract A{
-    #
-    #   struct St{
-    #       St[] a;
-    #       uint b;
-    #   }
-    #
-    #    function f(St memory s) internal{}
-    #
-    # }
-    if t in seen:
-        return t
-    seen.add(t)
 
     if isinstance(t, UserDefinedType):
         underlying_type = t.type
@@ -84,24 +61,21 @@ def convert_type_for_solidity_signature(t: Type, seen: Set[Type]) -> Union[Type,
         if isinstance(underlying_type, Structure):
             # We can't have recursive types for structure, so recursion is ok here
             types = [
-                convert_type_for_solidity_signature(x.type, seen)
-                for x in underlying_type.elems_ordered
+                convert_type_for_solidity_signature(x.type) for x in underlying_type.elems_ordered
             ]
             return types
 
     return t
 
 
-def _export_nested_types_from_variable(
-    current_type: Type, ret: List[Type], seen: Set[Type]
-) -> None:
+def _export_nested_types_from_variable(current_type: Type, ret: List[Type]) -> None:
     """
     Export the list of nested types (mapping/array)
     :param variable:
     :return: list(Type)
     """
     if isinstance(current_type, MappingType):
-        underlying_type = convert_type_for_solidity_signature(current_type.type_from, seen)
+        underlying_type = convert_type_for_solidity_signature(current_type.type_from)
         if isinstance(underlying_type, list):
             ret.extend(underlying_type)
         else:
@@ -113,7 +87,7 @@ def _export_nested_types_from_variable(
         next_type = current_type.type
     else:
         return
-    _export_nested_types_from_variable(next_type, ret, seen)
+    _export_nested_types_from_variable(next_type, ret)
 
 
 def export_nested_types_from_variable(variable: Variable) -> List[Type]:
@@ -123,8 +97,7 @@ def export_nested_types_from_variable(variable: Variable) -> List[Type]:
     :return: list(Type)
     """
     l: List[Type] = []
-    seen: Set[Type] = set()
-    _export_nested_types_from_variable(variable.type, l, seen)
+    _export_nested_types_from_variable(variable.type, l)
     return l
 
 

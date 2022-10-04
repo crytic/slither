@@ -1,4 +1,3 @@
-import argparse
 import logging
 import sys
 import os.path
@@ -11,7 +10,7 @@ logging.basicConfig()
 logger = logging.getLogger("Slither-simil")
 
 
-def info(args: argparse.Namespace) -> None:
+def info(args):
 
     try:
 

@@ -1,10 +1,7 @@
 import logging
-from typing import Dict, List, Optional, Set
 
-from slither.core.declarations import Contract
 from slither.slithir.operations import EventCall
 from slither.utils import output
-from slither.utils.erc import ERC, ERC_EVENT
 from slither.utils.type import (
     export_nested_types_from_variable,
     export_return_type_from_variable,
@@ -14,7 +11,7 @@ logger = logging.getLogger("Slither-conformance")
 
 
 # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
+def _check_signature(erc_function, contract, ret):
     name = erc_function.name
     parameters = erc_function.parameters
     return_type = erc_function.return_type
@@ -149,7 +146,7 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
                     ret["missing_event_emmited"].append(missing_event_emmited.data)
 
 
-def _check_events(erc_event: ERC_EVENT, contract: Contract, ret: Dict[str, List]) -> None:
+def _check_events(erc_event, contract, ret):
     name = erc_event.name
     parameters = erc_event.parameters
     indexes = erc_event.indexes
@@ -183,13 +180,7 @@ def _check_events(erc_event: ERC_EVENT, contract: Contract, ret: Dict[str, List]
                 ret["missing_event_index"].append(missing_event_index.data)
 
 
-def generic_erc_checks(
-    contract: Contract,
-    erc_functions: List[ERC],
-    erc_events: List[ERC_EVENT],
-    ret: Dict[str, List],
-    explored: Optional[Set[Contract]] = None,
-) -> None:
+def generic_erc_checks(contract, erc_functions, erc_events, ret, explored=None):
 
     if explored is None:
         explored = set()
