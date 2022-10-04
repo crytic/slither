@@ -16,7 +16,7 @@ logger.handlers[0].setFormatter(formatter)
 logger.propagate = False
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args():
     """
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
@@ -56,7 +56,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
+def main():
     # ------------------------------
     #       Usage: slither-kspec-coverage contract kspec
     #       Example: slither-kspec-coverage contract.sol kspec.md

@@ -57,6 +57,7 @@ from .statements.mapping_deletion import MappingDeletionDetection
 from .statements.array_length_assignment import ArrayLengthAssignment
 from .variables.similar_variables import SimilarVarsDetection
 from .variables.function_init_state_variables import FunctionInitializedState
+from .variables.omitted_return_variables import OmittedReturnVariables
 from .statements.redundant_statements import RedundantStatements
 from .operations.bad_prng import BadPRNG
 from .statements.costly_operations_in_loop import CostlyOperationsInLoop
@@ -84,4 +85,3 @@ from .statements.write_after_write import WriteAfterWrite
 from .statements.msg_value_in_loop import MsgValueInLoop
 from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
-from .functions.permit_domain_signature_collision import DomainSeparatorCollision

@@ -1,10 +1,8 @@
-from typing import List, Union, Dict, Type
-
-from slither.tools.upgradeability.checks.abstract_checks import classification_txt, AbstractCheck
+from slither.tools.upgradeability.checks.abstract_checks import classification_txt
 from slither.utils.myprettytable import MyPrettyTable
 
 
-def output_wiki(detector_classes: List[Type[AbstractCheck]], filter_wiki: str) -> None:
+def output_wiki(detector_classes, filter_wiki):
     # Sort by impact, confidence, and name
     detectors_list = sorted(
         detector_classes, key=lambda element: (element.IMPACT, element.ARGUMENT)
@@ -33,7 +31,7 @@ def output_wiki(detector_classes: List[Type[AbstractCheck]], filter_wiki: str) -
         print(recommendation)
 
 
-def output_detectors(detector_classes: List[Type[AbstractCheck]]) -> None:
+def output_detectors(detector_classes):
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT
@@ -50,7 +48,7 @@ def output_detectors(detector_classes: List[Type[AbstractCheck]]) -> None:
     for (argument, help_info, impact, proxy, v2) in detectors_list:
         table.add_row(
             [
-                str(idx),
+                idx,
                 argument,
                 help_info,
                 classification_txt[impact],
@@ -62,8 +60,8 @@ def output_detectors(detector_classes: List[Type[AbstractCheck]]) -> None:
     print(table)
 
 
-def output_to_markdown(detector_classes: List[Type[AbstractCheck]], _filter_wiki: str) -> None:
-    def extract_help(cls: AbstractCheck) -> str:
+def output_to_markdown(detector_classes, _filter_wiki):
+    def extract_help(cls):
         if cls.WIKI == "":
             return cls.HELP
         return f"[{cls.HELP}]({cls.WIKI})"
@@ -87,9 +85,7 @@ def output_to_markdown(detector_classes: List[Type[AbstractCheck]], _filter_wiki
         idx = idx + 1
 
 
-def output_detectors_json(
-    detector_classes: List[Type[AbstractCheck]],
-) -> List[Dict[str, Union[str, int]]]:
+def output_detectors_json(detector_classes):
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT
@@ -114,7 +110,7 @@ def output_detectors_json(
     # Sort by impact, confidence, and name
     detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
     idx = 1
-    table: List[Dict[str, Union[str, int]]] = []
+    table = []
     for (
         argument,
         help_info,

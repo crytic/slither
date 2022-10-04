@@ -1,0 +1,749 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "omitted0",
+                    "source_mapping": {
+                        "start": 51,
+                        "length": 94,
+                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4,
+                            5,
+                            6,
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "OmittedTest",
+                            "source_mapping": {
+                                "start": 24,
+                                "length": 504,
+                                "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "omitted0()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val",
+                    "source_mapping": {
+                        "start": 93,
+                        "length": 8,
+                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4
+                        ],
+                        "starting_column": 47,
+                        "ending_column": 55
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "omitted0",
+                            "source_mapping": {
+                                "start": 51,
+                                "length": 94,
+                                "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6,
+                                    7
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "OmittedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 504,
+                                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "omitted0()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "0",
+                    "source_mapping": {
+                        "start": 130,
+                        "length": 8,
+                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 17
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "omitted0",
+                            "source_mapping": {
+                                "start": 51,
+                                "length": 94,
+                                "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6,
+                                    7
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "OmittedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 504,
+                                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "omitted0()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "omitted1",
+                    "source_mapping": {
+                        "start": 179,
+                        "length": 122,
+                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9,
+                            10,
+                            11,
+                            12,
+                            13
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "OmittedTest",
+                            "source_mapping": {
+                                "start": 24,
+                                "length": 504,
+                                "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "omitted1()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val1",
+                    "source_mapping": {
+                        "start": 221,
+                        "length": 9,
+                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9
+                        ],
+                        "starting_column": 47,
+                        "ending_column": 56
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "omitted1",
+                            "source_mapping": {
+                                "start": 179,
+                                "length": 122,
+                                "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "OmittedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 504,
+                                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "omitted1()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "val2",
+                    "source_mapping": {
+                        "start": 283,
+                        "length": 11,
+                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            12
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 20
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "omitted1",
+                            "source_mapping": {
+                                "start": 179,
+                                "length": 122,
+                                "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "OmittedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 504,
+                                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "omitted1()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "omitted2",
+                    "source_mapping": {
+                        "start": 335,
+                        "length": 156,
+                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "OmittedTest",
+                            "source_mapping": {
+                                "start": 24,
+                                "length": 504,
+                                "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "omitted2()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val1",
+                    "source_mapping": {
+                        "start": 377,
+                        "length": 9,
+                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            15
+                        ],
+                        "starting_column": 47,
+                        "ending_column": 56
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "omitted2",
+                            "source_mapping": {
+                                "start": 335,
+                                "length": 156,
+                                "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "OmittedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 504,
+                                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "omitted2()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val2",
+                    "source_mapping": {
+                        "start": 388,
+                        "length": 9,
+                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            15
+                        ],
+                        "starting_column": 58,
+                        "ending_column": 67
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "omitted2",
+                            "source_mapping": {
+                                "start": 335,
+                                "length": 156,
+                                "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "OmittedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 504,
+                                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "omitted2()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "(val3,4)",
+                    "source_mapping": {
+                        "start": 468,
+                        "length": 16,
+                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            19
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 25
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "omitted2",
+                            "source_mapping": {
+                                "start": 335,
+                                "length": 156,
+                                "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "OmittedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 504,
+                                        "filename_relative": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "omitted2()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "OmittedTest.omitted0() (tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#4-7) has an omitted return variable/s:\n\u2022 declared: OmittedTest.omitted0().val (tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#4)\n\u2022 returned: 0 (tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#6)\nOmittedTest.omitted1() (tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#9-13) has an omitted return variable/s:\n\u2022 declared: OmittedTest.omitted1().val1 (tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#9)\n\u2022 returned: val2 (tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#12)\nOmittedTest.omitted2() (tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#15-20) has an omitted return variable/s:\n\u2022 declared: OmittedTest.omitted2().val1 (tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#15), OmittedTest.omitted2().val2 (tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#15)\n\u2022 returned: (val3,4) (tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#19)\n",
+            "markdown": "[OmittedTest.omitted0()](tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L4-L7) has an omitted return variable/s:\n\u2022 declared: [OmittedTest.omitted0().val](tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L4)\n\u2022 returned: [0](tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L6)\n[OmittedTest.omitted1()](tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L9-L13) has an omitted return variable/s:\n\u2022 declared: [OmittedTest.omitted1().val1](tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L9)\n\u2022 returned: [val2](tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L12)\n[OmittedTest.omitted2()](tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L15-L20) has an omitted return variable/s:\n\u2022 declared: [OmittedTest.omitted2().val1](tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L15), [OmittedTest.omitted2().val2](tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L15)\n\u2022 returned: [(val3,4)](tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L19)\n",
+            "first_markdown_element": "tests/detectors/variable-omitted/0.8.7/omitted_return_variables.sol#L4-L7",
+            "id": "86826923559cb686b3693ac385991faf22dc597ace4bac8c9acbe38920135196",
+            "check": "variable-omitted",
+            "impact": "Low",
+            "confidence": "High"
+        }
+    ]
+]
