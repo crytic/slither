@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-### Test slither-check-upgradability
+### Test slither-check-upgradeability
 
 DIR_TESTS="tests/possible_paths"
 

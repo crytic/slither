@@ -959,6 +959,11 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         Return a signature following the Solidity Standard
         Contract and converted into address
+
+        It might still keep internal types (ex: structure name) for internal functions.
+        The reason is that internal functions allows recursive structure definition, which
+        can't be converted following the Solidity stand ard
+
         :return: the solidity signature
         """
         if self._solidity_signature is None:
