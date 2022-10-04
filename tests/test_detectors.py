@@ -1554,11 +1554,6 @@ ALL_TEST_OBJECTS = [
         "0.8.0",
     ),
     Test(
-        all_detectors.OmittedReturnVariables,
-        "omitted_return_variables.sol",
-        "0.8.7",
-    ),
-    Test(
         all_detectors.ReturnShadowsLocal,
         "return_shadows_local.sol",
         "0.8.7",
