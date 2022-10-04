@@ -808,7 +808,7 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
 def parse_yul_literal(_root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     kind = ast["kind"]
 
-    if kind == 'string':
+    if kind == "string":
         # Solc 0.8.0 use value, 0.8.16 use hexValue - not sure when this changed was made
         if "value" in ast:
             value = ast["value"]
