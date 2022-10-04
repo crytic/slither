@@ -70,3 +70,17 @@ function at(address _addr) view returns (bytes memory o_code) {
         extcodecopy(_addr, add(o_code, 0x20), 0, size)
     }
 }
+
+
+function test(){
+
+	assembly {
+		let v
+	}
+
+	assembly {
+		let v := "test"
+	}
+
+}
+

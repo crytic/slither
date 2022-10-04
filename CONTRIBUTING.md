@@ -68,8 +68,8 @@ To see the tests coverage, run `pytest  tests/test_detectors.py  --cov=slither/d
 
 ### Parser tests
 - Create a test in `tests/ast-parsing`
-- Run `python ./tests/test_ast_parsing.py --compile`. This will compile the artifact in `tests/compile`. Add the compiled artifact to git.
-- Run `python ./tests/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git.
+- Run `python ./tests/test_ast_parsing.py --compile`. This will compile the artifact in `tests/ast-parsing/compile`. Add the compiled artifact to git.
+- Run `python ./tests/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/ast-parsing/expected_json`. Add the generated files to git.
 - Run `pytest ./tests/test_ast_parsing.py` and check that everything worked.
 
 To see the tests coverage, run `pytest  tests/test_ast_parsing.py  --cov=slither/solc_parsing --cov-branch --cov-report html`
