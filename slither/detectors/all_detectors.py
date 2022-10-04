@@ -86,3 +86,4 @@ from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
 from .functions.permit_domain_signature_collision import DomainSeparatorCollision
 from .variables.omitted_return_variables import OmittedReturnVariables
+from .shadowing.return_local import ReturnShadowsLocal
