@@ -1,9 +1,13 @@
 """
 Module detecting EIP-2612 domain separator collision
 """
-from slither.utils.function import get_function_id
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import Union, List
+
+from slither.core.declarations import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils.function import get_function_id
 
 
 class DomainSeparatorCollision(AbstractDetector):
@@ -39,24 +43,28 @@ contract Contract{
         domain_sig = get_function_id("DOMAIN_SEPARATOR()")
         for contract in self.compilation_unit.contracts_derived:
             if contract.is_erc20():
-                for func in contract.functions_entry_points + contract.state_variables:
-                    # Skip internal and private variables
-                    if func.solidity_signature is None:
-                        continue
+                funcs_and_vars: List[Union[Function, StateVariable]] = contract.functions_entry_points + contract.state_variables_entry_points  # type: ignore
+                for func_or_var in funcs_and_vars:
                     # External/ public function names should not collide with DOMAIN_SEPARATOR()
                     hash_collision = (
-                        func.solidity_signature != "DOMAIN_SEPARATOR()"
-                        and get_function_id(func.solidity_signature) == domain_sig
+                        func_or_var.solidity_signature != "DOMAIN_SEPARATOR()"
+                        and get_function_id(func_or_var.solidity_signature) == domain_sig
                     )
                     # DOMAIN_SEPARATOR() should return bytes32
-                    incorrect_return_type = (
-                        func.solidity_signature == "DOMAIN_SEPARATOR()"
-                        and func.return_type[0] != ElementaryType("bytes32")
-                    )
+                    incorrect_return_type = func_or_var.solidity_signature == "DOMAIN_SEPARATOR()"
+                    if incorrect_return_type:
+                        if isinstance(func_or_var, Function):
+                            incorrect_return_type = (
+                                not func_or_var.return_type
+                                or func_or_var.return_type[0] != ElementaryType("bytes32")
+                            )
+                        else:
+                            assert isinstance(func_or_var, StateVariable)
+                            incorrect_return_type = func_or_var.type != ElementaryType("bytes32")
                     if hash_collision or incorrect_return_type:
                         info = [
                             "The function signature of ",
-                            func,
+                            func_or_var,
                             " collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
                         ]
                         res = self.generate_result(info)

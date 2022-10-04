@@ -317,6 +317,13 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return list(self._variables.values())
 
     @property
+    def state_variables_entry_points(self) -> List["StateVariable"]:
+        """
+        list(StateVariable): List of the state variables that are public.
+        """
+        return [var for var in self._variables.values() if var.visibility == "public"]
+
+    @property
     def state_variables_ordered(self) -> List["StateVariable"]:
         """
         list(StateVariable): List of the state variables by order of declaration.

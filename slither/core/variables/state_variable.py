@@ -1,9 +1,7 @@
-from typing import Optional, TYPE_CHECKING, Tuple, List
+from typing import Optional, TYPE_CHECKING
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.variables.variable import Variable
-from slither.utils.type import export_nested_types_from_variable
-from slither.core.solidity_types.type import Type
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
@@ -22,46 +20,6 @@ class StateVariable(ChildContract, Variable):
         :return:
         """
         return self.contract == contract
-
-    ###################################################################################
-    ###################################################################################
-    # region Signature and return type of state variable getters
-    ###################################################################################
-    ###################################################################################
-
-    @property
-    def signature(self) -> Tuple[str, List[str], List[str]]:
-        """
-        Return the signature of the state variable as a function signature
-        :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)
-        """
-        return (
-            self.name,
-            [str(x) for x in export_nested_types_from_variable(self)],
-            [str(self.type)],
-        )
-
-    @property
-    def signature_str(self) -> str:
-        """
-        Return the signature of the state variable as a function signature
-        :return: str: func_name(type1,type2) returns(type3)
-        """
-        name, parameters, returnVars = self.signature
-        return name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
-
-    @property
-    def solidity_signature(self) -> Optional[str]:
-        if self.visibility in ["public", "external"]:
-            name, parameters, _ = self.signature
-            return f"{name}({','.join(parameters)})"
-        return None
-
-    @property
-    def return_type(self) -> Optional[List[Type]]:
-        if self.visibility in ["public", "external"]:
-            return [self.type]
-        return None
 
     # endregion
     ###################################################################################
