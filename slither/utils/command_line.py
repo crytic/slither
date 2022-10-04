@@ -1,17 +1,13 @@
-import argparse
 import json
 import os
 import re
 import logging
 from collections import defaultdict
-from typing import Dict, List, Type, Union
-
 from crytic_compile.cryticparser.defaults import (
     DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 )
 
-from slither.detectors.abstract_detector import classification_txt, AbstractDetector
-from slither.printers.abstract_printer import AbstractPrinter
+from slither.detectors.abstract_detector import classification_txt
 from slither.utils.colors import yellow, red
 from slither.utils.myprettytable import MyPrettyTable
 
@@ -38,7 +34,7 @@ defaults_flag_in_config = {
     "exclude_low": False,
     "exclude_medium": False,
     "exclude_high": False,
-    "fail_pedantic": True,
+    "fail_pedantic": False,
     "fail_low": False,
     "fail_medium": False,
     "fail_high": False,
@@ -58,7 +54,7 @@ defaults_flag_in_config = {
 }
 
 
-def read_config_file(args: argparse.Namespace) -> None:
+def read_config_file(args):
     # No config file was provided as an argument
     if args.config_file is None:
         # Check wether the default config file is present
@@ -87,12 +83,8 @@ def read_config_file(args: argparse.Namespace) -> None:
         logger.error(yellow("Falling back to the default settings..."))
 
 
-def output_to_markdown(
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
-    filter_wiki: str,
-) -> None:
-    def extract_help(cls: Union[Type[AbstractDetector], Type[AbstractPrinter]]) -> str:
+def output_to_markdown(detector_classes, printer_classes, filter_wiki):
+    def extract_help(cls):
         if cls.WIKI == "":
             return cls.HELP
         return f"[{cls.HELP}]({cls.WIKI})"
@@ -135,7 +127,7 @@ def output_to_markdown(
         idx = idx + 1
 
 
-def get_level(l: str) -> int:
+def get_level(l):
     tab = l.count("\t") + 1
     if l.replace("\t", "").startswith(" -"):
         tab = tab + 1
@@ -144,7 +136,7 @@ def get_level(l: str) -> int:
     return tab
 
 
-def convert_result_to_markdown(txt: str) -> str:
+def convert_result_to_markdown(txt):
     # -1 to remove the last \n
     lines = txt[0:-1].split("\n")
     ret = []
@@ -162,21 +154,16 @@ def convert_result_to_markdown(txt: str) -> str:
     return "".join(ret)
 
 
-def output_results_to_markdown(all_results: List[Dict], checklistlimit: str) -> None:
+def output_results_to_markdown(all_results, checklistlimit: str):
     checks = defaultdict(list)
-    info: Dict = defaultdict(dict)
-    for results_ in all_results:
-        checks[results_["check"]].append(results_)
-        info[results_["check"]] = {
-            "impact": results_["impact"],
-            "confidence": results_["confidence"],
-        }
+    info = defaultdict(dict)
+    for results in all_results:
+        checks[results["check"]].append(results)
+        info[results["check"]] = {"impact": results["impact"], "confidence": results["confidence"]}
 
     print("Summary")
-    for check_ in checks:
-        print(
-            f" - [{check_}](#{check_}) ({len(checks[check_])} results) ({info[check_]['impact']})"
-        )
+    for check in checks:
+        print(f" - [{check}](#{check}) ({len(checks[check])} results) ({info[check]['impact']})")
 
     counter = 0
     for (check, results) in checks.items():
@@ -198,7 +185,8 @@ def output_results_to_markdown(all_results: List[Dict], checklistlimit: str) -> 
             print(f"**More results were found, check [{checklistlimit}]({checklistlimit})**")
 
 
-def output_wiki(detector_classes: List[Type[AbstractDetector]], filter_wiki: str) -> None:
+def output_wiki(detector_classes, filter_wiki):
+    detectors_list = []
 
     # Sort by impact, confidence, and name
     detectors_list = sorted(
@@ -235,7 +223,7 @@ def output_wiki(detector_classes: List[Type[AbstractDetector]], filter_wiki: str
         print(recommendation)
 
 
-def output_detectors(detector_classes: List[Type[AbstractDetector]]) -> None:
+def output_detectors(detector_classes):
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT
@@ -254,15 +242,12 @@ def output_detectors(detector_classes: List[Type[AbstractDetector]]) -> None:
     )
     idx = 1
     for (argument, help_info, impact, confidence) in detectors_list:
-        table.add_row([str(idx), argument, help_info, classification_txt[impact], confidence])
+        table.add_row([idx, argument, help_info, classification_txt[impact], confidence])
         idx = idx + 1
     print(table)
 
 
-# pylint: disable=too-many-locals
-def output_detectors_json(
-    detector_classes: List[Type[AbstractDetector]],
-) -> List[Dict]:
+def output_detectors_json(detector_classes):  # pylint: disable=too-many-locals
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT
@@ -322,7 +307,7 @@ def output_detectors_json(
     return table
 
 
-def output_printers(printer_classes: List[Type[AbstractPrinter]]) -> None:
+def output_printers(printer_classes):
     printers_list = []
     for printer in printer_classes:
         argument = printer.ARGUMENT
@@ -334,12 +319,12 @@ def output_printers(printer_classes: List[Type[AbstractPrinter]]) -> None:
     printers_list = sorted(printers_list, key=lambda element: (element[0]))
     idx = 1
     for (argument, help_info) in printers_list:
-        table.add_row([str(idx), argument, help_info])
+        table.add_row([idx, argument, help_info])
         idx = idx + 1
     print(table)
 
 
-def output_printers_json(printer_classes: List[Type[AbstractPrinter]]) -> List[Dict]:
+def output_printers_json(printer_classes):
     printers_list = []
     for printer in printer_classes:
         argument = printer.ARGUMENT
