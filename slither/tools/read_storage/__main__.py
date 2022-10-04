@@ -21,9 +21,9 @@ def parse_args() -> argparse.Namespace:
             "\nTo retrieve a single variable's value:\n"
             + "\tslither-read-storage $TARGET address --variable-name $NAME\n"
             + "To retrieve a contract's storage layout:\n"
-            + "\tslither-read-storage $TARGET address --contract-name $NAME --json storage_layout.json\n"
+            + "\tslither-read-storage $TARGET address --contract-name $NAME --layout\n"
             + "To retrieve a contract's storage layout and values:\n"
-            + "\tslither-read-storage $TARGET address --contract-name $NAME --json storage_layout.json --value\n"
+            + "\tslither-read-storage $TARGET address --contract-name $NAME --layout --value\n"
             + "TARGET can be a contract address or project directory"
         ),
     )
@@ -98,12 +98,6 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("--max-depth", help="Max depth to search in data structure.", default=20)
 
-    parser.add_argument(
-        "--block",
-        help="The block number to read storage from. Requires an archive node to be provided as the RPC url.",
-        default="latest",
-    )
-
     cryticparser.init(parser)
 
     return parser.parse_args()
@@ -127,11 +121,6 @@ def main() -> None:
         contracts = slither.contracts
 
     srs = SlitherReadStorage(contracts, args.max_depth)
-
-    try:
-        srs.block = int(args.block)
-    except ValueError:
-        srs.block = str(args.block or "latest")
 
     if args.rpc_url:
         # Remove target prefix e.g. rinkeby:0x0 -> 0x0.

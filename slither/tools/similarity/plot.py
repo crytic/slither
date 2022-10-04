@@ -1,4 +1,3 @@
-import argparse
 import logging
 import random
 import sys
@@ -24,7 +23,7 @@ except ImportError:
 logger = logging.getLogger("Slither-simil")
 
 
-def plot(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
+def plot(args):  # pylint: disable=too-many-locals
 
     if decomposition is None or plt is None:
         logger.error(
