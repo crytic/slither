@@ -1,0 +1,474 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "unnamed0",
+                    "source_mapping": {
+                        "start": 51,
+                        "length": 77,
+                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4,
+                            5,
+                            6
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "UnnamedTest",
+                            "source_mapping": {
+                                "start": 24,
+                                "length": 428,
+                                "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "unnamed0()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "",
+                    "source_mapping": {
+                        "start": 93,
+                        "length": 4,
+                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4
+                        ],
+                        "starting_column": 47,
+                        "ending_column": 51
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "unnamed0",
+                            "source_mapping": {
+                                "start": 51,
+                                "length": 77,
+                                "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "UnnamedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 428,
+                                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "unnamed0()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "unnamed1",
+                    "source_mapping": {
+                        "start": 162,
+                        "length": 107,
+                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8,
+                            9,
+                            10,
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "UnnamedTest",
+                            "source_mapping": {
+                                "start": 24,
+                                "length": 428,
+                                "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "unnamed1()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "",
+                    "source_mapping": {
+                        "start": 204,
+                        "length": 4,
+                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8
+                        ],
+                        "starting_column": 47,
+                        "ending_column": 51
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "unnamed1",
+                            "source_mapping": {
+                                "start": 162,
+                                "length": 107,
+                                "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "UnnamedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 428,
+                                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "unnamed1()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "unnamed2",
+                    "source_mapping": {
+                        "start": 309,
+                        "length": 107,
+                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13,
+                            14,
+                            15,
+                            16
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "UnnamedTest",
+                            "source_mapping": {
+                                "start": 24,
+                                "length": 428,
+                                "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "unnamed2()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "",
+                    "source_mapping": {
+                        "start": 351,
+                        "length": 4,
+                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13
+                        ],
+                        "starting_column": 47,
+                        "ending_column": 51
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "unnamed2",
+                            "source_mapping": {
+                                "start": 309,
+                                "length": 107,
+                                "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "UnnamedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 428,
+                                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "unnamed2()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "",
+                    "source_mapping": {
+                        "start": 357,
+                        "length": 4,
+                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13
+                        ],
+                        "starting_column": 53,
+                        "ending_column": 57
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "unnamed2",
+                            "source_mapping": {
+                                "start": 309,
+                                "length": 107,
+                                "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "UnnamedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 428,
+                                        "filename_relative": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "unnamed2()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "UnnamedTest.unnamed0() (tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#4-6) does not have `return` and inside `returns` has unnamed variable/s:\n\u2022 \"uint256\" UnnamedTest.unnamed0(). (tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#4)\nUnnamedTest.unnamed1() (tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#8-11) does not have `return` and inside `returns` has unnamed variable/s:\n\u2022 \"uint256\" UnnamedTest.unnamed1(). (tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#8)\nUnnamedTest.unnamed2() (tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#13-16) does not have `return` and inside `returns` has unnamed variable/s:\n\u2022 \"uint256\" UnnamedTest.unnamed2(). (tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#13)\n\u2022 \"uint256\" UnnamedTest.unnamed2(). (tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#13)\n",
+            "markdown": "[UnnamedTest.unnamed0()](tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#L4-L6) does not have `return` and inside `returns` has unnamed variable/s:\n\u2022 \"uint256\" [UnnamedTest.unnamed0().](tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#L4)\n[UnnamedTest.unnamed1()](tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#L8-L11) does not have `return` and inside `returns` has unnamed variable/s:\n\u2022 \"uint256\" [UnnamedTest.unnamed1().](tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#L8)\n[UnnamedTest.unnamed2()](tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#L13-L16) does not have `return` and inside `returns` has unnamed variable/s:\n\u2022 \"uint256\" [UnnamedTest.unnamed2().](tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#L13)\n\u2022 \"uint256\" [UnnamedTest.unnamed2().](tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#L13)\n",
+            "first_markdown_element": "tests/detectors/shadowing-return-unnamed/0.8.7/unnamed_return_shadows_local.sol#L4-L6",
+            "id": "5f56d421341dc10a2682219e595fc5a155244ebf835c21f028bc2b97680a51c9",
+            "check": "shadowing-return-unnamed",
+            "impact": "Low",
+            "confidence": "High"
+        }
+    ]
+]

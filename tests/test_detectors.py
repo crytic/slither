@@ -1563,6 +1563,11 @@ ALL_TEST_OBJECTS = [
         "return_shadows_local.sol",
         "0.8.7",
     ),
+    Test(
+        all_detectors.UnnamedReturnShadowsLocal,
+        "unnamed_return_shadows_local.sol",
+        "0.8.7",
+    ),
 ]
 
 
