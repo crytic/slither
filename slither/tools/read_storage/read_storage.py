@@ -53,15 +53,16 @@ class SlitherReadStorageException(Exception):
 # pylint: disable=too-many-instance-attributes
 class SlitherReadStorage:
     def __init__(self, contracts: List[Contract], max_depth: int) -> None:
+        self._checksum_address: Optional[ChecksumAddress] = None
         self._contracts: List[Contract] = contracts
-        self._max_depth: int = max_depth
         self._log: str = ""
+        self._max_depth: int = max_depth
         self._slot_info: Dict[str, SlotInfo] = {}
         self._target_variables: List[Tuple[Contract, StateVariable]] = []
         self._web3: Optional[Web3] = None
-        self._checksum_address: Optional[ChecksumAddress] = None
-        self.storage_address: Optional[str] = None
+        self.block: Union[str, int] = "latest"
         self.rpc: Optional[str] = None
+        self.storage_address: Optional[str] = None
         self.table: Optional[MyPrettyTable] = None
 
     @property
@@ -231,7 +232,10 @@ class SlitherReadStorage:
         :param slot_info:
         """
         hex_bytes = get_storage_data(
-            self.web3, self.checksum_address, int.to_bytes(slot_info.slot, 32, byteorder="big")
+            self.web3,
+            self.checksum_address,
+            int.to_bytes(slot_info.slot, 32, byteorder="big"),
+            self.block,
         )
         slot_info.value = self.convert_value_to_type(
             hex_bytes, slot_info.size, slot_info.offset, slot_info.type_string
@@ -609,7 +613,10 @@ class SlitherReadStorage:
             # Convert from hexadecimal to decimal.
             val = int(
                 get_storage_data(
-                    self.web3, self.checksum_address, int.to_bytes(slot, 32, byteorder="big")
+                    self.web3,
+                    self.checksum_address,
+                    int.to_bytes(slot, 32, byteorder="big"),
+                    self.block,
                 ).hex(),
                 16,
             )
