@@ -1,0 +1,769 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "shadowed0",
+                    "source_mapping": {
+                        "start": 52,
+                        "length": 82,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4,
+                            5,
+                            6
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ShadowedTest",
+                            "source_mapping": {
+                                "start": 24,
+                                "length": 451,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "shadowed0()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val_scope_0",
+                    "source_mapping": {
+                        "start": 115,
+                        "length": 12,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 21
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowed0",
+                            "source_mapping": {
+                                "start": 52,
+                                "length": 82,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ShadowedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 451,
+                                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowed0()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val",
+                    "source_mapping": {
+                        "start": 95,
+                        "length": 8,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4
+                        ],
+                        "starting_column": 48,
+                        "ending_column": 56
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowed0",
+                            "source_mapping": {
+                                "start": 52,
+                                "length": 82,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ShadowedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 451,
+                                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowed0()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "shadowed1",
+                    "source_mapping": {
+                        "start": 168,
+                        "length": 113,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8,
+                            9,
+                            10,
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ShadowedTest",
+                            "source_mapping": {
+                                "start": 24,
+                                "length": 451,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "shadowed1()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val1_scope_0",
+                    "source_mapping": {
+                        "start": 243,
+                        "length": 13,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 22
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowed1",
+                            "source_mapping": {
+                                "start": 168,
+                                "length": 113,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ShadowedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 451,
+                                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowed1()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val1",
+                    "source_mapping": {
+                        "start": 211,
+                        "length": 9,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8
+                        ],
+                        "starting_column": 48,
+                        "ending_column": 57
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowed1",
+                            "source_mapping": {
+                                "start": 168,
+                                "length": 113,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10,
+                                    11
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ShadowedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 451,
+                                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowed1()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "shadowed2",
+                    "source_mapping": {
+                        "start": 321,
+                        "length": 118,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13,
+                            14,
+                            15,
+                            16
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ShadowedTest",
+                            "source_mapping": {
+                                "start": 24,
+                                "length": 451,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "shadowed2()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val1_scope_0",
+                    "source_mapping": {
+                        "start": 396,
+                        "length": 13,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 22
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowed2",
+                            "source_mapping": {
+                                "start": 321,
+                                "length": 118,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ShadowedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 451,
+                                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowed2()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val1",
+                    "source_mapping": {
+                        "start": 364,
+                        "length": 9,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13
+                        ],
+                        "starting_column": 48,
+                        "ending_column": 57
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowed2",
+                            "source_mapping": {
+                                "start": 321,
+                                "length": 118,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ShadowedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 451,
+                                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowed2()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val2_scope_1",
+                    "source_mapping": {
+                        "start": 419,
+                        "length": 13,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            15
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 22
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowed2",
+                            "source_mapping": {
+                                "start": 321,
+                                "length": 118,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ShadowedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 451,
+                                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowed2()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "val2",
+                    "source_mapping": {
+                        "start": 375,
+                        "length": 9,
+                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13
+                        ],
+                        "starting_column": 59,
+                        "ending_column": 68
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowed2",
+                            "source_mapping": {
+                                "start": 321,
+                                "length": 118,
+                                "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    13,
+                                    14,
+                                    15,
+                                    16
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ShadowedTest",
+                                    "source_mapping": {
+                                        "start": 24,
+                                        "length": 451,
+                                        "filename_relative": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowed2()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "ShadowedTest.shadowed0() (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#4-6) does not have `return` and has its return variable/s:\n\u2022 ShadowedTest.shadowed0().val_scope_0 (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#5) shadowed by ShadowedTest.shadowed0().val (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#4)\nShadowedTest.shadowed1() (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#8-11) does not have `return` and has its return variable/s:\n\u2022 ShadowedTest.shadowed1().val1_scope_0 (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#9) shadowed by ShadowedTest.shadowed1().val1 (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#8)\nShadowedTest.shadowed2() (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#13-16) does not have `return` and has its return variable/s:\n\u2022 ShadowedTest.shadowed2().val1_scope_0 (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#14) shadowed by ShadowedTest.shadowed2().val1 (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#13)\n\u2022 ShadowedTest.shadowed2().val2_scope_1 (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#15) shadowed by ShadowedTest.shadowed2().val2 (tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#13)\n",
+            "markdown": "[ShadowedTest.shadowed0()](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L4-L6) does not have `return` and has its return variable/s:\n\u2022 [ShadowedTest.shadowed0().val_scope_0](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L5) shadowed by [ShadowedTest.shadowed0().val](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L4)\n[ShadowedTest.shadowed1()](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L8-L11) does not have `return` and has its return variable/s:\n\u2022 [ShadowedTest.shadowed1().val1_scope_0](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L9) shadowed by [ShadowedTest.shadowed1().val1](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L8)\n[ShadowedTest.shadowed2()](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L13-L16) does not have `return` and has its return variable/s:\n\u2022 [ShadowedTest.shadowed2().val1_scope_0](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L14) shadowed by [ShadowedTest.shadowed2().val1](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L13)\n\u2022 [ShadowedTest.shadowed2().val2_scope_1](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L15) shadowed by [ShadowedTest.shadowed2().val2](tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L13)\n",
+            "first_markdown_element": "tests/detectors/shadowing-return-local/0.8.7/return_shadows_local.sol#L4-L6",
+            "id": "5efdb185c2bcf7e560cffc007ed66d38bec47e4944e68b50d8346b7660d86b4c",
+            "check": "shadowing-return-local",
+            "impact": "Low",
+            "confidence": "High"
+        }
+    ]
+]

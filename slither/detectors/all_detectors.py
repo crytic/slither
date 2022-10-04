@@ -31,6 +31,7 @@ from .attributes.const_functions_asm import ConstantFunctionsAsm
 from .attributes.const_functions_state import ConstantFunctionsState
 from .shadowing.abstract import ShadowingAbstractDetection
 from .shadowing.state import StateShadowing
+from .shadowing.return_local import ReturnShadowsLocal
 from .shadowing.local import LocalShadowing
 from .shadowing.builtin_symbols import BuiltinSymbolShadowing
 from .operations.block_timestamp import Timestamp
@@ -84,4 +85,3 @@ from .statements.write_after_write import WriteAfterWrite
 from .statements.msg_value_in_loop import MsgValueInLoop
 from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
-from .functions.permit_domain_signature_collision import DomainSeparatorCollision

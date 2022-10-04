@@ -15,7 +15,7 @@ PATTERN_TRUFFLE_MIGRATION = re.compile("^[0-9]*_")
 logger = logging.getLogger("Slither")
 
 
-def _extract_caller(p: PropertyCaller) -> List[str]:
+def _extract_caller(p: PropertyCaller):
     if p == PropertyCaller.OWNER:
         return ["owner"]
     if p == PropertyCaller.SENDER:
@@ -28,7 +28,7 @@ def _extract_caller(p: PropertyCaller) -> List[str]:
     return ["user"]
 
 
-def _helpers() -> str:
+def _helpers():
     """
     Generate two functions:
     - catchRevertThrowReturnFalse: check if the call revert/throw or return false
@@ -75,7 +75,7 @@ def generate_unit_test(  # pylint: disable=too-many-arguments,too-many-branches
     output_dir: Path,
     addresses: Addresses,
     assert_message: str = "",
-) -> Path:
+):
     """
     Generate unit tests files
     :param test_contract:
@@ -134,7 +134,7 @@ def generate_unit_test(  # pylint: disable=too-many-arguments,too-many-branches
     return output_dir
 
 
-def generate_migration(test_contract: str, output_dir: Path, owner_address: str) -> None:
+def generate_migration(test_contract: str, output_dir: Path, owner_address: str):
     """
     Generate migration file
     :param test_contract:

@@ -1,5 +1,5 @@
 import logging
-from typing import Union, List, ValuesView, Type, Dict
+from typing import Union, List, ValuesView
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
@@ -19,9 +19,7 @@ logger_detector = logging.getLogger("Detectors")
 logger_printer = logging.getLogger("Printers")
 
 
-def _check_common_things(
-    thing_name: str, cls: Type, base_cls: Type, instances_list: List[Type[AbstractDetector]]
-) -> None:
+def _check_common_things(thing_name, cls, base_cls, instances_list):
 
     if not issubclass(cls, base_cls) or cls is base_cls:
         raise Exception(
@@ -180,7 +178,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
     def detectors_optimization(self):
         return [d for d in self.detectors if d.IMPACT == DetectorClassification.OPTIMIZATION]
 
-    def register_detector(self, detector_class: Type[AbstractDetector]) -> None:
+    def register_detector(self, detector_class):
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
@@ -190,7 +188,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
             instance = detector_class(compilation_unit, self, logger_detector)
             self._detectors.append(instance)
 
-    def register_printer(self, printer_class: Type[AbstractPrinter]) -> None:
+    def register_printer(self, printer_class):
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
@@ -199,7 +197,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
 
-    def run_detectors(self) -> List[Dict]:
+    def run_detectors(self):
         """
         :return: List of registered detectors results.
         """
