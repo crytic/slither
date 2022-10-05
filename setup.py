@@ -15,7 +15,7 @@ setup(
         "prettytable>=0.7.2",
         "pysha3>=1.0.2",
         # "crytic-compile>=0.2.3",
-        "crytic-compile",
+        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
     ],
     extras_require={
         "dev": [
@@ -28,7 +28,6 @@ setup(
             "solc-select>=v1.0.0b1",
         ]
     },
-    dependency_links=["git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile"],
     license="AGPL-3.0",
     long_description=long_description,
     long_description_content_type="text/markdown",
