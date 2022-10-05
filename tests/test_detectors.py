@@ -1553,6 +1553,11 @@ ALL_TEST_OBJECTS = [
         "permit_domain_state_var_collision.sol",
         "0.8.0",
     ),
+    Test(
+        all_detectors.ReturnShadowsLocal,
+        "return_shadows_local.sol",
+        "0.8.7",
+    ),
 ]
 
 
