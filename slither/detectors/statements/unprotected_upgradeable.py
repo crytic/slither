@@ -65,21 +65,22 @@ class UnprotectedUpgradeable(AbstractDetector):
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
-    ```solidity
-    contract Buggy is Initializable{
-        address payable owner;
-    
-        function initialize() external initializer{
-            require(owner == address(0));
-            owner = msg.sender;
-        }
-        function kill() external{
-            require(msg.sender == owner);
-            selfdestruct(owner);
-        }
+```solidity
+contract Buggy is Initializable{
+    address payable owner;
+
+    function initialize() external initializer{
+        require(owner == address(0));
+        owner = msg.sender;
     }
-    ```
-    Buggy is an upgradeable contract. Anyone can call initialize on the logic contract, and destruct the contract."""
+    function kill() external{
+        require(msg.sender == owner);
+        selfdestruct(owner);
+    }
+}
+```
+Buggy is an upgradeable contract. Anyone can call initialize on the logic contract, and destruct the contract.
+"""
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = (
