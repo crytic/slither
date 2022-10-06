@@ -1,0 +1,67 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "initialize",
+                    "source_mapping": {
+                        "start": 180,
+                        "length": 114,
+                        "filename_relative": "tests/detectors/missing-initialization/0.8.0/missing-initialization.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/missing-initialization/0.8.0/missing-initialization.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 296,
+                                "filename_relative": "tests/detectors/missing-initialization/0.8.0/missing-initialization.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/missing-initialization/0.8.0/missing-initialization.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "initialize(uint256)"
+                    }
+                }
+            ],
+            "description": "Variable is Not initialized in initialize() found in A.initialize(uint256) (tests/detectors/missing-initialization/0.8.0/missing-initialization.sol#10-12)\n",
+            "markdown": "Variable is Not initialized in initialize() found in [A.initialize(uint256)](tests/detectors/missing-initialization/0.8.0/missing-initialization.sol#L10-L12)\n",
+            "first_markdown_element": "tests/detectors/missing-initialization/0.8.0/missing-initialization.sol#L10-L12",
+            "id": "e9511f817e4460c37185eadb0be810d4ce0a011a3e2f05209754f60a9605a89d",
+            "check": "missing-initialization",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]
