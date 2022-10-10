@@ -1,3 +1,8 @@
+"""
+Module detecting missing initialization used to check conditions.
+
+"""
+
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
@@ -32,9 +37,9 @@ contract A {
 ```
 Bob calls `initialize`. However, Alice can also call `initialize`.
 """
-    WIKI_RECOMMENDATION = "Check state variable should be initialized in initialize function"
-
-
+    WIKI_RECOMMENDATION = (
+        "Check state variable should be initialized in initialize function"
+    )
 
     def detect_initilize(self, func):
         if "init" in func.name:
@@ -45,10 +50,10 @@ Bob calls `initialize`. However, Alice can also call `initialize`.
         # modifier
         if func.modifiers_statements:
             return True
-        
+
         for node in func.nodes:
-            #require or assert or if
-            if (node.contains_if() or node.contains_require_or_assert()):
+            # require or assert or if
+            if node.contains_if() or node.contains_require_or_assert():
                 return True
         return False
 
@@ -61,15 +66,14 @@ Bob calls `initialize`. However, Alice can also call `initialize`.
 
         for name in func.all_conditional_state_variables_read():
             should_be_initialized += [name]
-        
+
         if set(should_be_initialized) in set(initialized_in_init):
             return True
         return False
 
-
     def _detect(self):
         results = []
-        
+
         for contract in self.compilation_unit.contracts:
             for f in contract.functions:
                 # Check if a function has 'init' in its name
@@ -77,14 +81,22 @@ Bob calls `initialize`. However, Alice can also call `initialize`.
                     # Chceck if it has validation
                     if not self.detect_validation(f):
                         # Info to be printed
-                        info = ["Initialize function does not have validation found in ", f, "\n"]
+                        info = [
+                            "Initialize function does not have validation found in ",
+                            f,
+                            "\n",
+                        ]
                         # Add the result in result
                         res = self.generate_result(info)
                         results.append(res)
                     # Check if condition variable is initialized
                     if not self.check_state_variables_in_conditions_are_initialzed(f):
                         # Info to be printed
-                        info = ["Variable is Not initialized in initialize() found in ", f, "\n"]
+                        info = [
+                            "Variable is Not initialized in initialize() found in ",
+                            f,
+                            "\n",
+                        ]
                         # Add the result in result
                         res = self.generate_result(info)
                         results.append(res)
