@@ -80,7 +80,7 @@ class Flattening:
 
     def _get_source_code_top_level(self, elems: List[TopLevel]) -> None:
         for elem in elems:
-            src_mapping = elem.source_mapping
+            src_mapping = elem.source_mapping.to_json()
             content = self._compilation_unit.core.source_code[src_mapping["filename_absolute"]]
             start = src_mapping["start"]
             end = src_mapping["start"] + src_mapping["length"]
