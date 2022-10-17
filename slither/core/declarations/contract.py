@@ -301,9 +301,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def variables(self) -> List["StateVariable"]:
         """
-        list(StateVariable): List of the state variables. Alias to self.state_variables
+        list(StateVariable): List of the state variables. Alias to self.state_variables_ordered
         """
-        return list(self.state_variables)
+        return self.state_variables_ordered
 
     @property
     def variables_as_dict(self) -> Dict[str, "StateVariable"]:
@@ -312,21 +312,21 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def state_variables(self) -> List["StateVariable"]:
         """
-        list(StateVariable): List of the state variables.
+        list(StateVariable): List of the state variables. Alias to self.state_variables_ordered
         """
-        return list(self._variables.values())
+        return self.state_variables_ordered
 
     @property
     def state_variables_entry_points(self) -> List["StateVariable"]:
         """
         list(StateVariable): List of the state variables that are public.
         """
-        return [var for var in self._variables.values() if var.visibility == "public"]
+        return [var for var in self.state_variables_ordered if var.visibility == "public"]
 
     @property
     def state_variables_ordered(self) -> List["StateVariable"]:
         """
-        list(StateVariable): List of the state variables by order of declaration.
+        list(StateVariable): List of the state variables by order of declaration (including inherited).
         """
         return list(self._variables_ordered)
 
@@ -338,14 +338,14 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         list(StateVariable): List of the inherited state variables
         """
-        return [s for s in self.state_variables if s.contract != self]
+        return [s for s in self.state_variables_ordered if s.contract != self]
 
     @property
     def state_variables_declared(self) -> List["StateVariable"]:
         """
         list(StateVariable): List of the state variables declared within the contract (not inherited)
         """
-        return [s for s in self.state_variables if s.contract == self]
+        return [s for s in self.state_variables_ordered if s.contract == self]
 
     @property
     def slithir_variables(self) -> List["SlithIRVariable"]:

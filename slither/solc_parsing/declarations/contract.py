@@ -340,6 +340,8 @@ class ContractSolc(CallerContextExpression):
             var_parser = StateVariableSolc(var, varNotParsed)
             self._variables_parser.append(var_parser)
 
+            # This does not handle inherited variables that are shadowed in the derived contract
+            # https://github.com/crytic/slither/issues/1322
             self._contract.variables_as_dict[var.name] = var
             self._contract.add_variables_ordered([var])
 
