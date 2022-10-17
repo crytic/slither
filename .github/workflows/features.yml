@@ -49,4 +49,5 @@ jobs:
           pytest tests/slithir/test_ternary_expressions.py
           pytest tests/test_functions_ids.py
           pytest tests/test_function.py
+          pytest tests/test_state_variables.py
           pytest tests/test_source_mapping.py
