@@ -253,7 +253,7 @@ class SlitherReadStorage:
                     func,
                     [
                         (contract, var)
-                        for var in contract.variables
+                        for var in contract.state_variables_ordered
                         if not var.is_constant and not var.is_immutable
                     ],
                 )
