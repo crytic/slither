@@ -3,8 +3,10 @@ Module detecting state variables that could be declared as constant
 """
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.visitors.expression.export_values import ExportValues
+from slither.core.declarations import Contract
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.state_variable import StateVariable
 from slither.formatters.variables.possible_const_state_variables import custom_format
@@ -29,9 +31,20 @@ class ConstCandidateStateVars(AbstractDetector):
     WIKI_DESCRIPTION = "Constant state variables should be declared constant to save gas."
     WIKI_RECOMMENDATION = "Add the `constant` attributes to state variables that never change."
 
+
+    @staticmethod
+    def _is_valid_type(v):
+        t = v.type
+        if isinstance(t, ElementaryType):
+            return True
+        if isinstance(t, UserDefinedType) and isinstance(t.type, Contract):
+            return True
+        return False
+        
+
     @staticmethod
     def _valid_candidate(v):
-        return isinstance(v.type, ElementaryType) and not (v.is_constant or v.is_immutable)
+        return ConstCandidateStateVars._is_valid_type(v) and not (v.is_constant or v.is_immutable)
 
     # https://solidity.readthedocs.io/en/v0.5.2/contracts.html#constant-state-variables
     valid_solidity_function = [
