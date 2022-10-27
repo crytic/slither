@@ -1,6 +1,7 @@
 [tool.black]
 target-version = ["py36"]
 line-length = 100
+
 [tool.pylint.messages_control]
 disable = """
 missing-module-docstring,
@@ -20,3 +21,52 @@ duplicate-code,
 import-error,
 unsubscriptable-object
 """
+
+[tool.mypy]
+check_untyped_defs = true
+show_error_codes = true
+warn_unreachable = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[tool.poetry]
+name = "slither-analyzer"
+version = "0.8.3"
+description="Slither is a Solidity static analysis framework written in Python 3."
+authors = ["Trail of Bits"]
+packages = [
+    { include = "slither" }
+]
+
+[tool.poetry.scripts]
+slither = "slither.__main__:main"
+slither-check-upgradeability = "slither.tools.upgradeability.__main__:main"
+slither-find-paths = "slither.tools.possible_paths.__main__:main"
+slither-simil = "slither.tools.similarity.__main__:main"
+slither-flat = "slither.tools.flattening.__main__:main"
+slither-format = "slither.tools.slither_format.__main__:main"
+slither-check-erc = "slither.tools.erc_conformance.__main__:main"
+slither-check-kspec = "slither.tools.kspec_coverage.__main__:main"
+slither-prop = "slither.tools.properties.__main__:main"
+slither-mutate = "slither.tools.mutator.__main__:main"
+slither-read-storage = "slither.tools.read_storage.__main__:main"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+prettytable = ">=0.7.2"
+pysha3 = ">=1.0.2"
+crytic-compile = { git = "https://github.com/crytic/crytic-compile.git", branch = "master" }
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+pylint = "^2.13.4"
+mypy = "^0.971"
+pytest = "^7.0.1"
+solc-select = ">=v1.0.0b1"
+pytest-cov = "^3.0.0"
+deepdiff = "^5.8.1"
+numpy = "^1.23.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
