@@ -23,15 +23,23 @@ unsubscriptable-object
 """
 
 [tool.mypy]
+warn_incomplete_stub = true
+ignore_missing_imports = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
 check_untyped_defs = true
-show_error_codes = true
-warn_unreachable = true
+disallow_untyped_decorators = true
 warn_redundant_casts = true
+warn_no_return = true
+warn_unreachable = true
+show_error_codes = true
 warn_unused_ignores = true
 
 [tool.poetry]
 name = "slither-analyzer"
-version = "0.8.3"
+version = "0.9.0"
+license = "AGPL-3.0"
 description="Slither is a Solidity static analysis framework written in Python 3."
 authors = ["Trail of Bits"]
 packages = [
