@@ -14,7 +14,7 @@ class ArbitrarySendErc20Permit(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/trailofbits/slither/wiki/Detector-Documentation#arbitrary-send-erc20-permit"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#arbitrary-from-in-transferfrom"
 
     WIKI_TITLE = "Arbitrary `from` in transferFrom used with permit"
     WIKI_DESCRIPTION = (
