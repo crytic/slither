@@ -14,6 +14,7 @@ from slither.core.declarations import Contract, Function
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.state_variable import StateVariable
 from slither.formatters.variables.possible_const_state_variables import custom_format
+from slither.core.expressions import CallExpression, NewContract
 
 
 def _is_valid_type(v: StateVariable) -> bool:
@@ -44,15 +45,17 @@ class ConstCandidateStateVars(AbstractDetector):
     """
 
     ARGUMENT = "constable-states"
-    HELP = "State variables that could be declared constant"
+    HELP = "State variables that could be declared constant or immutable"
     IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant-or-immutable"
 
-    WIKI_TITLE = "State variables that could be declared constant"
-    WIKI_DESCRIPTION = "Constant state variables should be declared constant to save gas."
-    WIKI_RECOMMENDATION = "Add the `constant` attributes to state variables that never change."
+    WIKI_TITLE = "State variables that could be declared constant or immutable"
+    WIKI_DESCRIPTION = "State variables that are not updated following deployment should be declared constant or immutable to save gas."
+    WIKI_RECOMMENDATION = (
+        "Add the `constant` or `immutable` attribute to state variables that never change."
+    )
 
     # https://solidity.readthedocs.io/en/v0.5.2/contracts.html#constant-state-variables
     valid_solidity_function = [
@@ -71,54 +74,66 @@ class ConstCandidateStateVars(AbstractDetector):
         if not v.expression:
             return True
 
+        # B b = new B(); b cannot be constant, so filter out and recommend it be immutable
+        if isinstance(v.expression, CallExpression) and isinstance(
+            v.expression.called, NewContract
+        ):
+            return False
+
         export = ExportValues(v.expression)
         values = export.result()
         if not values:
             return True
-        if all((val in self.valid_solidity_function or _is_constant_var(val) for val in values)):
-            return True
-        return False
+        else:
+            return all(
+                (val in self.valid_solidity_function or _is_constant_var(val) for val in values)
+            )
 
     def _detect(self) -> List[Output]:
-        """Detect state variables that could be const"""
-        results = []
+        """Detect state variables that could be constant or immutable"""
+        results = {}
 
-        all_variables_l = [c.state_variables for c in self.compilation_unit.contracts]
-        all_variables: Set[StateVariable] = {
-            item for sublist in all_variables_l for item in sublist
+        variables = []
+        functions = []
+        for c in self.compilation_unit.contracts:
+            variables.append(c.state_variables)
+            functions.append(c.all_functions_called)
+
+        valid_candidates: Set[StateVariable] = {
+            item for sublist in variables for item in sublist if _valid_candidate(item)
         }
-        all_non_constant_elementary_variables = {v for v in all_variables if _valid_candidate(v)}
 
-        all_functions_nested = [c.all_functions_called for c in self.compilation_unit.contracts]
-        all_functions = list(
-            {
-                item1
-                for sublist in all_functions_nested
-                for item1 in sublist
-                if isinstance(item1, Function)
-            }
+        all_functions: List[Function] = list(
+            {item1 for sublist in functions for item1 in sublist if isinstance(item1, Function)}
         )
 
-        all_variables_written = [
-            f.state_variables_written for f in all_functions if not f.is_constructor_variables
-        ]
-        all_variables_written = {item for sublist in all_variables_written for item in sublist}
+        variables_written = []
+        constructor_variables_written = []
+        for f in all_functions:
+            if f.is_constructor_variables:
+                constructor_variables_written.append(f.state_variables_written)
+            else:
+                variables_written.append(f.state_variables_written)
 
-        constable_variables: List[Variable] = [
-            v
-            for v in all_non_constant_elementary_variables
-            if (v not in all_variables_written) and self._constant_initial_expression(v)
-        ]
-        # Order for deterministic results
-        constable_variables = sorted(constable_variables, key=lambda x: x.canonical_name)
+        variables_written = {item for sublist in variables_written for item in sublist}
+        constructor_variables_written = {
+            item for sublist in constructor_variables_written for item in sublist
+        }
+        for v in valid_candidates:
+            if v not in variables_written:
+                if self._constant_initial_expression(v):
+                    results[v.canonical_name] = self.generate_result([v, " should be constant \n"])
 
-        # Create a result for each finding
-        for v in constable_variables:
-            info = [v, " should be constant\n"]
-            json = self.generate_result(info)
-            results.append(json)
+                # immutable attribute available in Solidity 0.6.5 and above
+                # https://blog.soliditylang.org/2020/04/06/solidity-0.6.5-release-announcement/
+                elif (
+                    v in constructor_variables_written
+                    and self.compilation_unit.solc_version > "0.6.4"
+                ):
+                    results[v.canonical_name] = self.generate_result([v, " should be immutable \n"])
 
-        return results
+        # Order by canonical name for deterministic results
+        return [results[k] for k in sorted(results)]
 
     @staticmethod
     def _format(compilation_unit: SlitherCompilationUnit, result: Dict) -> None:

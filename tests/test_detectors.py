@@ -497,7 +497,7 @@ ALL_TEST_OBJECTS = [
     ),
     Test(
         all_detectors.ConstCandidateStateVars,
-        "immutable.sol",
+        "const_state_variables.sol",
         "0.8.0",
     ),
     Test(
