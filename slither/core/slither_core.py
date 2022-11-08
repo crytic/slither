@@ -315,7 +315,7 @@ class SlitherCore(Context):
                         vals = self._ignore_ranges[file][check]
                         if len(vals) == 0 or vals[-1][1] != float("inf"):
                             # First item in the array, or the prior item is fully populated.
-                            self._ignore_ranges[file][check].append([line_number, float("inf")])
+                            self._ignore_ranges[file][check].append((line_number, float("inf")))
                         else:
                             raise Exception(
                                 "consecutive slither-disable-starts without slither-disable-end"
