@@ -1139,6 +1139,7 @@ def can_be_solidity_func(ir) -> bool:
         "encodePacked",
         "encodeWithSelector",
         "encodeWithSignature",
+        "encodeCall",
         "decode",
     ]
 
