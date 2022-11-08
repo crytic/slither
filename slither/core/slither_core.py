@@ -290,6 +290,46 @@ class SlitherCore(Context):
     ###################################################################################
     ###################################################################################
 
+    def parse_ignore_comments(self, file: str):
+        # The first time we check a file, find all start/end ignore comments and memoize them.
+        line_number = 1
+        while True:
+            if file in self._processed_ignores:
+                break
+
+            line_text = self.crytic_compile.get_code_from_line(file, line_number)
+            if line_text is None:
+                break
+
+            start_regex = r"^\s*//\s*slither-disable-start\s*([a-zA-Z0-9_,-]*)"
+            end_regex = r"^\s*//\s*slither-disable-end\s*([a-zA-Z0-9_,-]*)"
+            start_match = re.findall(start_regex, line_text.decode("utf8"))
+            end_match = re.findall(end_regex, line_text.decode("utf8"))
+
+            if start_match:
+                ignored = start_match[0].split(",")
+                if ignored:
+                    for check in ignored:
+                        vals = self._ignore_ranges[file][check]
+                        if len(vals) == 0 or vals[-1][1] != float("inf"):
+                            # First item in the array, or the prior item is fully populated.
+                            self._ignore_ranges[file][check].append([line_number, float("inf")])
+                        else:
+                            raise Exception("consecutive slither-disable-starts without slither-disable-end")
+
+            if end_match:
+                ignored = end_match[0].split(",")
+                if ignored:
+                    for check in ignored:
+                        vals = self._ignore_ranges[file][check]
+                        if len(vals) == 0 or vals[-1][1] != float("inf"):
+                            raise Exception("slither-disable-end without slither-disable-start")
+                        self._ignore_ranges[file][check][-1] = (vals[-1][0], line_number)
+
+            line_number += 1
+
+        self._processed_ignores.add(file)
+
     def has_ignore_comment(self, r: Dict) -> bool:
         """
         Check if the result has an ignore comment in the file or on the preceding line, in which
@@ -310,44 +350,7 @@ class SlitherCore(Context):
         )
 
         for file, lines in mapping_elements_with_lines:
-            # The first time we check a file, find all start/end ignore comments and memoize them.
-            line_number = 1
-            while True:
-                if file in self._processed_ignores:
-                    break
-
-                line_text = self.crytic_compile.get_code_from_line(file, line_number)
-                if line_text is None:
-                    break
-
-                start_regex = r"^\s*//\s*slither-disable-start\s*([a-zA-Z0-9_,-]*)"
-                end_regex = r"^\s*//\s*slither-disable-end\s*([a-zA-Z0-9_,-]*)"
-                start_match = re.findall(start_regex, line_text.decode("utf8"))
-                end_match = re.findall(end_regex, line_text.decode("utf8"))
-
-                if start_match:
-                    ignored = start_match[0].split(",")
-                    if ignored:
-                        for check in ignored:
-                            vals = self._ignore_ranges[file][check]
-                            if len(vals) == 0 or vals[-1][1] != float('inf'):
-                                # First item in the array, or the prior item is fully populated.
-                                self._ignore_ranges[file][check].append([line_number, float('inf')])
-                            else:
-                                raise Exception("consecutive slither-disable-starts without slither-disable-end")
-
-                if end_match:
-                    ignored = end_match[0].split(",")
-                    if ignored:
-                        for check in ignored:
-                            vals = self._ignore_ranges[file][check]
-                            if len(vals) == 0 or vals[-1][1] != float('inf'):
-                                raise Exception("slither-disable-end without slither-disable-start")
-                            self._ignore_ranges[file][check][-1] = (vals[-1][0], line_number)
-
-                line_number += 1
-
-            self._processed_ignores.add(file)
+            self.parse_ignore_comments(file)
 
             # Check if result is within an ignored range.
             ignore_ranges = self._ignore_ranges[file][r["check"]] + self._ignore_ranges[file]["all"]
