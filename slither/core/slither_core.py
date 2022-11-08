@@ -73,7 +73,9 @@ class SlitherCore(Context):
 
         # Maps from file to detector name to the start/end ranges for that detector.
         # Infinity is used to signal a detector has no end range.
-        self._ignore_ranges: defaultdict[str, defaultdict[str, List[(int,int)]]] = defaultdict(lambda: defaultdict(lambda: []))
+        self._ignore_ranges: defaultdict[str, defaultdict[str, List[(int, int)]]] = defaultdict(
+            lambda: defaultdict(lambda: [])
+        )
         # Track which files for _ignore_ranges have been processed (a processed file may have no entries in _ignore_ranges).
         self._processed_ignores: Set[str] = set()
 
@@ -315,7 +317,9 @@ class SlitherCore(Context):
                             # First item in the array, or the prior item is fully populated.
                             self._ignore_ranges[file][check].append([line_number, float("inf")])
                         else:
-                            raise Exception("consecutive slither-disable-starts without slither-disable-end")
+                            raise Exception(
+                                "consecutive slither-disable-starts without slither-disable-end"
+                            )
 
             if end_match:
                 ignored = end_match[0].split(",")
