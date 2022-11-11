@@ -4,7 +4,7 @@ import json
 import logging
 import zipfile
 from collections import OrderedDict
-from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING
+from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
 from zipfile import ZipFile
 from pkg_resources import require
 
@@ -21,7 +21,6 @@ if TYPE_CHECKING:
     from slither.detectors.abstract_detector import AbstractDetector
 
 logger = logging.getLogger("Slither")
-
 
 ###################################################################################
 ###################################################################################
@@ -130,7 +129,7 @@ def _output_result_to_sarif(
 
 
 def output_to_sarif(
-    filename: Optional[str], results: Dict, detectors_classes: List["AbstractDetector"]
+    filename: Optional[str], results: Dict, detectors_classes: List[Type["AbstractDetector"]]
 ) -> None:
     """
 
@@ -359,7 +358,7 @@ class Output:
         else:
             info = info_
 
-        self._data: Dict[str, Any] = OrderedDict()
+        self._data = OrderedDict()
         self._data["elements"] = []
         self._data["description"] = "".join(_convert_to_description(d) for d in info)
         self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)

@@ -3,10 +3,13 @@ import inspect
 import json
 import logging
 import sys
+from typing import List, Any, Type, Dict, Tuple, Union, Sequence, Optional
 
 from crytic_compile import cryticparser
 
+
 from slither import Slither
+from slither.core.declarations import Contract
 from slither.exceptions import SlitherException
 from slither.utils.colors import red
 from slither.utils.output import output_to_json
@@ -24,7 +27,7 @@ logger: logging.Logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Slither Upgradeability Checks. For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.",
         usage="slither-check-upgradeability contract.sol ContractName",
@@ -93,21 +96,27 @@ def parse_args():
 ###################################################################################
 
 
-def _get_checks():
-    detectors = [getattr(all_checks, name) for name in dir(all_checks)]
-    detectors = [c for c in detectors if inspect.isclass(c) and issubclass(c, AbstractCheck)]
+def _get_checks() -> List[Type[AbstractCheck]]:
+    detectors_ = [getattr(all_checks, name) for name in dir(all_checks)]
+    detectors: List[Type[AbstractCheck]] = [
+        c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractCheck)
+    ]
     return detectors
 
 
 class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
         checks = _get_checks()
         output_detectors(checks)
         parser.exit()
 
 
 class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
         checks = _get_checks()
         detector_types_json = output_detectors_json(checks)
         print(json.dumps(detector_types_json))
@@ -116,48 +125,64 @@ class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-meth
 
 class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(
-        self, parser, args, values, option_string=None
-    ):  # pylint: disable=signature-differs
+        self,
+        parser: Any,
+        args: Any,
+        values: Optional[Union[str, Sequence[Any]]],
+        option_string: Any = None,
+    ) -> None:  # pylint: disable=signature-differs
         checks = _get_checks()
+        assert isinstance(values, str)
         output_to_markdown(checks, values)
         parser.exit()
 
 
 class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(
-        self, parser, args, values, option_string=None
-    ):  # pylint: disable=signature-differs
+        self,
+        parser: Any,
+        args: Any,
+        values: Optional[Union[str, Sequence[Any]]],
+        option_string: Any = None,
+    ) -> Any:  # pylint: disable=signature-differs
         checks = _get_checks()
+        assert isinstance(values, str)
         output_wiki(checks, values)
         parser.exit()
 
 
-def _run_checks(detectors):
-    results = [d.check() for d in detectors]
-    results = [r for r in results if r]
-    results = [item for sublist in results for item in sublist]  # flatten
+def _run_checks(detectors: List[AbstractCheck]) -> List[Dict]:
+    results_ = [d.check() for d in detectors]
+    results_ = [r for r in results_ if r]
+    results = [item for sublist in results_ for item in sublist]  # flatten
     return results
 
 
-def _checks_on_contract(detectors, contract):
-    detectors = [
+def _checks_on_contract(
+    detectors: List[Type[AbstractCheck]], contract: Contract
+) -> Tuple[List[Dict], int]:
+    detectors_ = [
         d(logger, contract)
         for d in detectors
         if (not d.REQUIRE_PROXY and not d.REQUIRE_CONTRACT_V2)
     ]
-    return _run_checks(detectors), len(detectors)
+    return _run_checks(detectors_), len(detectors_)
 
 
-def _checks_on_contract_update(detectors, contract_v1, contract_v2):
-    detectors = [
+def _checks_on_contract_update(
+    detectors: List[Type[AbstractCheck]], contract_v1: Contract, contract_v2: Contract
+) -> Tuple[List[Dict], int]:
+    detectors_ = [
         d(logger, contract_v1, contract_v2=contract_v2) for d in detectors if d.REQUIRE_CONTRACT_V2
     ]
-    return _run_checks(detectors), len(detectors)
+    return _run_checks(detectors_), len(detectors_)
 
 
-def _checks_on_contract_and_proxy(detectors, contract, proxy):
-    detectors = [d(logger, contract, proxy=proxy) for d in detectors if d.REQUIRE_PROXY]
-    return _run_checks(detectors), len(detectors)
+def _checks_on_contract_and_proxy(
+    detectors: List[Type[AbstractCheck]], contract: Contract, proxy: Contract
+) -> Tuple[List[Dict], int]:
+    detectors_ = [d(logger, contract, proxy=proxy) for d in detectors if d.REQUIRE_PROXY]
+    return _run_checks(detectors_), len(detectors_)
 
 
 # endregion
@@ -168,8 +193,8 @@ def _checks_on_contract_and_proxy(detectors, contract, proxy):
 ###################################################################################
 
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
-def main():
-    json_results = {
+def main() -> None:
+    json_results: Dict = {
         "proxy-present": False,
         "contract_v2-present": False,
         "detectors": [],
@@ -254,7 +279,7 @@ def main():
             number_detectors_run += number_detectors
 
             # If there is a V2, we run the contract-only check on the V2
-            detectors_results, _ = _checks_on_contract(detectors, v2_contract)
+            detectors_results, number_detectors = _checks_on_contract(detectors, v2_contract)
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 

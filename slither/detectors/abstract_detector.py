@@ -147,7 +147,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     # pylint: disable=too-many-branches
     def detect(self) -> List[Dict]:
         results: List[Dict] = []
-        # only keep valid result, and remove dupplicate
+        # only keep valid result, and remove duplicate
         # Keep only dictionaries
         for r in [output.data for output in self._detect()]:
             if self.compilation_unit.core.valid_result(r) and r not in results:
@@ -189,7 +189,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if results and self.slither.triage_mode:
             while True:
                 indexes = input(
-                    f'Results to hide during next runs: "0,1,...,{len(results)}" or "All" (enter to not hide results): '
+                    f'Results to hide during next runs: "0,1,...,{len(results)}" or "All" (enter to not hide results):\n'
                 )
                 if indexes == "All":
                     self.slither.save_results_to_hide(results)

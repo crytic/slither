@@ -1,8 +1,15 @@
+from typing import List, Tuple, Union, Optional, Set
+
+from slither import Slither
+from slither.core.declarations import Function, FunctionContract
+from slither.core.slither_core import SlitherCore
+
+
 class ResolveFunctionException(Exception):
     pass
 
 
-def resolve_function(slither, contract_name, function_name):
+def resolve_function(slither: SlitherCore, contract_name: str, function_name: str) -> Function:
     """
     Resolves a function instance, given a contract name and function.
     :param contract_name: The name of the contract the function is declared in.
@@ -32,7 +39,9 @@ def resolve_function(slither, contract_name, function_name):
     return target_function
 
 
-def resolve_functions(slither, functions):
+def resolve_functions(
+    slither: Slither, functions: List[Union[str, Tuple[str, str]]]
+) -> List[Function]:
     """
     Resolves the provided function descriptors.
     :param functions: A list of tuples (contract_name, function_name) or str (of form "ContractName.FunctionName")
@@ -40,7 +49,7 @@ def resolve_functions(slither, functions):
     :return: Returns a list of resolved functions.
     """
     # Create the resolved list.
-    resolved = []
+    resolved: List[Function] = []
 
     # Verify that the provided argument is a list.
     if not isinstance(functions, list):
@@ -72,24 +81,31 @@ def resolve_functions(slither, functions):
     return resolved
 
 
-def all_function_definitions(function):
+def all_function_definitions(function: Function) -> List[Function]:
     """
     Obtains a list of representing this function and any base definitions
     :param function: The function to obtain all definitions at and beneath.
     :return: Returns a list composed of the provided function definition and any base definitions.
     """
-    return [function] + [
+    # TODO implement me
+    if not isinstance(function, FunctionContract):
+        return []
+    ret: List[Function] = [function]
+    ret += [
         f
         for c in function.contract.inheritance
         for f in c.functions_and_modifiers_declared
         if f.full_name == function.full_name
     ]
+    return ret
 
 
-def __find_target_paths(slither, target_function, current_path=None):
+def __find_target_paths(
+    slither: SlitherCore, target_function: Function, current_path: Optional[List[Function]] = None
+) -> Set[Tuple[Function, ...]]:
     current_path = current_path if current_path else []
     # Create our results list
-    results = set()
+    results: Set[Tuple[Function, ...]] = set()
 
     # Add our current function to the path.
     current_path = [target_function] + current_path
@@ -106,9 +122,12 @@ def __find_target_paths(slither, target_function, current_path=None):
                 continue
 
             # Find all function calls in this function (except for low level)
-            called_functions = [f for (_, f) in function.high_level_calls + function.library_calls]
-            called_functions += function.internal_calls
-            called_functions = set(called_functions)
+            called_functions_list = [
+                f for (_, f) in function.high_level_calls if isinstance(f, Function)
+            ]
+            called_functions_list += [f for (_, f) in function.library_calls]
+            called_functions_list += [f for f in function.internal_calls if isinstance(f, Function)]
+            called_functions = set(called_functions_list)
 
             # If any of our target functions are reachable from this function, it's a result.
             if all_target_functions.intersection(called_functions):
@@ -123,14 +142,16 @@ def __find_target_paths(slither, target_function, current_path=None):
     return results
 
 
-def find_target_paths(slither, target_functions):
+def find_target_paths(
+    slither: SlitherCore, target_functions: List[Function]
+) -> Set[Tuple[Function, ...]]:
     """
     Obtains all functions which can lead to any of the target functions being called.
     :param target_functions: The functions we are interested in reaching.
     :return: Returns a list of all functions which can reach any of the target_functions.
     """
     # Create our results list
-    results = set()
+    results: Set[Tuple[Function, ...]] = set()
 
     # Loop for each target function
     for target_function in target_functions:

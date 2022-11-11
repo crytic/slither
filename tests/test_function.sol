@@ -7,6 +7,7 @@ pragma solidity ^0.6.12;
 
 contract TestFunction {
     bool entered = false;
+    bytes32 public info;
 
     function external_payable(uint _a) external payable returns (uint) {
         return 1;
