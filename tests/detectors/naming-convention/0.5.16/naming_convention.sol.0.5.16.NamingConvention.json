@@ -102,6 +102,207 @@
             "elements": [
                 {
                     "type": "variable",
+                    "name": "I",
+                    "source_mapping": {
+                        "start": 932,
+                        "length": 10,
+                        "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            69
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 15
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "T",
+                            "source_mapping": {
+                                "start": 692,
+                                "length": 253,
+                                "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66,
+                                    67,
+                                    68,
+                                    69,
+                                    70
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "target": "variable",
+                        "convention": "mixedCase"
+                    }
+                }
+            ],
+            "description": "Variable T.I (tests/detectors/naming-convention/0.5.16/naming_convention.sol#69) is not in mixedCase\n",
+            "markdown": "Variable [T.I](tests/detectors/naming-convention/0.5.16/naming_convention.sol#L69) is not in mixedCase\n",
+            "first_markdown_element": "tests/detectors/naming-convention/0.5.16/naming_convention.sol#L69",
+            "id": "12df12bbda2059673d356e5c32ec4e8a037a3821c9fa42b831a9144437cb79f9",
+            "check": "naming-convention",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "I",
+                    "source_mapping": {
+                        "start": 932,
+                        "length": 10,
+                        "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            69
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 15
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "T",
+                            "source_mapping": {
+                                "start": 692,
+                                "length": 253,
+                                "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66,
+                                    67,
+                                    68,
+                                    69,
+                                    70
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "target": "variable",
+                        "convention": "l_O_I_should_not_be_used"
+                    }
+                }
+            ],
+            "description": "Variable T.I (tests/detectors/naming-convention/0.5.16/naming_convention.sol#69) is single letter l, O, or I, which should not be used\n",
+            "markdown": "Variable [T.I](tests/detectors/naming-convention/0.5.16/naming_convention.sol#L69) is single letter l, O, or I, which should not be used\n",
+            "first_markdown_element": "tests/detectors/naming-convention/0.5.16/naming_convention.sol#L69",
+            "id": "2ac65aa5bb560436d64f16e164aaab90dbbf38d683bfdfdfb42eeb225fc51759",
+            "check": "naming-convention",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "O",
+                    "source_mapping": {
+                        "start": 916,
+                        "length": 10,
+                        "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            68
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 15
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "T",
+                            "source_mapping": {
+                                "start": 692,
+                                "length": 253,
+                                "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66,
+                                    67,
+                                    68,
+                                    69,
+                                    70
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "target": "variable",
+                        "convention": "mixedCase"
+                    }
+                }
+            ],
+            "description": "Variable T.O (tests/detectors/naming-convention/0.5.16/naming_convention.sol#68) is not in mixedCase\n",
+            "markdown": "Variable [T.O](tests/detectors/naming-convention/0.5.16/naming_convention.sol#L68) is not in mixedCase\n",
+            "first_markdown_element": "tests/detectors/naming-convention/0.5.16/naming_convention.sol#L68",
+            "id": "2de986dda91f7c7e3a51470aa43abfa2c6fd363b742d1bbd38d5287ae179b83a",
+            "check": "naming-convention",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
                     "name": "Var_One",
                     "source_mapping": {
                         "start": 185,
@@ -505,7 +706,7 @@
                                     "name": "T",
                                     "source_mapping": {
                                         "start": 692,
-                                        "length": 221,
+                                        "length": 253,
                                         "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
@@ -525,7 +726,9 @@
                                             65,
                                             66,
                                             67,
-                                            68
+                                            68,
+                                            69,
+                                            70
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -573,7 +776,7 @@
                             "name": "T",
                             "source_mapping": {
                                 "start": 692,
-                                "length": 221,
+                                "length": 253,
                                 "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
@@ -593,7 +796,9 @@
                                     65,
                                     66,
                                     67,
-                                    68
+                                    68,
+                                    69,
+                                    70
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -715,16 +920,16 @@
             "elements": [
                 {
                     "type": "variable",
-                    "name": "l",
+                    "name": "O",
                     "source_mapping": {
-                        "start": 900,
+                        "start": 916,
                         "length": 10,
                         "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
                         "is_dependency": false,
                         "lines": [
-                            67
+                            68
                         ],
                         "starting_column": 5,
                         "ending_column": 15
@@ -735,7 +940,7 @@
                             "name": "T",
                             "source_mapping": {
                                 "start": 692,
-                                "length": 221,
+                                "length": 253,
                                 "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
@@ -755,7 +960,9 @@
                                     65,
                                     66,
                                     67,
-                                    68
+                                    68,
+                                    69,
+                                    70
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -768,10 +975,10 @@
                     }
                 }
             ],
-            "description": "Variable T.l (tests/detectors/naming-convention/0.5.16/naming_convention.sol#67) used l, O, I, which should not be used\n",
-            "markdown": "Variable [T.l](tests/detectors/naming-convention/0.5.16/naming_convention.sol#L67) used l, O, I, which should not be used\n",
-            "first_markdown_element": "tests/detectors/naming-convention/0.5.16/naming_convention.sol#L67",
-            "id": "b595f9e6d03b8b501b7c4a9bf8ff0ad9bf11448a25f53d63ab5031c95f8ae89c",
+            "description": "Variable T.O (tests/detectors/naming-convention/0.5.16/naming_convention.sol#68) is single letter l, O, or I, which should not be used\n",
+            "markdown": "Variable [T.O](tests/detectors/naming-convention/0.5.16/naming_convention.sol#L68) is single letter l, O, or I, which should not be used\n",
+            "first_markdown_element": "tests/detectors/naming-convention/0.5.16/naming_convention.sol#L68",
+            "id": "b341001642225c62eae76fef9879c80003b3134b3bc627d9b1912ebcd190304b",
             "check": "naming-convention",
             "impact": "Informational",
             "confidence": "High"
@@ -971,6 +1178,73 @@
             "markdown": "Function [naming.GetOne()](tests/detectors/naming-convention/0.5.16/naming_convention.sol#L30-L33) is not in mixedCase\n",
             "first_markdown_element": "tests/detectors/naming-convention/0.5.16/naming_convention.sol#L30-L33",
             "id": "bf6f97d6a82b84284efdade52d01bd6112007426e2e88d1568190d63c5c4a049",
+            "check": "naming-convention",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "l",
+                    "source_mapping": {
+                        "start": 900,
+                        "length": 10,
+                        "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            67
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 15
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "T",
+                            "source_mapping": {
+                                "start": 692,
+                                "length": 253,
+                                "filename_relative": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/naming-convention/0.5.16/naming_convention.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66,
+                                    67,
+                                    68,
+                                    69,
+                                    70
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "target": "variable",
+                        "convention": "l_O_I_should_not_be_used"
+                    }
+                }
+            ],
+            "description": "Variable T.l (tests/detectors/naming-convention/0.5.16/naming_convention.sol#67) is single letter l, O, or I, which should not be used\n",
+            "markdown": "Variable [T.l](tests/detectors/naming-convention/0.5.16/naming_convention.sol#L67) is single letter l, O, or I, which should not be used\n",
+            "first_markdown_element": "tests/detectors/naming-convention/0.5.16/naming_convention.sol#L67",
+            "id": "cb8668afe6ed1284c935ac95f8f9cb1407f96226fe741e7310d104d5f10a0fc6",
             "check": "naming-convention",
             "impact": "Informational",
             "confidence": "High"
