@@ -122,7 +122,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     info = [
                         "Variable ",
                         var,
-                        " used l, O, I, which should not be used\n",
+                        " is single letter l, O, or I, which should not be used\n",
                     ]
 
                     res = self.generate_result(info)
