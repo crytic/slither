@@ -61,6 +61,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     STANDARD_JSON = True
 
+    # list of vulnerable solc versions as strings (e.g. ["0.4.25", "0.5.0"])
+    # if this list is not empty then the detector will not run unless the solc version is on the list
+    # an empty list means that the detector will run on any solc version
+    VULNERABLE_SOLC_VERSIONS = []
+
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
     ):
@@ -139,6 +144,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if self.logger:
             self.logger.info(self.color(info))
 
+    def _uses_vulnerable_solc_version(self) -> bool:
+        if self.VULNERABLE_SOLC_VERSIONS:
+            return self.compilation_unit.solc_version in self.VULNERABLE_SOLC_VERSIONS
+        return True
+
     @abc.abstractmethod
     def _detect(self) -> List[Output]:
         """TODO Documentation"""
@@ -147,6 +157,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     # pylint: disable=too-many-branches
     def detect(self) -> List[Dict]:
         results: List[Dict] = []
+
+        # check solc version
+        if not self._uses_vulnerable_solc_version():
+            return results
+
         # only keep valid result, and remove duplicate
         # Keep only dictionaries
         for r in [output.data for output in self._detect()]:
