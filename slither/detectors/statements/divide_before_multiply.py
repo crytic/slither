@@ -152,7 +152,7 @@ class DivideBeforeMultiply(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#divide-before-multiply"
 
     WIKI_TITLE = "Divide before multiply"
-    WIKI_DESCRIPTION = """Solidity integer division might truncate. As a result, performing multiplication before division can sometimes avoid loss of precision."""
+    WIKI_DESCRIPTION = """Solidity's integer division truncates. Thus, performing division before multiplication can lead to precision loss."""
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
