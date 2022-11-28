@@ -2,6 +2,7 @@ import inspect
 
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
+from solc_select import solc_select
 
 from slither import Slither
 from slither.detectors import all_detectors
@@ -41,3 +42,11 @@ def test_collision():
 def test_cycle():
     slither = Slither("./tests/test_cyclic_import/a.sol")
     _run_all_detectors(slither)
+
+
+def test_funcion_id_rec_structure():
+    solc_select.switch_global_version("0.8.0", always_install=True)
+    slither = Slither("./tests/function_ids/rec_struct-0.8.sol")
+    for compilation_unit in slither.compilation_units:
+        for function in compilation_unit.functions:
+            assert function.solidity_signature

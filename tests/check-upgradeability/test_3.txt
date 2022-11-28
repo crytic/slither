@@ -20,4 +20,4 @@ Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#extra-va
 INFO:Slither:
 Initializable contract not found, the contract does not follow a standard initalization schema.
 Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing
-INFO:Slither:6 findings, 22 detectors run
+INFO:Slither:6 findings, 25 detectors run
