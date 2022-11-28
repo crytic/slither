@@ -1043,13 +1043,13 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
             new_functions = self.reachable_from_functions
             # iterate until we have are finding new functions
-            while new_functions and new_functions not in functions:
+            while new_functions and not new_functions.issubset(functions):
                 functions = functions.union(new_functions)
                 # Use a temporary set, because we iterate over new_functions
                 new_functionss: Set["Function"] = set()
                 for f in new_functions:
                     new_functionss = new_functionss.union(f.reachable_from_functions)
-                new_functions = new_functionss
+                new_functions = new_functionss - functions
 
             self._all_reachable_from_functions = functions
         return self._all_reachable_from_functions
