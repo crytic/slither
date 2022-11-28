@@ -76,8 +76,6 @@ class SlitherCore(Context):
         self._ignore_ranges: defaultdict[str, defaultdict[str, List[(int, int)]]] = defaultdict(
             lambda: defaultdict(lambda: [])
         )
-        # Track which files for _ignore_ranges have been processed (a processed file may have no entries in _ignore_ranges).
-        self._processed_ignores: Set[str] = set()
 
         self._compilation_units: List[SlitherCompilationUnit] = []
 
@@ -159,7 +157,7 @@ class SlitherCore(Context):
     def filename(self, filename: str):
         self._filename = filename
 
-    def add_source_code(self, path):
+    def add_source_code(self, path: str) -> None:
         """
         :param path:
         :return:
@@ -169,6 +167,8 @@ class SlitherCore(Context):
         else:
             with open(path, encoding="utf8", newline="") as f:
                 self.source_code[path] = f.read()
+
+        self.parse_ignore_comments(path)
 
     @property
     def markdown_root(self) -> str:
@@ -292,12 +292,10 @@ class SlitherCore(Context):
     ###################################################################################
     ###################################################################################
 
-    def parse_ignore_comments(self, file: str):
+    def parse_ignore_comments(self, file: str) -> None:
         # The first time we check a file, find all start/end ignore comments and memoize them.
         line_number = 1
         while True:
-            if file in self._processed_ignores:
-                break
 
             line_text = self.crytic_compile.get_code_from_line(file, line_number)
             if line_text is None:
@@ -317,9 +315,10 @@ class SlitherCore(Context):
                             # First item in the array, or the prior item is fully populated.
                             self._ignore_ranges[file][check].append((line_number, float("inf")))
                         else:
-                            raise Exception(
-                                "consecutive slither-disable-starts without slither-disable-end"
+                            logger.error(
+                                f"Consecutive slither-disable-starts without slither-disable-end in {file}#{line_number}"
                             )
+                            return
 
             if end_match:
                 ignored = end_match[0].split(",")
@@ -327,12 +326,13 @@ class SlitherCore(Context):
                     for check in ignored:
                         vals = self._ignore_ranges[file][check]
                         if len(vals) == 0 or vals[-1][1] != float("inf"):
-                            raise Exception("slither-disable-end without slither-disable-start")
+                            logger.error(
+                                f"slither-disable-end without slither-disable-start in {file}#{line_number}"
+                            )
+                            return
                         self._ignore_ranges[file][check][-1] = (vals[-1][0], line_number)
 
             line_number += 1
-
-        self._processed_ignores.add(file)
 
     def has_ignore_comment(self, r: Dict) -> bool:
         """
@@ -354,7 +354,6 @@ class SlitherCore(Context):
         )
 
         for file, lines in mapping_elements_with_lines:
-            self.parse_ignore_comments(file)
 
             # Check if result is within an ignored range.
             ignore_ranges = self._ignore_ranges[file][r["check"]] + self._ignore_ranges[file]["all"]
