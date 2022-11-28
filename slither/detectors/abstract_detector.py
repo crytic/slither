@@ -64,7 +64,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     # list of vulnerable solc versions as strings (e.g. ["0.4.25", "0.5.0"])
     # if this list is not empty then the detector will not run unless the solc version is on the list
     # an empty list means that the detector will run on any solc version
-    VULNERABLE_SOLC_VERSIONS = []
+    VULNERABLE_SOLC_VERSIONS: List[str] = []
 
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
