@@ -362,6 +362,7 @@ ALL_TEST_OBJECTS = [
         "DAO.sol",
         "0.4.25",
     ),
+    Test(all_detectors.ReentrancyEth, "reentrancy_with_non_reentrant.sol", "0.8.10"),
     Test(
         all_detectors.UninitializedStorageVars,
         "uninitialized_storage_pointer.sol",
