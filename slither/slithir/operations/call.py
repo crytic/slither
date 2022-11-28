@@ -1,10 +1,8 @@
-from typing import Optional, List
-
 from slither.slithir.operations.operation import Operation
 
 
 class Call(Operation):
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__()
         self._arguments = []
 
@@ -16,7 +14,7 @@ class Call(Operation):
     def arguments(self, v):
         self._arguments = v
 
-    def can_reenter(self, _callstack: Optional[List] = None) -> bool:  # pylint: disable=no-self-use
+    def can_reenter(self, _callstack=None) -> bool:  # pylint: disable=no-self-use
         """
         Must be called after slithIR analysis pass
         :return: bool

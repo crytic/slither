@@ -5,13 +5,14 @@
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
 from collections import namedtuple, defaultdict
-from typing import List
+from typing import List, Dict, Set
 
 from slither.detectors.abstract_detector import DetectorClassification
 from .reentrancy import Reentrancy, to_hashable
+from ...utils.output import Output
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
-FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])
+FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes", "cross_functions"])
 
 
 class ReentrancyEth(Reentrancy):
@@ -52,9 +53,10 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self):
-        result = defaultdict(set)
+    def find_reentrancies(self) -> Dict[FindingKey, Set[FindingValue]]:
+        result: Dict[FindingKey, Set[FindingValue]] = defaultdict(set)
         for contract in self.contracts:  # pylint: disable=too-many-nested-blocks
+            variables_used_in_reentrancy = contract.state_variables_used_in_reentrant_targets
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
                     # dead code
@@ -72,9 +74,15 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                                     v,
                                     node,
                                     tuple(sorted(nodes, key=lambda x: x.node_id)),
+                                    tuple(
+                                        sorted(
+                                            variables_used_in_reentrancy[v], key=lambda x: str(x)
+                                        )
+                                    ),
                                 )
                                 for (v, nodes) in node.context[self.KEY].written.items()
                                 if v in node.context[self.KEY].reads_prior_calls[c]
+                                and (f.is_reentrant or v in variables_used_in_reentrancy)
                             }
 
                         if read_then_written:
@@ -88,7 +96,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                             result[finding_key] |= set(read_then_written)
         return result
 
-    def _detect(self):  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches,too-many-locals
         """"""
         super()._detect()
 
@@ -98,10 +106,11 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
 
         result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0].function.name)
         varsWritten: List[FindingValue]
-        for (func, calls, send_eth), varsWritten in result_sorted:
+        varsWrittenSet: Set[FindingValue]
+        for (func, calls, send_eth), varsWrittenSet in result_sorted:
             calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
             send_eth = sorted(list(set(send_eth)), key=lambda x: x[0].node_id)
-            varsWritten = sorted(varsWritten, key=lambda x: (x.variable.name, x.node.node_id))
+            varsWritten = sorted(varsWrittenSet, key=lambda x: (x.variable.name, x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]
             info += ["\tExternal calls:\n"]
@@ -123,6 +132,14 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                 for other_node in finding_value.nodes:
                     if other_node != finding_value.node:
                         info += ["\t\t- ", other_node, "\n"]
+                if finding_value.cross_functions:
+                    info += [
+                        "\t",
+                        finding_value.variable,
+                        " can be used in cross function reentrancies:\n",
+                    ]
+                    for cross in finding_value.cross_functions:
+                        info += ["\t- ", cross, "\n"]
 
             # Create our JSON result
             res = self.generate_result(info)

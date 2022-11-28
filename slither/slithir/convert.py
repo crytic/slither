@@ -827,7 +827,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             # lib L { event E()}
             # ...
             # emit L.E();
-            if str(ins.ori.variable_right) in [f.name for f in ins.ori.variable_left.events]:
+            if str(ins.ori.variable_right) in ins.ori.variable_left.events_as_dict:
                 eventcall = EventCall(ins.ori.variable_right)
                 eventcall.set_expression(ins.expression)
                 eventcall.call_id = ins.call_id

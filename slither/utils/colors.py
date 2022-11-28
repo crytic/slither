@@ -10,7 +10,6 @@ class Colors:  # pylint: disable=too-few-public-methods
     YELLOW = "\033[93m"
     BLUE = "\033[94m"
     MAGENTA = "\033[95m"
-    BOLD = "\033[1m"
     END = "\033[0m"
 
 
@@ -84,7 +83,6 @@ yellow = partial(colorize, Colors.YELLOW)
 red = partial(colorize, Colors.RED)
 blue = partial(colorize, Colors.BLUE)
 magenta = partial(colorize, Colors.MAGENTA)
-bold = partial(colorize, Colors.BOLD)
 
 # We enable colorization by default if the output is a tty
 set_colorization_enabled(sys.stdout.isatty())

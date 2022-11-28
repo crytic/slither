@@ -376,6 +376,8 @@ ALL_TEST_OBJECTS = [
         "unused_state.sol",
         "0.4.25",
     ),
+    Test(all_detectors.ReentrancyEth, 
+    "reentrancy_with_non_reeentrant.sol", "0.8.10"),
     Test(
         all_detectors.UnusedStateVars,
         "unused_state.sol",

@@ -5,12 +5,14 @@
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
 from collections import namedtuple, defaultdict
+from typing import Dict, Set, List
 
 from slither.detectors.abstract_detector import DetectorClassification
 from .reentrancy import Reentrancy, to_hashable
+from ...utils.output import Output
 
 FindingKey = namedtuple("FindingKey", ["function", "calls"])
-FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])
+FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes", "cross_functions"])
 
 
 class ReentrancyReadBeforeWritten(Reentrancy):
@@ -49,9 +51,11 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self):
-        result = defaultdict(set)
+    # pylint: disable=too-many-locals
+    def find_reentrancies(self) -> Dict[FindingKey, Set[FindingValue]]:
+        result: Dict[FindingKey, Set[FindingValue]] = defaultdict(set)
         for contract in self.contracts:  # pylint: disable=too-many-nested-blocks
+            variables_used_in_reentrancy = contract.state_variables_used_in_reentrant_targets
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
                     # dead code
@@ -67,9 +71,15 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                                     v,
                                     node,
                                     tuple(sorted(nodes, key=lambda x: x.node_id)),
+                                    tuple(
+                                        sorted(
+                                            variables_used_in_reentrancy[v], key=lambda x: str(x)
+                                        )
+                                    ),
                                 )
                                 for (v, nodes) in node.context[self.KEY].written.items()
                                 if v in node.context[self.KEY].reads_prior_calls[c]
+                                and (f.is_reentrant or v in variables_used_in_reentrancy)
                             }
 
                         # We found a potential re-entrancy bug
@@ -82,7 +92,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                             result[finding_key] |= read_then_written
         return result
 
-    def _detect(self):  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
         """"""
 
         super()._detect()
@@ -91,9 +101,11 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
         results = []
 
         result_sorted = sorted(list(reentrancies.items()), key=lambda x: x[0].function.name)
-        for (func, calls), varsWritten in result_sorted:
+        varsWritten: List[FindingValue]
+        varsWrittenSet: Set[FindingValue]
+        for (func, calls), varsWrittenSet in result_sorted:
             calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
-            varsWritten = sorted(varsWritten, key=lambda x: (x.variable.name, x.node.node_id))
+            varsWritten = sorted(varsWrittenSet, key=lambda x: (x.variable.name, x.node.node_id))
 
             info = ["Reentrancy in ", func, ":\n"]
 
@@ -109,6 +121,14 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                 for other_node in finding_value.nodes:
                     if other_node != finding_value.node:
                         info += ["\t\t- ", other_node, "\n"]
+                if finding_value.cross_functions:
+                    info += [
+                        "\t",
+                        finding_value.variable,
+                        " can be used in cross function reentrancies:\n",
+                    ]
+                    for cross in finding_value.cross_functions:
+                        info += ["\t- ", cross, "\n"]
 
             # Create our JSON result
             res = self.generate_result(info)
