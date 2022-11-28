@@ -15,6 +15,7 @@ from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.state_variable import StateVariable
 from slither.formatters.variables.possible_const_state_variables import custom_format
 from slither.core.expressions import CallExpression, NewContract
+from slither.utils.standard_libraries import is_openzeppelin
 
 
 def _is_valid_type(v: StateVariable) -> bool:
@@ -84,10 +85,8 @@ class ConstCandidateStateVars(AbstractDetector):
         values = export.result()
         if not values:
             return True
-        else:
-            return all(
-                (val in self.valid_solidity_function or _is_constant_var(val) for val in values)
-            )
+
+        return all((val in self.valid_solidity_function or _is_constant_var(val) for val in values))
 
     def _detect(self) -> List[Output]:
         """Detect state variables that could be constant or immutable"""
@@ -96,6 +95,8 @@ class ConstCandidateStateVars(AbstractDetector):
         variables = []
         functions = []
         for c in self.compilation_unit.contracts:
+            if is_openzeppelin(c):
+                continue
             variables.append(c.state_variables)
             functions.append(c.all_functions_called)
 
