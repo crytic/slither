@@ -1553,6 +1553,27 @@ ALL_TEST_OBJECTS = [
         "permit_domain_state_var_collision.sol",
         "0.8.0",
     ),
+    Test(
+        all_detectors.VarReadUsingThis,
+        "var_read_using_this.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.VarReadUsingThis,
+        "var_read_using_this.sol",
+        "0.5.16",
+    ),
+    Test(all_detectors.VarReadUsingThis, "var_read_using_this.sol", "0.6.11"),
+    Test(
+        all_detectors.VarReadUsingThis,
+        "var_read_using_this.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.VarReadUsingThis,
+        "var_read_using_this.sol",
+        "0.8.15",
+    ),
 ]
 
 
