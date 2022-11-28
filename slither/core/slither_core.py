@@ -71,6 +71,14 @@ class SlitherCore(Context):
 
         self._show_ignored_findings = False
 
+        # Maps from file to detector name to the start/end ranges for that detector.
+        # Infinity is used to signal a detector has no end range.
+        self._ignore_ranges: defaultdict[str, defaultdict[str, List[(int, int)]]] = defaultdict(
+            lambda: defaultdict(lambda: [])
+        )
+        # Track which files for _ignore_ranges have been processed (a processed file may have no entries in _ignore_ranges).
+        self._processed_ignores: Set[str] = set()
+
         self._compilation_units: List[SlitherCompilationUnit] = []
 
         self._contracts: List[Contract] = []
@@ -284,9 +292,52 @@ class SlitherCore(Context):
     ###################################################################################
     ###################################################################################
 
+    def parse_ignore_comments(self, file: str):
+        # The first time we check a file, find all start/end ignore comments and memoize them.
+        line_number = 1
+        while True:
+            if file in self._processed_ignores:
+                break
+
+            line_text = self.crytic_compile.get_code_from_line(file, line_number)
+            if line_text is None:
+                break
+
+            start_regex = r"^\s*//\s*slither-disable-start\s*([a-zA-Z0-9_,-]*)"
+            end_regex = r"^\s*//\s*slither-disable-end\s*([a-zA-Z0-9_,-]*)"
+            start_match = re.findall(start_regex, line_text.decode("utf8"))
+            end_match = re.findall(end_regex, line_text.decode("utf8"))
+
+            if start_match:
+                ignored = start_match[0].split(",")
+                if ignored:
+                    for check in ignored:
+                        vals = self._ignore_ranges[file][check]
+                        if len(vals) == 0 or vals[-1][1] != float("inf"):
+                            # First item in the array, or the prior item is fully populated.
+                            self._ignore_ranges[file][check].append((line_number, float("inf")))
+                        else:
+                            raise Exception(
+                                "consecutive slither-disable-starts without slither-disable-end"
+                            )
+
+            if end_match:
+                ignored = end_match[0].split(",")
+                if ignored:
+                    for check in ignored:
+                        vals = self._ignore_ranges[file][check]
+                        if len(vals) == 0 or vals[-1][1] != float("inf"):
+                            raise Exception("slither-disable-end without slither-disable-start")
+                        self._ignore_ranges[file][check][-1] = (vals[-1][0], line_number)
+
+            line_number += 1
+
+        self._processed_ignores.add(file)
+
     def has_ignore_comment(self, r: Dict) -> bool:
         """
-        Check if the result has an ignore comment on the proceeding line, in which case, it is not valid
+        Check if the result has an ignore comment in the file or on the preceding line, in which
+        case, it is not valid
         """
         if not self.crytic_compile:
             return False
@@ -303,6 +354,16 @@ class SlitherCore(Context):
         )
 
         for file, lines in mapping_elements_with_lines:
+            self.parse_ignore_comments(file)
+
+            # Check if result is within an ignored range.
+            ignore_ranges = self._ignore_ranges[file][r["check"]] + self._ignore_ranges[file]["all"]
+            for start, end in ignore_ranges:
+                # The full check must be within the ignore range to be ignored.
+                if start < lines[0] and end > lines[-1]:
+                    return True
+
+            # Check for next-line matchers.
             ignore_line_index = min(lines) - 1
             ignore_line_text = self.crytic_compile.get_code_from_line(file, ignore_line_index)
             if ignore_line_text:
@@ -324,7 +385,7 @@ class SlitherCore(Context):
             - All its source paths belong to the source path filtered
             - Or a similar result was reported and saved during a previous run
             - The --exclude-dependencies flag is set and results are only related to dependencies
-            - There is an ignore comment on the preceding line
+            - There is an ignore comment on the preceding line or in the file
         """
 
         # Remove duplicate due to the multiple compilation support
