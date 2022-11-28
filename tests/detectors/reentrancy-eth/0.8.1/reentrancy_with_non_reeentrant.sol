@@ -1,4 +1,4 @@
-nterface Receiver{
+interface Receiver{
     function send_funds() payable external;
 }
 
