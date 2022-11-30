@@ -2,7 +2,11 @@
 Module detecting dangerous conversion to enum
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    make_solc_versions,
+)
 from slither.slithir.operations import TypeConversion
 from slither.core.declarations.enum import Enum
 
@@ -55,7 +59,7 @@ Attackers can trigger unexpected behaviour by calling `bug(1)`."""
 
     WIKI_RECOMMENDATION = "Use a recent compiler version. If `solc` <`0.4.5` is required, check the `enum` conversion range."
 
-    VULNERABLE_SOLC_VERSIONS = ["0.4.0", "0.4.1", "0.4.2", "0.4.3", "0.4.4"]
+    VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 0, 4)
 
     def _detect(self):
         """Detect dangerous conversion to enum"""

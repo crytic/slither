@@ -46,6 +46,20 @@ classification_txt = {
 }
 
 
+def make_solc_versions(minor: int, patch_min: int, patch_max: int) -> List[str]:
+    """
+    Create a list of solc version: [0.minor.patch_min .... 0.minor.patch_max]
+    """
+    return [f"0.{minor}.{x}" for x in range(patch_min, patch_max + 1)]
+
+
+ALL_SOLC_VERSIONS_04 = make_solc_versions(4, 0, 26)
+ALL_SOLC_VERSIONS_05 = make_solc_versions(5, 0, 17)
+ALL_SOLC_VERSIONS_06 = make_solc_versions(6, 0, 12)
+ALL_SOLC_VERSIONS_07 = make_solc_versions(7, 0, 6)
+# No VERSIONS_08 as it is still in dev
+
+
 class AbstractDetector(metaclass=abc.ABCMeta):
     ARGUMENT = ""  # run the detector with slither.py --ARGUMENT
     HELP = ""  # help information
@@ -62,9 +76,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     STANDARD_JSON = True
 
     # list of vulnerable solc versions as strings (e.g. ["0.4.25", "0.5.0"])
-    # if this list is not empty then the detector will not run unless the solc version is on the list
-    # an empty list means that the detector will run on any solc version
-    VULNERABLE_SOLC_VERSIONS: List[str] = []
+    # If the detector is meant to run on all versions, use None
+    VULNERABLE_SOLC_VERSIONS: Optional[List[str]] = None
 
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
@@ -111,6 +124,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if not self.WIKI_RECOMMENDATION:
             raise IncorrectDetectorInitialization(
                 f"WIKI_RECOMMENDATION is not initialized {self.__class__.__name__}"
+            )
+
+        if self.VULNERABLE_SOLC_VERSIONS is not None and not self.VULNERABLE_SOLC_VERSIONS:
+            raise IncorrectDetectorInitialization(
+                f"VULNERABLE_SOLC_VERSIONS should not be an empty list {self.__class__.__name__}"
             )
 
         if re.match("^[a-zA-Z0-9_-]*$", self.ARGUMENT) is None:

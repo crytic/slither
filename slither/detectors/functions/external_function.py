@@ -5,7 +5,13 @@ from slither.core.declarations.structure import Structure
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables.variable import Variable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    ALL_SOLC_VERSIONS_04,
+    ALL_SOLC_VERSIONS_05,
+    make_solc_versions,
+)
 from slither.formatters.functions.external_function import custom_format
 from slither.slithir.operations import InternalCall, InternalDynamicCall
 from slither.slithir.operations import SolidityCall
@@ -30,6 +36,10 @@ class ExternalFunction(AbstractDetector):
     WIKI_TITLE = "Public function that could be declared external"
     WIKI_DESCRIPTION = "`public` functions that are never called by the contract should be declared `external`, and its immutable parameters should be located in `calldata` to save gas."
     WIKI_RECOMMENDATION = "Use the `external` attribute for functions never called from the contract, and change the location of immutable parameters to `calldata` to save gas."
+
+    VULNERABLE_SOLC_VERSIONS = (
+        ALL_SOLC_VERSIONS_04 + ALL_SOLC_VERSIONS_05 + make_solc_versions(6, 0, 8)
+    )
 
     @staticmethod
     def detect_functions_called(contract: Contract) -> List[Function]:
@@ -133,15 +143,6 @@ class ExternalFunction(AbstractDetector):
 
     def _detect(self) -> List[Output]:  # pylint: disable=too-many-locals,too-many-branches
         results: List[Output] = []
-
-        # After solc 0.6.9, calldata arguments are allowed in public functions
-        if self.compilation_unit.solc_version >= "0.7." or self.compilation_unit.solc_version in [
-            "0.6.9",
-            "0.6.10",
-            "0.6.11",
-            "0.6.12",
-        ]:
-            return results
 
         # Create a set to track contracts with dynamic calls. All contracts with dynamic calls could potentially be
         # calling functions internally, and thus we can't assume any function in such contracts isn't called by them.
