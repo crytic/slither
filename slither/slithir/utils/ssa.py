@@ -36,7 +36,6 @@ from slither.slithir.operations import (
     OperationWithLValue,
     Phi,
     PhiCallback,
-    Push,
     Return,
     Send,
     SolidityCall,
@@ -778,10 +777,6 @@ def copy_ir(ir, *instances):
         return new_ir
     if isinstance(ir, Nop):
         return Nop()
-    if isinstance(ir, Push):
-        array = get_variable(ir, lambda x: x.array, *instances)
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        return Push(array, lvalue)
     if isinstance(ir, Return):
         values = get_rec_values(ir, lambda x: x.values, *instances)
         return Return(values)
