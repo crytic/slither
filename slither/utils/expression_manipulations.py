@@ -28,15 +28,18 @@ def f_expressions(
     e._expressions.append(x)
 
 
-def f_call(e, x):
+def f_call(e: CallExpression, x):
     e._arguments.append(x)
 
+
+def f_call_value(e: CallExpression, x):
+    e._value = x
 
 def f_expression(e, x):
     e._expression = x
 
 
-def f_called(e, x):
+def f_called(e: CallExpression, x):
     e._called = x
 
 
@@ -122,6 +125,15 @@ class SplitTernaryExpression:
             # (.. ? .. : ..).add
             if self.apply_copy(next_expr, true_expression, false_expression, f_called):
                 self.copy_expression(next_expr, true_expression.called, false_expression.called)
+
+            next_expr = expression.call_value
+            # case of (..).func{value: .. ? .. : ..}()
+            if self.apply_copy(next_expr, true_expression, false_expression, f_call_value):
+                    self.copy_expression(
+                        next_expr,
+                        true_expression.call_value,
+                        false_expression.call_value,
+                    )
 
             true_expression._arguments = []
             false_expression._arguments = []
