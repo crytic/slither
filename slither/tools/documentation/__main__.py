@@ -73,6 +73,7 @@ def _handle_codex(answer: Dict, starting_column: int) -> Optional[str]:
                 return answer_processed
     return None
 
+
 # pylint: disable=too-many-locals
 def _handle_compilation_unit(compilation_unit: SlitherCompilationUnit, overwrite: bool) -> None:
     all_patches: Dict = {}
