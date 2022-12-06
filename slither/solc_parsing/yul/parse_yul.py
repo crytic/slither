@@ -35,6 +35,7 @@ from slither.solc_parsing.yul.evm_functions import (
     unary_ops,
     binary_ops,
 )
+from slither.solc_parsing.expressions.find_variable import find_top_level
 from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
@@ -674,7 +675,7 @@ def parse_yul_variable_declaration(
     the assignment
     """
 
-    if not ast["value"]:
+    if "value" not in ast or not ast["value"]:
         return None
 
     return _parse_yul_assignment_common(root, node, ast, "variables")
@@ -737,7 +738,7 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Optional[Expression]
     # Currently SlithIR doesnt support raw access to memory
     # So things like .offset/.slot will return the variable
     # Instaed of the actual offset/slot
-    if name.endswith("_slot") or name.endswith(".slot"):
+    if name.endswith(("_slot", ".slot")):
         potential_name = name[:-5]
         variable_found = _check_for_state_variable_name(root, potential_name)
         if variable_found:
@@ -745,7 +746,7 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Optional[Expression]
         var = root.function.get_local_variable_from_name(potential_name)
         if var and var.is_storage:
             return Identifier(var)
-    if name.endswith("_offset") or name.endswith(".offset"):
+    if name.endswith(("_offset", ".offset")):
         potential_name = name[:-7]
         variable_found = _check_for_state_variable_name(root, potential_name)
         if variable_found:
@@ -797,12 +798,25 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     if magic_suffix:
         return magic_suffix
 
+    ret, _ = find_top_level(name, root.contract.file_scope)
+    if ret:
+        return Identifier(ret)
+
     raise SlitherException(f"unresolved reference to identifier {name}")
 
 
 def parse_yul_literal(_root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     kind = ast["kind"]
-    value = ast["value"]
+
+    if kind == "string":
+        # Solc 0.8.0 use value, 0.8.16 use hexValue - not sure when this changed was made
+        if "value" in ast:
+            value = ast["value"]
+        else:
+            value = ast["hexValue"]
+    else:
+        # number/bool
+        value = ast["value"]
 
     if not kind:
         kind = "bool" if value in ["true", "false"] else "uint256"

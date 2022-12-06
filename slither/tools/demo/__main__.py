@@ -9,7 +9,7 @@ logging.getLogger("Slither").setLevel(logging.INFO)
 logger = logging.getLogger("Slither-demo")
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
@@ -26,7 +26,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     args = parse_args()
 
     # Perform slither analysis on the given filename

@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 173,
                         "length": 18,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 125,
                                 "length": 139,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -63,7 +61,6 @@
                     "source_mapping": {
                         "start": 452,
                         "length": 14,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -81,7 +78,6 @@
                             "source_mapping": {
                                 "start": 383,
                                 "length": 120,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -104,7 +100,6 @@
                                     "source_mapping": {
                                         "start": 266,
                                         "length": 239,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -149,7 +144,6 @@
                     "source_mapping": {
                         "start": 368,
                         "length": 8,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -167,7 +161,6 @@
                             "source_mapping": {
                                 "start": 266,
                                 "length": 239,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -209,7 +202,6 @@
                     "source_mapping": {
                         "start": 57,
                         "length": 14,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -227,7 +219,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 94,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -263,7 +254,6 @@
                     "source_mapping": {
                         "start": 349,
                         "length": 13,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -281,7 +271,6 @@
                             "source_mapping": {
                                 "start": 266,
                                 "length": 239,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -323,7 +312,6 @@
                     "source_mapping": {
                         "start": 77,
                         "length": 8,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -341,7 +329,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 94,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -377,7 +364,6 @@
                     "source_mapping": {
                         "start": 92,
                         "length": 29,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -395,7 +381,6 @@
                             "source_mapping": {
                                 "start": 29,
                                 "length": 94,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -432,7 +417,6 @@
                     "source_mapping": {
                         "start": 247,
                         "length": 8,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -450,7 +434,6 @@
                             "source_mapping": {
                                 "start": 198,
                                 "length": 64,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -470,7 +453,6 @@
                                     "source_mapping": {
                                         "start": 125,
                                         "length": 139,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -510,7 +492,6 @@
                     "source_mapping": {
                         "start": 198,
                         "length": 64,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -530,7 +511,6 @@
                             "source_mapping": {
                                 "start": 125,
                                 "length": 139,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -568,7 +548,6 @@
                     "source_mapping": {
                         "start": 476,
                         "length": 9,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -586,7 +565,6 @@
                             "source_mapping": {
                                 "start": 383,
                                 "length": 120,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -609,7 +587,6 @@
                                     "source_mapping": {
                                         "start": 266,
                                         "length": 239,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -654,7 +631,6 @@
                     "source_mapping": {
                         "start": 325,
                         "length": 18,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -672,7 +648,6 @@
                             "source_mapping": {
                                 "start": 266,
                                 "length": 239,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -714,7 +689,6 @@
                     "source_mapping": {
                         "start": 383,
                         "length": 120,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
@@ -737,7 +711,6 @@
                             "source_mapping": {
                                 "start": 266,
                                 "length": 239,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol",

@@ -47,6 +47,7 @@ coverage.xml
 *.cover
 .hypothesis/
 .vscode/
+storage_layout.json
 # Translations
 *.mo
 *.pot
@@ -107,3 +108,6 @@ ENV/
 
 # Test results
 test_artifacts/
+
+# crytic export 
+crytic-export/

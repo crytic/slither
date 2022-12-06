@@ -1,5 +1,5 @@
 import logging
-from typing import Union, List, ValuesView
+from typing import Union, List, ValuesView, Type, Dict
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
@@ -19,7 +19,9 @@ logger_detector = logging.getLogger("Detectors")
 logger_printer = logging.getLogger("Printers")
 
 
-def _check_common_things(thing_name, cls, base_cls, instances_list):
+def _check_common_things(
+    thing_name: str, cls: Type, base_cls: Type, instances_list: List[Type[AbstractDetector]]
+) -> None:
 
     if not issubclass(cls, base_cls) or cls is base_cls:
         raise Exception(
@@ -53,7 +55,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         Keyword Args:
             solc (str): solc binary location (default 'solc')
             disable_solc_warnings (bool): True to disable solc warnings (default false)
-            solc_arguments (str): solc arguments (default '')
+            solc_args (str): solc arguments (default '')
             ast_format (str): ast format (default '--ast-compact-json')
             filter_paths (list(str)): list of path to filter (default [])
             triage_mode (bool): if true, switch to triage mode (default false)
@@ -69,12 +71,17 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
             embark_ignore_compile (bool): do not run embark build (default False)
             embark_overwrite_config (bool): overwrite original config file (default false)
 
+            change_line_prefix (str): Change the line prefix (default #)
+                for the displayed source codes (i.e. file.sol#1).
+
         """
         super().__init__()
 
         self._disallow_partial: bool = kwargs.get("disallow_partial", False)
         self._skip_assembly: bool = kwargs.get("skip_assembly", False)
         self._show_ignored_findings: bool = kwargs.get("show_ignored_findings", False)
+
+        self.line_prefix = kwargs.get("change_line_prefix", "#")
 
         self._parsers: List[SlitherCompilationUnitSolc] = []
         try:
@@ -173,7 +180,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
     def detectors_optimization(self):
         return [d for d in self.detectors if d.IMPACT == DetectorClassification.OPTIMIZATION]
 
-    def register_detector(self, detector_class):
+    def register_detector(self, detector_class: Type[AbstractDetector]) -> None:
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
@@ -183,7 +190,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
             instance = detector_class(compilation_unit, self, logger_detector)
             self._detectors.append(instance)
 
-    def register_printer(self, printer_class):
+    def register_printer(self, printer_class: Type[AbstractPrinter]) -> None:
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
@@ -192,7 +199,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
 
-    def run_detectors(self):
+    def run_detectors(self) -> List[Dict]:
         """
         :return: List of registered detectors results.
         """

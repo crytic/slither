@@ -4,7 +4,7 @@ import json
 import logging
 import zipfile
 from collections import OrderedDict
-from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING
+from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
 from zipfile import ZipFile
 from pkg_resources import require
 
@@ -23,7 +23,6 @@ if TYPE_CHECKING:
     from slither.detectors.abstract_detector import AbstractDetector
 
 logger = logging.getLogger("Slither")
-
 
 ###################################################################################
 ###################################################################################
@@ -132,7 +131,7 @@ def _output_result_to_sarif(
 
 
 def output_to_sarif(
-    filename: Optional[str], results: Dict, detectors_classes: List["AbstractDetector"]
+    filename: Optional[str], results: Dict, detectors_classes: List[Type["AbstractDetector"]]
 ) -> None:
     """
 
@@ -162,7 +161,7 @@ def output_to_sarif(
         ],
     }
 
-    for detector in results["detectors"]:
+    for detector in results.get("detectors", []):
         _output_result_to_sarif(detector, detectors_classes, sarif)
 
     if filename == "-":
@@ -230,17 +229,17 @@ def _convert_to_description(d):
 
     if isinstance(d, Node):
         if d.expression:
-            return f"{d.expression} ({d.source_mapping_str})"
-        return f"{str(d)} ({d.source_mapping_str})"
+            return f"{d.expression} ({d.source_mapping})"
+        return f"{str(d)} ({d.source_mapping})"
 
     if hasattr(d, "canonical_name"):
-        return f"{d.canonical_name} ({d.source_mapping_str})"
+        return f"{d.canonical_name} ({d.source_mapping})"
 
     if hasattr(d, "name"):
-        return f"{d.name} ({d.source_mapping_str})"
+        return f"{d.name} ({d.source_mapping})"
 
     if isinstance(d, Expression):
-        return f"{d}({d.source_mapping_str})"
+        return f"{d}({d.source_mapping})"
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
@@ -254,17 +253,17 @@ def _convert_to_markdown(d, markdown_root):
 
     if isinstance(d, Node):
         if d.expression:
-            return f"[{d.expression}]({d.source_mapping_to_markdown(markdown_root)})"
-        return f"[{str(d)}]({d.source_mapping_to_markdown(markdown_root)})"
+            return f"[{d.expression}]({d.source_mapping.to_markdown(markdown_root)})"
+        return f"[{str(d)}]({d.source_mapping.to_markdown(markdown_root)})"
 
     if hasattr(d, "canonical_name"):
-        return f"[{d.canonical_name}]({d.source_mapping_to_markdown(markdown_root)})"
+        return f"[{d.canonical_name}]({d.source_mapping.to_markdown(markdown_root)})"
 
     if hasattr(d, "name"):
-        return f"[{d.name}]({d.source_mapping_to_markdown(markdown_root)})"
+        return f"[{d.name}]({d.source_mapping.to_markdown(markdown_root)})"
 
     if isinstance(d, Expression):
-        return f"{d}({d.source_mapping_to_markdown(markdown_root)})"
+        return f"{d}({d.source_mapping.to_markdown(markdown_root)})"
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
@@ -283,11 +282,11 @@ def _convert_to_id(d):
 
     if isinstance(d, Node):
         if d.expression:
-            return f"{d.expression} ({d.source_mapping_str})"
-        return f"{str(d)} ({d.source_mapping_str})"
+            return f"{d.expression} ({d.source_mapping})"
+        return f"{str(d)} ({d.source_mapping})"
 
     if isinstance(d, Pragma):
-        return f"{d} ({d.source_mapping_str})"
+        return f"{d} ({d.source_mapping})"
 
     if hasattr(d, "canonical_name"):
         return f"{d.canonical_name}"
@@ -296,7 +295,7 @@ def _convert_to_id(d):
         return f"{d.name}"
 
     if isinstance(d, Expression):
-        return f"{d}({d.source_mapping_str})"
+        return f"{d}({d.source_mapping})"
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
@@ -310,7 +309,7 @@ def _convert_to_id(d):
 
 
 def _create_base_element(
-    custom_type, name, source_mapping, type_specific_fields=None, additional_fields=None
+    custom_type, name, source_mapping: Dict, type_specific_fields=None, additional_fields=None
 ):
     if additional_fields is None:
         additional_fields = {}
@@ -370,7 +369,7 @@ class Output:
         else:
             info = info_
 
-        self._data: Dict[str, Any] = OrderedDict()
+        self._data = OrderedDict()
         self._data["elements"] = []
         self._data["description"] = "".join(_convert_to_description(d) for d in info)
         self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
@@ -391,7 +390,7 @@ class Output:
 
     def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None):
         if not self._data["first_markdown_element"]:
-            self._data["first_markdown_element"] = add.source_mapping_to_markdown(
+            self._data["first_markdown_element"] = add.source_mapping.to_markdown(
                 self._markdown_root
             )
         if isinstance(add, Variable):
@@ -441,7 +440,7 @@ class Output:
         element = _create_base_element(
             "variable",
             variable.name,
-            variable.source_mapping,
+            variable.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -463,7 +462,7 @@ class Output:
             additional_fields = {}
         type_specific_fields = {"kind": "abstract" if contract.is_abstract else contract.kind}
         element = _create_base_element(
-            "contract", contract.name, contract.source_mapping, type_specific_fields, additional_fields
+            "contract", contract.name, contract.source_mapping.to_json(), type_specific_fields, additional_fields
         )
         self._data["elements"].append(element)
 
@@ -484,7 +483,7 @@ class Output:
         element = _create_base_element(
             "function",
             function.name,
-            function.source_mapping,
+            function.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -510,7 +509,7 @@ class Output:
         element = _create_base_element(
             "enum",
             enum.name,
-            enum.source_mapping,
+            enum.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -530,7 +529,7 @@ class Output:
         element = _create_base_element(
             "struct",
             struct.name,
-            struct.source_mapping,
+            struct.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -553,7 +552,7 @@ class Output:
         element = _create_base_element(
             "event",
             event.name,
-            event.source_mapping,
+            event.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -577,7 +576,7 @@ class Output:
         element = _create_base_element(
             "node",
             node_name,
-            node.source_mapping,
+            node.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -601,7 +600,7 @@ class Output:
         element = _create_base_element(
             "pragma",
             pragma.version,
-            pragma.source_mapping,
+            pragma.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -700,7 +699,7 @@ class Output:
 
         # If this is a source mapping object, get the underlying source mapping dictionary
         if isinstance(source_mapping, SourceMapping):
-            source_mapping = source_mapping.source_mapping
+            source_mapping = source_mapping.source_mapping.to_json()
 
         # Create the underlying element and add it to our resulting json
         element = _create_base_element("other", name, source_mapping, {}, additional_fields)

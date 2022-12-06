@@ -1,5 +1,5 @@
 import itertools
-from typing import Optional, Tuple
+from typing import Tuple
 
 from slither.core.solidity_types.type import Type
 
@@ -151,7 +151,7 @@ class NonElementaryType(Exception):
 
 
 class ElementaryType(Type):
-    def __init__(self, t):
+    def __init__(self, t: str) -> None:
         if t not in ElementaryTypeName:
             raise NonElementaryType
         super().__init__()
@@ -164,6 +164,10 @@ class ElementaryType(Type):
         self._type = t
 
     @property
+    def is_dynamic(self) -> bool:
+        return self._type in ("bytes", "string")
+
+    @property
     def type(self) -> str:
         return self._type
 
@@ -172,7 +176,7 @@ class ElementaryType(Type):
         return self.type
 
     @property
-    def size(self) -> Optional[int]:
+    def size(self) -> int:
         """
             Return the size in bits
             Return None if the size is not known
@@ -190,7 +194,7 @@ class ElementaryType(Type):
             return int(160)
         if t.startswith("bytes") and t != "bytes":
             return int(t[len("bytes") :]) * 8
-        return None
+        raise SlitherException(f"{t} does not have a size")
 
     @property
     def storage_size(self) -> Tuple[int, bool]:

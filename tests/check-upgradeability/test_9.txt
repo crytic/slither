@@ -1,7 +1,7 @@
-INFO:Slither:[92m
+INFO:Slither:
 Contract_double_call (tests/check-upgradeability/contract_initialization.sol#42-49) needs to be initialized by Contract_double_call.initialize() (tests/check-upgradeability/contract_initialization.sol#44-47).
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function[0m
-INFO:Slither:[91m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function
+INFO:Slither:
 Contract_no_bug.initialize() (tests/check-upgradeability/contract_initialization.sol#13-15) is called multiple times in Contract_double_call.initialize() (tests/check-upgradeability/contract_initialization.sol#44-47).
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-functions-are-called-multiple-times[0m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-functions-are-called-multiple-times
 INFO:Slither:2 findings, 12 detectors run

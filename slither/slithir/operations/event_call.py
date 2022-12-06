@@ -20,4 +20,4 @@ class EventCall(Call):
 
     def __str__(self):
         args = [str(a) for a in self.arguments]
-        return f"Emit {self.name}({'.'.join(args)})"
+        return f"Emit {self.name}({','.join(args)})"

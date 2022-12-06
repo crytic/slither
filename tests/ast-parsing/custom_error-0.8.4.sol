@@ -1,4 +1,8 @@
 pragma solidity ^0.8.4;
+interface I {
+  enum SomeEnum { ONE, TWO, THREE }
+  error ErrorWithEnum(SomeEnum e);
+}
 
 struct St{
     uint v;
@@ -8,7 +12,8 @@ error ErrorSimple();
 error ErrorWithArgs(uint, uint);
 error ErrorWithStruct(St s);
 
-contract VendingMachine {
+
+contract VendingMachine is I {
 
     function err0() public {
         revert ErrorSimple();
@@ -19,9 +24,13 @@ contract VendingMachine {
     }
     function err2() public{
         revert ErrorWithArgs(10+10, 10);
+        revert ErrorWithArgs(uint(SomeEnum.ONE), uint(SomeEnum.ONE));
     }
     function err3() public{
         revert('test');
+    }
+    function err4() public {
+        revert ErrorWithEnum(SomeEnum.ONE);
     }
 }
 
@@ -40,6 +49,24 @@ contract B is A{
 
     function h() public returns(bytes4){
         return MyError.selector;
+    }
+}
+
+contract ContractArgCustomError {
+    error E(ContractArgCustomError a);
+
+    function f() payable external {
+      g();
+    }
+    
+    function g() private {
+      bool something = h();
+      if (something) {
+        revert E(this);
+      }
+    }
+
+    function h() private returns (bool something) {
     }
 }
 

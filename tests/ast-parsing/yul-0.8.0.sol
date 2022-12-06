@@ -1,6 +1,7 @@
 library L {
 
 }
+uint256 constant offset = 100;
 
 contract C {
     uint storA;
@@ -18,6 +19,7 @@ contract C {
             let aLocalA := localA
 
             sstore(storA.slot, 0)
+            sstore(offset, 0)
             paramA := 0
             retA := 0
             localA := 0
@@ -31,6 +33,7 @@ contract C {
             mstore(paramB, 0)
             mstore(retB, 0)
             mstore(localB, 0)
+            mstore(offset, 0)
 
             let aStoreC := mul(sload(storC.slot), storC.offset)
 
@@ -67,3 +70,17 @@ function at(address _addr) view returns (bytes memory o_code) {
         extcodecopy(_addr, add(o_code, 0x20), 0, size)
     }
 }
+
+
+function test(){
+
+	assembly {
+		let v
+	}
+
+	assembly {
+		let v := "test"
+	}
+
+}
+

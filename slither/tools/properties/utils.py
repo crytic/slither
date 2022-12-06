@@ -12,7 +12,7 @@ def write_file(
     content: str,
     allow_overwrite: bool = True,
     discard_if_exist: bool = False,
-):
+) -> None:
     """
     Write the content into output_dir/filename
     :param output_dir:

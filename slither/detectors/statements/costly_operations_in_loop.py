@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.declarations import Contract
@@ -17,8 +17,12 @@ def detect_costly_operations_in_loop(contract: Contract) -> List[Node]:
 
 
 def costly_operations_in_loop(
-    node: Node, in_loop_counter: int, visited: List[Node], ret: List[Node]
+    node: Optional[Node], in_loop_counter: int, visited: List[Node], ret: List[Node]
 ) -> None:
+
+    if node is None:
+        return
+
     if node in visited:
         return
     # shared visited

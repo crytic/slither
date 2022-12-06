@@ -22,7 +22,7 @@ def get_signatures(c):
 
 
 def _get_function_or_variable(contract, signature):
-    f = contract.get_function_from_signature(signature)
+    f = contract.get_function_from_full_name(signature)
 
     if f:
         return f

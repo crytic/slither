@@ -1,0 +1,145 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Buggy",
+                    "source_mapping": {
+                        "start": 31,
+                        "length": 294,
+                        "filename_relative": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "initialize",
+                    "source_mapping": {
+                        "start": 96,
+                        "length": 124,
+                        "filename_relative": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6,
+                            7,
+                            8,
+                            9
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Buggy",
+                            "source_mapping": {
+                                "start": 31,
+                                "length": 294,
+                                "filename_relative": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "initialize()"
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "kill",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 98,
+                        "filename_relative": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Buggy",
+                            "source_mapping": {
+                                "start": 31,
+                                "length": 294,
+                                "filename_relative": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "kill()"
+                    }
+                }
+            ],
+            "description": "Buggy (tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol#3-14) is an upgradeable contract that does not protect its initialize functions: Buggy.initialize() (tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol#6-9). Anyone can delete the contract with: Buggy.kill() (tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol#10-13)",
+            "markdown": "[Buggy](tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol#L3-L14) is an upgradeable contract that does not protect its initialize functions: [Buggy.initialize()](tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol#L6-L9). Anyone can delete the contract with: [Buggy.kill()](tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol#L10-L13)",
+            "first_markdown_element": "tests/detectors/unprotected-upgrade/0.8.15/Buggy.sol#L3-L14",
+            "id": "d85b90230632a30f7ffb5140a791d4a9ae8b0be045c5b27175f3c477e189c08c",
+            "check": "unprotected-upgrade",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]

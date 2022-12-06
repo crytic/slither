@@ -1,9 +1,9 @@
 # https://solidity.readthedocs.io/en/v0.4.24/units-and-global-variables.html
 from typing import List, Dict, Union, TYPE_CHECKING
 
-from slither.core.context.context import Context
 from slither.core.declarations.custom_error import CustomError
 from slither.core.solidity_types import ElementaryType, TypeInformation
+from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.exceptions import SlitherException
 
 if TYPE_CHECKING:
@@ -96,7 +96,7 @@ def solidity_function_signature(name):
     return name + f" returns({','.join(SOLIDITY_FUNCTIONS[name])})"
 
 
-class SolidityVariable(Context):
+class SolidityVariable(SourceMapping):
     def __init__(self, name: str):
         super().__init__()
         self._check_name(name)
@@ -104,7 +104,7 @@ class SolidityVariable(Context):
 
     # dev function, will be removed once the code is stable
     def _check_name(self, name: str):  # pylint: disable=no-self-use
-        assert name in SOLIDITY_VARIABLES or name.endswith("_slot") or name.endswith("_offset")
+        assert name in SOLIDITY_VARIABLES or name.endswith(("_slot", "_offset"))
 
     @property
     def state_variable(self):
@@ -155,13 +155,14 @@ class SolidityVariableComposed(SolidityVariable):
         return hash(self.name)
 
 
-class SolidityFunction:
+class SolidityFunction(SourceMapping):
     # Non standard handling of type(address). This function returns an undefined object
     # The type is dynamic
     # https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#type-information
     # As a result, we set return_type during the Ir conversion
 
     def __init__(self, name: str):
+        super().__init__()
         assert name in SOLIDITY_FUNCTIONS
         self._name = name
         # Can be TypeInformation if type(address) is used

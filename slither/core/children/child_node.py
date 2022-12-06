@@ -28,4 +28,4 @@ class ChildNode:
 
     @property
     def compilation_unit(self) -> "SlitherCompilationUnit":
-        return self.contract.compilation_unit
+        return self.node.compilation_unit

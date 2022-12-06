@@ -2,6 +2,7 @@ import argparse
 import inspect
 import logging
 import sys
+from typing import Type, List, Any
 
 from crytic_compile import cryticparser
 
@@ -22,7 +23,7 @@ logger.setLevel(logging.INFO)
 ###################################################################################
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Experimental smart contract mutator. Based on https://arxiv.org/abs/2006.11597",
         usage="slither-mutate target",
@@ -48,14 +49,16 @@ def parse_args():
     return parser.parse_args()
 
 
-def _get_mutators():
-    detectors = [getattr(all_mutators, name) for name in dir(all_mutators)]
-    detectors = [c for c in detectors if inspect.isclass(c) and issubclass(c, AbstractMutator)]
+def _get_mutators() -> List[Type[AbstractMutator]]:
+    detectors_ = [getattr(all_mutators, name) for name in dir(all_mutators)]
+    detectors = [c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractMutator)]
     return detectors
 
 
 class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
         checks = _get_mutators()
         output_mutators(checks)
         parser.exit()
