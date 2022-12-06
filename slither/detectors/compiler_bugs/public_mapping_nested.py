@@ -2,7 +2,11 @@
 Module detecting public mappings with nested variables (returns incorrect values prior to 0.5.x)
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    ALL_SOLC_VERSIONS_04,
+)
 from slither.core.solidity_types.mapping_type import MappingType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.declarations.structure import Structure
@@ -62,6 +66,8 @@ class PublicMappingNested(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = """Bob interacts with a contract that has a public mapping with nested structures. The values returned by the mapping are incorrect, breaking Bob's usage"""
     WIKI_RECOMMENDATION = "Do not use public mapping with nested structures."
 
+    VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04
+
     def _detect(self):
         """
         Detect public mappings with nested variables (returns incorrect values prior to 0.5.x)
@@ -71,14 +77,6 @@ class PublicMappingNested(AbstractDetector):
 
         """
         results = []
-
-        if self.compilation_unit.solc_version >= "0.5.0":
-            return []
-
-        if self.compilation_unit.solc_version and self.compilation_unit.solc_version.startswith(
-            "0.5."
-        ):
-            return []
 
         for contract in self.contracts:
             public_nested_mappings = detect_public_nested_mappings(contract)
