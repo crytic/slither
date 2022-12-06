@@ -305,7 +305,35 @@ def parse_args(
         "--codex",
         help="Enable codex (require an OpenAI API Key)",
         action="store_true",
-        default=False,
+        default=defaults_flag_in_config["codex"],
+    )
+
+    parser.add_argument(
+        "--codex-contracts",
+        help="Comma separated list of contracts to submit to OpenAI Codex",
+        action="store",
+        default=defaults_flag_in_config["codex_contracts"],
+    )
+
+    parser.add_argument(
+        "--codex-model",
+        help="Name of the Codex model to use (affects pricing).  Defaults to 'text-davinci-003'",
+        action="store",
+        default=defaults_flag_in_config["codex_model"],
+    )
+
+    parser.add_argument(
+        "--codex-temperature",
+        help="Temperature to use with Codex.  Lower number indicates a more precise answer while higher numbers return more creative answers.  Defaults to 0",
+        action="store",
+        default=defaults_flag_in_config["codex_temperature"],
+    )
+
+    parser.add_argument(
+        "--codex-max-tokens",
+        help="Maximum amount of tokens to use on the response.  This number plus the size of the prompt can be no larger than the limit (4097 for text-davinci-003)",
+        action="store",
+        default=defaults_flag_in_config["codex_max_tokens"],
     )
 
     cryticparser.init(parser)

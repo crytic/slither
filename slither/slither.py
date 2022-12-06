@@ -83,8 +83,12 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
         self.line_prefix = kwargs.get("change_line_prefix", "#")
 
-        # Indicate if codex-related features should be used
+        # Indicate if Codex related features should be used
         self.codex_enabled = kwargs.get("codex", False)
+        self.codex_contracts = kwargs.get("codex_contracts")
+        self.codex_model = kwargs.get("codex_model")
+        self.codex_temperature = kwargs.get("codex_temperature")
+        self.codex_max_tokens = kwargs.get("codex_max_tokens")
 
         self._parsers: List[SlitherCompilationUnitSolc] = []
         try:

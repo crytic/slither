@@ -7,6 +7,7 @@ from slither.utils.output import Output
 
 logger = logging.getLogger("Slither")
 
+VULN_FOUND = "VULN_FOUND"
 
 class Codex(AbstractDetector):
     """
@@ -52,29 +53,63 @@ class Codex(AbstractDetector):
         openai.api_key = api_key
 
         for contract in self.compilation_unit.contracts:
-            prompt = "Is there a vulnerability in this solidity contracts?\n"
+            if self.slither.codex_contracts != "all" and contract.name not in self.slither.codex_contracts.split(","):
+                continue
+            prompt = "Analyze this Solidity contract and find the vulnerabilities. If you find any vulnerabilities, begin the response with {}".format(VULN_FOUND)
             src_mapping = contract.source_mapping
             content = contract.compilation_unit.core.source_code[src_mapping.filename.absolute]
             start = src_mapping.start
             end = src_mapping.start + src_mapping.length
             prompt += content[start:end]
-            answer = openai.Completion.create(  # type: ignore
-                model="text-davinci-003", prompt=prompt, temperature=0, max_tokens=200
-            )
+            logging.info("Querying OpenAI")
+            print("Querying OpenAI")
+            answer = ""
+            res = {}
+            try:
+                res = openai.Completion.create(  # type: ignore
+                    prompt=prompt,
+                    model=self.slither.codex_model,
+                    temperature=self.slither.codex_temperature,
+                    max_tokens=self.slither.codex_max_tokens,
+                )
+            except Exception as e:
+                print("OpenAI request failed: " + str(e))
+                logging.info("OpenAI request failed: " + str(e))
 
-            if "choices" in answer:
-                if answer["choices"]:
-                    if "text" in answer["choices"][0]:
-                        if "Yes," in answer["choices"][0]["text"]:
-                            info = [
-                                "Codex detected a potential bug in ",
-                                contract,
-                                "\n",
-                                answer["choices"][0]["text"],
-                                "\n",
-                            ]
+            """ OpenAI completion response shape example:
+            {
+                "choices": [
+                    {
+                    "finish_reason": "stop",
+                    "index": 0,
+                    "logprobs": null,
+                    "text": "VULNERABILITIES:. The withdraw() function does not check..."
+                    }
+                ],
+                "created": 1670357537,
+                "id": "cmpl-6KYaXdA6QIisHlTMM7RCJ1nR5wTKx",
+                "model": "text-davinci-003",
+                "object": "text_completion",
+                "usage": {
+                    "completion_tokens": 80,
+                    "prompt_tokens": 249,
+                    "total_tokens": 329
+                }
+            } """
 
-                            res = self.generate_result(info)
-                            results.append(res)
+            if len(res.get("choices", [])) and VULN_FOUND in res["choices"][0].get("text", ""):
+                # remove VULN_FOUND keyword and cleanup
+                answer = res["choices"][0]["text"].replace(VULN_FOUND, "").replace("\n", "").replace(": ", "")
 
+            if len(answer):
+                info = [
+                    "Codex detected a potential bug in ",
+                    contract,
+                    "\n",
+                    answer,
+                    "\n",
+                ]
+
+                res = self.generate_result(info)
+                results.append(res)
         return results
