@@ -23,7 +23,6 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
         type: ["cli",
-               # "dapp",
                "data_dependency",
                "path_filtering",
                # "embark",
