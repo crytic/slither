@@ -301,6 +301,10 @@ def parse_args(
 
     parser.add_argument("filename", help=argparse.SUPPRESS)
 
+    parser.add_argument(
+        "--codex", help="Enable codex (require an OpenAI API Key)", action="store_true", default=False
+    )
+
     cryticparser.init(parser)
 
     parser.add_argument(
