@@ -26,6 +26,7 @@ setup(
             "deepdiff",
             "numpy",
             "solc-select>=v1.0.0b1",
+            "openai",
         ]
     },
     license="AGPL-3.0",
