@@ -1,3 +1,6 @@
+interface NameReg {
+    function addressOf() external payable;
+}
 contract C {
     // TODO
     // 1) support variable declarations
@@ -21,4 +24,12 @@ contract C {
     function d(bool cond, bytes calldata x) external {
         bytes1 a = x[cond ? 1 : 2];
     }
+
+    function e(address one, address two) public {
+        return NameReg(one).addressOf{value: msg.sender == two ? 1 : 2, gas: true ? 2 : gasleft()}();
+    }
+    // TODO: nested ternary 
+    // function f(address one, address two) public {
+    //     return NameReg(one).addressOf{value: msg.sender == two ? 1 : 2, gas: true ? (1 == 1 ? 1 : 2) : gasleft()}();
+    // }
 }

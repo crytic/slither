@@ -3,7 +3,7 @@
     as they should be immutable
 """
 import copy
-from typing import Union, Callable
+from typing import Union, Callable, Tuple, Optional
 from slither.core.expressions import UnaryOperation
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
@@ -35,6 +35,11 @@ def f_call(e: CallExpression, x):
 def f_call_value(e: CallExpression, x):
     e._value = x
 
+
+def f_call_gas(e: CallExpression, x):
+    e._gas = x
+
+
 def f_expression(e, x):
     e._expression = x
 
@@ -56,7 +61,7 @@ class SplitTernaryExpression:
             self.condition = None
             self.copy_expression(expression, self.true_expression, self.false_expression)
 
-    def apply_copy(
+    def conditional_not_ahead(
         self,
         next_expr: Expression,
         true_expression: Union[AssignmentOperation, MemberAccess],
@@ -94,7 +99,9 @@ class SplitTernaryExpression:
         # (.. ? .. : ..).add
         if isinstance(expression, MemberAccess):
             next_expr = expression.expression
-            if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
+            if self.conditional_not_ahead(
+                next_expr, true_expression, false_expression, f_expression
+            ):
                 self.copy_expression(
                     next_expr, true_expression.expression, false_expression.expression
                 )
@@ -102,44 +109,75 @@ class SplitTernaryExpression:
         elif isinstance(expression, (AssignmentOperation, BinaryOperation, TupleExpression)):
             true_expression._expressions = []
             false_expression._expressions = []
-
             for next_expr in expression.expressions:
-                if isinstance(next_expr, IndexAccess):
-                    # create an index access for each branch
-                    if isinstance(next_expr.expression_right, ConditionalExpression):
-                        next_expr = _handle_ternary_access(
-                            next_expr, true_expression, false_expression
+                # TODO: can we get rid of `NoneType` expressions in `TupleExpression`?
+                if next_expr:
+                    if isinstance(next_expr, IndexAccess):
+                        # create an index access for each branch
+                        #  x[if cond ? 1 : 2] -> if cond { x[1] } else { x[2] }
+                        for expr in next_expr.expressions:
+                            if self.conditional_not_ahead(
+                                expr, true_expression, false_expression, f_expressions
+                            ):
+                                self.copy_expression(
+                                    expr,
+                                    true_expression.expressions[-1],
+                                    false_expression.expressions[-1],
+                                )
+
+                    if self.conditional_not_ahead(
+                        next_expr, true_expression, false_expression, f_expressions
+                    ):
+                        # always on last arguments added
+                        self.copy_expression(
+                            next_expr,
+                            true_expression.expressions[-1],
+                            false_expression.expressions[-1],
                         )
-                if self.apply_copy(next_expr, true_expression, false_expression, f_expressions):
-                    # always on last arguments added
-                    self.copy_expression(
-                        next_expr,
-                        true_expression.expressions[-1],
-                        false_expression.expressions[-1],
-                    )
 
         elif isinstance(expression, CallExpression):
             next_expr = expression.called
 
             # case of lib
             # (.. ? .. : ..).add
-            if self.apply_copy(next_expr, true_expression, false_expression, f_called):
+            if self.conditional_not_ahead(next_expr, true_expression, false_expression, f_called):
                 self.copy_expression(next_expr, true_expression.called, false_expression.called)
 
-            next_expr = expression.call_value
-            # case of (..).func{value: .. ? .. : ..}()
-            if self.apply_copy(next_expr, true_expression, false_expression, f_call_value):
+            # In order to handle ternaries in both call options, gas and value, we return early if the
+            # conditional is not ahead to rewrite both ternaries (see `_rewrite_ternary_as_if_else`).
+            if expression.call_gas:
+                # case of (..).func{gas: .. ? .. : ..}()
+                next_expr = expression.call_gas
+                if self.conditional_not_ahead(
+                    next_expr, true_expression, false_expression, f_call_gas
+                ):
+                    self.copy_expression(
+                        next_expr,
+                        true_expression.call_gas,
+                        false_expression.call_gas,
+                    )
+                else:
+                    return
+
+            if expression.call_value:
+                # case of (..).func{value: .. ? .. : ..}()
+                next_expr = expression.call_value
+                if self.conditional_not_ahead(
+                    next_expr, true_expression, false_expression, f_call_value
+                ):
                     self.copy_expression(
                         next_expr,
                         true_expression.call_value,
                         false_expression.call_value,
                     )
+                else:
+                    return
 
             true_expression._arguments = []
             false_expression._arguments = []
 
             for next_expr in expression.arguments:
-                if self.apply_copy(next_expr, true_expression, false_expression, f_call):
+                if self.conditional_not_ahead(next_expr, true_expression, false_expression, f_call):
                     # always on last arguments added
                     self.copy_expression(
                         next_expr,
@@ -149,7 +187,9 @@ class SplitTernaryExpression:
 
         elif isinstance(expression, (TypeConversion, UnaryOperation)):
             next_expr = expression.expression
-            if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
+            if self.conditional_not_ahead(
+                next_expr, true_expression, false_expression, f_expression
+            ):
                 self.copy_expression(
                     expression.expression,
                     true_expression.expression,
@@ -160,35 +200,3 @@ class SplitTernaryExpression:
             raise SlitherException(
                 f"Ternary operation not handled {expression}({type(expression)})"
             )
-
-
-def _handle_ternary_access(
-    next_expr: IndexAccess,
-    true_expression: AssignmentOperation,
-    false_expression: AssignmentOperation,
-):
-    """
-    Conditional ternary accesses are split into two accesses, one true and one false
-    E.g.  x[if cond ? 1 : 2] -> if cond { x[1] } else { x[2] }
-    """
-    true_index_access = IndexAccess(
-        next_expr.expression_left,
-        next_expr.expression_right.then_expression,
-        next_expr.type,
-    )
-    false_index_access = IndexAccess(
-        next_expr.expression_left,
-        next_expr.expression_right.else_expression,
-        next_expr.type,
-    )
-
-    f_expressions(
-        true_expression,
-        true_index_access,
-    )
-    f_expressions(
-        false_expression,
-        false_index_access,
-    )
-
-    return next_expr.expression_right
