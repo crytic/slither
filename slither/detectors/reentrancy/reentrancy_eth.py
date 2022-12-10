@@ -170,7 +170,8 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                             res += ["\t node used in internal reentancy"]
 
 
-
+            info += res
+            
             # Create our JSON result
             res = self.generate_result(info)
 

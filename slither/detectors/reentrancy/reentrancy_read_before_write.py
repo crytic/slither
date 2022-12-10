@@ -164,7 +164,37 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                                 "variable_name": finding_value.variable.name,
                             },
                         )
+            
 
+            for (fn, calls, send_eth), _ in result_sorted:
+
+                calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
+
+
+                res = ["\t Reentrancy in Function \t", fn, "\t"]
+                res += [" \t internal reentrancy \t"]
+
+
+                if calls == send_eth:
+
+                    res += ["\t Internal public calls sending eth \t"]
+                    
+                    for var in varsWrittenSet:
+
+                        # Traverse the variables
+                        for node in var:
+
+                            if node not in var:
+
+                                # then no reentrant calls
+                                pass
+                            else:
+
+                                res += ["\t node used in internal reentancy"]
+
+
+            res += res
+            
             # Append our result
             results.append(res)
 
