@@ -119,6 +119,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
                         info += ["\t\t- ", call_list_info, "\n"]
+        
             if calls != send_eth and send_eth:
                 info += ["\tExternal calls sending eth:\n"]
                 for (call_info, calls_list) in send_eth:
@@ -126,6 +127,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             info += ["\t\t- ", call_list_info, "\n"]
+            
             info += ["\tState variables written after the call(s):\n"]
             for finding_value in varsWritten:
                 info += ["\t- ", finding_value.node, "\n"]
@@ -140,6 +142,34 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                     ]
                     for cross in finding_value.cross_functions:
                         info += ["\t- ", cross, "\n"]
+
+        for (fn, calls, send_eth), _ in result_sorted:
+
+            calls = sorted(list(set(calls)), key=lambda x: x[0].node_id)
+
+
+            res = ["\t Reentrancy in Function \t", fn, "\t"]
+            res += [" \t internal reentrancy \t"]
+
+
+            if calls == send_eth:
+
+                res += ["\t Internal public calls sending eth \t"]
+                
+                for var in varsWrittenSet:
+
+                    # Traverse the variables
+                    for node in var:
+
+                        if node not in var:
+
+                            # then no reentrant calls
+                            pass
+                        else:
+
+                            res += ["\t node used in internal reentancy"]
+
+
 
             # Create our JSON result
             res = self.generate_result(info)
