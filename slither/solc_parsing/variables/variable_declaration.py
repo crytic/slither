@@ -112,7 +112,9 @@ class VariableDeclarationSolc:
             for candidate in candidates:
                 if "@custom:security non-reentrant" in candidate:
                     self._variable.is_reentrant = False
-
+                elif "@custom:security reentrant" in candidate:
+                    self._variable.is_reentrant = True
+                    
                 write_protection = re.search(
                     r'@custom:security write-protection="([\w, ()]*)"', candidate
                 )
