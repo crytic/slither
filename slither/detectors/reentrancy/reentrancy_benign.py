@@ -117,6 +117,15 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             info += ["\t\t- ", call_list_info, "\n"]
+            elif calls == send_eth:
+                info += ["\tInternal calls sending eth only:\n"]
+
+                if (len(send_eth) > 0):
+                    for (call_info, calls_list) in send_eth:
+                        for calls_info in call_info:
+                            if calls_info in call_info:
+                                info += [calls_info]
+
             info += ["\tState variables written after the call(s):\n"]
             for finding_value in varsWritten:
                 info += ["\t- ", finding_value.node, "\n"]
@@ -152,6 +161,16 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                                 call_list_info,
                                 {"underlying_type": "external_calls_sending_eth"},
                             )
+            else:
+                for (call_info, call_list) in calls:
+                    res.add(call_info, {"underlying_type": "internal_calls_sending_eth"})
+                    for calls_info in call_info:
+                        if calls_info in call_list:
+                            res.add(
+                                call_info,
+                                {"underlying_type": "internal_calls_sending_eth"}
+                            )
+
 
             # Add all variables written via nodes which write them.
             for finding_value in varsWritten:
