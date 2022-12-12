@@ -168,7 +168,7 @@
             "id": "0178009997f4d2c4d9a3a9e966bc7c3277ba1ce8c8c412b04fbe2cab3eab1b64",
             "check": "var-read-using-this",
             "impact": "Optimization",
-            "confidence": "Medium"
+            "confidence": "High"
         },
         {
             "elements": [
@@ -338,7 +338,7 @@
             "id": "1aeda0f171a714323d2cc886a4569374dcecf4a31bfd07dd341985cb91c1cda4",
             "check": "var-read-using-this",
             "impact": "Optimization",
-            "confidence": "Medium"
+            "confidence": "High"
         },
         {
             "elements": [
@@ -512,7 +512,7 @@
             "id": "512bc7a6d6d4fc95951dd03634d193a2e29b0162882a8b4be6e27ff899e21b2d",
             "check": "var-read-using-this",
             "impact": "Optimization",
-            "confidence": "Medium"
+            "confidence": "High"
         },
         {
             "elements": [
@@ -682,7 +682,7 @@
             "id": "e230fb1483c53ad953389bae20f599c95bbb5feb0040a4b9c33da5ec96682eff",
             "check": "var-read-using-this",
             "impact": "Optimization",
-            "confidence": "Medium"
+            "confidence": "High"
         }
     ]
 ]

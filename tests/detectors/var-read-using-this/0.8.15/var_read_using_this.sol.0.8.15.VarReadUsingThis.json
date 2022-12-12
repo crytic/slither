@@ -172,7 +172,7 @@
             "id": "1224862cf823193c24ce4a02579e7b9cf0eaded7167e8c9f9ed2861d9a9910cc",
             "check": "var-read-using-this",
             "impact": "Optimization",
-            "confidence": "Medium"
+            "confidence": "High"
         },
         {
             "elements": [
@@ -342,7 +342,7 @@
             "id": "29d9293adc1046d877a098beb2f9b7757658226e50c6d28228df65dfeeba7fd8",
             "check": "var-read-using-this",
             "impact": "Optimization",
-            "confidence": "Medium"
+            "confidence": "High"
         },
         {
             "elements": [
@@ -512,7 +512,7 @@
             "id": "38e0c82eed10e2c79f5d232284f6e0d0b12966f71eaee7a5139a82e927d38005",
             "check": "var-read-using-this",
             "impact": "Optimization",
-            "confidence": "Medium"
+            "confidence": "High"
         },
         {
             "elements": [
@@ -682,7 +682,7 @@
             "id": "aa84305fa524be189a9e050c79cea81a7bc258614c7563e22738e17a3559615a",
             "check": "var-read-using-this",
             "impact": "Optimization",
-            "confidence": "Medium"
+            "confidence": "High"
         }
     ]
 ]

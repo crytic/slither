@@ -9,7 +9,7 @@ class VarReadUsingThis(AbstractDetector):
     ARGUMENT = "var-read-using-this"
     HELP = "Contract reads its own variable using `this`"
     IMPACT = DetectorClassification.OPTIMIZATION
-    CONFIDENCE = DetectorClassification.MEDIUM
+    CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = "https://github.com/trailofbits/slither-private/wiki/Vulnerabilities-Description#var-read-using-this"
 
