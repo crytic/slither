@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 780,
                         "length": 97,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -28,7 +27,6 @@
                             "source_mapping": {
                                 "start": 394,
                                 "length": 1717,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -109,7 +107,6 @@
                     "source_mapping": {
                         "start": 835,
                         "length": 35,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -127,7 +124,6 @@
                             "source_mapping": {
                                 "start": 780,
                                 "length": 97,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -147,7 +143,6 @@
                                     "source_mapping": {
                                         "start": 394,
                                         "length": 1717,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -241,7 +236,6 @@
                     "source_mapping": {
                         "start": 1702,
                         "length": 133,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -261,7 +255,6 @@
                             "source_mapping": {
                                 "start": 394,
                                 "length": 1717,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -342,7 +335,6 @@
                     "source_mapping": {
                         "start": 1777,
                         "length": 51,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -360,7 +352,6 @@
                             "source_mapping": {
                                 "start": 1702,
                                 "length": 133,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -380,7 +371,6 @@
                                     "source_mapping": {
                                         "start": 394,
                                         "length": 1717,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -474,7 +464,6 @@
                     "source_mapping": {
                         "start": 1434,
                         "length": 122,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -494,7 +483,6 @@
                             "source_mapping": {
                                 "start": 394,
                                 "length": 1717,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -575,7 +563,6 @@
                     "source_mapping": {
                         "start": 1509,
                         "length": 40,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -593,7 +580,6 @@
                             "source_mapping": {
                                 "start": 1434,
                                 "length": 122,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
@@ -613,7 +599,6 @@
                                     "source_mapping": {
                                         "start": 394,
                                         "length": 1717,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.4.25/arbitrary_send_erc20.sol",

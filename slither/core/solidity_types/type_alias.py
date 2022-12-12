@@ -22,6 +22,10 @@ class TypeAlias(Type):
     def __hash__(self):
         return hash(str(self))
 
+    @property
+    def is_dynamic(self) -> bool:
+        return self.underlying_type.is_dynamic
+
 
 class TypeAliasTopLevel(TypeAlias, TopLevel):
     def __init__(self, underlying_type: Type, name: str, scope: "FileScope"):

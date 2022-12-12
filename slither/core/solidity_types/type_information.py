@@ -13,8 +13,9 @@ class TypeInformation(Type):
     def __init__(self, c):
         # pylint: disable=import-outside-toplevel
         from slither.core.declarations.contract import Contract
+        from slither.core.declarations.enum import Enum
 
-        assert isinstance(c, (Contract, ElementaryType))
+        assert isinstance(c, (Contract, ElementaryType, Enum))
         super().__init__()
         self._type = c
 
@@ -33,6 +34,10 @@ class TypeInformation(Type):
         :return:
         """
         return 32, True
+
+    @property
+    def is_dynamic(self) -> bool:
+        raise NotImplementedError
 
     def __str__(self):
         return f"type({self.type.name})"

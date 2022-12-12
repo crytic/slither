@@ -28,7 +28,7 @@ class StandardOutputCapture:
     original_logger_handlers = None
 
     @staticmethod
-    def enable(block_original=True):
+    def enable(block_original: bool = True) -> None:
         """
         Redirects stdout and stderr to a capturable StringIO.
         :param block_original: If True, blocks all output to the original stream. If False, duplicates output.
@@ -54,7 +54,7 @@ class StandardOutputCapture:
             root_logger.handlers = [logging.StreamHandler(sys.stderr)]
 
     @staticmethod
-    def disable():
+    def disable() -> None:
         """
         Disables redirection of stdout/stderr, if previously enabled.
         :return: None
@@ -78,7 +78,7 @@ class StandardOutputCapture:
             StandardOutputCapture.original_logger_handlers = None
 
     @staticmethod
-    def get_stdout_output():
+    def get_stdout_output() -> str:
         """
         Obtains the output from the currently set stdout
         :return: Returns stdout output as a string
@@ -87,7 +87,7 @@ class StandardOutputCapture:
         return sys.stdout.read()
 
     @staticmethod
-    def get_stderr_output():
+    def get_stderr_output() -> str:
         """
         Obtains the output from the currently set stderr
         :return: Returns stderr output as a string

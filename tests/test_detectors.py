@@ -362,6 +362,10 @@ ALL_TEST_OBJECTS = [
         "DAO.sol",
         "0.4.25",
     ),
+    # Test the nonReentrant filtering
+    Test(all_detectors.ReentrancyEth, "reentrancy_with_non_reentrant.sol", "0.8.10"),
+    # Test parse_ignore_comments
+    Test(all_detectors.ReentrancyEth, "reentrancy_filtered_comments.sol", "0.8.10"),
     Test(
         all_detectors.UninitializedStorageVars,
         "uninitialized_storage_pointer.sol",
@@ -512,12 +516,22 @@ ALL_TEST_OBJECTS = [
     ),
     Test(
         all_detectors.ExternalFunction,
+        "external_function_3.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ExternalFunction,
         "external_function.sol",
         "0.5.16",
     ),
     Test(
         all_detectors.ExternalFunction,
         "external_function_2.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ExternalFunction,
+        "external_function_3.sol",
         "0.5.16",
     ),
     Test(
@@ -528,6 +542,11 @@ ALL_TEST_OBJECTS = [
     Test(
         all_detectors.ExternalFunction,
         "external_function_2.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ExternalFunction,
+        "external_function_3.sol",
         "0.6.11",
     ),
     Test(
@@ -538,6 +557,11 @@ ALL_TEST_OBJECTS = [
     Test(
         all_detectors.ExternalFunction,
         "external_function_2.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.ExternalFunction,
+        "external_function_3.sol",
         "0.7.6",
     ),
     Test(
@@ -909,6 +933,21 @@ ALL_TEST_OBJECTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.UnprotectedUpgradeable,
+        "Buggy.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "Fixed.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "whitelisted.sol",
+        "0.8.15",
+    ),
+    Test(
         all_detectors.ABIEncoderV2Array,
         "storage_ABIEncoderV2_array.sol",
         "0.4.25",
@@ -1218,6 +1257,122 @@ ALL_TEST_OBJECTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.ShiftParameterMixup,
+        "shift_parameter_mixup.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.ShiftParameterMixup,
+        "shift_parameter_mixup.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.ShiftParameterMixup,
+        "shift_parameter_mixup.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.ShiftParameterMixup,
+        "shift_parameter_mixup.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.MissingInheritance,
+        "unimplemented_interface.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.MissingInheritance,
+        "unimplemented_interface.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.MissingInheritance,
+        "unimplemented_interface.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.MissingInheritance,
+        "unimplemented_interface.sol",
+        "0.7.6",
+    ),
+    # Does not work on the CI. Most likely because of solc 0.4.2?
+    # Test(
+    #     all_detectors.EnumConversion,
+    #     "enum_conversion.sol",
+    #     "0.4.2",
+    # ),
+    Test(
+        all_detectors.MultipleConstructorSchemes,
+        "multiple_constructor_schemes.sol",
+        "0.4.22",
+    ),
+    Test(
+        all_detectors.DeprecatedStandards,
+        "deprecated_calls.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.DivideBeforeMultiply,
+        "divide_before_multiply.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.TypeBasedTautology,
+        "type_based_tautology.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.TypeBasedTautology,
+        "type_based_tautology.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.TypeBasedTautology,
+        "type_based_tautology.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.TypeBasedTautology,
+        "type_based_tautology.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.SimilarVarsDetection,
+        "similar_variables.sol",
+        "0.7.6",
+    ),
+    Test(
         all_detectors.MsgValueInLoop,
         "msg_value_loop.sol",
         "0.4.25",
@@ -1325,6 +1480,81 @@ ALL_TEST_OBJECTS = [
     Test(
         all_detectors.ArbitrarySendErc20Permit,
         "arbitrary_send_erc20_permit.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_collision.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_collision.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_collision.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_collision.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_collision.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_wrong_return_type.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_wrong_return_type.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_wrong_return_type.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_wrong_return_type.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_wrong_return_type.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_state_var_collision.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_state_var_collision.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_state_var_collision.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_state_var_collision.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.DomainSeparatorCollision,
+        "permit_domain_state_var_collision.sol",
         "0.8.0",
     ),
 ]

@@ -1,7 +1,7 @@
-INFO:Slither:[92m
+INFO:Slither:
 Initializable contract not found, the contract does not follow a standard initalization schema.
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing[0m
-INFO:Slither:[92m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing
+INFO:Slither:
 Initializable contract not found, the contract does not follow a standard initalization schema.
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing[0m
-INFO:Slither:2 findings, 22 detectors run
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing
+INFO:Slither:2 findings, 25 detectors run

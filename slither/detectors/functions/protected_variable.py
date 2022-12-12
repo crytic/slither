@@ -48,7 +48,7 @@ contract Buggy{
     def _analyze_function(self, function: Function, contract: Contract) -> List[Output]:
         results = []
 
-        for state_variable_written in function.state_variables_written:
+        for state_variable_written in function.all_state_variables_written():
             if state_variable_written.write_protection:
                 for function_sig in state_variable_written.write_protection:
                     function_protection = contract.get_function_from_signature(function_sig)

@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 1090,
                         "length": 53,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 622,
                                 "length": 587,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
@@ -70,7 +68,6 @@
                     "source_mapping": {
                         "start": 1148,
                         "length": 59,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
@@ -88,7 +85,6 @@
                             "source_mapping": {
                                 "start": 622,
                                 "length": 587,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
@@ -132,7 +128,6 @@
                     "source_mapping": {
                         "start": 1090,
                         "length": 53,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
@@ -150,7 +145,6 @@
                             "source_mapping": {
                                 "start": 622,
                                 "length": 587,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
@@ -194,7 +188,6 @@
                     "source_mapping": {
                         "start": 1148,
                         "length": 59,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
@@ -212,7 +205,6 @@
                             "source_mapping": {
                                 "start": 622,
                                 "length": 587,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/erc20-indexed/0.5.16/erc20_indexed.sol",

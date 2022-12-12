@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 1839,
                         "length": 393,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -35,7 +34,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 2209,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -118,7 +116,6 @@
                     "source_mapping": {
                         "start": 2084,
                         "length": 64,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -136,7 +133,6 @@
                             "source_mapping": {
                                 "start": 1839,
                                 "length": 393,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -163,7 +159,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 2209,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -251,7 +246,6 @@
                     "source_mapping": {
                         "start": 2183,
                         "length": 32,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -269,7 +263,6 @@
                             "source_mapping": {
                                 "start": 1839,
                                 "length": 393,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -296,7 +289,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 2209,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -380,10 +372,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in Reentrancy.withdrawBalance_fixed_3() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#55-64):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call{value: amount}() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#60)\n\tState variables written after the call(s):\n\t- userBalance[msg.sender] = amount (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#62)\n",
-            "markdown": "Reentrancy in [Reentrancy.withdrawBalance_fixed_3()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L55-L64):\n\tExternal calls:\n\t- [(ret,mem) = msg.sender.call{value: amount}()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L60)\n\tState variables written after the call(s):\n\t- [userBalance[msg.sender] = amount](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L62)\n",
+            "description": "Reentrancy in Reentrancy.withdrawBalance_fixed_3() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#55-64):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call{value: amount}() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#60)\n\tState variables written after the call(s):\n\t- userBalance[msg.sender] = amount (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#62)\n\tReentrancy.userBalance (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#4) can be used in cross function reentrancies:\n\t- Reentrancy.addToBalance() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#10-12)\n\t- Reentrancy.constructor() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#15-23)\n\t- Reentrancy.getBalance(address) (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#6-8)\n\t- Reentrancy.withdrawBalance() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#25-33)\n\t- Reentrancy.withdrawBalance_fixed() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#35-44)\n\t- Reentrancy.withdrawBalance_fixed_2() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#46-53)\n\t- Reentrancy.withdrawBalance_fixed_3() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#55-64)\n",
+            "markdown": "Reentrancy in [Reentrancy.withdrawBalance_fixed_3()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L55-L64):\n\tExternal calls:\n\t- [(ret,mem) = msg.sender.call{value: amount}()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L60)\n\tState variables written after the call(s):\n\t- [userBalance[msg.sender] = amount](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L62)\n\t[Reentrancy.userBalance](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L4) can be used in cross function reentrancies:\n\t- [Reentrancy.addToBalance()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L10-L12)\n\t- [Reentrancy.constructor()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L15-L23)\n\t- [Reentrancy.getBalance(address)](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L6-L8)\n\t- [Reentrancy.withdrawBalance()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L25-L33)\n\t- [Reentrancy.withdrawBalance_fixed()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L35-L44)\n\t- [Reentrancy.withdrawBalance_fixed_2()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L46-L53)\n\t- [Reentrancy.withdrawBalance_fixed_3()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L55-L64)\n",
             "first_markdown_element": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L55-L64",
-            "id": "d68cc7cd493eca1fda517423f6f6ad0a5671d0bbea1d80ec0cb403ca66d5d4b8",
+            "id": "75d254de1c95646a633659a0bb8c1cd874b1a83f8bdba6fda28e9092be76beeb",
             "check": "reentrancy-eth",
             "impact": "High",
             "confidence": "Medium"
@@ -396,7 +388,6 @@
                     "source_mapping": {
                         "start": 703,
                         "length": 357,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -422,7 +413,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 2209,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -505,7 +495,6 @@
                     "source_mapping": {
                         "start": 882,
                         "length": 81,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -523,7 +512,6 @@
                             "source_mapping": {
                                 "start": 703,
                                 "length": 357,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -549,7 +537,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 2209,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -637,7 +624,6 @@
                     "source_mapping": {
                         "start": 1026,
                         "length": 27,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -655,7 +641,6 @@
                             "source_mapping": {
                                 "start": 703,
                                 "length": 357,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -681,7 +666,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 2209,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol",
@@ -765,10 +749,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#25-33):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call{value: userBalance[msg.sender]}() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#28)\n\tState variables written after the call(s):\n\t- userBalance[msg.sender] = 0 (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#32)\n",
-            "markdown": "Reentrancy in [Reentrancy.withdrawBalance()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L25-L33):\n\tExternal calls:\n\t- [(ret,mem) = msg.sender.call{value: userBalance[msg.sender]}()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L28)\n\tState variables written after the call(s):\n\t- [userBalance[msg.sender] = 0](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L32)\n",
+            "description": "Reentrancy in Reentrancy.withdrawBalance() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#25-33):\n\tExternal calls:\n\t- (ret,mem) = msg.sender.call{value: userBalance[msg.sender]}() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#28)\n\tState variables written after the call(s):\n\t- userBalance[msg.sender] = 0 (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#32)\n\tReentrancy.userBalance (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#4) can be used in cross function reentrancies:\n\t- Reentrancy.addToBalance() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#10-12)\n\t- Reentrancy.constructor() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#15-23)\n\t- Reentrancy.getBalance(address) (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#6-8)\n\t- Reentrancy.withdrawBalance() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#25-33)\n\t- Reentrancy.withdrawBalance_fixed() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#35-44)\n\t- Reentrancy.withdrawBalance_fixed_2() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#46-53)\n\t- Reentrancy.withdrawBalance_fixed_3() (tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#55-64)\n",
+            "markdown": "Reentrancy in [Reentrancy.withdrawBalance()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L25-L33):\n\tExternal calls:\n\t- [(ret,mem) = msg.sender.call{value: userBalance[msg.sender]}()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L28)\n\tState variables written after the call(s):\n\t- [userBalance[msg.sender] = 0](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L32)\n\t[Reentrancy.userBalance](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L4) can be used in cross function reentrancies:\n\t- [Reentrancy.addToBalance()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L10-L12)\n\t- [Reentrancy.constructor()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L15-L23)\n\t- [Reentrancy.getBalance(address)](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L6-L8)\n\t- [Reentrancy.withdrawBalance()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L25-L33)\n\t- [Reentrancy.withdrawBalance_fixed()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L35-L44)\n\t- [Reentrancy.withdrawBalance_fixed_2()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L46-L53)\n\t- [Reentrancy.withdrawBalance_fixed_3()](tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L55-L64)\n",
             "first_markdown_element": "tests/detectors/reentrancy-eth/0.7.6/reentrancy.sol#L25-L33",
-            "id": "df77aefe86b51d596b1dba22bde98d85390038724420e61fb18579fd90af852c",
+            "id": "a20a04b25c124d64a595c2dec1a37f745f1594c4f0461622c558d66911ea5235",
             "check": "reentrancy-eth",
             "impact": "High",
             "confidence": "Medium"

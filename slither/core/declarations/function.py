@@ -2,7 +2,7 @@
     Function module
 """
 import logging
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod, ABCMeta
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby
@@ -20,11 +20,11 @@ from slither.core.expressions import (
     MemberAccess,
     UnaryOperation,
 )
-from slither.core.solidity_types import UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.utils.type import convert_type_for_solidity_signature_to_string
 from slither.utils.utils import unroll
 
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
@@ -189,7 +189,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         # set(ReacheableNode)
         self._reachable_from_nodes: Set[ReacheableNode] = set()
-        self._reachable_from_functions: Set[ReacheableNode] = set()
+        self._reachable_from_functions: Set[Function] = set()
+        self._all_reachable_from_functions: Optional[Set[Function]] = None
 
         # Constructor, fallback, State variable constructor
         self._function_type: Optional[FunctionType] = None
@@ -214,7 +215,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
 
-        # Assume we are analyzing Solidty by default
+        # Assume we are analyzing Solidity by default
         self.function_language: FunctionLanguage = FunctionLanguage.Solidity
 
         self._id: Optional[str] = None
@@ -265,6 +266,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         str: func_name(type1,type2)
         Return the function signature without the return values
+        The difference between this function and solidity_function is that full_name does not translate the underlying
+        type (ex: structure, contract to address, ...)
         """
         if self._full_name is None:
             name, parameters, _ = self.signature
@@ -538,7 +541,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._nodes = nodes
 
     @property
-    def entry_point(self) -> "Node":
+    def entry_point(self) -> Optional["Node"]:
         """
         Node: Entry point of the function
         """
@@ -952,24 +955,21 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
     ###################################################################################
 
-    @staticmethod
-    def _convert_type_for_solidity_signature(t: Type):
-        from slither.core.declarations import Contract
-
-        if isinstance(t, UserDefinedType) and isinstance(t.type, Contract):
-            return "address"
-        return str(t)
-
     @property
     def solidity_signature(self) -> str:
         """
         Return a signature following the Solidity Standard
         Contract and converted into address
+
+        It might still keep internal types (ex: structure name) for internal functions.
+        The reason is that internal functions allows recursive structure definition, which
+        can't be converted following the Solidity stand ard
+
         :return: the solidity signature
         """
         if self._solidity_signature is None:
             parameters = [
-                self._convert_type_for_solidity_signature(x.type) for x in self.parameters
+                convert_type_for_solidity_signature_to_string(x.type) for x in self.parameters
             ]
             self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
         return self._solidity_signature
@@ -1030,8 +1030,29 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         return self._reachable_from_nodes
 
     @property
-    def reachable_from_functions(self) -> Set[ReacheableNode]:
+    def reachable_from_functions(self) -> Set["Function"]:
         return self._reachable_from_functions
+
+    @property
+    def all_reachable_from_functions(self) -> Set["Function"]:
+        """
+        Give the recursive version of reachable_from_functions (all the functions that lead to call self in the CFG)
+        """
+        if self._all_reachable_from_functions is None:
+            functions: Set["Function"] = set()
+
+            new_functions = self.reachable_from_functions
+            # iterate until we have are finding new functions
+            while new_functions and not new_functions.issubset(functions):
+                functions = functions.union(new_functions)
+                # Use a temporary set, because we iterate over new_functions
+                new_functionss: Set["Function"] = set()
+                for f in new_functions:
+                    new_functionss = new_functionss.union(f.reachable_from_functions)
+                new_functions = new_functionss - functions
+
+            self._all_reachable_from_functions = functions
+        return self._all_reachable_from_functions
 
     def add_reachable_from_node(self, n: "Node", ir: "Operation"):
         self._reachable_from_nodes.add(ReacheableNode(n, ir))
@@ -1460,6 +1481,26 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                 SolidityVariableComposed("msg.sender") in conditional_vars + args_vars
             )
         return self._is_protected
+
+    @property
+    def is_reentrant(self) -> bool:
+        """
+        Determine if the function can be re-entered
+        """
+        # TODO: compare with hash of known nonReentrant modifier instead of the name
+        if "nonReentrant" in [m.name for m in self.modifiers]:
+            return False
+
+        if self.visibility in ["public", "external"]:
+            return True
+
+        # If it's an internal function, check if all its entry points have the nonReentrant modifier
+        all_entry_points = [
+            f for f in self.all_reachable_from_functions if f.visibility in ["public", "external"]
+        ]
+        if not all_entry_points:
+            return True
+        return not all(("nonReentrant" in [m.name for m in f.modifiers] for f in all_entry_points))
 
     # endregion
     ###################################################################################

@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 171,
                         "length": 9,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/uninitialized-storage/0.4.25/uninitialized_storage_pointer.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/uninitialized-storage/0.4.25/uninitialized_storage_pointer.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 67,
                                 "length": 143,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/uninitialized-storage/0.4.25/uninitialized_storage_pointer.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/uninitialized-storage/0.4.25/uninitialized_storage_pointer.sol",
@@ -49,7 +47,6 @@
                                     "source_mapping": {
                                         "start": 0,
                                         "length": 217,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/uninitialized-storage/0.4.25/uninitialized_storage_pointer.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/uninitialized-storage/0.4.25/uninitialized_storage_pointer.sol",

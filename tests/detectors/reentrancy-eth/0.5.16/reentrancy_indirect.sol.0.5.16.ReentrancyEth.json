@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 671,
                         "length": 286,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -33,7 +32,6 @@
                             "source_mapping": {
                                 "start": 202,
                                 "length": 758,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -77,7 +75,6 @@
                     "source_mapping": {
                         "start": 782,
                         "length": 76,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -95,7 +92,6 @@
                             "source_mapping": {
                                 "start": 671,
                                 "length": 286,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -120,7 +116,6 @@
                                     "source_mapping": {
                                         "start": 202,
                                         "length": 758,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -169,7 +164,6 @@
                     "source_mapping": {
                         "start": 721,
                         "length": 51,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -187,7 +181,6 @@
                             "source_mapping": {
                                 "start": 671,
                                 "length": 286,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -212,7 +205,6 @@
                                     "source_mapping": {
                                         "start": 202,
                                         "length": 758,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -261,7 +253,6 @@
                     "source_mapping": {
                         "start": 869,
                         "length": 34,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -279,7 +270,6 @@
                             "source_mapping": {
                                 "start": 671,
                                 "length": 286,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -304,7 +294,6 @@
                                     "source_mapping": {
                                         "start": 202,
                                         "length": 758,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -354,7 +343,6 @@
                     "source_mapping": {
                         "start": 913,
                         "length": 36,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -372,7 +360,6 @@
                             "source_mapping": {
                                 "start": 671,
                                 "length": 286,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -397,7 +384,6 @@
                                     "source_mapping": {
                                         "start": 202,
                                         "length": 758,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol",
@@ -442,10 +428,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in Reentrancy.withdraw(address) (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#22-29):\n\tExternal calls:\n\t- require(bool)(Token(token).transfer(msg.sender,token_deposed[token][msg.sender])) (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#24)\n\tExternal calls sending eth:\n\t- msg.sender.transfer(eth_deposed[token][msg.sender]) (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#23)\n\tState variables written after the call(s):\n\t- eth_deposed[token][msg.sender] = 0 (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#26)\n\t- token_deposed[token][msg.sender] = 0 (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#27)\n",
-            "markdown": "Reentrancy in [Reentrancy.withdraw(address)](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L22-L29):\n\tExternal calls:\n\t- [require(bool)(Token(token).transfer(msg.sender,token_deposed[token][msg.sender]))](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L24)\n\tExternal calls sending eth:\n\t- [msg.sender.transfer(eth_deposed[token][msg.sender])](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L23)\n\tState variables written after the call(s):\n\t- [eth_deposed[token][msg.sender] = 0](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L26)\n\t- [token_deposed[token][msg.sender] = 0](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L27)\n",
+            "description": "Reentrancy in Reentrancy.withdraw(address) (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#22-29):\n\tExternal calls:\n\t- require(bool)(Token(token).transfer(msg.sender,token_deposed[token][msg.sender])) (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#24)\n\tExternal calls sending eth:\n\t- msg.sender.transfer(eth_deposed[token][msg.sender]) (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#23)\n\tState variables written after the call(s):\n\t- eth_deposed[token][msg.sender] = 0 (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#26)\n\tReentrancy.eth_deposed (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#10) can be used in cross function reentrancies:\n\t- Reentrancy.deposit_eth(address) (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#13-15)\n\t- Reentrancy.withdraw(address) (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#22-29)\n\t- token_deposed[token][msg.sender] = 0 (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#27)\n\tReentrancy.token_deposed (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#11) can be used in cross function reentrancies:\n\t- Reentrancy.deposit_token(address,uint256) (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#17-20)\n\t- Reentrancy.withdraw(address) (tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#22-29)\n",
+            "markdown": "Reentrancy in [Reentrancy.withdraw(address)](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L22-L29):\n\tExternal calls:\n\t- [require(bool)(Token(token).transfer(msg.sender,token_deposed[token][msg.sender]))](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L24)\n\tExternal calls sending eth:\n\t- [msg.sender.transfer(eth_deposed[token][msg.sender])](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L23)\n\tState variables written after the call(s):\n\t- [eth_deposed[token][msg.sender] = 0](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L26)\n\t[Reentrancy.eth_deposed](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L10) can be used in cross function reentrancies:\n\t- [Reentrancy.deposit_eth(address)](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L13-L15)\n\t- [Reentrancy.withdraw(address)](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L22-L29)\n\t- [token_deposed[token][msg.sender] = 0](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L27)\n\t[Reentrancy.token_deposed](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L11) can be used in cross function reentrancies:\n\t- [Reentrancy.deposit_token(address,uint256)](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L17-L20)\n\t- [Reentrancy.withdraw(address)](tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L22-L29)\n",
             "first_markdown_element": "tests/detectors/reentrancy-eth/0.5.16/reentrancy_indirect.sol#L22-L29",
-            "id": "b409436e604deed3ecb1b621a908db6ddbd69754315b41a9806919d8348391d9",
+            "id": "52cd1e82b29830aa25a1ea1bbc1b35c0e3097eab1f2922b4ecc98eae8f1ed225",
             "check": "reentrancy-eth",
             "impact": "High",
             "confidence": "Medium"

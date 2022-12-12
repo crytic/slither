@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 530,
                         "length": 161,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -31,7 +30,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 859,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -90,7 +88,6 @@
                     "source_mapping": {
                         "start": 605,
                         "length": 37,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -108,7 +105,6 @@
                             "source_mapping": {
                                 "start": 530,
                                 "length": 161,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -131,7 +127,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 859,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -195,7 +190,6 @@
                     "source_mapping": {
                         "start": 678,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -213,7 +207,6 @@
                             "source_mapping": {
                                 "start": 530,
                                 "length": 161,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -236,7 +229,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 859,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -300,7 +292,6 @@
                     "source_mapping": {
                         "start": 397,
                         "length": 37,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -318,7 +309,6 @@
                             "source_mapping": {
                                 "start": 336,
                                 "length": 188,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -343,7 +333,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 859,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -407,7 +396,6 @@
                     "source_mapping": {
                         "start": 678,
                         "length": 6,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -425,7 +413,6 @@
                             "source_mapping": {
                                 "start": 530,
                                 "length": 161,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -448,7 +435,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 859,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -513,7 +499,6 @@
                     "source_mapping": {
                         "start": 500,
                         "length": 17,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -531,7 +516,6 @@
                             "source_mapping": {
                                 "start": 336,
                                 "length": 188,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -556,7 +540,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 859,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -616,10 +599,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in ReentrancyWrite.bad1(address) (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#25-30):\n\tExternal calls:\n\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#27)\n\t- bad0() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#29)\n\t\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#18)\n\tState variables written after the call(s):\n\t- bad0() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#29)\n\t\t- notCalled = false (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#22)\n",
-            "markdown": "Reentrancy in [ReentrancyWrite.bad1(address)](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L25-L30):\n\tExternal calls:\n\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L27)\n\t- [bad0()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L29)\n\t\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L18)\n\tState variables written after the call(s):\n\t- [bad0()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L29)\n\t\t- [notCalled = false](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L22)\n",
+            "description": "Reentrancy in ReentrancyWrite.bad1(address) (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#25-30):\n\tExternal calls:\n\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#27)\n\t- bad0() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#29)\n\t\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#18)\n\tState variables written after the call(s):\n\t- bad0() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#29)\n\t\t- notCalled = false (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#22)\n\tReentrancyWrite.notCalled (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#4) can be used in cross function reentrancies:\n\t- ReentrancyWrite.bad0() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#16-23)\n\t- ReentrancyWrite.bad1(address) (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#25-30)\n\t- ReentrancyWrite.constructor(address) (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#7-14)\n\t- ReentrancyWrite.good() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#32-39)\n",
+            "markdown": "Reentrancy in [ReentrancyWrite.bad1(address)](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L25-L30):\n\tExternal calls:\n\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L27)\n\t- [bad0()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L29)\n\t\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L18)\n\tState variables written after the call(s):\n\t- [bad0()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L29)\n\t\t- [notCalled = false](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L22)\n\t[ReentrancyWrite.notCalled](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L4) can be used in cross function reentrancies:\n\t- [ReentrancyWrite.bad0()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L16-L23)\n\t- [ReentrancyWrite.bad1(address)](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L25-L30)\n\t- [ReentrancyWrite.constructor(address)](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L7-L14)\n\t- [ReentrancyWrite.good()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L32-L39)\n",
             "first_markdown_element": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L25-L30",
-            "id": "9fbfafd0d47ce4f4ead524570f382093c186c4e9e5e96ce0067fce3ffb6dc74a",
+            "id": "80cbbc2ca9b1ec618f677d49ad8c55c3e7b458a8f8f2d5083e5388dabf526d6f",
             "check": "reentrancy-no-eth",
             "impact": "Medium",
             "confidence": "Medium"
@@ -632,7 +615,6 @@
                     "source_mapping": {
                         "start": 336,
                         "length": 188,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -657,7 +639,6 @@
                             "source_mapping": {
                                 "start": 28,
                                 "length": 859,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -716,7 +697,6 @@
                     "source_mapping": {
                         "start": 397,
                         "length": 37,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -734,7 +714,6 @@
                             "source_mapping": {
                                 "start": 336,
                                 "length": 188,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -759,7 +738,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 859,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -823,7 +801,6 @@
                     "source_mapping": {
                         "start": 500,
                         "length": 17,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -841,7 +818,6 @@
                             "source_mapping": {
                                 "start": 336,
                                 "length": 188,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -866,7 +842,6 @@
                                     "source_mapping": {
                                         "start": 28,
                                         "length": 859,
-                                        "filename_used": "/GENERIC_PATH",
                                         "filename_relative": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol",
@@ -926,10 +901,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in ReentrancyWrite.bad0() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#16-23):\n\tExternal calls:\n\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#18)\n\tState variables written after the call(s):\n\t- notCalled = false (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#22)\n",
-            "markdown": "Reentrancy in [ReentrancyWrite.bad0()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L16-L23):\n\tExternal calls:\n\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L18)\n\tState variables written after the call(s):\n\t- [notCalled = false](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L22)\n",
+            "description": "Reentrancy in ReentrancyWrite.bad0() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#16-23):\n\tExternal calls:\n\t- (success) = msg.sender.call() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#18)\n\tState variables written after the call(s):\n\t- notCalled = false (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#22)\n\tReentrancyWrite.notCalled (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#4) can be used in cross function reentrancies:\n\t- ReentrancyWrite.bad0() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#16-23)\n\t- ReentrancyWrite.bad1(address) (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#25-30)\n\t- ReentrancyWrite.constructor(address) (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#7-14)\n\t- ReentrancyWrite.good() (tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#32-39)\n",
+            "markdown": "Reentrancy in [ReentrancyWrite.bad0()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L16-L23):\n\tExternal calls:\n\t- [(success) = msg.sender.call()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L18)\n\tState variables written after the call(s):\n\t- [notCalled = false](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L22)\n\t[ReentrancyWrite.notCalled](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L4) can be used in cross function reentrancies:\n\t- [ReentrancyWrite.bad0()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L16-L23)\n\t- [ReentrancyWrite.bad1(address)](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L25-L30)\n\t- [ReentrancyWrite.constructor(address)](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L7-L14)\n\t- [ReentrancyWrite.good()](tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L32-L39)\n",
             "first_markdown_element": "tests/detectors/reentrancy-no-eth/0.5.16/reentrancy-write.sol#L16-L23",
-            "id": "c9ba81d76d46579f9e78ac96b1aae43b71f2d4a96d4c47b2fab9831bf0f15a8f",
+            "id": "aec3401a9ebdcd0961e5a0f704379be83fc18e5c8ea5e98641b0ea1783184a3d",
             "check": "reentrancy-no-eth",
             "impact": "Medium",
             "confidence": "Medium"

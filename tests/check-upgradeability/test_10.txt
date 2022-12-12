@@ -1,13 +1,13 @@
-INFO:Slither:[92m
+INFO:Slither:
 Initializable contract not found, the contract does not follow a standard initalization schema.
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing[0m
-INFO:Slither:[91m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing
+INFO:Slither:
 ContractV1.destination (tests/check-upgradeability/contractV1.sol#2) was not constant but ContractV2.destination (tests/check-upgradeability/contract_v2_constant.sol#2) is.
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-not-be-constant[0m
-INFO:Slither:[93m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-not-be-constant
+INFO:Slither:
 Variable missing in ContractV2 (tests/check-upgradeability/contract_v2_constant.sol#1-3): ContractV1.destination (tests/check-upgradeability/contractV1.sol#2)
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#missing-variables[0m
-INFO:Slither:[92m
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#missing-variables
+INFO:Slither:
 Initializable contract not found, the contract does not follow a standard initalization schema.
-Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing[0m
-INFO:Slither:4 findings, 18 detectors run
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing
+INFO:Slither:4 findings, 21 detectors run

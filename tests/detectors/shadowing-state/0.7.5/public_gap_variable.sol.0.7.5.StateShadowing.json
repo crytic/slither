@@ -8,7 +8,6 @@
                     "source_mapping": {
                         "start": 156,
                         "length": 24,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-state/0.7.5/public_gap_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-state/0.7.5/public_gap_variable.sol",
@@ -26,7 +25,6 @@
                             "source_mapping": {
                                 "start": 110,
                                 "length": 102,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-state/0.7.5/public_gap_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-state/0.7.5/public_gap_variable.sol",
@@ -49,7 +47,6 @@
                     "source_mapping": {
                         "start": 51,
                         "length": 25,
-                        "filename_used": "/GENERIC_PATH",
                         "filename_relative": "tests/detectors/shadowing-state/0.7.5/public_gap_variable.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/shadowing-state/0.7.5/public_gap_variable.sol",
@@ -67,7 +64,6 @@
                             "source_mapping": {
                                 "start": 24,
                                 "length": 84,
-                                "filename_used": "/GENERIC_PATH",
                                 "filename_relative": "tests/detectors/shadowing-state/0.7.5/public_gap_variable.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/shadowing-state/0.7.5/public_gap_variable.sol",

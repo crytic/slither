@@ -98,7 +98,7 @@ def _find_variable_in_function_parser(
     return None
 
 
-def _find_top_level(
+def find_top_level(
     var_name: str, scope: "FileScope"
 ) -> Tuple[
     Optional[Union[Enum, Structure, SolidityImportPlaceHolder, CustomError, TopLevelVariable]], bool
@@ -155,6 +155,7 @@ def _find_in_contract(
     contract: Optional[Contract],
     contract_declarer: Optional[Contract],
     is_super: bool,
+    is_identifier_path: bool = False,
 ) -> Optional[Union[Variable, Function, Contract, Event, Enum, Structure, CustomError]]:
     if contract is None or contract_declarer is None:
         return None
@@ -197,6 +198,13 @@ def _find_in_contract(
     if var_name in modifiers:
         return modifiers[var_name]
 
+    if is_identifier_path:
+        for sig, modifier in modifiers.items():
+            if "(" in sig:
+                sig = sig[0 : sig.find("(")]
+                if sig == var_name:
+                    return modifier
+
     # structures are looked on the contract declarer
     structures = contract.structures_as_dict
     if var_name in structures:
@@ -216,7 +224,7 @@ def _find_in_contract(
     custom_errors = contract.custom_errors
     try:
         for custom_error in custom_errors:
-            if var_name == custom_error.solidity_signature:
+            if var_name in [custom_error.solidity_signature, custom_error.full_name]:
                 return custom_error
     except ValueError:
         # This can happen as custom error sol signature might not have been built
@@ -294,6 +302,7 @@ def find_variable(
     caller_context: CallerContextExpression,
     referenced_declaration: Optional[int] = None,
     is_super: bool = False,
+    is_identifier_path: bool = False,
 ) -> Tuple[
     Union[
         Variable,
@@ -321,6 +330,8 @@ def find_variable(
     :type referenced_declaration:
     :param is_super:
     :type is_super:
+    :param is_identifier_path:
+    :type is_identifier_path:
     :return:
     :rtype:
     """
@@ -381,7 +392,7 @@ def find_variable(
         else:
             assert isinstance(underlying_func, FunctionTopLevel)
 
-    ret = _find_in_contract(var_name, contract, contract_declarer, is_super)
+    ret = _find_in_contract(var_name, contract, contract_declarer, is_super, is_identifier_path)
     if ret:
         return ret, False
 
@@ -402,7 +413,7 @@ def find_variable(
         return SolidityFunction(var_name), False
 
     # Top level must be at the end, if nothing else was found
-    ret, var_was_created = _find_top_level(var_name, current_scope)
+    ret, var_was_created = find_top_level(var_name, current_scope)
     if ret:
         return ret, var_was_created
 

@@ -35,6 +35,7 @@ from slither.solc_parsing.yul.evm_functions import (
     unary_ops,
     binary_ops,
 )
+from slither.solc_parsing.expressions.find_variable import find_top_level
 from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
@@ -674,7 +675,7 @@ def parse_yul_variable_declaration(
     the assignment
     """
 
-    if not ast["value"]:
+    if "value" not in ast or not ast["value"]:
         return None
 
     return _parse_yul_assignment_common(root, node, ast, "variables")
@@ -797,12 +798,25 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     if magic_suffix:
         return magic_suffix
 
+    ret, _ = find_top_level(name, root.contract.file_scope)
+    if ret:
+        return Identifier(ret)
+
     raise SlitherException(f"unresolved reference to identifier {name}")
 
 
 def parse_yul_literal(_root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     kind = ast["kind"]
-    value = ast["value"]
+
+    if kind == "string":
+        # Solc 0.8.0 use value, 0.8.16 use hexValue - not sure when this changed was made
+        if "value" in ast:
+            value = ast["value"]
+        else:
+            value = ast["hexValue"]
+    else:
+        # number/bool
+        value = ast["value"]
 
     if not kind:
         kind = "bool" if value in ["true", "false"] else "uint256"

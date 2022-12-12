@@ -14,6 +14,7 @@ from slither.tools.read_storage import SlitherReadStorage
 
 try:
     from web3 import Web3
+    from web3.contract import Contract
 except ImportError:
     print("ERROR: in order to use slither-read-storage, you need to install web3")
     print("$ pip3 install web3 --user\n")
@@ -67,14 +68,14 @@ def fixture_ganache() -> Generator[GanacheInstance, None, None]:
         p.wait()
 
 
-def get_source_file(file_path):
+def get_source_file(file_path) -> str:
     with open(file_path, "r", encoding="utf8") as f:
         source = f.read()
 
     return source
 
 
-def deploy_contract(w3, ganache, contract_bin, contract_abi):
+def deploy_contract(w3, ganache, contract_bin, contract_abi) -> Contract:
     """Deploy contract to the local ganache network"""
     signed_txn = w3.eth.account.sign_transaction(
         dict(
@@ -96,7 +97,7 @@ def deploy_contract(w3, ganache, contract_bin, contract_abi):
 
 # pylint: disable=too-many-locals
 @pytest.mark.usefixtures("web3", "ganache")
-def test_read_storage(web3, ganache):
+def test_read_storage(web3, ganache) -> None:
     assert web3.isConnected()
     bin_path = os.path.join(STORAGE_TEST_ROOT, "StorageLayout.bin")
     abi_path = os.path.join(STORAGE_TEST_ROOT, "StorageLayout.abi")
@@ -114,9 +115,10 @@ def test_read_storage(web3, ganache):
     srs.storage_address = address
     srs.get_all_storage_variables()
     srs.get_storage_layout()
-    srs.get_slot_values()
+    srs.walk_slot_info(srs.get_slot_values)
     with open("storage_layout.json", "w", encoding="utf-8") as file:
-        json.dump(srs.slot_info, file, indent=4)
+        slot_infos_json = srs.to_json()
+        json.dump(slot_infos_json, file, indent=4)
 
     expected_file = os.path.join(STORAGE_TEST_ROOT, "TEST_storage_layout.json")
     actual_file = os.path.join(SLITHER_ROOT, "storage_layout.json")
@@ -132,8 +134,8 @@ def test_read_storage(web3, ganache):
             path_list = re.findall(r"\['(.*?)'\]", change.path())
             path = "_".join(path_list)
             with open(f"{path}_expected.txt", "w", encoding="utf8") as f:
-                f.write(change.t1)
+                f.write(str(change.t1))
             with open(f"{path}_actual.txt", "w", encoding="utf8") as f:
-                f.write(change.t2)
+                f.write(str(change.t2))
 
     assert not diff
