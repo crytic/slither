@@ -1,5 +1,6 @@
-interface NameReg {
-    function addressOf() external payable;
+interface Test {
+    function test() external payable returns (uint);
+    function testTuple() external payable returns (uint, uint);
 }
 contract C {
     // TODO
@@ -26,10 +27,16 @@ contract C {
     }
 
     function e(address one, address two) public {
-        return NameReg(one).addressOf{value: msg.sender == two ? 1 : 2, gas: true ? 2 : gasleft()}();
+        uint x = Test(one).test{value: msg.sender == two ? 1 : 2, gas: true ? 2 : gasleft()}();
     }
-    // TODO: nested ternary 
-    // function f(address one, address two) public {
-    //     return NameReg(one).addressOf{value: msg.sender == two ? 1 : 2, gas: true ? (1 == 1 ? 1 : 2) : gasleft()}();
-    // }
+
+    // Parenthteical expression
+    function f(address one, address two) public {
+        uint x = Test(one).test{value: msg.sender == two ? 1 : 2, gas: true ? (1 == 1 ? 1 : 2) : gasleft()}();
+    }
+
+    // Unused tuple variable
+    function g(address one) public {
+        (, uint x) = Test(one).testTuple();
+    }
 }

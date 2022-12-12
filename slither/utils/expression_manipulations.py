@@ -68,6 +68,13 @@ class SplitTernaryExpression:
         false_expression: Union[AssignmentOperation, MemberAccess],
         f: Callable,
     ) -> bool:
+        # parentetical expression (.. ? .. : ..)
+        if (
+            isinstance(next_expr, TupleExpression)
+            and len(next_expr.expressions) == 1
+            and isinstance(next_expr.expressions[0], ConditionalExpression)
+        ):
+            next_expr = next_expr.expressions[0]
 
         if isinstance(next_expr, ConditionalExpression):
             f(true_expression, copy.copy(next_expr.then_expression))
