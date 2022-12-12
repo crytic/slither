@@ -13,7 +13,7 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "prettytable>=0.7.2",
-        "pysha3>=1.0.2",
+        "pycryptodome>=3.4.6",
         "crytic-compile>=0.2.4",
         # "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
     ],
@@ -26,6 +26,7 @@ setup(
             "deepdiff",
             "numpy",
             "solc-select>=v1.0.0b1",
+            "openai",
         ]
     },
     license="AGPL-3.0",

@@ -189,7 +189,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         # set(ReacheableNode)
         self._reachable_from_nodes: Set[ReacheableNode] = set()
-        self._reachable_from_functions: Set[ReacheableNode] = set()
+        self._reachable_from_functions: Set[Function] = set()
+        self._all_reachable_from_functions: Optional[Set[Function]] = None
 
         # Constructor, fallback, State variable constructor
         self._function_type: Optional[FunctionType] = None
@@ -214,7 +215,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
 
-        # Assume we are analyzing Solidty by default
+        # Assume we are analyzing Solidity by default
         self.function_language: FunctionLanguage = FunctionLanguage.Solidity
 
         self._id: Optional[str] = None
@@ -1029,8 +1030,29 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         return self._reachable_from_nodes
 
     @property
-    def reachable_from_functions(self) -> Set[ReacheableNode]:
+    def reachable_from_functions(self) -> Set["Function"]:
         return self._reachable_from_functions
+
+    @property
+    def all_reachable_from_functions(self) -> Set["Function"]:
+        """
+        Give the recursive version of reachable_from_functions (all the functions that lead to call self in the CFG)
+        """
+        if self._all_reachable_from_functions is None:
+            functions: Set["Function"] = set()
+
+            new_functions = self.reachable_from_functions
+            # iterate until we have are finding new functions
+            while new_functions and not new_functions.issubset(functions):
+                functions = functions.union(new_functions)
+                # Use a temporary set, because we iterate over new_functions
+                new_functionss: Set["Function"] = set()
+                for f in new_functions:
+                    new_functionss = new_functionss.union(f.reachable_from_functions)
+                new_functions = new_functionss - functions
+
+            self._all_reachable_from_functions = functions
+        return self._all_reachable_from_functions
 
     def add_reachable_from_node(self, n: "Node", ir: "Operation"):
         self._reachable_from_nodes.add(ReacheableNode(n, ir))
@@ -1459,6 +1481,26 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                 SolidityVariableComposed("msg.sender") in conditional_vars + args_vars
             )
         return self._is_protected
+
+    @property
+    def is_reentrant(self) -> bool:
+        """
+        Determine if the function can be re-entered
+        """
+        # TODO: compare with hash of known nonReentrant modifier instead of the name
+        if "nonReentrant" in [m.name for m in self.modifiers]:
+            return False
+
+        if self.visibility in ["public", "external"]:
+            return True
+
+        # If it's an internal function, check if all its entry points have the nonReentrant modifier
+        all_entry_points = [
+            f for f in self.all_reachable_from_functions if f.visibility in ["public", "external"]
+        ]
+        if not all_entry_points:
+            return True
+        return not all(("nonReentrant" in [m.name for m in f.modifiers] for f in all_entry_points))
 
     # endregion
     ###################################################################################
