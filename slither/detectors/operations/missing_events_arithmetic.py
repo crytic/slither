@@ -42,7 +42,7 @@ contract C {
     }    
 }
 ```
-`updateOwner()` has no event, so it is difficult to track off-chain changes in the buy price. 
+`setBuyPrice()` does not emit an event, so it is difficult to track changes in the value of `buyPrice` off-chain. 
 """
     # endregion wiki_exploit_scenario
 
