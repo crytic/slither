@@ -3,7 +3,7 @@
     as they should be immutable
 """
 import copy
-from typing import Union, Callable, Tuple, Optional
+from typing import Union, Callable
 from slither.core.expressions import UnaryOperation
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
@@ -68,7 +68,7 @@ class SplitTernaryExpression:
         false_expression: Union[AssignmentOperation, MemberAccess],
         f: Callable,
     ) -> bool:
-        # parentetical expression (.. ? .. : ..)
+        # look ahead for parenthetical expression (.. ? .. : ..)
         if (
             isinstance(next_expr, TupleExpression)
             and len(next_expr.expressions) == 1
@@ -112,7 +112,7 @@ class SplitTernaryExpression:
                 self.copy_expression(
                     next_expr, true_expression.expression, false_expression.expression
                 )
-
+        # pylint: disable=too-many-nested-blocks
         elif isinstance(expression, (AssignmentOperation, BinaryOperation, TupleExpression)):
             true_expression._expressions = []
             false_expression._expressions = []

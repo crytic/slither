@@ -30,7 +30,7 @@ contract C {
         uint x = Test(one).test{value: msg.sender == two ? 1 : 2, gas: true ? 2 : gasleft()}();
     }
 
-    // Parenthteical expression
+    // Parenthetical expression
     function f(address one, address two) public {
         uint x = Test(one).test{value: msg.sender == two ? 1 : 2, gas: true ? (1 == 1 ? 1 : 2) : gasleft()}();
     }
