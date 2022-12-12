@@ -14,6 +14,7 @@ from solc_select.solc_select import installed_versions as get_installed_solc_ver
 from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
+from tests.conftest import _select_solc_version
 
 
 class Test:  # pylint: disable=too-few-public-methods
@@ -41,14 +42,6 @@ class Test:  # pylint: disable=too-few-public-methods
             self.additional_files = []
         else:
             self.additional_files = additional_files
-
-
-def set_solc(test_item: Test):  # pylint: disable=too-many-lines
-    # hacky hack hack to pick the solc version we want
-    env = dict(os.environ)
-    env["SOLC_VERSION"] = test_item.solc_ver
-    os.environ.clear()
-    os.environ.update(env)
 
 
 def id_test(test_item: Test):
@@ -1576,7 +1569,7 @@ GENERIC_PATH = "/GENERIC_PATH"
 
 
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
-def test_detector(test_item: Test):
+def test_detector(select_solc_version, test_item: Test):
     test_dir_path = pathlib.Path(
         pathlib.Path().absolute(),
         "tests",
@@ -1587,15 +1580,15 @@ def test_detector(test_item: Test):
     test_file_path = str(pathlib.Path(test_dir_path, test_item.test_file))
     expected_result_path = str(pathlib.Path(test_dir_path, test_item.expected_result).absolute())
 
-    set_solc(test_item)
-    sl = Slither(test_file_path)
-    sl.register_detector(test_item.detector)
-    results = sl.run_detectors()
+    with select_solc_version(test_item.solc_ver):
+        sl = Slither(test_file_path)
+        sl.register_detector(test_item.detector)
+        results = sl.run_detectors()
 
-    with open(expected_result_path, encoding="utf8") as f:
-        expected_result = json.load(f)
+        with open(expected_result_path, encoding="utf8") as f:
+            expected_result = json.load(f)
 
-    results_as_string = json.dumps(results)
+        results_as_string = json.dumps(results)
 
     for additional_file in test_item.additional_files:
         additional_path = str(pathlib.Path(test_dir_path, additional_file).absolute())
@@ -1636,7 +1629,7 @@ def _generate_test(test_item: Test, skip_existing=False):
         if os.path.isfile(expected_result_path):
             return
 
-    set_solc(test_item)
+    _select_solc_version(test_item.solc_ver)
     sl = Slither(test_file_path)
     sl.register_detector(test_item.detector)
     results = sl.run_detectors()

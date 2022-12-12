@@ -38,22 +38,22 @@ signatures = {
 }
 
 
-def test_functions_ids() -> None:
-    solc_select.switch_global_version("0.7.0", always_install=True)
-    sl = Slither("tests/printers/functions_ids.sol")
-    contracts_c = sl.get_contract_from_name("C")
-    assert len(contracts_c) == 1
-    contract_c = contracts_c[0]
+def test_functions_ids(select_solc_version):
+    with select_solc_version("0.7.0"):
+        sl = Slither("tests/printers/functions_ids.sol")
+        contracts_c = sl.get_contract_from_name("C")
+        assert len(contracts_c) == 1
+        contract_c = contracts_c[0]
 
-    for sig, hashes in signatures.items():
-        func = contract_c.get_function_from_signature(sig)
-        if not func:
-            var_name = sig[: sig.find("(")]
-            var = contract_c.get_state_variable_from_name(var_name)
-            assert var
-            assert get_function_id(var.solidity_signature) == int(hashes, 16)
-        else:
-            assert get_function_id(func.solidity_signature) == int(hashes, 16)
+        for sig, hashes in signatures.items():
+            func = contract_c.get_function_from_signature(sig)
+            if not func:
+                var_name = sig[: sig.find("(")]
+                var = contract_c.get_state_variable_from_name(var_name)
+                assert var
+                assert get_function_id(var.solidity_signature) == int(hashes, 16)
+            else:
+                assert get_function_id(func.solidity_signature) == int(hashes, 16)
 
 
 if __name__ == "__main__":

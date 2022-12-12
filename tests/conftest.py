@@ -13,35 +13,36 @@ from slither import Slither
 SCRIPT_DIR = pathlib.Path(getsourcefile(lambda: 0)).parent
 
 
+@contextmanager
+def _select_solc_version(version: Optional[str]):
+    """Selects solc version to use for running tests.
+
+    If no version is provided, latest is used."""
+    # If no solc_version selected just use the latest avail
+    if not version:
+        # This sorts the versions numerically
+        vers = sorted(
+            map(
+                lambda x: (int(x[0]), int(x[1]), int(x[2])),
+                map(lambda x: x.split(".", 3), solc_select.installed_versions()),
+            )
+        )
+        ver = list(vers)[-1]
+        version = ".".join(map(str, ver))
+    env = dict(os.environ)
+    env_restore = dict(env)
+    env["SOLC_VERSION"] = version
+    os.environ.clear()
+    os.environ.update(env)
+
+    yield version
+
+    os.environ.clear()
+    os.environ.update(env_restore)
+
+
 @pytest.fixture(name="select_solc_version")
 def fixture_select_solc_version():
-    @contextmanager
-    def _select_solc_version(version: Optional[str]):
-        """Selects solc version to use for running tests.
-
-        If no version is provided, latest is used."""
-        # If no solc_version selected just use the latest avail
-        if not version:
-            # This sorts the versions numerically
-            vers = sorted(
-                map(
-                    lambda x: (int(x[0]), int(x[1]), int(x[2])),
-                    map(lambda x: x.split(".", 3), solc_select.installed_versions()),
-                )
-            )
-            ver = list(vers)[-1]
-            version = ".".join(map(str, ver))
-        env = dict(os.environ)
-        env_restore = dict(env)
-        env["SOLC_VERSION"] = version
-        os.environ.clear()
-        os.environ.update(env)
-
-        yield version
-
-        os.environ.clear()
-        os.environ.update(env_restore)
-
     return _select_solc_version
 
 

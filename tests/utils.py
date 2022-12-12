@@ -2,8 +2,10 @@ import pytest
 from solc_select import solc_select
 from argparse import ArgumentTypeError
 
+
 def skip_unsupported_platforms(ver: str):
     return pytest.mark.skipif(invalid_version(ver))
+
 
 def invalid_version(ver: str) -> bool:
     """Wrapper function to check if the solc-version is valid

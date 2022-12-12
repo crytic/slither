@@ -23,6 +23,7 @@ from slither.slithir.operations import (
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable, StateIRVariable
 
+
 def have_ssa_if_ir(function: Function):
     """Verifies that all nodes in a function that have IR also have SSA IR"""
     for n in function.nodes:
@@ -178,6 +179,7 @@ def phi_values_inserted(f: Function):
                 if isinstance(ssa, OperationWithLValue):
                     if is_used_later(node, ssa.lvalue):
                         assert have_phi_for_var(df, ssa.lvalue)
+
 
 def verify_properties_hold(slither: Slither):
     """Ensures that basic properties of SSA hold true"""
