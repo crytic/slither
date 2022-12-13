@@ -508,6 +508,7 @@ Please rename it, this name is reserved for Slither's internals"""
 
         # Then we analyse state variables, functions and modifiers
         self._analyze_third_part(contracts_to_be_analyzed, libraries)
+        [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
         self._analyze_using_for(contracts_to_be_analyzed)
 
@@ -624,8 +625,20 @@ Please rename it, this name is reserved for Slither's internals"""
     def _analyze_using_for(self, contracts_to_be_analyzed: List[ContractSolc]):
         self._analyze_top_level_using_for()
 
-        for c in contracts_to_be_analyzed:
-            c.analyze_using_for()
+        while contracts_to_be_analyzed:
+            contract = contracts_to_be_analyzed[0]
+
+            contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
+            all_father_analyzed = all(
+                self._underlying_contract_to_parser[father].is_analyzed
+                for father in contract.underlying_contract.inheritance
+            )
+
+            if not contract.underlying_contract.inheritance or all_father_analyzed:
+                contract.analyze_using_for()
+                contract.set_is_analyzed(True)
+            else:
+                contracts_to_be_analyzed += [contract]
 
     def _analyze_enums(self, contract: ContractSolc):
         # Enum must be analyzed first
@@ -711,6 +724,7 @@ Please rename it, this name is reserved for Slither's internals"""
             for func in contract.functions + contract.modifiers:
                 try:
                     func.generate_slithir_and_analyze()
+
                 except AttributeError as e:
                     # This can happens for example if there is a call to an interface
                     # And the interface is redefined due to contract's name reuse
