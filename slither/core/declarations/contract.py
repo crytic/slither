@@ -281,7 +281,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         if self._using_for_complete is None:
             result = self.using_for
-            top_level_using_for = self.file_scope.usingFor
+            top_level_using_for = self.file_scope.using_for_directives
             for uftl in top_level_using_for:
                 result = _merge_using_for(result, uftl.using_for)
             self._using_for_complete = result

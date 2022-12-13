@@ -36,7 +36,7 @@ class FileScope:
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
         self.functions: Set[FunctionTopLevel] = set()
-        self.usingFor: Set[UsingForTopLevel] = set()
+        self.using_for_directives: Set[UsingForTopLevel] = set()
         self.imports: Set[Import] = set()
         self.pragmas: Set[Pragma] = set()
         self.structures: Dict[str, StructureTopLevel] = {}
@@ -74,8 +74,8 @@ class FileScope:
             if not new_scope.functions.issubset(self.functions):
                 self.functions |= new_scope.functions
                 learn_something = True
-            if not new_scope.usingFor.issubset(self.usingFor):
-                self.usingFor |= new_scope.usingFor
+            if not new_scope.using_for_directives.issubset(self.using_for_directives):
+                self.using_for_directives |= new_scope.using_for_directives
                 learn_something = True
             if not new_scope.imports.issubset(self.imports):
                 self.imports |= new_scope.imports

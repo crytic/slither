@@ -107,7 +107,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                 if isinstance(type_name, TypeAliasTopLevel):
                     for alias in scope.user_defined_types.values():
                         if alias == type_name:
-                            scope.usingFor.add(self._using_for)
+                            scope.using_for_directives.add(self._using_for)
                 elif isinstance(type_name, UserDefinedType):
                     self._propagate_global_UserDefinedType(scope, type_name)
                 else:
@@ -122,11 +122,11 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         if isinstance(underlying, StructureTopLevel):
             for struct in scope.structures.values():
                 if struct == underlying:
-                    scope.usingFor.add(self._using_for)
+                    scope.using_for_directives.add(self._using_for)
         elif isinstance(underlying, EnumTopLevel):
             for enum in scope.enums.values():
                 if enum == underlying:
-                    scope.usingFor.add(self._using_for)
+                    scope.using_for_directives.add(self._using_for)
         else:
             LOGGER.error(
                 f"Error when propagating global {underlying} {type(underlying)} not a StructTopLevel or EnumTopLevel"

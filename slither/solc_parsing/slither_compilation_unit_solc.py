@@ -230,7 +230,7 @@ class SlitherCompilationUnitSolc:
                 usingFor = UsingForTopLevel(scope)
                 usingFor_parser = UsingForTopLevelSolc(usingFor, top_level_data, self)
                 usingFor.set_offset(top_level_data["src"], self._compilation_unit)
-                scope.usingFor.add(usingFor)
+                scope.using_for_directives.add(usingFor)
 
                 self._compilation_unit.using_for_top_level.append(usingFor)
                 self._using_for_top_level_parser.append(usingFor_parser)
