@@ -675,7 +675,7 @@ def parse_yul_variable_declaration(
     the assignment
     """
 
-    if not ast["value"]:
+    if "value" not in ast or not ast["value"]:
         return None
 
     return _parse_yul_assignment_common(root, node, ast, "variables")
@@ -807,7 +807,16 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
 
 def parse_yul_literal(_root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     kind = ast["kind"]
-    value = ast["value"]
+
+    if kind == "string":
+        # Solc 0.8.0 use value, 0.8.16 use hexValue - not sure when this changed was made
+        if "value" in ast:
+            value = ast["value"]
+        else:
+            value = ast["hexValue"]
+    else:
+        # number/bool
+        value = ast["value"]
 
     if not kind:
         kind = "bool" if value in ["true", "false"] else "uint256"

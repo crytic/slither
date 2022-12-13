@@ -110,10 +110,10 @@
                     }
                 }
             ],
-            "description": "A.f(uint256,uint256,uint256) (tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#2-4) performs a multiplication on the result of a division:\n\t-(a / b) * c (tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#3)\n",
-            "markdown": "[A.f(uint256,uint256,uint256)](tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#L2-L4) performs a multiplication on the result of a division:\n\t-[(a / b) * c](tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#L3)\n",
+            "description": "A.f(uint256,uint256,uint256) (tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#2-4) performs a multiplication on the result of a division:\n\t- (a / b) * c (tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#3)\n",
+            "markdown": "[A.f(uint256,uint256,uint256)](tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#L2-L4) performs a multiplication on the result of a division:\n\t- [(a / b) * c](tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#L3)\n",
             "first_markdown_element": "tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#L2-L4",
-            "id": "9010aa3fdf8f7689d4c4d4ea0bcd771668212100e5427e48644ed7337de03a6d",
+            "id": "c84a7841250790acbb447d31715ca8f7818170927909d599cbc08f49ce8a665d",
             "check": "divide-before-multiply",
             "impact": "Medium",
             "confidence": "Medium"

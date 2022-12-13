@@ -21,6 +21,7 @@ optional arguments:
   --json FILE                       Write the entire storage layout in JSON format to the specified FILE
   --value                           Toggle used to include values in output.
   --max-depth MAX_DEPTH             Max depth to search in data structure.
+  --block BLOCK_NUMBER              Block number to retrieve storage from (requires archive rpc node)
 ```
 
 ### Examples

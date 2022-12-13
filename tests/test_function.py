@@ -15,10 +15,7 @@ def test_functions():
     # pylint: disable=too-many-statements
     solc_select.switch_global_version("0.6.12", always_install=True)
     slither = Slither("tests/test_function.sol")
-    compilation_unit = slither.compilation_units[0]
-    functions = compilation_unit.get_contract_from_name("TestFunction")[
-        0
-    ].available_functions_as_dict()
+    functions = slither.get_contract_from_name("TestFunction")[0].available_functions_as_dict()
 
     f = functions["external_payable(uint256)"]
     assert f.name == "external_payable"
@@ -247,6 +244,7 @@ def test_functions():
 
 
 def test_function_can_send_eth():
+    solc_select.switch_global_version("0.6.12", always_install=True)
     slither = Slither("tests/test_function.sol")
     compilation_unit = slither.compilation_units[0]
     functions = compilation_unit.get_contract_from_name("TestFunctionCanSendEth")[
@@ -267,3 +265,33 @@ def test_function_can_send_eth():
     assert functions["transfer_via_external()"].can_send_eth() is False
     assert functions["call_via_external()"].can_send_eth() is False
     assert functions["highlevel_call_via_external()"].can_send_eth() is False
+
+
+def test_reentrant():
+    solc_select.switch_global_version("0.8.10", always_install=True)
+    slither = Slither("tests/test_function_reentrant.sol")
+    compilation_unit = slither.compilation_units[0]
+    functions = compilation_unit.get_contract_from_name("TestReentrant")[
+        0
+    ].available_functions_as_dict()
+
+    assert functions["is_reentrant()"].is_reentrant
+    assert not functions["is_non_reentrant()"].is_reentrant
+    assert not functions["internal_and_not_reentrant()"].is_reentrant
+    assert not functions["internal_and_not_reentrant2()"].is_reentrant
+    assert functions["internal_and_could_be_reentrant()"].is_reentrant
+    assert functions["internal_and_reentrant()"].is_reentrant
+
+
+def test_public_variable() -> None:
+    solc_select.switch_global_version("0.6.12", always_install=True)
+    slither = Slither("tests/test_function.sol")
+    contracts = slither.get_contract_from_name("TestFunction")
+    assert len(contracts) == 1
+    contract = contracts[0]
+    var = contract.get_state_variable_from_name("info")
+    assert var
+    assert var.solidity_signature == "info()"
+    assert var.signature_str == "info() returns(bytes32)"
+    assert var.visibility == "public"
+    assert var.type == ElementaryType("bytes32")

@@ -83,6 +83,14 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
         self.line_prefix = kwargs.get("change_line_prefix", "#")
 
+        # Indicate if Codex related features should be used
+        self.codex_enabled = kwargs.get("codex", False)
+        self.codex_contracts = kwargs.get("codex_contracts", "all")
+        self.codex_model = kwargs.get("codex_model", "text-davinci-003")
+        self.codex_temperature = kwargs.get("codex_temperature", 0)
+        self.codex_max_tokens = kwargs.get("codex_max_tokens", 300)
+        self.codex_log = kwargs.get("codex_log", False)
+
         self._parsers: List[SlitherCompilationUnitSolc] = []
         try:
             if isinstance(target, CryticCompile):

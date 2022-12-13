@@ -271,7 +271,6 @@ class SlitherCompilationUnitSolc:
                 scope.accessible_scopes.append(get_imported_scope)
 
             elif top_level_data[self.get_key()] == "StructDefinition":
-                scope = self.compilation_unit.get_scope(filename)
                 st = StructureTopLevel(self.compilation_unit, scope)
                 st.set_offset(top_level_data["src"], self._compilation_unit)
                 st_parser = StructureTopLevelSolc(st, top_level_data, self)
@@ -293,7 +292,6 @@ class SlitherCompilationUnitSolc:
                 self._variables_top_level_parser.append(var_parser)
                 scope.variables[var.name] = var
             elif top_level_data[self.get_key()] == "FunctionDefinition":
-                scope = self.compilation_unit.get_scope(filename)
                 func = FunctionTopLevel(self._compilation_unit, scope)
                 scope.functions.add(func)
                 func.set_offset(top_level_data["src"], self._compilation_unit)
@@ -304,7 +302,6 @@ class SlitherCompilationUnitSolc:
                 self.add_function_or_modifier_parser(func_parser)
 
             elif top_level_data[self.get_key()] == "ErrorDefinition":
-                scope = self.compilation_unit.get_scope(filename)
                 custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
                 custom_error.set_offset(top_level_data["src"], self._compilation_unit)
 

@@ -2,7 +2,11 @@
 Module detecting constant functions
 Recursively check the called functions
 """
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    ALL_SOLC_VERSIONS_04,
+)
 from slither.formatters.attributes.const_functions import custom_format
 
 
@@ -49,6 +53,8 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
         "Ensure the attributes of contracts compiled prior to Solidity 0.5.0 are correct."
     )
 
+    VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04
+
     def _detect(self):
         """Detect the constant function using assembly code
 
@@ -57,8 +63,6 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
             list: {'vuln', 'filename,'contract','func','#varsWritten'}
         """
         results = []
-        if self.compilation_unit.solc_version and self.compilation_unit.solc_version >= "0.5.0":
-            return results
         for c in self.contracts:
             for f in c.functions:
                 if f.contract_declarer != c:
