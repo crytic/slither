@@ -11,10 +11,10 @@ class VarReadUsingThis(AbstractDetector):
     IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/trailofbits/slither-private/wiki/Vulnerabilities-Description#var-read-using-this"
+    WIKI = "https://github.com/crytic/slither/wiki/Vulnerabilities-Description#public-variable-read-in-external-context"
 
-    WIKI_TITLE = "Variable read using this"
-    WIKI_DESCRIPTION = "Contract reads its own variable using `this`, adding overhead of an unnecessary STATICCALL."
+    WIKI_TITLE = "Public variable read in external context"
+    WIKI_DESCRIPTION = "The contract reads its own variable using `this`, adding overhead of an unnecessary STATICCALL."
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract C {
@@ -38,7 +38,7 @@ contract C {
                         func,
                         " reads ",
                         node,
-                        " with `this` which adds an extra STATICALL.\n",
+                        " with `this` which adds an extra STATICCALL.\n",
                     ]
                     json = self.generate_result(info)
                     results.append(json)
@@ -51,6 +51,10 @@ contract C {
         for node in func.nodes:
             for ir in node.irs:
                 if isinstance(ir, HighLevelCall):
-                    if ir.destination == SolidityVariable("this") and ir.is_static_call():
+                    if (
+                        ir.destination == SolidityVariable("this")
+                        and ir.is_static_call()
+                        and ir.function.visibility == "public"
+                    ):
                         results.append(node)
-        return results
+        return sorted(results, key=lambda x: x.node_id)
