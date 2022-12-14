@@ -30,7 +30,7 @@ contract VarReadUsingThis {
             address local = erc20;
         } 
     }    
-    function mapExternal(uint x) external returns(address) {
+    function mapExternal(uint x) external view returns(address) {
         return myMap[x];
     }
     function good5(uint x) external returns(address) {
