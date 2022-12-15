@@ -456,6 +456,8 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         if "referencedDeclaration" in expression:
             referenced_declaration = expression["referencedDeclaration"]
+        elif "id" in expression:
+            referenced_declaration = expression["id"]
         else:
             referenced_declaration = None
         var, was_created = find_variable(value, caller_context, referenced_declaration)
