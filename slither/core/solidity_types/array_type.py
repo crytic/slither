@@ -3,6 +3,7 @@ from typing import Optional, Tuple
 from slither.core.expressions import Literal
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.type import Type
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.visitors.expression.constants_folding import ConstantFolding
 
 
@@ -64,6 +65,9 @@ class ArrayType(Type):
     def __eq__(self, other):
         if not isinstance(other, ArrayType):
             return False
+        if isinstance(self._type, UserDefinedType) and isinstance(other.type, UserDefinedType):
+            return (self._type.type == other.type.type or self._type.type == str(other.type.type)) \
+                and self.length_value == other.length_value
         return self._type == other.type and self.length == other.length
 
     def __hash__(self):
