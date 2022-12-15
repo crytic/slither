@@ -4,6 +4,7 @@ Module detecting missing initialization used to check conditions.
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations.solidity_variables import SolidityFunction
 
 
 class MissingInitialization(AbstractDetector):
@@ -11,12 +12,16 @@ class MissingInitialization(AbstractDetector):
     Detect missing-initialization
     """
 
-    ARGUMENT = "missing-initialization"  # slither will launch the detector with slither.py --mydetector
+    ARGUMENT = (
+        "missing-initialization"  # slither will launch the detector with slither.py --mydetector
+    )
     HELP = "Initialize function misses initialization"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/trailofbits/slither/wiki/Detector-Documentation#missing-initialization"
+    WIKI = (
+        "https://github.com/trailofbits/slither/wiki/Detector-Documentation#missing-initialization"
+    )
     WIKI_TITLE = "MISSING_INITIALIZATION"
     WIKI_DESCRIPTION = "MISSING_INITIALIZATION"
     WIKI_EXPLOIT_SCENARIO = """
@@ -37,37 +42,33 @@ contract A {
 ```
 Bob calls `initialize`. However, Alice can also call `initialize`.
 """
-    WIKI_RECOMMENDATION = (
-        "Check state variable should be initialized in initialize function"
-    )
+    WIKI_RECOMMENDATION = "Check state variable should be initialized in initialize function"
 
     def detect_initilize(self, func):
-        if "init" in func.name:
+        if "init" in func.name.lower():
             return True
         return False
 
-    def detect_validation(self, func):
-        # modifier
-        if func.modifiers_statements:
-            return True
+    def explore(self, _func, _set, _visited):
+        if _func in _visited:
+            return
+        _visited.append(_func)
 
-        for node in func.nodes:
-            # require or assert or if
-            if node.contains_if() or node.contains_require_or_assert():
-                return True
-        return False
+        _set += _func.state_variables_written
+
+        for func in _func.internal_calls + _func.modifiers:
+            if isinstance(func, SolidityFunction):
+                continue
+            self.explore(func, _set, _visited)
 
     def check_state_variables_in_conditions_are_initialzed(self, func):
         should_be_initialized = []
         initialized_in_init = []
 
-        for svw in func.state_variables_written:
-            initialized_in_init += [svw.name]
+        self.explore(func, initialized_in_init, [])
+        should_be_initialized = func.all_conditional_state_variables_read()
 
-        for name in func.all_conditional_state_variables_read():
-            should_be_initialized += [name]
-
-        if set(should_be_initialized) in set(initialized_in_init):
+        if set(should_be_initialized) == (set(should_be_initialized) & set(initialized_in_init)):
             return True
         return False
 
@@ -78,26 +79,13 @@ Bob calls `initialize`. However, Alice can also call `initialize`.
             for f in contract.functions:
                 # Check if a function has 'init' in its name
                 if self.detect_initilize(f):
-                    # Chceck if it has validation
-                    if not self.detect_validation(f):
-                        # Info to be printed
-                        info = [
-                            "Initialize function does not have validation found in ",
-                            f,
-                            "\n",
-                        ]
-                        # Add the result in result
-                        res = self.generate_result(info)
-                        results.append(res)
                     # Check if condition variable is initialized
                     if not self.check_state_variables_in_conditions_are_initialzed(f):
-                        # Info to be printed
                         info = [
-                            "Variable is Not initialized in initialize() found in ",
+                            "Condition variable is not initialized in ",
                             f,
                             "\n",
                         ]
-                        # Add the result in result
                         res = self.generate_result(info)
                         results.append(res)
         return results
