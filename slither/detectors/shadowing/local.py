@@ -49,6 +49,7 @@ contract Bug {
     OVERSHADOWED_MODIFIER = "modifier"
     OVERSHADOWED_STATE_VARIABLE = "state variable"
     OVERSHADOWED_EVENT = "event"
+    OVERSHADOWED_RETURN_VARIABLE = "return variable"
 
     def detect_shadowing_definitions(self, contract):  # pylint: disable=too-many-branches
         """Detects if functions, access modifiers, events, state variables, and local variables are named after
@@ -86,6 +87,15 @@ contract Bug {
                             overshadowed.append(
                                 (self.OVERSHADOWED_STATE_VARIABLE, scope_state_variable)
                             )
+                    # Check named return variables
+                    for named_return in function.returns:
+                        # Shadowed local delcarations in the same function will have "_scope_" in their name.
+                        # See `FunctionSolc._add_local_variable`
+                        if (
+                            "_scope_" in variable.name
+                            and variable.name.split("_scope_")[0] == named_return.name
+                        ):
+                            overshadowed.append((self.OVERSHADOWED_RETURN_VARIABLE, named_return))
 
                 # If we have found any overshadowed objects, we'll want to add it to our result list.
                 if overshadowed:
