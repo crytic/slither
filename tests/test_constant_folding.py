@@ -44,6 +44,7 @@ def test_constant_folding_rational():
     assert str(variable_g.type) == "int64"
     assert str(ConstantFolding(variable_g.expression, "int64").result()) == "-7"
 
+
 def test_constant_folding_binary_expressions():
     sl = Slither("./tests/constant_folding_binop.sol")
     contract = sl.get_contract_from_name("BinOp")[0]
@@ -85,7 +86,7 @@ def test_constant_folding_binary_expressions():
     assert str(ConstantFolding(variable_i.expression, "bool").result()) == "True"
 
     variable_j = contract.get_state_variable_from_name("j")
-    assert str(variable_j.type) == "bool"   
+    assert str(variable_j.type) == "bool"
     assert str(ConstantFolding(variable_j.expression, "bool").result()) == "False"
 
     variable_k = contract.get_state_variable_from_name("k")
