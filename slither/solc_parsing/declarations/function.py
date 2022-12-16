@@ -770,6 +770,7 @@ class FunctionSolc(CallerContextExpression):
                     for v in variables:
                         identifier = {
                             "nodeType": "Identifier",
+                            "referencedDeclaration": v["id"],
                             "src": v["src"],
                             "name": v["name"],
                             "typeDescriptions": {"typeString": v["typeDescriptions"]["typeString"]},
