@@ -43,8 +43,8 @@ Int = [
     "int256",
 ]
 
-Max_Int = {k: 2 ** (8 * i - 1) - 1 if i > 0 else 2**255 - 1 for i, k in enumerate(Int)}
-Min_Int = {k: -(2 ** (8 * i - 1)) if i > 0 else -(2**255) for i, k in enumerate(Int)}
+Max_Int = {k: 2 ** (8 * i - 1) - 1 if i > 0 else 2 ** 255 - 1 for i, k in enumerate(Int)}
+Min_Int = {k: -(2 ** (8 * i - 1)) if i > 0 else -(2 ** 255) for i, k in enumerate(Int)}
 
 Uint = [
     "uint",
@@ -82,7 +82,7 @@ Uint = [
     "uint256",
 ]
 
-Max_Uint = {k: 2 ** (8 * i) - 1 if i > 0 else 2**256 - 1 for i, k in enumerate(Uint)}
+Max_Uint = {k: 2 ** (8 * i) - 1 if i > 0 else 2 ** 256 - 1 for i, k in enumerate(Uint)}
 Min_Uint = {k: 0 for k in Uint}
 
 
