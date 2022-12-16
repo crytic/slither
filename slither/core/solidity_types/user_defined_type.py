@@ -77,7 +77,8 @@ class UserDefinedType(Type):
         if not isinstance(other, UserDefinedType):
             return False
         if isinstance(self.type, Contract) and isinstance(other.type, Contract):
-            # workaround due to Contract.__eq__() not being implemented in master branch, except when comparing Contract object to string
+            # workaround due to Contract.__eq__() not being implemented in master branch,
+            # except when comparing Contract object to string
             return self.type == str(other.type)
         return self.type == other.type
 
