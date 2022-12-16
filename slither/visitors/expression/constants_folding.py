@@ -61,10 +61,11 @@ class ConstantFolding(ExpressionVisitor):
             set_val(expression, left + right)
         elif expression.type == BinaryOperationType.SUBTRACTION:
             set_val(expression, left - right)
+        # Convert to int for operations not supported by Fraction
         elif expression.type == BinaryOperationType.LEFT_SHIFT:
-            set_val(expression, left << right)
+            set_val(expression, int(left) << int(right))
         elif expression.type == BinaryOperationType.RIGHT_SHIFT:
-            set_val(expression, left >> right)
+            set_val(expression, int(left) >> int(right))
         elif expression.type == BinaryOperationType.AND:
             set_val(expression, int(left) & int(right))
         elif expression.type == BinaryOperationType.CARET:
@@ -83,6 +84,7 @@ class ConstantFolding(ExpressionVisitor):
             set_val(expression, int(left) == int(right))
         elif expression.type == BinaryOperationType.NOT_EQUAL:
             set_val(expression, int(left) != int(right))
+        # Convert boolean literals from string to bool
         elif expression.type == BinaryOperationType.ANDAND:
             set_val(expression, left == "true" and right == "true")
         elif expression.type == BinaryOperationType.OROR:
