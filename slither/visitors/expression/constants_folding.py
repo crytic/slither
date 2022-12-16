@@ -34,7 +34,7 @@ class ConstantFolding(ExpressionVisitor):
         super().__init__(expression)
 
     def result(self):
-        return Literal(int(get_val(self._expression)), self._type)
+        return Literal(get_val(self._expression), self._type)
 
     def _post_identifier(self, expression: Identifier):
         if not expression.value.is_constant:
@@ -60,14 +60,33 @@ class ConstantFolding(ExpressionVisitor):
         elif expression.type == BinaryOperationType.ADDITION:
             set_val(expression, left + right)
         elif expression.type == BinaryOperationType.SUBTRACTION:
-            if (left - right) < 0:
-                # Could trigger underflow
-                raise NotConstant
             set_val(expression, left - right)
         elif expression.type == BinaryOperationType.LEFT_SHIFT:
             set_val(expression, left << right)
         elif expression.type == BinaryOperationType.RIGHT_SHIFT:
             set_val(expression, left >> right)
+        elif expression.type == BinaryOperationType.AND:
+            set_val(expression, int(left) & int(right))
+        elif expression.type == BinaryOperationType.CARET:
+            set_val(expression, int(left) ^ int(right))
+        elif expression.type == BinaryOperationType.OR:
+            set_val(expression, int(left) | int(right))
+        elif expression.type == BinaryOperationType.LESS:
+            set_val(expression, int(left) < int(right))
+        elif expression.type == BinaryOperationType.LESS_EQUAL:
+            set_val(expression, int(left) <= int(right))
+        elif expression.type == BinaryOperationType.GREATER:
+            set_val(expression, int(left) > int(right))
+        elif expression.type == BinaryOperationType.GREATER_EQUAL:
+            set_val(expression, int(left) >= int(right))
+        elif expression.type == BinaryOperationType.EQUAL:
+            set_val(expression, int(left) == int(right))
+        elif expression.type == BinaryOperationType.NOT_EQUAL:
+            set_val(expression, int(left) != int(right))
+        elif expression.type == BinaryOperationType.ANDAND:
+            set_val(expression, left == "true" and right == "true")
+        elif expression.type == BinaryOperationType.OROR:
+            set_val(expression, left == "true" or right == "true")
         else:
             raise NotConstant
 
@@ -84,10 +103,13 @@ class ConstantFolding(ExpressionVisitor):
             raise NotConstant
 
     def _post_literal(self, expression: Literal):
-        try:
-            set_val(expression, convert_string_to_fraction(expression.converted_value))
-        except ValueError as e:
-            raise NotConstant from e
+        if expression.converted_value in ["true", "false"]:
+            set_val(expression, expression.converted_value)
+        else:
+            try:
+                set_val(expression, convert_string_to_fraction(expression.converted_value))
+            except ValueError as e:
+                raise NotConstant from e
 
     def _post_assignement_operation(self, expression):
         raise NotConstant

@@ -43,3 +43,51 @@ def test_constant_folding_rational():
     variable_g = contract.get_state_variable_from_name("g")
     assert str(variable_g.type) == "int64"
     assert str(ConstantFolding(variable_g.expression, "int64").result()) == "-7"
+
+def test_constant_folding_binary_expressions():
+    sl = Slither("./tests/constant_folding_binop.sol")
+    contract = sl.get_contract_from_name("BinOp")[0]
+
+    variable_a = contract.get_state_variable_from_name("a")
+    assert str(variable_a.type) == "uint256"
+    assert str(ConstantFolding(variable_a.expression, "uint256").result()) == "0"
+
+    variable_b = contract.get_state_variable_from_name("b")
+    assert str(variable_b.type) == "uint256"
+    assert str(ConstantFolding(variable_b.expression, "uint256").result()) == "3"
+
+    variable_c = contract.get_state_variable_from_name("c")
+    assert str(variable_c.type) == "uint256"
+    assert str(ConstantFolding(variable_c.expression, "uint256").result()) == "3"
+
+    variable_d = contract.get_state_variable_from_name("d")
+    assert str(variable_d.type) == "bool"
+    assert str(ConstantFolding(variable_d.expression, "bool").result()) == "False"
+
+    variable_e = contract.get_state_variable_from_name("e")
+    assert str(variable_e.type) == "bool"
+    assert str(ConstantFolding(variable_e.expression, "bool").result()) == "False"
+
+    variable_f = contract.get_state_variable_from_name("f")
+    assert str(variable_f.type) == "bool"
+    assert str(ConstantFolding(variable_f.expression, "bool").result()) == "True"
+
+    variable_g = contract.get_state_variable_from_name("g")
+    assert str(variable_g.type) == "bool"
+    assert str(ConstantFolding(variable_g.expression, "bool").result()) == "False"
+
+    variable_h = contract.get_state_variable_from_name("h")
+    assert str(variable_h.type) == "bool"
+    assert str(ConstantFolding(variable_h.expression, "bool").result()) == "False"
+
+    variable_i = contract.get_state_variable_from_name("i")
+    assert str(variable_i.type) == "bool"
+    assert str(ConstantFolding(variable_i.expression, "bool").result()) == "True"
+
+    variable_j = contract.get_state_variable_from_name("j")
+    assert str(variable_j.type) == "bool"   
+    assert str(ConstantFolding(variable_j.expression, "bool").result()) == "False"
+
+    variable_k = contract.get_state_variable_from_name("k")
+    assert str(variable_k.type) == "bool"
+    assert str(ConstantFolding(variable_k.expression, "bool").result()) == "True"

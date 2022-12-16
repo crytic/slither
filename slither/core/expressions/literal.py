@@ -4,6 +4,7 @@ from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.elementary_type import Fixed, Int, Ufixed, Uint
 from slither.utils.arithmetic import convert_subdenomination
 from slither.utils.integer_conversion import convert_string_to_int
+from fractions import Fraction
 
 if TYPE_CHECKING:
     from slither.core.solidity_types.type import Type
@@ -12,6 +13,8 @@ if TYPE_CHECKING:
 class Literal(Expression):
     def __init__(self, value, custom_type, subdenomination=None):
         super().__init__()
+        if isinstance(value, Fraction):
+            value = int(value)
         self._value: Union[int, str] = value
         self._type = custom_type
         self._subdenomination: Optional[str] = subdenomination
