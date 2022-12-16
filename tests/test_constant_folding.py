@@ -92,3 +92,10 @@ def test_constant_folding_binary_expressions():
     variable_k = contract.get_state_variable_from_name("k")
     assert str(variable_k.type) == "bool"
     assert str(ConstantFolding(variable_k.expression, "bool").result()) == "True"
+
+    variable_l = contract.get_state_variable_from_name("l")
+    assert str(variable_l.type) == "uint256"
+    assert (
+        str(ConstantFolding(variable_l.expression, "uint256").result())
+        == "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    )

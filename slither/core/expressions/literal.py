@@ -15,6 +15,9 @@ class Literal(Expression):
         super().__init__()
         if isinstance(value, Fraction):
             value = int(value)
+            # emulate 256-bit wrapping
+            if str(custom_type).startswith("uint"):
+                value = value & (2**256 - 1)
         self._value: Union[int, str] = value
         self._type = custom_type
         self._subdenomination: Optional[str] = subdenomination

@@ -152,4 +152,8 @@ class ConstantFolding(ExpressionVisitor):
         raise NotConstant
 
     def _post_type_conversion(self, expression):
-        raise NotConstant
+        cf = ConstantFolding(expression.expression, self._type)
+        expr = cf.result()
+        assert isinstance(expr, Literal)
+        set_val(expression, convert_string_to_fraction(expr.converted_value))
+        return

@@ -10,4 +10,5 @@ contract BinOp {
     bool i = 1 != 2;
     bool j = true && false;
     bool k = true || false;
+    uint l = uint(1) - uint(2);
 }       
