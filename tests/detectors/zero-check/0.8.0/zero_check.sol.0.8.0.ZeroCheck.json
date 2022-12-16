@@ -1,0 +1,86 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "buyItem",
+                    "source_mapping": {
+                        "start": 555,
+                        "length": 515,
+                        "filename_relative": "tests/detectors/zero-check/0.8.0/zero_check.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/zero-check/0.8.0/zero_check.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28,
+                            29,
+                            30
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 294,
+                                "length": 778,
+                                "filename_relative": "tests/detectors/zero-check/0.8.0/zero_check.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/zero-check/0.8.0/zero_check.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "buyItem(address,uint256,address,uint256)"
+                    }
+                }
+            ],
+            "description": "Missing zero check found in A.buyItem(address,uint256,address,uint256) (tests/detectors/zero-check/0.8.0/zero_check.sol#18-30)\n",
+            "markdown": "Missing zero check found in [A.buyItem(address,uint256,address,uint256)](tests/detectors/zero-check/0.8.0/zero_check.sol#L18-L30)\n",
+            "first_markdown_element": "tests/detectors/zero-check/0.8.0/zero_check.sol#L18-L30",
+            "id": "95a00f78224a0dbcd9ef660edc2022400a2d1e51018987b04642fea4efd4a22c",
+            "check": "zero-check",
+            "impact": "Low",
+            "confidence": "Low"
+        }
+    ]
+]
