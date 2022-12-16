@@ -1,5 +1,4 @@
 from typing import Optional, Union, TYPE_CHECKING
-from fractions import Fraction
 
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.elementary_type import Fixed, Int, Ufixed, Uint
@@ -11,16 +10,13 @@ if TYPE_CHECKING:
 
 
 class Literal(Expression):
-    def __init__(self, value, custom_type, subdenomination=None):
+    def __init__(
+        self, value: Union[int, str], custom_type: "Type", subdenomination: Optional[str] = None
+    ):
         super().__init__()
-        if isinstance(value, Fraction):
-            value = int(value)
-            # emulate 256-bit wrapping
-            if str(custom_type).startswith("uint"):
-                value = value & (2**256 - 1)
-        self._value: Union[int, str] = value
+        self._value = value
         self._type = custom_type
-        self._subdenomination: Optional[str] = subdenomination
+        self._subdenomination = subdenomination
 
     @property
     def value(self) -> Union[int, str]:

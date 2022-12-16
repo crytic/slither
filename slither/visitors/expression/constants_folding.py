@@ -1,3 +1,4 @@
+from fractions import Fraction
 from slither.core.expressions import (
     BinaryOperationType,
     Literal,
@@ -34,7 +35,13 @@ class ConstantFolding(ExpressionVisitor):
         super().__init__(expression)
 
     def result(self):
-        return Literal(get_val(self._expression), self._type)
+        value = get_val(self._expression)
+        if isinstance(value, Fraction):
+            value = int(value)
+            # emulate 256-bit wrapping
+            if str(self._type).startswith("uint"):
+                value = value & (2**256 - 1)
+        return Literal(value, self._type)
 
     def _post_identifier(self, expression: Identifier):
         if not expression.value.is_constant:
