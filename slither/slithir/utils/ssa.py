@@ -690,7 +690,9 @@ def copy_ir(ir, *instances):
         return Delete(lvalue, variable)
     if isinstance(ir, EventCall):
         name = ir.name
-        return EventCall(name)
+        new_ir = EventCall(name)
+        new_ir.arguments = get_arguments(ir, *instances)
+        return new_ir
     if isinstance(ir, HighLevelCall):  # include LibraryCall
         destination = get_variable(ir, lambda x: x.destination, *instances)
         function_name = ir.function_name
