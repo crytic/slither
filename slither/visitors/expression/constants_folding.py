@@ -46,6 +46,7 @@ class ConstantFolding(ExpressionVisitor):
             expr = cf.result()
         set_val(expression, convert_string_to_int(expr.converted_value))
 
+    # pylint: disable=too-many-branches
     def _post_binary_operation(self, expression: BinaryOperation):
         left = get_val(expression.expression_left)
         right = get_val(expression.expression_right)
