@@ -21,6 +21,13 @@ class Literal(Expression):
         return self._value
 
     @property
+    def converted_value(self) -> int:
+        """Return the value of the literal, accounting for subdenomination e.g. ether"""
+        if self.subdenomination:
+            return convert_subdenomination(self._value, self.subdenomination)
+        return self._value
+
+    @property
     def type(self) -> "Type":
         return self._type
 
@@ -30,7 +37,7 @@ class Literal(Expression):
 
     def __str__(self):
         if self.subdenomination:
-            return str(convert_subdenomination(self._value, self.subdenomination))
+            return str(self.converted_value)
 
         if self.type in Int + Uint + Fixed + Ufixed + ["address"]:
             return str(convert_string_to_int(self._value))

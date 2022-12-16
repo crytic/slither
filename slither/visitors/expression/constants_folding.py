@@ -1,4 +1,11 @@
-from slither.core.expressions import BinaryOperationType, Literal, UnaryOperationType
+from slither.core.expressions import (
+    BinaryOperationType,
+    Literal,
+    UnaryOperationType,
+    Identifier,
+    BinaryOperation,
+    UnaryOperation,
+)
 from slither.utils.integer_conversion import convert_string_to_fraction, convert_string_to_int
 from slither.visitors.expression.expression import ExpressionVisitor
 
@@ -29,7 +36,7 @@ class ConstantFolding(ExpressionVisitor):
     def result(self):
         return Literal(int(get_val(self._expression)), self._type)
 
-    def _post_identifier(self, expression):
+    def _post_identifier(self, expression: Identifier):
         if not expression.value.is_constant:
             raise NotConstant
         expr = expression.value.expression
@@ -37,9 +44,9 @@ class ConstantFolding(ExpressionVisitor):
         if not isinstance(expr, Literal):
             cf = ConstantFolding(expr, self._type)
             expr = cf.result()
-        set_val(expression, convert_string_to_int(expr.value))
+        set_val(expression, convert_string_to_int(expr.converted_value))
 
-    def _post_binary_operation(self, expression):
+    def _post_binary_operation(self, expression: BinaryOperation):
         left = get_val(expression.expression_left)
         right = get_val(expression.expression_right)
         if expression.type == BinaryOperationType.POWER:
@@ -64,7 +71,7 @@ class ConstantFolding(ExpressionVisitor):
         else:
             raise NotConstant
 
-    def _post_unary_operation(self, expression):
+    def _post_unary_operation(self, expression: UnaryOperation):
         # Case of uint a = -7; uint[-a] arr;
         if expression.type == UnaryOperationType.MINUS_PRE:
             expr = expression.expression
@@ -72,13 +79,13 @@ class ConstantFolding(ExpressionVisitor):
                 cf = ConstantFolding(expr, self._type)
                 expr = cf.result()
             assert isinstance(expr, Literal)
-            set_val(expression, -convert_string_to_fraction(expr.value))
+            set_val(expression, -convert_string_to_fraction(expr.converted_value))
         else:
             raise NotConstant
 
-    def _post_literal(self, expression):
+    def _post_literal(self, expression: Literal):
         try:
-            set_val(expression, convert_string_to_fraction(expression.value))
+            set_val(expression, convert_string_to_fraction(expression.converted_value))
         except ValueError as e:
             raise NotConstant from e
 
@@ -115,7 +122,7 @@ class ConstantFolding(ExpressionVisitor):
                 cf = ConstantFolding(expression.expressions[0], self._type)
                 expr = cf.result()
                 assert isinstance(expr, Literal)
-                set_val(expression, convert_string_to_fraction(expr.value))
+                set_val(expression, convert_string_to_fraction(expr.converted_value))
                 return
         raise NotConstant
 
