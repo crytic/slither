@@ -699,6 +699,16 @@ class ContractSolc(CallerContextExpression):
         self._usingForNotParsed = []
         self._customErrorParsed = []
 
+    def _handle_comment(self, attributes: Dict):
+        if "documentation" in attributes and "text" in attributes["documentation"]:
+            candidates = attributes["documentation"]["text"].replace("\n", ",").split(",")
+
+            for candidate in candidates:
+                if "@custom:security isProxy" in candidate:
+                    self._contract._is_upgradeable_proxy = True
+                if "@custom:security isUpgradeable" in candidate:
+                    self._contract._is_upgradeable = True
+
     # endregion
     ###################################################################################
     ###################################################################################
