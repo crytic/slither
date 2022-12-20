@@ -163,4 +163,3 @@ class ConstantFolding(ExpressionVisitor):
         expr = cf.result()
         assert isinstance(expr, Literal)
         set_val(expression, convert_string_to_fraction(expr.converted_value))
-        return
