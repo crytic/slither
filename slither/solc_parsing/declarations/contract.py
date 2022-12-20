@@ -712,9 +712,9 @@ class ContractSolc(CallerContextExpression):
 
             for candidate in candidates:
                 if "@custom:security isProxy" in candidate:
-                    self._contract._is_upgradeable_proxy = True
+                    self._contract.is_upgradeable_proxy = True
                 if "@custom:security isUpgradeable" in candidate:
-                    self._contract._is_upgradeable = True
+                    self._contract.is_upgradeable = True
 
                 version_name = re.search(r'@custom:version name="([\w, .]*)"', candidate)
                 if version_name:
