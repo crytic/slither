@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import List, Dict, Callable, TYPE_CHECKING, Union, Set
 
 from slither.core.declarations import Modifier, Event, EnumContract, StructureContract, Function
@@ -710,6 +711,12 @@ class ContractSolc(CallerContextExpression):
                     self._contract._is_upgradeable_proxy = True
                 if "@custom:security isUpgradeable" in candidate:
                     self._contract._is_upgradeable = True
+
+                version_name = re.search(
+                    r'@custom:version name="([\w, .]*)"', candidate
+                )
+                if version_name:
+                    self._contract.upgradeable_version = version_name.group(1)
 
     # endregion
     ###################################################################################
