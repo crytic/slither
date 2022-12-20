@@ -65,8 +65,10 @@ class ContractSolc(CallerContextExpression):
         # Export info
         if self.is_compact_ast:
             self._contract.name = self._data["name"]
+            self._handle_comment(self._data)
         else:
             self._contract.name = self._data["attributes"][self.get_key()]
+            self._handle_comment(self._data["attributes"])
 
         self._contract.id = self._data["id"]
 
