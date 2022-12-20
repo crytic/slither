@@ -1246,23 +1246,26 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         :return: True if an implementation setter is found, or if the implementation getter suggests upgradeability
         """
+        from slither.core.expressions.literal import Literal
+
         if self._is_upgradeable_proxy is None:
             self._is_upgradeable_proxy = False
-            """
-            Calling self.is_proxy returns True or False, and should also set self._delegates_to in the process
-            """
+            # Calling self.is_proxy returns True or False, and should also set self._delegates_to in the process
             if self.is_proxy:  # and self._delegate_variable is not None:
                 # TODO Remove the line below and uncomment it above once self._delegate_variable is always set
                 if self._delegate_variable is not None:
                     # if the destination is a constant or immutable, return false
                     if self._delegate_variable.is_constant or self._delegate_variable.is_immutable:
-                        if self._proxy_impl_slot is None or self._proxy_impl_slot != self._delegate_variable:
+                        if (
+                            self._proxy_impl_slot is None
+                            or self._proxy_impl_slot != self._delegate_variable
+                        ):
                             self._is_upgradeable_proxy = False
                             return False
                     # if the destination is hard-coded, return false
                     if (
-                        isinstance(self._delegate_variable.expression, Literal) and
-                        self._delegate_variable != self._proxy_impl_slot
+                        isinstance(self._delegate_variable.expression, Literal)
+                        and self._delegate_variable != self._proxy_impl_slot
                     ):
                         self._is_upgradeable_proxy = False
                         return False
