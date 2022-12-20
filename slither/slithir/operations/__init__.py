@@ -18,7 +18,6 @@ from .new_elementary_type import NewElementaryType
 from .new_contract import NewContract
 from .new_structure import NewStructure
 from .operation import Operation
-from .push import Push
 from .return_operation import Return
 from .send import Send
 from .solidity_call import SolidityCall
