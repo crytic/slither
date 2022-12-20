@@ -703,7 +703,11 @@ class ContractSolc(CallerContextExpression):
         self._customErrorParsed = []
 
     def _handle_comment(self, attributes: Dict):
-        if "documentation" in attributes and "text" in attributes["documentation"]:
+        if (
+                "documentation" in attributes
+                and attributes["documentation"] is not None
+                and "text" in attributes["documentation"]
+        ):
             candidates = attributes["documentation"]["text"].replace("\n", ",").split(",")
 
             for candidate in candidates:
