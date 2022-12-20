@@ -545,6 +545,18 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         ]
 
     @property
+    def fallback_function(self) -> Optional["FunctionContract"]:
+        """
+        optional(FunctionContract): The fallback function
+        """
+        if self._fallback_function is None:
+            for f in self.functions:
+                if f.is_fallback:
+                    self._fallback_function = f
+                    break
+        return self._fallback_function
+
+    @property
     def modifiers(self) -> List["Modifier"]:
         """
         list(Modifier): List of the modifiers
