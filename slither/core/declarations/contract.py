@@ -1247,19 +1247,20 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         if self._is_upgradeable_proxy is None:
             self._is_upgradeable_proxy = False
 
-            for f in self.functions:
-                if f.is_fallback:
-                    for node in f.all_nodes():
-                        for ir in node.irs:
-                            if isinstance(ir, LowLevelCall) and ir.function_name == "delegatecall":
-                                self._is_upgradeable_proxy = True
-                                return self._is_upgradeable_proxy
-                        if node.type == NodeType.ASSEMBLY:
-                            inline_asm = node.inline_asm
-                            if inline_asm:
-                                if "delegatecall" in inline_asm:
-                                    self._is_upgradeable_proxy = True
-                                    return self._is_upgradeable_proxy
+            if self.fallback_function is None:
+                return self._is_upgradeable_proxy
+
+            for node in self.fallback_function.all_nodes():
+                for ir in node.irs:
+                    if isinstance(ir, LowLevelCall) and ir.function_name == "delegatecall":
+                        self._is_upgradeable_proxy = True
+                        return self._is_upgradeable_proxy
+                if node.type == NodeType.ASSEMBLY:
+                    inline_asm = node.inline_asm
+                    if inline_asm:
+                        if "delegatecall" in inline_asm:
+                            self._is_upgradeable_proxy = True
+                            return self._is_upgradeable_proxy
         return self._is_upgradeable_proxy
 
     # endregion
