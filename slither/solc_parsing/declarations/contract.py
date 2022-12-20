@@ -704,9 +704,9 @@ class ContractSolc(CallerContextExpression):
 
     def _handle_comment(self, attributes: Dict):
         if (
-                "documentation" in attributes
-                and attributes["documentation"] is not None
-                and "text" in attributes["documentation"]
+            "documentation" in attributes
+            and attributes["documentation"] is not None
+            and "text" in attributes["documentation"]
         ):
             candidates = attributes["documentation"]["text"].replace("\n", ",").split(",")
 
@@ -716,9 +716,7 @@ class ContractSolc(CallerContextExpression):
                 if "@custom:security isUpgradeable" in candidate:
                     self._contract._is_upgradeable = True
 
-                version_name = re.search(
-                    r'@custom:version name="([\w, .]*)"', candidate
-                )
+                version_name = re.search(r'@custom:version name="([\w, .]*)"', candidate)
                 if version_name:
                     self._contract.upgradeable_version = version_name.group(1)
 
