@@ -1241,27 +1241,65 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     @property
     def is_upgradeable_proxy(self) -> bool:
+        """
+        Determines if a proxy contract can be upgraded, i.e. if there's an implementation address setter for upgrading
+
+        :return: True if an implementation setter is found, or if the implementation getter suggests upgradeability
+        """
+        if self._is_upgradeable_proxy is None:
+            self._is_upgradeable_proxy = False
+            """
+            Calling self.is_proxy returns True or False, and should also set self._delegates_to in the process
+            """
+            if self.is_proxy:  # and self._delegate_variable is not None:
+                # TODO Remove the line below and uncomment it above once self._delegate_variable is always set
+                if self._delegate_variable is not None:
+                    # if the destination is a constant or immutable, return false
+                    if self._delegate_variable.is_constant or self._delegate_variable.is_immutable:
+                        if self._proxy_impl_slot is None or self._proxy_impl_slot != self._delegate_variable:
+                            self._is_upgradeable_proxy = False
+                            return False
+                    # if the destination is hard-coded, return false
+                    if (
+                        isinstance(self._delegate_variable.expression, Literal) and
+                        self._delegate_variable != self._proxy_impl_slot
+                    ):
+                        self._is_upgradeable_proxy = False
+                        return False
+                # TODO Check for delegate variable's setter/getter to confirm upgradeability
+                self._is_upgradeable_proxy = True
+        return self._is_upgradeable_proxy
+
+    @property
+    def is_proxy(self) -> bool:
+        """
+        Checks for 'delegatecall' in the fallback function CFG, setting self._is_proxy = True if found.
+        Also tries to set self._delegates_to: Variable in the process.
+
+        :return: True if 'delegatecall' is found in fallback function, otherwise False
+        """
         from slither.core.cfg.node import NodeType
         from slither.slithir.operations import LowLevelCall
 
-        if self._is_upgradeable_proxy is None:
-            self._is_upgradeable_proxy = False
+        if self._is_proxy is None:
+            self._is_proxy = False
 
             if self.fallback_function is None:
-                return self._is_upgradeable_proxy
+                return self._is_proxy
 
             for node in self.fallback_function.all_nodes():
                 for ir in node.irs:
                     if isinstance(ir, LowLevelCall) and ir.function_name == "delegatecall":
-                        self._is_upgradeable_proxy = True
-                        return self._is_upgradeable_proxy
+                        self._is_proxy = True
+                        self._delegate_variable = ir.destination
+                        return self._is_proxy
                 if node.type == NodeType.ASSEMBLY:
                     inline_asm = node.inline_asm
                     if inline_asm:
                         if "delegatecall" in inline_asm:
-                            self._is_upgradeable_proxy = True
-                            return self._is_upgradeable_proxy
-        return self._is_upgradeable_proxy
+                            self._is_proxy = True
+                            return self._is_proxy
+        return self._is_proxy
 
     # endregion
     ###################################################################################
