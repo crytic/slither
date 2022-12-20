@@ -48,7 +48,7 @@ class RequireOrAssert(AbstractPrinter):
                 table.add_row(
                     [
                         function.name,
-                        self._convert([str(m.expression) for m in set(require)]),
+                        self._convert(sorted([str(m.expression) for m in set(require)])),
                     ]
                 )
             txt += "\n" + str(table)
