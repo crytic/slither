@@ -1246,9 +1246,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         if self._is_upgradeable_proxy is None:
             self._is_upgradeable_proxy = False
-            if "Proxy" in self.name:
-                self._is_upgradeable_proxy = True
-                return True
+
             for f in self.functions:
                 if f.is_fallback:
                     for node in f.all_nodes():
