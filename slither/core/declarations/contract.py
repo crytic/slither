@@ -88,6 +88,12 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
+        self._fallback_function: Optional["FunctionContract"] = None
+        self._is_proxy: Optional[bool] = None
+        self._delegate_variable: Optional["Variable"] = None
+        self._proxy_impl_setter: Optional["Function"] = None
+        self._proxy_impl_getter: Optional["Function"] = None
+        self._proxy_impl_slot: Optional["Variable"] = None
 
         self.is_top_level = False  # heavily used, so no @property
 
