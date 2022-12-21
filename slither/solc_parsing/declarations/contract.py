@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import List, Dict, Callable, TYPE_CHECKING, Union, Set
 
 from slither.core.declarations import Modifier, Event, EnumContract, StructureContract, Function
@@ -65,8 +66,10 @@ class ContractSolc(CallerContextExpression):
         # Export info
         if self.is_compact_ast:
             self._contract.name = self._data["name"]
+            self._handle_comment(self._data)
         else:
             self._contract.name = self._data["attributes"][self.get_key()]
+            self._handle_comment(self._data["attributes"])
 
         self._contract.id = self._data["id"]
 
@@ -698,6 +701,24 @@ class ContractSolc(CallerContextExpression):
         self._structuresNotParsed = []
         self._usingForNotParsed = []
         self._customErrorParsed = []
+
+    def _handle_comment(self, attributes: Dict):
+        if (
+            "documentation" in attributes
+            and attributes["documentation"] is not None
+            and "text" in attributes["documentation"]
+        ):
+            candidates = attributes["documentation"]["text"].replace("\n", ",").split(",")
+
+            for candidate in candidates:
+                if "@custom:security isProxy" in candidate:
+                    self._contract.is_upgradeable_proxy = True
+                if "@custom:security isUpgradeable" in candidate:
+                    self._contract.is_upgradeable = True
+
+                version_name = re.search(r'@custom:version name="([\w, .]*)"', candidate)
+                if version_name:
+                    self._contract.upgradeable_version = version_name.group(1)
 
     # endregion
     ###################################################################################
