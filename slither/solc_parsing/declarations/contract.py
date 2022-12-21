@@ -702,7 +702,7 @@ class ContractSolc(CallerContextExpression):
         self._usingForNotParsed = []
         self._customErrorParsed = []
 
-    def _handle_comment(self, attributes: Dict):
+    def _handle_comment(self, attributes: Dict) -> None:
         if (
             "documentation" in attributes
             and attributes["documentation"] is not None
@@ -711,12 +711,12 @@ class ContractSolc(CallerContextExpression):
             candidates = attributes["documentation"]["text"].replace("\n", ",").split(",")
 
             for candidate in candidates:
-                if "@custom:security isProxy" in candidate:
+                if "@custom:security isDelegatecallProxy" in candidate:
                     self._contract.is_upgradeable_proxy = True
                 if "@custom:security isUpgradeable" in candidate:
                     self._contract.is_upgradeable = True
 
-                version_name = re.search(r'@custom:version name="([\w, .]*)"', candidate)
+                version_name = re.search(r'@custom:version name=([\w-]+)', candidate)
                 if version_name:
                     self._contract.upgradeable_version = version_name.group(1)
 
