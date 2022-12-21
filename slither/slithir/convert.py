@@ -60,7 +60,6 @@ from slither.slithir.operations import (
     NewElementaryType,
     NewStructure,
     OperationWithLValue,
-    Push,
     Return,
     Send,
     SolidityCall,
@@ -745,9 +744,6 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                 ir.lvalue.set_type(ir.type)
             elif isinstance(ir, NewStructure):
                 ir.lvalue.set_type(UserDefinedType(ir.structure))
-            elif isinstance(ir, Push):
-                # No change required
-                pass
             elif isinstance(ir, Send):
                 ir.lvalue.set_type(ElementaryType("bool"))
             elif isinstance(ir, SolidityCall):
@@ -1139,6 +1135,7 @@ def can_be_solidity_func(ir) -> bool:
         "encodePacked",
         "encodeWithSelector",
         "encodeWithSignature",
+        "encodeCall",
         "decode",
     ]
 

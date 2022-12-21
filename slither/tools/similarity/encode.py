@@ -31,7 +31,6 @@ from slither.slithir.operations import (
     NewContract,
     NewElementaryType,
     SolidityCall,
-    Push,
     Delete,
     EventCall,
     LibraryCall,
@@ -163,8 +162,6 @@ def encode_ir(ir):  # pylint: disable=too-many-branches
         return f"new_array({ntype(ir.array_type)})"
     if isinstance(ir, NewElementaryType):
         return f"new_elementary({ntype(ir.type)})"
-    if isinstance(ir, Push):
-        return f"push({encode_ir(ir.value)},{encode_ir(ir.lvalue)})"
     if isinstance(ir, Delete):
         return f"delete({encode_ir(ir.lvalue)},{encode_ir(ir.variable)})"
     if isinstance(ir, SolidityCall):

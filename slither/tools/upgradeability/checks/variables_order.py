@@ -236,7 +236,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
         if len(order2) <= len(order1):
             return []
 
-        idx = len(order2) - len(order1)
+        idx = len(order1)
 
         while idx < len(order2):
             variable2 = order2[idx]
