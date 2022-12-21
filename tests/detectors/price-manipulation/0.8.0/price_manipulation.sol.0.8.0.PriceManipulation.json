@@ -1,0 +1,67 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "getprice",
+                    "source_mapping": {
+                        "start": 157,
+                        "length": 217,
+                        "filename_relative": "tests/detectors/price-manipulation/0.8.0/price_manipulation.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/price-manipulation/0.8.0/price_manipulation.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9,
+                            10,
+                            11,
+                            12,
+                            13
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 81,
+                                "length": 295,
+                                "filename_relative": "tests/detectors/price-manipulation/0.8.0/price_manipulation.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/price-manipulation/0.8.0/price_manipulation.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "getprice()"
+                    }
+                }
+            ],
+            "description": "Vulnerable to price manipulation via balanceOf in A.getprice() (tests/detectors/price-manipulation/0.8.0/price_manipulation.sol#9-13)\n",
+            "markdown": "Vulnerable to price manipulation via balanceOf in [A.getprice()](tests/detectors/price-manipulation/0.8.0/price_manipulation.sol#L9-L13)\n",
+            "first_markdown_element": "tests/detectors/price-manipulation/0.8.0/price_manipulation.sol#L9-L13",
+            "id": "fea7e07e120238c3d144b7fd260af0e437dd98a75b1084000203abbb1c1ff160",
+            "check": "price-manipulation",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]
