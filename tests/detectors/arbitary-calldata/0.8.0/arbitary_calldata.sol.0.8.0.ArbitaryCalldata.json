@@ -49,10 +49,10 @@
                     }
                 }
             ],
-            "description": "[1] arbitary calldata found in A.permit(address,bytes) (tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol#2-5)@@@@/GENERIC_PATH\n",
-            "markdown": "[1] arbitary calldata found in [A.permit(address,bytes)](tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol#L2-L5)@@@@/GENERIC_PATH\n",
+            "description": "Arbitary calldata found in A.permit(address,bytes) (tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol#2-5)\n",
+            "markdown": "Arbitary calldata found in [A.permit(address,bytes)](tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol#L2-L5)\n",
             "first_markdown_element": "tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol#L2-L5",
-            "id": "b7d2042c92b045173065fc65b61d3947d3a5f6f7a0aea09fde6f28ae3e37688f",
+            "id": "19971fd916cc8eaf2e82f8206a1fdd41f3a896146f915f3215c58ced33512360",
             "check": "arbitary-calldata",
             "impact": "High",
             "confidence": "Medium"
