@@ -1325,9 +1325,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def upgradeable_version(self, version_name: str):
         self._upgradeable_version = version_name
 
-    """
-    Getters/setters for attributes set by self.is_proxy and self.is_upgradeable_proxy
-    """
     @property
     def delegate_variable(self) -> Optional["Variable"]:
         if self.is_proxy:
@@ -1338,13 +1335,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def delegate_variable(self, var: Optional["Variable"]):
         self._delegate_variable = var
 
-    """
-    Static methods for finding public/external setter and getter for delegate variable
-    """
-
     @staticmethod
     def find_setter_in_contract(
-            contract: "Contract", var_to_set: Union[str, "Variable"], storage_slot: Optional["Variable"]
+            contract: "Contract", var_to_set: Union[str, "Variable"]  # , storage_slot: Optional["Variable"]
     ) -> (Optional[Function], Union[str, "Variable"]):
         """
         Tries to find the setter function for a given variable.
@@ -1355,23 +1348,23 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         :param storage_slot: an optional, constant variable containing a storage offset (for setting via sstore)
         :return: the function in contract which sets var_to_set, if found, and var_to_set, which may have been changed
         """
-        from slither.core.cfg.node import NodeType
-        from slither.core.variables.variable import Variable
-        from slither.core.variables.state_variable import StateVariable
-        from slither.core.variables.local_variable import LocalVariable
-        from slither.core.expressions.expression_typed import ExpressionTyped
-        from slither.core.expressions.assignment_operation import (
-            AssignmentOperation,
-            AssignmentOperationType
-        )
-        from slither.core.expressions.call_expression import CallExpression
-        from slither.core.expressions.member_access import MemberAccess
-        from slither.core.expressions.index_access import IndexAccess
-        from slither.core.expressions.identifier import Identifier
+        # from slither.core.cfg.node import NodeType
+        # from slither.core.variables.variable import Variable
+        # from slither.core.variables.state_variable import StateVariable
+        # from slither.core.variables.local_variable import LocalVariable
+        # from slither.core.expressions.expression_typed import ExpressionTyped
+        # from slither.core.expressions.assignment_operation import (
+        #     AssignmentOperation,
+        #     AssignmentOperationType
+        # )
+        # from slither.core.expressions.call_expression import CallExpression
+        # from slither.core.expressions.member_access import MemberAccess
+        # from slither.core.expressions.index_access import IndexAccess
+        # from slither.core.expressions.identifier import Identifier
 
         setter = None
-        assignment = None
-        var_exp = var_to_set.expression if isinstance(var_to_set, Variable) else None
+        # assignment = None
+        # var_exp = var_to_set.expression if isinstance(var_to_set, Variable) else None
         for f in contract.functions_declared + contract.functions_inherited:
             if (
                 not f.is_fallback
@@ -1380,7 +1373,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 and "init" not in f.name.lower()
                 and "fallback" not in f.name.lower()
             ):
-                if f.visibility == "internal" or f.visibility == "private":
+                if f.visibility in ('internal', 'private'):
                     continue
 
         return setter, var_to_set
