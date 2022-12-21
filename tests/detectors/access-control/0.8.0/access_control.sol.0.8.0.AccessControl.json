@@ -1,0 +1,61 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "setToken",
+                    "source_mapping": {
+                        "start": 37,
+                        "length": 72,
+                        "filename_relative": "tests/detectors/access-control/0.8.0/access_control.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/access-control/0.8.0/access_control.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            4,
+                            5,
+                            6
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 111,
+                                "filename_relative": "tests/detectors/access-control/0.8.0/access_control.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/access-control/0.8.0/access_control.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "setToken(address)"
+                    }
+                }
+            ],
+            "description": "Improper access control found in A.setToken(address) (tests/detectors/access-control/0.8.0/access_control.sol#4-6)\n",
+            "markdown": "Improper access control found in [A.setToken(address)](tests/detectors/access-control/0.8.0/access_control.sol#L4-L6)\n",
+            "first_markdown_element": "tests/detectors/access-control/0.8.0/access_control.sol#L4-L6",
+            "id": "1b04063420c018997ca8733086e66112d80216b5f82319f9f4097ca5cb4a8aaa",
+            "check": "access-control",
+            "impact": "High",
+            "confidence": "Medium"
+        }
+    ]
+]
