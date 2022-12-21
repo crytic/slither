@@ -1,0 +1,61 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "permit",
+                    "source_mapping": {
+                        "start": 17,
+                        "length": 158,
+                        "filename_relative": "tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            2,
+                            3,
+                            4,
+                            5
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 177,
+                                "filename_relative": "tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "permit(address,bytes)"
+                    }
+                }
+            ],
+            "description": "[1] arbitary calldata found in A.permit(address,bytes) (tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol#2-5)@@@@/GENERIC_PATH\n",
+            "markdown": "[1] arbitary calldata found in [A.permit(address,bytes)](tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol#L2-L5)@@@@/GENERIC_PATH\n",
+            "first_markdown_element": "tests/detectors/arbitary-calldata/0.8.0/arbitary_calldata.sol#L2-L5",
+            "id": "b7d2042c92b045173065fc65b61d3947d3a5f6f7a0aea09fde6f28ae3e37688f",
+            "check": "arbitary-calldata",
+            "impact": "High",
+            "confidence": "Medium"
+        }
+    ]
+]
