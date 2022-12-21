@@ -1557,6 +1557,11 @@ ALL_TEST_OBJECTS = [
         "permit_domain_state_var_collision.sol",
         "0.8.0",
     ),
+    Test(
+        all_detectors.DangerousExternalCall,
+        "dangerous_external_call.sol",
+        "0.8.0",
+    ),
 ]
 
 

@@ -1,0 +1,59 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "depositFor",
+                    "source_mapping": {
+                        "start": 103,
+                        "length": 172,
+                        "filename_relative": "tests/detectors/dangerous-external-call/0.8.0/dangerous_external_call.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/dangerous-external-call/0.8.0/dangerous_external_call.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5,
+                            6,
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "A",
+                            "source_mapping": {
+                                "start": 86,
+                                "length": 191,
+                                "filename_relative": "tests/detectors/dangerous-external-call/0.8.0/dangerous_external_call.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/dangerous-external-call/0.8.0/dangerous_external_call.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "depositFor(address,uint256,address)"
+                    }
+                }
+            ],
+            "description": "Dangerous external call in A.depositFor(address,uint256,address) (tests/detectors/dangerous-external-call/0.8.0/dangerous_external_call.sol#5-7)\n",
+            "markdown": "Dangerous external call in [A.depositFor(address,uint256,address)](tests/detectors/dangerous-external-call/0.8.0/dangerous_external_call.sol#L5-L7)\n",
+            "first_markdown_element": "tests/detectors/dangerous-external-call/0.8.0/dangerous_external_call.sol#L5-L7",
+            "id": "f37363838be23f73fc91760f32b6f5900a02840dc797ba804b9f3bfcb84b7ae9",
+            "check": "dangerous-external-call",
+            "impact": "High",
+            "confidence": "Medium"
+        }
+    ]
+]
