@@ -1335,7 +1335,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._delegate_variable
 
     @delegate_variable.setter
-    def delegate_variable(self, var: Variable):
+    def delegate_variable(self, var: Optional["Variable"]):
         self._delegate_variable = var
 
     """
