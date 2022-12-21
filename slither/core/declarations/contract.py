@@ -1304,6 +1304,15 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                             return self._is_proxy
         return self._is_proxy
 
+    """
+    Getters for attributes set by self.is_proxy and self.is_upgradeable_proxy
+    """
+    @property
+    def delegate_variable(self) -> Optional["Variable"]:
+        if self.is_proxy:
+            return self._delegate_variable
+        return self._delegate_variable
+
     # endregion
     ###################################################################################
     ###################################################################################
