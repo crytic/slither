@@ -1342,13 +1342,46 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     Static methods for finding public/external setter and getter for delegate variable
     """
 
-    @property
-    def upgradeable_version(self) -> Optional[str]:
-        return self._upgradeable_version
+    @staticmethod
+    def find_setter_in_contract(
+            contract: "Contract",
+            var_to_set: Union[str, "Variable"],
+            storage_slot: Optional["Variable"]
+    ) -> (Optional[Function], Union[str, "Variable"]):
+        """
+        Tries to find the setter function for a given variable.
+        Static because we can use this for cross-contract implementation setters, i.e. EIP 1822 Proxy/Proxiable
 
-    @upgradeable_version.setter
-    def upgradeable_version(self, version_name: str):
-        self._upgradeable_version = version_name
+        :param contract: the Contract to look in
+        :param var_to_set: the Variable to look for, or at least its name as a string
+        :param storage_slot: an optional, constant variable containing a storage offset (for setting via sstore)
+        :return: the function in contract which sets var_to_set, if found, and var_to_set, which may have been changed
+        """
+        from slither.core.cfg.node import NodeType
+        from slither.core.variables.variable import Variable
+        from slither.core.variables.state_variable import StateVariable
+        from slither.core.variables.local_variable import LocalVariable
+        from slither.core.expressions.expression_typed import ExpressionTyped
+        from slither.core.expressions.assignment_operation import AssignmentOperation, AssignmentOperationType
+        from slither.core.expressions.call_expression import CallExpression
+        from slither.core.expressions.member_access import MemberAccess
+        from slither.core.expressions.index_access import IndexAccess
+        from slither.core.expressions.identifier import Identifier
+
+        setter = None
+        assignment = None
+        var_exp = (var_to_set.expression if isinstance(var_to_set, Variable) else None)
+        for f in contract.functions_declared + contract.functions_inherited:
+            if (
+                not f.is_fallback
+                and not f.is_constructor
+                and not f.is_receive
+                and "init" not in f.name.lower()
+                and "fallback" not in f.name.lower()
+            ):
+                if f.visibility == "internal" or f.visibility == "private":
+                    continue
+
 
     # endregion
     ###################################################################################
