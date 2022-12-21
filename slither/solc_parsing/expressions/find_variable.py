@@ -14,12 +14,7 @@ from slither.core.declarations.solidity_variables import (
     SolidityVariable,
 )
 from slither.core.scope.scope import FileScope
-from slither.core.solidity_types import (
-    ArrayType,
-    FunctionType,
-    MappingType,
-    TypeAlias,
-)
+from slither.core.solidity_types import ArrayType, FunctionType, MappingType, TypeAlias
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
@@ -242,7 +237,7 @@ def _find_in_contract(
 
 def _find_variable_init(
     caller_context: CallerContextExpression,
-) -> Tuple[List[Contract], List["Function"], FileScope,]:
+) -> Tuple[List[Contract], List["Function"], FileScope]:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc

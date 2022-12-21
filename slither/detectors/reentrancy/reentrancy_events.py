@@ -69,11 +69,7 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                             send_eth=to_hashable(node.context[self.KEY].send_eth),
                         )
                         finding_vars = {
-                            FindingValue(
-                                e,
-                                e.node,
-                                tuple(sorted(nodes, key=lambda x: x.node_id)),
-                            )
+                            FindingValue(e, e.node, tuple(sorted(nodes, key=lambda x: x.node_id)))
                             for (e, nodes) in node.context[self.KEY].events.items()
                         }
                         if finding_vars:
@@ -126,10 +122,7 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
-                        res.add(
-                            call_list_info,
-                            {"underlying_type": "external_calls_sending_eth"},
-                        )
+                        res.add(call_list_info, {"underlying_type": "external_calls_sending_eth"})
 
             #
 
@@ -140,8 +133,7 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             res.add(
-                                call_list_info,
-                                {"underlying_type": "external_calls_sending_eth"},
+                                call_list_info, {"underlying_type": "external_calls_sending_eth"}
                             )
 
             for finding_value in events:

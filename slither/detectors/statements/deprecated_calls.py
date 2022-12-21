@@ -3,10 +3,7 @@ Module detecting deprecated standards.
 """
 
 from slither.core.cfg.node import NodeType
-from slither.core.declarations.solidity_variables import (
-    SolidityVariableComposed,
-    SolidityFunction,
-)
+from slither.core.declarations.solidity_variables import SolidityVariableComposed, SolidityFunction
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
 from slither.visitors.expression.export_values import ExportValues

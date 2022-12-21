@@ -111,11 +111,7 @@ contract Bug {
                     overshadowed = shadow[1]
                     info = [local_variable, " shadows:\n"]
                     for overshadowed_entry in overshadowed:
-                        info += [
-                            "\t- ",
-                            overshadowed_entry[1],
-                            f" ({overshadowed_entry[0]})\n",
-                        ]
+                        info += ["\t- ", overshadowed_entry[1], f" ({overshadowed_entry[0]})\n"]
 
                     # Generate relevant JSON data for this shadowing definition.
                     res = self.generate_result(info)

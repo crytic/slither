@@ -7,10 +7,7 @@ def controlled_delegatecall(function):
     ret = []
     for node in function.nodes:
         for ir in node.irs:
-            if isinstance(ir, LowLevelCall) and ir.function_name in [
-                "delegatecall",
-                "callcode",
-            ]:
+            if isinstance(ir, LowLevelCall) and ir.function_name in ["delegatecall", "callcode"]:
                 if is_tainted(ir.destination, function.contract):
                     ret.append(node)
     return ret
@@ -53,10 +50,7 @@ Bob calls `delegate` and delegates the execution to his malicious contract. As a
                     continue
                 nodes = controlled_delegatecall(f)
                 if nodes:
-                    func_info = [
-                        f,
-                        " uses delegatecall to a input-controlled function id\n",
-                    ]
+                    func_info = [f, " uses delegatecall to a input-controlled function id\n"]
 
                     for node in nodes:
                         node_info = func_info + ["\t- ", node, "\n"]

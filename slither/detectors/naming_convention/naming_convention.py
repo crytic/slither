@@ -120,19 +120,11 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
             for var in contract.state_variables_declared:
                 if self.should_avoid_name(var.name):
                     if not self.is_upper_case_with_underscores(var.name):
-                        info = [
-                            "Variable ",
-                            var,
-                            " used l, O, I, which should not be used\n",
-                        ]
+                        info = ["Variable ", var, " used l, O, I, which should not be used\n"]
 
                         res = self.generate_result(info)
                         res.add(
-                            var,
-                            {
-                                "target": "variable",
-                                "convention": "l_O_I_should_not_be_used",
-                            },
+                            var, {"target": "variable", "convention": "l_O_I_should_not_be_used"}
                         )
                         results.append(res)
 
@@ -142,11 +134,7 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         continue
 
                     if not self.is_upper_case_with_underscores(var.name):
-                        info = [
-                            "Constant ",
-                            var,
-                            " is not in UPPER_CASE_WITH_UNDERSCORES\n",
-                        ]
+                        info = ["Constant ", var, " is not in UPPER_CASE_WITH_UNDERSCORES\n"]
 
                         res = self.generate_result(info)
                         res.add(

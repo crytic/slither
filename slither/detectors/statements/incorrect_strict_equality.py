@@ -7,13 +7,7 @@ from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import (
-    Assignment,
-    Binary,
-    BinaryType,
-    HighLevelCall,
-    SolidityCall,
-)
+from slither.slithir.operations import Assignment, Binary, BinaryType, HighLevelCall, SolidityCall
 
 from slither.core.solidity_types import MappingType, ElementaryType
 

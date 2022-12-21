@@ -98,10 +98,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
 
     def generate_slithir_ssa(self, all_ssa_state_variables_instances):
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
-        from slither.core.dominators.utils import (
-            compute_dominance_frontier,
-            compute_dominators,
-        )
+        from slither.core.dominators.utils import compute_dominance_frontier, compute_dominators
 
         compute_dominators(self.nodes)
         compute_dominance_frontier(self.nodes)

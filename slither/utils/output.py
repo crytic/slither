@@ -203,9 +203,7 @@ def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: 
         logger.info(yellow(f"{filename} exists already, the overwrite is prevented"))
     else:
         with ZipFile(
-            filename,
-            "w",
-            compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA),
+            filename, "w", compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA)
         ) as file_desc:
             file_desc.writestr("slither_results.json", json.dumps(json_result).encode("utf8"))
 
@@ -551,9 +549,7 @@ class Output:
     def add_node(self, node: Node, additional_fields: Optional[Dict] = None):
         if additional_fields is None:
             additional_fields = {}
-        type_specific_fields = {
-            "parent": _create_parent_element(node),
-        }
+        type_specific_fields = {"parent": _create_parent_element(node)}
         node_name = str(node.expression) if node.expression else ""
         element = _create_base_element(
             "node",
@@ -611,10 +607,7 @@ class Output:
     ###################################################################################
 
     def add_pretty_table(
-        self,
-        content: MyPrettyTable,
-        name: str,
-        additional_fields: Optional[Dict] = None,
+        self, content: MyPrettyTable, name: str, additional_fields: Optional[Dict] = None
     ):
         if additional_fields is None:
             additional_fields = {}

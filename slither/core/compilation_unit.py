@@ -6,13 +6,7 @@ from crytic_compile.compiler.compiler import CompilerVersion
 from crytic_compile.utils.naming import Filename
 
 from slither.core.context.context import Context
-from slither.core.declarations import (
-    Contract,
-    Pragma,
-    Import,
-    Function,
-    Modifier,
-)
+from slither.core.declarations import Contract, Pragma, Import, Function, Modifier
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
@@ -264,10 +258,7 @@ class SlitherCompilationUnit(Context):
                     slot += 1
                     offset = 0
 
-                self._storage_layouts[contract.name][var.canonical_name] = (
-                    slot,
-                    offset,
-                )
+                self._storage_layouts[contract.name][var.canonical_name] = (slot, offset)
                 if new_slot:
                     slot += math.ceil(size / 32)
                 else:

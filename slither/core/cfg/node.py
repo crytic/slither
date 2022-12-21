@@ -5,10 +5,7 @@ from enum import Enum
 from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
 
 from slither.core.children.child_function import ChildFunction
-from slither.core.declarations.solidity_variables import (
-    SolidityVariable,
-    SolidityFunction,
-)
+from slither.core.declarations.solidity_variables import SolidityVariable, SolidityFunction
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
@@ -812,15 +809,11 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
 
     @property
-    def phi_origins_local_variables(
-        self,
-    ) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
+    def phi_origins_local_variables(self,) -> Dict[str, Tuple[LocalVariable, Set["Node"]]]:
         return self._phi_origins_local_variables
 
     @property
-    def phi_origins_state_variables(
-        self,
-    ) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
+    def phi_origins_state_variables(self,) -> Dict[str, Tuple[StateVariable, Set["Node"]]]:
         return self._phi_origins_state_variables
 
     # @property
@@ -836,10 +829,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
     def add_phi_origin_state_variable(self, variable: StateVariable, node: "Node"):
         if variable.canonical_name not in self._phi_origins_state_variables:
-            self._phi_origins_state_variables[variable.canonical_name] = (
-                variable,
-                set(),
-            )
+            self._phi_origins_state_variables[variable.canonical_name] = (variable, set())
         (v, nodes) = self._phi_origins_state_variables[variable.canonical_name]
         assert v == variable
         nodes.add(node)

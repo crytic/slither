@@ -590,14 +590,7 @@ def _explore_irs(slither, irs: List[Operation], result, target, convert):
                     loc_start = full_txt_start + counter
                     loc_end = loc_start + len(old_str)
 
-                    create_patch(
-                        result,
-                        filename_source_code,
-                        loc_start,
-                        loc_end,
-                        old_str,
-                        new_str,
-                    )
+                    create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
 
 def _explore_functions(slither, functions, result, target, convert):

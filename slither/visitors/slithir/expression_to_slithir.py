@@ -45,12 +45,7 @@ from slither.slithir.tmp_operations.tmp_call import TmpCall
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
-from slither.slithir.variables import (
-    Constant,
-    ReferenceVariable,
-    TemporaryVariable,
-    TupleVariable,
-)
+from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable, TupleVariable
 from slither.visitors.expression.expression import ExpressionVisitor
 
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
@@ -415,15 +410,11 @@ class ExpressionToSlithIR(ExpressionVisitor):
                         constant_type = None
                     if expression.member_name == "min":
                         op = Assignment(
-                            val,
-                            Constant(str(type_found.min), constant_type),
-                            type_found,
+                            val, Constant(str(type_found.min), constant_type), type_found
                         )
                     else:
                         op = Assignment(
-                            val,
-                            Constant(str(type_found.max), constant_type),
-                            type_found,
+                            val, Constant(str(type_found.max), constant_type), type_found
                         )
                     self._result.append(op)
                     set_val(expression, val)
@@ -438,12 +429,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             val = TemporaryVariable(self._node)
             name = expression.member_name + "(address)"
             sol_func = SolidityFunction(name)
-            s = SolidityCall(
-                sol_func,
-                1,
-                val,
-                sol_func.return_type,
-            )
+            s = SolidityCall(sol_func, 1, val, sol_func.return_type)
             s.set_expression(expression)
             s.arguments.append(expr)
             self._result.append(s)

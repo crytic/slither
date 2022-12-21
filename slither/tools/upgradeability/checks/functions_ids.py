@@ -1,8 +1,5 @@
 from slither.exceptions import SlitherError
-from slither.tools.upgradeability.checks.abstract_checks import (
-    AbstractCheck,
-    CheckClassification,
-)
+from slither.tools.upgradeability.checks.abstract_checks import AbstractCheck, CheckClassification
 from slither.utils.function import get_function_id
 
 

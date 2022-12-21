@@ -70,10 +70,7 @@ ALL_TESTS = [
         "using-for-0.4.1.sol",
         make_version(4, 1, 26) + VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
     ),
-    Test(
-        "top-level-import-0.4.0.sol",
-        VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"],
-    ),
+    Test("top-level-import-0.4.0.sol", VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"]),
     Test("top-level-import-0.7.1.sol", make_version(7, 1, 6) + VERSIONS_08),
     Test("function-0.4.0.sol", make_version(4, 0, 15)),
     Test("function-0.4.16.sol", make_version(4, 16, 21)),
@@ -87,10 +84,7 @@ ALL_TESTS = [
     # TODO: legacy failing with 0.7
     Test("function-0.7.1.sol", make_version(7, 1, 6), disable_legacy=True),
     Test("function-0.7.1.sol", VERSIONS_08),
-    Test(
-        "top-level-import-bis-0.4.0.sol",
-        VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"],
-    ),
+    Test("top-level-import-bis-0.4.0.sol", VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"]),
     Test("top-level-import-bis-0.7.1.sol", make_version(7, 1, 6) + VERSIONS_08),
     # TODO: failing
     # Test(
@@ -110,64 +104,25 @@ ALL_TESTS = [
         disable_legacy=True,
     ),
     Test("functioncall-0.4.0.sol", VERSIONS_04),
-    Test(
-        "functioncall-0.4.5.sol",
-        make_version(4, 5, 9),
-    ),
-    Test(
-        "functioncall-0.5.0.sol",
-        make_version(5, 0, 2),
-    ),
-    Test(
-        "functioncall-0.5.3.sol",
-        make_version(5, 3, 17),
-    ),
-    Test(
-        "functioncall-0.6.0.sol",
-        make_version(6, 0, 1),
-    ),
-    Test(
-        "functioncall-0.6.2.sol",
-        make_version(6, 2, 7),
-    ),
-    Test(
-        "functioncall-0.6.8.sol",
-        make_version(6, 8, 12),
-    ),
-    Test(
-        "functioncall-0.7.0.sol",
-        VERSIONS_07,
-    ),
-    Test(
-        "functioncall-0.8.0.sol",
-        VERSIONS_08,
-    ),
-    Test(
-        "break-all.sol",
-        ALL_VERSIONS,
-    ),
-    Test(
-        "top-level-nested-import-0.4.0.sol",
-        VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"],
-    ),
-    Test(
-        "top-level-nested-import-0.7.1.sol",
-        make_version(7, 1, 6) + VERSIONS_08,
-    ),
+    Test("functioncall-0.4.5.sol", make_version(4, 5, 9)),
+    Test("functioncall-0.5.0.sol", make_version(5, 0, 2)),
+    Test("functioncall-0.5.3.sol", make_version(5, 3, 17)),
+    Test("functioncall-0.6.0.sol", make_version(6, 0, 1)),
+    Test("functioncall-0.6.2.sol", make_version(6, 2, 7)),
+    Test("functioncall-0.6.8.sol", make_version(6, 8, 12)),
+    Test("functioncall-0.7.0.sol", VERSIONS_07),
+    Test("functioncall-0.8.0.sol", VERSIONS_08),
+    Test("break-all.sol", ALL_VERSIONS),
+    Test("top-level-nested-import-0.4.0.sol", VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"]),
+    Test("top-level-nested-import-0.7.1.sol", make_version(7, 1, 6) + VERSIONS_08),
     # + [f"variable_0.6.{ver}_legacy" for ver in range(5, 23)]
     # + [f"variable_0.6.{ver}_compact" for ver in range(5, 23)]
     # + [f"variable_0.7.{ver}_legacy" for ver in range(0, 2)]
     # + [f"variable_0.7.{ver}_compact" for ver in range(0, 2)]
-    Test(
-        "call_to_variable-all.sol",
-        ALL_VERSIONS,
-    ),
+    Test("call_to_variable-all.sol", ALL_VERSIONS),
     Test("yul-0.4.0.sol", ["0.4.0"]),
     Test("yul-0.4.1.sol", make_version(4, 1, 10)),
-    Test(
-        "yul-0.4.11.sol",
-        make_version(4, 11, 26) + VERSIONS_05 + VERSIONS_06,
-    ),
+    Test("yul-0.4.11.sol", make_version(4, 11, 26) + VERSIONS_05 + VERSIONS_06),
     Test("yul-0.7.0.sol", make_version(7, 0, 4)),
     Test("yul-0.7.5.sol", make_version(7, 5, 6)),
     Test("yul-0.8.0.sol", VERSIONS_08),
@@ -176,17 +131,10 @@ ALL_TESTS = [
     Test("pragma-0.6.0.sol", VERSIONS_06),
     Test("pragma-0.7.0.sol", VERSIONS_07),
     Test("pragma-0.8.0.sol", VERSIONS_08),
-    Test(
-        "assembly-all.sol",
-        ALL_VERSIONS,
-    ),
+    Test("assembly-all.sol", ALL_VERSIONS),
     Test("struct-0.4.0.sol", VERSIONS_04 + VERSIONS_05),
     # TODO: legacy failing
-    Test(
-        "struct-0.6.0.sol",
-        VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
-        disable_legacy=True,
-    ),
+    Test("struct-0.6.0.sol", VERSIONS_06 + VERSIONS_07 + VERSIONS_08, disable_legacy=True),
     # TODO: currently failing
     # Test("emit-0.4.0.sol", VERSIONS_04),
     # Test(
@@ -197,10 +145,7 @@ ALL_TESTS = [
     #     "emit-0.4.21.sol",
     #     make_version(4, 21, 26)
     # ),
-    Test(
-        "emit-0.5.0.sol",
-        VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
-    ),
+    Test("emit-0.5.0.sol", VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08),
     # TODO: failing
     # Test("import-0.4.0.sol", VERSIONS_04),
     # Test(
@@ -210,8 +155,7 @@ ALL_TESTS = [
     Test("tupleexpression-0.4.0.sol", make_version(4, 0, 23)),
     Test("tupleexpression-0.4.24.sol", make_version(4, 24, 26) + VERSIONS_05),
     Test(
-        "tupleexpression-0.5.3.sol",
-        make_version(5, 3, 9) + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
+        "tupleexpression-0.5.3.sol", make_version(5, 3, 9) + VERSIONS_06 + VERSIONS_07 + VERSIONS_08
     ),
     Test("literal-0.4.0.sol", make_version(4, 0, 9)),
     Test("literal-0.4.10.sol", make_version(4, 10, 26)),
@@ -220,44 +164,22 @@ ALL_TESTS = [
     # TODO: failing
     # Test("literal-0.7.0.sol", VERSIONS_07 + VERSIONS_08),
     Test("memberaccess-0.4.0.sol", VERSIONS_04 + VERSIONS_05),
-    Test(
-        "memberaccess-0.5.3.sol",
-        make_version(5, 3, 9),
-    ),
+    Test("memberaccess-0.5.3.sol", make_version(5, 3, 9)),
     # TODO:  Legacy failing from 0.6
-    Test(
-        "memberaccess-0.5.3.sol",
-        VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
-        disable_legacy=True,
-    ),
+    Test("memberaccess-0.5.3.sol", VERSIONS_06 + VERSIONS_07 + VERSIONS_08, disable_legacy=True),
     Test("throw-0.4.0.sol", VERSIONS_04),
-    Test(
-        "throw-0.5.0.sol",
-        VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
-    ),
-    Test(
-        "top_level_variable2-0.4.0.sol",
-        VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07,
-    ),
+    Test("throw-0.5.0.sol", VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08),
+    Test("top_level_variable2-0.4.0.sol", VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07),
     Test("top_level_variable2-0.8.0.sol", VERSIONS_08),
-    Test(
-        "comment-all.sol",
-        ALL_VERSIONS,
-    ),
+    Test("comment-all.sol", ALL_VERSIONS),
     Test("assignment-0.4.0.sol", VERSIONS_04),
     Test(
         "assignment-0.4.7.sol",
         make_version(4, 7, 9) + VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
     ),
-    Test(
-        "event-all.sol",
-        ALL_VERSIONS,
-    ),
+    Test("event-all.sol", ALL_VERSIONS),
     # TODO: legacy not working
-    Test(
-        "indexrangeaccess-0.4.0.sol",
-        VERSIONS_04 + VERSIONS_05 + ["0.6.0"],
-    ),
+    Test("indexrangeaccess-0.4.0.sol", VERSIONS_04 + VERSIONS_05 + ["0.6.0"]),
     Test("indexrangeaccess-0.4.0.sol", ["0.6.0"], disable_legacy=True),
     Test(
         "indexrangeaccess-0.6.1.sol",
@@ -272,22 +194,10 @@ ALL_TESTS = [
     Test("variable-0.6.5.sol", make_version(6, 5, 8)),
     Test("variable-0.6.9.sol", make_version(6, 9, 12) + VERSIONS_07),
     Test("variable-0.8.0.sol", VERSIONS_08),
-    Test(
-        "continue-all.sol",
-        ALL_VERSIONS,
-    ),
-    Test(
-        "if-all.sol",
-        ALL_VERSIONS,
-    ),
-    Test(
-        "modifier-all.sol",
-        VERSIONS_04 + VERSIONS_05 + VERSIONS_06,
-    ),
-    Test(
-        "modifier-0.7.0.sol",
-        VERSIONS_07 + VERSIONS_08,
-    ),
+    Test("continue-all.sol", ALL_VERSIONS),
+    Test("if-all.sol", ALL_VERSIONS),
+    Test("modifier-all.sol", VERSIONS_04 + VERSIONS_05 + VERSIONS_06),
+    Test("modifier-0.7.0.sol", VERSIONS_07 + VERSIONS_08),
     Test("library_implicit_conversion-0.4.0.sol", VERSIONS_04),
     Test(
         "library_implicit_conversion-0.5.0.sol",
@@ -301,37 +211,19 @@ ALL_TESTS = [
     Test("units_and_global_variables-0.8.0.sol", VERSIONS_08),
     Test("units_and_global_variables-0.8.4.sol", make_version(8, 4, 6)),
     Test("units_and_global_variables-0.8.7.sol", make_version(8, 7, 9)),
-    Test(
-        "push-all.sol",
-        ALL_VERSIONS,
-    ),
-    Test(
-        "indexaccess-all.sol",
-        ALL_VERSIONS,
-    ),
+    Test("push-all.sol", ALL_VERSIONS),
+    Test("indexaccess-all.sol", ALL_VERSIONS),
     Test("minmax-0.4.0.sol", VERSIONS_04 + VERSIONS_05 + VERSIONS_06),
-    Test(
-        "minmax-0.6.8.sol",
-        make_version(6, 8, 9) + VERSIONS_07 + VERSIONS_08,
-    ),
-    Test(
-        "minmax-0.8.8.sol",
-        make_version(8, 8, 15),
-    ),
+    Test("minmax-0.6.8.sol", make_version(6, 8, 9) + VERSIONS_07 + VERSIONS_08),
+    Test("minmax-0.8.8.sol", make_version(8, 8, 15)),
     Test("dowhile-0.4.0.sol", VERSIONS_04),
     Test(
         "dowhile-0.4.5.sol",
         make_version(4, 5, 9) + VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
     ),
-    Test(
-        "custom_error-0.4.0.sol",
-        ALL_VERSIONS,
-    ),
+    Test("custom_error-0.4.0.sol", ALL_VERSIONS),
     Test("custom_error-0.8.4.sol", make_version(8, 4, 15)),
-    Test(
-        "top-level-0.4.0.sol",
-        VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"],
-    ),
+    Test("top-level-0.4.0.sol", VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"]),
     Test("top-level-0.7.1.sol", make_version(7, 1, 3)),
     Test("top-level-0.7.4.sol", make_version(7, 4, 6) + VERSIONS_08),
     Test("contract-0.4.0.sol", make_version(4, 0, 21)),
@@ -341,72 +233,32 @@ ALL_TESTS = [
         "import_interface_with_struct_from_top_level-0.4.0.sol",
         VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + make_version(7, 0, 5),
     ),
-    Test(
-        "import_interface_with_struct_from_top_level-0.7.6.sol",
-        ["0.7.6"] + VERSIONS_08,
-    ),
+    Test("import_interface_with_struct_from_top_level-0.7.6.sol", ["0.7.6"] + VERSIONS_08),
     Test("scope-0.4.0.sol", VERSIONS_04),
-    Test(
-        "scope-0.5.0.sol",
-        VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
-    ),
-    Test(
-        "conditional-all.sol",
-        ALL_VERSIONS,
-    ),
-    Test(
-        "for-all.sol",
-        ALL_VERSIONS,
-    ),
+    Test("scope-0.5.0.sol", VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08),
+    Test("conditional-all.sol", ALL_VERSIONS),
+    Test("for-all.sol", ALL_VERSIONS),
     Test("trycatch-0.4.0.sol", VERSIONS_04 + VERSIONS_05),
     # TODO: legacy failing
-    Test(
-        "trycatch-0.6.0.sol",
-        VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
-        disable_legacy=True,
-    ),
-    Test(
-        "unchecked-0.4.0.sol",
-        VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07,
-    ),
+    Test("trycatch-0.6.0.sol", VERSIONS_06 + VERSIONS_07 + VERSIONS_08, disable_legacy=True),
+    Test("unchecked-0.4.0.sol", VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07),
     Test("unchecked-0.8.0.sol", VERSIONS_08),
-    Test(
-        "return-all.sol",
-        ALL_VERSIONS,
-    ),
+    Test("return-all.sol", ALL_VERSIONS),
     Test("binaryoperation-0.4.0.sol", VERSIONS_04),
     Test(
         "binaryoperation-0.4.7.sol",
         make_version(4, 7, 9) + VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + make_version(8, 0, 12),
     ),
     Test("newexpression-0.4.0.sol", VERSIONS_04),
-    Test(
-        "newexpression-0.5.0.sol",
-        VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
-    ),
-    Test(
-        "enum-0.4.0.sol",
-        VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07,
-    ),
+    Test("newexpression-0.5.0.sol", VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08),
+    Test("enum-0.4.0.sol", VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07),
     Test("enum-0.8.0.sol", VERSIONS_08),
-    Test(
-        "top_level_variable-0.4.0.sol",
-        VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07,
-    ),
+    Test("top_level_variable-0.4.0.sol", VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + VERSIONS_07),
     Test("top_level_variable-0.8.0.sol", VERSIONS_08),
     Test("unaryexpression-0.4.0.sol", VERSIONS_04),
-    Test(
-        "unaryexpression-0.5.0.sol",
-        VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
-    ),
-    Test(
-        "while-all.sol",
-        ALL_VERSIONS,
-    ),
-    Test(
-        "complex_imports/import_free/Caller.sol",
-        ["0.8.2"],
-    ),
+    Test("unaryexpression-0.5.0.sol", VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08),
+    Test("while-all.sol", ALL_VERSIONS),
+    Test("complex_imports/import_free/Caller.sol", ["0.8.2"]),
     Test("custom_error_with_state_variable.sol", make_version(8, 4, 12)),
     Test("complex_imports/import_aliases/test.sol", VERSIONS_08),
     # 0.8.9 crashes on our testcase
@@ -449,10 +301,7 @@ def test_parsing(test_item: Test):
         cc = load_from_zip(test_file)[0]
 
         sl = Slither(
-            cc,
-            solc_force_legacy_json=flavor == "legacy",
-            disallow_partial=True,
-            skip_analyze=True,
+            cc, solc_force_legacy_json=flavor == "legacy", disallow_partial=True, skip_analyze=True
         )
 
         actual = generate_output(sl)

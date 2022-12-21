@@ -14,10 +14,7 @@ from typing import List
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, Contract
 from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
-from slither.core.declarations.solidity_variables import (
-    SolidityFunction,
-    SolidityVariableComposed,
-)
+from slither.core.declarations.solidity_variables import SolidityFunction, SolidityVariableComposed
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
     HighLevelCall,
@@ -47,9 +44,7 @@ def arbitrary_send(func: Function):
                 if ir.variable_right == SolidityVariableComposed("msg.sender"):
                     return False
                 if is_dependent(
-                    ir.variable_right,
-                    SolidityVariableComposed("msg.sender"),
-                    func.contract,
+                    ir.variable_right, SolidityVariableComposed("msg.sender"), func.contract
                 ):
                     return False
             if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
@@ -62,9 +57,7 @@ def arbitrary_send(func: Function):
                 if ir.call_value == SolidityVariableComposed("msg.value"):
                     continue
                 if is_dependent(
-                    ir.call_value,
-                    SolidityVariableComposed("msg.value"),
-                    func.contract,
+                    ir.call_value, SolidityVariableComposed("msg.value"), func.contract
                 ):
                     continue
 

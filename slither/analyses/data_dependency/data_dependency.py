@@ -165,9 +165,7 @@ def is_tainted_ssa(
 
 
 def get_dependencies(
-    variable: Variable_types,
-    context: Context_types,
-    only_unprotected: bool = False,
+    variable: Variable_types, context: Context_types, only_unprotected: bool = False
 ) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on.
@@ -202,9 +200,7 @@ def get_all_dependencies(
 
 
 def get_dependencies_ssa(
-    variable: Variable_types,
-    context: Context_types,
-    only_unprotected: bool = False,
+    variable: Variable_types, context: Context_types, only_unprotected: bool = False
 ) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on (SSA version).

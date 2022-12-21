@@ -247,10 +247,7 @@ def _extract_function_relations(
             for function in contract.functions_entry_points
         }
         for function in contract.functions_entry_points:
-            ret[contract.name][_get_name(function)] = {
-                "impacts": [],
-                "is_impacted_by": [],
-            }
+            ret[contract.name][_get_name(function)] = {"impacts": [], "is_impacted_by": []}
             for candidate, varsWritten in written.items():
                 if any((r in varsWritten for r in function.all_state_variables_read())):
                     ret[contract.name][_get_name(function)]["is_impacted_by"].append(candidate)

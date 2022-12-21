@@ -3,10 +3,7 @@ Module detecting misuse of Boolean constants
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import (
-    Binary,
-    BinaryType,
-)
+from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
 
 
@@ -77,12 +74,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
             boolean_constant_misuses = self._detect_boolean_equality(contract)
             for (func, nodes) in boolean_constant_misuses:
                 for node in nodes:
-                    info = [
-                        func,
-                        " compares to a boolean constant:\n\t-",
-                        node,
-                        "\n",
-                    ]
+                    info = [func, " compares to a boolean constant:\n\t-", node, "\n"]
 
                     res = self.generate_result(info)
                     results.append(res)

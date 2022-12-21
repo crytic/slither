@@ -1,7 +1,4 @@
-from slither.tools.upgradeability.checks.abstract_checks import (
-    CheckClassification,
-    AbstractCheck,
-)
+from slither.tools.upgradeability.checks.abstract_checks import CheckClassification, AbstractCheck
 
 
 class VariableWithInit(AbstractCheck):

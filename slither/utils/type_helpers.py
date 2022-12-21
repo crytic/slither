@@ -1,12 +1,7 @@
 from typing import Union, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from slither.core.declarations import (
-        Function,
-        SolidityFunction,
-        Contract,
-        SolidityVariable,
-    )
+    from slither.core.declarations import Function, SolidityFunction, Contract, SolidityVariable
     from slither.core.variables.variable import Variable
 
 ### core.declaration

@@ -9,12 +9,7 @@ from slither.core.declarations import (
     SolidityVariable,
     Function,
 )
-from slither.core.solidity_types import (
-    ElementaryType,
-    ArrayType,
-    MappingType,
-    UserDefinedType,
-)
+from slither.core.solidity_types import ElementaryType, ArrayType, MappingType, UserDefinedType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.core.variables.state_variable import StateVariable
@@ -46,12 +41,7 @@ from slither.slithir.operations import (
     InitArray,
     InternalCall,
 )
-from slither.slithir.variables import (
-    TemporaryVariable,
-    TupleVariable,
-    Constant,
-    ReferenceVariable,
-)
+from slither.slithir.variables import TemporaryVariable, TupleVariable, Constant, ReferenceVariable
 from .cache import load_cache
 
 simil_logger = logging.getLogger("Slither-simil")

@@ -33,8 +33,7 @@ def parse_args() -> argparse.Namespace:
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(
-        description="Check the ERC 20 conformance",
-        usage="slither-check-erc project contractName",
+        description="Check the ERC 20 conformance", usage="slither-check-erc project contractName"
     )
 
     parser.add_argument("project", help="The codebase to be tested.")

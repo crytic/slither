@@ -8,10 +8,7 @@ from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions.literal import Literal
 from slither.core.solidity_types import TypeAlias
 from slither.core.solidity_types.array_type import ArrayType
-from slither.core.solidity_types.elementary_type import (
-    ElementaryType,
-    ElementaryTypeName,
-)
+from slither.core.solidity_types.elementary_type import ElementaryType, ElementaryTypeName
 from slither.core.solidity_types.function_type import FunctionType
 from slither.core.solidity_types.mapping_type import MappingType
 from slither.core.solidity_types.type import Type
@@ -162,8 +159,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
                 found = re.findall(r"mapping\(([a-zA-Z0-9\.]*) => ([ a-zA-Z0-9\.\[\]]*)\)", name)
             else:
                 found = re.findall(
-                    r"mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
-                    name,
+                    r"mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)", name
                 )
             assert len(found) == 1
             from_ = found[0][0]

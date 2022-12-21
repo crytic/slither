@@ -68,10 +68,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
                     if variables_written:
                         attr = "view" if f.view else "pure"
 
-                        info = [
-                            f,
-                            f" is declared {attr} but changes state variables:\n",
-                        ]
+                        info = [f, f" is declared {attr} but changes state variables:\n"]
 
                         for variable_written in variables_written:
                             info += ["\t- ", variable_written, "\n"]

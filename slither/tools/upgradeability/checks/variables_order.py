@@ -1,7 +1,4 @@
-from slither.tools.upgradeability.checks.abstract_checks import (
-    CheckClassification,
-    AbstractCheck,
-)
+from slither.tools.upgradeability.checks.abstract_checks import CheckClassification, AbstractCheck
 
 
 class MissingVariable(AbstractCheck):
@@ -121,13 +118,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
             variable1 = order1[idx]
             variable2 = order2[idx]
             if (variable1.name != variable2.name) or (variable1.type != variable2.type):
-                info = [
-                    "Different variables between ",
-                    contract1,
-                    " and ",
-                    contract2,
-                    "\n",
-                ]
+                info = ["Different variables between ", contract1, " and ", contract2, "\n"]
                 info += ["\t ", variable1, "\n"]
                 info += ["\t ", variable2, "\n"]
                 json = self.generate_result(info)

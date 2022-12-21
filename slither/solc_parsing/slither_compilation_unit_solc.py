@@ -223,12 +223,7 @@ class SlitherCompilationUnitSolc:
                 self._compilation_unit.pragma_directives.append(pragma)
             elif top_level_data[self.get_key()] == "ImportDirective":
                 if self.is_compact_ast:
-                    import_directive = Import(
-                        Path(
-                            top_level_data["absolutePath"],
-                        ),
-                        scope,
-                    )
+                    import_directive = Import(Path(top_level_data["absolutePath"]), scope)
                     scope.imports.add(import_directive)
                     # TODO investigate unitAlias in version < 0.7 and legacy ast
                     if "unitAlias" in top_level_data:
@@ -238,10 +233,7 @@ class SlitherCompilationUnitSolc:
                         _handle_import_aliases(symbol_aliases, import_directive, scope)
                 else:
                     import_directive = Import(
-                        Path(
-                            top_level_data["attributes"].get("absolutePath", ""),
-                        ),
-                        scope,
+                        Path(top_level_data["attributes"].get("absolutePath", "")), scope
                     )
                     scope.imports.add(import_directive)
                     # TODO investigate unitAlias in version < 0.7 and legacy ast
@@ -519,9 +511,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_first_part(
-        self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
     ):
         for lib in libraries:
             self._parse_struct_var_modifiers_functions(lib)
@@ -546,9 +536,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_second_part(
-        self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
     ):
         for lib in libraries:
             self._analyze_struct_events(lib)
@@ -576,9 +564,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 contracts_to_be_analyzed += [contract]
 
     def _analyze_third_part(
-        self,
-        contracts_to_be_analyzed: List[ContractSolc],
-        libraries: List[ContractSolc],
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
     ):
         for lib in libraries:
             self._analyze_variables_modifiers_functions(lib)

@@ -10,10 +10,7 @@ from slither.core.expressions.assignment_operation import (
     AssignmentOperation,
     AssignmentOperationType,
 )
-from slither.core.expressions.binary_operation import (
-    BinaryOperation,
-    BinaryOperationType,
-)
+from slither.core.expressions.binary_operation import BinaryOperation, BinaryOperationType
 from slither.core.expressions import (
     CallExpression,
     ConditionalExpression,
@@ -32,10 +29,7 @@ from slither.core.expressions import (
     UnaryOperation,
     UnaryOperationType,
 )
-from slither.core.solidity_types import (
-    ArrayType,
-    ElementaryType,
-)
+from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.expressions.find_variable import find_variable

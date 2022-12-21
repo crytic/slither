@@ -5,10 +5,7 @@ from slither.core.declarations import Contract
 from slither.slithir.operations import EventCall
 from slither.utils import output
 from slither.utils.erc import ERC, ERC_EVENT
-from slither.utils.type import (
-    export_nested_types_from_variable,
-    export_return_type_from_variable,
-)
+from slither.utils.type import export_nested_types_from_variable, export_return_type_from_variable
 
 logger = logging.getLogger("Slither-conformance")
 

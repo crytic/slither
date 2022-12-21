@@ -26,7 +26,7 @@ def convert_string_to_fraction(val: Union[str, int]) -> Fraction:
                     f"{base}e{expo} is too large to fit in any Solidity integer size"
                 )
             return 0
-        return Fraction(base) * Fraction(10**expo)
+        return Fraction(base) * Fraction(10 ** expo)
 
     return Fraction(val)
 

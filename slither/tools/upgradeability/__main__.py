@@ -60,10 +60,7 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--markdown-root",
-        help="URL for markdown generation",
-        action="store",
-        default="",
+        "--markdown-root", help="URL for markdown generation", action="store", default=""
     )
 
     parser.add_argument(
@@ -194,11 +191,7 @@ def _checks_on_contract_and_proxy(
 
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main() -> None:
-    json_results: Dict = {
-        "proxy-present": False,
-        "contract_v2-present": False,
-        "detectors": [],
-    }
+    json_results: Dict = {"proxy-present": False, "contract_v2-present": False, "detectors": []}
 
     args = parse_args()
 

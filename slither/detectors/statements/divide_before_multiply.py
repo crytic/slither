@@ -13,10 +13,7 @@ def is_division(ir):
             return True
 
     if isinstance(ir, LibraryCall):
-        if ir.function.name.lower() in [
-            "div",
-            "safediv",
-        ]:
+        if ir.function.name.lower() in ["div", "safediv"]:
             if len(ir.arguments) == 2:
                 if ir.lvalue:
                     return True
@@ -29,10 +26,7 @@ def is_multiplication(ir):
             return True
 
     if isinstance(ir, LibraryCall):
-        if ir.function.name.lower() in [
-            "mul",
-            "safemul",
-        ]:
+        if ir.function.name.lower() in ["mul", "safemul"]:
             if len(ir.arguments) == 2:
                 if ir.lvalue:
                     return True
@@ -180,10 +174,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
             if divisions_before_multiplications:
                 for (func, nodes) in divisions_before_multiplications:
 
-                    info = [
-                        func,
-                        " performs a multiplication on the result of a division:\n",
-                    ]
+                    info = [func, " performs a multiplication on the result of a division:\n"]
 
                     # sort the nodes to get deterministic results
                     nodes.sort(key=lambda x: x.node_id)

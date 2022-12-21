@@ -43,7 +43,9 @@ contract Contract{
         domain_sig = get_function_id("DOMAIN_SEPARATOR()")
         for contract in self.compilation_unit.contracts_derived:
             if contract.is_erc20():
-                funcs_and_vars: List[Union[Function, StateVariable]] = contract.functions_entry_points + contract.state_variables_entry_points  # type: ignore
+                funcs_and_vars: List[
+                    Union[Function, StateVariable]
+                ] = contract.functions_entry_points + contract.state_variables_entry_points  # type: ignore
                 for func_or_var in funcs_and_vars:
                     # External/ public function names should not collide with DOMAIN_SEPARATOR()
                     hash_collision = (
@@ -54,9 +56,10 @@ contract Contract{
                     incorrect_return_type = func_or_var.solidity_signature == "DOMAIN_SEPARATOR()"
                     if incorrect_return_type:
                         if isinstance(func_or_var, Function):
-                            incorrect_return_type = (
-                                not func_or_var.return_type
-                                or func_or_var.return_type[0] != ElementaryType("bytes32")
+                            incorrect_return_type = not func_or_var.return_type or func_or_var.return_type[
+                                0
+                            ] != ElementaryType(
+                                "bytes32"
                             )
                         else:
                             assert isinstance(func_or_var, StateVariable)

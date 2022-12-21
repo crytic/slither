@@ -29,12 +29,7 @@ from slither.slithir.operations import (
     Index,
 )
 from slither.slithir.utils.ssa import is_used_later
-from slither.slithir.variables import (
-    Constant,
-    ReferenceVariable,
-    LocalIRVariable,
-    StateIRVariable,
-)
+from slither.slithir.variables import Constant, ReferenceVariable, LocalIRVariable, StateIRVariable
 
 # Directory of currently executing script. Will be used as basis for temporary file names.
 SCRIPT_DIR = pathlib.Path(getsourcefile(lambda: 0)).parent

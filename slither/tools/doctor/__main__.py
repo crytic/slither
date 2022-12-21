@@ -12,8 +12,7 @@ def parse_args() -> argparse.Namespace:
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(
-        description="Troubleshoot running Slither on your project",
-        usage="slither-doctor project",
+        description="Troubleshoot running Slither on your project", usage="slither-doctor project"
     )
 
     parser.add_argument("project", help="The codebase to be tested.")

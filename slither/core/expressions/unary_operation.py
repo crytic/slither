@@ -56,10 +56,7 @@ class UnaryOperationType(Enum):
             return "-"
         if self in [UnaryOperationType.PLUSPLUS_PRE, UnaryOperationType.PLUSPLUS_POST]:
             return "++"
-        if self in [
-            UnaryOperationType.MINUSMINUS_PRE,
-            UnaryOperationType.MINUSMINUS_POST,
-        ]:
+        if self in [UnaryOperationType.MINUSMINUS_PRE, UnaryOperationType.MINUSMINUS_POST]:
             return "--"
 
         raise SlitherCoreError(f"str: Unknown operation type {self}")
@@ -76,10 +73,7 @@ class UnaryOperationType(Enum):
             UnaryOperationType.MINUS_PRE,
         ]:
             return True
-        if operation_type in [
-            UnaryOperationType.PLUSPLUS_POST,
-            UnaryOperationType.MINUSMINUS_POST,
-        ]:
+        if operation_type in [UnaryOperationType.PLUSPLUS_POST, UnaryOperationType.MINUSMINUS_POST]:
             return False
 
         raise SlitherCoreError(f"is_prefix: Unknown operation type {operation_type}")

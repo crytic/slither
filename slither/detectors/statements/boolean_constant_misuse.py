@@ -113,12 +113,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
             boolean_constant_misuses = self._detect_boolean_constant_misuses(contract)
             for (func, nodes) in boolean_constant_misuses:
                 for node in nodes:
-                    info = [
-                        func,
-                        " uses a Boolean constant improperly:\n\t-",
-                        node,
-                        "\n",
-                    ]
+                    info = [func, " uses a Boolean constant improperly:\n\t-", node, "\n"]
 
                     res = self.generate_result(info)
                     results.append(res)

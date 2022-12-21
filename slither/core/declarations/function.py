@@ -14,12 +14,7 @@ from slither.core.declarations.solidity_variables import (
     SolidityVariable,
     SolidityVariableComposed,
 )
-from slither.core.expressions import (
-    Identifier,
-    IndexAccess,
-    MemberAccess,
-    UnaryOperation,
-)
+from slither.core.expressions import Identifier, IndexAccess, MemberAccess, UnaryOperation
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
@@ -52,10 +47,7 @@ ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
 
 class ModifierStatements:
     def __init__(
-        self,
-        modifier: Union["Contract", "Function"],
-        entry_point: "Node",
-        nodes: List["Node"],
+        self, modifier: Union["Contract", "Function"], entry_point: "Node", nodes: List["Node"]
     ):
         self._modifier = modifier
         self._entry_point = entry_point
@@ -1212,9 +1204,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
     @staticmethod
     def _explore_func_conditional(
-        func: "Function",
-        f: Callable[["Node"], List[SolidityVariable]],
-        include_loop: bool,
+        func: "Function", f: Callable[["Node"], List[SolidityVariable]], include_loop: bool
     ):
         ret = [f(n) for n in func.nodes if n.is_conditional(include_loop)]
         return [item for sublist in ret for item in sublist]
@@ -1688,14 +1678,10 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         return ret
 
-    def get_last_ssa_state_variables_instances(
-        self,
-    ) -> Dict[str, Set["SlithIRVariable"]]:
+    def get_last_ssa_state_variables_instances(self,) -> Dict[str, Set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=True, target_local=False)
 
-    def get_last_ssa_local_variables_instances(
-        self,
-    ) -> Dict[str, Set["SlithIRVariable"]]:
+    def get_last_ssa_local_variables_instances(self,) -> Dict[str, Set["SlithIRVariable"]]:
         return self._get_last_ssa_variable_instances(target_state=False, target_local=True)
 
     @staticmethod

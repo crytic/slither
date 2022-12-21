@@ -2,10 +2,7 @@ import logging
 
 from slither.core.declarations import Function
 from slither.slithir.operations import InternalCall
-from slither.tools.upgradeability.checks.abstract_checks import (
-    AbstractCheck,
-    CheckClassification,
-)
+from slither.tools.upgradeability.checks.abstract_checks import AbstractCheck, CheckClassification
 from slither.utils.colors import red
 
 logger = logging.getLogger("Slither-check-upgradeability")
@@ -388,11 +385,6 @@ Ensure that the function is called at deployment.
         if most_derived_init is None:
             return []
 
-        info = [
-            self.contract,
-            " needs to be initialized by ",
-            most_derived_init,
-            ".\n",
-        ]
+        info = [self.contract, " needs to be initialized by ", most_derived_init, ".\n"]
         json = self.generate_result(info)
         return [json]

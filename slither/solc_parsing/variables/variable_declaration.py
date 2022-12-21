@@ -9,10 +9,7 @@ from slither.core.variables.variable import Variable
 
 from slither.solc_parsing.solidity_types.type_parsing import parse_type, UnknownType
 
-from slither.core.solidity_types.elementary_type import (
-    ElementaryType,
-    NonElementaryType,
-)
+from slither.core.solidity_types.elementary_type import ElementaryType, NonElementaryType
 from slither.solc_parsing.exceptions import ParsingError
 
 logger = logging.getLogger("VariableDeclarationSolcParsing")
@@ -53,10 +50,7 @@ class VariableDeclarationSolc:
         if "nodeType" in variable_data:
             self._is_compact_ast = True
             nodeType = variable_data["nodeType"]
-            if nodeType in [
-                "VariableDeclarationStatement",
-                "VariableDefinitionStatement",
-            ]:
+            if nodeType in ["VariableDeclarationStatement", "VariableDefinitionStatement"]:
                 if len(variable_data["declarations"]) > 1:
                     raise MultipleVariablesDeclaration
                 init = None
@@ -71,10 +65,7 @@ class VariableDeclarationSolc:
         else:
             nodeType = variable_data["name"]
 
-            if nodeType in [
-                "VariableDeclarationStatement",
-                "VariableDefinitionStatement",
-            ]:
+            if nodeType in ["VariableDeclarationStatement", "VariableDefinitionStatement"]:
                 if len(variable_data["children"]) == 2:
                     init = variable_data["children"][1]
                 elif len(variable_data["children"]) == 1:

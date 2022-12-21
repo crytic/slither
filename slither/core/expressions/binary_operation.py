@@ -42,9 +42,7 @@ class BinaryOperationType(Enum):
 
     # pylint: disable=too-many-branches
     @staticmethod
-    def get_type(
-        operation_type: "BinaryOperation",
-    ) -> "BinaryOperationType":
+    def get_type(operation_type: "BinaryOperation",) -> "BinaryOperationType":
         if operation_type == "**":
             return BinaryOperationType.POWER
         if operation_type == "*":

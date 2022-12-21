@@ -39,10 +39,7 @@ def _get_all_covered_kspec_functions(target: str) -> Set[Tuple[str, str]]:
             match = INTERFACE_PATTERN.match(lines[i + 1])
             if match:
                 function_full_name = match.groups()[0]
-                start, end = (
-                    function_full_name.index("(") + 1,
-                    function_full_name.index(")"),
-                )
+                start, end = (function_full_name.index("(") + 1, function_full_name.index(")"))
                 function_arguments = function_full_name[start:end].split(",")
                 function_arguments = [
                     _refactor_type(arg.strip().split(" ")[0]) for arg in function_arguments

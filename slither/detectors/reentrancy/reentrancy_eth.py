@@ -152,10 +152,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
-                        res.add(
-                            call_list_info,
-                            {"underlying_type": "external_calls_sending_eth"},
-                        )
+                        res.add(call_list_info, {"underlying_type": "external_calls_sending_eth"})
 
             # If the calls are not the same ones that send eth, add the eth sending nodes.
             if calls != send_eth:
@@ -164,8 +161,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
                     for call_list_info in calls_list:
                         if call_list_info != call_info:
                             res.add(
-                                call_list_info,
-                                {"underlying_type": "external_calls_sending_eth"},
+                                call_list_info, {"underlying_type": "external_calls_sending_eth"}
                             )
 
             # Add all variables written via nodes which write them.

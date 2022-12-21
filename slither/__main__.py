@@ -99,12 +99,7 @@ def process_all(
         results_printers.extend(current_results_printers)
         slither_instances.append(slither)
         analyzed_contracts_count += current_analyzed_count
-    return (
-        slither_instances,
-        results_detectors,
-        results_printers,
-        analyzed_contracts_count,
-    )
+    return (slither_instances, results_detectors, results_printers, analyzed_contracts_count)
 
 
 def _process(
@@ -543,10 +538,7 @@ def parse_args(
     )
 
     group_misc.add_argument(
-        "--solc-ast",
-        help="Provide the contract as a json AST",
-        action="store_true",
-        default=False,
+        "--solc-ast", help="Provide the contract as a json AST", action="store_true", default=False
     )
 
     group_misc.add_argument(
@@ -587,12 +579,7 @@ def parse_args(
         default=defaults_flag_in_config["skip_assembly"],
     )
 
-    parser.add_argument(
-        "--perf",
-        help=argparse.SUPPRESS,
-        action="store_true",
-        default=False,
-    )
+    parser.add_argument("--perf", help=argparse.SUPPRESS, action="store_true", default=False)
 
     # if the json is splitted in different files
     parser.add_argument("--splitted", help=argparse.SUPPRESS, action="store_true", default=False)

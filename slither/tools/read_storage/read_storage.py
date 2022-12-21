@@ -8,11 +8,7 @@ try:
     from eth_typing.evm import ChecksumAddress
     from eth_abi import decode_single, encode_abi
     from eth_utils import keccak
-    from .utils import (
-        get_offset_value,
-        get_storage_data,
-        coerce_type,
-    )
+    from .utils import get_offset_value, get_storage_data, coerce_type
 except ImportError:
     print("ERROR: in order to use slither-read-storage, you need to install web3")
     print("$ pip3 install web3 --user\n")
@@ -43,7 +39,9 @@ class SlotInfo:
     offset: int
     value: Optional[Union[int, bool, str, ChecksumAddress]] = None
     # For structure and array, str->SlotInfo
-    elems: Union[Elem, NestedElem] = dataclasses.field(default_factory=lambda: {})  # type: ignore[assignment]
+    elems: Union[Elem, NestedElem] = dataclasses.field(
+        default_factory=lambda: {}
+    )  # type: ignore[assignment]
 
 
 class SlitherReadStorageException(Exception):
@@ -125,10 +123,7 @@ class SlitherReadStorage:
     # TODO: remove this pylint exception (montyly)
     # pylint: disable=too-many-locals
     def get_storage_slot(
-        self,
-        target_variable: StateVariable,
-        contract: Contract,
-        **kwargs: Any,
+        self, target_variable: StateVariable, contract: Contract, **kwargs: Any
     ) -> Union[SlotInfo, None]:
         """Finds the storage slot of a variable in a given contract.
         Args:
@@ -167,11 +162,7 @@ class SlitherReadStorage:
         elif isinstance(target_variable_type, ArrayType) and key is not None:
             var_log_name = f"{var_log_name}[{key}]"
             info, type_to, slot, size, offset = self._find_array_slot(
-                target_variable_type,
-                slot,
-                key,
-                deep_key=deep_key,
-                struct_var=struct_var,
+                target_variable_type, slot, key, deep_key=deep_key, struct_var=struct_var
             )
             self.log += info
 
@@ -195,11 +186,7 @@ class SlitherReadStorage:
         self.log = ""
 
         return SlotInfo(
-            name=var_log_name,
-            type_string=type_to,
-            slot=int_slot,
-            size=size,
-            offset=offset,
+            name=var_log_name, type_string=type_to, slot=int_slot, size=size, offset=offset
         )
 
     def get_target_variables(self, **kwargs) -> None:
@@ -547,12 +534,7 @@ class SlitherReadStorage:
         struct_elems = st.elems_ordered
         data: Elem = {}
         for elem in struct_elems:
-            info = self.get_storage_slot(
-                var,
-                contract,
-                key=key,
-                struct_var=elem.name,
-            )
+            info = self.get_storage_slot(var, contract, key=key, struct_var=elem.name)
             if info:
                 data[elem.name] = info
 
@@ -577,11 +559,7 @@ class SlitherReadStorage:
 
         elems: Elem = {}
         for i in range(min(array_length, self.max_depth)):
-            info = self.get_storage_slot(
-                var,
-                contract,
-                key=str(i),
-            )
+            info = self.get_storage_slot(var, contract, key=str(i))
             if info:
                 elems[str(i)] = info
 
@@ -589,12 +567,7 @@ class SlitherReadStorage:
                     array_length = self._get_array_length(target_variable_type, info.slot)
 
                     for j in range(min(array_length, self.max_depth)):
-                        info = self.get_storage_slot(
-                            var,
-                            contract,
-                            key=str(i),
-                            deep_key=str(j),
-                        )
+                        info = self.get_storage_slot(var, contract, key=str(i), deep_key=str(j))
                         if info:
                             elems[str(i)].elems[str(j)] = info
         return elems

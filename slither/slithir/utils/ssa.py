@@ -174,9 +174,7 @@ def add_ssa_ir(function, all_state_variables_instances):
     init_state_variables_instances = dict(all_state_variables_instances)
 
     initiate_all_local_variables_instances(
-        function.nodes,
-        init_local_variables_instances,
-        all_init_local_variables_instances,
+        function.nodes, init_local_variables_instances, all_init_local_variables_instances
     )
 
     generate_ssa_irs(
@@ -515,8 +513,7 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
     # We keep the instance as we want to avoid to add __hash__ on v.name in Variable
     # That might work for this used, but could create collision for other uses
     local_variables_definition = dict(
-        local_variables_definition,
-        **{v.name: (v, node) for v in node.local_variables_written},
+        local_variables_definition, **{v.name: (v, node) for v in node.local_variables_written}
     )
     state_variables_definition = dict(
         state_variables_definition,

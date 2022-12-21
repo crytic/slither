@@ -202,8 +202,7 @@ def output_wiki(detector_classes: List[Type[AbstractDetector]], filter_wiki: str
 
     # Sort by impact, confidence, and name
     detectors_list = sorted(
-        detector_classes,
-        key=lambda element: (element.IMPACT, element.CONFIDENCE, element.ARGUMENT),
+        detector_classes, key=lambda element: (element.IMPACT, element.CONFIDENCE, element.ARGUMENT)
     )
 
     for detector in detectors_list:
@@ -260,9 +259,7 @@ def output_detectors(detector_classes: List[Type[AbstractDetector]]) -> None:
 
 
 # pylint: disable=too-many-locals
-def output_detectors_json(
-    detector_classes: List[Type[AbstractDetector]],
-) -> List[Dict]:
+def output_detectors_json(detector_classes: List[Type[AbstractDetector]],) -> List[Dict]:
     detectors_list = []
     for detector in detector_classes:
         argument = detector.ARGUMENT

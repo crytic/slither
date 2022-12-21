@@ -27,10 +27,7 @@ def dict_are_equal(d1: Dict, d2: Dict) -> bool:
     return all(set(d1[k]) == set(d2[k]) for k in d1.keys())
 
 
-def is_subset(
-    new_info: Dict,
-    old_info: Dict,
-) -> bool:
+def is_subset(new_info: Dict, old_info: Dict) -> bool:
     for k in new_info.keys():
         if k not in old_info:
             return False
@@ -130,8 +127,7 @@ class AbstractState:
                 )
                 self._reads = union_dict(self._reads, father.context[detector.KEY].reads)
                 self._reads_prior_calls = union_dict(
-                    self.reads_prior_calls,
-                    father.context[detector.KEY].reads_prior_calls,
+                    self.reads_prior_calls, father.context[detector.KEY].reads_prior_calls
                 )
 
     def analyze_node(self, node: Node, detector: "Reentrancy") -> bool:

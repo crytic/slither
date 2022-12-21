@@ -358,7 +358,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         List all of the slithir variables (non SSA)
         """
-        slithir_variabless = [f.slithir_variables for f in self.functions + self.modifiers]  # type: ignore
+        slithir_variabless = [
+            f.slithir_variables for f in self.functions + self.modifiers
+        ]  # type: ignore
         slithir_variables = [item for sublist in slithir_variabless for item in sublist]
         return list(set(slithir_variables))
 
@@ -701,8 +703,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             Function
         """
         return next(
-            (f for f in self.functions if f.full_name == full_name and not f.is_shadowed),
-            None,
+            (f for f in self.functions if f.full_name == full_name and not f.is_shadowed), None
         )
 
     def get_function_from_signature(self, function_signature: str) -> Optional["Function"]:
@@ -860,7 +861,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         Includes super, and private/internal functions not shadowed
         """
         if self._all_functions_called is None:
-            all_functions = [f for f in self.functions + self.modifiers if not f.is_shadowed]  # type: ignore
+            all_functions = [
+                f for f in self.functions + self.modifiers if not f.is_shadowed
+            ]  # type: ignore
             all_callss = [f.all_internal_calls() for f in all_functions] + [list(all_functions)]
             all_calls = [item for sublist in all_callss for item in sublist]
             all_calls = list(set(all_calls))
@@ -904,7 +907,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         list((Contract, Function): List all of the libraries func called
         """
-        all_high_level_callss = [f.all_library_calls() for f in self.functions + self.modifiers]  # type: ignore
+        all_high_level_callss = [
+            f.all_library_calls() for f in self.functions + self.modifiers
+        ]  # type: ignore
         all_high_level_calls = [item for sublist in all_high_level_callss for item in sublist]
         return list(set(all_high_level_calls))
 
@@ -913,7 +918,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         list((Contract, Function|Variable)): List all of the external high level calls
         """
-        all_high_level_callss = [f.all_high_level_calls() for f in self.functions + self.modifiers]  # type: ignore
+        all_high_level_callss = [
+            f.all_high_level_calls() for f in self.functions + self.modifiers
+        ]  # type: ignore
         all_high_level_calls = [item for sublist in all_high_level_callss for item in sublist]
         return list(set(all_high_level_calls))
 
@@ -1349,10 +1356,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         func.add_node(node)
         assert variable.expression
         expression = AssignmentOperation(
-            Identifier(variable),
-            variable.expression,
-            AssignmentOperationType.ASSIGN,
-            variable.type,
+            Identifier(variable), variable.expression, AssignmentOperationType.ASSIGN, variable.type
         )
 
         expression.set_offset(variable.source_mapping, self.compilation_unit)

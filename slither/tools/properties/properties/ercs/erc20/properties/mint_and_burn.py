@@ -16,5 +16,5 @@ ERC20_NotMintableNotBurnable = [
         is_unit_test=True,
         is_property_test=True,
         caller=PropertyCaller.ANY,
-    ),
+    )
 ]

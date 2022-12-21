@@ -66,35 +66,17 @@ def parse_args() -> argparse.Namespace:
         default=None,
     )
 
-    parser.add_argument(
-        "--contract-name",
-        help="The name of the logic contract.",
-        default=None,
-    )
+    parser.add_argument("--contract-name", help="The name of the logic contract.", default=None)
+
+    parser.add_argument("--json", action="store", help="Save the result in a JSON file.")
 
     parser.add_argument(
-        "--json",
-        action="store",
-        help="Save the result in a JSON file.",
+        "--value", action="store_true", help="Toggle used to include values in output."
     )
 
-    parser.add_argument(
-        "--value",
-        action="store_true",
-        help="Toggle used to include values in output.",
-    )
+    parser.add_argument("--table", action="store_true", help="Print table view of storage layout")
 
-    parser.add_argument(
-        "--table",
-        action="store_true",
-        help="Print table view of storage layout",
-    )
-
-    parser.add_argument(
-        "--silent",
-        action="store_true",
-        help="Silence log outputs",
-    )
+    parser.add_argument("--silent", action="store_true", help="Silence log outputs")
 
     parser.add_argument("--max-depth", help="Max depth to search in data structure.", default=20)
 

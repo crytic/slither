@@ -8,13 +8,7 @@ from typing import Tuple, List, Dict
 from slither.core.declarations import SolidityFunction, Function
 from slither.core.variables.state_variable import StateVariable
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.slithir.operations import (
-    LowLevelCall,
-    HighLevelCall,
-    Transfer,
-    Send,
-    SolidityCall,
-)
+from slither.slithir.operations import LowLevelCall, HighLevelCall, Transfer, Send, SolidityCall
 from slither.utils import output
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 from slither.utils.colors import green, red, yellow
@@ -118,14 +112,7 @@ class PrinterHumanSummary(AbstractPrinter):
         )
 
     def get_detectors_result(self) -> Tuple[str, List[Dict], int, int, int, int, int]:
-        (
-            all_results,
-            optimization,
-            informational,
-            low,
-            medium,
-            high,
-        ) = self._get_detectors_result()
+        (all_results, optimization, informational, low, medium, high) = self._get_detectors_result()
         txt = f"Number of optimization issues: {green(optimization)}\n"
         txt += f"Number of informational issues: {green(informational)}\n"
         txt += f"Number of low issues: {green(low)}\n"
@@ -322,11 +309,7 @@ class PrinterHumanSummary(AbstractPrinter):
             txt += f"Number of assembly lines: {total_asm_lines}\n"
             results["number_lines_assembly"] = total_asm_lines
 
-        (
-            number_contracts,
-            number_contracts_deps,
-            number_contracts_tests,
-        ) = self._number_contracts()
+        (number_contracts, number_contracts_deps, number_contracts_tests) = self._number_contracts()
         txt += f"Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies, + {number_contracts_tests} tests) \n\n"
 
         (
@@ -379,16 +362,7 @@ class PrinterHumanSummary(AbstractPrinter):
                 [name for name, to_print in self._get_features(contract).items() if to_print]
             )
 
-            table.add_row(
-                [
-                    contract.name,
-                    number_functions,
-                    ercs,
-                    erc20_info,
-                    is_complex,
-                    features,
-                ]
-            )
+            table.add_row([contract.name, number_functions, ercs, erc20_info, is_complex, features])
 
         self.info(txt + "\n" + str(table))
 

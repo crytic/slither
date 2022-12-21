@@ -27,10 +27,5 @@ def remove_assignement(variable: Variable, contract: Contract, result: Dict):
     new_str = old_str[: old_str.find("=")]
 
     create_patch(
-        result,
-        in_file,
-        start,
-        stop + variable.expression.source_mapping.length,
-        old_str,
-        new_str,
+        result, in_file, start, stop + variable.expression.source_mapping.length, old_str, new_str
     )

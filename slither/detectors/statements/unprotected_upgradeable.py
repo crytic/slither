@@ -115,9 +115,7 @@ Buggy is an upgradeable contract. Anyone can call initialize on the logic contra
                                     " is an upgradeable contract that does not protect its initialize functions: ",
                                 ]
                                 + initialize_functions
-                                + [
-                                    ". Anyone can delete the contract with: ",
-                                ]
+                                + [". Anyone can delete the contract with: "]
                                 + functions_that_can_destroy
                             )
 

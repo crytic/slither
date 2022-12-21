@@ -147,13 +147,7 @@ evm_opcodes = [
     "SELFDESTRUCT",
 ]
 
-yul_funcs = [
-    "datasize",
-    "dataoffset",
-    "datacopy",
-    "setimmutable",
-    "loadimmutable",
-]
+yul_funcs = ["datasize", "dataoffset", "datacopy", "setimmutable", "loadimmutable"]
 
 builtins = [
     x.lower()
@@ -235,10 +229,7 @@ def format_function_descriptor(name):
 for k, v in function_args.items():
     SOLIDITY_FUNCTIONS[format_function_descriptor(k)] = ["uint256"] * v[1]
 
-unary_ops = {
-    "not": UnaryOperationType.TILD,
-    "iszero": UnaryOperationType.BANG,
-}
+unary_ops = {"not": UnaryOperationType.TILD, "iszero": UnaryOperationType.BANG}
 
 binary_ops = {
     "add": BinaryOperationType.ADDITION,

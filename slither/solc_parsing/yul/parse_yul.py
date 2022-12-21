@@ -5,11 +5,7 @@ from typing import Optional, Dict, List, Union
 from slither.core.cfg.node import NodeType, Node, link_nodes
 from slither.core.cfg.scope import Scope
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.core.declarations import (
-    Function,
-    SolidityFunction,
-    Contract,
-)
+from slither.core.declarations import Function, SolidityFunction, Contract
 from slither.core.declarations.function import FunctionLanguage
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
@@ -113,13 +109,7 @@ def _name_to_yul_name(variable_name: str, yul_id: List[str]) -> str:
 
 
 class YulScope(metaclass=abc.ABCMeta):
-    __slots__ = [
-        "_contract",
-        "_id",
-        "_yul_local_variables",
-        "_yul_local_functions",
-        "_parent_func",
-    ]
+    __slots__ = ["_contract", "_id", "_yul_local_variables", "_yul_local_functions", "_parent_func"]
 
     def __init__(
         self, contract: Optional[Contract], yul_id: List[str], parent_func: Function = None
@@ -172,10 +162,7 @@ class YulScope(metaclass=abc.ABCMeta):
         self._yul_local_functions.append(func)
 
     def get_yul_local_function_from_name(self, func_name):
-        return next(
-            (v for v in self._yul_local_functions if v.underlying.name == func_name),
-            None,
-        )
+        return next((v for v in self._yul_local_functions if v.underlying.name == func_name), None)
 
 
 class YulLocalVariable:  # pylint: disable=too-few-public-methods
@@ -472,10 +459,10 @@ def convert_yul_switch(
                         "src": expression_ast["src"],
                         "name": switch_expr_var,
                         "type": "",
-                    },
+                    }
                 ],
                 "value": expression_ast,
-            },
+            }
         ],
     }
 
@@ -497,17 +484,9 @@ def convert_yul_switch(
             "condition": {
                 "nodeType": "YulFunctionCall",
                 "src": case_ast["src"],
-                "functionName": {
-                    "nodeType": "YulIdentifier",
-                    "src": case_ast["src"],
-                    "name": "eq",
-                },
+                "functionName": {"nodeType": "YulIdentifier", "src": case_ast["src"], "name": "eq"},
                 "arguments": [
-                    {
-                        "nodeType": "YulIdentifier",
-                        "src": case_ast["src"],
-                        "name": switch_expr_var,
-                    },
+                    {"nodeType": "YulIdentifier", "src": case_ast["src"], "name": switch_expr_var},
                     value_ast,
                 ],
             },

@@ -73,12 +73,7 @@ class ContractSummary(AbstractPrinter):
                         txt += green(f"    - {function.full_name} ({function.visibility})\n")
                     if function.visibility in ["internal", "private"]:
                         txt += magenta(f"    - {function.full_name} ({function.visibility})\n")
-                    if function.visibility not in [
-                        "external",
-                        "public",
-                        "internal",
-                        "private",
-                    ]:
+                    if function.visibility not in ["external", "public", "internal", "private"]:
                         txt += f"    - {function.full_name}  ({function.visibility})\n"
 
                     additional_fields.add(

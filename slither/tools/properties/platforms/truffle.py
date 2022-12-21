@@ -4,11 +4,7 @@ from pathlib import Path
 from typing import List
 
 from slither.tools.properties.addresses.address import Addresses
-from slither.tools.properties.properties.properties import (
-    PropertyReturn,
-    Property,
-    PropertyCaller,
-)
+from slither.tools.properties.properties.properties import PropertyReturn, Property, PropertyCaller
 from slither.tools.properties.utils import write_file
 
 PATTERN_TRUFFLE_MIGRATION = re.compile("^[0-9]*_")

@@ -103,10 +103,7 @@ def convert_expression(expression, node):
         cond.set_node(node)
         result = [cond]
         return result
-    if isinstance(expression, Identifier) and node.type in [
-        NodeType.IF,
-        NodeType.IFLOOP,
-    ]:
+    if isinstance(expression, Identifier) and node.type in [NodeType.IF, NodeType.IFLOOP]:
         cond = Condition(expression.value)
         cond.set_expression(expression)
         cond.set_node(node)
@@ -171,10 +168,10 @@ def _fits_under_integer(val: int, can_be_int: bool, can_be_uint) -> List[str]:
     assert can_be_int | can_be_uint
     while n <= 256:
         if can_be_uint:
-            if val <= 2**n - 1:
+            if val <= 2 ** n - 1:
                 ret.append(f"uint{n}")
         if can_be_int:
-            if val <= (2**n) / 2 - 1:
+            if val <= (2 ** n) / 2 - 1:
                 ret.append(f"int{n}")
         n = n + 8
     return ret
@@ -269,8 +266,7 @@ def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optio
 
 def is_temporary(ins):
     return isinstance(
-        ins,
-        (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
+        ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure)
     )
 
 
@@ -629,12 +625,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                 ):
                     name = ir.variable_right.name + "(address)"
                     sol_func = SolidityFunction(name)
-                    s = SolidityCall(
-                        sol_func,
-                        1,
-                        ir.lvalue,
-                        sol_func.return_type,
-                    )
+                    s = SolidityCall(sol_func, 1, ir.lvalue, sol_func.return_type)
                     s.arguments.append(ir.variable_left)
                     s.set_expression(ir.expression)
                     s.lvalue.set_type(sol_func.return_type)
@@ -718,8 +709,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                             # We dont need to check for function collision, as solc prevents the use of selector
                             # if there are multiple functions with the same name
                             f = next(
-                                (f for f in type_t.functions if f.name == ir.variable_right),
-                                None,
+                                (f for f in type_t.functions if f.name == ir.variable_right), None
                             )
                             if f:
                                 ir.lvalue.set_type(f)
@@ -838,10 +828,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
                 custom_error = ins.ori.variable_left.custom_errors_as_dict[
                     str(ins.ori.variable_right)
                 ]
-                assert isinstance(
-                    custom_error,
-                    CustomError,
-                )
+                assert isinstance(custom_error, CustomError)
                 sol_function = SolidityCustomRevert(custom_error)
                 solidity_call = SolidityCall(
                     sol_function, ins.nbr_arguments, ins.lvalue, ins.type_call
@@ -962,10 +949,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             "concat"
         ):
             s = SolidityCall(
-                SolidityFunction("bytes.concat()"),
-                ins.nbr_arguments,
-                ins.lvalue,
-                ins.type_call,
+                SolidityFunction("bytes.concat()"), ins.nbr_arguments, ins.lvalue, ins.type_call
             )
             s.set_expression(ins.expression)
             return s
@@ -974,10 +958,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             "concat"
         ):
             s = SolidityCall(
-                SolidityFunction("string.concat()"),
-                ins.nbr_arguments,
-                ins.lvalue,
-                ins.type_call,
+                SolidityFunction("string.concat()"), ins.nbr_arguments, ins.lvalue, ins.type_call
             )
             s.set_expression(ins.expression)
             return s
@@ -1328,11 +1309,7 @@ def look_for_library(contract, ir, using_for, t):
         lib_contract = contract.file_scope.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
-                lib_contract,
-                ir.function_name,
-                ir.nbr_arguments,
-                ir.lvalue,
-                ir.type_call,
+                lib_contract, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call
             )
             lib_call.set_expression(ir.expression)
             lib_call.set_node(ir.node)
@@ -1607,14 +1584,7 @@ def remove_temporary(result):
         ins
         for ins in result
         if not isinstance(
-            ins,
-            (
-                Argument,
-                TmpNewElementaryType,
-                TmpNewContract,
-                TmpNewArray,
-                TmpNewStructure,
-            ),
+            ins, (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure)
         )
     ]
 

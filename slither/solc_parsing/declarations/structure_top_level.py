@@ -21,10 +21,7 @@ class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few
     # elems = [(type, name)]
 
     def __init__(  # pylint: disable=too-many-arguments
-        self,
-        st: StructureTopLevel,
-        struct: Dict,
-        slither_parser: "SlitherCompilationUnitSolc",
+        self, st: StructureTopLevel, struct: Dict, slither_parser: "SlitherCompilationUnitSolc"
     ):
 
         if slither_parser.is_compact_ast:

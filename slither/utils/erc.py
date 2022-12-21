@@ -63,14 +63,7 @@ ERC223 = [
     ERC("totalSupply", [], "uint256", True, True, []),
     ERC("balanceOf", ["address"], "uint256", True, True, []),
     ERC("transfer", ["address", "uint256"], "bool", False, True, [ERC223_transfer_event]),
-    ERC(
-        "transfer",
-        ["address", "uint256", "bytes"],
-        "bool",
-        False,
-        True,
-        [ERC223_transfer_event],
-    ),
+    ERC("transfer", ["address", "uint256", "bytes"], "bool", False, True, [ERC223_transfer_event]),
     ERC(
         "transfer",
         ["address", "uint256", "bytes", "string"],
@@ -99,11 +92,7 @@ ERC721_approval_event = ERC_EVENT("Approval", ["address", "address", "uint256"],
 ERC721_approvalforall_event = ERC_EVENT(
     "ApprovalForAll", ["address", "address", "bool"], [True, True, False]
 )
-ERC721_EVENTS = [
-    ERC721_transfer_event,
-    ERC721_approval_event,
-    ERC721_approvalforall_event,
-]
+ERC721_EVENTS = [ERC721_transfer_event, ERC721_approval_event, ERC721_approvalforall_event]
 
 ERC721 = [
     ERC("balanceOf", ["address"], "uint256", True, True, []),
@@ -125,22 +114,10 @@ ERC721 = [
         [ERC721_transfer_event],
     ),
     ERC(
-        "transferFrom",
-        ["address", "address", "uint256"],
-        "",
-        False,
-        True,
-        [ERC721_transfer_event],
+        "transferFrom", ["address", "address", "uint256"], "", False, True, [ERC721_transfer_event]
     ),
     ERC("approve", ["address", "uint256"], "", False, True, [ERC721_approval_event]),
-    ERC(
-        "setApprovalForAll",
-        ["address", "bool"],
-        "",
-        False,
-        True,
-        [ERC721_approvalforall_event],
-    ),
+    ERC("setApprovalForAll", ["address", "bool"], "", False, True, [ERC721_approvalforall_event]),
     ERC("getApproved", ["uint256"], "address", True, True, []),
     ERC("isApprovedForAll", ["address", "address"], "bool", True, True, []),
 ] + ERC165
@@ -159,14 +136,7 @@ ERC721_signatures = erc_to_signatures(ERC721)
 # https://eips.ethereum.org/EIPS/eip-1820
 ERC1820_EVENTS: List = []
 ERC1820 = [
-    ERC(
-        "canImplementInterfaceForAddress",
-        ["bytes32", "address"],
-        "bytes32",
-        True,
-        True,
-        [],
-    )
+    ERC("canImplementInterfaceForAddress", ["bytes32", "address"], "bytes32", True, True, [])
 ]
 ERC1820_signatures = erc_to_signatures(ERC1820)
 
@@ -178,14 +148,10 @@ ERC777_sent_event = ERC_EVENT(
     [True, True, True, False, False, False],
 )
 ERC777_minted_event = ERC_EVENT(
-    "Minted",
-    ["address", "address", "uint256", "bytes", "bytes"],
-    [True, True, False, False, False],
+    "Minted", ["address", "address", "uint256", "bytes", "bytes"], [True, True, False, False, False]
 )
 ERC777_burned_event = ERC_EVENT(
-    "Burned",
-    ["address", "address", "uint256", "bytes", "bytes"],
-    [True, True, False, False, False],
+    "Burned", ["address", "address", "uint256", "bytes", "bytes"], [True, True, False, False, False]
 )
 ERC777_authorizedOperator_event = ERC_EVENT(
     "AuthorizedOperator", ["address", "address"], [True, True]
@@ -207,14 +173,7 @@ ERC777 = [
     ERC("granularity", [], "uint256", True, True, []),
     ERC("defaultOperators", [], "address[]", True, True, []),
     ERC("isOperatorFor", ["address", "address"], "bool", True, True, []),
-    ERC(
-        "authorizeOperator",
-        ["address"],
-        "",
-        False,
-        True,
-        [ERC777_authorizedOperator_event],
-    ),
+    ERC("authorizeOperator", ["address"], "", False, True, [ERC777_authorizedOperator_event]),
     ERC("revokeOperator", ["address"], "", False, True, [ERC777_revokedoperator_event]),
     ERC("send", ["address", "uint256", "bytes"], "", False, True, [ERC777_sent_event]),
     ERC(
@@ -254,16 +213,10 @@ ERC1155_transferbatch_event = ERC_EVENT(
 )
 
 ERC1155_approvalforall_event = ERC_EVENT(
-    "ApprovalForAll",
-    ["address", "address", "bool"],
-    [True, True, False],
+    "ApprovalForAll", ["address", "address", "bool"], [True, True, False]
 )
 
-ERC1155_uri_event = ERC_EVENT(
-    "URI",
-    ["string", "uint256"],
-    [False, True],
-)
+ERC1155_uri_event = ERC_EVENT("URI", ["string", "uint256"], [False, True])
 
 ERC1155_EVENTS = [
     ERC1155_transfersingle_event,
@@ -392,9 +345,7 @@ ERC4524_signatures = erc_to_signatures(ERC4524)
 # Must have ERC20
 
 ERC4626_deposit_event = ERC_EVENT(
-    "Deposit",
-    ["address", "address", "uint256", "uint256"],
-    [True, True, False, False],
+    "Deposit", ["address", "address", "uint256", "uint256"], [True, True, False, False]
 )
 
 ERC4626_withdraw_event = ERC_EVENT(
@@ -403,10 +354,7 @@ ERC4626_withdraw_event = ERC_EVENT(
     [True, True, True, False, False],
 )
 
-ERC4626_EVENTS = [
-    ERC4626_deposit_event,
-    ERC4626_withdraw_event,
-]
+ERC4626_EVENTS = [ERC4626_deposit_event, ERC4626_withdraw_event]
 
 ERC4626 = [
     ERC("asset", [], "address", True, True, []),

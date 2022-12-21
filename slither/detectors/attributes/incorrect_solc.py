@@ -149,12 +149,7 @@ Consider using the latest version of Solidity for testing."""
         if self.compilation_unit.solc_version not in self.ALLOWED_VERSIONS:
 
             if self.compilation_unit.solc_version in self.BUGGY_VERSIONS:
-                info = [
-                    "solc-",
-                    self.compilation_unit.solc_version,
-                    " ",
-                    self.BUGGY_VERSION_TXT,
-                ]
+                info = ["solc-", self.compilation_unit.solc_version, " ", self.BUGGY_VERSION_TXT]
             else:
                 info = [
                     "solc-",

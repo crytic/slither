@@ -24,9 +24,7 @@ def _remove_states(written: Dict[Variable, Node]):
 
 
 def _handle_ir(
-    ir: Operation,
-    written: Dict[Variable, Node],
-    ret: List[Tuple[Variable, Node, Node]],
+    ir: Operation, written: Dict[Variable, Node], ret: List[Tuple[Variable, Node, Node]]
 ):
     if isinstance(ir, (HighLevelCall, InternalDynamicCall, LowLevelCall)):
         _remove_states(written)

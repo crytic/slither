@@ -45,10 +45,4 @@ class LibraryCall(HighLevelCall):
         if self.function:
             if isinstance(self.function, Function):
                 function_name = self.function.canonical_name
-        return txt.format(
-            lvalue,
-            self.destination,
-            function_name,
-            [str(x) for x in arguments],
-            gas,
-        )
+        return txt.format(lvalue, self.destination, function_name, [str(x) for x in arguments], gas)

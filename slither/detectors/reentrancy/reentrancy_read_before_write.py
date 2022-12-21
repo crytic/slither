@@ -141,10 +141,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
-                        res.add(
-                            call_list_info,
-                            {"underlying_type": "external_calls_sending_eth"},
-                        )
+                        res.add(call_list_info, {"underlying_type": "external_calls_sending_eth"})
 
             # Add all variables written via nodes which write them.
             for finding_value in varsWritten:

@@ -110,9 +110,7 @@ class SplitTernaryExpression:
                 if self.apply_copy(next_expr, true_expression, false_expression, f_expressions):
                     # always on last arguments added
                     self.copy_expression(
-                        next_expr,
-                        true_expression.expressions[-1],
-                        false_expression.expressions[-1],
+                        next_expr, true_expression.expressions[-1], false_expression.expressions[-1]
                     )
 
         elif isinstance(expression, CallExpression):
@@ -130,18 +128,14 @@ class SplitTernaryExpression:
                 if self.apply_copy(next_expr, true_expression, false_expression, f_call):
                     # always on last arguments added
                     self.copy_expression(
-                        next_expr,
-                        true_expression.arguments[-1],
-                        false_expression.arguments[-1],
+                        next_expr, true_expression.arguments[-1], false_expression.arguments[-1]
                     )
 
         elif isinstance(expression, (TypeConversion, UnaryOperation)):
             next_expr = expression.expression
             if self.apply_copy(next_expr, true_expression, false_expression, f_expression):
                 self.copy_expression(
-                    expression.expression,
-                    true_expression.expression,
-                    false_expression.expression,
+                    expression.expression, true_expression.expression, false_expression.expression
                 )
 
         else:
@@ -160,23 +154,13 @@ def _handle_ternary_access(
     E.g.  x[if cond ? 1 : 2] -> if cond { x[1] } else { x[2] }
     """
     true_index_access = IndexAccess(
-        next_expr.expression_left,
-        next_expr.expression_right.then_expression,
-        next_expr.type,
+        next_expr.expression_left, next_expr.expression_right.then_expression, next_expr.type
     )
     false_index_access = IndexAccess(
-        next_expr.expression_left,
-        next_expr.expression_right.else_expression,
-        next_expr.type,
+        next_expr.expression_left, next_expr.expression_right.else_expression, next_expr.type
     )
 
-    f_expressions(
-        true_expression,
-        true_index_access,
-    )
-    f_expressions(
-        false_expression,
-        false_index_access,
-    )
+    f_expressions(true_expression, true_index_access)
+    f_expressions(false_expression, false_index_access)
 
     return next_expr.expression_right

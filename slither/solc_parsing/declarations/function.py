@@ -4,11 +4,7 @@ from typing import Dict, Optional, Union, List, TYPE_CHECKING
 from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
 from slither.core.cfg.scope import Scope
 from slither.core.declarations.contract import Contract
-from slither.core.declarations.function import (
-    Function,
-    ModifierStatements,
-    FunctionType,
-)
+from slither.core.declarations.function import Function, ModifierStatements, FunctionType
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import AssignmentOperation
 from slither.core.source_mapping.source_mapping import Source
@@ -478,10 +474,7 @@ class FunctionSolc(CallerContextExpression):
                 return key in attributes and not attributes[key]
 
             if attributes and any(
-                map(
-                    has_hint,
-                    ["condition", "initializationExpression", "loopExpression"],
-                )
+                map(has_hint, ["condition", "initializationExpression", "loopExpression"])
             ):
                 # if we have attribute hints, rely on those
 
@@ -650,10 +643,7 @@ class FunctionSolc(CallerContextExpression):
         if not node_condition.underlying_node.sons:
             link_underlying_nodes(node_startDoWhile, node_condition)
         else:
-            link_nodes(
-                node_startDoWhile.underlying_node,
-                node_condition.underlying_node.sons[0],
-            )
+            link_nodes(node_startDoWhile.underlying_node, node_condition.underlying_node.sons[0])
         link_underlying_nodes(statement, node_condition)
         link_underlying_nodes(node_condition, node_endDoWhile)
         return node_endDoWhile
@@ -1359,11 +1349,7 @@ class FunctionSolc(CallerContextExpression):
         return updated
 
     def _split_ternary_node(
-        self,
-        node: Node,
-        condition: "Expression",
-        true_expr: "Expression",
-        false_expr: "Expression",
+        self, node: Node, condition: "Expression", true_expr: "Expression", false_expr: "Expression"
     ):
         condition_node = self._new_node(NodeType.IF, node.source_mapping, node.scope)
         condition_node.underlying_node.add_expression(condition)
@@ -1405,15 +1391,9 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(condition_node, true_node_parser)
         link_underlying_nodes(condition_node, false_node_parser)
 
-        if true_node_parser.underlying_node.type not in [
-            NodeType.THROW,
-            NodeType.RETURN,
-        ]:
+        if true_node_parser.underlying_node.type not in [NodeType.THROW, NodeType.RETURN]:
             link_underlying_nodes(true_node_parser, endif_node)
-        if false_node_parser.underlying_node.type not in [
-            NodeType.THROW,
-            NodeType.RETURN,
-        ]:
+        if false_node_parser.underlying_node.type not in [NodeType.THROW, NodeType.RETURN]:
             link_underlying_nodes(false_node_parser, endif_node)
 
         self._function.nodes = [n for n in self._function.nodes if n.node_id != node.node_id]
