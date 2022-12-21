@@ -716,7 +716,7 @@ class ContractSolc(CallerContextExpression):
                 if "@custom:security isUpgradeable" in candidate:
                     self._contract.is_upgradeable = True
 
-                version_name = re.search(r'@custom:version name=([\w-]+)', candidate)
+                version_name = re.search(r"@custom:version name=([\w-]+)", candidate)
                 if version_name:
                     self._contract.upgradeable_version = version_name.group(1)
 
