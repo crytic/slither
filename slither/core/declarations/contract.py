@@ -1314,8 +1314,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._is_proxy
 
     @is_proxy.setter
-    def is_proxy(self, is_proxy: bool):
-        self._is_proxy = is_proxy
+    def is_proxy(self, _is_proxy: bool):
+        self._is_proxy = _is_proxy
 
     """
     Getters for attributes set by self.is_proxy and self.is_upgradeable_proxy
