@@ -143,13 +143,9 @@ Attacker can call any function.
                         if self.answer == False and self.access_control == False:
                             from slither.utils.source_mapping import get_definition
 
-                            # print(_func.source_mapping.to_json()['filename_absolute'])
-                            # print(_func.source_mapping[0]['source_mapping'])
                             info = [
-                                "[1] arbitary calldata found in ",
+                                "Arbitary calldata found in ",
                                 _func,
-                                "@" * 4,
-                                _func.source_mapping.to_json()["filename_absolute"],
                                 "\n",
                             ]
                             res = self.generate_result(info)
