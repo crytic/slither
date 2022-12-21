@@ -1278,6 +1278,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 self._is_upgradeable_proxy = True
         return self._is_upgradeable_proxy
 
+    @is_upgradeable_proxy.setter
+    def is_upgradeable_proxy(self, upgradeable_proxy: bool):
+        self._is_upgradeable_proxy = upgradeable_proxy
+
     @property
     def is_proxy(self) -> bool:
         """
@@ -1309,6 +1313,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                             return self._is_proxy
         return self._is_proxy
 
+    @is_proxy.setter
+    def is_proxy(self, is_proxy: bool):
+        self._is_proxy = is_proxy
+
     """
     Getters for attributes set by self.is_proxy and self.is_upgradeable_proxy
     """
@@ -1318,9 +1326,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             return self._delegate_variable
         return self._delegate_variable
 
-    @is_upgradeable_proxy.setter
-    def is_upgradeable_proxy(self, upgradeable_proxy: bool):
-        self._is_upgradeable_proxy = upgradeable_proxy
 
     @property
     def upgradeable_version(self) -> Optional[str]:
