@@ -1344,9 +1344,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def find_setter_in_contract(
-            contract: "Contract",
-            var_to_set: Union[str, "Variable"],
-            storage_slot: Optional["Variable"]
+            contract: "Contract", var_to_set: Union[str, "Variable"], storage_slot: Optional["Variable"]
     ) -> (Optional[Function], Union[str, "Variable"]):
         """
         Tries to find the setter function for a given variable.
@@ -1362,7 +1360,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         from slither.core.variables.state_variable import StateVariable
         from slither.core.variables.local_variable import LocalVariable
         from slither.core.expressions.expression_typed import ExpressionTyped
-        from slither.core.expressions.assignment_operation import AssignmentOperation, AssignmentOperationType
+        from slither.core.expressions.assignment_operation import (
+            AssignmentOperation,
+            AssignmentOperationType
+        )
         from slither.core.expressions.call_expression import CallExpression
         from slither.core.expressions.member_access import MemberAccess
         from slither.core.expressions.index_access import IndexAccess
@@ -1370,7 +1371,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         setter = None
         assignment = None
-        var_exp = (var_to_set.expression if isinstance(var_to_set, Variable) else None)
+        var_exp = var_to_set.expression if isinstance(var_to_set, Variable) else None
         for f in contract.functions_declared + contract.functions_inherited:
             if (
                 not f.is_fallback
@@ -1382,6 +1383,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 if f.visibility == "internal" or f.visibility == "private":
                     continue
 
+        return setter, var_to_set
 
     # endregion
     ###################################################################################
