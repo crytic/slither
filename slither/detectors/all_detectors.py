@@ -3,6 +3,7 @@ from .examples.backdoor import Backdoor
 from .variables.uninitialized_state_variables import UninitializedStateVarsDetection
 from .variables.uninitialized_storage_variables import UninitializedStorageVars
 from .variables.uninitialized_local_variables import UninitializedLocalVars
+from .variables.var_read_using_this import VarReadUsingThis
 from .attributes.constant_pragma import ConstantPragma
 from .attributes.incorrect_solc import IncorrectSolc
 from .attributes.locked_ether import LockedEther

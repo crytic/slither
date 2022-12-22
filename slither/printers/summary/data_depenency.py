@@ -42,7 +42,7 @@ class DataDependency(AbstractPrinter):
             txt += f"\nContract {c.name}\n"
             table = MyPrettyTable(["Variable", "Dependencies"])
             for v in c.state_variables:
-                table.add_row([v.name, _get(v, c)])
+                table.add_row([v.name, sorted(_get(v, c))])
 
             txt += str(table)
 
@@ -51,9 +51,9 @@ class DataDependency(AbstractPrinter):
                 txt += f"\nFunction {f.full_name}\n"
                 table = MyPrettyTable(["Variable", "Dependencies"])
                 for v in f.variables:
-                    table.add_row([v.name, _get(v, f)])
+                    table.add_row([v.name, sorted(_get(v, f))])
                 for v in c.state_variables:
-                    table.add_row([v.canonical_name, _get(v, f)])
+                    table.add_row([v.canonical_name, sorted(_get(v, f))])
                 txt += str(table)
             self.info(txt)
 
