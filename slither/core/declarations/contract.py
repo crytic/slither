@@ -1337,8 +1337,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def find_setter_in_contract(
-            contract: "Contract",
-            var_to_set: Union[str, "Variable"]  # , storage_slot: Optional["Variable"]
+        contract: "Contract",
+        var_to_set: Union[str, "Variable"]  # , storage_slot: Optional["Variable"]
     ) -> (Optional[Function], Union[str, "Variable"]):
         """
         Tries to find the setter function for a given variable.
