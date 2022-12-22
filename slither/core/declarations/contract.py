@@ -1337,7 +1337,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def find_setter_in_contract(
-            contract: "Contract", var_to_set: Union[str, "Variable"]  # , storage_slot: Optional["Variable"]
+            contract: "Contract",
+            var_to_set: Union[str, "Variable"]  # , storage_slot: Optional["Variable"]
     ) -> (Optional[Function], Union[str, "Variable"]):
         """
         Tries to find the setter function for a given variable.
@@ -1373,7 +1374,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 and "init" not in f.name.lower()
                 and "fallback" not in f.name.lower()
             ):
-                if f.visibility in ('internal', 'private'):
+                if f.visibility in ("internal", "private"):
                     continue
 
         return setter, var_to_set
