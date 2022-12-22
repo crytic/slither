@@ -166,7 +166,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                                 expr_left.expressions[idx],
                                 expr_right.expressions[idx],
                                 expression.type,
-                                expression.expression_return_type
+                                expression.expression_return_type,
                             )
                             self._post_assignement_operation(nested_expression)
                         else:
