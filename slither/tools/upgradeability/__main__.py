@@ -187,7 +187,7 @@ def choose_checks(
     if args.exclude_high:
         detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.HIGH]
 
-    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+    # detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
     return detectors_to_run
 
 
