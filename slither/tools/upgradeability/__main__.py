@@ -30,9 +30,7 @@ logger: logging.Logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
 
-def parse_args(
-    check_classes: List[Type[AbstractCheck]]
-) -> argparse.Namespace:
+def parse_args(check_classes: List[Type[AbstractCheck]]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Slither Upgradeability Checks. For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.",
         usage="slither-check-upgradeability contract.sol ContractName",
@@ -183,17 +181,11 @@ def choose_checks(
             d for d in detectors_to_run if d.IMPACT != CheckClassification.INFORMATIONAL
         ]
     if args.exclude_low:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != CheckClassification.LOW
-        ]
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.LOW]
     if args.exclude_medium:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != CheckClassification.MEDIUM
-        ]
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.MEDIUM]
     if args.exclude_high:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != CheckClassification.HIGH
-        ]
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.HIGH]
 
     detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
     return detectors_to_run
