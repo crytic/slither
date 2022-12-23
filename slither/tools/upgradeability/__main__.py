@@ -27,7 +27,9 @@ logger: logging.Logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(
+    check_classes: List[Type[AbstractCheck]]
+) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Slither Upgradeability Checks. For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.",
         usage="slither-check-upgradeability contract.sol ContractName",
@@ -49,6 +51,23 @@ def parse_args() -> argparse.Namespace:
         help='Export the results as a JSON file ("--json -" to export to stdout)',
         action="store",
         default=False,
+    )
+
+    parser.add_argument(
+        "--detect",
+        help="Comma-separated list of detectors, defaults to all, "
+        f"available detectors: {', '.join(d.ARGUMENT for d in check_classes)}",
+        action="store",
+        dest="detectors_to_run",
+        default="all",
+    )
+
+    parser.add_argument(
+        "--exclude",
+        help="Comma-separated list of detectors that should be excluded",
+        action="store",
+        dest="detectors_to_exclude",
+        default=None,
     )
 
     parser.add_argument(
@@ -102,6 +121,30 @@ def _get_checks() -> List[Type[AbstractCheck]]:
         c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractCheck)
     ]
     return detectors
+
+
+def choose_checks(
+    args: argparse.Namespace, all_check_classes: List[Type[AbstractCheck]]
+) -> List[Type[AbstractCheck]]:
+    detectors_to_run = []
+    detectors = {d.ARGUMENT: d for d in all_check_classes}
+
+    if args.detectors_to_run == "all":
+        detectors_to_run = all_check_classes
+        if args.detectors_to_exclude:
+            detectors_excluded = args.detectors_to_exclude.split(",")
+            for detector in detectors:
+                if detector in detectors_excluded:
+                    detectors_to_run.remove(detectors[detector])
+    else:
+        for detector in args.detectors_to_run.split(","):
+            if detector in detectors:
+                detectors_to_run.append(detectors[detector])
+            else:
+                raise Exception(f"Error: {detector} is not a detector")
+        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+        return detectors_to_run
+    return detectors_to_run
 
 
 class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -200,11 +243,11 @@ def main() -> None:
         "detectors": [],
     }
 
-    args = parse_args()
-
+    detectors = _get_checks()
+    args = parse_args(detectors)
+    detectors_to_run = choose_checks(args, detectors)
     v1_filename = vars(args)["contract.sol"]
     number_detectors_run = 0
-    detectors = _get_checks()
     try:
         variable1 = Slither(v1_filename, **vars(args))
 
@@ -219,7 +262,7 @@ def main() -> None:
             return
         v1_contract = v1_contracts[0]
 
-        detectors_results, number_detectors = _checks_on_contract(detectors, v1_contract)
+        detectors_results, number_detectors = _checks_on_contract(detectors_to_run, v1_contract)
         json_results["detectors"] += detectors_results
         number_detectors_run += number_detectors
 
@@ -242,7 +285,7 @@ def main() -> None:
             json_results["proxy-present"] = True
 
             detectors_results, number_detectors = _checks_on_contract_and_proxy(
-                detectors, v1_contract, proxy_contract
+                detectors_to_run, v1_contract, proxy_contract
             )
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
@@ -267,19 +310,19 @@ def main() -> None:
 
             if proxy_contract:
                 detectors_results, _ = _checks_on_contract_and_proxy(
-                    detectors, v2_contract, proxy_contract
+                    detectors_to_run, v2_contract, proxy_contract
                 )
 
                 json_results["detectors"] += detectors_results
 
             detectors_results, number_detectors = _checks_on_contract_update(
-                detectors, v1_contract, v2_contract
+                detectors_to_run, v1_contract, v2_contract
             )
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 
             # If there is a V2, we run the contract-only check on the V2
-            detectors_results, number_detectors = _checks_on_contract(detectors, v2_contract)
+            detectors_results, number_detectors = _checks_on_contract(detectors_to_run, v2_contract)
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 
