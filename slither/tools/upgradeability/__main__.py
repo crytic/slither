@@ -35,6 +35,8 @@ def parse_args(
         usage="slither-check-upgradeability contract.sol ContractName",
     )
 
+    group_checks = parser.add_argument_group("Checks")
+
     parser.add_argument("contract.sol", help="Codebase to analyze")
     parser.add_argument("ContractName", help="Contract name (logic contract)")
 
@@ -53,7 +55,7 @@ def parse_args(
         default=False,
     )
 
-    parser.add_argument(
+    group_checks.add_argument(
         "--detect",
         help="Comma-separated list of detectors, defaults to all, "
         f"available detectors: {', '.join(d.ARGUMENT for d in check_classes)}",
@@ -62,7 +64,15 @@ def parse_args(
         default="all",
     )
 
-    parser.add_argument(
+    group_checks.add_argument(
+        "--list-detectors",
+        help="List available detectors",
+        action=ListDetectors,
+        nargs=0,
+        default=False,
+    )
+
+    group_checks.add_argument(
         "--exclude",
         help="Comma-separated list of detectors that should be excluded",
         action="store",
@@ -70,11 +80,31 @@ def parse_args(
         default=None,
     )
 
-    parser.add_argument(
-        "--list-detectors",
-        help="List available detectors",
-        action=ListDetectors,
-        nargs=0,
+    group_checks.add_argument(
+        "--exclude-informational",
+        help="Exclude informational impact analyses",
+        action="store_true",
+        default=False,
+    )
+
+    group_checks.add_argument(
+        "--exclude-low",
+        help="Exclude low impact analyses",
+        action="store_true",
+        default=False,
+    )
+
+    group_checks.add_argument(
+        "--exclude-medium",
+        help="Exclude medium impact analyses",
+        action="store_true",
+        default=False,
+    )
+
+    group_checks.add_argument(
+        "--exclude-high",
+        help="Exclude high impact analyses",
+        action="store_true",
         default=False,
     )
 
@@ -144,6 +174,25 @@ def choose_checks(
                 raise Exception(f"Error: {detector} is not a detector")
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
+
+    if args.exclude_informational:
+        detectors_to_run = [
+            d for d in detectors_to_run if d.IMPACT != DetectorClassification.INFORMATIONAL
+        ]
+    if args.exclude_low:
+        detectors_to_run = [
+            d for d in detectors_to_run if d.IMPACT != DetectorClassification.LOW
+        ]
+    if args.exclude_medium:
+        detectors_to_run = [
+            d for d in detectors_to_run if d.IMPACT != DetectorClassification.MEDIUM
+        ]
+    if args.exclude_high:
+        detectors_to_run = [
+            d for d in detectors_to_run if d.IMPACT != DetectorClassification.HIGH
+        ]
+
+    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
     return detectors_to_run
 
 
