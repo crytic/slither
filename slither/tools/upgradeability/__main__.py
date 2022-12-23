@@ -14,7 +14,10 @@ from slither.exceptions import SlitherException
 from slither.utils.colors import red
 from slither.utils.output import output_to_json
 from slither.tools.upgradeability.checks import all_checks
-from slither.tools.upgradeability.checks.abstract_checks import AbstractCheck
+from slither.tools.upgradeability.checks.abstract_checks import (
+    AbstractCheck,
+    CheckClassification,
+)
 from slither.tools.upgradeability.utils.command_line import (
     output_detectors_json,
     output_wiki,
@@ -177,19 +180,19 @@ def choose_checks(
 
     if args.exclude_informational:
         detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.INFORMATIONAL
+            d for d in detectors_to_run if d.IMPACT != CheckClassification.INFORMATIONAL
         ]
     if args.exclude_low:
         detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.LOW
+            d for d in detectors_to_run if d.IMPACT != CheckClassification.LOW
         ]
     if args.exclude_medium:
         detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.MEDIUM
+            d for d in detectors_to_run if d.IMPACT != CheckClassification.MEDIUM
         ]
     if args.exclude_high:
         detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.HIGH
+            d for d in detectors_to_run if d.IMPACT != CheckClassification.HIGH
         ]
 
     detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
