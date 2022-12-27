@@ -894,7 +894,7 @@ class FunctionSolc(CallerContextExpression):
         local_var_parser = LocalVariableInitFromTupleSolc(local_var, statement, index)
 
         self._add_local_variable(local_var_parser)
-
+        statement["declarations"][0]["name"] = local_var.name
         new_node = self._new_node(NodeType.VARIABLE, statement["src"], node.underlying_node.scope)
         new_node.underlying_node.add_variable_declaration(local_var)
         link_underlying_nodes(node, new_node)
