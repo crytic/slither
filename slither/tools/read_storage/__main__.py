@@ -150,10 +150,17 @@ def print_diff_table(orig_block: int, diff_block: int, orig_info: SlotInfo, diff
         else:
             table_equal.add_row(row)
 
-    print("\n\nSlots with same value:\n======================\n")
-    print(table_equal)
-    print("\n\nSlots with different value:\n===========================\n")
-    print(table_different)
+    if len(table_equal._rows) > 0:
+        print("\n\nSlots with same value:\n======================\n")
+        print(table_equal)
+    else:
+        print("\n\nNo slots with same value found.\n===============================\n")
+
+    if len(table_different._rows) > 0:
+        print("\n\nSlots with different value:\n===========================\n")
+        print(table_different)
+    else:
+        print("\n\nNo slots with different value found.\n====================================\n")
 
 
 def main() -> None:
@@ -215,6 +222,7 @@ def main() -> None:
         srs.walk_slot_info(srs.get_slot_values)
 
     if args.diff_block:
+        orig_block = srs.block
         slots_block_orig = copy.deepcopy(srs.slot_info)
 
         srs.block = diff_block
@@ -226,7 +234,7 @@ def main() -> None:
         srs.walk_slot_info(srs.get_slot_values)
         slots_block_diff = copy.deepcopy(srs.slot_info)
 
-        print_diff_table(args.block, diff_block, slots_block_orig, slots_block_diff)
+        print_diff_table(orig_block, diff_block, slots_block_orig, slots_block_diff)
 
     if args.table:
         srs.walk_slot_info(srs.convert_slot_info_to_rows)
