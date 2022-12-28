@@ -216,9 +216,16 @@ def main() -> None:
 
     if args.diff_block:
         slots_block_orig = copy.deepcopy(srs.slot_info)
+
         srs.block = diff_block
+        # This takes into account differences in dynamic arrays
+        if args.variable_name:
+            srs.get_target_variables(**vars(args))
+        else:
+            srs.get_storage_layout()
         srs.walk_slot_info(srs.get_slot_values)
         slots_block_diff = copy.deepcopy(srs.slot_info)
+
         print_diff_table(args.block, diff_block, slots_block_orig, slots_block_diff)
 
     if args.table:
