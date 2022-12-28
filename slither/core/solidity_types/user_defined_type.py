@@ -73,7 +73,7 @@ class UserDefinedType(Type):
 
     def __eq__(self, other):
         from slither.core.declarations.contract import Contract
-        
+
         if not isinstance(other, UserDefinedType):
             return False
         if isinstance(self.type, Contract) and isinstance(other.type, Contract):
