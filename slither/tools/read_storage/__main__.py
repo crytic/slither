@@ -3,12 +3,14 @@ Tool to read on-chain storage from EVM
 """
 import json
 import argparse
+import copy
+import dataclasses
 
 from crytic_compile import cryticparser
 
 from slither import Slither
-from slither.tools.read_storage.read_storage import SlitherReadStorage
-
+from slither.tools.read_storage.read_storage import SlitherReadStorage, SlotInfo
+from slither.utils.myprettytable import MyPrettyTable
 
 def parse_args() -> argparse.Namespace:
     """Parse the underlying arguments for the program.
@@ -104,9 +106,54 @@ def parse_args() -> argparse.Namespace:
         default="latest",
     )
 
+    parser.add_argument(
+        "--diff-block",
+        help="Calculates storage value differences between block numbers specified as --block and --diff-block arguments. Implies --value and --block (if not set, defaults to latest).",
+        default=None,
+    )
+
     cryticparser.init(parser)
 
     return parser.parse_args()
+
+
+def print_diff_table(orig_block: int, diff_block: int, orig_info: SlotInfo, diff_info: SlotInfo):
+
+    if orig_block == "latest" or orig_block > diff_block:
+        older_block = diff_block
+        newer_block = orig_block
+        older_info = diff_info
+        newer_info = orig_info
+    else:
+        older_block = orig_block
+        newer_block = diff_block
+        older_info = orig_info
+        newer_info = diff_info
+
+    field_names = [
+        field.name for field in dataclasses.fields(SlotInfo) if (field.name != "elems" and field.name != "value")
+    ]
+
+    field_names.extend([ 
+        "value at " + str(older_block), 
+        "value at " + str(newer_block)
+    ])
+    
+    table_equal     = MyPrettyTable(field_names)
+    table_different = MyPrettyTable(field_names)
+
+    for elem in orig_info:
+        row= [getattr(older_info[elem], field) for field in field_names[:-2]]
+        row.extend([older_info[elem].value, newer_info[elem].value])
+        if older_info[elem].value != newer_info[elem].value:
+            table_different.add_row(row)
+        else:
+            table_equal.add_row(row)
+
+    print("\n\nSlots with same value:\n======================\n")
+    print(table_equal)
+    print("\n\nSlots with different value:\n===========================\n")
+    print(table_different)
 
 
 def main() -> None:
@@ -133,6 +180,14 @@ def main() -> None:
     except ValueError:
         srs.block = str(args.block or "latest")
 
+    if args.diff_block:
+        args.value = True
+        args.table = False
+        try:
+            diff_block = int(args.diff_block)
+        except ValueError:
+            raise Exception("--diff-block argument must be an integer representing a valid block number.")
+
     if args.rpc_url:
         # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
         address = target[target.find(":") + 1 :]
@@ -156,6 +211,13 @@ def main() -> None:
     if args.value:
         assert args.rpc_url
         srs.walk_slot_info(srs.get_slot_values)
+
+    if args.diff_block:
+        slots_block_orig = copy.deepcopy(srs.slot_info)
+        srs.block = diff_block
+        srs.walk_slot_info(srs.get_slot_values)
+        slots_block_diff = copy.deepcopy(srs.slot_info)
+        print_diff_table(args.block, diff_block, slots_block_orig, slots_block_diff)
 
     if args.table:
         srs.walk_slot_info(srs.convert_slot_info_to_rows)
