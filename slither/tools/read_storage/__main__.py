@@ -12,6 +12,7 @@ from slither import Slither
 from slither.tools.read_storage.read_storage import SlitherReadStorage, SlotInfo
 from slither.utils.myprettytable import MyPrettyTable
 
+
 def parse_args() -> argparse.Namespace:
     """Parse the underlying arguments for the program.
     Returns:
@@ -131,19 +132,18 @@ def print_diff_table(orig_block: int, diff_block: int, orig_info: SlotInfo, diff
         newer_info = diff_info
 
     field_names = [
-        field.name for field in dataclasses.fields(SlotInfo) if (field.name != "elems" and field.name != "value")
+        field.name
+        for field in dataclasses.fields(SlotInfo)
+        if (field.name not in ("elems", "value"))
     ]
 
-    field_names.extend([ 
-        "value at " + str(older_block), 
-        "value at " + str(newer_block)
-    ])
-    
-    table_equal     = MyPrettyTable(field_names)
+    field_names.extend(["value at " + str(older_block), "value at " + str(newer_block)])
+
+    table_equal = MyPrettyTable(field_names)
     table_different = MyPrettyTable(field_names)
 
     for elem in orig_info:
-        row= [getattr(older_info[elem], field) for field in field_names[:-2]]
+        row = [getattr(older_info[elem], field) for field in field_names[:-2]]
         row.extend([older_info[elem].value, newer_info[elem].value])
         if older_info[elem].value != newer_info[elem].value:
             table_different.add_row(row)
@@ -186,7 +186,9 @@ def main() -> None:
         try:
             diff_block = int(args.diff_block)
         except ValueError:
-            raise Exception("--diff-block argument must be an integer representing a valid block number.")
+            raise Exception(
+                "--diff-block argument must be an integer representing a valid block number."
+            )
 
     if args.rpc_url:
         # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
