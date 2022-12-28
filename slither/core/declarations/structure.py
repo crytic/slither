@@ -55,6 +55,8 @@ class Structure(SourceMapping):
     def __eq__(self, other) -> bool:
         if not isinstance(other, Structure):
             return False
+        if len(self.elems) != len(other.elems):
+            return False
         for idx, elem in enumerate(self.elems_ordered):
             other_elem = other.elems_ordered[idx]
             if str(other_elem.type) != str(elem.type) or other_elem.name != elem.name:
