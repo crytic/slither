@@ -88,6 +88,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
+        self._upgradeable_version: Optional[str] = None
 
         self.is_top_level = False  # heavily used, so no @property
 
@@ -1221,6 +1222,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                         break
         return self._is_upgradeable
 
+    @is_upgradeable.setter
+    def is_upgradeable(self, upgradeable: bool):
+        self._is_upgradeable = upgradeable
+
     @property
     def is_upgradeable_proxy(self) -> bool:
         from slither.core.cfg.node import NodeType
@@ -1245,6 +1250,18 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                                     self._is_upgradeable_proxy = True
                                     return self._is_upgradeable_proxy
         return self._is_upgradeable_proxy
+
+    @is_upgradeable_proxy.setter
+    def is_upgradeable_proxy(self, upgradeable_proxy: bool):
+        self._is_upgradeable_proxy = upgradeable_proxy
+
+    @property
+    def upgradeable_version(self) -> Optional[str]:
+        return self._upgradeable_version
+
+    @upgradeable_version.setter
+    def upgradeable_version(self, version_name: str):
+        self._upgradeable_version = version_name
 
     # endregion
     ###################################################################################

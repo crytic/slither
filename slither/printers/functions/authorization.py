@@ -54,8 +54,8 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
                 table.add_row(
                     [
                         function.name,
-                        str(state_variables_written),
-                        str(msg_sender_condition),
+                        str(sorted(state_variables_written)),
+                        str(sorted(msg_sender_condition)),
                     ]
                 )
             all_tables.append((contract.name, table))

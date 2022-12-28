@@ -2,7 +2,11 @@
 Module detecting ABIEncoderV2 array bug
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    make_solc_versions,
+)
 from slither.core.solidity_types import ArrayType
 from slither.core.solidity_types import UserDefinedType
 from slither.core.variables.local_variable import LocalVariable
@@ -12,38 +16,6 @@ from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.slithir.operations import EventCall
 from slither.slithir.operations import HighLevelCall
 from slither.utils.utils import unroll
-
-vulnerable_solc_versions = [
-    "0.4.7",
-    "0.4.8",
-    "0.4.9",
-    "0.4.10",
-    "0.4.11",
-    "0.4.12",
-    "0.4.13",
-    "0.4.14",
-    "0.4.15",
-    "0.4.16",
-    "0.4.17",
-    "0.4.18",
-    "0.4.19",
-    "0.4.20",
-    "0.4.21",
-    "0.4.22",
-    "0.4.23",
-    "0.4.24",
-    "0.4.25",
-    "0.5.0",
-    "0.5.1",
-    "0.5.2",
-    "0.5.3",
-    "0.5.4",
-    "0.5.5",
-    "0.5.6",
-    "0.5.7",
-    "0.5.8",
-    "0.5.9",
-]
 
 
 class ABIEncoderV2Array(AbstractDetector):
@@ -79,6 +51,8 @@ contract A {
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Use a compiler >= `0.5.10`."
+
+    VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 7, 25) + make_solc_versions(5, 0, 9)
 
     @staticmethod
     def _detect_storage_abiencoderv2_arrays(contract):
@@ -129,10 +103,6 @@ contract A {
         Detect ABIEncoderV2 array bug
         """
         results = []
-
-        # Check if vulnerable solc versions are used
-        if self.compilation_unit.solc_version not in vulnerable_solc_versions:
-            return results
 
         # Check if pragma experimental ABIEncoderV2 is used
         if not any(
