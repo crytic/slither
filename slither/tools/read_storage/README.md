@@ -22,6 +22,7 @@ optional arguments:
   --value                           Toggle used to include values in output.
   --max-depth MAX_DEPTH             Max depth to search in data structure.
   --block BLOCK_NUMBER              Block number to retrieve storage from (requires archive rpc node)
+  --diff-block DIFF_BLOCK_NUMBER    Calculate storage differences between BLOCK_NUMBER and DIFF_BLOCK_NUMBER. Implies --value.
 ```
 
 ### Examples
@@ -60,6 +61,12 @@ Retrieve the ERC20 balance slot of an account:
 
 ```shell
 slither-read-storage 0xa2327a938Febf5FEC13baCFb16Ae10EcBc4cbDCF --variable-name balances --key 0xab5801a7d398351b8be11c439e05c5b3259aec9b
+```
+
+Compare token balances of an account at blocks 16237722 and 16231904:
+
+```shell
+slither-read-storage 0x6B175474E89094C44Da98b954EedeAC495271d0F --block 16237722 --diff-block 16231904 --variable-name balanceOf --key 0xf977814e90da44bfa03b6295a0616a897441acec --rpc-url $RPC_URL
 ```
 
 To retrieve the actual balance, pass `--variable-name balances` and `--key 0xab5801a7d398351b8be11c439e05c5b3259aec9b`. (`balances` is a `mapping(address => uint)`)
