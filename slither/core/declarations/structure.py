@@ -57,6 +57,6 @@ class Structure(SourceMapping):
             return False
         for idx, elem in enumerate(self.elems_ordered):
             other_elem = other.elems_ordered[idx]
-            if other_elem.type != elem.type or other_elem.name != elem.name:
+            if str(other_elem.type) != str(elem.type) or other_elem.name != elem.name:
                 return False
         return self.name == other.name
