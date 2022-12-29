@@ -62,3 +62,6 @@ class Structure(SourceMapping):
             if str(other_elem.type) != str(elem.type) or other_elem.name != elem.name:
                 return False
         return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
