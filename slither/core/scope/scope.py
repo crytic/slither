@@ -95,7 +95,10 @@ class FileScope:
 
     def get_contract_from_name(self, name: Union[str, Constant]) -> Optional[Contract]:
         if isinstance(name, Constant):
+            name = name.name
             return self.contracts.get(name.name, None)
+        if name in self.renaming:
+            name = self.renaming[name]
         return self.contracts.get(name, None)
 
     # region Built in definitions
