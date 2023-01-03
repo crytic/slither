@@ -395,7 +395,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 )
             self._contracts_by_id[contract.id] = contract
             self._compilation_unit.contracts.append(contract)
-            
+
         # Update of the inheritance
         for contract_parser in self._underlying_contract_to_parser.values():
             # remove the first elem in linearizedBaseContracts as it is the contract itself
