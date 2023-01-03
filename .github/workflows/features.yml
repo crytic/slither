@@ -35,7 +35,7 @@ jobs:
         run: |
           pip install ".[dev]"
 
-          solc-select use 0.8.0--always-install
+          solc-select use 0.8.0 --always-install
 
           cd tests/test_node_modules/
           npm install hardhat

@@ -35,7 +35,7 @@ jobs:
         run: |
           pip install ".[dev]"
 
-          solc-select use 0.7.3--always-install
+          solc-select use 0.7.3 --always-install
       - name: Test with pytest
         run: |
           pytest tests/test_detectors.py
