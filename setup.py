@@ -14,8 +14,8 @@ setup(
     install_requires=[
         "prettytable>=0.7.2",
         "pycryptodome>=3.4.6",
-        "crytic-compile>=0.2.4",
-        # "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
+        # "crytic-compile>=0.2.4",
+        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@dev#egg=crytic-compile",
     ],
     extras_require={
         "dev": [
