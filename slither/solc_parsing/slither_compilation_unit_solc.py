@@ -45,16 +45,22 @@ def _handle_import_aliases(
 
     """
     for symbol_alias in symbol_aliases:
-        if (
-            "foreign" in symbol_alias
-            and "name" in symbol_alias["foreign"]
-            and "local" in symbol_alias
-        ):
-            original_name = symbol_alias["foreign"]["name"]
-            local_name = symbol_alias["local"]
-            import_directive.renaming[local_name] = original_name
-            # Assuming that two imports cannot collide in renaming
-            scope.renaming[local_name] = original_name
+        if "foreign" in symbol_alias and "local" in symbol_alias:
+            if isinstance(symbol_alias["foreign"], dict) and "name" in symbol_alias["foreign"]:
+
+                original_name = symbol_alias["foreign"]["name"]
+                local_name = symbol_alias["local"]
+                import_directive.renaming[local_name] = original_name
+                # Assuming that two imports cannot collide in renaming
+                scope.renaming[local_name] = original_name
+
+            # This path should only be hit for the malformed AST of solc 0.5.12 where
+            # the foreign identifier cannot be found but is required to resolve the alias.
+            # see https://github.com/crytic/slither/issues/1319
+            if symbol_alias["local"]:
+                raise SlitherException(
+                    "Cannot resolve local alias for import directive due to malformed AST. Please upgrade to solc 0.6.0 or higher."
+                )
 
 
 class SlitherCompilationUnitSolc:
@@ -389,7 +395,6 @@ Please rename it, this name is reserved for Slither's internals"""
                 )
             self._contracts_by_id[contract.id] = contract
             self._compilation_unit.contracts.append(contract)
-
         # Update of the inheritance
         for contract_parser in self._underlying_contract_to_parser.values():
             # remove the first elem in linearizedBaseContracts as it is the contract itself
