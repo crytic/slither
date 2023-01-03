@@ -102,7 +102,7 @@ class SplitTernaryExpression:
         ):
             return
 
-        elif isinstance(expression, (AssignmentOperation, BinaryOperation, TupleExpression)):
+        if isinstance(expression, (AssignmentOperation, BinaryOperation, TupleExpression)):
             true_expression._expressions = []
             false_expression._expressions = []
             self.convert_expressions(expression, true_expression, false_expression)
