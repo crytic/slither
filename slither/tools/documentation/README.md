@@ -1,6 +1,6 @@
-# Demo
+# slither-documentation
 
-This directory contains an example of Slither utility.
+`slither-documentation` uses [codex](https://beta.openai.com) to generate natspec documenation.
 
-See the [utility documentation](https://github.com/crytic/slither/wiki/Adding-a-new-utility)
+This tool is experimental. See https://github.com/montyly/solmate/pull/1 for an example of usage.
 

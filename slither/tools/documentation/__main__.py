@@ -211,7 +211,7 @@ def _handle_compilation_unit(
 
     for scope in compilation_unit.scopes.values():
 
-        # TODO remove hardcoded filtering
+        # Dont send tests file
         if (
             ".t.sol" in scope.filename.absolute
             or "mock" in scope.filename.absolute.lower()
