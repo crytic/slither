@@ -450,19 +450,25 @@ def propagate_type_and_convert_call(result, node):
     return result
 
 
-def _convert_type_contract(ir, compilation_unit: "SlitherCompilationUnit"):
+def _convert_type_contract(ir: Member) -> Assignment:
     assert isinstance(ir.variable_left.type, TypeInformation)
     contract = ir.variable_left.type.type
 
+    scope = ir.node.file_scope
+
     if ir.variable_right == "creationCode":
-        bytecode = compilation_unit.crytic_compile_compilation_unit.bytecode_init(contract.name)
+        bytecode = scope.bytecode_init(
+            ir.node.compilation_unit.crytic_compile_compilation_unit, contract.name
+        )
         assignment = Assignment(ir.lvalue, Constant(str(bytecode)), ElementaryType("bytes"))
         assignment.set_expression(ir.expression)
         assignment.set_node(ir.node)
         assignment.lvalue.set_type(ElementaryType("bytes"))
         return assignment
     if ir.variable_right == "runtimeCode":
-        bytecode = compilation_unit.crytic_compile_compilation_unit.bytecode_runtime(contract.name)
+        bytecode = scope.bytecode_runtime(
+            ir.node.compilation_unit.crytic_compile_compilation_unit, contract.name
+        )
         assignment = Assignment(ir.lvalue, Constant(str(bytecode)), ElementaryType("bytes"))
         assignment.set_expression(ir.expression)
         assignment.set_node(ir.node)
@@ -673,7 +679,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                 if isinstance(ir.variable_left, TemporaryVariable) and isinstance(
                     ir.variable_left.type, TypeInformation
                 ):
-                    return _convert_type_contract(ir, node.function.compilation_unit)
+                    return _convert_type_contract(ir)
                 left = ir.variable_left
                 t = None
                 ir_func = ir.function

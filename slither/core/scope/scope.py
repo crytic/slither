@@ -1,4 +1,7 @@
-from typing import List, Any, Dict, Optional, Union, Set
+from typing import List, Any, Dict, Optional, Union, Set, TypeVar, Callable
+
+from crytic_compile import CompilationUnit
+from crytic_compile.source_unit import SourceUnit
 from crytic_compile.utils.naming import Filename
 
 from slither.core.declarations import Contract, Import, Pragma
@@ -97,6 +100,117 @@ class FileScope:
         if isinstance(name, Constant):
             return self.contracts.get(name.name, None)
         return self.contracts.get(name, None)
+
+    AbstractReturnType = TypeVar("AbstractReturnType")
+
+    def _generic_source_unit_getter(
+        self,
+        crytic_compile_compilation_unit: CompilationUnit,
+        name: str,
+        getter: Callable[[SourceUnit], Dict[str, AbstractReturnType]],
+    ) -> Optional[AbstractReturnType]:
+
+        assert self.filename in crytic_compile_compilation_unit.source_units
+
+        source_unit = crytic_compile_compilation_unit.source_unit(self.filename)
+
+        if name in getter(source_unit):
+            return getter(source_unit)[name]
+
+        for scope in self.accessible_scopes:
+            source_unit = crytic_compile_compilation_unit.source_unit(scope.filename)
+            if name in getter(source_unit):
+                return getter(source_unit)[name]
+
+        return None
+
+    def bytecode_init(
+        self, crytic_compile_compilation_unit: CompilationUnit, contract_name: str
+    ) -> Optional[str]:
+        """
+        Return the init bytecode
+
+        Args:
+            crytic_compile_compilation_unit:
+            contract_name:
+
+        Returns:
+
+        """
+        getter: Callable[[SourceUnit], Dict[str, str]] = lambda x: x.bytecodes_init
+        return self._generic_source_unit_getter(
+            crytic_compile_compilation_unit, contract_name, getter
+        )
+
+    def bytecode_runtime(
+        self, crytic_compile_compilation_unit: CompilationUnit, contract_name: str
+    ) -> Optional[str]:
+        """
+        Return the runtime bytecode
+
+        Args:
+            crytic_compile_compilation_unit:
+            contract_name:
+
+        Returns:
+
+        """
+        getter: Callable[[SourceUnit], Dict[str, str]] = lambda x: x.bytecodes_runtime
+        return self._generic_source_unit_getter(
+            crytic_compile_compilation_unit, contract_name, getter
+        )
+
+    def srcmap_init(
+        self, crytic_compile_compilation_unit: CompilationUnit, contract_name: str
+    ) -> Optional[List[str]]:
+        """
+        Return the init scrmap
+
+        Args:
+            crytic_compile_compilation_unit:
+            contract_name:
+
+        Returns:
+
+        """
+        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.srcmaps_init
+        return self._generic_source_unit_getter(
+            crytic_compile_compilation_unit, contract_name, getter
+        )
+
+    def srcmap_runtime(
+        self, crytic_compile_compilation_unit: CompilationUnit, contract_name: str
+    ) -> Optional[List[str]]:
+        """
+        Return the runtime srcmap
+
+        Args:
+            crytic_compile_compilation_unit:
+            contract_name:
+
+        Returns:
+
+        """
+        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.srcmaps_runtime
+        return self._generic_source_unit_getter(
+            crytic_compile_compilation_unit, contract_name, getter
+        )
+
+    def abi(self, crytic_compile_compilation_unit: CompilationUnit, contract_name: str) -> Any:
+        """
+        Return the abi
+
+        Args:
+            crytic_compile_compilation_unit:
+            contract_name:
+
+        Returns:
+
+        """
+        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.abis
+        return self._generic_source_unit_getter(
+            crytic_compile_compilation_unit, contract_name, getter
+        )
 
     # region Built in definitions
     ###################################################################################
