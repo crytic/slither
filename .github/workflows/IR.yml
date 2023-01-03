@@ -34,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ".[dev]"
-          solc-select use 0.8.11
+          solc-select use 0.8.11--always-install
 
       - name: Test with pytest
         run: |
