@@ -1,15 +1,7 @@
-import inspect
-
-from crytic_compile import CryticCompile
-from crytic_compile.platform.solc_standard_json import SolcStandardJson
-from solc_select import solc_select
-
 from slither import Slither
-from slither.detectors import all_detectors
-from slither.detectors.abstract_detector import AbstractDetector
 
 
-def test_contract_info():
+def test_contract_info() -> None:
     slither = Slither("./tests/source_unit")
 
     assert len(slither.compilation_units) == 1
