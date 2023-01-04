@@ -1,0 +1,74 @@
+---
+name: CI (slither-doctor)
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+  pull_request:
+    paths:
+      - 'slither/tools/doctor/**'
+      - '.github/workflows/doctor.yml'
+
+jobs:
+  doctor:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-2022"]
+        python: ["3.8", "3.9", "3.10", "3.11"]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Try system-wide Slither
+        run: |
+          pip3 install .
+
+          # escape cwd so python doesn't pick up local module
+          cd /
+
+          echo "Via module"
+          python3 -m slither.tools.doctor .
+
+          echo "Via binary"
+          slither-doctor .
+
+      - name: Try user Slither
+        run: |
+          pip3 install --user .
+
+          # escape cwd so python doesn't pick up local module
+          cd /
+
+          echo "Via module"
+          python3 -m slither.tools.doctor .
+
+          echo "Via binary"
+          slither-doctor .
+
+      - name: Try venv Slither
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          hash -r
+          pip3 install .
+
+          # escape cwd so python doesn't pick up local module
+          cd /
+
+          echo "Via module"
+          python3 -m slither.tools.doctor .
+
+          echo "Via binary"
+          slither-doctor .
