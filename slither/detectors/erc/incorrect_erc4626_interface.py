@@ -15,7 +15,7 @@ class IncorrectERC4626InterfaceDetection(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = ("https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc4626-interface")  # Todo
+    WIKI = ("")  # Todo
 
     WIKI_TITLE = "Incorrect ERC4626 interface"
     WIKI_DESCRIPTION = "Incorrect signatures and return types for `ERC 4626` functions. A contract compiled with solidity > 0.4.22 interacting with these functions would fail to execute them, as a result of incorrect parameter or return value(s) types."
