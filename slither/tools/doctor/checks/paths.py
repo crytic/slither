@@ -69,8 +69,8 @@ def check_slither_path(**_kwargs) -> None:
         else:
             print(
                 yellow(
-                    f"This path does not correspond to this slither-doctor installation.\n"
-                    + "Double-check the order of directories in PATH if you have several slither installations."
+                    "This path does not correspond to this slither-doctor installation.\n"
+                    + "Double-check the order of directories in PATH if you have several Slither installations."
                 )
             )
             show_paths = True
