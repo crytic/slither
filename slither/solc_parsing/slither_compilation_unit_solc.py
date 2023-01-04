@@ -24,6 +24,8 @@ from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
 from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
+from slither.solc_parsing.types.types import (SourceUnit, ContractDefinition, PragmaDirective, ImportDirective, 
+    StructDefinition, EnumDefinition, VariableDeclaration, FunctionDefinition, ErrorDefinition, UserDefinedValueTypeDefinition)
 
 logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
@@ -72,7 +74,6 @@ class SlitherCompilationUnitSolc:
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
         self._functions_top_level_parser: List[FunctionSolc] = []
 
-        self._is_compact_ast = False
         # self._core: SlitherCore = core
         self._compilation_unit = compilation_unit
 
@@ -95,27 +96,6 @@ class SlitherCompilationUnitSolc:
     def underlying_contract_to_parser(self) -> Dict[Contract, ContractSolc]:
         return self._underlying_contract_to_parser
 
-    ###################################################################################
-    ###################################################################################
-    # region AST
-    ###################################################################################
-    ###################################################################################
-
-    def get_key(self) -> str:
-        if self._is_compact_ast:
-            return "nodeType"
-        return "name"
-
-    def get_children(self) -> str:
-        if self._is_compact_ast:
-            return "nodes"
-        return "children"
-
-    @property
-    def is_compact_ast(self) -> bool:
-        return self._is_compact_ast
-
-    # endregion
     ###################################################################################
     ###################################################################################
     # region Parsing
@@ -149,177 +129,120 @@ class SlitherCompilationUnitSolc:
                 return True
             return False
 
-    def _parse_enum(self, top_level_data: Dict, filename: str):
-        if self.is_compact_ast:
-            name = top_level_data["name"]
-            canonicalName = top_level_data["canonicalName"]
-        else:
-            name = top_level_data["attributes"][self.get_key()]
-            if "canonicalName" in top_level_data["attributes"]:
-                canonicalName = top_level_data["attributes"]["canonicalName"]
-            else:
-                canonicalName = name
-        values = []
-        children = (
-            top_level_data["members"]
-            if "members" in top_level_data
-            else top_level_data.get("children", [])
-        )
-        for child in children:
-            assert child[self.get_key()] == "EnumValue"
-            if self.is_compact_ast:
-                values.append(child["name"])
-            else:
-                values.append(child["attributes"][self.get_key()])
-
-        scope = self.compilation_unit.get_scope(filename)
-        enum = EnumTopLevel(name, canonicalName, values, scope)
-        scope.enums[name] = enum
-        enum.set_offset(top_level_data["src"], self._compilation_unit)
-        self._compilation_unit.enums_top_level.append(enum)
-
     def parse_top_level_from_loaded_json(
         self, data_loaded: Dict, filename: str
     ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals
-        if "nodeType" in data_loaded:
-            self._is_compact_ast = True
-
+        from slither.solc_parsing.types.sniffer import sniff
+        from slither.solc_parsing.types.dump import dumps
+        node = sniff(data_loaded)(data_loaded)
+        print(dumps(node))
         if "sourcePaths" in data_loaded:
             for sourcePath in data_loaded["sourcePaths"]:
                 if os.path.isfile(sourcePath):
                     self._compilation_unit.core.add_source_code(sourcePath)
 
-        if data_loaded[self.get_key()] == "root":
+        if "name" in data_loaded and data_loaded["name"] == "root":
             logger.error("solc <0.4 is not supported")
             return
-        if data_loaded[self.get_key()] == "SourceUnit":
-            self._parse_source_unit(data_loaded, filename)
+        elif isinstance(node, SourceUnit):
+            self._parse_source_unit(node, filename)
         else:
             logger.error("solc version is not supported")
             return
 
-        if self.get_children() not in data_loaded:
-            return
         scope = self.compilation_unit.get_scope(filename)
 
-        for top_level_data in data_loaded[self.get_children()]:
-            if top_level_data[self.get_key()] == "ContractDefinition":
-                contract = Contract(self._compilation_unit, scope)
-                contract_parser = ContractSolc(self, contract, top_level_data)
-                scope.contracts[contract.name] = contract
-                if "src" in top_level_data:
-                    contract.set_offset(top_level_data["src"], self._compilation_unit)
+        for child in node.nodes:
+            match child:
+                case ContractDefinition():
+                    contract = Contract(self._compilation_unit, scope)
+                    contract_parser = ContractSolc(self, contract, child)
+                    scope.contracts[contract.name] = contract
+                    if child.src:
+                        contract.set_offset(child.src, self._compilation_unit)
 
-                self._underlying_contract_to_parser[contract] = contract_parser
+                    self._underlying_contract_to_parser[contract] = contract_parser
 
-            elif top_level_data[self.get_key()] == "PragmaDirective":
-                if self._is_compact_ast:
-                    pragma = Pragma(top_level_data["literals"], scope)
+                case PragmaDirective():
+                    pragma = Pragma(child.literals, scope)
                     scope.pragmas.add(pragma)
-                else:
-                    pragma = Pragma(top_level_data["attributes"]["literals"], scope)
-                    scope.pragmas.add(pragma)
-                pragma.set_offset(top_level_data["src"], self._compilation_unit)
-                self._compilation_unit.pragma_directives.append(pragma)
-            elif top_level_data[self.get_key()] == "ImportDirective":
-                if self.is_compact_ast:
-                    import_directive = Import(
-                        Path(
-                            top_level_data["absolutePath"],
-                        ),
-                        scope,
-                    )
+                    pragma.set_offset(child.src, self._compilation_unit)
+
+                    self._compilation_unit.pragma_directives.append(pragma)
+                
+                case ImportDirective():
+                    import_directive = Import(child.path, scope)
+                    import_directive.set_offset(child.src, self._compilation_unit)
+
                     scope.imports.add(import_directive)
-                    # TODO investigate unitAlias in version < 0.7 and legacy ast
-                    if "unitAlias" in top_level_data:
-                        import_directive.alias = top_level_data["unitAlias"]
-                    if "symbolAliases" in top_level_data:
-                        symbol_aliases = top_level_data["symbolAliases"]
-                        _handle_import_aliases(symbol_aliases, import_directive, scope)
-                else:
-                    import_directive = Import(
-                        Path(
-                            top_level_data["attributes"].get("absolutePath", ""),
-                        ),
-                        scope,
-                    )
-                    scope.imports.add(import_directive)
-                    # TODO investigate unitAlias in version < 0.7 and legacy ast
-                    if (
-                        "attributes" in top_level_data
-                        and "unitAlias" in top_level_data["attributes"]
-                    ):
-                        import_directive.alias = top_level_data["attributes"]["unitAlias"]
-                import_directive.set_offset(top_level_data["src"], self._compilation_unit)
-                self._compilation_unit.import_directives.append(import_directive)
+                    # # TODO investigate unitAlias in version < 0.7 and legacy ast
+                    # if "unitAlias" in top_level_data:
+                    #     import_directive.alias = top_level_data["unitAlias"]
+                    # if "symbolAliases" in top_level_data:
+                    #     symbol_aliases = top_level_data["symbolAliases"]
+                    #     _handle_import_aliases(symbol_aliases, import_directive, scope)
 
-                get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
-                scope.accessible_scopes.append(get_imported_scope)
+                    import_directive.set_offset(child.src, self._compilation_unit)
+                    self._compilation_unit.import_directives.append(import_directive)
 
-            elif top_level_data[self.get_key()] == "StructDefinition":
-                st = StructureTopLevel(self.compilation_unit, scope)
-                st.set_offset(top_level_data["src"], self._compilation_unit)
-                st_parser = StructureTopLevelSolc(st, top_level_data, self)
-                scope.structures[st.name] = st
+                    get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
+                    scope.accessible_scopes.append(get_imported_scope)
 
-                self._compilation_unit.structures_top_level.append(st)
-                self._structures_top_level_parser.append(st_parser)
+                case StructDefinition():
+                    st = StructureTopLevel(self.compilation_unit, scope)
+                    st.set_offset(child.src, self._compilation_unit)
+                    st_parser = StructureTopLevelSolc(st, child, self)
+                    scope.structures[st.name] = st
 
-            elif top_level_data[self.get_key()] == "EnumDefinition":
-                # Note enum don't need a complex parser, so everything is directly done
-                self._parse_enum(top_level_data, filename)
+                    self._compilation_unit.structures_top_level.append(st)
+                    self._structures_top_level_parser.append(st_parser)
 
-            elif top_level_data[self.get_key()] == "VariableDeclaration":
-                var = TopLevelVariable(scope)
-                var_parser = TopLevelVariableSolc(var, top_level_data, self)
-                var.set_offset(top_level_data["src"], self._compilation_unit)
+                case EnumDefinition():
+                    # Note enum don't need a complex parser, so everything is directly done
+                    # self._parse_enum(top_level_data, filename)
+                    scope = self.compilation_unit.get_scope(filename)
+                    enum = EnumTopLevel(child.name, child.canonical_name, child.members, scope)
+                    scope.enums[child.name] = enum
+                    enum.set_offset(child.src, self._compilation_unit)
+                    self._compilation_unit.enums_top_level.append(enum)
 
-                self._compilation_unit.variables_top_level.append(var)
-                self._variables_top_level_parser.append(var_parser)
-                scope.variables[var.name] = var
-            elif top_level_data[self.get_key()] == "FunctionDefinition":
-                func = FunctionTopLevel(self._compilation_unit, scope)
-                scope.functions.add(func)
-                func.set_offset(top_level_data["src"], self._compilation_unit)
-                func_parser = FunctionSolc(func, top_level_data, None, self)
+                case VariableDeclaration():
+                    var = TopLevelVariable(scope)
+                    var_parser = TopLevelVariableSolc(var, child, self)
+                    var.set_offset(child.src, self._compilation_unit)
 
-                self._compilation_unit.functions_top_level.append(func)
-                self._functions_top_level_parser.append(func_parser)
-                self.add_function_or_modifier_parser(func_parser)
+                    self._compilation_unit.variables_top_level.append(var)
+                    self._variables_top_level_parser.append(var_parser)
+                    scope.variables[var.name] = var
 
-            elif top_level_data[self.get_key()] == "ErrorDefinition":
-                custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
-                custom_error.set_offset(top_level_data["src"], self._compilation_unit)
+                case FunctionDefinition():
+                    func = FunctionTopLevel(self._compilation_unit, scope)
+                    scope.functions.add(func)
+                    func.set_offset(child.src, self._compilation_unit)
+                    func_parser = FunctionSolc(func, child, None, self)
 
-                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, self)
-                scope.custom_errors.add(custom_error)
-                self._compilation_unit.custom_errors.append(custom_error)
-                self._custom_error_parser.append(custom_error_parser)
+                    self._compilation_unit.functions_top_level.append(func)
+                    self._functions_top_level_parser.append(func_parser)
+                    self.add_function_or_modifier_parser(func_parser)
 
-            elif top_level_data[self.get_key()] == "UserDefinedValueTypeDefinition":
-                assert "name" in top_level_data
-                alias = top_level_data["name"]
-                assert "underlyingType" in top_level_data
-                underlying_type = top_level_data["underlyingType"]
-                assert (
-                    "nodeType" in underlying_type
-                    and underlying_type["nodeType"] == "ElementaryTypeName"
-                )
-                assert "name" in underlying_type
+                case ErrorDefinition():
+                    custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
+                    custom_error.set_offset(child.src, self._compilation_unit)
 
-                original_type = ElementaryType(underlying_type["name"])
+                    custom_error_parser = CustomErrorSolc(custom_error, child, self)
+                    scope.custom_errors.add(custom_error)
+                    self._compilation_unit.custom_errors.append(custom_error)
+                    self._custom_error_parser.append(custom_error_parser)
 
-                user_defined_type = TypeAliasTopLevel(original_type, alias, scope)
-                user_defined_type.set_offset(top_level_data["src"], self._compilation_unit)
-                scope.user_defined_types[alias] = user_defined_type
+                case UserDefinedValueTypeDefinition():
+                    user_defined_type = TypeAliasTopLevel(child.underlying_type, child.alias, scope)
+                    user_defined_type.set_offset(child.src, self._compilation_unit)
+                    scope.user_defined_types[child.alias] = user_defined_type
 
-            else:
-                raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
+                case _:
+                    raise SlitherException(f"Top level {child} not supported")
 
-    def _parse_source_unit(self, data: Dict, filename: str):
-        if data[self.get_key()] != "SourceUnit":
-            return  # handle solc prior 0.3.6
-
+    def _parse_source_unit(self, data: SourceUnit, filename: str):
         # match any char for filename
         # filename can contain space, /, -, ..
         name_candidates = re.findall("=+ (.+) =+", filename)
@@ -330,8 +253,8 @@ class SlitherCompilationUnitSolc:
             name = filename
 
         sourceUnit = -1  # handle old solc, or error
-        if "src" in data:
-            sourceUnit_candidates = re.findall("[0-9]*:[0-9]*:([0-9]*)", data["src"])
+        if data.src:
+            sourceUnit_candidates = re.findall("[0-9]*:[0-9]*:([0-9]*)", data.src)
             if len(sourceUnit_candidates) == 1:
                 sourceUnit = int(sourceUnit_candidates[0])
         if sourceUnit == -1:

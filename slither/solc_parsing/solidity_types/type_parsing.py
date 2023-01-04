@@ -19,18 +19,18 @@ from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.exceptions import SlitherError
 from slither.solc_parsing.exceptions import ParsingError
-from slither.solc_parsing.expressions.expression_parsing import CallerContextExpression
+from slither.solc_parsing.types.types import TypeName
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Structure, Enum
+    from slither.core.declarations import Structure, Enum, Function
     from slither.core.declarations.contract import Contract
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+    from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 
 logger = logging.getLogger("TypeParsing")
 
 # pylint: disable=anomalous-backslash-in-string
-
 
 class UnknownType:  # pylint: disable=too-few-public-methods
     def __init__(self, name):
@@ -203,8 +203,8 @@ def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit
 
 # TODO: since the add of FileScope, we can probably refactor this function and makes it a lot simpler
 def parse_type(
-    t: Union[Dict, UnknownType],
-    caller_context: Union[CallerContextExpression, "SlitherCompilationUnitSolc"],
+    t: Union[Dict, TypeName],
+    caller_context: Union["CallerContextExpression", "SlitherCompilationUnitSolc"],
 ) -> Type:
     """
     caller_context can be a SlitherCompilationUnitSolc because we recursively call the function
@@ -323,56 +323,18 @@ def parse_type(
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
 
-    is_compact_ast = caller_context.is_compact_ast
-    if is_compact_ast:
-        key = "nodeType"
-    else:
-        key = "name"
+    from slither.solc_parsing.types.types import \
+        ElementaryTypeName as ETN, \
+        UserDefinedTypeName as UDTN, \
+        ArrayTypeName as ATN, \
+        Mapping as M, \
+        FunctionTypeName as FTN, \
+        IdentifierPath
 
-    if isinstance(t, UnknownType):
+    if isinstance(t, ETN):
+        return ElementaryType(t.name)
+    elif isinstance(t, (UnknownType, UDTN)):
         name = t.name
-        if name in renaming:
-            name = renaming[name]
-        if name in user_defined_types:
-            return user_defined_types[name]
-        return _find_from_type_name(
-            name,
-            functions,
-            contracts,
-            structures_direct_access,
-            all_structures,
-            enums_direct_access,
-            all_enums,
-        )
-
-    if t[key] == "ElementaryTypeName":
-        if is_compact_ast:
-            return ElementaryType(t["name"])
-        return ElementaryType(t["attributes"][key])
-
-    if t[key] == "UserDefinedTypeName":
-        if is_compact_ast:
-            name = t["typeDescriptions"]["typeString"]
-            if name in renaming:
-                name = renaming[name]
-            if name in user_defined_types:
-                return user_defined_types[name]
-            type_found = _find_from_type_name(
-                name,
-                functions,
-                contracts,
-                structures_direct_access,
-                all_structures,
-                enums_direct_access,
-                all_enums,
-            )
-            _add_type_references(type_found, t["src"], sl)
-            return type_found
-
-        # Determine if we have a type node (otherwise we use the name node, as some older solc did not have 'type').
-        type_name_key = "type" if "type" in t["attributes"] else key
-
-        name = t["attributes"][type_name_key]
         if name in renaming:
             name = renaming[name]
         if name in user_defined_types:
@@ -386,86 +348,55 @@ def parse_type(
             enums_direct_access,
             all_enums,
         )
-        _add_type_references(type_found, t["src"], sl)
+        if isinstance(t, UDTN):
+            _add_type_references(type_found, t.src, sl)
         return type_found
 
     # Introduced with Solidity 0.8
-    if t[key] == "IdentifierPath":
-        if is_compact_ast:
-            name = t["name"]
-            if name in renaming:
-                name = renaming[name]
-            if name in user_defined_types:
-                return user_defined_types[name]
-            type_found = _find_from_type_name(
-                name,
-                functions,
-                contracts,
-                structures_direct_access,
-                all_structures,
-                enums_direct_access,
-                all_enums,
-            )
-            _add_type_references(type_found, t["src"], sl)
-            return type_found
+    elif isinstance(t, IdentifierPath):
+        name = t["name"]
+        if name in renaming:
+            name = renaming[name]
+        if name in user_defined_types:
+            return user_defined_types[name]
+        type_found = _find_from_type_name(
+            name,
+            functions,
+            contracts,
+            structures_direct_access,
+            all_structures,
+            enums_direct_access,
+            all_enums,
+        )
+        _add_type_references(type_found, t.src, sl)
+        return type_found
 
-        raise SlitherError("Solidity 0.8 not supported with the legacy AST")
-
-    if t[key] == "ArrayTypeName":
+    elif isinstance(t, ATN):
         length = None
-        if is_compact_ast:
-            if t.get("length", None):
-                length = parse_expression(t["length"], caller_context)
-            array_type = parse_type(t["baseType"], next_context)
-        else:
-            if len(t["children"]) == 2:
-                length = parse_expression(t["children"][1], caller_context)
-            else:
-                assert len(t["children"]) == 1
-            array_type = parse_type(t["children"][0], next_context)
+        if t.len:
+            length = parse_expression(t.len, caller_context)
+        array_type = parse_type(t.base, next_context)
         return ArrayType(array_type, length)
 
-    if t[key] == "Mapping":
+    elif isinstance(t, M):
+        key = parse_type(t.key, caller_context)
+        val = parse_type(t.value, caller_context)
+        return MappingType(key, val)
 
-        if is_compact_ast:
-            mappingFrom = parse_type(t["keyType"], next_context)
-            mappingTo = parse_type(t["valueType"], next_context)
-        else:
-            assert len(t["children"]) == 2
-
-            mappingFrom = parse_type(t["children"][0], next_context)
-            mappingTo = parse_type(t["children"][1], next_context)
-
-        return MappingType(mappingFrom, mappingTo)
-
-    if t[key] == "FunctionTypeName":
-
-        if is_compact_ast:
-            params = t["parameterTypes"]
-            return_values = t["returnParameterTypes"]
-            index = "parameters"
-        else:
-            assert len(t["children"]) == 2
-            params = t["children"][0]
-            return_values = t["children"][1]
-            index = "children"
-
-        assert params[key] == "ParameterList"
-        assert return_values[key] == "ParameterList"
-
+    elif isinstance(t, FTN):
         params_vars: List[FunctionTypeVariable] = []
         return_values_vars: List[FunctionTypeVariable] = []
-        for p in params[index]:
+        for p in t.params.params:
             var = FunctionTypeVariable()
-            var.set_offset(p["src"], caller_context.compilation_unit)
+            var.set_offset(p.src, caller_context.compilation_unit)
 
             var_parser = FunctionTypeVariableSolc(var, p)
             var_parser.analyze(caller_context)
 
             params_vars.append(var)
-        for p in return_values[index]:
+        for p in t.rets.params:
             var = FunctionTypeVariable()
-            var.set_offset(p["src"], caller_context.compilation_unit)
+            var.set_offset(p.src, caller_context.compilation_unit)
 
             var_parser = FunctionTypeVariableSolc(var, p)
             var_parser.analyze(caller_context)

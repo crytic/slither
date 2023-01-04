@@ -20,10 +20,6 @@ class TopLevelVariableSolc(VariableDeclarationSolc, CallerContextExpression):
         self._slither_parser = slither_parser
 
     @property
-    def is_compact_ast(self) -> bool:
-        return self._slither_parser.is_compact_ast
-
-    @property
     def compilation_unit(self) -> "SlitherCompilationUnit":
         return self._slither_parser.compilation_unit
 
