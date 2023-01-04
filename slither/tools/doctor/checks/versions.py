@@ -45,7 +45,9 @@ def show_versions(**_kwargs) -> None:
 
     for name, (installed, latest) in versions.items():
         color = yellow if name in outdated else green
-        print(f"{name + ':':<16}{color(installed or 'N/A'):<16} (latest is {latest or 'Unknown'})")
+        print(
+            f"{name + ':':<16}{color(str(installed) or 'N/A'):<16} (latest is {str(latest) or 'Unknown'})"
+        )
 
     if len(outdated) > 0:
         print()
