@@ -60,7 +60,7 @@ jobs:
       - name: Try venv Slither
         run: |
           python3 -m venv venv
-          source venv/bin/activate
+          source venv/bin/activate || source venv/Scripts/activate
           hash -r
           pip3 install .
 
