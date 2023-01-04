@@ -3,19 +3,19 @@ import json
 from typing import Optional
 import urllib
 
-from packaging.version import parse, LegacyVersion, Version
+from packaging.version import parse, Version
 
 from slither.utils.colors import yellow, green
 
 
-def get_installed_version(name: str) -> Optional[LegacyVersion | Version]:
+def get_installed_version(name: str) -> Optional[Version]:
     try:
         return parse(metadata.version(name))
     except metadata.PackageNotFoundError:
         return None
 
 
-def get_github_version(name: str) -> Optional[LegacyVersion | Version]:
+def get_github_version(name: str) -> Optional[Version]:
     try:
         with urllib.request.urlopen(
             f"https://api.github.com/repos/crytic/{name}/releases/latest"
