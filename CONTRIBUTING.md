@@ -67,7 +67,7 @@ For each new detector, at least one regression tests must be present.
 To see the tests coverage, run `pytest  tests/test_detectors.py  --cov=slither/detectors --cov-branch --cov-report html`.
 To run tests for a specific detector, run `pytest tests/test_detectors.py -k ReentrancyReadBeforeWritten` (the detector's class name is the argument).
 To run tests for a specific version, run `pytest tests/test_detectors.py -k 0.7.6`.
-The id's of tests can be inspected using `pytest tests/test_detectors.py --collect-only`.
+The IDs of tests can be inspected using `pytest tests/test_detectors.py --collect-only`.
 
 ### Parser tests
 - Create a test in `tests/ast-parsing`
@@ -76,10 +76,10 @@ The id's of tests can be inspected using `pytest tests/test_detectors.py --colle
 - Run `pytest ./tests/test_ast_parsing.py` and check that everything worked.
 
 To see the tests coverage, run `pytest  tests/test_ast_parsing.py  --cov=slither/solc_parsing --cov-branch --cov-report html`
-To run tests for a specific test case, run `pytest tests/test_ast_parsing.py -k user_defined_value_type`  (the file name is the argument).
+To run tests for a specific test case, run `pytest tests/test_ast_parsing.py -k user_defined_value_type`  (the filename is the argument).
 To run tests for a specific version, run `pytest tests/test_ast_parsing.py -k 0.8.12`.
 To run tests for a specific compiler json format, run `pytest tests/test_ast_parsing.py -k legacy` (can be legacy or compact).
-The id's of tests can be inspected using ``pytest tests/test_ast_parsing.py --collect-only`.
+The IDs of tests can be inspected using ``pytest tests/test_ast_parsing.py --collect-only`.
 
 ### Synchronization with crytic-compile
 By default, `slither` follows either the latest version of crytic-compile in pip, or `crytic-compile@master` (look for dependencies in [`setup.py`](./setup.py). If crytic-compile development comes with breaking changes, the process to update `slither` is:
