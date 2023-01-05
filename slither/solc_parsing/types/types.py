@@ -49,12 +49,20 @@ class PragmaDirective(ASTNode):
         self.literals = literals
 
 
-class ImportDirective(Declaration):
-    __slots__ = "path"
+class UnitAlias:
+    __slots__ = "name"
 
-    def __init__(self, path: str, **kwargs):
+    def __init__(self, name: str):
+        self.name = name
+
+
+class ImportDirective(ASTNode):
+    __slots__ = "path", "unit_alias", "symbol_aliases"
+
+    def __init__(self, path: str, unit_alias: Optional[UnitAlias], **kwargs):
         super().__init__(**kwargs)
         self.path = path
+        self.unit_alias = unit_alias
 
 
 # kind can be: "interface", "contract", "library"
@@ -82,7 +90,7 @@ class InheritanceSpecifier(ASTNode):
 class UsingForDirective(ASTNode):
     __slots__ = "library", "typename"
 
-    def __init__(self, library: 'UserDefinedTypeName', typename: 'TypeName', **kwargs):
+    def __init__(self, library: Union['UserDefinedTypeName', 'IdentifierPath'], typename: 'TypeName', **kwargs):
         super().__init__(**kwargs)
         self.library = library
         self.typename = typename
@@ -136,7 +144,7 @@ class CallableDeclaration(Declaration):
 class FunctionDefinition(CallableDeclaration):
     __slots__ = "mutability", "kind", "modifiers", "body"
 
-    def __init__(self, mutability: str, kind: str, modifiers: List['ModifierInvocation'], body: 'Block',  **kwargs):
+    def __init__(self, mutability: str, kind: str, modifiers: List['ModifierInvocation'], body: Optional['Block'],  **kwargs):
         super().__init__(**kwargs)
         self.mutability = mutability
         self.kind = kind
@@ -161,7 +169,7 @@ class VariableDeclaration(Declaration):
 class ModifierDefinition(CallableDeclaration):
     __slots__ = "body"
 
-    def __init__(self, body: 'Block', **kwargs):
+    def __init__(self, body: Optional['Block'], **kwargs):
         super().__init__(**kwargs)
         self.body = body
 
@@ -244,7 +252,7 @@ class Statement(ASTNode):
 class InlineAssembly(Statement):
     __slots__ = "ast"
 
-    def __init__(self, ast: Union[Dict, str], **kwargs):
+    def __init__(self, ast: Optional[Union[Dict, str]], **kwargs):
         super().__init__(**kwargs)
         self.ast = ast
 
@@ -498,7 +506,7 @@ class ElementaryTypeNameExpression(Expression):
 class Literal(Expression):
     __slots__ = "kind", "value", "hex_value", "subdenomination"
 
-    def __init__(self, kind: str, value: str, hex_value: str, subdenomination: str, **kwargs):
+    def __init__(self, kind: str, value: str, hex_value: str, subdenomination: Optional[str], **kwargs):
         super().__init__(**kwargs)
         self.kind = kind
         self.value = value

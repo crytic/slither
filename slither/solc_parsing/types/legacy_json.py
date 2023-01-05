@@ -126,17 +126,42 @@ def parse_tuple_expression(raw: Dict) -> TupleExpression:
     children:
         (Expression?)[]
     """
-
+    # For expressions like (a,,c) = (1,2,3)
+    # the AST provides only two children in the left side.
+    # We check the type provided (tuple(uint256,,uint256))
+    # to determine that there is an empty variable.
+    # Otherwise, we would not be able to determine 
+    # that a = 1, c = 3, and 2 is lost.
     children_parsed: List[Optional[Expression]] = []
+    attrs = raw['attributes']
+    if 'children' not in raw:
+        for component in attrs['components']:
+            if component:
+                child_parsed = parse(component)
+                assert isinstance(child_parsed, Expression)
 
-    for child in raw['children']:
-        if child:
-            child_parsed = parse(child)
-            assert isinstance(child_parsed, Expression)
+                children_parsed.append(child_parsed)
+            else:
+                children_parsed.append(None)
+    else:
+        for child in raw['children']:
+            if child:
+                child_parsed = parse(child)
+                assert isinstance(child_parsed, Expression)
 
-            children_parsed.append(child_parsed)
-        else:
-            children_parsed.append(None)
+                children_parsed.append(child_parsed)
+            else:
+                children_parsed.append(None)
+    # Add none for empty tuple items
+    if 'attributes' in attrs:
+        if 'type' in attrs['attributes']:
+            t = attrs['attributes']['type']
+            if ',,' in t or '(,' in t or ',)' in t:
+                t = t[len('tuple(') : -1]
+                elems = t.split(',')
+                for idx, _ in enumerate(elems):
+                    if elems[idx] == '':
+                        children_parsed.insert(idx, None)
 
     return TupleExpression(children_parsed, False, **_extract_expr_props(raw))
 
@@ -400,7 +425,15 @@ def parse_pragma_directive(raw: Dict) -> PragmaDirective:
 
 
 def parse_import_directive(raw: Dict) -> ImportDirective:
-    return ImportDirective(raw['attributes']['file'], **_extract_base_props(raw))
+
+    alias = None
+    if 'unitAlias' in raw and raw['unitAlias']:
+        alias = UnitAlias(raw['unitAlias'])
+        
+    symbol_aliases = None
+    if 'symbolAliases' in raw and raw['symbolAliases']:
+        symbol_aliases = raw['symbolAliases']
+    return ImportDirective(raw['attributes']['file'], alias, **_extract_base_props(raw))
 
 
 def parse_contract_definition(raw: Dict) -> ContractDefinition:
@@ -453,7 +486,7 @@ def parse_using_for_directive(raw: Dict) -> UsingForDirective:
     library = parse(raw['children'][0])
     assert isinstance(library, UserDefinedTypeName)
 
-    typename = None
+    typename = "*" # TODO
     if len(raw['children']) > 1:
         typename = parse(raw['children'][1])
         assert isinstance(typename, TypeName)
@@ -534,22 +567,28 @@ def parse_function_definition(raw: Dict) -> FunctionDefinition:
         # >= 0.4.0
         kind = 'fallback' if attrs['name'] == '' else 'function'
 
-    assert len(raw['children']) >= 3
+    assert len(raw['children']) >= 2
 
-    params = parse(raw['children'][0])
+    # From Solidity 0.6.3 to 0.6.10 (included) the
+    # comment above a function might be added in the children
+    # of an function for the legacy ast
+    params_iter = iter([parse(child) for child in raw['children'] if child['name'] == 'ParameterList'])
+
+    params = next(params_iter)
     assert isinstance(params, ParameterList)
-
-    rets = parse(raw['children'][1])
+    rets = next(params_iter)
     assert isinstance(rets, ParameterList)
 
     modifiers_parsed: List[ModifierInvocation] = []
-    for child in raw['children'][2:-1]:
+    body = None
+    for child in raw['children'][2:]:
         child_parsed = parse(child)
-        assert isinstance(child_parsed, ModifierInvocation)
-        modifiers_parsed.append(child_parsed)
-
-    body = parse(raw['children'][-1])
-    assert isinstance(body, Block)
+        if child['name'] == 'Block':
+            assert isinstance(child_parsed, Block)
+            body = child_parsed
+        elif child['name'] == 'ModifierInvocation':
+            assert isinstance(child_parsed, ModifierInvocation)
+            modifiers_parsed.append(child_parsed)
 
     return FunctionDefinition(mutability, kind, modifiers_parsed, body, params=params, rets=rets,
                               **_extract_decl_props(raw))
@@ -605,8 +644,15 @@ def parse_function_type_name(raw: Dict) -> FunctionTypeName:
     rets_parsed = parse(raw['children'][1])
     assert isinstance(rets_parsed, ParameterList)
 
-    visibility = raw['attributes']['visibility']
-    mutability = raw['attributes']['stateMutability']
+    attrs = raw['attributes']
+    visibility = attrs['visibility'] if 'visibility' in attrs else "public"
+    mutability = attrs['stateMutability'] if 'stateMutability' in attrs else None
+
+    if 'public' in attrs:
+        visibility = 'public' if attrs['public'] else 'private'
+
+    if 'payable' in attrs:
+        mutability =  attrs['payable']
 
     return FunctionTypeName(params_parsed, rets_parsed, visibility, mutability, **_extract_base_props(raw))
 
@@ -634,8 +680,13 @@ def parse_array_type_name(raw: Dict) -> ArrayTypeName:
 
 
 def parse_inline_assembly(raw: Dict) -> InlineAssembly:
-    print(raw)
-    return InlineAssembly(raw['attributes']['operations'], **_extract_base_props(raw))
+    operations = None
+    if 'attributes' in raw:
+        if 'operations' in raw['attributes']:
+            # >=0.4.12
+            operations = raw['attributes']['operations']
+
+    return InlineAssembly(operations, **_extract_base_props(raw))
 
 
 def parse_block(raw: Dict) -> Block:
@@ -736,7 +787,7 @@ def parse_modifier_definition(raw: Dict) -> ModifierDefinition:
         rets=None,
         name=raw['attributes']['name'],
         canonical_name=None,
-        visibility=None,
+        visibility="internal",
         **_extract_base_props(raw)
     )
 
@@ -759,13 +810,21 @@ def parse_modifier_invocation(raw: Dict) -> ModifierInvocation:
 
 
 def parse_event_definition(raw: Dict) -> EventDefinition:
-    params = parse(raw['children'][0])
-    assert isinstance(params, ParameterList)
+    # From Solidity 0.6.3 to 0.6.10 (included) the
+    # comment above a event might be added in the children
+    # of an event for the legacy ast
+    for elem in raw['children']:
+        if elem['name'] == 'ParameterList':
+            params = parse(elem)
+            assert isinstance(params, ParameterList)
+
+    attrs =  raw['attributes']
+    anonymous = attrs['anonymous'] if 'anonymous' in attrs else False
 
     return EventDefinition(
-        anonymous=raw['attributes']['anonymous'],
+        anonymous,
         params=params, rets=None,
-        name=raw['attributes']['name'], canonical_name=raw['attributes']['name'], visibility=None,
+        name=attrs['name'], canonical_name=attrs['name'], visibility=None,
         **_extract_base_props(raw),
     )
 
@@ -808,15 +867,20 @@ def parse_identifier(raw: Dict) -> Identifier:
 
 
 def parse_elementary_type_name_expression(raw: Dict) -> ElementaryTypeNameExpression:
-    typename_parsed = parse(raw['children'][0])
-    assert isinstance(typename_parsed, ElementaryTypeName)
-
+    if 'children' in raw:
+        typename_parsed = parse(raw['children'][0])
+        assert isinstance(typename_parsed, ElementaryTypeName)
+    else:
+        typename_parsed = ElementaryTypeName(raw['attributes']['value'], mutability=None, **_extract_base_props(raw))
     return ElementaryTypeNameExpression(typename_parsed, **_extract_expr_props(raw))
 
 
 def parse_literal(raw: Dict) -> Literal:
     attrs = raw['attributes']
-    return Literal(attrs['token'], attrs['value'], attrs['hexvalue'], attrs['subdenomination'],
+    subdenomination = None
+    if 'subdenomination' in attrs:
+        subdenomination = attrs['subdenomination']
+    return Literal(attrs['token'], attrs['value'], attrs['hexvalue'], subdenomination,
                    **_extract_expr_props(raw))
 
 
@@ -885,5 +949,6 @@ PARSERS: Dict[str, Callable[[Dict], ASTNode]] = {
     'IndexRangeAccess': parse_index_range_access,
     'Identifier': parse_identifier,
     'ElementaryTypeNameExpression': parse_elementary_type_name_expression,
+    'ElementaryTypenameExpression': parse_elementary_type_name_expression,
     'Literal': parse_literal,
 }
