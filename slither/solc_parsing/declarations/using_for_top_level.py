@@ -27,12 +27,12 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
     UsingFor class
     """
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         uftl: UsingForTopLevel,
         top_level_data: Dict,
         slither_parser: "SlitherCompilationUnitSolc",
-    ):
+    ) -> None:
         self._type_name = top_level_data["typeName"]
         self._global = top_level_data["global"]
 
@@ -40,6 +40,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
             self._library_name = top_level_data["libraryName"]
         else:
             self._functions = top_level_data["functionList"]
+            self._library_name = None
 
         self._using_for = uftl
         self._slither_parser = slither_parser
@@ -48,7 +49,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         type_name = parse_type(self._type_name, self)
         self._using_for.using_for[type_name] = []
 
-        if hasattr(self, "_library_name"):
+        if self._library_name is not None:
             library_name = parse_type(self._library_name, self)
             self._using_for.using_for[type_name].append(library_name)
             self._propagate_global(type_name)

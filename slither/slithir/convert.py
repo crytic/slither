@@ -201,18 +201,19 @@ def _fits_under_byte(val: Union[int, str]) -> List[str]:
     return [f"bytes{f}" for f in range(length, 33)] + ["bytes"]
 
 
-def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optional[Function]:
+def _find_function_from_parameter(
+    arguments: List[Variable], candidates: List[Function]
+) -> Optional[Function]:
     """
-    Look for a function in candidates that can be the target of the ir's call
+    Look for a function in candidates that can be the target based on the ir's call arguments
 
     Try the implicit type conversion for uint/int/bytes. Constant values can be both uint/int
     While variables stick to their base type, but can changed the size
 
-    :param ir:
+    :param arguments:
     :param candidates:
     :return:
     """
-    arguments = ir.arguments
     type_args: List[str]
     for idx, arg in enumerate(arguments):
         if isinstance(arg, (list,)):
@@ -1335,20 +1336,24 @@ def convert_to_pop(ir, node):
 def look_for_library_or_top_level(contract, ir, using_for, t):
     for destination in using_for[t]:
         if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
-            internalcall = InternalCall(destination, ir.nbr_arguments, ir.lvalue, ir.type_call)
-            internalcall.set_expression(ir.expression)
-            internalcall.set_node(ir.node)
-            internalcall.call_gas = ir.call_gas
-            internalcall.arguments = [ir.destination] + ir.arguments
-            return_type = internalcall.function.return_type
-            if return_type:
-                if len(return_type) == 1:
-                    internalcall.lvalue.set_type(return_type[0])
-                elif len(return_type) > 1:
-                    internalcall.lvalue.set_type(return_type)
-            else:
-                internalcall.lvalue = None
-            return internalcall
+            arguments = [ir.destination] + ir.arguments
+            if (
+                len(destination.parameters) == len(arguments)
+                and _find_function_from_parameter(arguments, [destination]) is not None
+            ):
+                internalcall = InternalCall(destination, ir.nbr_arguments, ir.lvalue, ir.type_call)
+                internalcall.set_expression(ir.expression)
+                internalcall.set_node(ir.node)
+                internalcall.arguments = [ir.destination] + ir.arguments
+                return_type = internalcall.function.return_type
+                if return_type:
+                    if len(return_type) == 1:
+                        internalcall.lvalue.set_type(return_type[0])
+                    elif len(return_type) > 1:
+                        internalcall.lvalue.set_type(return_type)
+                else:
+                    internalcall.lvalue = None
+                return internalcall
 
         if isinstance(destination, FunctionContract) and destination.contract.is_library:
             lib_contract = destination.contract
@@ -1431,7 +1436,7 @@ def convert_type_library_call(ir: HighLevelCall, lib_contract: Contract):
         # TODO: handle collision with multiple state variables/functions
         func = lib_contract.get_state_variable_from_name(ir.function_name)
     if func is None and candidates:
-        func = _find_function_from_parameter(ir, candidates)
+        func = _find_function_from_parameter(ir.arguments, candidates)
 
     # In case of multiple binding to the same type
     # TODO: this part might not be needed with _find_function_from_parameter
@@ -1527,7 +1532,7 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
                         if f.name == ir.function_name and len(f.parameters) == len(ir.arguments)
                     ]
 
-        func = _find_function_from_parameter(ir, candidates)
+        func = _find_function_from_parameter(ir.arguments, candidates)
 
         if not func:
             assert contract
@@ -1550,7 +1555,7 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
             # TODO: handle collision with multiple state variables/functions
             func = contract.get_state_variable_from_name(ir.function_name)
         if func is None and candidates:
-            func = _find_function_from_parameter(ir, candidates)
+            func = _find_function_from_parameter(ir.arguments, candidates)
 
     # lowlelvel lookup needs to be done at last step
     if not func:
