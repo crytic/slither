@@ -24,6 +24,7 @@ from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
 from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 
 logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
@@ -63,7 +64,7 @@ def _handle_import_aliases(
                 )
 
 
-class SlitherCompilationUnitSolc:
+class SlitherCompilationUnitSolc(CallerContextExpression):
     # pylint: disable=no-self-use,too-many-instance-attributes
     def __init__(self, compilation_unit: SlitherCompilationUnit):
         super().__init__()
@@ -100,6 +101,10 @@ class SlitherCompilationUnitSolc:
     @property
     def underlying_contract_to_parser(self) -> Dict[Contract, ContractSolc]:
         return self._underlying_contract_to_parser
+
+    @property
+    def slither_parser(self) -> "SlitherCompilationUnitSolc":
+        return self
 
     ###################################################################################
     ###################################################################################
