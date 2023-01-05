@@ -7,6 +7,7 @@ from solc_select import solc_select
 from slither import Slither
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector
+from slither.slithir.operations import LibraryCall
 
 
 def _run_all_detectors(slither: Slither) -> None:
@@ -69,3 +70,25 @@ def test_upgradeable_comments() -> None:
     v1 = compilation_unit.get_contract_from_name("V1")[0]
     assert v0.is_upgradeable
     assert v1.upgradeable_version == "version_1"
+
+
+def test_using_for_top_level_same_name() -> None:
+    solc_select.switch_global_version("0.8.15", always_install=True)
+    slither = Slither("./tests/ast-parsing/using-for-3-0.8.0.sol")
+    contract_c = slither.get_contract_from_name("C")[0]
+    libCall = contract_c.get_function_from_full_name("libCall(uint256)")
+    for ir in libCall.all_slithir_operations():
+        if isinstance(ir, LibraryCall) and ir.destination == "Lib" and ir.function_name == "a":
+            return
+    assert False
+
+
+def test_using_for_top_level_implicit_conversion() -> None:
+    solc_select.switch_global_version("0.8.15", always_install=True)
+    slither = Slither("./tests/ast-parsing/using-for-4-0.8.0.sol")
+    contract_c = slither.get_contract_from_name("C")[0]
+    libCall = contract_c.get_function_from_full_name("libCall(uint16)")
+    for ir in libCall.all_slithir_operations():
+        if isinstance(ir, LibraryCall) and ir.destination == "Lib" and ir.function_name == "f":
+            return
+    assert False

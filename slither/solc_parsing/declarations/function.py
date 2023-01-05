@@ -311,7 +311,7 @@ class FunctionSolc(CallerContextExpression):
         for node_parser in self._node_to_yulobject.values():
             node_parser.analyze_expressions()
 
-        self._filter_ternary()
+        self._rewrite_ternary_as_if_else()
 
         self._remove_alone_endif()
 
@@ -1339,7 +1339,7 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
     ###################################################################################
 
-    def _filter_ternary(self) -> bool:
+    def _rewrite_ternary_as_if_else(self) -> bool:
         ternary_found = True
         updated = False
         while ternary_found:
