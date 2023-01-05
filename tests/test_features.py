@@ -73,6 +73,7 @@ def test_upgradeable_comments() -> None:
 
 
 def test_using_for_top_level_same_name() -> None:
+    solc_select.switch_global_version("0.8.15", always_install=True)
     slither = Slither("./tests/ast-parsing/using-for-3-0.8.0.sol")
     contract_c = slither.get_contract_from_name("C")[0]
     libCall = contract_c.get_function_from_full_name("libCall(uint256)")
@@ -83,6 +84,7 @@ def test_using_for_top_level_same_name() -> None:
 
 
 def test_using_for_top_level_implicit_conversion() -> None:
+    solc_select.switch_global_version("0.8.15", always_install=True)
     slither = Slither("./tests/ast-parsing/using-for-4-0.8.0.sol")
     contract_c = slither.get_contract_from_name("C")[0]
     libCall = contract_c.get_function_from_full_name("libCall(uint16)")
