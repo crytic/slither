@@ -1,0 +1,736 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad3",
+                    "source_mapping": {
+                        "start": 275,
+                        "length": 99,
+                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11,
+                            12,
+                            13
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "VarReadUsingThis",
+                            "source_mapping": {
+                                "start": 1,
+                                "length": 1103,
+                                "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad3()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "this.erc20() == address(0)",
+                    "source_mapping": {
+                        "start": 331,
+                        "length": 26,
+                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            12
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 39
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad3",
+                            "source_mapping": {
+                                "start": 275,
+                                "length": 99,
+                                "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "VarReadUsingThis",
+                                    "source_mapping": {
+                                        "start": 1,
+                                        "length": 1103,
+                                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad3()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "The function VarReadUsingThis.bad3() (tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#11-13) reads this.erc20() == address(0) (tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#12) with `this` which adds an extra STATICCALL.\n",
+            "markdown": "The function [VarReadUsingThis.bad3()](tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L11-L13) reads [this.erc20() == address(0)](tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L12) with `this` which adds an extra STATICCALL.\n",
+            "first_markdown_element": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L11-L13",
+            "id": "314f90a4989ea75cc274e1f5f46036968c2ecdaaf8fa84913e7db4ef1ffe5bb8",
+            "check": "var-read-using-this",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad4",
+                    "source_mapping": {
+                        "start": 379,
+                        "length": 138,
+                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14,
+                            15,
+                            16,
+                            17,
+                            18
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "VarReadUsingThis",
+                            "source_mapping": {
+                                "start": 1,
+                                "length": 1103,
+                                "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad4()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "local = this.erc20()",
+                    "source_mapping": {
+                        "start": 471,
+                        "length": 28,
+                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            16
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 41
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad4",
+                            "source_mapping": {
+                                "start": 379,
+                                "length": 138,
+                                "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "VarReadUsingThis",
+                                    "source_mapping": {
+                                        "start": 1,
+                                        "length": 1103,
+                                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad4()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "The function VarReadUsingThis.bad4() (tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#14-18) reads local = this.erc20() (tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#16) with `this` which adds an extra STATICCALL.\n",
+            "markdown": "The function [VarReadUsingThis.bad4()](tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L14-L18) reads [local = this.erc20()](tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L16) with `this` which adds an extra STATICCALL.\n",
+            "first_markdown_element": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L14-L18",
+            "id": "5fd3f1f78f3532107d7e111d84310f3a0fa374fa407e43951d70fd00a752f76f",
+            "check": "var-read-using-this",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad1",
+                    "source_mapping": {
+                        "start": 102,
+                        "length": 85,
+                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5,
+                            6,
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "VarReadUsingThis",
+                            "source_mapping": {
+                                "start": 1,
+                                "length": 1103,
+                                "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad1(uint256)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "this.myMap(x)",
+                    "source_mapping": {
+                        "start": 160,
+                        "length": 20,
+                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            6
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 29
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad1",
+                            "source_mapping": {
+                                "start": 102,
+                                "length": 85,
+                                "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    5,
+                                    6,
+                                    7
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "VarReadUsingThis",
+                                    "source_mapping": {
+                                        "start": 1,
+                                        "length": 1103,
+                                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad1(uint256)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "The function VarReadUsingThis.bad1(uint256) (tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#5-7) reads this.myMap(x) (tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#6) with `this` which adds an extra STATICCALL.\n",
+            "markdown": "The function [VarReadUsingThis.bad1(uint256)](tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L5-L7) reads [this.myMap(x)](tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L6) with `this` which adds an extra STATICCALL.\n",
+            "first_markdown_element": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L5-L7",
+            "id": "a30c3d8ddb468d865fa69afe5b7b83164fc1a332933d4661765cc3781896c7cf",
+            "check": "var-read-using-this",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad2",
+                    "source_mapping": {
+                        "start": 192,
+                        "length": 78,
+                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            8,
+                            9,
+                            10
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "VarReadUsingThis",
+                            "source_mapping": {
+                                "start": 1,
+                                "length": 1103,
+                                "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad2()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "this.erc20()",
+                    "source_mapping": {
+                        "start": 244,
+                        "length": 19,
+                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 28
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad2",
+                            "source_mapping": {
+                                "start": 192,
+                                "length": 78,
+                                "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    8,
+                                    9,
+                                    10
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "VarReadUsingThis",
+                                    "source_mapping": {
+                                        "start": 1,
+                                        "length": 1103,
+                                        "filename_relative": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad2()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "The function VarReadUsingThis.bad2() (tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#8-10) reads this.erc20() (tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#9) with `this` which adds an extra STATICCALL.\n",
+            "markdown": "The function [VarReadUsingThis.bad2()](tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L8-L10) reads [this.erc20()](tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L9) with `this` which adds an extra STATICCALL.\n",
+            "first_markdown_element": "tests/detectors/var-read-using-this/0.6.11/var_read_using_this.sol#L8-L10",
+            "id": "ccc77ba655d341c0461ca4f4040afe19c379b2333e52648b12f793aaf7f0ead8",
+            "check": "var-read-using-this",
+            "impact": "Optimization",
+            "confidence": "High"
+        }
+    ]
+]

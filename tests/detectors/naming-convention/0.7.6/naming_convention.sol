@@ -65,6 +65,8 @@ contract T {
     uint constant M = 1;
 
     uint l = 1;
+    uint O = 1;
+    uint I = 1;
 }
 
 contract ParameterNameEmptyString {
