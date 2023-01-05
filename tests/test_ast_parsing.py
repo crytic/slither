@@ -444,10 +444,10 @@ def pytest_generate_tests(metafunc):
 class TestASTParsing:
     # pylint: disable=no-self-use
     def test_parsing(self, test_file, version, flavor):
-        test_file = os.path.join(TEST_ROOT, "compile", f"{test_file}-{version}-{flavor}.zip")
-        expected_file = os.path.join(TEST_ROOT, "expected", f"{test_file}-{version}-{flavor}.json")
+        actual = os.path.join(TEST_ROOT, "compile", f"{test_file}-{version}-{flavor}.zip")
+        expected = os.path.join(TEST_ROOT, "expected", f"{test_file}-{version}-{flavor}.json")
 
-        cc = load_from_zip(test_file)[0]
+        cc = load_from_zip(actual)[0]
 
         sl = Slither(
             cc,
@@ -459,7 +459,7 @@ class TestASTParsing:
         actual = generate_output(sl)
 
         try:
-            with open(expected_file, "r", encoding="utf8") as f:
+            with open(expected, "r", encoding="utf8") as f:
                 expected = json.load(f)
         except OSError:
             pytest.xfail("the file for this test was not generated")
