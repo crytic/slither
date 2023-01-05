@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Dict, Union, Optional, TypeVar
+from typing import Generic, Union, Optional, TypeVar
 
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
@@ -30,7 +30,7 @@ class MultipleVariablesDeclaration(Exception):
     pass
 
 
-class VariableDeclarationSolc:
+class VariableDeclarationSolc(Generic[T]):
     def __init__(
         self, variable: T, variable_decl: Union[VariableDeclaration, VariableDeclarationStatement]
     ):  # pylint: disable=too-many-branches

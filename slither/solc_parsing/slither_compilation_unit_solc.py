@@ -135,7 +135,7 @@ class SlitherCompilationUnitSolc:
         from slither.solc_parsing.types.sniffer import sniff
         from slither.solc_parsing.types.dump import dumps
         node = sniff(data_loaded)(data_loaded)
-        print(dumps(node))
+        # print(dumps(node))
         if "sourcePaths" in data_loaded:
             for sourcePath in data_loaded["sourcePaths"]:
                 if os.path.isfile(sourcePath):
@@ -171,9 +171,8 @@ class SlitherCompilationUnitSolc:
                     self._compilation_unit.pragma_directives.append(pragma)
                 
                 case ImportDirective():
-                    import_directive = Import(child.path, scope)
+                    import_directive = Import(Path(child.path), scope)
                     import_directive.set_offset(child.src, self._compilation_unit)
-
                     scope.imports.add(import_directive)
                     # # TODO investigate unitAlias in version < 0.7 and legacy ast
                     # if "unitAlias" in top_level_data:

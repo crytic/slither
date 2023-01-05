@@ -29,7 +29,10 @@ class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few
     ):
         self._structure = st
         st.name = struct_def.name
-        st.canonical_name = struct_def.canonical_name
+        if struct_def.canonical_name:
+            st.canonical_name = struct_def.canonical_name
+        else:
+            st.canonical_name = struct_def.name
         self._slither_parser = slither_parser
 
         self._elemsNotParsed = struct_def.members

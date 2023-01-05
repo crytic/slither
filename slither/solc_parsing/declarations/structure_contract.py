@@ -27,7 +27,10 @@ class StructureContractSolc:  # pylint: disable=too-few-public-methods
 
         self._structure = st
         st.name = struct_def.name
-        st.canonical_name = struct_def.canonical_name
+        if struct_def.canonical_name:
+            st.canonical_name = struct_def.canonical_name
+        else:
+            st.canonical_name = contract_parser.underlying_contract.name + "." + struct_def.name
         self._contract_parser = contract_parser
 
         self._elemsNotParsed: List[VariableDeclaration] = struct_def.members

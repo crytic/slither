@@ -203,7 +203,7 @@ def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit
 
 # TODO: since the add of FileScope, we can probably refactor this function and makes it a lot simpler
 def parse_type(
-    t: Union[Dict, TypeName],
+    t: Union[Dict, TypeName, UnknownType],
     caller_context: Union["CallerContextExpression", "SlitherCompilationUnitSolc"],
 ) -> Type:
     """

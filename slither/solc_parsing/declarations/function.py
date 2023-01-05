@@ -335,7 +335,7 @@ class FunctionSolc(CallerContextExpression):
         last_scope = scope
 
         if stmt.init:
-            node_init_expression = self._parse(stmt.init, node)
+            node_init_expression = self._parse(stmt.init, node, last_scope)
             link_underlying_nodes(node_init_expression, node_startLoop)
         else:
             link_underlying_nodes(node, node_startLoop)
@@ -521,6 +521,7 @@ class FunctionSolc(CallerContextExpression):
 
     def _parse_block(self, stmt: Block, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
         for statement in stmt.statements:
+            print(statement)
             node = self._parse(statement, node, scope)
         return node
 
