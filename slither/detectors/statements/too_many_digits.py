@@ -5,6 +5,7 @@ Module detecting numbers with too many digits.
 import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.variables import Constant
+from slither.core.solidity_types.elementary_type import Byte
 
 _HEX_ADDRESS_REGEXP = re.compile("(0[xX])?[0-9a-fA-F]{40}")
 
@@ -62,6 +63,9 @@ Use:
         for node in f.nodes:
             # each node contains a list of IR instruction
             for ir in node.irs:
+                # if statement variable type is `byte(s)`; skip.
+                if hasattr(ir, "lvalue") and ir.lvalue.type.name in Byte:
+                    continue
                 # iterate over all the variables read by the IR
                 for read in ir.read:
                     # if the variable is a constant
