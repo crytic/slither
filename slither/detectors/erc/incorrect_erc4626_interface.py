@@ -10,6 +10,7 @@ class IncorrectERC4626InterfaceDetection(AbstractDetector):
     """
     Incorrect ERC4626 interface.
     """
+
     ARGUMENT = "erc4626-interface"
     HELP = "Incorrect ERC4626 interface"
     IMPACT = DetectorClassification.MEDIUM
@@ -66,13 +67,21 @@ class IncorrectERC4626InterfaceDetection(AbstractDetector):
             return True
         if name == "previewWithdraw" and parameters == ["uint256"] and returnVars != ["uint256"]:
             return True
-        if name == "withdraw" and parameters == ["uint256", "address", "address"] and returnVars != ["uint256"]:
+        if (
+            name == "withdraw"
+            and parameters == ["uint256", "address", "address"]
+            and returnVars != ["uint256"]
+        ):
             return True
         if name == "maxRedeem" and parameters == ["address"] and returnVars != ["uint256"]:
             return True
         if name == "previewRedeem" and parameters == ["uint256"] and returnVars != ["uint256"]:
             return True
-        if name == "redeem" and parameters == ["uint256", "address", "address"] and returnVars != ["uint256"]:
+        if (
+            name == "redeem"
+            and parameters == ["uint256", "address", "address"]
+            and returnVars != ["uint256"]
+        ):
             return True
         return False
 
