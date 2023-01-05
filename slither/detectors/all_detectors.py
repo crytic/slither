@@ -87,3 +87,4 @@ from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
 from .functions.permit_domain_signature_collision import DomainSeparatorCollision
 from .functions.codex import Codex
+from .erc.erc20.incorrect_safe_approve import IncorrectSafeApprove
