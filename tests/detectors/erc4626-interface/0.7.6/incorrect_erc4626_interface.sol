@@ -1,5 +1,13 @@
+abstract contract ERC20{
+    function transfer(address to, uint value) external virtual;
+    function approve(address spender, uint value) external virtual;
+    function transferFrom(address from, address to, uint value) external virtual;
+    function totalSupply() external virtual;
+    function balanceOf(address who) external virtual;
+    function allowance(address owner, address spender) external virtual;
+}
 
-abstract contract Vault {
+abstract contract Vault is ERC20 {
     function asset() external virtual;
     function totalAssets() external virtual;
     function convertToShares(uint256 assets) external virtual;
