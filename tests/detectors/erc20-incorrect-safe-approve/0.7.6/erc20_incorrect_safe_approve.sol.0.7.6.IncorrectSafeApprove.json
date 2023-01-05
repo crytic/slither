@@ -1,0 +1,253 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad3",
+                    "source_mapping": {
+                        "start": 829,
+                        "length": 92,
+                        "filename_relative": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            41,
+                            42,
+                            43
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 157,
+                                "length": 766,
+                                "filename_relative": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad3(uint256)"
+                    }
+                }
+            ],
+            "description": "C.bad3(uint256) (tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol#41-43) calls `safeApprove` with a non-zero value\n",
+            "markdown": "[C.bad3(uint256)](tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol#L41-L43) calls `safeApprove` with a non-zero value\n",
+            "first_markdown_element": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol#L41-L43",
+            "id": "0e2bcb981fa9de58958bca199e6d7f294d6edaadb1fcc7e4f0235c761eee6bc5",
+            "check": "erc20-incorrect-safe-approve",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad1",
+                    "source_mapping": {
+                        "start": 624,
+                        "length": 91,
+                        "filename_relative": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            33,
+                            34,
+                            35
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 157,
+                                "length": 766,
+                                "filename_relative": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad1()"
+                    }
+                }
+            ],
+            "description": "C.bad1() (tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol#33-35) calls `safeApprove` with a non-zero value\n",
+            "markdown": "[C.bad1()](tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol#L33-L35) calls `safeApprove` with a non-zero value\n",
+            "first_markdown_element": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol#L33-L35",
+            "id": "5a61daaa853ba7b6502b414b31c0ea71b1e8ba1a7ecf2c492fdedabfead8fa2e",
+            "check": "erc20-incorrect-safe-approve",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad2",
+                    "source_mapping": {
+                        "start": 721,
+                        "length": 102,
+                        "filename_relative": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            37,
+                            38,
+                            39
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 157,
+                                "length": 766,
+                                "filename_relative": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad2()"
+                    }
+                }
+            ],
+            "description": "C.bad2() (tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol#37-39) calls `safeApprove` with a non-zero value\n",
+            "markdown": "[C.bad2()](tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol#L37-L39) calls `safeApprove` with a non-zero value\n",
+            "first_markdown_element": "tests/detectors/erc20-incorrect-safe-approve/0.7.6/erc20_incorrect_safe_approve.sol#L37-L39",
+            "id": "b28a6f139c8dba51776faf3b44e993507e497bb34d42b2b3892b1c9685d933e8",
+            "check": "erc20-incorrect-safe-approve",
+            "impact": "Medium",
+            "confidence": "High"
+        }
+    ]
+]
