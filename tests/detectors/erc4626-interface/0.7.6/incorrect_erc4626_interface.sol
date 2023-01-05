@@ -1,6 +1,5 @@
 
 abstract contract Vault {
-
     function asset() external virtual;
     function totalAssets() external virtual;
     function convertToShares(uint256 assets) external virtual;
