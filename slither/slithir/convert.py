@@ -202,16 +202,19 @@ def _fits_under_byte(val: Union[int, str]) -> List[str]:
 
 
 def _find_function_from_parameter(
-    arguments: List[Variable], candidates: List[Function]
+    arguments: List[Variable], candidates: List[Function], full_comparison: bool
 ) -> Optional[Function]:
     """
     Look for a function in candidates that can be the target based on the ir's call arguments
 
     Try the implicit type conversion for uint/int/bytes. Constant values can be both uint/int
-    While variables stick to their base type, but can changed the size
+    While variables stick to their base type, but can changed the size.
+    If full_comparison is True it will do a comparison of all the arguments regardless if
+    the candidate remained is one.
 
     :param arguments:
     :param candidates:
+    :param full_comparison:
     :return:
     """
     type_args: List[str]
@@ -261,7 +264,7 @@ def _find_function_from_parameter(
                     not_found = False
                     candidates_kept.append(candidate)
 
-            if len(candidates_kept) == 1:
+            if len(candidates_kept) == 1 and not full_comparison:
                 return candidates_kept[0]
         candidates = candidates_kept
     if len(candidates) == 1:
@@ -1339,7 +1342,7 @@ def look_for_library_or_top_level(contract, ir, using_for, t):
             arguments = [ir.destination] + ir.arguments
             if (
                 len(destination.parameters) == len(arguments)
-                and _find_function_from_parameter(arguments, [destination]) is not None
+                and _find_function_from_parameter(arguments, [destination], True) is not None
             ):
                 internalcall = InternalCall(destination, ir.nbr_arguments, ir.lvalue, ir.type_call)
                 internalcall.set_expression(ir.expression)
@@ -1436,7 +1439,7 @@ def convert_type_library_call(ir: HighLevelCall, lib_contract: Contract):
         # TODO: handle collision with multiple state variables/functions
         func = lib_contract.get_state_variable_from_name(ir.function_name)
     if func is None and candidates:
-        func = _find_function_from_parameter(ir.arguments, candidates)
+        func = _find_function_from_parameter(ir.arguments, candidates, False)
 
     # In case of multiple binding to the same type
     # TODO: this part might not be needed with _find_function_from_parameter
@@ -1532,7 +1535,7 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
                         if f.name == ir.function_name and len(f.parameters) == len(ir.arguments)
                     ]
 
-        func = _find_function_from_parameter(ir.arguments, candidates)
+        func = _find_function_from_parameter(ir.arguments, candidates, False)
 
         if not func:
             assert contract
@@ -1555,7 +1558,7 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
             # TODO: handle collision with multiple state variables/functions
             func = contract.get_state_variable_from_name(ir.function_name)
         if func is None and candidates:
-            func = _find_function_from_parameter(ir.arguments, candidates)
+            func = _find_function_from_parameter(ir.arguments, candidates, False)
 
     # lowlelvel lookup needs to be done at last step
     if not func:
