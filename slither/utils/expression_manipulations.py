@@ -135,6 +135,7 @@ class SplitTernaryExpression:
     ) -> None:
         for next_expr in expression.expressions:
             # TODO: can we get rid of `NoneType` expressions in `TupleExpression`?
+            # montyly: this might happen with unnamed tuple (ex: (,,,) = f()), but it needs to be checked
             if next_expr:
                 if isinstance(next_expr, IndexAccess):
                     self.convert_index_access(next_expr, true_expression, false_expression)
