@@ -426,6 +426,8 @@ ALL_TESTS = [
     Test("ternary-with-max.sol", ["0.8.15"]),
     Test("using-for-1-0.8.0.sol", ["0.8.15"]),
     Test("using-for-2-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-3-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-4-0.8.0.sol", ["0.8.15"]),
     Test("using-for-functions-list-1-0.8.0.sol", ["0.8.15"]),
     Test("using-for-functions-list-2-0.8.0.sol", ["0.8.15"]),
     Test("using-for-functions-list-3-0.8.0.sol", ["0.8.15"]),
