@@ -80,6 +80,9 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "balance(address)": ["uint256"],
     "code(address)": ["bytes"],
     "codehash(address)": ["bytes32"],
+    "certik_unknown_string()": ["string"],
+    "certik_unknown_bytes()": ["bytes"],
+    "certik_unknown_uint()": ["uint"]
 }
 
 

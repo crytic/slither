@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional, Union, List, TYPE_CHECKING
+from typing import Dict, Literal, Optional, Union, List, TYPE_CHECKING
 
 from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
 from slither.core.cfg.scope import Scope
@@ -663,19 +663,119 @@ class FunctionSolc(CallerContextExpression):
 
         if externalCall is None:
             raise ParsingError(f"Try/Catch not correctly parsed by Slither {statement}")
+
+        try_clause = statement["clauses"][0]
+        catch_clauses = statement["clauses"][1:]
+        try_params = try_clause["parameters"]["parameters"] \
+                     if "parameters" in try_clause \
+                     else []
+        new_node = node
+        if len(try_params) > 0:
+            var_identifiers = []
+            for v in try_params:
+                identifier = {
+                    "nodeType": "Identifier",
+                    "referencedDeclaration": v["id"],
+                    "src": v["src"],
+                    "name": v["name"],
+                    "typeDescriptions": {"typeString" : v["typeDescriptions"]["typeString"]}
+                }
+                var_identifiers.append(identifier)
+
+                new_statement = {
+                    "nodeType": "VariableDeclarationStatement",
+                    "src": v["src"],
+                    "declarations": [v],
+                    "initialValue": None,
+                }
+                new_node = self._parse_variable_definition(new_statement, new_node)
+            tuple_expression = {
+                "nodeType" : "TupleExpression",
+                "src": statement["src"],
+                "components": var_identifiers
+            }
+            try_expr = {
+                "nodeType": "Assignment",
+                "src": statement["src"],
+                "operator": "=",
+                "type": "tuple()",
+                "leftHandSide": tuple_expression,
+                "rightHandSide": externalCall,
+                "typeDescriptions": {"typeString": "tuple()"}
+            }
+        else:
+            try_expr = externalCall
+
         catch_scope = Scope(
-            node.underlying_node.scope.is_checked, False, node.underlying_node.scope
+            new_node.underlying_node.scope.is_checked, False, new_node.underlying_node.scope
         )
-        new_node = self._new_node(NodeType.TRY, statement["src"], catch_scope)
-        new_node.add_unparsed_expression(externalCall)
-        link_underlying_nodes(node, new_node)
-        node = new_node
+        try_catch_node = self._new_node(NodeType.TRY, statement["src"], catch_scope)
+        try_catch_node.add_unparsed_expression(try_expr)
+        link_underlying_nodes(new_node, try_catch_node)
 
-        for clause in statement.get("clauses", []):
-            self._parse_catch(clause, node)
-        return node
+        self._parse_catch(try_clause, try_catch_node, True)
 
-    def _parse_catch(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+        for clause in catch_clauses:
+            self._parse_catch(clause, try_catch_node, False)
+        return try_catch_node
+
+
+    def _get_unknown_call(
+        self,
+        src : str,
+        typename : Union[Literal["bytes"], Literal["string"], Literal["uint"]]
+        ) -> Dict:
+        """
+        Returns an AST for a call to an "unknown value function". Depending on the typename
+        argument, the call will be either certik_unknown_bytes(), certik_unknown_string(), or
+        certik_unknown_uint().
+
+        :src:      a source position to locate the AST at
+        :typename: the desired type of the call's return value
+        :result:   solc json ast for a call to certik_unknown_*typename*, positioned at *src*
+        """
+        if typename in ["bytes", "string"]:
+            return {
+                    "nodeType" : "FunctionCall",
+                    "src": src,
+                    "kind": "functionCall",
+                    "isPure": True,
+                    "isLValue": False,
+                    "isConstant": False,
+                    "typeDescriptions" : { "typeIdentifier": f"t_{typename}_memory_ptr", "typeString": f"{typename} memory" },
+                    "arguments": [],
+                    "expression": {
+                        "nodeType": "Identifier",
+                        "name": f"certik_unknown_{typename}",
+                        "src": src,
+                        "typeDescriptions": {
+                            "typeString": f"function () pure returns ({typename} memory)"
+                        },
+                    }
+                }
+        elif typename == "uint":
+            return {
+                "nodeType" : "FunctionCall",
+                "src": src,
+                "kind": "functionCall",
+                "isPure": True,
+                "isLValue": False,
+                "isConstant": False,
+                "typeDescriptions" : { "typeIdentifier": "t_uint_ptr", "typeString": "uint" },
+                "arguments": [],
+                "expression": {
+                    "nodeType": "Identifier",
+                    "name": "certik_unknown_uint",
+                    "src": src,
+                    "typeDescriptions": {
+                        "typeString": "function () pure returns (uint)"
+                    },
+                }
+            }
+
+        assert False # unreachable
+
+    def _parse_catch(self, statement: Dict, node: NodeSolc, is_try_clause : bool) -> NodeSolc:
         block = statement.get("block", None)
 
         if block is None:
@@ -690,12 +790,26 @@ class FunctionSolc(CallerContextExpression):
         else:
             params = statement[self.get_children("children")]
 
-        if params:
-            for param in params.get("parameters", []):
-                assert param[self.get_key()] == "VariableDeclaration"
-                self._add_param(param)
+        params = params["parameters"] if params and "parameters" in params else None
 
-        return self._parse_statement(block, try_node, try_scope)
+        if (not is_try_clause) and params:
+            assert (len(params) == 1)
+            parameter = params[0]
+            assert parameter[self.get_key()] == "VariableDeclaration"
+
+            initialValue = self._get_unknown_call(statement["src"], parameter["typeName"]["name"])
+
+            new_statement = {
+                "nodeType": "VariableDeclarationStatement",
+                "src": parameter["src"],
+                "declarations": [parameter],
+                "initialValue": initialValue,
+            }
+            new_node = self._parse_variable_definition(new_statement, try_node)
+        else:
+            new_node = try_node
+
+        return self._parse_statement(block, new_node, try_scope)
 
     def _parse_variable_definition(self, statement: Dict, node: NodeSolc) -> NodeSolc:
         try:
