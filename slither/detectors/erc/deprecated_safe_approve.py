@@ -1,5 +1,5 @@
 """
-Module detecting incorrect safeApprove usage
+Module detecting deprecated safeApprove usage
 """
 
 from slither.core.declarations.function import Function
