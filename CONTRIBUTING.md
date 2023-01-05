@@ -67,7 +67,7 @@ For each new detector, at least one regression tests must be present.
 To see the tests coverage, run `pytest  tests/test_detectors.py  --cov=slither/detectors --cov-branch --cov-report html`.
 To run tests for a specific detector, run `pytest tests/test_detectors.py -k ReentrancyReadBeforeWritten` (the detector's class name is the argument).
 To run tests for a specific version, run `pytest tests/test_detectors.py -k 0.7.6`.
-The id's of tests can be inspected using ``pytest tests/test_detectors.py --collect-only`.
+The id's of tests can be inspected using `pytest tests/test_detectors.py --collect-only`.
 
 ### Parser tests
 - Create a test in `tests/ast-parsing`
