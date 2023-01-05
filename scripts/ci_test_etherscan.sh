@@ -5,15 +5,19 @@
 mkdir etherscan
 cd etherscan || exit 255
 
+echo "::group::Etherscan mainnet"
 if ! slither 0x7F37f78cBD74481E593F9C737776F7113d76B315 --etherscan-apikey "$GITHUB_ETHERSCAN"; then
-    echo "Etherscan test failed"
+    echo "Etherscan mainnet test failed"
     exit 1
 fi
+echo "::endgroup::"
 
+echo "::group::Etherscan rinkeby"
 if ! slither rinkeby:0xFe05820C5A92D9bc906D4A46F662dbeba794d3b7 --etherscan-apikey "$GITHUB_ETHERSCAN"; then
-    echo "Etherscan test failed"
+    echo "Etherscan rinkeby test failed"
     exit 1
 fi
+echo "::endgroup::"
 
 exit 0
 
