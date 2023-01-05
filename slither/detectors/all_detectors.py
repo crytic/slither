@@ -40,6 +40,7 @@ from .statements.incorrect_strict_equality import IncorrectStrictEquality
 from .erc.erc20.incorrect_erc20_interface import IncorrectERC20InterfaceDetection
 from .erc.incorrect_erc721_interface import IncorrectERC721InterfaceDetection
 from .erc.unindexed_event_parameters import UnindexedERC20EventParameters
+from .erc.incorrect_safe_approve import IncorrectSafeApprove
 from .statements.deprecated_calls import DeprecatedStandards
 from .source.rtlo import RightToLeftOverride
 from .statements.too_many_digits import TooManyDigits
@@ -87,4 +88,3 @@ from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
 from .functions.permit_domain_signature_collision import DomainSeparatorCollision
 from .functions.codex import Codex
-from .erc.erc20.incorrect_safe_approve import IncorrectSafeApprove

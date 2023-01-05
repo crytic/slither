@@ -237,6 +237,11 @@ ALL_TEST_OBJECTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.IncorrectSafeApprove,
+        "erc20_incorrect_safe_approve.sol",
+        "0.7.6",
+    ),
+    Test(
         all_detectors.IncorrectERC721InterfaceDetection,
         "incorrect_erc721_interface.sol",
         "0.4.25",

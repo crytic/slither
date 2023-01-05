@@ -14,13 +14,13 @@ class IncorrectSafeApprove(AbstractDetector):
     Incorrect safeApprove usage detector
     """
 
-    ARGUMENT = "incorrect-safe-approve"
+    ARGUMENT = "erc20-incorrect-safe-approve"
     HELP = "Detects incorrect safeApprove usage"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = (
-        "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-safe-approve"
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#erc20-incorrect-safe-approve"
     )
 
     WIKI_TITLE = "Incorrect safeApprove usage"
