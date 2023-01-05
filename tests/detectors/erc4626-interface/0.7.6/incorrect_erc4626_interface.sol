@@ -1,5 +1,4 @@
 
-
 abstract contract Vault {
 
     function asset() external virtual;
