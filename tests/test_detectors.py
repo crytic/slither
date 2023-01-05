@@ -237,8 +237,8 @@ ALL_TEST_OBJECTS = [
         "0.7.6",
     ),
     Test(
-        all_detectors.IncorrectSafeApprove,
-        "erc20_incorrect_safe_approve.sol",
+        all_detectors.DeprecatedSafeApprove,
+        "erc20_deprecated_safe_approve.sol",
         "0.7.6",
     ),
     Test(

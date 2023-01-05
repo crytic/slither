@@ -1,0 +1,126 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad2",
+                    "source_mapping": {
+                        "start": 306,
+                        "length": 86,
+                        "filename_relative": "tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            19,
+                            20,
+                            21
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 157,
+                                "length": 237,
+                                "filename_relative": "tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad2()"
+                    }
+                }
+            ],
+            "description": "C.bad2() (tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol#19-21) calls `safeApprove`, which has been deprecated\n",
+            "markdown": "[C.bad2()](tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol#L19-L21) calls `safeApprove`, which has been deprecated\n",
+            "first_markdown_element": "tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol#L19-L21",
+            "id": "c005c70720e5e33036bffe946533c62fc6248465826af62df2c2ed3f2de31470",
+            "check": "erc20-deprecated-safe-approve",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad1",
+                    "source_mapping": {
+                        "start": 225,
+                        "length": 75,
+                        "filename_relative": "tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            15,
+                            16,
+                            17
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 157,
+                                "length": 237,
+                                "filename_relative": "tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad1()"
+                    }
+                }
+            ],
+            "description": "C.bad1() (tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol#15-17) calls `safeApprove`, which has been deprecated\n",
+            "markdown": "[C.bad1()](tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol#L15-L17) calls `safeApprove`, which has been deprecated\n",
+            "first_markdown_element": "tests/detectors/erc20-deprecated-safe-approve/0.7.6/erc20_deprecated_safe_approve.sol#L15-L17",
+            "id": "e03bc1e0b71bac015bd267f09eb5ade627b580bb0e1666d43b54bb8fda21e292",
+            "check": "erc20-deprecated-safe-approve",
+            "impact": "Medium",
+            "confidence": "High"
+        }
+    ]
+]
