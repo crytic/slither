@@ -177,6 +177,13 @@ class SlitherCompilationUnitSolc:
 
                     self._compilation_unit.import_directives.append(import_directive)
 
+                    if child.unit_alias:
+                        
+                        import_directive.alias = child.unit_alias.name
+
+                    if child.symbol_aliases:
+                        _handle_import_aliases(child.symbol_aliases, import_directive, scope)
+
                     get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
                     scope.accessible_scopes.append(get_imported_scope)
 

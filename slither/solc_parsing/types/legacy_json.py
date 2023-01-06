@@ -425,15 +425,16 @@ def parse_pragma_directive(raw: Dict) -> PragmaDirective:
 
 def parse_import_directive(raw: Dict) -> ImportDirective:
 
+    attrs = raw['attributes']
     alias = None
-    if 'unitAlias' in raw and raw['unitAlias']:
-        alias = UnitAlias(raw['unitAlias'])
-        
+    if 'unitAlias' in attrs and attrs['unitAlias']:
+        alias = UnitAlias(attrs['unitAlias'])
+    
     symbol_aliases = None
-    if 'symbolAliases' in raw and raw['symbolAliases']:
-        symbol_aliases = raw['symbolAliases']
+    if 'symbolAliases' in attrs and isinstance(attrs['symbolAliases'], dict):
+        symbol_aliases = attrs['symbolAliases']
 
-    return ImportDirective(raw['attributes']['absolutePath'], alias, **_extract_base_props(raw))
+    return ImportDirective(attrs['absolutePath'], alias, symbol_aliases, **_extract_base_props(raw))
 
 
 def parse_contract_definition(raw: Dict) -> ContractDefinition:

@@ -59,10 +59,11 @@ class UnitAlias:
 class ImportDirective(ASTNode):
     __slots__ = "path", "unit_alias", "symbol_aliases"
 
-    def __init__(self, path: str, unit_alias: Optional[UnitAlias], **kwargs):
+    def __init__(self, path: str, unit_alias: Optional[UnitAlias], symbol_aliases, **kwargs):
         super().__init__(**kwargs)
         self.path = path
         self.unit_alias = unit_alias
+        self.symbol_aliases = symbol_aliases
 
 
 # kind can be: "interface", "contract", "library"

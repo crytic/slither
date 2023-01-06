@@ -86,8 +86,8 @@ def parse_import_directive(raw: Dict) -> ImportDirective:
     symbol_aliases = None
     if 'symbolAliases' in raw and raw['symbolAliases']:
         symbol_aliases = raw['symbolAliases']
-        # _handle_import_aliases(symbol_aliases, import_directive, scope)
-    return ImportDirective(raw['absolutePath'], alias, **_extract_base_props(raw))
+
+    return ImportDirective(raw['absolutePath'], alias, symbol_aliases, **_extract_base_props(raw))
 
 
 def parse_contract_definition(raw: Dict) -> ContractDefinition:

@@ -329,7 +329,9 @@ class ContractSolc(CallerContextExpression):
         try:
             for function_parser in self._functions_parser:
                 function_parser.analyze_content()
-        except (VariableNotFound, KeyError, ParsingError) as e:
+        except VariableNotFound as e:
+            self.log_incorrect_parsing(e)
+        except (KeyError, ParsingError) as e:
             self.log_incorrect_parsing(f"Missing function {e}")
 
     def analyze_params_modifiers(self):

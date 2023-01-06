@@ -282,7 +282,7 @@ def parse_member_access(expr: MemberAccessT, ctx: CallerContextExpression) -> "E
         super_name = parse_super_name(expr)
         var = find_variable(super_name, ctx, is_super=True)
         if var is None:
-            raise VariableNotFound("Variable not found: {}".format(super_name))
+            raise VariableNotFound(f"Super variable not found: {super_name}")
         sup = SuperIdentifier(var)
         sup.set_offset(expr.src, ctx.compilation_unit)
         return sup
