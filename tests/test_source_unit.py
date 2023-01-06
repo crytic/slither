@@ -1,5 +1,7 @@
 from slither import Slither
 
+# NB: read tests/source_unit/README.md before using this test
+
 
 def test_contract_info() -> None:
     slither = Slither("./tests/source_unit")
