@@ -64,8 +64,9 @@ Use:
             # each node contains a list of IR instruction
             for ir in node.irs:
                 # if statement variable type is `byte(s)`; skip.
-                if hasattr(ir, "lvalue") and ir.lvalue.type.name in Byte:
-                    continue
+                if hasattr(ir, "lvalue") and hasattr(ir.lvalue.type, "name"):
+                    if ir.lvalue.type.name in Byte:
+                        continue
                 # iterate over all the variables read by the IR
                 for read in ir.read:
                     # if the variable is a constant
