@@ -21,7 +21,7 @@ from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.solc_parsing.types.types import ASTNode, Block, IfStatement, ForStatement, WhileStatement, \
     VariableDeclarationStatement, TryStatement, TryCatchClause, VariableDeclaration, ExpressionStatement, \
     TupleExpression, Identifier, Assignment, ParameterList, Return, Continue, Break, EmitStatement, Throw, \
-    FunctionDefinition, ModifierInvocation, InlineAssembly, Revert
+    FunctionDefinition, ModifierInvocation, InlineAssembly, Revert, UncheckedBlock
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from slither.solc_parsing.variables.local_variable_init_from_tuple import (
     LocalVariableInitFromTupleSolc,
@@ -525,7 +525,8 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(node, new_node)
         return new_node
 
-    def _parse_block(self, stmt: Block, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_block(self, stmt: Union[Block, UncheckedBlock], node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+        scope = Scope(node.underlying_node.scope.is_checked & ( not isinstance(stmt, UncheckedBlock)), False, node.underlying_node.scope)
         for statement in stmt.statements:
             node = self._parse(statement, node, scope)
         return node
@@ -575,14 +576,15 @@ class FunctionSolc(CallerContextExpression):
 
     def _parse(self, stmt: ASTNode, node: NodeSolc, scope: Optional[Union[Scope, Function]]) -> NodeSolc:
         if not scope:
-            check_arithmetic = self.compilation_unit.solc_version >= "0.8.0"
-            scope = Scope(check_arithmetic, False, node.underlying_node.scope)
+            checked_arithmetic = self.compilation_unit.solc_version >= "0.8.0"
+            scope = Scope(checked_arithmetic, False, node.underlying_node.scope)
         return FunctionSolc.PARSERS.get(stmt.__class__, FunctionSolc._parse_unhandled)(self, stmt, node, scope)
 
     PARSERS = {
         VariableDeclarationStatement: _parse_variable_definition,
         WhileStatement: _parse_while,
         Block: _parse_block,
+        UncheckedBlock: _parse_block,
         TryStatement: _parse_try_catch,
         TryCatchClause: _parse_catch,
         ExpressionStatement: _parse_expression_statement,

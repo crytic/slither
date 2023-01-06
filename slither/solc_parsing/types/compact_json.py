@@ -341,6 +341,8 @@ def parse_inline_assembly(raw: Dict) -> InlineAssembly:
         raise ParsingError("not sure now to extract inline assembly")
     return InlineAssembly(ast, **_extract_base_props(raw))
 
+def parse_unchecked_block(raw: Dict) -> UncheckedBlock:
+    return UncheckedBlock(parse_block(raw), **_extract_base_props(raw))
 
 def parse_block(raw: Dict) -> Block:
     """
@@ -806,6 +808,7 @@ PARSERS: Dict[str, Callable[[Dict], ASTNode]] = {
     'ArrayTypeName': parse_array_type_name,
     'InlineAssembly': parse_inline_assembly,
     'Block': parse_block,
+    'UncheckedBlock': parse_unchecked_block,
     'PlaceholderStatement': parse_placeholder_statement,
     'IfStatement': parse_if_statement,
     'TryCatchClause': parse_try_catch_clause,

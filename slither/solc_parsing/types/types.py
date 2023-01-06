@@ -256,13 +256,17 @@ class InlineAssembly(Statement):
         super().__init__(**kwargs)
         self.ast = ast
 
-
 class Block(Statement):
     __slots__ = "statements"
 
     def __init__(self, statements: List[Statement], **kwargs):
         super().__init__(**kwargs)
         self.statements = statements
+
+
+class UncheckedBlock(Block):
+    def __init__(self, block: Block, **kwargs):
+        super().__init__(block.statements, **kwargs)
 
 
 class PlaceholderStatement(Statement):
