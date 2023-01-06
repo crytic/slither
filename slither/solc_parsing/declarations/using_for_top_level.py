@@ -61,17 +61,31 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                     function_name = full_name_split[0]
                     self._analyze_top_level_function(function_name, type_name)
                 elif len(full_name_split) == 2:
-                    # Library function
-                    library_name = full_name_split[0]
+                    # It can be a top level function behind an aliased import
+                    # or a library function
+                    first_part = full_name_split[0]
                     function_name = full_name_split[1]
-                    self._analyze_library_function(function_name, library_name, type_name)
+                    self._check_aliased_import(first_part, function_name, type_name)
                 else:
-                    # probably case if there is an import with an alias we don't handle it for now
-                    # e.g. MyImport.MyLib.a
-                    LOGGER.warning(
-                        f"Using for directive for function {f['function']['name']} not supported"
-                    )
-                    continue
+                    # MyImport.MyLib.a we don't care of the alias
+                    library_name = full_name_split[1]
+                    function_name = full_name_split[2]
+                    self._analyze_library_function(library_name, function_name, type_name)
+
+    def _check_aliased_import(
+        self,
+        first_part: str,
+        function_name: str,
+        type_name: Union[TypeAliasTopLevel, UserDefinedType],
+    ):
+        # We check if the first part appear as alias for an import
+        # if it is then function_name must be a top level function
+        # otherwise it's a library function
+        for i in self._using_for.file_scope.imports:
+            if i.alias == first_part:
+                self._analyze_top_level_function(function_name, type_name)
+                return
+        self._analyze_library_function(first_part, function_name, type_name)
 
     def _analyze_top_level_function(
         self, function_name: str, type_name: Union[TypeAliasTopLevel, UserDefinedType]
@@ -84,8 +98,8 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
 
     def _analyze_library_function(
         self,
-        function_name: str,
         library_name: str,
+        function_name: str,
         type_name: Union[TypeAliasTopLevel, UserDefinedType],
     ) -> None:
         found = False
@@ -100,7 +114,9 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                         found = True
                         break
         if not found:
-            LOGGER.warning(f"Library {library_name} - function {function_name} not found")
+            LOGGER.warning(
+                f"Top level using for: Library {library_name} - function {function_name} not found"
+            )
 
     def _propagate_global(self, type_name: Union[TypeAliasTopLevel, UserDefinedType]) -> None:
         if self._global:
