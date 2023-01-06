@@ -445,20 +445,21 @@ except OSError:
     pass
 
 
-@pytest.mark.parametrize("test_item", ALL_TESTS, ids=lambda x: x.test_file)
-def test_parsing(test_item: Test):
-    flavors = ["compact"]
-    if not test_item.disable_legacy:
-        flavors += ["legacy"]
-    for version, flavor in test_item.versions_with_flavors:
-        test_file = os.path.join(
-            TEST_ROOT, "compile", f"{test_item.test_file}-{version}-{flavor}.zip"
-        )
-        expected_file = os.path.join(
-            TEST_ROOT, "expected", f"{test_item.test_file}-{version}-{flavor}.json"
-        )
+def pytest_generate_tests(metafunc):
+    test_cases = []
+    for test_item in ALL_TESTS:
+        for version, flavor in test_item.versions_with_flavors:
+            test_cases.append((test_item.test_file, version, flavor))
+    metafunc.parametrize("test_file, version, flavor", test_cases)
 
-        cc = load_from_zip(test_file)[0]
+
+class TestASTParsing:
+    # pylint: disable=no-self-use
+    def test_parsing(self, test_file, version, flavor):
+        actual = os.path.join(TEST_ROOT, "compile", f"{test_file}-{version}-{flavor}.zip")
+        expected = os.path.join(TEST_ROOT, "expected", f"{test_file}-{version}-{flavor}.json")
+
+        cc = load_from_zip(actual)[0]
 
         sl = Slither(
             cc,
@@ -470,26 +471,25 @@ def test_parsing(test_item: Test):
         actual = generate_output(sl)
 
         try:
-            with open(expected_file, "r", encoding="utf8") as f:
+            with open(expected, "r", encoding="utf8") as f:
                 expected = json.load(f)
         except OSError:
             pytest.xfail("the file for this test was not generated")
             raise
 
         diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
-
         if diff:
             for change in diff.get("values_changed", []):
                 path_list = re.findall(r"\['(.*?)'\]", change.path())
                 path = "_".join(path_list)
                 with open(
-                    f"test_artifacts/{test_item.test_file}_{path}_expected.dot",
+                    f"test_artifacts/{test_file}_{path}_expected.dot",
                     "w",
                     encoding="utf8",
                 ) as f:
                     f.write(change.t1)
                 with open(
-                    f"test_artifacts/{test_item.test_file}_{version}_{flavor}_{path}_actual.dot",
+                    f"test_artifacts/{test_file}_{version}_{flavor}_{path}_actual.dot",
                     "w",
                     encoding="utf8",
                 ) as f:

@@ -52,7 +52,7 @@ def set_solc(test_item: Test):  # pylint: disable=too-many-lines
 
 
 def id_test(test_item: Test):
-    return f"{test_item.detector}: {test_item.solc_ver}/{test_item.test_file}"
+    return f"{test_item.detector.__name__}-{test_item.solc_ver}-{test_item.test_file}"
 
 
 ALL_TEST_OBJECTS = [
