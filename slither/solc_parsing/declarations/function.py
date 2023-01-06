@@ -144,8 +144,8 @@ class FunctionSolc(CallerContextExpression):
         if local_var_parser.underlying_variable.name:
             known_variables = [v.name for v in self._function.variables]
             while local_var_parser.underlying_variable.name in known_variables:
-                local_var_parser.underlying_variable.name += "_scope_{}".format(
-                    self._counter_scope_local_variables
+                local_var_parser.underlying_variable.name += (
+                    f"_scope_{self._counter_scope_local_variables}"
                 )
                 self._counter_scope_local_variables += 1
                 known_variables = [v.name for v in self._function.variables]
@@ -280,11 +280,11 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
 
     def _parse_if(self, stmt: IfStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
-        condition_node = self._new_node(NodeType.IF, stmt.condition.src, scope)
+        condition_node = self._new_node(NodeType.IF, stmt.condition.src, node.underlying_node.scope)
         condition_node.add_unparsed_expression(stmt.condition)
         link_underlying_nodes(node, condition_node)
         true_scope = Scope(
-                scope.is_checked, False, scope
+                node.underlying_node.scope.is_checked, False, node.underlying_node.scope
             )
         trueStatement = self._parse(stmt.true_body, condition_node, true_scope)
         if stmt.false_body:
@@ -295,7 +295,7 @@ class FunctionSolc(CallerContextExpression):
         else:
             falseStatement = None
 
-        endIf_node = self._new_node(NodeType.ENDIF, stmt.src, scope)
+        endIf_node = self._new_node(NodeType.ENDIF, stmt.src, node.underlying_node.scope)
         link_underlying_nodes(trueStatement, endIf_node)
 
         if falseStatement:
@@ -305,14 +305,14 @@ class FunctionSolc(CallerContextExpression):
         return endIf_node
 
     def _parse_while(self, stmt: WhileStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
-        node_startWhile = self._new_node(NodeType.STARTLOOP, stmt.src, scope)
-        body_scope = Scope(scope.is_checked, False, scope)
+        node_startWhile = self._new_node(NodeType.STARTLOOP, stmt.src, node.underlying_node.scope)
+        body_scope = Scope(node.underlying_node.scope.is_checked, False, node.underlying_node.scope)
 
         node_condition = self._new_node(NodeType.IFLOOP, stmt.condition.src, body_scope)
         node_condition.add_unparsed_expression(stmt.condition)
         statement = self._parse(stmt.body, node_condition, body_scope)
 
-        node_endWhile = self._new_node(NodeType.ENDLOOP, stmt.src, scope)
+        node_endWhile = self._new_node(NodeType.ENDLOOP, stmt.src, node.underlying_node.scope)
 
         link_underlying_nodes(node, node_startWhile)
 
@@ -330,18 +330,20 @@ class FunctionSolc(CallerContextExpression):
         return node_endWhile
 
     def _parse_for(self, stmt: ForStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
-        node_startLoop = self._new_node(NodeType.STARTLOOP, stmt.src, scope)
-        node_endLoop = self._new_node(NodeType.ENDLOOP, stmt.src, scope)
+        node_startLoop = self._new_node(NodeType.STARTLOOP, stmt.src, node.underlying_node.scope)
+        node_endLoop = self._new_node(NodeType.ENDLOOP, stmt.src, node.underlying_node.scope)
         last_scope = scope
 
         if stmt.init:
-            node_init_expression = self._parse(stmt.init, node, last_scope)
+            pre_scope = Scope(node.underlying_node.scope.is_checked, False, last_scope)
+            last_scope = pre_scope
+            node_init_expression = self._parse(stmt.init, node, pre_scope)
             link_underlying_nodes(node_init_expression, node_startLoop)
         else:
             link_underlying_nodes(node, node_startLoop)
 
         if stmt.cond:
-            cond_scope = Scope(scope.is_checked, False, last_scope)
+            cond_scope = Scope(node.underlying_node.scope.is_checked, False, last_scope)
             last_scope = cond_scope
             node_condition = self._new_node(NodeType.IFLOOP, stmt.cond.src, cond_scope)
             node_condition.add_unparsed_expression(stmt.cond)
@@ -350,29 +352,31 @@ class FunctionSolc(CallerContextExpression):
             node_beforeBody = node_condition
         else:
             node_condition = None
-
             node_beforeBody = node_startLoop
 
-        body_scope = Scope(scope.is_checked, False, last_scope)
+        body_scope = Scope(node.underlying_node.scope.is_checked, False, last_scope)
         last_scope = body_scope
         node_body = self._parse(stmt.body, node_beforeBody, body_scope)
 
-        if node_condition:
-            link_underlying_nodes(node_condition, node_endLoop)
-
-        node_LoopExpression = None
         if stmt.loop:
             node_LoopExpression = self._parse(stmt.loop, node_body, last_scope)
             link_underlying_nodes(node_LoopExpression, node_beforeBody)
         else:
             link_underlying_nodes(node_body, node_beforeBody)
 
-        if not stmt.cond:
-            if not stmt.loop:
-                # TODO: fix case where loop has no expression
-                link_underlying_nodes(node_startLoop, node_endLoop)
-            elif node_LoopExpression:
-                link_underlying_nodes(node_LoopExpression, node_endLoop)
+        if node_condition:
+            print("end if")
+            link_underlying_nodes(node_condition, node_endLoop)
+        else:
+            # this is an infinite loop but we can't break our cfg
+            link_underlying_nodes(node_startLoop, node_endLoop)
+
+        # if not stmt.cond:
+        #     if not stmt.loop:
+        #         # TODO: fix case where loop has no expression
+        #         link_underlying_nodes(node_startLoop, node_endLoop)
+        #     elif node_LoopExpression:
+        #         link_underlying_nodes(node_LoopExpression, node_endLoop)
 
         return node_endLoop
 
@@ -552,7 +556,7 @@ class FunctionSolc(CallerContextExpression):
         if stmt.ast:
             if isinstance(stmt.ast, dict):
                 # Added with solc 0.6 - the yul code is an AST
-                yul_object = self._new_yul_block(stmt.src, scope)
+                yul_object = self._new_yul_block(stmt.src, node.underlying_node.scope)
                 entrypoint = yul_object.entrypoint
                 exitpoint = yul_object.convert(stmt.ast)
 
@@ -562,14 +566,14 @@ class FunctionSolc(CallerContextExpression):
                 return exitpoint
             else:
                 # Added with solc 0.4.12
-                asm_node = self._new_node(NodeType.ASSEMBLY, stmt.src, scope)
+                asm_node = self._new_node(NodeType.ASSEMBLY, stmt.src, node.underlying_node.scope)
                 asm_node.underlying_node.add_inline_asm(stmt.ast)
                 link_underlying_nodes(node, asm_node)
-                return node
+                return asm_node
         else:
-            asm_node = self._new_node(NodeType.ASSEMBLY, stmt.src, scope)
+            asm_node = self._new_node(NodeType.ASSEMBLY, stmt.src, node.underlying_node.scope)
             link_underlying_nodes(node, asm_node)
-            return node
+            return asm_node
 
     def _parse_unhandled(self, stmt: ASTNode, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
         raise Exception("unhandled ast node", stmt.__class__)
