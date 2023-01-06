@@ -9,10 +9,10 @@ def test_ternary_conversions() -> None:
     slither = Slither("./tests/slithir/ternary_expressions.sol")
     for contract in slither.contracts:
         for function in contract.functions:
+            vars_declared = 0
+            vars_assigned = 0
             for node in function.nodes:
                 if node.type in [NodeType.IF, NodeType.IFLOOP]:
-                    vars_declared = 0
-                    vars_assigned = 0
 
                     # Iterate over true and false son
                     for inner_node in node.sons:
@@ -31,7 +31,7 @@ def test_ternary_conversions() -> None:
                             if isinstance(ir, Assignment):
                                 vars_assigned += 1
 
-                    assert vars_declared == vars_assigned
+            assert vars_declared == vars_assigned
 
 
 if __name__ == "__main__":

@@ -33,3 +33,22 @@ contract ReentrancyAndWrite{
     }
 }
 
+contract Internal {
+    /// @custom:security write-protection="onlyOwner()"
+    address owner;
+
+
+
+    modifier onlyOwner(){
+        // lets assume there is an access control
+        _;
+    }
+
+    function buggy() public {
+        internal_write();
+    }
+
+    function internal_write() internal {
+        owner = msg.sender;
+    }
+}

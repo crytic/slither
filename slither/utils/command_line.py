@@ -29,6 +29,12 @@ JSON_OUTPUT_TYPES = [
 
 # Those are the flags shared by the command line and the config file
 defaults_flag_in_config = {
+    "codex": False,
+    "codex_contracts": "all",
+    "codex_model": "text-davinci-003",
+    "codex_temperature": 0,
+    "codex_max_tokens": 300,
+    "codex_log": False,
     "detectors_to_run": "all",
     "printers_to_run": None,
     "detectors_to_exclude": None,
