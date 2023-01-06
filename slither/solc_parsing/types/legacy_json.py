@@ -133,9 +133,8 @@ def parse_tuple_expression(raw: Dict) -> TupleExpression:
     # Otherwise, we would not be able to determine 
     # that a = 1, c = 3, and 2 is lost.
     children_parsed: List[Optional[Expression]] = []
-    attrs = raw['attributes']
     if 'children' not in raw:
-        for component in attrs['components']:
+        for component in raw['attributes']['components']:
             if component:
                 child_parsed = parse(component)
                 assert isinstance(child_parsed, Expression)
@@ -152,16 +151,16 @@ def parse_tuple_expression(raw: Dict) -> TupleExpression:
                 children_parsed.append(child_parsed)
             else:
                 children_parsed.append(None)
-    # Add none for empty tuple items
-    if 'attributes' in attrs:
-        if 'type' in attrs['attributes']:
-            t = attrs['attributes']['type']
-            if ',,' in t or '(,' in t or ',)' in t:
-                t = t[len('tuple(') : -1]
-                elems = t.split(',')
-                for idx, _ in enumerate(elems):
-                    if elems[idx] == '':
-                        children_parsed.insert(idx, None)
+    # TODO Add none for empty tuple items
+    # if 'attributes' in attrs:
+    #     if 'type' in attrs['attributes']:
+    #         t = attrs['attributes']['type']
+    #         if ',,' in t or '(,' in t or ',)' in t:
+    #             t = t[len('tuple(') : -1]
+    #             elems = t.split(',')
+    #             for idx, _ in enumerate(elems):
+    #                 if elems[idx] == '':
+    #                     children_parsed.insert(idx, None)
 
     return TupleExpression(children_parsed, False, **_extract_expr_props(raw))
 

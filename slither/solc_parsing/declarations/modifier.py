@@ -44,7 +44,7 @@ class ModifierSolc(FunctionSolc):
         self._analyze_attributes()
 
         if self._functionNotParsed.params:
-                self._parse_params(self._functionNotParsed.params)
+            self._parse_params(self._functionNotParsed.params)
 
     def analyze_content(self):
         if self._content_was_analyzed:
@@ -52,8 +52,9 @@ class ModifierSolc(FunctionSolc):
 
         self._content_was_analyzed = True
 
-        self._function.is_implemented = True
-        self._parse_cfg(self._functionNotParsed.body)
+        if self._functionNotParsed.body:
+            self._function.is_implemented = True
+            self._parse_cfg(self._functionNotParsed.body)
 
         for local_var_parser in self._local_variables_parser:
             local_var_parser.analyze(self)
