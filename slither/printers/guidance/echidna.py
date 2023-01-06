@@ -323,27 +323,32 @@ def _call_a_parameter(slither: SlitherCore) -> Dict[str, List[Dict]]:
     ret: Dict[str, List[Dict]] = defaultdict(list)
     for contract in slither.contracts:  # pylint: disable=too-many-nested-blocks
         for function in contract.functions_entry_points:
-            for ir in function.all_slithir_operations():
-                if isinstance(ir, HighLevelCall):
-                    for idx, parameter in enumerate(function.parameters):
-                        if is_dependent(ir.destination, parameter, function):
-                            ret[contract.name].append(
-                                {
-                                    "function": _get_name(function),
-                                    "parameter_idx": idx,
-                                    "signature": _get_name(ir.function),
-                                }
-                            )
-                if isinstance(ir, LowLevelCall):
-                    for idx, parameter in enumerate(function.parameters):
-                        if is_dependent(ir.destination, parameter, function):
-                            ret[contract.name].append(
-                                {
-                                    "function": _get_name(function),
-                                    "parameter_idx": idx,
-                                    "signature": None,
-                                }
-                            )
+            try:
+                for ir in function.all_slithir_operations():
+                    if isinstance(ir, HighLevelCall):
+                        for idx, parameter in enumerate(function.parameters):
+                            if is_dependent(ir.destination, parameter, function):
+                                ret[contract.name].append(
+                                    {
+                                        "function": _get_name(function),
+                                        "parameter_idx": idx,
+                                        "signature": _get_name(ir.function),
+                                    }
+                                )
+                    if isinstance(ir, LowLevelCall):
+                        for idx, parameter in enumerate(function.parameters):
+                            if is_dependent(ir.destination, parameter, function):
+                                ret[contract.name].append(
+                                    {
+                                        "function": _get_name(function),
+                                        "parameter_idx": idx,
+                                        "signature": None,
+                                    }
+                                )
+            except Exception as e:
+                if slither.no_fail:
+                    continue
+                raise e
     return ret
 
 

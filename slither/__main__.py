@@ -555,6 +555,13 @@ def parse_args(
         default=False,
     )
 
+    group_misc.add_argument(
+        "--no-fail",
+        help="Do not fail in case of parsing (echidna mode only)",
+        action="store_true",
+        default=defaults_flag_in_config["no_fail"],
+    )
+
     group_codex.add_argument(
         "--codex",
         help="Enable codex (require an OpenAI API Key)",
