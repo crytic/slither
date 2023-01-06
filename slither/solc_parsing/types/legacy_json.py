@@ -414,8 +414,9 @@ def parse_throw(raw: Dict) -> Throw:
 
 def parse_source_unit(raw: Dict) -> SourceUnit:
     children_parsed: List[ASTNode] = []
-    for child in raw['children']:
-        children_parsed.append(parse(child))
+    if 'children' in raw:
+        for child in raw['children']:
+            children_parsed.append(parse(child))
     return SourceUnit(children_parsed, **_extract_base_props(raw))
 
 

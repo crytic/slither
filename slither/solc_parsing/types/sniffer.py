@@ -27,13 +27,17 @@ def sniff_legacy_json(raw: Dict) -> bool:
     uses_legacy_nodetype_key = 'name' in raw
     uses_legacy_children = 'children' in raw and isinstance(raw['children'], list)
 
-    return uses_legacy_nodetype_key and uses_legacy_children
+    return uses_legacy_nodetype_key and uses_legacy_children 
 
+def sniff_compact_json(raw: Dict) -> bool:
+    uses_compact_nodetype_key = 'nodeType' in raw
 
-DEFAULT_SNIFF_RESULT = 'sniffer_compact_json'
+    return uses_compact_nodetype_key 
+
+DEFAULT_SNIFF_RESULT = 'sniffer_legacy_json'
 
 SNIFFER_RULES = {
-    'sniffer_legacy_json': sniff_legacy_json,
+    'sniffer_compact_json': sniff_compact_json,
 }
 
 from .legacy_json import parse as legacy_parser

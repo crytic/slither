@@ -280,6 +280,7 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
 
     def _parse_if(self, stmt: IfStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+        falseStatement = None
         condition_node = self._new_node(NodeType.IF, stmt.condition.src, node.underlying_node.scope)
         condition_node.add_unparsed_expression(stmt.condition)
         link_underlying_nodes(node, condition_node)
@@ -287,13 +288,12 @@ class FunctionSolc(CallerContextExpression):
                 node.underlying_node.scope.is_checked, False, node.underlying_node.scope
             )
         trueStatement = self._parse(stmt.true_body, condition_node, true_scope)
+        
         if stmt.false_body:
             false_scope = Scope(
-                scope.is_checked, False, scope
+                node.underlying_node.scope.is_checked, False, node.underlying_node.scope
             )
             falseStatement = self._parse(stmt.false_body, condition_node, false_scope)
-        else:
-            falseStatement = None
 
         endIf_node = self._new_node(NodeType.ENDIF, stmt.src, node.underlying_node.scope)
         link_underlying_nodes(trueStatement, endIf_node)
@@ -308,7 +308,7 @@ class FunctionSolc(CallerContextExpression):
         node_startWhile = self._new_node(NodeType.STARTLOOP, stmt.src, node.underlying_node.scope)
         body_scope = Scope(node.underlying_node.scope.is_checked, False, node.underlying_node.scope)
 
-        node_condition = self._new_node(NodeType.IFLOOP, stmt.condition.src, body_scope)
+        node_condition = self._new_node(NodeType.IFLOOP, stmt.condition.src, node.underlying_node.scope)
         node_condition.add_unparsed_expression(stmt.condition)
         statement = self._parse(stmt.body, node_condition, body_scope)
 
@@ -365,7 +365,6 @@ class FunctionSolc(CallerContextExpression):
             link_underlying_nodes(node_body, node_beforeBody)
 
         if node_condition:
-            print("end if")
             link_underlying_nodes(node_condition, node_endLoop)
         else:
             # this is an infinite loop but we can't break our cfg

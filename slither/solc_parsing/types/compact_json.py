@@ -393,7 +393,7 @@ def parse_try_catch_clause(raw: Dict) -> TryCatchClause:
 
     error_name = raw['errorName']
     parameters_parsed = None
-    if 'parameters' in raw:
+    if 'parameters' in raw and raw['parameters']:
         parameters_parsed = parse(raw['parameters'])
         assert isinstance(parameters_parsed, ParameterList)
 
@@ -714,14 +714,15 @@ def parse_index_range_access(raw: Dict) -> IndexRangeAccess:
     base_parsed = parse(raw['baseExpression'])
     assert isinstance(base_parsed, Expression)
 
-    start_parsed = parse(raw['startExpression'])
-    assert isinstance(start_parsed, Expression)
+    start_parsed = None
+    if 'startExpressionraw' in raw and raw['startExpression']:
+        parse(raw['startExpression'])
+        assert isinstance(start_parsed, Expression)
 
-    if raw['endExpression']:
+    end_parsed = None
+    if 'endExpression' in raw and raw['endExpression']:
         end_parsed = parse(raw['endExpression'])
         assert isinstance(end_parsed, Expression)
-    else:
-        end_parsed = None
 
     return IndexRangeAccess(base_parsed, start_parsed, end_parsed, **_extract_expr_props(raw))
 
