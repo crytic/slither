@@ -21,7 +21,7 @@ from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.solc_parsing.types.types import ASTNode, Block, IfStatement, ForStatement, WhileStatement, \
     VariableDeclarationStatement, TryStatement, TryCatchClause, VariableDeclaration, ExpressionStatement, \
     TupleExpression, Identifier, Assignment, ParameterList, Return, Continue, Break, EmitStatement, Throw, \
-    FunctionDefinition, ModifierInvocation, InlineAssembly
+    FunctionDefinition, ModifierInvocation, InlineAssembly, Revert
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from slither.solc_parsing.variables.local_variable_init_from_tuple import (
     LocalVariableInitFromTupleSolc,
@@ -386,7 +386,7 @@ class FunctionSolc(CallerContextExpression):
         node = new_node
 
         for clause in stmt.clauses:
-            self._parse(clause, node)
+            self._parse(clause, node, scope)
         return node
 
     def _parse_catch(self, stmt: TryCatchClause, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
@@ -399,7 +399,7 @@ class FunctionSolc(CallerContextExpression):
             for param in stmt.params.params:
                 self._add_param(param)
 
-        return self._parse(stmt.block, try_node)
+        return self._parse(stmt.block, try_node, try_scope)
 
     def _parse_variable_definition(self, stmt: VariableDeclarationStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
         if len(stmt.variables) == 1:
@@ -444,7 +444,7 @@ class FunctionSolc(CallerContextExpression):
                         stmt.initial_value.components[i],
                         src=variable.src,
                         id=variable.id,
-                    ), node)
+                    ), node, scope)
 
                 return node
             else:
@@ -508,6 +508,12 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(node, new_node)
         return new_node
 
+    def _parse_revert(self, stmt: Revert, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+        new_node = self._new_node(NodeType.EXPRESSION, stmt.src, scope)
+        new_node.add_unparsed_expression(stmt.error_call)
+        link_underlying_nodes(node, new_node)
+        return new_node
+
     def _parse_throw(self, stmt: Throw, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
         new_node = self._new_node(NodeType.THROW, stmt.src, scope)
         link_underlying_nodes(node, new_node)
@@ -521,7 +527,6 @@ class FunctionSolc(CallerContextExpression):
 
     def _parse_block(self, stmt: Block, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
         for statement in stmt.statements:
-            print(statement)
             node = self._parse(statement, node, scope)
         return node
 
@@ -556,12 +561,12 @@ class FunctionSolc(CallerContextExpression):
                 return exitpoint
             else:
                 # Added with solc 0.4.12
-                asm_node = self._new_node(NodeType.ASSEMBLY, stmt.src)
+                asm_node = self._new_node(NodeType.ASSEMBLY, stmt.src, scope)
                 asm_node.underlying_node.add_inline_asm(stmt.ast)
                 link_underlying_nodes(node, asm_node)
                 return node
         else:
-            asm_node = self._new_node(NodeType.ASSEMBLY, stmt.src)
+            asm_node = self._new_node(NodeType.ASSEMBLY, stmt.src, scope)
             link_underlying_nodes(node, asm_node)
             return node
 
@@ -586,6 +591,7 @@ class FunctionSolc(CallerContextExpression):
         Return: _parse_return,
         Continue: _parse_continue,
         Break: _parse_break,
+        Revert: _parse_revert,
         Throw: _parse_throw,
         EmitStatement: _parse_emit_statement,
         InlineAssembly: _parse_inline_assembly,
@@ -856,14 +862,14 @@ class FunctionSolc(CallerContextExpression):
             true_expr: "Expression",
             false_expr: "Expression",
     ):
-        condition_node = self._new_node(NodeType.IF, node.source_mapping)
+        condition_node = self._new_node(NodeType.IF, node.source_mapping, node.scope)
         condition_node.underlying_node.add_expression(condition)
         condition_node.analyze_expressions(self)
 
         if node.type == NodeType.VARIABLE:
             condition_node.underlying_node.add_variable_declaration(node.variable_declaration)
 
-        true_node_parser = self._new_node(NodeType.EXPRESSION, node.source_mapping)
+        true_node_parser = self._new_node(NodeType.EXPRESSION, node.source_mapping, node.scope)
         if node.type == NodeType.VARIABLE:
             assert isinstance(true_expr, AssignmentOperation)
             # true_expr = true_expr.expression_right
@@ -872,7 +878,7 @@ class FunctionSolc(CallerContextExpression):
         true_node_parser.underlying_node.add_expression(true_expr)
         true_node_parser.analyze_expressions(self)
 
-        false_node_parser = self._new_node(NodeType.EXPRESSION, node.source_mapping)
+        false_node_parser = self._new_node(NodeType.EXPRESSION, node.source_mapping, node.scope)
         if node.type == NodeType.VARIABLE:
             assert isinstance(false_expr, AssignmentOperation)
         elif node.type == NodeType.RETURN:
@@ -881,7 +887,7 @@ class FunctionSolc(CallerContextExpression):
         false_node_parser.underlying_node.add_expression(false_expr)
         false_node_parser.analyze_expressions(self)
 
-        endif_node = self._new_node(NodeType.ENDIF, node.source_mapping)
+        endif_node = self._new_node(NodeType.ENDIF, node.source_mapping, node.scope)
 
         for father in node.fathers:
             father.remove_son(node)

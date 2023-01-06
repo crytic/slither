@@ -93,7 +93,17 @@ def parse_pragma_directive(raw: Dict) -> PragmaDirective:
 
 
 def parse_import_directive(raw: Dict) -> ImportDirective:
-    return ImportDirective(raw['absolutePath'], **_extract_decl_props(raw))
+    # # TODO investigate unitAlias in version < 0.7 and legacy ast
+    # dedup
+    alias = None
+    if 'unitAlias' in raw and raw['unitAlias']:
+        alias = UnitAlias(raw['unitAlias'])
+
+    symbol_aliases = None
+    if 'symbolAliases' in raw and raw['symbolAliases']:
+        symbol_aliases = raw['symbolAliases']
+        # _handle_import_aliases(symbol_aliases, import_directive, scope)
+    return ImportDirective(raw['absolutePath'], alias, **_extract_base_props(raw))
 
 
 def parse_contract_definition(raw: Dict) -> ContractDefinition:
@@ -128,11 +138,12 @@ def parse_inheritance_specifier(raw: Dict) -> InheritanceSpecifier:
 
 def parse_using_for_directive(raw: Dict) -> UsingForDirective:
     library_name_parsed = parse(raw['libraryName'])
-    assert isinstance(library_name_parsed, UserDefinedTypeName)
+    assert isinstance(library_name_parsed, (UserDefinedTypeName, IdentifierPath))
 
-    typename_parsed = parse(raw['typeName'])
-    assert isinstance(typename_parsed, TypeName)
-
+    typename_parsed = "*" #TODO
+    if 'typeName' in raw and raw['typeName']:
+        typename_parsed = parse(raw['typeName'])
+        assert isinstance(typename_parsed, TypeName)
     return UsingForDirective(library_name_parsed, typename_parsed, **_extract_base_props(raw))
 
 
@@ -177,11 +188,10 @@ def parse_parameter_list(raw: Dict) -> ParameterList:
 
 
 def parse_function_definition(raw: Dict) -> FunctionDefinition:
-    if 'raw' in raw and raw['body']:
+    body_parsed = None
+    if 'body' in raw and raw['body']:
         body_parsed = parse(raw['body'])
-    else:
-        body_parsed = Block([], **_extract_base_props(raw))
-    assert isinstance(body_parsed, Block)
+        assert isinstance(body_parsed, Block)
 
     modifiers_parsed = []
     for child in raw['modifiers']:
@@ -230,29 +240,30 @@ def parse_variable_declaration(raw: Dict) -> VariableDeclaration:
     baseFunctions (int[]): only if overriding function
     """
 
-    type_parsed = parse(raw['typeName'])
-    assert isinstance(type_parsed, TypeName)
 
+    typename = None
+    if raw['typeName']:
+        typename = parse(raw['typeName'])
+        assert isinstance(typename, TypeName)
+
+    value_parsed = None
     if 'value' in raw and raw['value']:
         value_parsed = parse(raw['value'])
         assert isinstance(value_parsed, Expression)
-    else:
-        value_parsed = None
 
     indexed = raw['indexed'] if 'indexed' in raw else None
 
     storage_location = raw['storageLocation']
 
-    return VariableDeclaration(type_parsed, value_parsed, raw['typeDescriptions']['typeString'],
+    return VariableDeclaration(typename, value_parsed, raw['typeDescriptions']['typeString'],
                                raw['constant'], indexed, storage_location, **_extract_decl_props(raw))
 
 
 def parse_modifier_definition(raw: Dict) -> ModifierDefinition:
+    body_parsed = None
     if 'body' in raw and raw['body']:
         body_parsed = parse(raw['body'])
-    else:
-        body_parsed = Block([], **_extract_base_props(raw))
-    assert isinstance(body_parsed, Block)
+        assert isinstance(body_parsed, Block)
 
     return ModifierDefinition(body_parsed, **_extract_call_props(raw))
 
@@ -395,11 +406,11 @@ def parse_try_catch_clause(raw: Dict) -> TryCatchClause:
     """
 
     error_name = raw['errorName']
-    if raw['parameters']:
+    parameters_parsed = None
+    if 'parameters' in raw:
         parameters_parsed = parse(raw['parameters'])
         assert isinstance(parameters_parsed, ParameterList)
-    else:
-        parameters_parsed = None
+
     block_parsed = parse(raw['block'])
     assert isinstance(block_parsed, Block)
 
@@ -455,14 +466,20 @@ def parse_for_statement(raw: Dict) -> ForStatement:
     body (Statement)
     """
 
-    init_parsed = parse(raw['initializationExpression'])
-    assert isinstance(init_parsed, Statement)
+    init_parsed = None
+    if 'initializationExpression' in raw and raw['initializationExpression']:
+        init_parsed = parse(raw['initializationExpression'])
+        assert isinstance(init_parsed, Statement)
 
-    cond_parsed = parse(raw['condition'])
-    assert isinstance(cond_parsed, Expression)
-
-    loop_parsed = parse(raw['loopExpression'])
-    assert isinstance(loop_parsed, ExpressionStatement)
+    cond_parsed = None
+    if 'condition' in raw and raw['condition']:
+        cond_parsed = parse(raw['condition'])
+        assert isinstance(cond_parsed, Expression)
+    
+    loop_parsed = None
+    if 'loopExpression' in raw and raw['loopExpression']:
+        loop_parsed = parse(raw['loopExpression'])
+        assert isinstance(loop_parsed, ExpressionStatement)
 
     body_parsed = parse(raw['body'])
     assert isinstance(body_parsed, Statement)
@@ -490,6 +507,17 @@ def parse_return(raw: Dict) -> Return:
 
     return Return(expr_parsed, **_extract_base_props(raw))
 
+
+def parse_revert_statement(raw: Dict) -> Revert:
+    """
+    errorCall (FunctionCall?)
+    """
+    error_call_parsed = None
+    if 'errorCall' in raw:
+        error_call_parsed = parse(raw['errorCall'])
+        assert isinstance(error_call_parsed, FunctionCall)
+
+    return Revert(error_call_parsed, **_extract_base_props(raw))
 
 def parse_throw(raw: Dict) -> Throw:
     return Throw(**_extract_base_props(raw))
@@ -632,7 +660,6 @@ def parse_function_call(raw: Dict) -> FunctionCall:
 
     +Annotation
     """
-    print(raw)
     expression_parsed = parse(raw['expression'])
     assert isinstance(expression_parsed, Expression)
 
@@ -799,6 +826,7 @@ PARSERS: Dict[str, Callable[[Dict], ASTNode]] = {
     'IfStatement': parse_if_statement,
     'TryCatchClause': parse_try_catch_clause,
     'TryStatement': parse_try_statement,
+    'RevertStatement': parse_revert_statement,
     'WhileStatement': parse_while_statement,
     'DoWhileStatement': parse_do_while_statement,
     'ForStatement': parse_for_statement,

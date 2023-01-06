@@ -354,7 +354,7 @@ def parse_type(
 
     # Introduced with Solidity 0.8
     elif isinstance(t, IdentifierPath):
-        name = t["name"]
+        name = t.name
         if name in renaming:
             name = renaming[name]
         if name in user_defined_types:

@@ -337,6 +337,12 @@ class Return(Statement):
         super().__init__(**kwargs)
         self.expression = expression
 
+class Revert(Statement):
+    __slots__ = "error_call"
+
+    def __init__(self, error_call: 'FunctionCall', **kwargs):
+        super().__init__(**kwargs)
+        self.error_call = error_call
 
 class Throw(Statement):
     def __init__(self, **kwargs):
