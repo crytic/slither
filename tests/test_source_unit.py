@@ -1,8 +1,18 @@
+from pathlib import Path
+import shutil
+
+import pytest
 from slither import Slither
 
-# NB: read tests/source_unit/README.md before using this test
+# NB: read tests/source_unit/README.md for setup before using this test
+
+foundry_available = shutil.which("forge") is not None
+project_ready = Path("./tests/source_unit/lib/forge-std").exists()
 
 
+@pytest.mark.skipif(
+    not foundry_available or not project_ready, reason="requires Foundry and project setup"
+)
 def test_contract_info() -> None:
     slither = Slither("./tests/source_unit")
 
