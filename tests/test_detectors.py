@@ -480,28 +480,53 @@ ALL_TEST_OBJECTS = [
         "0.7.6",
     ),
     Test(
-        all_detectors.ConstCandidateStateVars,
+        all_detectors.CouldBeConstant,
         "const_state_variables.sol",
         "0.4.25",
     ),
     Test(
-        all_detectors.ConstCandidateStateVars,
+        all_detectors.CouldBeConstant,
         "const_state_variables.sol",
         "0.5.16",
     ),
     Test(
-        all_detectors.ConstCandidateStateVars,
+        all_detectors.CouldBeConstant,
         "const_state_variables.sol",
         "0.6.11",
     ),
     Test(
-        all_detectors.ConstCandidateStateVars,
+        all_detectors.CouldBeConstant,
         "const_state_variables.sol",
         "0.7.6",
     ),
     Test(
-        all_detectors.ConstCandidateStateVars,
+        all_detectors.CouldBeConstant,
         "const_state_variables.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.CouldBeImmutable,
+        "immut_state_variables.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.CouldBeImmutable,
+        "immut_state_variables.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.CouldBeImmutable,
+        "immut_state_variables.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.CouldBeImmutable,
+        "immut_state_variables.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.CouldBeImmutable,
+        "immut_state_variables.sol",
         "0.8.0",
     ),
     Test(

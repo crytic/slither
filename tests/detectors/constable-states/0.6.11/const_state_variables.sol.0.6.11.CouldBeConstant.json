@@ -6,14 +6,14 @@
                     "type": "variable",
                     "name": "text2",
                     "source_mapping": {
-                        "start": 333,
+                        "start": 305,
                         "length": 20,
-                        "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "is_dependency": false,
                         "lines": [
-                            14
+                            12
                         ],
                         "starting_column": 5,
                         "ending_column": 25
@@ -23,13 +23,15 @@
                             "type": "contract",
                             "name": "A",
                             "source_mapping": {
-                                "start": 29,
+                                "start": 1,
                                 "length": 441,
-                                "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "is_dependency": false,
                                 "lines": [
+                                    2,
+                                    3,
                                     4,
                                     5,
                                     6,
@@ -45,9 +47,7 @@
                                     16,
                                     17,
                                     18,
-                                    19,
-                                    20,
-                                    21
+                                    19
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -56,10 +56,77 @@
                     }
                 }
             ],
-            "description": "A.text2 (tests/detectors/constable-states/0.4.25/const_state_variables.sol#14) should be constant \n",
-            "markdown": "[A.text2](tests/detectors/constable-states/0.4.25/const_state_variables.sol#L14) should be constant \n",
-            "first_markdown_element": "tests/detectors/constable-states/0.4.25/const_state_variables.sol#L14",
+            "description": "A.text2 (tests/detectors/constable-states/0.6.11/const_state_variables.sol#12) should be constant \n",
+            "markdown": "[A.text2](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L12) should be constant \n",
+            "first_markdown_element": "tests/detectors/constable-states/0.6.11/const_state_variables.sol#L12",
             "id": "2f06e04545cea7e7a8998c65d5419f335bf2579a6ce6a832eac9c87392fd5c1a",
+            "check": "constable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "should_be_constant_2",
+                    "source_mapping": {
+                        "start": 811,
+                        "length": 33,
+                        "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            41
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 38
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Bad",
+                            "source_mapping": {
+                                "start": 718,
+                                "length": 539,
+                                "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Bad.should_be_constant_2 (tests/detectors/constable-states/0.6.11/const_state_variables.sol#41) should be constant \n",
+            "markdown": "[Bad.should_be_constant_2](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L41) should be constant \n",
+            "first_markdown_element": "tests/detectors/constable-states/0.6.11/const_state_variables.sol#L41",
+            "id": "3a8b682f7960750cd8228d6cd3d0bb5d7d6f9faaf1a044de2fa7069d8e475af2",
             "check": "constable-states",
             "impact": "Optimization",
             "confidence": "High"
@@ -70,14 +137,14 @@
                     "type": "variable",
                     "name": "mySistersAddress",
                     "source_mapping": {
-                        "start": 496,
+                        "start": 468,
                         "length": 76,
-                        "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "is_dependency": false,
                         "lines": [
-                            26
+                            24
                         ],
                         "starting_column": 5,
                         "ending_column": 81
@@ -87,13 +154,15 @@
                             "type": "contract",
                             "name": "B",
                             "source_mapping": {
-                                "start": 473,
+                                "start": 445,
                                 "length": 271,
-                                "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "is_dependency": false,
                                 "lines": [
+                                    22,
+                                    23,
                                     24,
                                     25,
                                     26,
@@ -105,9 +174,7 @@
                                     32,
                                     33,
                                     34,
-                                    35,
-                                    36,
-                                    37
+                                    35
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -116,9 +183,9 @@
                     }
                 }
             ],
-            "description": "B.mySistersAddress (tests/detectors/constable-states/0.4.25/const_state_variables.sol#26) should be constant \n",
-            "markdown": "[B.mySistersAddress](tests/detectors/constable-states/0.4.25/const_state_variables.sol#L26) should be constant \n",
-            "first_markdown_element": "tests/detectors/constable-states/0.4.25/const_state_variables.sol#L26",
+            "description": "B.mySistersAddress (tests/detectors/constable-states/0.6.11/const_state_variables.sol#24) should be constant \n",
+            "markdown": "[B.mySistersAddress](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L24) should be constant \n",
+            "first_markdown_element": "tests/detectors/constable-states/0.6.11/const_state_variables.sol#L24",
             "id": "3b5bff93954a48a79387e7981e8c45d78edc575a0988a10f1c7f439b9f930539",
             "check": "constable-states",
             "impact": "Optimization",
@@ -130,14 +197,14 @@
                     "type": "variable",
                     "name": "myFriendsAddress",
                     "source_mapping": {
-                        "start": 132,
+                        "start": 104,
                         "length": 76,
-                        "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "is_dependency": false,
                         "lines": [
-                            7
+                            5
                         ],
                         "starting_column": 5,
                         "ending_column": 81
@@ -147,13 +214,15 @@
                             "type": "contract",
                             "name": "A",
                             "source_mapping": {
-                                "start": 29,
+                                "start": 1,
                                 "length": 441,
-                                "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "is_dependency": false,
                                 "lines": [
+                                    2,
+                                    3,
                                     4,
                                     5,
                                     6,
@@ -169,9 +238,7 @@
                                     16,
                                     17,
                                     18,
-                                    19,
-                                    20,
-                                    21
+                                    19
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -180,9 +247,9 @@
                     }
                 }
             ],
-            "description": "A.myFriendsAddress (tests/detectors/constable-states/0.4.25/const_state_variables.sol#7) should be constant \n",
-            "markdown": "[A.myFriendsAddress](tests/detectors/constable-states/0.4.25/const_state_variables.sol#L7) should be constant \n",
-            "first_markdown_element": "tests/detectors/constable-states/0.4.25/const_state_variables.sol#L7",
+            "description": "A.myFriendsAddress (tests/detectors/constable-states/0.6.11/const_state_variables.sol#5) should be constant \n",
+            "markdown": "[A.myFriendsAddress](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L5) should be constant \n",
+            "first_markdown_element": "tests/detectors/constable-states/0.6.11/const_state_variables.sol#L5",
             "id": "52fd72f6870c4b504d1bcf9fb44249658e2077474d66208a33a47d2668b8db49",
             "check": "constable-states",
             "impact": "Optimization",
@@ -194,14 +261,14 @@
                     "type": "variable",
                     "name": "should_be_constant",
                     "source_mapping": {
-                        "start": 793,
+                        "start": 763,
                         "length": 42,
-                        "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "is_dependency": false,
                         "lines": [
-                            42
+                            40
                         ],
                         "starting_column": 5,
                         "ending_column": 47
@@ -209,15 +276,17 @@
                     "type_specific_fields": {
                         "parent": {
                             "type": "contract",
-                            "name": "MyConc",
+                            "name": "Bad",
                             "source_mapping": {
-                                "start": 746,
-                                "length": 342,
-                                "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "start": 718,
+                                "length": 539,
+                                "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "is_dependency": false,
                                 "lines": [
+                                    37,
+                                    38,
                                     39,
                                     40,
                                     41,
@@ -231,7 +300,12 @@
                                     49,
                                     50,
                                     51,
-                                    52
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -240,10 +314,10 @@
                     }
                 }
             ],
-            "description": "MyConc.should_be_constant (tests/detectors/constable-states/0.4.25/const_state_variables.sol#42) should be constant \n",
-            "markdown": "[MyConc.should_be_constant](tests/detectors/constable-states/0.4.25/const_state_variables.sol#L42) should be constant \n",
-            "first_markdown_element": "tests/detectors/constable-states/0.4.25/const_state_variables.sol#L42",
-            "id": "8d08797efc8230b480ec669c7e2bf53c3b3d16bc59bf7770934b34fd892934f8",
+            "description": "Bad.should_be_constant (tests/detectors/constable-states/0.6.11/const_state_variables.sol#40) should be constant \n",
+            "markdown": "[Bad.should_be_constant](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L40) should be constant \n",
+            "first_markdown_element": "tests/detectors/constable-states/0.6.11/const_state_variables.sol#L40",
+            "id": "87097c03d57b72ad7c15336eb44e5a30054c50f8daff32e08bc4fbd97852961c",
             "check": "constable-states",
             "impact": "Optimization",
             "confidence": "High"
@@ -252,32 +326,34 @@
             "elements": [
                 {
                     "type": "variable",
-                    "name": "should_be_constant_2",
+                    "name": "should_be_constant_3",
                     "source_mapping": {
-                        "start": 841,
-                        "length": 33,
-                        "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "start": 850,
+                        "length": 38,
+                        "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "is_dependency": false,
                         "lines": [
-                            43
+                            42
                         ],
                         "starting_column": 5,
-                        "ending_column": 38
+                        "ending_column": 43
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "contract",
-                            "name": "MyConc",
+                            "name": "Bad",
                             "source_mapping": {
-                                "start": 746,
-                                "length": 342,
-                                "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "start": 718,
+                                "length": 539,
+                                "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "is_dependency": false,
                                 "lines": [
+                                    37,
+                                    38,
                                     39,
                                     40,
                                     41,
@@ -291,7 +367,12 @@
                                     49,
                                     50,
                                     51,
-                                    52
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -300,10 +381,10 @@
                     }
                 }
             ],
-            "description": "MyConc.should_be_constant_2 (tests/detectors/constable-states/0.4.25/const_state_variables.sol#43) should be constant \n",
-            "markdown": "[MyConc.should_be_constant_2](tests/detectors/constable-states/0.4.25/const_state_variables.sol#L43) should be constant \n",
-            "first_markdown_element": "tests/detectors/constable-states/0.4.25/const_state_variables.sol#L43",
-            "id": "d08c6d1e331083b42c45c222691dd1e6d880814c66d114971875337ca61ba9c9",
+            "description": "Bad.should_be_constant_3 (tests/detectors/constable-states/0.6.11/const_state_variables.sol#42) should be constant \n",
+            "markdown": "[Bad.should_be_constant_3](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L42) should be constant \n",
+            "first_markdown_element": "tests/detectors/constable-states/0.6.11/const_state_variables.sol#L42",
+            "id": "8e991c1370b1adb10f01f2d7e48f341dee92a98b91b56ccb291d9149d2da97d0",
             "check": "constable-states",
             "impact": "Optimization",
             "confidence": "High"
@@ -314,14 +395,14 @@
                     "type": "variable",
                     "name": "test",
                     "source_mapping": {
-                        "start": 237,
+                        "start": 209,
                         "length": 20,
-                        "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                        "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                         "is_dependency": false,
                         "lines": [
-                            10
+                            8
                         ],
                         "starting_column": 5,
                         "ending_column": 25
@@ -331,13 +412,15 @@
                             "type": "contract",
                             "name": "A",
                             "source_mapping": {
-                                "start": 29,
+                                "start": 1,
                                 "length": 441,
-                                "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "filename_relative": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
+                                "filename_short": "tests/detectors/constable-states/0.6.11/const_state_variables.sol",
                                 "is_dependency": false,
                                 "lines": [
+                                    2,
+                                    3,
                                     4,
                                     5,
                                     6,
@@ -353,9 +436,7 @@
                                     16,
                                     17,
                                     18,
-                                    19,
-                                    20,
-                                    21
+                                    19
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -364,9 +445,9 @@
                     }
                 }
             ],
-            "description": "A.test (tests/detectors/constable-states/0.4.25/const_state_variables.sol#10) should be constant \n",
-            "markdown": "[A.test](tests/detectors/constable-states/0.4.25/const_state_variables.sol#L10) should be constant \n",
-            "first_markdown_element": "tests/detectors/constable-states/0.4.25/const_state_variables.sol#L10",
+            "description": "A.test (tests/detectors/constable-states/0.6.11/const_state_variables.sol#8) should be constant \n",
+            "markdown": "[A.test](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L8) should be constant \n",
+            "first_markdown_element": "tests/detectors/constable-states/0.6.11/const_state_variables.sol#L8",
             "id": "e407a1b57b4d25949ef7c4e6d97197605857099a94774a9c7a848d7dd3463668",
             "check": "constable-states",
             "impact": "Optimization",
