@@ -58,7 +58,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                 full_name_split = f["function"]["name"].split(".")
                 if len(full_name_split) == 1:
                     # Top level function
-                    function_name = full_name_split[0]
+                    function_name: str = full_name_split[0]
                     self._analyze_top_level_function(function_name, type_name)
                 elif len(full_name_split) == 2:
                     # It can be a top level function behind an aliased import
@@ -68,9 +68,9 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                     self._check_aliased_import(first_part, function_name, type_name)
                 else:
                     # MyImport.MyLib.a we don't care of the alias
-                    library_name = full_name_split[1]
+                    library_name_str = full_name_split[1]
                     function_name = full_name_split[2]
-                    self._analyze_library_function(library_name, function_name, type_name)
+                    self._analyze_library_function(library_name_str, function_name, type_name)
 
     def _check_aliased_import(
         self,
@@ -132,9 +132,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                         f"Error when propagating global using for {type_name} {type(type_name)}"
                     )
 
-    def _propagate_global_UserDefinedType(
-        self, scope: Dict[Any, FileScope], type_name: UserDefinedType
-    ):
+    def _propagate_global_UserDefinedType(self, scope: FileScope, type_name: UserDefinedType):
         underlying = type_name.type
         if isinstance(underlying, StructureTopLevel):
             for struct in scope.structures.values():
