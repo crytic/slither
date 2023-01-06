@@ -212,7 +212,7 @@
                             "name": "MyConc",
                             "source_mapping": {
                                 "start": 746,
-                                "length": 416,
+                                "length": 423,
                                 "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
@@ -277,7 +277,7 @@
                             "name": "MyConc",
                             "source_mapping": {
                                 "start": 746,
-                                "length": 416,
+                                "length": 423,
                                 "filename_relative": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/constable-states/0.4.25/const_state_variables.sol",
