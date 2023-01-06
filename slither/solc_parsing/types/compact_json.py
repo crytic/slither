@@ -149,6 +149,7 @@ def parse_enum_definition(raw: Dict) -> EnumDefinition:
     for child in raw['members']:
         child_parsed = parse(child)
         assert isinstance(child_parsed, EnumValue)
+        members_parsed.append(child_parsed)
 
     return EnumDefinition(members_parsed, **_extract_decl_props(raw))
 
@@ -303,7 +304,16 @@ def parse_function_type_name(raw: Dict) -> FunctionTypeName:
     rets = parse(raw['returnParameterTypes'])
     assert isinstance(rets, ParameterList)
 
-    return FunctionTypeName(params, rets, raw['stateMutability'], raw['visibility'], **_extract_base_props(raw))
+    if 'stateMutability' in raw:
+        # >=0.4.16
+        mutability = raw['stateMutability']
+    elif 'payable' in raw:
+        # >=0.4.5
+        mutability = "payable" if raw['payable'] else "nonpayable"
+    else:
+        raise ParsingError("don't know how to extract state mutability")
+
+    return FunctionTypeName(params, rets, mutability, raw['visibility'], **_extract_base_props(raw))
 
 
 def parse_mapping(raw: Dict) -> Mapping:

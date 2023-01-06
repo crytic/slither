@@ -59,7 +59,6 @@ def parse_variable_definition_statement(raw: Dict) -> VariableDeclarationStateme
         VariableDeclaration[]
         Expression?
     """
-
     parsed_children: List[VariableDeclaration] = []
     for child in raw['children'][:-1]:
         child_parsed = parse(child)
@@ -433,7 +432,8 @@ def parse_import_directive(raw: Dict) -> ImportDirective:
     symbol_aliases = None
     if 'symbolAliases' in raw and raw['symbolAliases']:
         symbol_aliases = raw['symbolAliases']
-    return ImportDirective(raw['attributes']['file'], alias, **_extract_base_props(raw))
+
+    return ImportDirective(raw['attributes']['absolutePath'], alias, **_extract_base_props(raw))
 
 
 def parse_contract_definition(raw: Dict) -> ContractDefinition:
@@ -778,8 +778,10 @@ def parse_modifier_definition(raw: Dict) -> ModifierDefinition:
     params = parse(raw['children'][0])
     assert isinstance(params, ParameterList)
 
-    body = parse(raw['children'][1])
-    assert isinstance(body, Block)
+    body = None
+    if len(raw['children']) > 1:
+        body = parse(raw['children'][1])
+        assert isinstance(body, Block)
 
     return ModifierDefinition(
         body=body,

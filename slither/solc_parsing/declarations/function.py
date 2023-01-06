@@ -437,7 +437,7 @@ class FunctionSolc(CallerContextExpression):
 
             if isinstance(stmt.initial_value, TupleExpression) \
                     and len(stmt.initial_value.components) == len(stmt.variables):
-
+                    
                 for i, variable in enumerate(stmt.variables):
                     if variable is None:
                         continue
@@ -460,7 +460,7 @@ class FunctionSolc(CallerContextExpression):
                         None,
                         src=variable.src,
                         id=variable.id,
-                    ), i, node)
+                    ), i, node, scope)
 
                 new_node = self._new_node(NodeType.EXPRESSION, stmt.src, scope)
                 new_node.add_unparsed_expression(Assignment(
