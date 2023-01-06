@@ -12,6 +12,7 @@ setup(
     packages=find_packages(),
     python_requires=">=3.8",
     install_requires=[
+        "packaging",
         "prettytable>=0.7.2",
         "pycryptodome>=3.4.6",
         # "crytic-compile>=0.2.4",

@@ -2,7 +2,7 @@
 Module detecting state variables that could be declared as constant
 """
 from typing import Set, List
-
+from packaging import version
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
@@ -119,5 +119,7 @@ class UnchangedStateVariables:
 
                     elif (
                         v in constructor_variables_written or v in variables_initialized
-                    ) and self.compilation_unit.solc_version >= "0.6.5":
+                    ) and version.parse(self.compilation_unit.solc_version) >= version.parse(
+                        "0.6.5"
+                    ):
                         self.immutable_candidates.append(v)
