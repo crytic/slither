@@ -153,7 +153,7 @@ class NonElementaryType(Exception):
 class ElementaryType(Type):
     def __init__(self, t: str) -> None:
         if t not in ElementaryTypeName:
-            raise NonElementaryType
+            raise NonElementaryType(f"{t.__class__} is not an elementary type")
         super().__init__()
         if t == "uint":
             t = "uint256"

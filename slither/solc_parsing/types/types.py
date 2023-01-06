@@ -36,7 +36,7 @@ class IdentifierPath(Declaration):
 class UserDefinedValueTypeDefinition(Declaration):
     __slots__ = "underlying_type", "alias"
 
-    def __init__(self, underlying_type: 'TypeName', alias: str, **kwargs):
+    def __init__(self, underlying_type: 'ElementaryTypeName', alias: str, **kwargs):
         super().__init__(**kwargs)
         self.underlying_type = underlying_type
         self.alias = alias

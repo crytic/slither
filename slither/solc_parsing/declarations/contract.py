@@ -197,24 +197,15 @@ class ContractSolc(CallerContextExpression):
         return
 
     def _parse_type_alias(self, item: UserDefinedValueTypeDefinition) -> None:
-        # assert "name" in item
-        # assert "underlyingType" in item
-        # underlying_type = item["underlyingType"]
-        # assert "nodeType" in underlying_type and underlying_type["nodeType"] == "ElementaryTypeName"
-        # assert "name" in underlying_type
-
-        # original_type = ElementaryType(underlying_type["name"])
-        # item.alias
-        # item.name
-        # # For user defined types defined at the contract level the lookup can be done
-        # # Using the name or the canonical name
-        # # For example during the type parsing the canonical name
-        # # Note that Solidity allows shadowing of user defined types
-        # # Between top level and contract definitions
+        # For user defined types defined at the contract level the lookup 
+        # can be done using the name or the canonical name.
+        # For example during the type parsing the canonical name
+        # Note, that Solidity allows shadowing of user defined types
+        # between top level and contract definitions.
         alias = item.name
         alias_canonical = self._contract.name + "." + alias
 
-        user_defined_type = TypeAliasContract(ElementaryType(item.underlying_type), alias, self.underlying_contract)
+        user_defined_type = TypeAliasContract(ElementaryType(item.underlying_type.name), alias, self.underlying_contract)
         user_defined_type.set_offset(item.src, self.compilation_unit)
         self._contract.file_scope.user_defined_types[alias] = user_defined_type
         self._contract.file_scope.user_defined_types[alias_canonical] = user_defined_type
@@ -514,11 +505,11 @@ class ContractSolc(CallerContextExpression):
 
             for item in self._usingForNotParsed:
                 lib_name = parse_type(item.library, self)
-                if item.typename:
-                    type_name = parse_type(item.typename, self)
-                else:
+                if item.typename == "*": #TODO 
                     type_name = "*"
-
+                else:
+                    assert item.typename
+                    type_name = parse_type(item.typename, self)
                 if type_name not in self._contract.using_for:
                     self._contract.using_for[type_name] = []
                 self._contract.using_for[type_name].append(lib_name)

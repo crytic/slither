@@ -68,24 +68,8 @@ def parse_identifier_path(raw: Dict) -> IdentifierPath:
     return IdentifierPath(raw['referencedDeclaration'], **_extract_decl_props(raw))
 
 def parse_user_defined_value_type_definition(raw: Dict) -> UserDefinedValueTypeDefinition:
-    # assert "name" in raw
-    # assert "underlyingType" in raw
-    # print(raw)
-    # assert "nodeType" in underlying_type and underlying_type["nodeType"] == "ElementaryTypeName"
     underlying_type = parse(raw["underlyingType"])
-    print("underlying_type", underlying_type)
-    assert isinstance(underlying_type, TypeName)
-
-    # original_type = ElementaryType(underlying_type["name"])
-
-    # For user defined types defined at the contract level the lookup can be done
-    # Using the name or the canonical name
-    # For example during the type parsing the canonical name
-    # Note that Solidity allows shadowing of user defined types
-    # Between top level and contract definitions
-    # alias = parse()
-    # alias_canonical = self._contract.name + "." + item["name"]
-
+    assert isinstance(underlying_type, ElementaryTypeName)
     return UserDefinedValueTypeDefinition(underlying_type, raw["name"], **_extract_decl_props(raw))
 
 def parse_pragma_directive(raw: Dict) -> PragmaDirective:

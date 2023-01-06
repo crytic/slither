@@ -172,16 +172,9 @@ class SlitherCompilationUnitSolc:
                 
                 case ImportDirective():
                     import_directive = Import(Path(child.path), scope)
-                    import_directive.set_offset(child.src, self._compilation_unit)
                     scope.imports.add(import_directive)
-                    # # TODO investigate unitAlias in version < 0.7 and legacy ast
-                    # if "unitAlias" in top_level_data:
-                    #     import_directive.alias = top_level_data["unitAlias"]
-                    # if "symbolAliases" in top_level_data:
-                    #     symbol_aliases = top_level_data["symbolAliases"]
-                    #     _handle_import_aliases(symbol_aliases, import_directive, scope)
-
                     import_directive.set_offset(child.src, self._compilation_unit)
+
                     self._compilation_unit.import_directives.append(import_directive)
 
                     get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
@@ -234,7 +227,7 @@ class SlitherCompilationUnitSolc:
                     self._custom_error_parser.append(custom_error_parser)
 
                 case UserDefinedValueTypeDefinition():
-                    user_defined_type = TypeAliasTopLevel(child.underlying_type, child.alias, scope)
+                    user_defined_type = TypeAliasTopLevel(ElementaryType(child.underlying_type.name), child.alias, scope)
                     user_defined_type.set_offset(child.src, self._compilation_unit)
                     scope.user_defined_types[child.alias] = user_defined_type
 
