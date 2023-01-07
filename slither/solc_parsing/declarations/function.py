@@ -797,6 +797,27 @@ class FunctionSolc(CallerContextExpression):
             if node.type in [NodeType.TRY]:
                 self._fix_try(node)
 
+    
+        # this step needs to happen after all of the break statements are fixed
+        # really, we should be passing some sort of context down so the break statement doesn't
+        # need to be fixed out-of-band in the first place
+        for node in self._node_to_nodesolc:
+            if node.type in [NodeType.STARTLOOP]:
+                # can we prune? only if after pruning, we have at least one son that isn't itself
+                if (
+                    len([son for son in node.sons if son.type != NodeType.ENDLOOP and son != node])
+                    == 0
+                ):
+                    continue
+
+                new_sons = []
+                for son in node.sons:
+                    if son.type != NodeType.ENDLOOP:
+                        new_sons.append(son)
+                        continue
+                    son.remove_father(node)
+                node.set_sons(new_sons)
+
     def _remove_alone_endif(self):
         """
         Can occur on:
