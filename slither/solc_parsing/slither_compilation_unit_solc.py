@@ -624,7 +624,9 @@ Please rename it, this name is reserved for Slither's internals"""
             else:
                 contracts_to_be_analyzed += [contract]
 
-    def _analyze_using_for(self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]):
+    def _analyze_using_for(
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+    ):
         self._analyze_top_level_using_for()
 
         for lib in libraries:
