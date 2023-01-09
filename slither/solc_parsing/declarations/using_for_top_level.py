@@ -2,19 +2,19 @@
     Using For Top Level module
 """
 import logging
-from typing import TYPE_CHECKING, Dict, Union, Any
+from typing import TYPE_CHECKING, Dict, Union
 
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.core.declarations.using_for_top_level import UsingForTopLevel
-from slither.core.scope.scope import FileScope
-from slither.core.solidity_types import TypeAliasTopLevel
 from slither.core.declarations import (
     StructureTopLevel,
     EnumTopLevel,
 )
+from slither.core.declarations.using_for_top_level import UsingForTopLevel
+from slither.core.scope.scope import FileScope
+from slither.core.solidity_types import TypeAliasTopLevel
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
-from slither.core.solidity_types.user_defined_type import UserDefinedType
 
 if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
