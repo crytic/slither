@@ -512,7 +512,7 @@ Please rename it, this name is reserved for Slither's internals"""
         self._analyze_third_part(contracts_to_be_analyzed, libraries)
         [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
-        self._analyze_using_for(contracts_to_be_analyzed)
+        self._analyze_using_for(contracts_to_be_analyzed, libraries)
 
         self._parsed = True
 
@@ -624,8 +624,13 @@ Please rename it, this name is reserved for Slither's internals"""
             else:
                 contracts_to_be_analyzed += [contract]
 
-    def _analyze_using_for(self, contracts_to_be_analyzed: List[ContractSolc]):
+    def _analyze_using_for(
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+    ):
         self._analyze_top_level_using_for()
+
+        for lib in libraries:
+            lib.analyze_using_for()
 
         while contracts_to_be_analyzed:
             contract = contracts_to_be_analyzed[0]
