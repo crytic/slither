@@ -4,44 +4,6 @@
             "elements": [
                 {
                     "type": "struct",
-                    "name": "hard_struct2",
-                    "source_mapping": {
-                        "start": 821,
-                        "length": 147,
-                        "filename_relative": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            51,
-                            52,
-                            53,
-                            54,
-                            55,
-                            56,
-                            57,
-                            58
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    },
-                    "type_specific_fields": {
-                        "parent": null
-                    }
-                }
-            ],
-            "description": "Optimization opportunity in struct hard_struct2 (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#51-58)\n\toriginal variable order (size: 4 slots)\n\t\t uint232 s29bytes\n\t\t uint240 s30bytes\n\t\t uint248 s31bytes\n\t\t uint24 s3bytes\n\t\t uint16 s2bytes\n\t\t uint8 s1byte\n\toptimized variable order (size: 3 slots)\n\t\t uint248 s31bytes\n\t\t uint8 s1byte\n\t\t uint240 s30bytes\n\t\t uint16 s2bytes\n\t\t uint232 s29bytes\n\t\t uint24 s3bytes\n\n",
-            "markdown": "Optimization opportunity in struct [hard_struct2](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L51-L58)\n\toriginal variable order (size: 4 slots)\n\t\t uint232 s29bytes\n\t\t uint240 s30bytes\n\t\t uint248 s31bytes\n\t\t uint24 s3bytes\n\t\t uint16 s2bytes\n\t\t uint8 s1byte\n\toptimized variable order (size: 3 slots)\n\t\t uint248 s31bytes\n\t\t uint8 s1byte\n\t\t uint240 s30bytes\n\t\t uint16 s2bytes\n\t\t uint232 s29bytes\n\t\t uint24 s3bytes\n\n",
-            "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L51-L58",
-            "id": "0221b8a9939e5168dabb356274c41d7f5d0f66449d52a858c2427453891e8af5",
-            "check": "optimize-var-order",
-            "impact": "Optimization",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "struct",
                     "name": "mymathlibstruct",
                     "source_mapping": {
                         "start": 992,
@@ -95,10 +57,10 @@
                     }
                 }
             ],
-            "description": "Optimization opportunity in struct MyMath.mymathlibstruct (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#62-68)\n\toriginal variable order (size: 5 slots)\n\t\t bytes1 math1\n\t\t bytes32 math2big\n\t\t bytes1 math3\n\t\t abc nestedStruct\n\t\t bytes1 math4\n\toptimized variable order (size: 3 slots)\n\t\t bytes1 math1\n\t\t bytes1 math3\n\t\t bytes1 math4\n\t\t bytes32 math2big\n\t\t abc nestedStruct\n\n",
-            "markdown": "Optimization opportunity in struct [MyMath.mymathlibstruct](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L62-L68)\n\toriginal variable order (size: 5 slots)\n\t\t bytes1 math1\n\t\t bytes32 math2big\n\t\t bytes1 math3\n\t\t abc nestedStruct\n\t\t bytes1 math4\n\toptimized variable order (size: 3 slots)\n\t\t bytes1 math1\n\t\t bytes1 math3\n\t\t bytes1 math4\n\t\t bytes32 math2big\n\t\t abc nestedStruct\n\n",
+            "description": "Optimization opportunity in struct MyMath.mymathlibstruct (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#62-68)\n\toriginal variable order (count: 5 slots)\n\t\t bytes1 math1\n\t\t bytes32 math2big\n\t\t bytes1 math3\n\t\t abc nestedStruct\n\t\t bytes1 math4\n\toptimized variable order (count: 3 slots)\n\t\t bytes1 math1\n\t\t bytes1 math3\n\t\t bytes1 math4\n\t\t bytes32 math2big\n\t\t abc nestedStruct\n\n",
+            "markdown": "Optimization opportunity in struct [MyMath.mymathlibstruct](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L62-L68)\n\toriginal variable order (count: 5 slots)\n\t\t bytes1 math1\n\t\t bytes32 math2big\n\t\t bytes1 math3\n\t\t abc nestedStruct\n\t\t bytes1 math4\n\toptimized variable order (count: 3 slots)\n\t\t bytes1 math1\n\t\t bytes1 math3\n\t\t bytes1 math4\n\t\t bytes32 math2big\n\t\t abc nestedStruct\n\n",
             "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L62-L68",
-            "id": "112230e0117157e3ceb14dc5136b3361920335741c066d4c3f960b70e62221bc",
+            "id": "3426684a40e375592c44114fb0dc507df1bd0d58bb6430b516694e49e360b802",
             "check": "optimize-var-order",
             "impact": "Optimization",
             "confidence": "High"
@@ -107,23 +69,23 @@
             "elements": [
                 {
                     "type": "struct",
-                    "name": "hard_struct1",
+                    "name": "abc",
                     "source_mapping": {
-                        "start": 670,
-                        "length": 149,
+                        "start": 0,
+                        "length": 178,
                         "filename_relative": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol",
                         "is_dependency": false,
                         "lines": [
-                            42,
-                            43,
-                            44,
-                            45,
-                            46,
-                            47,
-                            48,
-                            49
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8
                         ],
                         "starting_column": 1,
                         "ending_column": 2
@@ -133,10 +95,20 @@
                     }
                 }
             ],
-            "description": "Optimization opportunity in struct hard_struct1 (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#42-49)\n\toriginal variable order (size: 4 slots)\n\t\t uint248 s31bytes1\n\t\t uint248 s31bytes2\n\t\t uint248 s31bytes3\n\t\t uint8 s1byte1\n\t\t uint8 s1byte2\n\t\t uint8 s1byte3\n\toptimized variable order (size: 3 slots)\n\t\t uint248 s31bytes1\n\t\t uint8 s1byte1\n\t\t uint248 s31bytes2\n\t\t uint8 s1byte2\n\t\t uint248 s31bytes3\n\t\t uint8 s1byte3\n\n",
-            "markdown": "Optimization opportunity in struct [hard_struct1](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L42-L49)\n\toriginal variable order (size: 4 slots)\n\t\t uint248 s31bytes1\n\t\t uint248 s31bytes2\n\t\t uint248 s31bytes3\n\t\t uint8 s1byte1\n\t\t uint8 s1byte2\n\t\t uint8 s1byte3\n\toptimized variable order (size: 3 slots)\n\t\t uint248 s31bytes1\n\t\t uint8 s1byte1\n\t\t uint248 s31bytes2\n\t\t uint8 s1byte2\n\t\t uint248 s31bytes3\n\t\t uint8 s1byte3\n\n",
-            "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L42-L49",
-            "id": "155b07ae797235aca30b4310d186ae43c35292d2731b1488a0523a86e0f22e86",
+            "description": "Optimization opportunity in struct abc (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#1-8)\n\toriginal variable order (count: 5 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t bytes32 bigboy\n\t\t uint8 small3\n\t\t mapping(address => mapping(uint256 => bool)) someNestedMapping\n\t\t uint8 small4\n\toptimized variable order (count: 3 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t uint8 small3\n\t\t uint8 small4\n\t\t bytes32 bigboy\n\t\t mapping(address => mapping(uint256 => bool)) someNestedMapping\n\n",
+            "markdown": "Optimization opportunity in struct [abc](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L1-L8)\n\toriginal variable order (count: 5 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t bytes32 bigboy\n\t\t uint8 small3\n\t\t mapping(address => mapping(uint256 => bool)) someNestedMapping\n\t\t uint8 small4\n\toptimized variable order (count: 3 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t uint8 small3\n\t\t uint8 small4\n\t\t bytes32 bigboy\n\t\t mapping(address => mapping(uint256 => bool)) someNestedMapping\n\n",
+            "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L1-L8",
+            "id": "597c06cf8c49f8cbdac0d1d07969ef6ca4c6283e009206ef5f2e93fa4367c294",
+            "check": "optimize-var-order",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Recomended optimizations will use 28 less slots.\n",
+            "markdown": "Recomended optimizations will use 28 less slots.\n",
+            "first_markdown_element": "",
+            "id": "6a68751b00d41d73d3d6a9e7bfa0487cfe729793a222ec6fca0bf8365b94b92a",
             "check": "optimize-var-order",
             "impact": "Optimization",
             "confidence": "High"
@@ -297,10 +269,48 @@
                     }
                 }
             ],
-            "description": "Optimization opportunity in contract HelloWorld (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#87-223) stroage variables\n\toriginal variable order (size: 5 slots)\n\t\t bool aa\n\t\t uint256 xx\n\t\t bool bb\n\t\t abc innerStruct\n\t\t bool cc\n\toptimized variable order (size: 3 slots)\n\t\t bool aa\n\t\t bool bb\n\t\t bool cc\n\t\t uint256 xx\n\t\t abc innerStruct\n\n",
-            "markdown": "Optimization opportunity in contract [HelloWorld](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L87-L223) stroage variables\n\toriginal variable order (size: 5 slots)\n\t\t bool aa\n\t\t uint256 xx\n\t\t bool bb\n\t\t abc innerStruct\n\t\t bool cc\n\toptimized variable order (size: 3 slots)\n\t\t bool aa\n\t\t bool bb\n\t\t bool cc\n\t\t uint256 xx\n\t\t abc innerStruct\n\n",
+            "description": "Optimization opportunity in storage variable layout of contract HelloWorld (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#87-223)\n\toriginal variable order (count: 11 slots)\n\t\t bytes1 sml1\n\t\t MyMath.mymathlibstruct doubleNested\n\t\t bytes1 sml2\n\t\t bytes32 bigpapi1\n\t\t bytes1 sml3\n\t\t mapping(uint24 => uint64) someMapping\n\t\t bytes1 sm14\n\t\t bool aa\n\t\t uint256 xx\n\t\t bool bb\n\t\t abc innerStruct\n\t\t bool cc\n\toptimized variable order (count: 6 slots)\n\t\t bytes1 sml1\n\t\t bytes1 sml2\n\t\t bytes1 sml3\n\t\t bytes1 sm14\n\t\t bool aa\n\t\t bool bb\n\t\t bool cc\n\t\t MyMath.mymathlibstruct doubleNested\n\t\t bytes32 bigpapi1\n\t\t mapping(uint24 => uint64) someMapping\n\t\t uint256 xx\n\t\t abc innerStruct\n\n",
+            "markdown": "Optimization opportunity in storage variable layout of contract [HelloWorld](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L87-L223)\n\toriginal variable order (count: 11 slots)\n\t\t bytes1 sml1\n\t\t MyMath.mymathlibstruct doubleNested\n\t\t bytes1 sml2\n\t\t bytes32 bigpapi1\n\t\t bytes1 sml3\n\t\t mapping(uint24 => uint64) someMapping\n\t\t bytes1 sm14\n\t\t bool aa\n\t\t uint256 xx\n\t\t bool bb\n\t\t abc innerStruct\n\t\t bool cc\n\toptimized variable order (count: 6 slots)\n\t\t bytes1 sml1\n\t\t bytes1 sml2\n\t\t bytes1 sml3\n\t\t bytes1 sm14\n\t\t bool aa\n\t\t bool bb\n\t\t bool cc\n\t\t MyMath.mymathlibstruct doubleNested\n\t\t bytes32 bigpapi1\n\t\t mapping(uint24 => uint64) someMapping\n\t\t uint256 xx\n\t\t abc innerStruct\n\n",
             "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L87-L223",
-            "id": "29a40cf1f464701a743cb7138f92fac00a6f96d71c9c83f7fa8f193c390eb68f",
+            "id": "8bbe18f1f6a6240b0fc3a3e5ce53ae697bc2a0d38cfc70fbed0d10dcc3bd0148",
+            "check": "optimize-var-order",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "struct",
+                    "name": "hard_struct2",
+                    "source_mapping": {
+                        "start": 821,
+                        "length": 147,
+                        "filename_relative": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            51,
+                            52,
+                            53,
+                            54,
+                            55,
+                            56,
+                            57,
+                            58
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 2
+                    },
+                    "type_specific_fields": {
+                        "parent": null
+                    }
+                }
+            ],
+            "description": "Optimization opportunity in struct hard_struct2 (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#51-58)\n\toriginal variable order (count: 4 slots)\n\t\t uint232 s29bytes\n\t\t uint240 s30bytes\n\t\t uint248 s31bytes\n\t\t uint24 s3bytes\n\t\t uint16 s2bytes\n\t\t uint8 s1byte\n\toptimized variable order (count: 3 slots)\n\t\t uint248 s31bytes\n\t\t uint8 s1byte\n\t\t uint240 s30bytes\n\t\t uint16 s2bytes\n\t\t uint232 s29bytes\n\t\t uint24 s3bytes\n\n",
+            "markdown": "Optimization opportunity in struct [hard_struct2](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L51-L58)\n\toriginal variable order (count: 4 slots)\n\t\t uint232 s29bytes\n\t\t uint240 s30bytes\n\t\t uint248 s31bytes\n\t\t uint24 s3bytes\n\t\t uint16 s2bytes\n\t\t uint8 s1byte\n\toptimized variable order (count: 3 slots)\n\t\t uint248 s31bytes\n\t\t uint8 s1byte\n\t\t uint240 s30bytes\n\t\t uint16 s2bytes\n\t\t uint232 s29bytes\n\t\t uint24 s3bytes\n\n",
+            "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L51-L58",
+            "id": "93e154e9d04b2e63c59968f9ef269833716d315905a9b9e1796b6c17d1d77b4a",
             "check": "optimize-var-order",
             "impact": "Optimization",
             "confidence": "High"
@@ -334,10 +344,10 @@
                     }
                 }
             ],
-            "description": "Optimization opportunity in struct cant_pack_arrays_can_pack_others (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#34-40)\n\toriginal variable order (size: 5 slots)\n\t\t bytes16[1] arr1\n\t\t uint128 half1\n\t\t uint256 big1\n\t\t uint128 half2\n\t\t bytes16[1] arr2\n\toptimized variable order (size: 4 slots)\n\t\t uint128 half1\n\t\t uint128 half2\n\t\t bytes16[1] arr1\n\t\t uint256 big1\n\t\t bytes16[1] arr2\n\n",
-            "markdown": "Optimization opportunity in struct [cant_pack_arrays_can_pack_others](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L34-L40)\n\toriginal variable order (size: 5 slots)\n\t\t bytes16[1] arr1\n\t\t uint128 half1\n\t\t uint256 big1\n\t\t uint128 half2\n\t\t bytes16[1] arr2\n\toptimized variable order (size: 4 slots)\n\t\t uint128 half1\n\t\t uint128 half2\n\t\t bytes16[1] arr1\n\t\t uint256 big1\n\t\t bytes16[1] arr2\n\n",
+            "description": "Optimization opportunity in struct cant_pack_arrays_can_pack_others (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#34-40)\n\toriginal variable order (count: 5 slots)\n\t\t bytes16[1] arr1\n\t\t uint128 half1\n\t\t uint256 big1\n\t\t uint128 half2\n\t\t bytes16[1] arr2\n\toptimized variable order (count: 4 slots)\n\t\t uint128 half1\n\t\t uint128 half2\n\t\t bytes16[1] arr1\n\t\t uint256 big1\n\t\t bytes16[1] arr2\n\n",
+            "markdown": "Optimization opportunity in struct [cant_pack_arrays_can_pack_others](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L34-L40)\n\toriginal variable order (count: 5 slots)\n\t\t bytes16[1] arr1\n\t\t uint128 half1\n\t\t uint256 big1\n\t\t uint128 half2\n\t\t bytes16[1] arr2\n\toptimized variable order (count: 4 slots)\n\t\t uint128 half1\n\t\t uint128 half2\n\t\t bytes16[1] arr1\n\t\t uint256 big1\n\t\t bytes16[1] arr2\n\n",
             "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L34-L40",
-            "id": "898dd4d181c4c7234f757a607566f35feff093468d877fccb85a75fcc90ba431",
+            "id": "c18caf15799ddfcd55056a932865fc65ac411bc48c81cecf0627f631b357df25",
             "check": "optimize-var-order",
             "impact": "Optimization",
             "confidence": "High"
@@ -535,10 +545,10 @@
                     }
                 }
             ],
-            "description": "Optimization opportunity in struct HelloWorld.random_struct_medium (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#94-112)\n\toriginal variable order (size: 11 slots)\n\t\t bytes9 var1\n\t\t int32 var2\n\t\t bytes12 var3\n\t\t uint256 var4\n\t\t int8 var5\n\t\t bytes16 var6\n\t\t MyMath.mymathlibstruct innerStruct1\n\t\t bytes15 var7\n\t\t uint32 var8\n\t\t bytes12 var9\n\t\t int144 var10\n\t\t uint208 var11\n\t\t int136 var12\n\t\t abc innerStruct2\n\t\t int256 var13\n\t\t int176 var14\n\t\t uint56 var15\n\toptimized variable order (size: 10 slots)\n\t\t uint208 var11\n\t\t int32 var2\n\t\t int8 var5\n\t\t int176 var14\n\t\t bytes9 var1\n\t\t int144 var10\n\t\t bytes12 var3\n\t\t int136 var12\n\t\t bytes15 var7\n\t\t bytes16 var6\n\t\t bytes12 var9\n\t\t uint32 var8\n\t\t uint56 var15\n\t\t uint256 var4\n\t\t MyMath.mymathlibstruct innerStruct1\n\t\t abc innerStruct2\n\t\t int256 var13\n\n",
-            "markdown": "Optimization opportunity in struct [HelloWorld.random_struct_medium](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L94-L112)\n\toriginal variable order (size: 11 slots)\n\t\t bytes9 var1\n\t\t int32 var2\n\t\t bytes12 var3\n\t\t uint256 var4\n\t\t int8 var5\n\t\t bytes16 var6\n\t\t MyMath.mymathlibstruct innerStruct1\n\t\t bytes15 var7\n\t\t uint32 var8\n\t\t bytes12 var9\n\t\t int144 var10\n\t\t uint208 var11\n\t\t int136 var12\n\t\t abc innerStruct2\n\t\t int256 var13\n\t\t int176 var14\n\t\t uint56 var15\n\toptimized variable order (size: 10 slots)\n\t\t uint208 var11\n\t\t int32 var2\n\t\t int8 var5\n\t\t int176 var14\n\t\t bytes9 var1\n\t\t int144 var10\n\t\t bytes12 var3\n\t\t int136 var12\n\t\t bytes15 var7\n\t\t bytes16 var6\n\t\t bytes12 var9\n\t\t uint32 var8\n\t\t uint56 var15\n\t\t uint256 var4\n\t\t MyMath.mymathlibstruct innerStruct1\n\t\t abc innerStruct2\n\t\t int256 var13\n\n",
+            "description": "Optimization opportunity in struct HelloWorld.random_struct_medium (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#94-112)\n\toriginal variable order (count: 11 slots)\n\t\t bytes9 var1\n\t\t int32 var2\n\t\t bytes12 var3\n\t\t uint256 var4\n\t\t int8 var5\n\t\t bytes16 var6\n\t\t MyMath.mymathlibstruct innerStruct1\n\t\t bytes15 var7\n\t\t uint32 var8\n\t\t bytes12 var9\n\t\t int144 var10\n\t\t uint208 var11\n\t\t int136 var12\n\t\t abc innerStruct2\n\t\t int256 var13\n\t\t int176 var14\n\t\t uint56 var15\n\toptimized variable order (count: 10 slots)\n\t\t uint208 var11\n\t\t int32 var2\n\t\t int8 var5\n\t\t int176 var14\n\t\t bytes9 var1\n\t\t int144 var10\n\t\t bytes12 var3\n\t\t int136 var12\n\t\t bytes15 var7\n\t\t bytes16 var6\n\t\t bytes12 var9\n\t\t uint32 var8\n\t\t uint56 var15\n\t\t uint256 var4\n\t\t MyMath.mymathlibstruct innerStruct1\n\t\t abc innerStruct2\n\t\t int256 var13\n\n",
+            "markdown": "Optimization opportunity in struct [HelloWorld.random_struct_medium](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L94-L112)\n\toriginal variable order (count: 11 slots)\n\t\t bytes9 var1\n\t\t int32 var2\n\t\t bytes12 var3\n\t\t uint256 var4\n\t\t int8 var5\n\t\t bytes16 var6\n\t\t MyMath.mymathlibstruct innerStruct1\n\t\t bytes15 var7\n\t\t uint32 var8\n\t\t bytes12 var9\n\t\t int144 var10\n\t\t uint208 var11\n\t\t int136 var12\n\t\t abc innerStruct2\n\t\t int256 var13\n\t\t int176 var14\n\t\t uint56 var15\n\toptimized variable order (count: 10 slots)\n\t\t uint208 var11\n\t\t int32 var2\n\t\t int8 var5\n\t\t int176 var14\n\t\t bytes9 var1\n\t\t int144 var10\n\t\t bytes12 var3\n\t\t int136 var12\n\t\t bytes15 var7\n\t\t bytes16 var6\n\t\t bytes12 var9\n\t\t uint32 var8\n\t\t uint56 var15\n\t\t uint256 var4\n\t\t MyMath.mymathlibstruct innerStruct1\n\t\t abc innerStruct2\n\t\t int256 var13\n\n",
             "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L94-L112",
-            "id": "9f8431f67c9f8505d661084eef495109ab1edf6ae3d29e9daff537d8bd9299d6",
+            "id": "c47b33da6da4f55901328420ef460596ff09052c7706902dda7906c1790485a7",
             "check": "optimize-var-order",
             "impact": "Optimization",
             "confidence": "High"
@@ -547,23 +557,23 @@
             "elements": [
                 {
                     "type": "struct",
-                    "name": "abc",
+                    "name": "hard_struct1",
                     "source_mapping": {
-                        "start": 0,
-                        "length": 178,
+                        "start": 670,
+                        "length": 149,
                         "filename_relative": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol",
                         "is_dependency": false,
                         "lines": [
-                            1,
-                            2,
-                            3,
-                            4,
-                            5,
-                            6,
-                            7,
-                            8
+                            42,
+                            43,
+                            44,
+                            45,
+                            46,
+                            47,
+                            48,
+                            49
                         ],
                         "starting_column": 1,
                         "ending_column": 2
@@ -573,10 +583,10 @@
                     }
                 }
             ],
-            "description": "Optimization opportunity in struct abc (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#1-8)\n\toriginal variable order (size: 5 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t bytes32 bigboy\n\t\t uint8 small3\n\t\t mapping(address => mapping(uint256 => bool)) someNestedMapping\n\t\t uint8 small4\n\toptimized variable order (size: 3 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t uint8 small3\n\t\t uint8 small4\n\t\t bytes32 bigboy\n\t\t mapping(address => mapping(uint256 => bool)) someNestedMapping\n\n",
-            "markdown": "Optimization opportunity in struct [abc](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L1-L8)\n\toriginal variable order (size: 5 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t bytes32 bigboy\n\t\t uint8 small3\n\t\t mapping(address => mapping(uint256 => bool)) someNestedMapping\n\t\t uint8 small4\n\toptimized variable order (size: 3 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t uint8 small3\n\t\t uint8 small4\n\t\t bytes32 bigboy\n\t\t mapping(address => mapping(uint256 => bool)) someNestedMapping\n\n",
-            "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L1-L8",
-            "id": "a6356fa3c5b9a70e954af2af93cd1aaaa87fbcb7799a5e47ab0b4b855c9ab390",
+            "description": "Optimization opportunity in struct hard_struct1 (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#42-49)\n\toriginal variable order (count: 4 slots)\n\t\t uint248 s31bytes1\n\t\t uint248 s31bytes2\n\t\t uint248 s31bytes3\n\t\t uint8 s1byte1\n\t\t uint8 s1byte2\n\t\t uint8 s1byte3\n\toptimized variable order (count: 3 slots)\n\t\t uint248 s31bytes1\n\t\t uint8 s1byte1\n\t\t uint248 s31bytes2\n\t\t uint8 s1byte2\n\t\t uint248 s31bytes3\n\t\t uint8 s1byte3\n\n",
+            "markdown": "Optimization opportunity in struct [hard_struct1](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L42-L49)\n\toriginal variable order (count: 4 slots)\n\t\t uint248 s31bytes1\n\t\t uint248 s31bytes2\n\t\t uint248 s31bytes3\n\t\t uint8 s1byte1\n\t\t uint8 s1byte2\n\t\t uint8 s1byte3\n\toptimized variable order (count: 3 slots)\n\t\t uint248 s31bytes1\n\t\t uint8 s1byte1\n\t\t uint248 s31bytes2\n\t\t uint8 s1byte2\n\t\t uint248 s31bytes3\n\t\t uint8 s1byte3\n\n",
+            "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L42-L49",
+            "id": "c9734c4b71b0331fb0ac4a85d5fa1f2f1fcedca7ca83921644720101c4f357fd",
             "check": "optimize-var-order",
             "impact": "Optimization",
             "confidence": "High"
@@ -857,10 +867,10 @@
                     }
                 }
             ],
-            "description": "Optimization opportunity in struct HelloWorld.random_struct_large (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#114-215)\n\toriginal variable order (size: 69 slots)\n\t\t uint152 var1\n\t\t uint168 var2\n\t\t uint8 var3\n\t\t bytes17 var4\n\t\t int16 var5\n\t\t int152 var6\n\t\t int256 var7\n\t\t uint200 var8\n\t\t bytes21 var9\n\t\t uint224 var10\n\t\t int240 var11\n\t\t int120 var12\n\t\t uint232 var13\n\t\t uint88 var14\n\t\t uint176 var15\n\t\t bytes20 var16\n\t\t int200 var17\n\t\t uint232 var18\n\t\t bytes5 var19\n\t\t int224 var20\n\t\t uint112 var21\n\t\t int168 var22\n\t\t int56 var23\n\t\t uint200 var24\n\t\t uint56 var25\n\t\t bytes3 var26\n\t\t int24 var27\n\t\t int208 var28\n\t\t uint40 var29\n\t\t uint24 var30\n\t\t int16 var31\n\t\t bytes var32\n\t\t int32 var33\n\t\t int184 var34\n\t\t uint16 var35\n\t\t uint128 var36\n\t\t int104 var37\n\t\t uint152 var38\n\t\t int208 var39\n\t\t int168 var40\n\t\t bytes17 var41\n\t\t bytes27 var42\n\t\t uint32 var43\n\t\t int112 var44\n\t\t uint128 var45\n\t\t bytes21 var46\n\t\t int72 var47\n\t\t uint240 var48\n\t\t bytes21 var49\n\t\t uint160 var50\n\t\t int208 var51\n\t\t bytes12 var52\n\t\t bytes27 var53\n\t\t int72 var54\n\t\t int24 var55\n\t\t bool var56\n\t\t bytes15 var57\n\t\t uint184 var58\n\t\t uint208 var59\n\t\t bytes19 var60\n\t\t int120 var61\n\t\t uint144 var62\n\t\t int128 var63\n\t\t address var64\n\t\t int32 var65\n\t\t int72 var66\n\t\t int80 var67\n\t\t int224 var68\n\t\t int200 var69\n\t\t uint16 var70\n\t\t int120 var71\n\t\t bytes10 var72\n\t\t int104 var73\n\t\t int24 var74\n\t\t int216 var75\n\t\t uint176 var76\n\t\t uint56 var77\n\t\t bytes4 var78\n\t\t bytes22 var79\n\t\t bytes29 var80\n\t\t int216 var81\n\t\t bytes16 var82\n\t\t int240 var83\n\t\t bytes16 var84\n\t\t bytes3 var85\n\t\t uint120 var86\n\t\t uint136 var87\n\t\t uint88 var88\n\t\t uint128 var89\n\t\t bytes1 var90\n\t\t uint120 var91\n\t\t bytes5 var92\n\t\t uint40 var93\n\t\t int128 var94\n\t\t string var95\n\t\t int232 var96\n\t\t bytes23 var97\n\t\t int64 var98\n\t\t bytes26 var99\n\t\t uint136 var100\n\toptimized variable order (size: 55 slots)\n\t\t int240 var11\n\t\t int16 var5\n\t\t uint240 var48\n\t\t int16 var31\n\t\t int240 var83\n\t\t uint16 var35\n\t\t uint232 var13\n\t\t bytes3 var26\n\t\t uint232 var18\n\t\t int24 var27\n\t\t bytes29 var80\n\t\t uint24 var30\n\t\t int232 var96\n\t\t int24 var55\n\t\t uint224 var10\n\t\t int32 var33\n\t\t int224 var20\n\t\t uint32 var43\n\t\t int224 var68\n\t\t int32 var65\n\t\t bytes27 var42\n\t\t bytes5 var19\n\t\t bytes27 var53\n\t\t uint40 var29\n\t\t int216 var75\n\t\t bytes5 var92\n\t\t int216 var81\n\t\t uint40 var93\n\t\t int208 var28\n\t\t bytes4 var78\n\t\t uint16 var70\n\t\t int208 var39\n\t\t int24 var74\n\t\t bytes3 var85\n\t\t int208 var51\n\t\t uint8 var3\n\t\t bool var56\n\t\t bytes1 var90\n\t\t uint208 var59\n\t\t bytes26 var99\n\t\t uint200 var8\n\t\t int56 var23\n\t\t int200 var17\n\t\t uint56 var25\n\t\t uint200 var24\n\t\t uint56 var77\n\t\t int200 var69\n\t\t int184 var34\n\t\t int72 var47\n\t\t uint184 var58\n\t\t int72 var54\n\t\t bytes23 var97\n\t\t int72 var66\n\t\t uint176 var15\n\t\t int80 var67\n\t\t uint176 var76\n\t\t bytes10 var72\n\t\t bytes22 var79\n\t\t int64 var98\n\t\t uint168 var2\n\t\t uint88 var14\n\t\t bytes21 var9\n\t\t uint88 var88\n\t\t int168 var22\n\t\t int168 var40\n\t\t bytes21 var46\n\t\t bytes21 var49\n\t\t bytes20 var16\n\t\t bytes12 var52\n\t\t uint160 var50\n\t\t address var64\n\t\t uint152 var1\n\t\t int104 var37\n\t\t int152 var6\n\t\t int104 var73\n\t\t uint152 var38\n\t\t bytes19 var60\n\t\t uint144 var62\n\t\t uint112 var21\n\t\t bytes17 var4\n\t\t int120 var12\n\t\t bytes17 var41\n\t\t bytes15 var57\n\t\t uint136 var87\n\t\t int120 var61\n\t\t uint136 var100\n\t\t int120 var71\n\t\t uint128 var36\n\t\t uint128 var45\n\t\t int128 var63\n\t\t bytes16 var82\n\t\t bytes16 var84\n\t\t uint128 var89\n\t\t int128 var94\n\t\t uint120 var86\n\t\t uint120 var91\n\t\t int112 var44\n\t\t int256 var7\n\t\t bytes var32\n\t\t string var95\n\n",
-            "markdown": "Optimization opportunity in struct [HelloWorld.random_struct_large](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L114-L215)\n\toriginal variable order (size: 69 slots)\n\t\t uint152 var1\n\t\t uint168 var2\n\t\t uint8 var3\n\t\t bytes17 var4\n\t\t int16 var5\n\t\t int152 var6\n\t\t int256 var7\n\t\t uint200 var8\n\t\t bytes21 var9\n\t\t uint224 var10\n\t\t int240 var11\n\t\t int120 var12\n\t\t uint232 var13\n\t\t uint88 var14\n\t\t uint176 var15\n\t\t bytes20 var16\n\t\t int200 var17\n\t\t uint232 var18\n\t\t bytes5 var19\n\t\t int224 var20\n\t\t uint112 var21\n\t\t int168 var22\n\t\t int56 var23\n\t\t uint200 var24\n\t\t uint56 var25\n\t\t bytes3 var26\n\t\t int24 var27\n\t\t int208 var28\n\t\t uint40 var29\n\t\t uint24 var30\n\t\t int16 var31\n\t\t bytes var32\n\t\t int32 var33\n\t\t int184 var34\n\t\t uint16 var35\n\t\t uint128 var36\n\t\t int104 var37\n\t\t uint152 var38\n\t\t int208 var39\n\t\t int168 var40\n\t\t bytes17 var41\n\t\t bytes27 var42\n\t\t uint32 var43\n\t\t int112 var44\n\t\t uint128 var45\n\t\t bytes21 var46\n\t\t int72 var47\n\t\t uint240 var48\n\t\t bytes21 var49\n\t\t uint160 var50\n\t\t int208 var51\n\t\t bytes12 var52\n\t\t bytes27 var53\n\t\t int72 var54\n\t\t int24 var55\n\t\t bool var56\n\t\t bytes15 var57\n\t\t uint184 var58\n\t\t uint208 var59\n\t\t bytes19 var60\n\t\t int120 var61\n\t\t uint144 var62\n\t\t int128 var63\n\t\t address var64\n\t\t int32 var65\n\t\t int72 var66\n\t\t int80 var67\n\t\t int224 var68\n\t\t int200 var69\n\t\t uint16 var70\n\t\t int120 var71\n\t\t bytes10 var72\n\t\t int104 var73\n\t\t int24 var74\n\t\t int216 var75\n\t\t uint176 var76\n\t\t uint56 var77\n\t\t bytes4 var78\n\t\t bytes22 var79\n\t\t bytes29 var80\n\t\t int216 var81\n\t\t bytes16 var82\n\t\t int240 var83\n\t\t bytes16 var84\n\t\t bytes3 var85\n\t\t uint120 var86\n\t\t uint136 var87\n\t\t uint88 var88\n\t\t uint128 var89\n\t\t bytes1 var90\n\t\t uint120 var91\n\t\t bytes5 var92\n\t\t uint40 var93\n\t\t int128 var94\n\t\t string var95\n\t\t int232 var96\n\t\t bytes23 var97\n\t\t int64 var98\n\t\t bytes26 var99\n\t\t uint136 var100\n\toptimized variable order (size: 55 slots)\n\t\t int240 var11\n\t\t int16 var5\n\t\t uint240 var48\n\t\t int16 var31\n\t\t int240 var83\n\t\t uint16 var35\n\t\t uint232 var13\n\t\t bytes3 var26\n\t\t uint232 var18\n\t\t int24 var27\n\t\t bytes29 var80\n\t\t uint24 var30\n\t\t int232 var96\n\t\t int24 var55\n\t\t uint224 var10\n\t\t int32 var33\n\t\t int224 var20\n\t\t uint32 var43\n\t\t int224 var68\n\t\t int32 var65\n\t\t bytes27 var42\n\t\t bytes5 var19\n\t\t bytes27 var53\n\t\t uint40 var29\n\t\t int216 var75\n\t\t bytes5 var92\n\t\t int216 var81\n\t\t uint40 var93\n\t\t int208 var28\n\t\t bytes4 var78\n\t\t uint16 var70\n\t\t int208 var39\n\t\t int24 var74\n\t\t bytes3 var85\n\t\t int208 var51\n\t\t uint8 var3\n\t\t bool var56\n\t\t bytes1 var90\n\t\t uint208 var59\n\t\t bytes26 var99\n\t\t uint200 var8\n\t\t int56 var23\n\t\t int200 var17\n\t\t uint56 var25\n\t\t uint200 var24\n\t\t uint56 var77\n\t\t int200 var69\n\t\t int184 var34\n\t\t int72 var47\n\t\t uint184 var58\n\t\t int72 var54\n\t\t bytes23 var97\n\t\t int72 var66\n\t\t uint176 var15\n\t\t int80 var67\n\t\t uint176 var76\n\t\t bytes10 var72\n\t\t bytes22 var79\n\t\t int64 var98\n\t\t uint168 var2\n\t\t uint88 var14\n\t\t bytes21 var9\n\t\t uint88 var88\n\t\t int168 var22\n\t\t int168 var40\n\t\t bytes21 var46\n\t\t bytes21 var49\n\t\t bytes20 var16\n\t\t bytes12 var52\n\t\t uint160 var50\n\t\t address var64\n\t\t uint152 var1\n\t\t int104 var37\n\t\t int152 var6\n\t\t int104 var73\n\t\t uint152 var38\n\t\t bytes19 var60\n\t\t uint144 var62\n\t\t uint112 var21\n\t\t bytes17 var4\n\t\t int120 var12\n\t\t bytes17 var41\n\t\t bytes15 var57\n\t\t uint136 var87\n\t\t int120 var61\n\t\t uint136 var100\n\t\t int120 var71\n\t\t uint128 var36\n\t\t uint128 var45\n\t\t int128 var63\n\t\t bytes16 var82\n\t\t bytes16 var84\n\t\t uint128 var89\n\t\t int128 var94\n\t\t uint120 var86\n\t\t uint120 var91\n\t\t int112 var44\n\t\t int256 var7\n\t\t bytes var32\n\t\t string var95\n\n",
+            "description": "Optimization opportunity in struct HelloWorld.random_struct_large (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#114-215)\n\toriginal variable order (count: 69 slots)\n\t\t uint152 var1\n\t\t uint168 var2\n\t\t uint8 var3\n\t\t bytes17 var4\n\t\t int16 var5\n\t\t int152 var6\n\t\t int256 var7\n\t\t uint200 var8\n\t\t bytes21 var9\n\t\t uint224 var10\n\t\t int240 var11\n\t\t int120 var12\n\t\t uint232 var13\n\t\t uint88 var14\n\t\t uint176 var15\n\t\t bytes20 var16\n\t\t int200 var17\n\t\t uint232 var18\n\t\t bytes5 var19\n\t\t int224 var20\n\t\t uint112 var21\n\t\t int168 var22\n\t\t int56 var23\n\t\t uint200 var24\n\t\t uint56 var25\n\t\t bytes3 var26\n\t\t int24 var27\n\t\t int208 var28\n\t\t uint40 var29\n\t\t uint24 var30\n\t\t int16 var31\n\t\t bytes var32\n\t\t int32 var33\n\t\t int184 var34\n\t\t uint16 var35\n\t\t uint128 var36\n\t\t int104 var37\n\t\t uint152 var38\n\t\t int208 var39\n\t\t int168 var40\n\t\t bytes17 var41\n\t\t bytes27 var42\n\t\t uint32 var43\n\t\t int112 var44\n\t\t uint128 var45\n\t\t bytes21 var46\n\t\t int72 var47\n\t\t uint240 var48\n\t\t bytes21 var49\n\t\t uint160 var50\n\t\t int208 var51\n\t\t bytes12 var52\n\t\t bytes27 var53\n\t\t int72 var54\n\t\t int24 var55\n\t\t bool var56\n\t\t bytes15 var57\n\t\t uint184 var58\n\t\t uint208 var59\n\t\t bytes19 var60\n\t\t int120 var61\n\t\t uint144 var62\n\t\t int128 var63\n\t\t address var64\n\t\t int32 var65\n\t\t int72 var66\n\t\t int80 var67\n\t\t int224 var68\n\t\t int200 var69\n\t\t uint16 var70\n\t\t int120 var71\n\t\t bytes10 var72\n\t\t int104 var73\n\t\t int24 var74\n\t\t int216 var75\n\t\t uint176 var76\n\t\t uint56 var77\n\t\t bytes4 var78\n\t\t bytes22 var79\n\t\t bytes29 var80\n\t\t int216 var81\n\t\t bytes16 var82\n\t\t int240 var83\n\t\t bytes16 var84\n\t\t bytes3 var85\n\t\t uint120 var86\n\t\t uint136 var87\n\t\t uint88 var88\n\t\t uint128 var89\n\t\t bytes1 var90\n\t\t uint120 var91\n\t\t bytes5 var92\n\t\t uint40 var93\n\t\t int128 var94\n\t\t string var95\n\t\t int232 var96\n\t\t bytes23 var97\n\t\t int64 var98\n\t\t bytes26 var99\n\t\t uint136 var100\n\toptimized variable order (count: 55 slots)\n\t\t int240 var11\n\t\t int16 var5\n\t\t uint240 var48\n\t\t int16 var31\n\t\t int240 var83\n\t\t uint16 var35\n\t\t uint232 var13\n\t\t bytes3 var26\n\t\t uint232 var18\n\t\t int24 var27\n\t\t bytes29 var80\n\t\t uint24 var30\n\t\t int232 var96\n\t\t int24 var55\n\t\t uint224 var10\n\t\t int32 var33\n\t\t int224 var20\n\t\t uint32 var43\n\t\t int224 var68\n\t\t int32 var65\n\t\t bytes27 var42\n\t\t bytes5 var19\n\t\t bytes27 var53\n\t\t uint40 var29\n\t\t int216 var75\n\t\t bytes5 var92\n\t\t int216 var81\n\t\t uint40 var93\n\t\t int208 var28\n\t\t bytes4 var78\n\t\t uint16 var70\n\t\t int208 var39\n\t\t int24 var74\n\t\t bytes3 var85\n\t\t int208 var51\n\t\t uint8 var3\n\t\t bool var56\n\t\t bytes1 var90\n\t\t uint208 var59\n\t\t bytes26 var99\n\t\t uint200 var8\n\t\t int56 var23\n\t\t int200 var17\n\t\t uint56 var25\n\t\t uint200 var24\n\t\t uint56 var77\n\t\t int200 var69\n\t\t int184 var34\n\t\t int72 var47\n\t\t uint184 var58\n\t\t int72 var54\n\t\t bytes23 var97\n\t\t int72 var66\n\t\t uint176 var15\n\t\t int80 var67\n\t\t uint176 var76\n\t\t bytes10 var72\n\t\t bytes22 var79\n\t\t int64 var98\n\t\t uint168 var2\n\t\t uint88 var14\n\t\t bytes21 var9\n\t\t uint88 var88\n\t\t int168 var22\n\t\t int168 var40\n\t\t bytes21 var46\n\t\t bytes21 var49\n\t\t bytes20 var16\n\t\t bytes12 var52\n\t\t uint160 var50\n\t\t address var64\n\t\t uint152 var1\n\t\t int104 var37\n\t\t int152 var6\n\t\t int104 var73\n\t\t uint152 var38\n\t\t bytes19 var60\n\t\t uint144 var62\n\t\t uint112 var21\n\t\t bytes17 var4\n\t\t int120 var12\n\t\t bytes17 var41\n\t\t bytes15 var57\n\t\t uint136 var87\n\t\t int120 var61\n\t\t uint136 var100\n\t\t int120 var71\n\t\t uint128 var36\n\t\t uint128 var45\n\t\t int128 var63\n\t\t bytes16 var82\n\t\t bytes16 var84\n\t\t uint128 var89\n\t\t int128 var94\n\t\t uint120 var86\n\t\t uint120 var91\n\t\t int112 var44\n\t\t int256 var7\n\t\t bytes var32\n\t\t string var95\n\n",
+            "markdown": "Optimization opportunity in struct [HelloWorld.random_struct_large](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L114-L215)\n\toriginal variable order (count: 69 slots)\n\t\t uint152 var1\n\t\t uint168 var2\n\t\t uint8 var3\n\t\t bytes17 var4\n\t\t int16 var5\n\t\t int152 var6\n\t\t int256 var7\n\t\t uint200 var8\n\t\t bytes21 var9\n\t\t uint224 var10\n\t\t int240 var11\n\t\t int120 var12\n\t\t uint232 var13\n\t\t uint88 var14\n\t\t uint176 var15\n\t\t bytes20 var16\n\t\t int200 var17\n\t\t uint232 var18\n\t\t bytes5 var19\n\t\t int224 var20\n\t\t uint112 var21\n\t\t int168 var22\n\t\t int56 var23\n\t\t uint200 var24\n\t\t uint56 var25\n\t\t bytes3 var26\n\t\t int24 var27\n\t\t int208 var28\n\t\t uint40 var29\n\t\t uint24 var30\n\t\t int16 var31\n\t\t bytes var32\n\t\t int32 var33\n\t\t int184 var34\n\t\t uint16 var35\n\t\t uint128 var36\n\t\t int104 var37\n\t\t uint152 var38\n\t\t int208 var39\n\t\t int168 var40\n\t\t bytes17 var41\n\t\t bytes27 var42\n\t\t uint32 var43\n\t\t int112 var44\n\t\t uint128 var45\n\t\t bytes21 var46\n\t\t int72 var47\n\t\t uint240 var48\n\t\t bytes21 var49\n\t\t uint160 var50\n\t\t int208 var51\n\t\t bytes12 var52\n\t\t bytes27 var53\n\t\t int72 var54\n\t\t int24 var55\n\t\t bool var56\n\t\t bytes15 var57\n\t\t uint184 var58\n\t\t uint208 var59\n\t\t bytes19 var60\n\t\t int120 var61\n\t\t uint144 var62\n\t\t int128 var63\n\t\t address var64\n\t\t int32 var65\n\t\t int72 var66\n\t\t int80 var67\n\t\t int224 var68\n\t\t int200 var69\n\t\t uint16 var70\n\t\t int120 var71\n\t\t bytes10 var72\n\t\t int104 var73\n\t\t int24 var74\n\t\t int216 var75\n\t\t uint176 var76\n\t\t uint56 var77\n\t\t bytes4 var78\n\t\t bytes22 var79\n\t\t bytes29 var80\n\t\t int216 var81\n\t\t bytes16 var82\n\t\t int240 var83\n\t\t bytes16 var84\n\t\t bytes3 var85\n\t\t uint120 var86\n\t\t uint136 var87\n\t\t uint88 var88\n\t\t uint128 var89\n\t\t bytes1 var90\n\t\t uint120 var91\n\t\t bytes5 var92\n\t\t uint40 var93\n\t\t int128 var94\n\t\t string var95\n\t\t int232 var96\n\t\t bytes23 var97\n\t\t int64 var98\n\t\t bytes26 var99\n\t\t uint136 var100\n\toptimized variable order (count: 55 slots)\n\t\t int240 var11\n\t\t int16 var5\n\t\t uint240 var48\n\t\t int16 var31\n\t\t int240 var83\n\t\t uint16 var35\n\t\t uint232 var13\n\t\t bytes3 var26\n\t\t uint232 var18\n\t\t int24 var27\n\t\t bytes29 var80\n\t\t uint24 var30\n\t\t int232 var96\n\t\t int24 var55\n\t\t uint224 var10\n\t\t int32 var33\n\t\t int224 var20\n\t\t uint32 var43\n\t\t int224 var68\n\t\t int32 var65\n\t\t bytes27 var42\n\t\t bytes5 var19\n\t\t bytes27 var53\n\t\t uint40 var29\n\t\t int216 var75\n\t\t bytes5 var92\n\t\t int216 var81\n\t\t uint40 var93\n\t\t int208 var28\n\t\t bytes4 var78\n\t\t uint16 var70\n\t\t int208 var39\n\t\t int24 var74\n\t\t bytes3 var85\n\t\t int208 var51\n\t\t uint8 var3\n\t\t bool var56\n\t\t bytes1 var90\n\t\t uint208 var59\n\t\t bytes26 var99\n\t\t uint200 var8\n\t\t int56 var23\n\t\t int200 var17\n\t\t uint56 var25\n\t\t uint200 var24\n\t\t uint56 var77\n\t\t int200 var69\n\t\t int184 var34\n\t\t int72 var47\n\t\t uint184 var58\n\t\t int72 var54\n\t\t bytes23 var97\n\t\t int72 var66\n\t\t uint176 var15\n\t\t int80 var67\n\t\t uint176 var76\n\t\t bytes10 var72\n\t\t bytes22 var79\n\t\t int64 var98\n\t\t uint168 var2\n\t\t uint88 var14\n\t\t bytes21 var9\n\t\t uint88 var88\n\t\t int168 var22\n\t\t int168 var40\n\t\t bytes21 var46\n\t\t bytes21 var49\n\t\t bytes20 var16\n\t\t bytes12 var52\n\t\t uint160 var50\n\t\t address var64\n\t\t uint152 var1\n\t\t int104 var37\n\t\t int152 var6\n\t\t int104 var73\n\t\t uint152 var38\n\t\t bytes19 var60\n\t\t uint144 var62\n\t\t uint112 var21\n\t\t bytes17 var4\n\t\t int120 var12\n\t\t bytes17 var41\n\t\t bytes15 var57\n\t\t uint136 var87\n\t\t int120 var61\n\t\t uint136 var100\n\t\t int120 var71\n\t\t uint128 var36\n\t\t uint128 var45\n\t\t int128 var63\n\t\t bytes16 var82\n\t\t bytes16 var84\n\t\t uint128 var89\n\t\t int128 var94\n\t\t uint120 var86\n\t\t uint120 var91\n\t\t int112 var44\n\t\t int256 var7\n\t\t bytes var32\n\t\t string var95\n\n",
             "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L114-L215",
-            "id": "c419e388e279286701faab8cd45df5064177ae61385c2d4a93b17a3b39824c66",
+            "id": "cfc15de728e5bfe4451e5f852f1bc439115562f71a7c47e37d1f1fe5d8ba34a5",
             "check": "optimize-var-order",
             "impact": "Optimization",
             "confidence": "High"
@@ -892,58 +902,10 @@
                     }
                 }
             ],
-            "description": "Optimization opportunity in struct easy_fix (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#10-14)\n\toriginal variable order (size: 3 slots)\n\t\t uint8 small1\n\t\t uint256 big\n\t\t uint8 small2\n\toptimized variable order (size: 2 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t uint256 big\n\n",
-            "markdown": "Optimization opportunity in struct [easy_fix](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L10-L14)\n\toriginal variable order (size: 3 slots)\n\t\t uint8 small1\n\t\t uint256 big\n\t\t uint8 small2\n\toptimized variable order (size: 2 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t uint256 big\n\n",
+            "description": "Optimization opportunity in struct easy_fix (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#10-14)\n\toriginal variable order (count: 3 slots)\n\t\t uint8 small1\n\t\t uint256 big\n\t\t uint8 small2\n\toptimized variable order (count: 2 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t uint256 big\n\n",
+            "markdown": "Optimization opportunity in struct [easy_fix](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L10-L14)\n\toriginal variable order (count: 3 slots)\n\t\t uint8 small1\n\t\t uint256 big\n\t\t uint8 small2\n\toptimized variable order (count: 2 slots)\n\t\t uint8 small1\n\t\t uint8 small2\n\t\t uint256 big\n\n",
             "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L10-L14",
-            "id": "d550790b09c6f6a6d56309116a677ceff408aa5bd2779a2296418a00b467c451",
-            "check": "optimize-var-order",
-            "impact": "Optimization",
-            "confidence": "High"
-        },
-        {
-            "elements": [
-                {
-                    "type": "contract",
-                    "name": "Hello",
-                    "source_mapping": {
-                        "start": 1256,
-                        "length": 210,
-                        "filename_relative": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            75,
-                            76,
-                            77,
-                            78,
-                            79,
-                            80,
-                            81,
-                            82,
-                            83,
-                            84,
-                            85
-                        ],
-                        "starting_column": 1,
-                        "ending_column": 2
-                    }
-                }
-            ],
-            "description": "Optimization opportunity in contract Hello (tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#75-85) stroage variables\n\toriginal variable order (size: 7 slots)\n\t\t bytes1 sml1\n\t\t MyMath.mymathlibstruct doubleNested\n\t\t bytes1 sml2\n\t\t bytes32 bigpapi1\n\t\t bytes1 sml3\n\t\t mapping(uint24 => uint64) someMapping\n\t\t bytes1 sm14\n\toptimized variable order (size: 4 slots)\n\t\t bytes1 sml1\n\t\t bytes1 sml2\n\t\t bytes1 sml3\n\t\t bytes1 sm14\n\t\t MyMath.mymathlibstruct doubleNested\n\t\t bytes32 bigpapi1\n\t\t mapping(uint24 => uint64) someMapping\n\n",
-            "markdown": "Optimization opportunity in contract [Hello](tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L75-L85) stroage variables\n\toriginal variable order (size: 7 slots)\n\t\t bytes1 sml1\n\t\t MyMath.mymathlibstruct doubleNested\n\t\t bytes1 sml2\n\t\t bytes32 bigpapi1\n\t\t bytes1 sml3\n\t\t mapping(uint24 => uint64) someMapping\n\t\t bytes1 sm14\n\toptimized variable order (size: 4 slots)\n\t\t bytes1 sml1\n\t\t bytes1 sml2\n\t\t bytes1 sml3\n\t\t bytes1 sm14\n\t\t MyMath.mymathlibstruct doubleNested\n\t\t bytes32 bigpapi1\n\t\t mapping(uint24 => uint64) someMapping\n\n",
-            "first_markdown_element": "tests/detectors/optimize-var-order/0.7.6/find_optimized_var_order.sol#L75-L85",
-            "id": "d848ef92792c13b5ca2ecb3c5abff3c18c1088ab14658937211254fe3d005cfa",
-            "check": "optimize-var-order",
-            "impact": "Optimization",
-            "confidence": "High"
-        },
-        {
-            "elements": [],
-            "description": "Recomended optimizations will save 28 slots.\n",
-            "markdown": "Recomended optimizations will save 28 slots.\n",
-            "first_markdown_element": "",
-            "id": "de4a20757aaf36fc7ed01ecd87ff7d5da24482bb3ada4dd1fd67ae4d6daf560c",
+            "id": "ecaf12cb6f71baceeafa8a65082927df992e5ee5f83b1248fe8248c19d7ad8bb",
             "check": "optimize-var-order",
             "impact": "Optimization",
             "confidence": "High"
