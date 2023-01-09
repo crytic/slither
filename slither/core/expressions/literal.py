@@ -23,7 +23,7 @@ class Literal(Expression):
         return self._value
 
     @property
-    def converted_value(self) -> int:
+    def converted_value(self) -> Union[int, str]:
         """Return the value of the literal, accounting for subdenomination e.g. ether"""
         if self.subdenomination:
             return convert_subdenomination(self._value, self.subdenomination)
@@ -37,7 +37,7 @@ class Literal(Expression):
     def subdenomination(self) -> Optional[str]:
         return self._subdenomination
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.subdenomination:
             return str(self.converted_value)
 
@@ -47,7 +47,7 @@ class Literal(Expression):
         # be sure to handle any character
         return str(self._value)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, Literal):
             return False
         return (self.value, self.subdenomination) == (other.value, other.subdenomination)
