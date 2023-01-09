@@ -282,10 +282,15 @@ class ExpressionToSlithIR(ExpressionVisitor):
             and expression_called.member_name in ["wrap", "unwrap"]
             and len(args) == 1
         ):
+            # wrap: underlying_type -> alias
+            # unwrap: alias -> underlying_type
+            dest_type = (
+                called if expression_called.member_name == "wrap" else called.underlying_type
+            )
             val = TemporaryVariable(self._node)
-            var = TypeConversion(val, args[0], called)
+            var = TypeConversion(val, args[0], dest_type)
             var.set_expression(expression)
-            val.set_type(called)
+            val.set_type(dest_type)
             self._result.append(var)
             set_val(expression, val)
 
