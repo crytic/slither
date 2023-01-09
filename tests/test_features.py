@@ -128,3 +128,14 @@ def test_using_for_alias_contract() -> None:
         if isinstance(ir, InternalCall) and ir.function_name == "a":
             return
     assert False
+
+
+def test_using_for_in_library() -> None:
+    solc_select.switch_global_version("0.8.15", always_install=True)
+    slither = Slither("./tests/ast-parsing/using-for-in-library-0.8.0.sol")
+    contract_c = slither.get_contract_from_name("A")[0]
+    libCall = contract_c.get_function_from_full_name("a(uint256)")
+    for ir in libCall.all_slithir_operations():
+        if isinstance(ir, LibraryCall) and ir.destination == "B" and ir.function_name == "b":
+            return
+    assert False

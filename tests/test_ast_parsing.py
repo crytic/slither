@@ -428,6 +428,7 @@ ALL_TESTS = [
     Test("using-for-2-0.8.0.sol", ["0.8.15"]),
     Test("using-for-3-0.8.0.sol", ["0.8.15"]),
     Test("using-for-4-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-in-library-0.8.0.sol", ["0.8.15"]),
     Test("using-for-alias-contract-0.8.0.sol", ["0.8.15"]),
     Test("using-for-alias-top-level-0.8.0.sol", ["0.8.15"]),
     Test("using-for-functions-list-1-0.8.0.sol", ["0.8.15"]),
