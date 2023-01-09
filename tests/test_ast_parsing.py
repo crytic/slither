@@ -438,6 +438,7 @@ ALL_TESTS = [
     Test("using-for-global-0.8.0.sol", ["0.8.15"]),
     Test("library_event-0.8.16.sol", ["0.8.16"]),
     Test("top-level-struct-0.8.0.sol", ["0.8.0"]),
+    Test("yul-top-level-0.8.0.sol", ["0.8.0"]),
     Test("complex_imports/import_aliases_issue_1319/test.sol", ["0.5.12"]),
 ]
 # create the output folder if needed

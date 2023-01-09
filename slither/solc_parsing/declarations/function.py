@@ -343,7 +343,6 @@ class FunctionSolc(CallerContextExpression):
             node,
             [self._function.name, f"asm_{len(self._node_to_yulobject)}"],
             scope,
-            parent_func=self._function,
         )
         self._node_to_yulobject[node] = yul_object
         return yul_object
