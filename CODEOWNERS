@@ -3,3 +3,4 @@
 /slither/tools/doctor/       @elopez
 /slither/slithir/            @montyly
 /slither/analyses/           @montyly
+/.github/workflows/          @elopez
