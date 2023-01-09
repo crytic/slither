@@ -43,10 +43,9 @@ contract Bad {
     address should_be_immutable = msg.sender;
     uint should_be_immutable_2 = getNumber();
     uint should_be_immutable_3 = 10 + block.number;
-    B should_be_immutable_4 = new B();
     uint should_be_immutable_5;
     
-	constructor(uint b) public {
+	constructor(uint b) {
 		should_be_immutable_5 = b;
 	}
 
@@ -68,7 +67,7 @@ contract Good {
     B immutable should_be_immutable_4 = new B();
     uint immutable should_be_immutable_5;
     
-	constructor(uint b) public {
+	constructor(uint b) {
 		should_be_immutable_5 = b;
 	}
 
