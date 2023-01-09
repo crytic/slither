@@ -36,7 +36,12 @@ def parse_args() -> argparse.Namespace:
         default=False,
     )
 
-    parser.add_argument("--retry", help="Retry failed query (default 1). Each retry increases the temperature by 0.1", action="store", default=1)
+    parser.add_argument(
+        "--retry",
+        help="Retry failed query (default 1). Each retry increases the temperature by 0.1",
+        action="store",
+        default=1,
+    )
 
     # Add default arguments from crytic-compile
     cryticparser.init(parser)
@@ -122,7 +127,75 @@ def _handle_codex(
     return None
 
 
-# pylint: disable=too-many-locals
+# pylint: disable=too-many-locals,too-many-arguments
+def _handle_function(
+    function: Function,
+    overwrite: bool,
+    all_patches: Dict,
+    logging_file: Optional[str],
+    slither: Slither,
+    retry: int,
+    force: bool,
+) -> bool:
+    if (
+        function.source_mapping.is_dependency
+        or function.has_documentation
+        or function.is_constructor_variables
+    ):
+        return overwrite
+    prompt = "Create a natpsec documentation for this solidity code with only notice and dev.\n"
+    src_mapping = function.source_mapping
+    content = function.compilation_unit.core.source_code[src_mapping.filename.absolute]
+    start = src_mapping.start
+    end = src_mapping.start + src_mapping.length
+    prompt += content[start:end]
+
+    use_tab = _use_tab(content[start - 1])
+    if use_tab is None and src_mapping.starting_column > 1:
+        logger.info(f"Non standard space indentation found {content[start - 1:end]}")
+        if overwrite:
+            logger.info("Disable overwrite to avoid mistakes")
+            overwrite = False
+
+    openai = codex.openai_module()  # type: ignore
+    if openai is None:
+        raise ImportError
+
+    if logging_file:
+        codex.log_codex(logging_file, "Q: " + prompt)
+
+    tentative = 0
+    answer_processed: Optional[str] = None
+    while tentative < retry:
+        tentative += 1
+
+        answer = openai.Completion.create(  # type: ignore
+            prompt=prompt,
+            model=slither.codex_model,
+            temperature=min(slither.codex_temperature + tentative * 0.1, 1),
+            max_tokens=slither.codex_max_tokens,
+        )
+
+        if logging_file:
+            codex.log_codex(logging_file, "A: " + str(answer))
+
+        answer_processed = _handle_codex(answer, src_mapping.starting_column, use_tab, force)
+        if answer_processed:
+            break
+
+        logger.info(
+            f"Codex could not generate a well formatted answer for {function.canonical_name}"
+        )
+        logger.info(answer)
+
+    if not answer_processed:
+        return overwrite
+
+    create_patch(all_patches, src_mapping.filename.absolute, start, start, "", answer_processed)
+
+    return overwrite
+
+
 def _handle_compilation_unit(
     slither: Slither,
     compilation_unit: SlitherCompilationUnit,
@@ -130,12 +203,15 @@ def _handle_compilation_unit(
     force: bool,
     retry: int,
 ) -> None:
-
-    logging_file = str(uuid.uuid4())
+    logging_file: Optional[str]
+    if slither.codex_log:
+        logging_file = str(uuid.uuid4())
+    else:
+        logging_file = None
 
     for scope in compilation_unit.scopes.values():
 
-        # TODO remove hardcoded filtering
+        # Dont send tests file
         if (
             ".t.sol" in scope.filename.absolute
             or "mock" in scope.filename.absolute.lower()
@@ -153,63 +229,8 @@ def _handle_compilation_unit(
         all_patches: Dict = {}
 
         for function in functions_target:
-
-            if function.source_mapping.is_dependency or function.has_documentation or function.is_constructor_variables:
-                continue
-            prompt = (
-                "Create a natpsec documentation for this solidity code with only notice and dev.\n"
-            )
-            src_mapping = function.source_mapping
-            content = compilation_unit.core.source_code[src_mapping.filename.absolute]
-            start = src_mapping.start
-            end = src_mapping.start + src_mapping.length
-            prompt += content[start:end]
-
-            use_tab = _use_tab(content[start - 1])
-            if use_tab is None and src_mapping.starting_column > 1:
-                logger.info(f"Non standard space indentation found {content[start-1:end]}")
-                if overwrite:
-                    logger.info("Disable overwrite to avoid mistakes")
-                    overwrite = False
-
-            openai = codex.openai_module()  # type: ignore
-            if openai is None:
-                return
-
-            if slither.codex_log:
-                codex.log_codex(logging_file, "Q: " + prompt)
-
-            tentative = 0
-            answer_processed: Optional[str] = None
-            while tentative < retry:
-                tentative += 1
-
-                answer = openai.Completion.create(  # type: ignore
-                    prompt=prompt,
-                    model=slither.codex_model,
-                    temperature=min(slither.codex_temperature + tentative*0.1, 1),
-                    max_tokens=slither.codex_max_tokens,
-                )
-
-                if slither.codex_log:
-                    codex.log_codex(logging_file, "A: " + str(answer))
-
-                answer_processed = _handle_codex(
-                    answer, src_mapping.starting_column, use_tab, force
-                )
-                if answer_processed:
-                    break
-
-                logger.info(
-                    f"Codex could not generate a well formatted answer for {function.canonical_name}"
-                )
-                logger.info(answer)
-
-            if not answer_processed:
-                continue
-
-            create_patch(
-                all_patches, src_mapping.filename.absolute, start, start, "", answer_processed
+            overwrite = _handle_function(
+                function, overwrite, all_patches, logging_file, slither, retry, force
             )
 
         # all_patches["patches"] should have only 1 file
@@ -242,10 +263,17 @@ def main() -> None:
     logger.info("Be aware of OpenAI ToS: https://openai.com/api/policies/terms/")
     slither = Slither(args.project, **vars(args))
 
-    for compilation_unit in slither.compilation_units:
-        _handle_compilation_unit(
-            slither, compilation_unit, args.overwrite, args.force_answer_parsing, int(args.retry)
-        )
+    try:
+        for compilation_unit in slither.compilation_units:
+            _handle_compilation_unit(
+                slither,
+                compilation_unit,
+                args.overwrite,
+                args.force_answer_parsing,
+                int(args.retry),
+            )
+    except ImportError:
+        pass
 
 
 if __name__ == "__main__":
