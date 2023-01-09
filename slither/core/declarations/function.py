@@ -220,6 +220,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         self._id: Optional[str] = None
 
+        # To be improved with a parsing of the documentation
+        self.has_documentation: bool = False
+
     ###################################################################################
     ###################################################################################
     # region General properties

@@ -91,6 +91,9 @@ class FunctionSolc(CallerContextExpression):
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
         ] = []
 
+        if "documentation" in function_data:
+            function.has_documentation = True
+
     @property
     def underlying_function(self) -> Function:
         return self._function
