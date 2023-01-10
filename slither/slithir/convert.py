@@ -547,8 +547,8 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     # UserdefinedType
                     t_type = t.type
                     if isinstance(t_type, Contract):
-                        contract = node.file_scope.get_contract_from_name(t_type.name)
-                        return convert_type_of_high_and_internal_level_call(ir, contract)
+                        # the target contract of the IR is the t_type (the destination of the call)
+                        return convert_type_of_high_and_internal_level_call(ir, t_type)
 
                 # Convert HighLevelCall to LowLevelCall
                 if (isinstance(t, ElementaryType) and t.name == "address") or (
@@ -557,6 +557,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     # Cannot be a top level function with this.
                     assert isinstance(node_function, FunctionContract)
                     if ir.destination.name == "this":
+                        # the target contract is the contract itself
                         return convert_type_of_high_and_internal_level_call(
                             ir, node_function.contract
                         )
@@ -591,6 +592,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     function_contract = (
                         func.contract if isinstance(func, FunctionContract) else None
                     )
+                    # the target contract might be None if its a top level function
                     convert_type_of_high_and_internal_level_call(ir, function_contract)
                 return_type = ir.function.return_type
                 if return_type:
@@ -1529,7 +1531,19 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
     return [return_type.type]
 
 
-def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Optional[Contract]):
+def convert_type_of_high_and_internal_level_call(
+    ir: Operation, contract: Optional[Contract]
+) -> Optional[Operation]:
+    """
+    Convert the IR type based on heuristic
+
+    Args:
+        ir: target
+        contract: optional contract. This should be the target of the IR. It will be used to look up potential functions
+
+    Returns:
+        Potential new IR
+    """
     func = None
     if isinstance(ir, InternalCall):
         candidates: List[Function]
