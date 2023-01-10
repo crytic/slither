@@ -70,6 +70,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._enums: Dict[str, "EnumContract"] = {}
         self._structures: Dict[str, "StructureContract"] = {}
         self._events: Dict[str, "Event"] = {}
+        # map accessible variable from name -> variable
+        # do not contain private variables inherited from contract
         self._variables: Dict[str, "StateVariable"] = {}
         self._variables_ordered: List["StateVariable"] = []
         self._modifiers: Dict[str, "Modifier"] = {}
@@ -330,7 +332,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def variables(self) -> List["StateVariable"]:
         """
-        list(StateVariable): List of the state variables. Alias to self.state_variables
+        Returns all the accessible variables (do not include private variable from inherited contract)
+
+        list(StateVariable): List of the state variables. Alias to self.state_variables.
         """
         return list(self.state_variables)
 
@@ -341,6 +345,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def state_variables(self) -> List["StateVariable"]:
         """
+        Returns all the accessible variables (do not include private variable from inherited contract).
+        Use state_variables_ordered for all the variables following the storage order
+
         list(StateVariable): List of the state variables.
         """
         return list(self._variables.values())

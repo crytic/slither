@@ -326,7 +326,13 @@ class ContractSolc(CallerContextExpression):
 
     def parse_state_variables(self):
         for father in self._contract.inheritance_reverse:
-            self._contract.variables_as_dict.update(father.variables_as_dict)
+            self._contract.variables_as_dict.update(
+                {
+                    name: v
+                    for name, v in father.variables_as_dict.items()
+                    if v.visibility != "private"
+                }
+            )
             self._contract.add_variables_ordered(
                 [
                     var
@@ -391,11 +397,11 @@ class ContractSolc(CallerContextExpression):
     ###################################################################################
     ###################################################################################
 
-    def log_incorrect_parsing(self, error):
+    def log_incorrect_parsing(self, error: str) -> None:
         if self._contract.compilation_unit.core.disallow_partial:
             raise ParsingError(error)
         LOGGER.error(error)
-        self._contract.is_incorrectly_parsed = True
+        self._contract.is_incorrectly_constructed = True
 
     def analyze_content_modifiers(self):
         try:
