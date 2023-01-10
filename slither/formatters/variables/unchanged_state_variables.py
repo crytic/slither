@@ -5,7 +5,7 @@ from slither.formatters.exceptions import FormatError, FormatImpossible
 from slither.formatters.utils.patches import create_patch
 
 
-def custom_format(compilation_unit: SlitherCompilationUnit, result):
+def custom_format(compilation_unit: SlitherCompilationUnit, result, attribute: str) -> None:
     elements = result["elements"]
     for element in elements:
 
@@ -15,14 +15,14 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result):
         contract = scope.get_contract_from_name(contract_name)
         var = contract.get_state_variable_from_name(element["name"])
         if not var.expression:
-            raise FormatImpossible(f"{var.name} is uninitialized and cannot become constant.")
+            raise FormatImpossible(f"{var.name} is uninitialized and cannot become {attribute}.")
 
         _patch(
             compilation_unit,
             result,
             element["source_mapping"]["filename_absolute"],
             element["name"],
-            "constant " + element["name"],
+            f"{attribute} " + element["name"],
             element["source_mapping"]["start"],
             element["source_mapping"]["start"] + element["source_mapping"]["length"],
         )

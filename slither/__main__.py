@@ -24,6 +24,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
+from slither.utils import codex
 from slither.utils.output import output_to_json, output_to_zip, output_to_sarif, ZIP_TYPES_ACCEPTED
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
@@ -314,7 +315,6 @@ def parse_args(
         "Checklist (consider using https://github.com/crytic/slither-action)"
     )
     group_misc = parser.add_argument_group("Additional options")
-    group_codex = parser.add_argument_group("Codex (https://beta.openai.com/docs/guides/code)")
 
     group_detector.add_argument(
         "--detect",
@@ -555,47 +555,14 @@ def parse_args(
         default=False,
     )
 
-    group_codex.add_argument(
-        "--codex",
-        help="Enable codex (require an OpenAI API Key)",
+    group_misc.add_argument(
+        "--no-fail",
+        help="Do not fail in case of parsing (echidna mode only)",
         action="store_true",
-        default=defaults_flag_in_config["codex"],
+        default=defaults_flag_in_config["no_fail"],
     )
 
-    group_codex.add_argument(
-        "--codex-log",
-        help="Log codex queries (in crytic_export/codex/)",
-        action="store_true",
-        default=False,
-    )
-
-    group_codex.add_argument(
-        "--codex-contracts",
-        help="Comma separated list of contracts to submit to OpenAI Codex",
-        action="store",
-        default=defaults_flag_in_config["codex_contracts"],
-    )
-
-    group_codex.add_argument(
-        "--codex-model",
-        help="Name of the Codex model to use (affects pricing).  Defaults to 'text-davinci-003'",
-        action="store",
-        default=defaults_flag_in_config["codex_model"],
-    )
-
-    group_codex.add_argument(
-        "--codex-temperature",
-        help="Temperature to use with Codex.  Lower number indicates a more precise answer while higher numbers return more creative answers.  Defaults to 0",
-        action="store",
-        default=defaults_flag_in_config["codex_temperature"],
-    )
-
-    group_codex.add_argument(
-        "--codex-max-tokens",
-        help="Maximum amount of tokens to use on the response.  This number plus the size of the prompt can be no larger than the limit (4097 for text-davinci-003)",
-        action="store",
-        default=defaults_flag_in_config["codex_max_tokens"],
-    )
+    codex.init_parser(parser)
 
     # debugger command
     parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)

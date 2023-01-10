@@ -29,7 +29,7 @@ jobs:
                # "embark",
                "erc",
                # "etherlime",
-               # "etherscan"
+               "etherscan",
                "find_paths",
                "flat",
                "kspec",
@@ -55,8 +55,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ".[dev]"
-          solc-select install all
-          solc-select use 0.5.1
+          solc-select use 0.4.25 --always-install
+          solc-select use 0.8.0 --always-install
+          solc-select use 0.5.1 --always-install
           pip install typing_extensions==4.1.1
           pip install importlib_metadata==4.8.3
 
