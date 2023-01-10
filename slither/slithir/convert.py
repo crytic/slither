@@ -1546,7 +1546,6 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
     else:
         assert isinstance(ir, HighLevelCall)
         assert contract
-
         candidates = [
             f
             for f in contract.functions
@@ -1554,7 +1553,6 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
             and not f.is_shadowed
             and len(f.parameters) == len(ir.arguments)
         ]
-
         if len(candidates) == 1:
             func = candidates[0]
         if func is None:

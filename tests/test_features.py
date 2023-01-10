@@ -5,6 +5,7 @@ from crytic_compile.platform.solc_standard_json import SolcStandardJson
 from solc_select import solc_select
 
 from slither import Slither
+from slither.core.variables.state_variable import StateVariable
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.slithir.operations import LibraryCall, InternalCall
@@ -139,3 +140,13 @@ def test_using_for_in_library() -> None:
         if isinstance(ir, LibraryCall) and ir.destination == "B" and ir.function_name == "b":
             return
     assert False
+
+
+def test_private_variable() -> None:
+    solc_select.switch_global_version("0.8.15", always_install=True)
+    slither = Slither("./tests/lookup/private_variable.sol")
+    contract_c = slither.get_contract_from_name("C")[0]
+    f = contract_c.functions[0]
+    var_read = f.variables_read[0]
+    assert isinstance(var_read, StateVariable)
+    assert str(var_read.contract) == "B"

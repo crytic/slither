@@ -743,7 +743,7 @@ Please rename it, this name is reserved for Slither's internals"""
                     # And the interface is redefined due to contract's name reuse
                     # But the available version misses some functions
                     self._underlying_contract_to_parser[contract].log_incorrect_parsing(
-                        f"Impossible to generate IR for {contract.name}.{func.name}:\n {e}"
+                        f"Impossible to generate IR for {contract.name}.{func.name} ({func.source_mapping}):\n {e}"
                     )
 
             contract.convert_expression_to_slithir_ssa()
