@@ -328,6 +328,7 @@ ALL_TESTS = [
         ALL_VERSIONS,
     ),
     Test("custom_error-0.8.4.sol", make_version(8, 4, 15)),
+    Test("custom-error-selector.sol", make_version(8, 4, 15)),
     Test(
         "top-level-0.4.0.sol",
         VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"],
