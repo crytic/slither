@@ -32,7 +32,7 @@ class ConstantPragma(AbstractDetector):
             info = ["Different versions of Solidity are used:\n"]
             info += [f"\t- Version used: {[str(v) for v in versions]}\n"]
 
-            for p in pragma:
+            for p in sorted(pragma, key=lambda x: x.version):
                 info += ["\t- ", p, "\n"]
 
             res = self.generate_result(info)
