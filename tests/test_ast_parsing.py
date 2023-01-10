@@ -328,6 +328,7 @@ ALL_TESTS = [
         ALL_VERSIONS,
     ),
     Test("custom_error-0.8.4.sol", make_version(8, 4, 15)),
+    Test("custom-error-selector.sol", make_version(8, 4, 15)),
     Test(
         "top-level-0.4.0.sol",
         VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"],
@@ -419,6 +420,7 @@ ALL_TESTS = [
     Test("user_defined_value_type/erc20-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("user_defined_value_type/in_parenthesis-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("user_defined_value_type/top-level-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/using-for-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("bytes_call.sol", ["0.8.12"]),
     Test("modifier_identifier_path.sol", VERSIONS_08),
     Test("free_functions/libraries_from_free.sol", ["0.8.12"]),
@@ -429,6 +431,7 @@ ALL_TESTS = [
     Test("using-for-2-0.8.0.sol", ["0.8.15"]),
     Test("using-for-3-0.8.0.sol", ["0.8.15"]),
     Test("using-for-4-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-in-library-0.8.0.sol", ["0.8.15"]),
     Test("using-for-alias-contract-0.8.0.sol", ["0.8.15"]),
     Test("using-for-alias-top-level-0.8.0.sol", ["0.8.15"]),
     Test("using-for-functions-list-1-0.8.0.sol", ["0.8.15"]),
@@ -438,6 +441,8 @@ ALL_TESTS = [
     Test("using-for-global-0.8.0.sol", ["0.8.15"]),
     Test("library_event-0.8.16.sol", ["0.8.16"]),
     Test("top-level-struct-0.8.0.sol", ["0.8.0"]),
+    Test("yul-top-level-0.8.0.sol", ["0.8.0"]),
+    Test("complex_imports/import_aliases_issue_1319/test.sol", ["0.5.12"]),
 ]
 # create the output folder if needed
 try:

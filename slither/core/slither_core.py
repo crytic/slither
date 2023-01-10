@@ -92,6 +92,10 @@ class SlitherCore(Context):
         # But we allow to alter this (ex: file.sol:1) for vscode integration
         self.line_prefix: str = "#"
 
+        # Use by the echidna printer
+        # If true, partial analysis is allowed
+        self.no_fail = False
+
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
         return list(self._compilation_units)

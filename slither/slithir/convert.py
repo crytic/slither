@@ -379,7 +379,7 @@ def integrate_value_gas(result):
 ###################################################################################
 
 
-def propagate_type_and_convert_call(result, node):
+def propagate_type_and_convert_call(result: List[Operation], node: "Node") -> List[Operation]:
     """
     Propagate the types variables and convert tmp call to real call operation
     """
@@ -664,7 +664,24 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                 if ir.variable_right == "selector" and isinstance(ir.variable_left, (CustomError)):
                     assignment = Assignment(
                         ir.lvalue,
-                        Constant(str(get_function_id(ir.variable_left.solidity_signature))),
+                        Constant(
+                            str(get_function_id(ir.variable_left.solidity_signature)),
+                            ElementaryType("bytes4"),
+                        ),
+                        ElementaryType("bytes4"),
+                    )
+                    assignment.set_expression(ir.expression)
+                    assignment.set_node(ir.node)
+                    assignment.lvalue.set_type(ElementaryType("bytes4"))
+                    return assignment
+
+                if isinstance(ir.variable_right, (CustomError)):
+                    assignment = Assignment(
+                        ir.lvalue,
+                        Constant(
+                            str(get_function_id(ir.variable_left.solidity_signature)),
+                            ElementaryType("bytes4"),
+                        ),
                         ElementaryType("bytes4"),
                     )
                     assignment.set_expression(ir.expression)
@@ -736,7 +753,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                             if f:
                                 ir.lvalue.set_type(f)
                             else:
-                                # Allow propgation for variable access through contract's nale
+                                # Allow propgation for variable access through contract's name
                                 # like Base_contract.my_variable
                                 v = next(
                                     (
@@ -1819,7 +1836,7 @@ def _find_source_mapping_references(irs: List[Operation]):
 ###################################################################################
 
 
-def apply_ir_heuristics(irs, node):
+def apply_ir_heuristics(irs: List[Operation], node: "Node"):
     """
     Apply a set of heuristic to improve slithIR
     """

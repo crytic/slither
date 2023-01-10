@@ -91,6 +91,9 @@ class FunctionSolc(CallerContextExpression):
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
         ] = []
 
+        if "documentation" in function_data:
+            function.has_documentation = True
+
     @property
     def underlying_function(self) -> Function:
         return self._function
@@ -340,7 +343,6 @@ class FunctionSolc(CallerContextExpression):
             node,
             [self._function.name, f"asm_{len(self._node_to_yulobject)}"],
             scope,
-            parent_func=self._function,
         )
         self._node_to_yulobject[node] = yul_object
         return yul_object
