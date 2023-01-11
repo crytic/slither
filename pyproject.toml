@@ -65,7 +65,7 @@ prettytable = ">=0.7.2"
 pysha3 = ">=1.0.2"
 crytic-compile = { git = "https://github.com/crytic/crytic-compile.git", branch = "master" }
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "^22.3.0"
 pylint = "^2.13.4"
 mypy = "^0.971"
