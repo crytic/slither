@@ -80,7 +80,7 @@ class UnusedImports(AbstractDetector):
         Useful for cases like "import @openzeppelin/...".
         """
         for filename in self.compilation_unit.crytic_compile.filenames:
-            if filename.used == imp:
+            if filename.used == imp or filename.relative == imp or filename.short == imp:
                 return filename.absolute
         return None
 
