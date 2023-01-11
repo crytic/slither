@@ -1,8 +1,10 @@
 import os
+from logging import Logger
 
-from slither.core.declarations import Modifier, Function, StructureContract, Contract
-from slither.core.solidity_types import UserDefinedType, TypeAliasTopLevel, TypeAliasContract
-from slither.core.source_mapping.source_mapping import SourceMapping, Source
+from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.core.declarations import Contract
+from slither.core.solidity_types import TypeAliasTopLevel, TypeAliasContract
+from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
@@ -12,19 +14,30 @@ class UnusedImports(AbstractDetector):
     Unused imports detector
     """
 
-    ARGUMENT = 'unused-imports'
-    HELP = 'Detect unused imports'
+    ARGUMENT = "unused-imports"
+    HELP = "Detect unused imports"
     IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#unused-imports'
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-imports"
 
-    WIKI_TITLE = 'Unused imports'
-    WIKI_DESCRIPTION = 'Detects imports that are not used by source files. Currently files with cyclic imports ' \
-                       'are not supported'
-    WIKI_RECOMMENDATION = 'Remove unused imports'
+    WIKI_TITLE = "Unused imports"
+    WIKI_DESCRIPTION = (
+        "Detects imports that are not used by source files. Currently, files with cyclic imports and files with "
+        "'import {...} from' directives are not supported."
+    )
+    WIKI_RECOMMENDATION = "Remove unused imports"
 
     analysed_files = set()
+
+    def __init__(
+        self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
+    ):
+        super().__init__(compilation_unit, slither, logger)
+        self.needed_imports = self._new_dict()
+        self.actual_imports = self._new_dict()
+        self.absolute_path_to_imp_filename = {}
+        self.imports_cycle_detected = False
 
     def _dfs(self, graph: dict, color: dict, x: str):
         """
@@ -42,7 +55,7 @@ class UnusedImports(AbstractDetector):
         """
         Detects cycle in a directed graph.
         """
-        vertex_color = dict()
+        vertex_color = {}
         for k in graph.keys():
             vertex_color[k] = 0
         for k in graph.keys():
@@ -56,7 +69,7 @@ class UnusedImports(AbstractDetector):
         """
         Helper method. Creates a dictionary with all input files as keys and empty sets as values.
         """
-        dictionary = dict()
+        dictionary = {}
         for file in self.compilation_unit.scopes:
             dictionary[file.absolute] = set()
         return dictionary
@@ -69,6 +82,7 @@ class UnusedImports(AbstractDetector):
         for filename in self.compilation_unit.crytic_compile.filenames:
             if filename.used == imp:
                 return filename.absolute
+        return None
 
     @staticmethod
     def _add_import(imps: dict, key: str, value: str):
@@ -84,15 +98,21 @@ class UnusedImports(AbstractDetector):
         """
         Adds user defined types to self.needed_imports.
         """
-        if isinstance(v.type, TypeAliasTopLevel) or isinstance(v.type, TypeAliasContract):
-            self._add_import(self.needed_imports, v.source_mapping.filename.absolute, v.type.source_mapping.filename.absolute)
+        if isinstance(v.type, (TypeAliasTopLevel, TypeAliasContract)):
+            self._add_import(
+                self.needed_imports,
+                v.source_mapping.filename.absolute,
+                v.type.source_mapping.filename.absolute,
+            )
 
     def _add_item_by_references(self, item: SourceMapping):
         """
         Adds all uses of item to self.needed_imports by its references.
         """
         for ref in item.references:
-            self._add_import(self.needed_imports, ref.filename.absolute, item.source_mapping.filename.absolute)
+            self._add_import(
+                self.needed_imports, ref.filename.absolute, item.source_mapping.filename.absolute
+            )
 
     def _initialise_actual_imports(self):
         """
@@ -231,7 +251,11 @@ class UnusedImports(AbstractDetector):
         for fm in c.functions_and_modifiers:
             # the following line is needed since a non-private function / modifier will be present in derived contracts,
             # so, they are needed, but that isn't reflected in fm.references
-            self._add_import(self.needed_imports, fm.file_scope.filename.absolute, fm.source_mapping.filename.absolute)
+            self._add_import(
+                self.needed_imports,
+                fm.file_scope.filename.absolute,
+                fm.source_mapping.filename.absolute,
+            )
             self._add_item_by_references(fm)
 
     def _find_contract_level_custom_events_uses(self, c: Contract):
@@ -269,7 +293,11 @@ class UnusedImports(AbstractDetector):
             # the following loop is needed since if we have an empty contract A and contract B inheriting from A,
             # then it's not reflected in A's references
             for p in c.inheritance:
-                self._add_import(self.needed_imports, c.source_mapping.filename.absolute, p.source_mapping.filename.absolute)
+                self._add_import(
+                    self.needed_imports,
+                    c.source_mapping.filename.absolute,
+                    p.source_mapping.filename.absolute,
+                )
 
     @staticmethod
     def _add_all_imports_for_file(actual_imports: dict, all_imports: dict, file: str):
@@ -316,7 +344,7 @@ class UnusedImports(AbstractDetector):
         }
         """
         all_imports = self._new_dict()
-        for k in self.actual_imports.keys():
+        for k, _ in self.actual_imports.items():
             UnusedImports._add_all_imports_for_file(self.actual_imports, all_imports, k)
         return all_imports
 
@@ -381,16 +409,11 @@ class UnusedImports(AbstractDetector):
     def _detect(self):
         results = []
 
-        self.needed_imports = self._new_dict()
-        self.actual_imports = self._new_dict()
-        self.absolute_path_to_imp_filename = dict()
-
         self._initialise_actual_imports()
         self._initialise_absolute_path_to_imp_filename()
         self._find_top_level_items_uses()
         self._find_contract_level_items_uses()
 
-        self.imports_cycle_detected = False
         self._detect_cycles(self.actual_imports)
         if self.imports_cycle_detected:
             # no support for cycles in import graph at the moment
@@ -412,8 +435,10 @@ class UnusedImports(AbstractDetector):
             for imp in v:
                 output += self.absolute_path_to_imp_filename[imp]
                 output += "\n"
-            if len(needed_but_not_imported_directly[k]) > 0 \
-                    and len(needed_but_not_imported_directly[k] - all_imports_in_needed[k]) > 0:
+            if (
+                len(needed_but_not_imported_directly[k]) > 0
+                and len(needed_but_not_imported_directly[k] - all_imports_in_needed[k]) > 0
+            ):
                 output += "and adding the following:\n"
                 for imp in needed_but_not_imported_directly[k]:
                     output += self.absolute_path_to_imp_filename[imp]
