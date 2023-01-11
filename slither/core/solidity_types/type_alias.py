@@ -16,6 +16,18 @@ class TypeAlias(Type):
         self.underlying_type = underlying_type
 
     @property
+    def type(self) -> Type:
+        """
+        Return the underlying type. Alias for underlying_type
+
+
+        Returns:
+            Type: the underlying type
+
+        """
+        return self.underlying_type
+
+    @property
     def storage_size(self) -> Tuple[int, bool]:
         return self.underlying_type.storage_size
 
