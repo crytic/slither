@@ -243,7 +243,7 @@ def parse_type(
             sl = caller_context.compilation_unit
             next_context = caller_context
             renaming = {}
-            user_defined_types = {}
+            user_defined_types = sl.user_defined_value_types
         else:
             assert isinstance(caller_context, FunctionSolc)
             sl = caller_context.underlying_function.compilation_unit

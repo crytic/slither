@@ -336,6 +336,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 user_defined_type = TypeAliasTopLevel(original_type, alias, scope)
                 user_defined_type.set_offset(top_level_data["src"], self._compilation_unit)
+                self._compilation_unit.user_defined_value_types[alias] = user_defined_type
                 scope.user_defined_types[alias] = user_defined_type
 
             else:
