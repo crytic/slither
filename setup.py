@@ -12,10 +12,11 @@ setup(
     packages=find_packages(),
     python_requires=">=3.8",
     install_requires=[
+        "packaging",
         "prettytable>=0.7.2",
         "pycryptodome>=3.4.6",
-        "crytic-compile>=0.2.4",
-        # "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
+        # "crytic-compile>=0.2.4",
+        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
     ],
     extras_require={
         "dev": [
@@ -46,6 +47,7 @@ setup(
             "slither-mutate = slither.tools.mutator.__main__:main",
             "slither-read-storage = slither.tools.read_storage.__main__:main",
             "slither-doctor = slither.tools.doctor.__main__:main",
+            "slither-documentation = slither.tools.documentation.__main__:main",
         ]
     },
 )

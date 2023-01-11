@@ -60,6 +60,7 @@ defaults_flag_in_config = {
     "zip": None,
     "zip_type": "lzma",
     "show_ignored_findings": False,
+    "no_fail": False,
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
 

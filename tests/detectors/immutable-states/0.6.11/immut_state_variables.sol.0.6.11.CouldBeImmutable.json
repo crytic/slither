@@ -1,0 +1,339 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "should_be_immutable_5",
+                    "source_mapping": {
+                        "start": 1077,
+                        "length": 26,
+                        "filename_relative": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            47
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 31
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Bad",
+                            "source_mapping": {
+                                "start": 718,
+                                "length": 539,
+                                "filename_relative": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Bad.should_be_immutable_5 (tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#47) should be immutable \n",
+            "markdown": "[Bad.should_be_immutable_5](tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#L47) should be immutable \n",
+            "first_markdown_element": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#L47",
+            "id": "42d50245236163ceca90dea732165e65c2155934b149a5a1a5c51bddc0b5b02a",
+            "check": "immutable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "should_be_immutable_2",
+                    "source_mapping": {
+                        "start": 940,
+                        "length": 40,
+                        "filename_relative": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            44
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 45
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Bad",
+                            "source_mapping": {
+                                "start": 718,
+                                "length": 539,
+                                "filename_relative": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Bad.should_be_immutable_2 (tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#44) should be immutable \n",
+            "markdown": "[Bad.should_be_immutable_2](tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#L44) should be immutable \n",
+            "first_markdown_element": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#L44",
+            "id": "70d57aa51dda92c28444a466db8567fa783c85d484259aa5eee2ebc63f97a200",
+            "check": "immutable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "should_be_immutable_4",
+                    "source_mapping": {
+                        "start": 1038,
+                        "length": 33,
+                        "filename_relative": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            46
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 38
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Bad",
+                            "source_mapping": {
+                                "start": 718,
+                                "length": 539,
+                                "filename_relative": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Bad.should_be_immutable_4 (tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#46) should be immutable \n",
+            "markdown": "[Bad.should_be_immutable_4](tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#L46) should be immutable \n",
+            "first_markdown_element": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#L46",
+            "id": "a26d6df4087ac010928bc4bd18aa70ac58a28e584b1288e348d9c255473c300d",
+            "check": "immutable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "should_be_immutable",
+                    "source_mapping": {
+                        "start": 894,
+                        "length": 40,
+                        "filename_relative": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            43
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 45
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Bad",
+                            "source_mapping": {
+                                "start": 718,
+                                "length": 539,
+                                "filename_relative": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Bad.should_be_immutable (tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#43) should be immutable \n",
+            "markdown": "[Bad.should_be_immutable](tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#L43) should be immutable \n",
+            "first_markdown_element": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#L43",
+            "id": "b163d277f544f7f05ed4bcddda61e444be893e65ba0469688abd7b401a1db222",
+            "check": "immutable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "should_be_immutable_3",
+                    "source_mapping": {
+                        "start": 986,
+                        "length": 46,
+                        "filename_relative": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            45
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 51
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Bad",
+                            "source_mapping": {
+                                "start": 718,
+                                "length": 539,
+                                "filename_relative": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Bad.should_be_immutable_3 (tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#45) should be immutable \n",
+            "markdown": "[Bad.should_be_immutable_3](tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#L45) should be immutable \n",
+            "first_markdown_element": "tests/detectors/immutable-states/0.6.11/immut_state_variables.sol#L45",
+            "id": "f19f7a22a6f17ffd8b5c29021226388aab7548f996b686a8e0b2bc861f72d447",
+            "check": "immutable-states",
+            "impact": "Optimization",
+            "confidence": "High"
+        }
+    ]
+]
