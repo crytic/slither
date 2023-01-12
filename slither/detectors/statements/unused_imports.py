@@ -79,10 +79,7 @@ class UnusedImports(AbstractDetector):
         Converts an import to the absolute path of that import.
         Useful for cases like "import @openzeppelin/...".
         """
-        for filename in self.compilation_unit.crytic_compile.filenames:
-            if filename.used == imp or filename.relative == imp or filename.short == imp:
-                return filename.absolute
-        return None
+        return self.compilation_unit.crytic_compile.filename_lookup(imp).absolute
 
     @staticmethod
     def _add_import(imps: dict, key: str, value: str):
@@ -409,8 +406,8 @@ class UnusedImports(AbstractDetector):
     def _detect(self):
         results = []
 
-        self._initialise_actual_imports()
         self._initialise_absolute_path_to_imp_filename()
+        self._initialise_actual_imports()
         self._find_top_level_items_uses()
         self._find_contract_level_items_uses()
 
