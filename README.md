@@ -175,8 +175,9 @@ See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documen
 
 ## How to install
 
-Slither requires Python 3.8+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
-If you're only going to run Slither on projects using Foundry, you don't need solc explicitly installed.
+Slither requires Python 3.8+.
+If you're **not** going to use one of the [supported compilation frameworks](https://github.com/crytic/crytic-compile),
+you need to have on your machine the right version of [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
 
 ### Using Pip
 
