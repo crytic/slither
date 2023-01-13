@@ -114,11 +114,7 @@ class Codex(AbstractDetector):
             ):
                 continue
             prompt = f"Analyze this Solidity contract and find the vulnerabilities. If you find any vulnerabilities, begin the response with {VULN_FOUND}\n"
-            src_mapping = contract.source_mapping
-            content = contract.compilation_unit.core.source_code[src_mapping.filename.absolute]
-            start = src_mapping.start
-            end = src_mapping.start + src_mapping.length
-            prompt += content[start:end]
+            prompt += contract.source_mapping.content
 
             answer = self._run_codex(logging_file, prompt)
 

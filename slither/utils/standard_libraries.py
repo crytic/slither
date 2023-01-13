@@ -68,12 +68,7 @@ def is_openzeppelin(contract: "Contract") -> bool:
 
 
 def is_openzeppelin_strict(contract: "Contract") -> bool:
-    start = contract.source_mapping.start
-    end = start + contract.source_mapping.length
-    source_code = contract.compilation_unit.core.source_code[
-        contract.source_mapping.filename.absolute
-    ][start:end]
-    source_hash = sha1(source_code.encode("utf-8")).hexdigest()
+    source_hash = sha1(contract.source_mapping.content.encode("utf-8")).hexdigest()
     return source_hash in oz_hashes
 
 
