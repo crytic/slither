@@ -52,6 +52,10 @@ class Codex(AbstractDetector):
 
         answer = ""
         res = {}
+
+        if self.slither.codex_organization:
+            openai_module.organization = self.slither.codex_organization
+
         try:
             res = openai_module.Completion.create(
                 prompt=prompt,

@@ -1,5 +1,5 @@
 import logging
-from typing import Union, List, ValuesView, Type, Dict
+from typing import Union, List, ValuesView, Type, Dict, Optional
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
@@ -90,6 +90,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         self.codex_temperature = kwargs.get("codex_temperature", 0)
         self.codex_max_tokens = kwargs.get("codex_max_tokens", 300)
         self.codex_log = kwargs.get("codex_log", False)
+        self.codex_organization: Optional[str] = kwargs.get("codex_organization", None)
 
         self.no_fail = kwargs.get("no_fail", False)
 
