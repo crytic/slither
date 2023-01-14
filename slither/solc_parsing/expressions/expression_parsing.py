@@ -2,7 +2,6 @@ import logging
 import re
 from typing import Dict, TYPE_CHECKING
 
-from slither.core.declarations import Contract
 from slither.core.declarations.solidity_variables import (
     SOLIDITY_VARIABLES_COMPOSED,
     SolidityVariableComposed,
@@ -38,7 +37,6 @@ from slither.core.solidity_types import (
     ElementaryType,
     UserDefinedType,
 )
-from slither.core.variables.variable import Variable
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.expressions.find_variable import find_variable
