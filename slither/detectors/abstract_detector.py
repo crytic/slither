@@ -139,6 +139,13 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if self.logger:
             self.logger.info(self.color(info))
 
+    @property
+    def uses_certik_ir() -> bool:
+        """
+        Does this detector expect the CertiK version of SlithIR?
+        """
+        return False
+
     @abc.abstractmethod
     def _detect(self) -> List[Output]:
         """TODO Documentation"""

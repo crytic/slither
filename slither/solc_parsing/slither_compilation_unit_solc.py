@@ -59,12 +59,13 @@ def _handle_import_aliases(
 
 class SlitherCompilationUnitSolc:
     # pylint: disable=no-self-use,too-many-instance-attributes
-    def __init__(self, compilation_unit: SlitherCompilationUnit):
+    def __init__(self, compilation_unit: SlitherCompilationUnit, generates_certik_ir: bool):
         super().__init__()
 
         self._contracts_by_id: Dict[int, ContractSolc] = {}
         self._parsed = False
         self._analyzed = False
+        self._generates_certik_ir = generates_certik_ir
 
         self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = {}
         self._structures_top_level_parser: List[StructureTopLevelSolc] = []
@@ -83,6 +84,13 @@ class SlitherCompilationUnitSolc:
     @property
     def compilation_unit(self) -> SlitherCompilationUnit:
         return self._compilation_unit
+
+    @property
+    def generates_certik_ir(self) -> bool:
+        """
+        Does this parser generate the CertiK version of SlithIR?
+        """
+        return self._generates_certik_ir
 
     @property
     def all_functions_and_modifiers_parser(self) -> List[FunctionSolc]:

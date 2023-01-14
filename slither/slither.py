@@ -1,4 +1,5 @@
 import logging
+
 from typing import Union, List, ValuesView, Type, Dict
 
 from crytic_compile import CryticCompile, InvalidCompilation
@@ -93,16 +94,25 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         except InvalidCompilation as e:
             # pylint: disable=raise-missing-from
             raise SlitherError(f"Invalid compilation: \n{str(e)}")
+
         for compilation_unit in crytic_compile.compilation_units.values():
             compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
             self._compilation_units.append(compilation_unit_slither)
-            parser = SlitherCompilationUnitSolc(compilation_unit_slither)
+            parser = SlitherCompilationUnitSolc(compilation_unit_slither, generates_certik_ir = False)
             self._parsers.append(parser)
+
+            new_compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
+            self._certik_compilation_units.append(new_compilation_unit_slither)
+            new_parser = SlitherCompilationUnitSolc(new_compilation_unit_slither, generates_certik_ir = True)
+            self._parsers.append(new_parser)
+
             for path, ast in compilation_unit.asts.items():
                 parser.parse_top_level_from_loaded_json(ast, path)
+                new_parser.parse_top_level_from_loaded_json(ast, path)
                 self.add_source_code(path)
 
             _update_file_scopes(compilation_unit_slither.scopes.values())
+            _update_file_scopes(new_compilation_unit_slither.scopes.values())
 
         if kwargs.get("generate_patches", False):
             self.generate_patches = True
@@ -186,9 +196,16 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         """
         _check_common_things("detector", detector_class, AbstractDetector, self._detectors)
 
-        for compilation_unit in self.compilation_units:
-            instance = detector_class(compilation_unit, self, logger_detector)
-            self._detectors.append(instance)
+        if detector_class.uses_certik_ir:
+            for compilation_unit in self.certik_compilation_units:
+                instance = detector_class(compilation_unit, self, logger_detector)
+                self._detectors.append(instance)
+        else:
+            for compilation_unit in self.compilation_units:
+                instance = detector_class(compilation_unit, self, logger_detector)
+                self._detectors.append(instance)
+
+
 
     def register_printer(self, printer_class: Type[AbstractPrinter]) -> None:
         """

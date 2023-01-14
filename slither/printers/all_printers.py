@@ -5,6 +5,7 @@ from .inheritance.inheritance import PrinterInheritance
 from .inheritance.inheritance_graph import PrinterInheritanceGraph
 from .call.call_graph import PrinterCallGraph
 from .functions.authorization import PrinterWrittenVariablesAndAuthorization
+from .summary.certikir import PrinterCertiKIR
 from .summary.slithir import PrinterSlithIR
 from .summary.slithir_ssa import PrinterSlithIRSSA
 from .summary.human_summary import PrinterHumanSummary

@@ -72,6 +72,7 @@ class SlitherCore(Context):
         self._show_ignored_findings = False
 
         self._compilation_units: List[SlitherCompilationUnit] = []
+        self._certik_compilation_units: List[SlitherCompilationUnit] = []
 
         self._contracts: List[Contract] = []
         self._contracts_derived: List[Contract] = []
@@ -89,6 +90,14 @@ class SlitherCore(Context):
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
         return list(self._compilation_units)
+
+    @property
+    def certik_compilation_units(self) -> List[SlitherCompilationUnit]:
+        """
+        The list of all compilation units generated to include the CertiK version
+        of the CFG and IR.
+        """
+        return list(self._certik_compilation_units)
 
     def add_compilation_unit(self, compilation_unit: SlitherCompilationUnit):
         self._compilation_units.append(compilation_unit)

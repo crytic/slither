@@ -3,7 +3,8 @@
 """
 from slither.core.declarations import Function
 from slither.printers.abstract_printer import AbstractPrinter
-
+from typing import List
+from slither.core.compilation_unit import SlitherCompilationUnit
 
 def _print_function(function: Function) -> str:
     txt = ""
@@ -26,6 +27,13 @@ class PrinterSlithIR(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#slithir"
 
+    @property
+    def compilation_units(self) -> List[SlitherCompilationUnit]:
+        """
+        List of compilation units to print the IR for
+        """
+        return self.slither.compilation_units
+
     def output(self, _filename):
         """
         _filename is not used
@@ -34,7 +42,7 @@ class PrinterSlithIR(AbstractPrinter):
         """
 
         txt = ""
-        for compilation_unit in self.slither.compilation_units:
+        for compilation_unit in self.compilation_units:
             for contract in compilation_unit.contracts:
                 if contract.is_top_level:
                     continue
