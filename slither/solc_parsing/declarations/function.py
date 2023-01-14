@@ -667,7 +667,7 @@ class FunctionSolc(CallerContextExpression):
         try_clause = statement["clauses"][0]
         catch_clauses = statement["clauses"][1:]
         try_params = try_clause["parameters"]["parameters"] \
-                     if "parameters" in try_clause \
+                     if ("parameters" in try_clause) and (try_clause["parameters"] != None) \
                      else []
         new_node = node
         if len(try_params) > 0:
