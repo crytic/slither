@@ -53,7 +53,7 @@ class SlitherLog:
 
     def _set_file_margin(self, file: SolFile) -> None:
         """Sets left margin for a file (which varies based on presence/absence of '\r')"""
-        for func in file.contract.functions:
+        for func in file.contract.functions_and_modifiers:
             function = func
             if not self._is_bad_function(function, file.contract):
                 break
