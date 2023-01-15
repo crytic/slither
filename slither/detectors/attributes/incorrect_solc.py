@@ -125,7 +125,7 @@ Consider using the latest version of Solidity for testing."""
         # Detect all version related pragmas and check if they are disallowed.
         results = []
         pragma = self.compilation_unit.pragma_directives
-        disallowed_pragmas = []
+        disallowed_pragmas = set()
 
         for p in pragma:
             # Skip any pragma directives which do not refer to version
@@ -135,7 +135,7 @@ Consider using the latest version of Solidity for testing."""
             # This is version, so we test if this is disallowed.
             reason = self._check_pragma(p.version)
             if reason:
-                disallowed_pragmas.append((reason, p))
+                disallowed_pragmas.add((reason, p))
 
         # If we found any disallowed pragmas, we output our findings.
         if disallowed_pragmas:
