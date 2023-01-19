@@ -792,8 +792,9 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
             return Identifier(local_variable)
 
         if isinstance(parent_func, FunctionContract):
-            assert parent_func.contract
-            state_variable = parent_func.contract.get_state_variable_from_name(name)
+            # Variables must be looked from the contract declarer
+            assert parent_func.contract_declarer
+            state_variable = parent_func.contract_declarer.get_state_variable_from_name(name)
             if state_variable:
                 return Identifier(state_variable)
 
