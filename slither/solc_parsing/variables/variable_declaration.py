@@ -1,3 +1,4 @@
+import copy
 import logging
 import re
 from typing import Dict
@@ -6,6 +7,7 @@ from slither.solc_parsing.declarations.caller_context import CallerContextExpres
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 
 from slither.core.variables.variable import Variable
+from slither.core.variables.local_variable import LocalVariable
 
 from slither.solc_parsing.solidity_types.type_parsing import parse_type, UnknownType
 
@@ -14,6 +16,22 @@ from slither.core.solidity_types.elementary_type import (
     NonElementaryType,
 )
 from slither.solc_parsing.exceptions import ParsingError
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.enum import Enum
+from slither.core.declarations.solidity_variables import SolidityFunction
+from slither.core.declarations.structure import Structure
+from slither.core.expressions.call_expression import CallExpression
+from slither.core.expressions.expression import Expression
+from slither.core.expressions.identifier import Identifier
+from slither.core.expressions.literal import Literal
+from slither.core.expressions.member_access import MemberAccess
+from slither.core.expressions.new_array import NewArray
+from slither.core.expressions.tuple_expression import TupleExpression
+from slither.core.expressions.type_conversion import TypeConversion
+from slither.core.solidity_types.array_type import ArrayType
+from slither.core.solidity_types.type import Type
+from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.solidity_types.elementary_type import Byte, Int, Uint
 
 logger = logging.getLogger("VariableDeclarationSolcParsing")
 
@@ -47,7 +65,6 @@ class VariableDeclarationSolc:
         self._initializedNotParsed = None
 
         self._is_compact_ast = False
-
         self._reference_id = None
 
         if "nodeType" in variable_data:
@@ -200,6 +217,46 @@ class VariableDeclarationSolc:
                 self._variable.initialized = True
                 self._initializedNotParsed = var["children"][1]
 
+    def _get_init_value(self, ty : Type) -> Expression:
+        if isinstance(ty, ElementaryType) and (ty.type in Int + Uint + Byte + ["address"]):
+            return Literal("0", ElementaryType(ty.type))
+        elif isinstance(ty, ElementaryType) and (ty.type == "string"):
+            return Literal("", ElementaryType("string"))
+        elif isinstance(ty, ElementaryType) and (ty.type == "bool"):
+            return Literal("false", ElementaryType("bool"))
+        elif isinstance(ty, ArrayType) and ty.is_dynamic_array:
+            return CallExpression(
+                NewArray(1, copy.deepcopy(ty.type)),
+                [Literal("0", ElementaryType("uint256"))],
+                f"{ty.type}[] memory"
+            )
+        elif isinstance(ty, ArrayType) and ty.is_fixed_array:
+            length = int(ty.length_value.value)
+            base_init_value = self._get_init_value(ty.type)
+            return TupleExpression([copy.deepcopy(base_init_value) for _ in range(0, length)])
+        elif isinstance(ty, UserDefinedType) and isinstance(ty.type, Enum):
+            return MemberAccess(
+                "min",
+                ty,
+                CallExpression(
+                    Identifier(SolidityFunction("type()")),
+                    [Identifier(ty.type)],
+                    f"type(enum {ty.type.name})"
+                )
+            )
+        elif isinstance(ty, UserDefinedType) and isinstance(ty.type, Structure):
+            return CallExpression(
+                Identifier(copy.deepcopy(ty.type)),
+                [self._get_init_value(field.type) for field in ty.type.elems_ordered],
+                f"struct {ty.type.name} memory"
+            )
+        elif isinstance(ty, UserDefinedType) and isinstance(ty.type, Contract):
+            return TypeConversion(
+                TypeConversion(Literal("0", ElementaryType("uint256")), ElementaryType("address")),
+                UserDefinedType(ty.type)
+            )
+        assert False # unreachable
+
     def analyze(self, caller_context: CallerContextExpression):
         # Can be re-analyzed due to inheritance
         if self._was_analyzed:
@@ -213,3 +270,9 @@ class VariableDeclarationSolc:
         if self._variable.initialized:
             self._variable.expression = parse_expression(self._initializedNotParsed, caller_context)
             self._initializedNotParsed = None
+        elif (
+            isinstance(self._variable, LocalVariable)
+            and self._variable.location in ["memory", "default"]
+            and caller_context.slither_parser.generates_certik_ir
+        ):
+            self._variable.expression = self._get_init_value(self._variable.type)
