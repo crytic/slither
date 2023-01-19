@@ -70,7 +70,7 @@ class VariableDeclarationSolc(Generic[T]):
 
     def _handle_comment(self, var: VariableDeclaration):
         if var.documentation:
-            candidates = var.documetation.split(",")
+            candidates = var.documentation.split(",")
 
             for candidate in candidates:
                 if "@custom:security non-reentrant" in candidate:

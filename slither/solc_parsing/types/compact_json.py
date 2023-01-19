@@ -32,12 +32,20 @@ def _extract_expr_props(raw: Dict) -> Dict:
 
 
 def _extract_decl_props(raw: Dict) -> Dict:
+    documentation = None
+    if 'documentation' in raw and raw['documentation']:
+        if 'text' in raw['documentation']:
+            documentation = raw['documentation']['text']
+        else:
+            documentation = raw['documentation']
+        assert isinstance(documentation, str)
+
     return {
         **_extract_base_props(raw),
         'name': raw.get('name', None),
         'canonical_name': raw.get('canonicalName', ''),
         'visibility': raw.get('visibility', None),
-        'documentation': raw.get('documentation', None),
+        'documentation': documentation,
     }
 
 

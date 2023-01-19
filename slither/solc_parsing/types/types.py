@@ -71,7 +71,7 @@ class ContractDefinition(Declaration):
     __slots__ = "kind", "linearized_base_contracts", "base_contracts", "nodes"
 
     def __init__(self, kind: Optional[str], base: Optional[List[int]], base_contracts: List['InheritanceSpecifier'],
-                 nodes: List[ASTNode], documentation: Optional[str], **kwargs):
+                 nodes: List[ASTNode], **kwargs):
         super().__init__(**kwargs)
         self.kind = kind
         self.linearized_base_contracts = base
