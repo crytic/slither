@@ -16,7 +16,9 @@ from slither.core.declarations import (
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
+from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
+from slither.core.solidity_types.type_alias import TypeAliasTopLevel
 from slither.core.scope.scope import FileScope
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
@@ -41,9 +43,11 @@ class SlitherCompilationUnit(Context):
         self._enums_top_level: List[EnumTopLevel] = []
         self._variables_top_level: List[TopLevelVariable] = []
         self._functions_top_level: List[FunctionTopLevel] = []
+        self._using_for_top_level: List[UsingForTopLevel] = []
         self._pragma_directives: List[Pragma] = []
         self._import_directives: List[Import] = []
         self._custom_errors: List[CustomError] = []
+        self._user_defined_value_types: Dict[str, TypeAliasTopLevel] = {}
 
         self._all_functions: Set[Function] = set()
         self._all_modifiers: Set[Modifier] = set()
@@ -206,8 +210,16 @@ class SlitherCompilationUnit(Context):
         return self._functions_top_level
 
     @property
+    def using_for_top_level(self) -> List[UsingForTopLevel]:
+        return self._using_for_top_level
+
+    @property
     def custom_errors(self) -> List[CustomError]:
         return self._custom_errors
+
+    @property
+    def user_defined_value_types(self) -> Dict[str, TypeAliasTopLevel]:
+        return self._user_defined_value_types
 
     # endregion
     ###################################################################################

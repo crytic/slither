@@ -492,7 +492,7 @@ def parse_using_for_directive(raw: Dict) -> UsingForDirective:
         typename = parse(raw['children'][1])
         assert isinstance(typename, TypeName)
 
-    return UsingForDirective(library, typename, **_extract_base_props(raw))
+    return UsingForDirective(library, typename, function_list=None, is_global=False, **_extract_base_props(raw))
 
 
 def parse_struct_definition(raw: Dict) -> StructDefinition:

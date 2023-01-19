@@ -91,6 +91,9 @@ class FunctionSolc(CallerContextExpression):
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
         ] = []
 
+        if function_data.documentation:
+            function.has_documentation = True
+
     @property
     def underlying_function(self) -> Function:
         return self._function
@@ -239,7 +242,7 @@ class FunctionSolc(CallerContextExpression):
         for node_parser in self._node_to_yulobject.values():
             node_parser.analyze_expressions()
 
-        self._filter_ternary()
+        self._rewrite_ternary_as_if_else()
 
         self._remove_alone_endif()
 
@@ -267,7 +270,6 @@ class FunctionSolc(CallerContextExpression):
             node,
             [self._function.name, f"asm_{len(self._node_to_yulobject)}"],
             scope,
-            parent_func=self._function,
         )
         self._node_to_yulobject[node] = yul_object
         return yul_object
@@ -859,7 +861,7 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
     ###################################################################################
 
-    def _filter_ternary(self) -> bool:
+    def _rewrite_ternary_as_if_else(self) -> bool:
         ternary_found = True
         updated = False
         while ternary_found:

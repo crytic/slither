@@ -121,14 +121,29 @@ def parse_inheritance_specifier(raw: Dict) -> InheritanceSpecifier:
 
 
 def parse_using_for_directive(raw: Dict) -> UsingForDirective:
-    library_name_parsed = parse(raw['libraryName'])
-    assert isinstance(library_name_parsed, (UserDefinedTypeName, IdentifierPath))
+    library_name_parsed = None
+    function_list = []
+    if 'libraryName' in raw:
+        library_name_parsed = parse(raw['libraryName'])
+        assert isinstance(library_name_parsed, (UserDefinedTypeName, IdentifierPath))
+    else:
+        assert 'functionList' in raw
+        for func in raw['functionList']:
+            parsed_func = parse(func['function'])
+            print(func['function'])
+            assert isinstance(parsed_func, IdentifierPath)
+            function_list.append(parsed_func)
 
     typename_parsed = "*" #TODO
     if 'typeName' in raw and raw['typeName']:
         typename_parsed = parse(raw['typeName'])
         assert isinstance(typename_parsed, TypeName)
-    return UsingForDirective(library_name_parsed, typename_parsed, **_extract_base_props(raw))
+
+    is_global = False
+    if 'global' in raw:
+        is_global = raw['global']
+    
+    return UsingForDirective(library_name_parsed, typename_parsed, function_list, is_global, **_extract_base_props(raw))
 
 
 def parse_error_definition(raw: Dict) -> ErrorDefinition:

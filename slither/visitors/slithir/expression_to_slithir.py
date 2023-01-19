@@ -282,10 +282,15 @@ class ExpressionToSlithIR(ExpressionVisitor):
             and expression_called.member_name in ["wrap", "unwrap"]
             and len(args) == 1
         ):
+            # wrap: underlying_type -> alias
+            # unwrap: alias -> underlying_type
+            dest_type = (
+                called if expression_called.member_name == "wrap" else called.underlying_type
+            )
             val = TemporaryVariable(self._node)
-            var = TypeConversion(val, args[0], called)
+            var = TypeConversion(val, args[0], dest_type)
             var.set_expression(expression)
-            val.set_type(called)
+            val.set_type(dest_type)
             self._result.append(var)
             set_val(expression, val)
 
@@ -455,13 +460,17 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, expr)
             return
 
-        # Early lookup to detect user defined types from other contracts definitions
-        # contract A { type MyInt is int}
-        # contract B { function f() public{ A.MyInt test = A.MyInt.wrap(1);}}
-        # The logic is handled by _post_call_expression
         if isinstance(expr, Contract):
+            # Early lookup to detect user defined types from other contracts definitions
+            # contract A { type MyInt is int}
+            # contract B { function f() public{ A.MyInt test = A.MyInt.wrap(1);}}
+            # The logic is handled by _post_call_expression
             if expression.member_name in expr.file_scope.user_defined_types:
                 set_val(expression, expr.file_scope.user_defined_types[expression.member_name])
+                return
+            # Lookup errors referred to as member of contract e.g. Test.myError.selector
+            if expression.member_name in expr.custom_errors_as_dict:
+                set_val(expression, expr.custom_errors_as_dict[expression.member_name])
                 return
 
         val = ReferenceVariable(self._node)

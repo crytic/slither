@@ -8,6 +8,7 @@ from slither.core.declarations import Contract, Import, Pragma
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
+from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.solidity_types import TypeAlias
 from slither.core.variables.top_level_variable import TopLevelVariable
@@ -38,6 +39,7 @@ class FileScope:
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
         self.functions: Set[FunctionTopLevel] = set()
+        self.using_for_directives: Set[UsingForTopLevel] = set()
         self.imports: Set[Import] = set()
         self.pragmas: Set[Pragma] = set()
         self.structures: Dict[str, StructureTopLevel] = {}
@@ -74,6 +76,9 @@ class FileScope:
                 learn_something = True
             if not new_scope.functions.issubset(self.functions):
                 self.functions |= new_scope.functions
+                learn_something = True
+            if not new_scope.using_for_directives.issubset(self.using_for_directives):
+                self.using_for_directives |= new_scope.using_for_directives
                 learn_something = True
             if not new_scope.imports.issubset(self.imports):
                 self.imports |= new_scope.imports

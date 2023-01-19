@@ -15,6 +15,7 @@ from slither.core.declarations import (
 )
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.declarations.solidity_variables import SolidityCustomRevert
 from slither.core.expressions import Identifier, Literal
@@ -199,18 +200,22 @@ def _fits_under_byte(val: Union[int, str]) -> List[str]:
     return [f"bytes{f}" for f in range(length, 33)] + ["bytes"]
 
 
-def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optional[Function]:
+def _find_function_from_parameter(
+    arguments: List[Variable], candidates: List[Function], full_comparison: bool
+) -> Optional[Function]:
     """
-    Look for a function in candidates that can be the target of the ir's call
+    Look for a function in candidates that can be the target based on the ir's call arguments
 
     Try the implicit type conversion for uint/int/bytes. Constant values can be both uint/int
-    While variables stick to their base type, but can changed the size
+    While variables stick to their base type, but can changed the size.
+    If full_comparison is True it will do a comparison of all the arguments regardless if
+    the candidate remained is one.
 
-    :param ir:
+    :param arguments:
     :param candidates:
+    :param full_comparison:
     :return:
     """
-    arguments = ir.arguments
     type_args: List[str]
     for idx, arg in enumerate(arguments):
         if isinstance(arg, (list,)):
@@ -258,7 +263,7 @@ def _find_function_from_parameter(ir: Call, candidates: List[Function]) -> Optio
                     not_found = False
                     candidates_kept.append(candidate)
 
-            if len(candidates_kept) == 1:
+            if len(candidates_kept) == 1 and not full_comparison:
                 return candidates_kept[0]
         candidates = candidates_kept
     if len(candidates) == 1:
@@ -374,7 +379,7 @@ def integrate_value_gas(result):
 ###################################################################################
 
 
-def propagate_type_and_convert_call(result, node):
+def propagate_type_and_convert_call(result: List[Operation], node: "Node") -> List[Operation]:
     """
     Propagate the types variables and convert tmp call to real call operation
     """
@@ -503,7 +508,9 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
     using_for = (
-        node_function.contract.using_for if isinstance(node_function, FunctionContract) else {}
+        node_function.contract.using_for_complete
+        if isinstance(node_function, FunctionContract)
+        else {}
     )
     if isinstance(ir, OperationWithLValue):
         # Force assignment in case of missing previous correct type
@@ -530,9 +537,9 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     if can_be_solidity_func(ir):
                         return convert_to_solidity_func(ir)
 
-                # convert library
+                # convert library or top level function
                 if t in using_for or "*" in using_for:
-                    new_ir = convert_to_library(ir, node, using_for)
+                    new_ir = convert_to_library_or_top_level(ir, node, using_for)
                     if new_ir:
                         return new_ir
 
@@ -540,8 +547,8 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     # UserdefinedType
                     t_type = t.type
                     if isinstance(t_type, Contract):
-                        contract = node.file_scope.get_contract_from_name(t_type.name)
-                        return convert_type_of_high_and_internal_level_call(ir, contract)
+                        # the target contract of the IR is the t_type (the destination of the call)
+                        return convert_type_of_high_and_internal_level_call(ir, t_type)
 
                 # Convert HighLevelCall to LowLevelCall
                 if (isinstance(t, ElementaryType) and t.name == "address") or (
@@ -550,6 +557,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     # Cannot be a top level function with this.
                     assert isinstance(node_function, FunctionContract)
                     if ir.destination.name == "this":
+                        # the target contract is the contract itself
                         return convert_type_of_high_and_internal_level_call(
                             ir, node_function.contract
                         )
@@ -584,6 +592,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                     function_contract = (
                         func.contract if isinstance(func, FunctionContract) else None
                     )
+                    # the target contract might be None if its a top level function
                     convert_type_of_high_and_internal_level_call(ir, function_contract)
                 return_type = ir.function.return_type
                 if return_type:
@@ -657,7 +666,24 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                 if ir.variable_right == "selector" and isinstance(ir.variable_left, (CustomError)):
                     assignment = Assignment(
                         ir.lvalue,
-                        Constant(str(get_function_id(ir.variable_left.solidity_signature))),
+                        Constant(
+                            str(get_function_id(ir.variable_left.solidity_signature)),
+                            ElementaryType("bytes4"),
+                        ),
+                        ElementaryType("bytes4"),
+                    )
+                    assignment.set_expression(ir.expression)
+                    assignment.set_node(ir.node)
+                    assignment.lvalue.set_type(ElementaryType("bytes4"))
+                    return assignment
+
+                if isinstance(ir.variable_right, (CustomError)):
+                    assignment = Assignment(
+                        ir.lvalue,
+                        Constant(
+                            str(get_function_id(ir.variable_left.solidity_signature)),
+                            ElementaryType("bytes4"),
+                        ),
                         ElementaryType("bytes4"),
                     )
                     assignment.set_expression(ir.expression)
@@ -729,7 +755,7 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                             if f:
                                 ir.lvalue.set_type(f)
                             else:
-                                # Allow propgation for variable access through contract's nale
+                                # Allow propgation for variable access through contract's name
                                 # like Base_contract.my_variable
                                 v = next(
                                     (
@@ -881,7 +907,9 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
             # }
             node_func = ins.node.function
             using_for = (
-                node_func.contract.using_for if isinstance(node_func, FunctionContract) else {}
+                node_func.contract.using_for_complete
+                if isinstance(node_func, FunctionContract)
+                else {}
             )
 
             targeted_libraries = (
@@ -894,10 +922,14 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]):  # pylint: dis
                     lib_contract_type.type, Contract
                 ):
                     continue
-                lib_contract = lib_contract_type.type
-                for lib_func in lib_contract.functions:
-                    if lib_func.name == ins.ori.variable_right:
-                        candidates.append(lib_func)
+                if isinstance(lib_contract_type, FunctionContract):
+                    # Using for with list of functions, this is the function called
+                    candidates.append(lib_contract_type)
+                else:
+                    lib_contract = lib_contract_type.type
+                    for lib_func in lib_contract.functions:
+                        if lib_func.name == ins.ori.variable_right:
+                            candidates.append(lib_func)
 
             if len(candidates) == 1:
                 lib_func = candidates[0]
@@ -1326,9 +1358,32 @@ def convert_to_pop(ir, node):
     return ret
 
 
-def look_for_library(contract, ir, using_for, t):
+def look_for_library_or_top_level(contract, ir, using_for, t):
     for destination in using_for[t]:
-        lib_contract = contract.file_scope.get_contract_from_name(str(destination))
+        if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
+            arguments = [ir.destination] + ir.arguments
+            if (
+                len(destination.parameters) == len(arguments)
+                and _find_function_from_parameter(arguments, [destination], True) is not None
+            ):
+                internalcall = InternalCall(destination, ir.nbr_arguments, ir.lvalue, ir.type_call)
+                internalcall.set_expression(ir.expression)
+                internalcall.set_node(ir.node)
+                internalcall.arguments = [ir.destination] + ir.arguments
+                return_type = internalcall.function.return_type
+                if return_type:
+                    if len(return_type) == 1:
+                        internalcall.lvalue.set_type(return_type[0])
+                    elif len(return_type) > 1:
+                        internalcall.lvalue.set_type(return_type)
+                else:
+                    internalcall.lvalue = None
+                return internalcall
+
+        if isinstance(destination, FunctionContract) and destination.contract.is_library:
+            lib_contract = destination.contract
+        else:
+            lib_contract = contract.file_scope.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
                 lib_contract,
@@ -1348,19 +1403,19 @@ def look_for_library(contract, ir, using_for, t):
     return None
 
 
-def convert_to_library(ir, node, using_for):
+def convert_to_library_or_top_level(ir, node, using_for):
     # We use contract_declarer, because Solidity resolve the library
     # before resolving the inheritance.
     # Though we could use .contract as libraries cannot be shadowed
     contract = node.function.contract_declarer
     t = ir.destination.type
     if t in using_for:
-        new_ir = look_for_library(contract, ir, using_for, t)
+        new_ir = look_for_library_or_top_level(contract, ir, using_for, t)
         if new_ir:
             return new_ir
 
     if "*" in using_for:
-        new_ir = look_for_library(contract, ir, using_for, "*")
+        new_ir = look_for_library_or_top_level(contract, ir, using_for, "*")
         if new_ir:
             return new_ir
 
@@ -1406,7 +1461,7 @@ def convert_type_library_call(ir: HighLevelCall, lib_contract: Contract):
         # TODO: handle collision with multiple state variables/functions
         func = lib_contract.get_state_variable_from_name(ir.function_name)
     if func is None and candidates:
-        func = _find_function_from_parameter(ir, candidates)
+        func = _find_function_from_parameter(ir.arguments, candidates, False)
 
     # In case of multiple binding to the same type
     # TODO: this part might not be needed with _find_function_from_parameter
@@ -1476,7 +1531,19 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
     return [return_type.type]
 
 
-def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Optional[Contract]):
+def convert_type_of_high_and_internal_level_call(
+    ir: Operation, contract: Optional[Contract]
+) -> Optional[Operation]:
+    """
+    Convert the IR type based on heuristic
+
+    Args:
+        ir: target
+        contract: optional contract. This should be the target of the IR. It will be used to look up potential functions
+
+    Returns:
+        Potential new IR
+    """
     func = None
     if isinstance(ir, InternalCall):
         candidates: List[Function]
@@ -1502,7 +1569,7 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
                         if f.name == ir.function_name and len(f.parameters) == len(ir.arguments)
                     ]
 
-        func = _find_function_from_parameter(ir, candidates)
+        func = _find_function_from_parameter(ir.arguments, candidates, False)
 
         if not func:
             assert contract
@@ -1510,7 +1577,6 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
     else:
         assert isinstance(ir, HighLevelCall)
         assert contract
-
         candidates = [
             f
             for f in contract.functions
@@ -1518,14 +1584,13 @@ def convert_type_of_high_and_internal_level_call(ir: Operation, contract: Option
             and not f.is_shadowed
             and len(f.parameters) == len(ir.arguments)
         ]
-
         if len(candidates) == 1:
             func = candidates[0]
         if func is None:
             # TODO: handle collision with multiple state variables/functions
             func = contract.get_state_variable_from_name(ir.function_name)
         if func is None and candidates:
-            func = _find_function_from_parameter(ir, candidates)
+            func = _find_function_from_parameter(ir.arguments, candidates, False)
 
     # lowlelvel lookup needs to be done at last step
     if not func:
@@ -1783,7 +1848,7 @@ def _find_source_mapping_references(irs: List[Operation]):
 ###################################################################################
 
 
-def apply_ir_heuristics(irs, node):
+def apply_ir_heuristics(irs: List[Operation], node: "Node"):
     """
     Apply a set of heuristic to improve slithIR
     """

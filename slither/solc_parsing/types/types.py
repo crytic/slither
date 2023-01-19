@@ -89,12 +89,14 @@ class InheritanceSpecifier(ASTNode):
 
 
 class UsingForDirective(ASTNode):
-    __slots__ = "library", "typename"
+    __slots__ = "library", "typename", "function_list", "is_global"
 
-    def __init__(self, library: Union['UserDefinedTypeName', 'IdentifierPath'], typename: 'TypeName', **kwargs):
+    def __init__(self, library: Union['UserDefinedTypeName', 'IdentifierPath'], typename: 'TypeName', function_list: Optional[List['IdentifierPath']], is_global: bool, **kwargs):
         super().__init__(**kwargs)
         self.library = library
         self.typename = typename
+        self.function_list = function_list
+        self.is_global = is_global
 
 class ErrorDefinition(Declaration):
     __slots__ = "params"
