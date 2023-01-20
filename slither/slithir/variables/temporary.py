@@ -16,6 +16,7 @@ class TemporaryVariable(ChildNode, Variable):
         else:
             self._index = index
         self._node = node
+        self._name = f"TMP_{self.index}"
 
     @property
     def index(self):
@@ -24,10 +25,6 @@ class TemporaryVariable(ChildNode, Variable):
     @index.setter
     def index(self, idx):
         self._index = idx
-
-    @property
-    def name(self):
-        return f"TMP_{self.index}"
 
     def __str__(self):
         return self.name

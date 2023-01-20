@@ -57,7 +57,7 @@ class SlitherCompilationUnit(Context):
 
         self._storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
 
-        self._contract_with_missing_inheritance = set()
+        self._contract_with_missing_inheritance: Set[Contract] = set()
 
         self._source_units: Dict[int, str] = {}
 
@@ -161,7 +161,7 @@ class SlitherCompilationUnit(Context):
         self._all_modifiers.add(modif)
 
     @property
-    def functions_and_modifiers(self) -> List[Function]:
+    def functions_and_modifiers(self) -> List[Function | Modifier]:
         return self.functions + self.modifiers
 
     def propagate_function_calls(self):
@@ -257,7 +257,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     def compute_storage_layout(self):
-        for contract in self.contracts_derived:
+        for contract in self.contracts:
             self._storage_layouts[contract.name] = {}
 
             slot = 0

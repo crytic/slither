@@ -14,8 +14,8 @@ def convert_string_to_fraction(val: Union[str, int]) -> Fraction:
     val = val.replace("_", "")
 
     if "e" in val or "E" in val:
-        base, expo = val.split("e") if "e" in val else val.split("E")
-        base, expo = Fraction(base), int(expo)
+        parsed_base, parsed_expo = val.split("e") if "e" in val else val.split("E")
+        base, expo = Fraction(parsed_base), int(parsed_expo)
         # The resulting number must be < 2**256-1, otherwise solc
         # Would not be able to compile it
         # 10**77 is the largest exponent that fits
@@ -25,7 +25,7 @@ def convert_string_to_fraction(val: Union[str, int]) -> Fraction:
                 raise SlitherError(
                     f"{base}e{expo} is too large to fit in any Solidity integer size"
                 )
-            return 0
+            return Fraction(0, 1)
         return Fraction(base) * Fraction(10**expo)
 
     return Fraction(val)
