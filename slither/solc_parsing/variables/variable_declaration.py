@@ -32,6 +32,7 @@ from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.solidity_types.elementary_type import Byte, Int, Uint
+from slither.solc_parsing.default_values import get_default_value
 
 logger = logging.getLogger("VariableDeclarationSolcParsing")
 
@@ -217,46 +218,6 @@ class VariableDeclarationSolc:
                 self._variable.initialized = True
                 self._initializedNotParsed = var["children"][1]
 
-    def _get_init_value(self, ty : Type) -> Expression:
-        if isinstance(ty, ElementaryType) and (ty.type in Int + Uint + Byte + ["address"]):
-            return Literal("0", ElementaryType(ty.type))
-        elif isinstance(ty, ElementaryType) and (ty.type == "string"):
-            return Literal("", ElementaryType("string"))
-        elif isinstance(ty, ElementaryType) and (ty.type == "bool"):
-            return Literal("false", ElementaryType("bool"))
-        elif isinstance(ty, ArrayType) and ty.is_dynamic_array:
-            return CallExpression(
-                NewArray(1, copy.deepcopy(ty.type)),
-                [Literal("0", ElementaryType("uint256"))],
-                f"{ty.type}[] memory"
-            )
-        elif isinstance(ty, ArrayType) and ty.is_fixed_array:
-            length = int(ty.length_value.value)
-            base_init_value = self._get_init_value(ty.type)
-            return TupleExpression([copy.deepcopy(base_init_value) for _ in range(0, length)])
-        elif isinstance(ty, UserDefinedType) and isinstance(ty.type, Enum):
-            return MemberAccess(
-                "min",
-                ty,
-                CallExpression(
-                    Identifier(SolidityFunction("type()")),
-                    [Identifier(ty.type)],
-                    f"type(enum {ty.type.name})"
-                )
-            )
-        elif isinstance(ty, UserDefinedType) and isinstance(ty.type, Structure):
-            return CallExpression(
-                Identifier(copy.deepcopy(ty.type)),
-                [self._get_init_value(field.type) for field in ty.type.elems_ordered],
-                f"struct {ty.type.name} memory"
-            )
-        elif isinstance(ty, UserDefinedType) and isinstance(ty.type, Contract):
-            return TypeConversion(
-                TypeConversion(Literal("0", ElementaryType("uint256")), ElementaryType("address")),
-                UserDefinedType(ty.type)
-            )
-        assert False # unreachable
-
     def analyze(self, caller_context: CallerContextExpression):
         # Can be re-analyzed due to inheritance
         if self._was_analyzed:
@@ -275,4 +236,4 @@ class VariableDeclarationSolc:
             and self._variable.location in ["memory", "default"]
             and caller_context.slither_parser.generates_certik_ir
         ):
-            self._variable.expression = self._get_init_value(self._variable.type)
+            self._variable.expression = get_default_value(self._variable.type)

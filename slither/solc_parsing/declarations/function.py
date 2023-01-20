@@ -1,6 +1,8 @@
 import logging
 from typing import Dict, Literal, Optional, Union, List, TYPE_CHECKING
 
+from slither.core.expressions.tuple_expression import TupleExpression
+
 from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
 from slither.core.cfg.scope import Scope
 from slither.core.declarations.contract import Contract
@@ -27,6 +29,9 @@ from slither.solc_parsing.yul.parse_yul import YulBlock
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
+from slither.core.expressions.assignment_operation import AssignmentOperationType
+from slither.core.expressions.identifier import Identifier
+from slither.solc_parsing.default_values import get_default_value
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
@@ -1173,6 +1178,22 @@ class FunctionSolc(CallerContextExpression):
         node = self._new_node(NodeType.ENTRYPOINT, cfg["src"], self.underlying_function)
         self._function.entry_point = node.underlying_node
 
+        if self.slither_parser.generates_certik_ir:
+            for ret in self._function.returns:
+                if not (ret.location in ["memory", "default"]):
+                    continue
+                assign_node = self._new_node(NodeType.EXPRESSION, cfg["src"], self._function)
+                assign_node.underlying_node.add_expression(
+                    AssignmentOperation(
+                        Identifier(ret),
+                        get_default_value(ret.type),
+                        AssignmentOperationType.ASSIGN,
+                        ret.type
+                    )
+                )
+                link_underlying_nodes(node, assign_node)
+                node = assign_node
+
         if self.is_compact_ast:
             statements = cfg["statements"]
         else:
@@ -1183,9 +1204,16 @@ class FunctionSolc(CallerContextExpression):
         else:
             self._function.is_empty = False
             check_arithmetic = self.compilation_unit.solc_version >= "0.8.0"
-            self._parse_block(cfg, node, check_arithmetic=check_arithmetic)
+            node = self._parse_block(cfg, node, check_arithmetic=check_arithmetic)
             self._remove_incorrect_edges()
             self._remove_alone_endif()
+
+        if self.slither_parser.generates_certik_ir and node.underlying_node.type != NodeType.RETURN:
+            return_node = self._new_node(NodeType.RETURN, cfg["src"], self._function)
+            return_node.underlying_node.add_expression(
+                TupleExpression([Identifier(ret) for ret in self._function.returns])
+            )
+            link_underlying_nodes(node, return_node)
 
     # endregion
     ###################################################################################
