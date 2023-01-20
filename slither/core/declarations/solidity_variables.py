@@ -70,6 +70,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "abi.encodePacked()": ["bytes"],
     "abi.encodeWithSelector()": ["bytes"],
     "abi.encodeWithSignature()": ["bytes"],
+    "abi.encodeCall()": ["bytes"],
     "bytes.concat()": ["bytes"],
     "string.concat()": ["string"],
     # abi.decode returns an a list arbitrary types

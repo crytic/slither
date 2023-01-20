@@ -24,6 +24,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
+from slither.utils import codex
 from slither.utils.output import output_to_json, output_to_zip, output_to_sarif, ZIP_TYPES_ACCEPTED
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
@@ -166,7 +167,6 @@ def process_from_asts(
 def get_detectors_and_printers() -> Tuple[
     List[Type[AbstractDetector]], List[Type[AbstractPrinter]]
 ]:
-
     detectors_ = [getattr(all_detectors, name) for name in dir(all_detectors)]
     detectors = [d for d in detectors_ if inspect.isclass(d) and issubclass(d, AbstractDetector)]
 
@@ -286,7 +286,6 @@ def parse_filter_paths(args: argparse.Namespace) -> List[str]:
 def parse_args(
     detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
 ) -> argparse.Namespace:
-
     usage = "slither target [flag]\n"
     usage += "\ntarget can be:\n"
     usage += "\t- file.sol // a Solidity file\n"
@@ -555,6 +554,15 @@ def parse_args(
         action="store_true",
         default=False,
     )
+
+    group_misc.add_argument(
+        "--no-fail",
+        help="Do not fail in case of parsing (echidna mode only)",
+        action="store_true",
+        default=defaults_flag_in_config["no_fail"],
+    )
+
+    codex.init_parser(parser)
 
     # debugger command
     parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)

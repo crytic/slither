@@ -14,6 +14,7 @@ from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.structure_top_level import StructureTopLevel
+from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.scope.scope import FileScope
 from slither.core.solidity_types import ElementaryType, TypeAliasTopLevel
 from slither.core.variables.top_level_variable import TopLevelVariable
@@ -22,8 +23,10 @@ from slither.solc_parsing.declarations.contract import ContractSolc
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
+from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
 from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 
 logging.basicConfig()
 logger = logging.getLogger("SlitherSolcParsing")
@@ -45,19 +48,25 @@ def _handle_import_aliases(
 
     """
     for symbol_alias in symbol_aliases:
-        if (
-            "foreign" in symbol_alias
-            and "name" in symbol_alias["foreign"]
-            and "local" in symbol_alias
-        ):
-            original_name = symbol_alias["foreign"]["name"]
-            local_name = symbol_alias["local"]
-            import_directive.renaming[local_name] = original_name
-            # Assuming that two imports cannot collide in renaming
-            scope.renaming[local_name] = original_name
+        if "foreign" in symbol_alias and "local" in symbol_alias:
+            if isinstance(symbol_alias["foreign"], dict) and "name" in symbol_alias["foreign"]:
+
+                original_name = symbol_alias["foreign"]["name"]
+                local_name = symbol_alias["local"]
+                import_directive.renaming[local_name] = original_name
+                # Assuming that two imports cannot collide in renaming
+                scope.renaming[local_name] = original_name
+
+            # This path should only be hit for the malformed AST of solc 0.5.12 where
+            # the foreign identifier cannot be found but is required to resolve the alias.
+            # see https://github.com/crytic/slither/issues/1319
+            elif symbol_alias["local"]:
+                raise SlitherException(
+                    "Cannot resolve local alias for import directive due to malformed AST. Please upgrade to solc 0.6.0 or higher."
+                )
 
 
-class SlitherCompilationUnitSolc:
+class SlitherCompilationUnitSolc(CallerContextExpression):
     # pylint: disable=no-self-use,too-many-instance-attributes
     def __init__(self, compilation_unit: SlitherCompilationUnit, generates_certik_ir: bool):
         super().__init__()
@@ -72,6 +81,7 @@ class SlitherCompilationUnitSolc:
         self._custom_error_parser: List[CustomErrorSolc] = []
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
         self._functions_top_level_parser: List[FunctionSolc] = []
+        self._using_for_top_level_parser: List[UsingForTopLevelSolc] = []
 
         self._is_compact_ast = False
         # self._core: SlitherCore = core
@@ -102,6 +112,10 @@ class SlitherCompilationUnitSolc:
     @property
     def underlying_contract_to_parser(self) -> Dict[Contract, ContractSolc]:
         return self._underlying_contract_to_parser
+
+    @property
+    def slither_parser(self) -> "SlitherCompilationUnitSolc":
+        return self
 
     ###################################################################################
     ###################################################################################
@@ -229,6 +243,17 @@ class SlitherCompilationUnitSolc:
                     scope.pragmas.add(pragma)
                 pragma.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.pragma_directives.append(pragma)
+
+            elif top_level_data[self.get_key()] == "UsingForDirective":
+                scope = self.compilation_unit.get_scope(filename)
+                usingFor = UsingForTopLevel(scope)
+                usingFor_parser = UsingForTopLevelSolc(usingFor, top_level_data, self)
+                usingFor.set_offset(top_level_data["src"], self._compilation_unit)
+                scope.using_for_directives.add(usingFor)
+
+                self._compilation_unit.using_for_top_level.append(usingFor)
+                self._using_for_top_level_parser.append(usingFor_parser)
+
             elif top_level_data[self.get_key()] == "ImportDirective":
                 if self.is_compact_ast:
                     import_directive = Import(
@@ -319,6 +344,7 @@ class SlitherCompilationUnitSolc:
 
                 user_defined_type = TypeAliasTopLevel(original_type, alias, scope)
                 user_defined_type.set_offset(top_level_data["src"], self._compilation_unit)
+                self._compilation_unit.user_defined_value_types[alias] = user_defined_type
                 scope.user_defined_types[alias] = user_defined_type
 
             else:
@@ -499,6 +525,9 @@ Please rename it, this name is reserved for Slither's internals"""
 
         # Then we analyse state variables, functions and modifiers
         self._analyze_third_part(contracts_to_be_analyzed, libraries)
+        [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
+
+        self._analyze_using_for(contracts_to_be_analyzed, libraries)
 
         self._parsed = True
 
@@ -610,6 +639,29 @@ Please rename it, this name is reserved for Slither's internals"""
             else:
                 contracts_to_be_analyzed += [contract]
 
+    def _analyze_using_for(
+        self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
+    ):
+        self._analyze_top_level_using_for()
+
+        for lib in libraries:
+            lib.analyze_using_for()
+
+        while contracts_to_be_analyzed:
+            contract = contracts_to_be_analyzed[0]
+
+            contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
+            all_father_analyzed = all(
+                self._underlying_contract_to_parser[father].is_analyzed
+                for father in contract.underlying_contract.inheritance
+            )
+
+            if not contract.underlying_contract.inheritance or all_father_analyzed:
+                contract.analyze_using_for()
+                contract.set_is_analyzed(True)
+            else:
+                contracts_to_be_analyzed += [contract]
+
     def _analyze_enums(self, contract: ContractSolc):
         # Enum must be analyzed first
         contract.analyze_enums()
@@ -632,7 +684,6 @@ Please rename it, this name is reserved for Slither's internals"""
         # Event can refer to struct
         contract.analyze_events()
 
-        contract.analyze_using_for()
         contract.analyze_custom_errors()
 
         contract.set_is_analyzed(True)
@@ -655,6 +706,10 @@ Please rename it, this name is reserved for Slither's internals"""
         for func_parser in self._functions_top_level_parser:
             func_parser.analyze_params()
             self._compilation_unit.add_function(func_parser.underlying_function)
+
+    def _analyze_top_level_using_for(self):
+        for using_for in self._using_for_top_level_parser:
+            using_for.analyze()
 
     def _analyze_params_custom_error(self):
         for custom_error_parser in self._custom_error_parser:
@@ -691,12 +746,13 @@ Please rename it, this name is reserved for Slither's internals"""
             for func in contract.functions + contract.modifiers:
                 try:
                     func.generate_slithir_and_analyze()
+
                 except AttributeError as e:
                     # This can happens for example if there is a call to an interface
                     # And the interface is redefined due to contract's name reuse
                     # But the available version misses some functions
                     self._underlying_contract_to_parser[contract].log_incorrect_parsing(
-                        f"Impossible to generate IR for {contract.name}.{func.name}:\n {e}"
+                        f"Impossible to generate IR for {contract.name}.{func.name} ({func.source_mapping}):\n {e}"
                     )
 
             contract.convert_expression_to_slithir_ssa()

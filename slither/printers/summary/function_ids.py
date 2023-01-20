@@ -9,7 +9,7 @@ from slither.utils.myprettytable import MyPrettyTable
 class FunctionIds(AbstractPrinter):
 
     ARGUMENT = "function-id"
-    HELP = "Print the keccack256 signature of the functions"
+    HELP = "Print the keccak256 signature of the functions"
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#function-id"
 

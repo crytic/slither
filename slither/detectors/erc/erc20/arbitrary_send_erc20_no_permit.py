@@ -14,7 +14,7 @@ class ArbitrarySendErc20NoPermit(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/trailofbits/slither/wiki/Detector-Documentation#arbitrary-send-erc20"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#arbitrary-from-in-transferfrom"
 
     WIKI_TITLE = "Arbitrary `from` in transferFrom"
     WIKI_DESCRIPTION = "Detect when `msg.sender` is not used as `from` in transferFrom."

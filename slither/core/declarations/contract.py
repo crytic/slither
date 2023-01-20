@@ -2,8 +2,9 @@
     Contract module
 """
 import logging
+from collections import defaultdict
 from pathlib import Path
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union
+from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set
 
 from crytic_compile.platform import Type as PlatformType
 
@@ -45,7 +46,8 @@ if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.declarations.custom_error_contract import CustomErrorContract
     from slither.core.scope.scope import FileScope
-
+    from slither.core.declarations.function_top_level import FunctionTopLevel
+    from slither.core.solidity_types.user_defined_type import UserDefinedType
 
 LOGGER = logging.getLogger("Contract")
 
@@ -70,6 +72,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._enums: Dict[str, "EnumContract"] = {}
         self._structures: Dict[str, "StructureContract"] = {}
         self._events: Dict[str, "Event"] = {}
+        # map accessible variable from name -> variable
+        # do not contain private variables inherited from contract
         self._variables: Dict[str, "StateVariable"] = {}
         self._variables_ordered: List["StateVariable"] = []
         self._modifiers: Dict[str, "Modifier"] = {}
@@ -78,8 +82,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._custom_errors: Dict[str, "CustomErrorContract"] = {}
 
         # The only str is "*"
-        self._using_for: Dict[Union[str, Type], List[Type]] = {}
-        self._using_for_src: Dict[Union[str, Type], List[Tuple[Type, "StructureContract"]]] = {}
+        self._using_for: Dict[Union[str, Type], List[Union["UserDefinedType", "FunctionTopLevel", "FunctionContract"]]] = {}
+        self._using_for_src: Dict[Union[str, Type], List[Tuple[Union["UserDefinedType", "FunctionTopLevel", "FunctionContract"], "Structure"]]] = {}
+        self._using_for_complete: Dict[Union[str, Type], List[Type]] = None
         self._kind: Optional[str] = None
         self._is_interface: bool = False
         self._is_abstract: bool = False
@@ -91,6 +96,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
+        self._upgradeable_version: Optional[str] = None
 
         self.is_top_level = False  # heavily used, so no @property
 
@@ -103,6 +109,11 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
         self.file_scope: "FileScope" = scope
+
+        # memoize
+        self._state_variables_used_in_reentrant_targets: Optional[
+            Dict["StateVariable", Set[Union["StateVariable", "Function"]]]
+        ] = None
 
     ###################################################################################
     ###################################################################################
@@ -272,8 +283,34 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._using_for
 
     @property
-    def using_for_src(self) -> Dict[Union[str, Type], List[Tuple[str, "StructureContract"]]]:
+    def using_for(self) -> Dict[Union[str, Type], List[Union["UserDefinedType", "FunctionTopLevel", "FunctionContract"]]]:
+        return self._using_for
+
+    @property
+    def using_for_src(self) -> Dict[Union[str, Type], List[Tuple[Union["UserDefinedType", "FunctionTopLevel", "FunctionContract"], "Structure"]]]:
         return self._using_for_src
+
+    @property
+    def using_for_complete(self) -> Dict[Union[str, Type], List[Type]]:
+        """
+        Dict[Union[str, Type], List[Type]]: Dict of merged local using for directive with top level directive
+        """
+
+        def _merge_using_for(uf1, uf2):
+            result = {**uf1, **uf2}
+            for key, value in result.items():
+                if key in uf1 and key in uf2:
+                    result[key] = value + uf1[key]
+            return result
+
+        if self._using_for_complete is None:
+            result = self.using_for
+            top_level_using_for = self.file_scope.using_for_directives
+            for uftl in top_level_using_for:
+                result = _merge_using_for(result, uftl.using_for)
+            self._using_for_complete = result
+        return self._using_for_complete
+
 
     # endregion
     ###################################################################################
@@ -317,7 +354,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def variables(self) -> List["StateVariable"]:
         """
-        list(StateVariable): List of the state variables. Alias to self.state_variables
+        Returns all the accessible variables (do not include private variable from inherited contract)
+
+        list(StateVariable): List of the state variables. Alias to self.state_variables.
         """
         return list(self.state_variables)
 
@@ -328,6 +367,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def state_variables(self) -> List["StateVariable"]:
         """
+        Returns all the accessible variables (do not include private variable from inherited contract).
+        Use state_variables_ordered for all the variables following the storage order
+
         list(StateVariable): List of the state variables.
         """
         return list(self._variables.values())
@@ -371,6 +413,33 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         slithir_variabless = [f.slithir_variables for f in self.functions + self.modifiers]  # type: ignore
         slithir_variables = [item for sublist in slithir_variabless for item in sublist]
         return list(set(slithir_variables))
+
+    @property
+    def state_variables_used_in_reentrant_targets(
+        self,
+    ) -> Dict["StateVariable", Set[Union["StateVariable", "Function"]]]:
+        """
+        Returns the state variables used in reentrant targets. Heuristics:
+        - Variable used (read/write) in entry points that are reentrant
+        - State variables that are public
+
+        """
+        from slither.core.variables.state_variable import StateVariable
+
+        if self._state_variables_used_in_reentrant_targets is None:
+            reentrant_functions = [f for f in self.functions_entry_points if f.is_reentrant]
+            variables_used: Dict[
+                StateVariable, Set[Union[StateVariable, "Function"]]
+            ] = defaultdict(set)
+            for function in reentrant_functions:
+                for ir in function.all_slithir_operations():
+                    state_variables = [v for v in ir.used if isinstance(v, StateVariable)]
+                    for state_variable in state_variables:
+                        variables_used[state_variable].add(ir.node.function)
+            for variable in [v for v in self.state_variables if v.visibility == "public"]:
+                variables_used[variable].add(variable)
+            self._state_variables_used_in_reentrant_targets = variables_used
+        return self._state_variables_used_in_reentrant_targets
 
     # endregion
     ###################################################################################
@@ -1204,6 +1273,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                         break
         return self._is_upgradeable
 
+    @is_upgradeable.setter
+    def is_upgradeable(self, upgradeable: bool):
+        self._is_upgradeable = upgradeable
+
     @property
     def is_upgradeable_proxy(self) -> bool:
         from slither.core.cfg.node import NodeType
@@ -1228,6 +1301,18 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                                     self._is_upgradeable_proxy = True
                                     return self._is_upgradeable_proxy
         return self._is_upgradeable_proxy
+
+    @is_upgradeable_proxy.setter
+    def is_upgradeable_proxy(self, upgradeable_proxy: bool):
+        self._is_upgradeable_proxy = upgradeable_proxy
+
+    @property
+    def upgradeable_version(self) -> Optional[str]:
+        return self._upgradeable_version
+
+    @upgradeable_version.setter
+    def upgradeable_version(self, version_name: str):
+        self._upgradeable_version = version_name
 
     # endregion
     ###################################################################################

@@ -84,6 +84,16 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
         self.line_prefix = kwargs.get("change_line_prefix", "#")
 
+        # Indicate if Codex related features should be used
+        self.codex_enabled = kwargs.get("codex", False)
+        self.codex_contracts = kwargs.get("codex_contracts", "all")
+        self.codex_model = kwargs.get("codex_model", "text-davinci-003")
+        self.codex_temperature = kwargs.get("codex_temperature", 0)
+        self.codex_max_tokens = kwargs.get("codex_max_tokens", 300)
+        self.codex_log = kwargs.get("codex_log", False)
+
+        self.no_fail = kwargs.get("no_fail", False)
+
         self._parsers: List[SlitherCompilationUnitSolc] = []
         try:
             if isinstance(target, CryticCompile):
@@ -130,41 +140,27 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
         triage_mode = kwargs.get("triage_mode", False)
         self._triage_mode = triage_mode
+        self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
+
+    def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:
 
         for parser in self._parsers:
-            parser.parse_contracts()
+            try:
+                parser.parse_contracts()
+            except Exception as e:
+                if self.no_fail:
+                    continue
+                raise e
 
         # skip_analyze is only used for testing
-        if not kwargs.get("skip_analyze", False):
+        if not skip_analyze:
             for parser in self._parsers:
-                parser.analyze_contracts()
-
-    # def _init_from_raw_json(self, filename):
-    #     if not os.path.isfile(filename):
-    #         raise SlitherError(
-    #             "{} does not exist (are you in the correct directory?)".format(filename)
-    #         )
-    #     assert filename.endswith("json")
-    #     with open(filename, encoding="utf8") as astFile:
-    #         stdout = astFile.read()
-    #         if not stdout:
-    #             to_log = f"Empty AST file: {filename}"
-    #             raise SlitherError(to_log)
-    #     contracts_json = stdout.split("\n=")
-    #
-    #     self._parser = SlitherCompilationUnitSolc(filename, self)
-    #
-    #     for c in contracts_json:
-    #         self._parser.parse_top_level_from_json(c)
-
-    # def _init_from_list(self, contract):
-    #     self._parser = SlitherCompilationUnitSolc("", self)
-    #     for c in contract:
-    #         if "absolutePath" in c:
-    #             path = c["absolutePath"]
-    #         else:
-    #             path = c["attributes"]["absolutePath"]
-    #         self._parser.parse_top_level_from_loaded_json(c, path)
+                try:
+                    parser.analyze_contracts()
+                except Exception as e:
+                    if self.no_fail:
+                        continue
+                    raise e
 
     @property
     def detectors(self):

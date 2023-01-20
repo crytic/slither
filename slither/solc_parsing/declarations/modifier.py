@@ -87,7 +87,7 @@ class ModifierSolc(FunctionSolc):
         for node in self._node_to_nodesolc.values():
             node.analyze_expressions(self)
 
-        self._filter_ternary()
+        self._rewrite_ternary_as_if_else()
         self._remove_alone_endif()
 
         # self._analyze_read_write()

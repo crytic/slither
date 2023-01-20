@@ -1,11 +1,12 @@
 import logging
+import re
 from typing import List, Dict, Callable, TYPE_CHECKING, Union, Set
 
 from slither.core.declarations import Modifier, Event, EnumContract, StructureContract, Function
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract
-from slither.core.solidity_types import ElementaryType, TypeAliasContract
+from slither.core.solidity_types import ElementaryType, TypeAliasContract, Type
 from slither.core.variables.state_variable import StateVariable
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
@@ -16,6 +17,7 @@ from slither.solc_parsing.declarations.structure_contract import StructureContra
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
+from slither.core.declarations.structure import Structure
 
 LOGGER = logging.getLogger("ContractSolcParsing")
 
@@ -65,8 +67,10 @@ class ContractSolc(CallerContextExpression):
         # Export info
         if self.is_compact_ast:
             self._contract.name = self._data["name"]
+            self._handle_comment(self._data)
         else:
             self._contract.name = self._data["attributes"][self.get_key()]
+            self._handle_comment(self._data["attributes"])
 
         self._contract.id = self._data["id"]
 
@@ -325,7 +329,13 @@ class ContractSolc(CallerContextExpression):
 
     def parse_state_variables(self):
         for father in self._contract.inheritance_reverse:
-            self._contract.variables_as_dict.update(father.variables_as_dict)
+            self._contract.variables_as_dict.update(
+                {
+                    name: v
+                    for name, v in father.variables_as_dict.items()
+                    if v.visibility != "private"
+                }
+            )
             self._contract.add_variables_ordered(
                 [
                     var
@@ -390,11 +400,11 @@ class ContractSolc(CallerContextExpression):
     ###################################################################################
     ###################################################################################
 
-    def log_incorrect_parsing(self, error):
+    def log_incorrect_parsing(self, error: str) -> None:
         if self._contract.compilation_unit.core.disallow_partial:
             raise ParsingError(error)
         LOGGER.error(error)
-        self._contract.is_incorrectly_parsed = True
+        self._contract.is_incorrectly_constructed = True
 
     def analyze_content_modifiers(self):
         try:
@@ -576,7 +586,7 @@ class ContractSolc(CallerContextExpression):
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing state variable {e}")
 
-    def analyze_using_for(self):
+    def analyze_using_for(self):  # pylint: disable=too-many-branches
         try:
             for father in self._contract.inheritance:
                 self._contract.using_for.update(father.using_for)
@@ -584,7 +594,6 @@ class ContractSolc(CallerContextExpression):
 
             if self.is_compact_ast:
                 for using_for in self._usingForNotParsed:
-                    lib_name = parse_type(using_for["libraryName"], self)
                     if "typeName" in using_for and using_for["typeName"]:
                         type_name = parse_type(using_for["typeName"], self)
                     else:
@@ -592,16 +601,26 @@ class ContractSolc(CallerContextExpression):
                     if type_name not in self._contract.using_for:
                         self._contract.using_for[type_name] = []
                         self._contract.using_for_src[type_name] = []
-                    # This is to populate the source location of using_for construct
-                    # We reuse the StructureContract class to store the source location instead
-                    # of creating a new class `UsingFor` for simplicity
-                    uf = StructureContract(self._contract.compilation_unit)
-                    uf.set_offset(using_for["src"], self._contract.compilation_unit)
-                    uf.name = f"using {lib_name} for {type_name}"
-                    uf.canonical_name = uf.name + " in " + self._contract.name
-                    StructureContract.set_contract(uf, self._contract)
-                    self._contract.using_for[type_name].append(lib_name)
-                    self._contract.using_for_src[type_name].append((lib_name, uf))
+                    if "libraryName" in using_for:
+                        lib_name = parse_type(using_for["libraryName"], self)
+
+                        # This is to populate the source location of using_for construct
+                        # We reuse the Structure class to store the source location instead
+                        # of creating a new class `UsingFor` for simplicity
+                        uf = StructureContract(self._contract.compilation_unit)
+                        uf.set_offset(using_for["src"], self._contract.compilation_unit)
+                        StructureContract.set_contract(uf, self._contract)
+                        uf.canonical_name = uf.name = f"using {lib_name} for {type_name} in {self._contract}"
+                        self._contract.using_for[type_name].append(lib_name)
+                        self._contract.using_for_src[type_name].append((lib_name, uf))
+                    else:
+                        uf = StructureContract(self._contract.compilation_unit)
+                        uf.set_offset(using_for["src"], self._contract.compilation_unit)
+                        StructureContract.set_contract(uf, self._contract)
+                        using_string = "using {" + ",".join(using_for["functionList"]) + "}"
+                        uf.canonical_name = uf.name = f"{using_string} for {type_name} in {self._contract}"
+                        # We have a list of functions. A function can be topLevel or a library function
+                        self._analyze_function_list(using_for["functionList"], type_name, uf)
             else:
                 for using_for in self._usingForNotParsed:
                     children = using_for[self.get_children()]
@@ -618,6 +637,61 @@ class ContractSolc(CallerContextExpression):
             self._usingForNotParsed = []
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing using for {e}")
+
+    def _analyze_function_list(self, function_list: List, type_name: Type, uf : Structure):
+        for f in function_list:
+            full_name_split = f["function"]["name"].split(".")
+            if len(full_name_split) == 1:
+                # Top level function
+                function_name = full_name_split[0]
+                self._analyze_top_level_function(function_name, type_name, uf)
+            elif len(full_name_split) == 2:
+                # It can be a top level function behind an aliased import
+                # or a library function
+                first_part = full_name_split[0]
+                function_name = full_name_split[1]
+                self._check_aliased_import(first_part, function_name, type_name, uf)
+            else:
+                # MyImport.MyLib.a we don't care of the alias
+                library_name = full_name_split[1]
+                function_name = full_name_split[2]
+                self._analyze_library_function(library_name, function_name, type_name, uf)
+
+    def _check_aliased_import(self, first_part: str, function_name: str, type_name: Type, uf: Structure):
+        # We check if the first part appear as alias for an import
+        # if it is then function_name must be a top level function
+        # otherwise it's a library function
+        for i in self._contract.file_scope.imports:
+            if i.alias == first_part:
+                self._analyze_top_level_function(function_name, type_name, uf)
+                return
+        self._analyze_library_function(first_part, function_name, type_name, uf)
+
+    def _analyze_top_level_function(self, function_name: str, type_name: Type, uf: Structure):
+        for tl_function in self.compilation_unit.functions_top_level:
+            if tl_function.name == function_name:
+                self._contract.using_for[type_name].append(tl_function)
+                self._contract.using_for_src[type_name].append((tl_function, uf))
+
+    def _analyze_library_function(
+        self, library_name: str, function_name: str, type_name: Type, uf: Structure
+    ) -> None:
+        # Get the library function
+        found = False
+        for c in self.compilation_unit.contracts:
+            if found:
+                break
+            if c.name == library_name:
+                for f in c.functions:
+                    if f.name == function_name:
+                        self._contract.using_for[type_name].append(f)
+                        self._contract.using_for_src[type_name].append((f, uf))
+                        found = True
+                        break
+        if not found:
+            self.log_incorrect_parsing(
+                f"Contract level using for: Library {library_name} - function {function_name} not found"
+            )
 
     def analyze_enums(self):
         try:
@@ -711,6 +785,24 @@ class ContractSolc(CallerContextExpression):
         self._structuresNotParsed = []
         self._usingForNotParsed = []
         self._customErrorParsed = []
+
+    def _handle_comment(self, attributes: Dict) -> None:
+        if (
+            "documentation" in attributes
+            and attributes["documentation"] is not None
+            and "text" in attributes["documentation"]
+        ):
+            candidates = attributes["documentation"]["text"].replace("\n", ",").split(",")
+
+            for candidate in candidates:
+                if "@custom:security isDelegatecallProxy" in candidate:
+                    self._contract.is_upgradeable_proxy = True
+                if "@custom:security isUpgradeable" in candidate:
+                    self._contract.is_upgradeable = True
+
+                version_name = re.search(r"@custom:version name=([\w-]+)", candidate)
+                if version_name:
+                    self._contract.upgradeable_version = version_name.group(1)
 
     # endregion
     ###################################################################################

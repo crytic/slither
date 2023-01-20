@@ -48,8 +48,16 @@ Do not change the order of the state variables in the updated contract.
     def _check(self):
         contract1 = self.contract
         contract2 = self.contract_v2
-        order1 = [variable for variable in contract1.state_variables if not variable.is_constant]
-        order2 = [variable for variable in contract2.state_variables if not variable.is_constant]
+        order1 = [
+            variable
+            for variable in contract1.state_variables_ordered
+            if not (variable.is_constant or variable.is_immutable)
+        ]
+        order2 = [
+            variable
+            for variable in contract2.state_variables_ordered
+            if not (variable.is_constant or variable.is_immutable)
+        ]
 
         results = []
         for idx, _ in enumerate(order1):
@@ -109,8 +117,16 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
     def _check(self):
         contract1 = self._contract1()
         contract2 = self._contract2()
-        order1 = [variable for variable in contract1.state_variables if not variable.is_constant]
-        order2 = [variable for variable in contract2.state_variables if not variable.is_constant]
+        order1 = [
+            variable
+            for variable in contract1.state_variables_ordered
+            if not (variable.is_constant or variable.is_immutable)
+        ]
+        order2 = [
+            variable
+            for variable in contract2.state_variables_ordered
+            if not (variable.is_constant or variable.is_immutable)
+        ]
 
         results = []
         for idx, _ in enumerate(order1):
@@ -228,15 +244,23 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
     def _check(self):
         contract1 = self._contract1()
         contract2 = self._contract2()
-        order1 = [variable for variable in contract1.state_variables if not variable.is_constant]
-        order2 = [variable for variable in contract2.state_variables if not variable.is_constant]
+        order1 = [
+            variable
+            for variable in contract1.state_variables_ordered
+            if not (variable.is_constant or variable.is_immutable)
+        ]
+        order2 = [
+            variable
+            for variable in contract2.state_variables_ordered
+            if not (variable.is_constant or variable.is_immutable)
+        ]
 
         results = []
 
         if len(order2) <= len(order1):
             return []
 
-        idx = len(order2) - len(order1)
+        idx = len(order1)
 
         while idx < len(order2):
             variable2 = order2[idx]
