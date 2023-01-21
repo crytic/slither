@@ -1,0 +1,14 @@
+[
+    [
+        {
+            "elements": [],
+            "description": "Function highCC defined at tests/detectors/cyclomatic-complexity/0.8.16/HighCyclomaticComplexity.sol#17-31 has high cyclomatic complexity (12). Consider splitting it into several smaller subroutines.\n",
+            "markdown": "Function highCC defined at tests/detectors/cyclomatic-complexity/0.8.16/HighCyclomaticComplexity.sol#17-31 has high cyclomatic complexity (12). Consider splitting it into several smaller subroutines.\n",
+            "first_markdown_element": "",
+            "id": "c75b57652433d064d43a4af63020e00ac78b068f21a16d127a9f227804996bc4",
+            "check": "cyclomatic-complexity",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

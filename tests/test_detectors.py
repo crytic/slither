@@ -1603,6 +1603,16 @@ ALL_TEST_OBJECTS = [
         "var_read_using_this.sol",
         "0.8.15",
     ),
+    Test(
+        all_detectors.CyclomaticComplexity,
+        "HighCyclomaticComplexity.sol",
+        "0.8.16",
+    ),
+    Test(
+        all_detectors.CyclomaticComplexity,
+        "LowCyclomaticComplexity.sol",
+        "0.8.16",
+    ),
 ]
 
 
