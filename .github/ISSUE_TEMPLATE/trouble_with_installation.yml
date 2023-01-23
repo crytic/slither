@@ -8,7 +8,15 @@ body:
     type: markdown
   - 
     attributes: 
-      label: "How did you install slither:"
+      label: "What operating system are you using?"
+    id: what-happened
+    type: textarea
+    validations: 
+      required: true
+  - 
+    attributes: 
+      label: "How did you install slither?"
+    description: For example, using git or python's pip.
     id: what-happened
     type: textarea
     validations: 
@@ -39,7 +47,7 @@ body:
       label: "Output of running `slither-doctor .`:"
     id: logs
     type: textarea
-description: "File a bug report"
+description: "Get help troubleshooting slither installation"
 labels: 
   - installation-help
 name: "Trouble with Installing Slither"
