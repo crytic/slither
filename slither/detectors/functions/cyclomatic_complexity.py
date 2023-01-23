@@ -1,3 +1,4 @@
+from slither.core.declarations import Function
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 
@@ -21,21 +22,25 @@ class CyclomaticComplexity(AbstractDetector):
         "Reduce cyclomatic complexity by splitting the function into several smaller subroutines."
     )
 
+    @staticmethod
+    def _check_for_high_cc(high_cc_functions: list[(Function, int)], f: Function):
+        cc = compute_cyclomatic_complexity(f)
+        if cc > 11:
+            high_cc_functions.append((f, cc))
+
     def _detect(self):
         results = []
+        high_cc_functions = []
 
-        for f in self.compilation_unit.functions:
-            cc = compute_cyclomatic_complexity(f)
-            if cc > 11:
-                info = (
-                    "Function "
-                    + f.name
-                    + " defined at "
-                    + str(f.source_mapping)
-                    + " has high cyclomatic complexity ("
-                    + str(cc)
-                    + "). Consider splitting it into several smaller subroutines.\n"
-                )
-                res = self.generate_result(info)
-                results.append(res)
+        for c in self.compilation_unit.contracts:
+            for f in c.functions_declared:
+                CyclomaticComplexity._check_for_high_cc(high_cc_functions, f)
+
+        for f in self.compilation_unit.functions_top_level:
+            CyclomaticComplexity._check_for_high_cc(high_cc_functions, f)
+
+        for f, cc in high_cc_functions:
+            info = [f, f" has a high cyclomatic complexity ({cc}).\n"]
+            res = self.generate_result(info)
+            results.append(res)
         return results
