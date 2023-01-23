@@ -23,7 +23,7 @@ class CyclomaticComplexity(AbstractDetector):
     )
 
     @staticmethod
-    def _check_for_high_cc(high_cc_functions: list[(Function, int)], f: Function):
+    def _check_for_high_cc(high_cc_functions: list, f: Function):
         cc = compute_cyclomatic_complexity(f)
         if cc > 11:
             high_cc_functions.append((f, cc))
