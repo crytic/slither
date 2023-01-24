@@ -1,7 +1,7 @@
 """
     Function module
 """
-from typing import List, Tuple, TYPE_CHECKING
+from typing import Any, Dict, List, Tuple, TYPE_CHECKING
 
 from slither.core.declarations import Function
 from slither.core.declarations.top_level import TopLevel
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class FunctionTopLevel(Function, TopLevel):
-    def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope"):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope") -> None:
         super().__init__(compilation_unit)
         self._scope: "FileScope" = scope
 
@@ -78,7 +78,7 @@ class FunctionTopLevel(Function, TopLevel):
     ###################################################################################
     ###################################################################################
 
-    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
+    def generate_slithir_ssa(self, all_ssa_state_variables_instances: Dict[Any, Any]) -> None:
         # pylint: disable=import-outside-toplevel
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (

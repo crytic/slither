@@ -5,11 +5,11 @@ if TYPE_CHECKING:
 
 
 class ChildExpression:
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._expression = None
 
-    def set_expression(self, expression: "Expression"):
+    def set_expression(self, expression: "Expression") -> None:
         self._expression = expression
 
     @property

@@ -33,11 +33,11 @@ logger = logging.getLogger("TypeParsing")
 
 
 class UnknownType:  # pylint: disable=too-few-public-methods
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self._name = name
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
 
@@ -195,7 +195,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     return UserDefinedType(var_type)
 
 
-def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit"):
+def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit") -> None:
 
     if isinstance(type_found, UserDefinedType):
         type_found.type.add_reference_from_raw_source(src, sl)

@@ -1,8 +1,9 @@
 from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.variables.temporary import TemporaryVariable
 
 
 class TmpNewContract(OperationWithLValue):
-    def __init__(self, contract_name, lvalue):
+    def __init__(self, contract_name: str, lvalue: TemporaryVariable) -> None:
         super().__init__()
         self._contract_name = contract_name
         self._lvalue = lvalue

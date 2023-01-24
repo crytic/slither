@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class Literal(Expression):
     def __init__(
         self, value: Union[int, str], custom_type: "Type", subdenomination: Optional[str] = None
-    ):
+    ) -> None:
         super().__init__()
         self._value = value
         self._type = custom_type

@@ -1,12 +1,13 @@
 from slither.core.variables.local_variable import LocalVariable
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.variable import SlithIRVariable
+from slither.slithir.variables.state_variable import StateIRVariable
 
 
 class LocalIRVariable(
     LocalVariable, SlithIRVariable
 ):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, local_variable):
+    def __init__(self, local_variable: LocalVariable) -> None:
         assert isinstance(local_variable, LocalVariable)
 
         super().__init__()
@@ -57,10 +58,10 @@ class LocalIRVariable(
         self._refers_to = variables
 
     @property
-    def non_ssa_version(self):
+    def non_ssa_version(self) -> LocalVariable:
         return self._non_ssa_version
 
-    def add_refers_to(self, variable):
+    def add_refers_to(self, variable: StateIRVariable) -> None:
         # It is a temporaryVariable if its the return of a new ..
         # ex: string[] memory dynargs = new string[](1);
         assert isinstance(variable, (SlithIRVariable, TemporaryVariable))

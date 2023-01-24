@@ -1,4 +1,4 @@
-from typing import Union
+from typing import List, Optional, Union
 
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -8,6 +8,10 @@ from slither.core.declarations.function import Function
 
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
+from slither.slithir.variables.tuple import TupleVariable
 
 
 class HighLevelCall(Call, OperationWithLValue):
@@ -16,7 +20,7 @@ class HighLevelCall(Call, OperationWithLValue):
     """
 
     # pylint: disable=too-many-arguments,too-many-instance-attributes
-    def __init__(self, destination, function_name, nbr_arguments, result, type_call):
+    def __init__(self, destination: SourceMapping, function_name: Constant, nbr_arguments: int, result: Optional[Union[TemporaryVariable, TupleVariable, TemporaryVariableSSA]], type_call: str) -> None:
         assert isinstance(function_name, Constant)
         assert is_valid_lvalue(result) or result is None
         self._check_destination(destination)
@@ -34,7 +38,7 @@ class HighLevelCall(Call, OperationWithLValue):
 
     # Development function, to be removed once the code is stable
     # It is ovveride by LbraryCall
-    def _check_destination(self, destination):  # pylint: disable=no-self-use
+    def _check_destination(self, destination: SourceMapping) -> None:  # pylint: disable=no-self-use
         assert isinstance(destination, (Variable, SolidityVariable))
 
     @property
@@ -62,17 +66,17 @@ class HighLevelCall(Call, OperationWithLValue):
         self._call_gas = v
 
     @property
-    def read(self):
+    def read(self) -> List[SourceMapping]:
         all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(self.arguments)
         # remove None
         return [x for x in all_read if x] + [self.destination]
 
     @property
-    def destination(self):
+    def destination(self) -> SourceMapping:
         return self._destination
 
     @property
-    def function_name(self):
+    def function_name(self) -> Constant:
         return self._function_name
 
     @property
@@ -84,11 +88,11 @@ class HighLevelCall(Call, OperationWithLValue):
         self._function_instance = function
 
     @property
-    def nbr_arguments(self):
+    def nbr_arguments(self) -> int:
         return self._nbr_arguments
 
     @property
-    def type_call(self):
+    def type_call(self) -> str:
         return self._type_call
 
     ###################################################################################

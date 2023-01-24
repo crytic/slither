@@ -25,6 +25,10 @@ from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import VariableNotFound
+import slither.core.declarations.enum
+import slither.core.declarations.event
+import slither.core.declarations.structure
+import slither.core.solidity_types.type_alias
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.function import FunctionSolc
@@ -36,7 +40,7 @@ if TYPE_CHECKING:
 # CallerContext =Union["ContractSolc", "FunctionSolc", "CustomErrorSolc", "StructureTopLevelSolc"]
 
 
-def _get_pointer_name(variable: Variable):
+def _get_pointer_name(variable: Variable) -> Optional[str]:
     curr_type = variable.type
     while isinstance(curr_type, (ArrayType, MappingType)):
         if isinstance(curr_type, ArrayType):

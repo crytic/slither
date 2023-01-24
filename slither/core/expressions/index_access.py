@@ -1,6 +1,8 @@
-from typing import List, TYPE_CHECKING
+from typing import Union, List, TYPE_CHECKING
 
 from slither.core.expressions.expression_typed import ExpressionTyped
+from slither.core.expressions.identifier import Identifier
+from slither.core.expressions.literal import Literal
 
 
 if TYPE_CHECKING:
@@ -9,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class IndexAccess(ExpressionTyped):
-    def __init__(self, left_expression, right_expression, index_type):
+    def __init__(self, left_expression: Union["IndexAccess", Identifier], right_expression: Union[Literal, Identifier], index_type: str) -> None:
         super().__init__()
         self._expressions = [left_expression, right_expression]
         # TODO type of undexAccess is not always a Type
@@ -32,5 +34,5 @@ class IndexAccess(ExpressionTyped):
     def type(self) -> "Type":
         return self._type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.expression_left) + "[" + str(self.expression_right) + "]"

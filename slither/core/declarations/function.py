@@ -6,7 +6,7 @@ from abc import abstractmethod, ABCMeta
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby
-from typing import Dict, TYPE_CHECKING, List, Optional, Set, Union, Callable, Tuple
+from typing import Any, Dict, TYPE_CHECKING, List, Optional, Set, Union, Callable, Tuple
 
 from slither.core.cfg.scope import Scope
 from slither.core.declarations.solidity_variables import (
@@ -27,6 +27,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.utils.type import convert_type_for_solidity_signature_to_string
 from slither.utils.utils import unroll
 
+
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
 
 if TYPE_CHECKING:
@@ -45,6 +46,7 @@ if TYPE_CHECKING:
     from slither.slithir.operations import Operation
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.scope.scope import FileScope
+    from slither.slithir.variables.state_variable import StateIRVariable
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -56,7 +58,7 @@ class ModifierStatements:
         modifier: Union["Contract", "Function"],
         entry_point: "Node",
         nodes: List["Node"],
-    ):
+    ) -> None:
         self._modifier = modifier
         self._entry_point = entry_point
         self._nodes = nodes
@@ -116,7 +118,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     Function class
     """
 
-    def __init__(self, compilation_unit: "SlitherCompilationUnit"):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
         super().__init__()
         self._internal_scope: List[str] = []
         self._name: Optional[str] = None
@@ -370,7 +372,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
     ###################################################################################
 
-    def set_function_type(self, t: FunctionType):
+    def set_function_type(self, t: FunctionType) -> None:
         assert isinstance(t, FunctionType)
         self._function_type = t
 
@@ -455,7 +457,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def visibility(self, v: str):
         self._visibility = v
 
-    def set_visibility(self, v: str):
+    def set_visibility(self, v: str) -> None:
         self._visibility = v
 
     @property
@@ -554,7 +556,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def entry_point(self, node: "Node"):
         self._entry_point = node
 
-    def add_node(self, node: "Node"):
+    def add_node(self, node: "Node") -> None:
         if not self._entry_point:
             self._entry_point = node
         self._nodes.append(node)
@@ -598,7 +600,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         return list(self._parameters)
 
-    def add_parameters(self, p: "LocalVariable"):
+    def add_parameters(self, p: "LocalVariable") -> None:
         self._parameters.append(p)
 
     @property
@@ -608,7 +610,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         return list(self._parameters_ssa)
 
-    def add_parameter_ssa(self, var: "LocalIRVariable"):
+    def add_parameter_ssa(self, var: "LocalIRVariable") -> None:
         self._parameters_ssa.append(var)
 
     def parameters_src(self) -> SourceMapping:
@@ -651,7 +653,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         return list(self._returns)
 
-    def add_return(self, r: "LocalVariable"):
+    def add_return(self, r: "LocalVariable") -> None:
         self._returns.append(r)
 
     @property
@@ -661,7 +663,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         return list(self._returns_ssa)
 
-    def add_return_ssa(self, var: "LocalIRVariable"):
+    def add_return_ssa(self, var: "LocalIRVariable") -> None:
         self._returns_ssa.append(var)
 
     # endregion
@@ -680,7 +682,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         return [c.modifier for c in self._modifiers]
 
-    def add_modifier(self, modif: "ModifierStatements"):
+    def add_modifier(self, modif: "ModifierStatements") -> None:
         self._modifiers.append(modif)
 
     @property
@@ -714,7 +716,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         # This is a list of contracts internally, so we convert it to a list of constructor functions.
         return list(self._explicit_base_constructor_calls)
 
-    def add_explicit_base_constructor_calls_statements(self, modif: ModifierStatements):
+    def add_explicit_base_constructor_calls_statements(self, modif: ModifierStatements) -> None:
         self._explicit_base_constructor_calls.append(modif)
 
     # endregion
@@ -1057,7 +1059,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             self._all_reachable_from_functions = functions
         return self._all_reachable_from_functions
 
-    def add_reachable_from_node(self, n: "Node", ir: "Operation"):
+    def add_reachable_from_node(self, n: "Node", ir: "Operation") -> None:
         self._reachable_from_nodes.add(ReacheableNode(n, ir))
         self._reachable_from_functions.add(n.function)
 
@@ -1068,7 +1070,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
     ###################################################################################
 
-    def _explore_functions(self, f_new_values: Callable[["Function"], List]):
+    def _explore_functions(self, f_new_values: Callable[["Function"], List]) -> List[Any]:
         values = f_new_values(self)
         explored = [self]
         to_explore = [
@@ -1218,11 +1220,11 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         func: "Function",
         f: Callable[["Node"], List[SolidityVariable]],
         include_loop: bool,
-    ):
+    ) -> List[Any]:
         ret = [f(n) for n in func.nodes if n.is_conditional(include_loop)]
         return [item for sublist in ret for item in sublist]
 
-    def all_conditional_solidity_variables_read(self, include_loop=True) -> List[SolidityVariable]:
+    def all_conditional_solidity_variables_read(self, include_loop: bool=True) -> List[SolidityVariable]:
         """
         Return the Soldiity variables directly used in a condtion
 
@@ -1258,7 +1260,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         return [var for var in ret if isinstance(var, SolidityVariable)]
 
     @staticmethod
-    def _explore_func_nodes(func: "Function", f: Callable[["Node"], List[SolidityVariable]]):
+    def _explore_func_nodes(func: "Function", f: Callable[["Node"], List[SolidityVariable]]) -> List[Union[Any, SolidityVariableComposed]]:
         ret = [f(n) for n in func.nodes]
         return [item for sublist in ret for item in sublist]
 
@@ -1367,7 +1369,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         with open(filename, "w", encoding="utf8") as f:
             f.write(content)
 
-    def slithir_cfg_to_dot_str(self, skip_expressions=False) -> str:
+    def slithir_cfg_to_dot_str(self, skip_expressions: bool=False) -> str:
         """
         Export the CFG to a DOT format. The nodes includes the Solidity expressions and the IRs
         :return: the DOT content
@@ -1512,7 +1514,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
     ###################################################################################
 
-    def _analyze_read_write(self):
+    def _analyze_read_write(self) -> None:
         """Compute variables read/written/..."""
         write_var = [x.variables_written_as_expression for x in self.nodes]
         write_var = [x for x in write_var if x]
@@ -1570,7 +1572,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         slithir_variables = [x for x in slithir_variables if x]
         self._slithir_variables = [item for sublist in slithir_variables for item in sublist]
 
-    def _analyze_calls(self):
+    def _analyze_calls(self) -> None:
         calls = [x.calls_as_expression for x in self.nodes]
         calls = [x for x in calls if x]
         calls = [item for sublist in calls for item in sublist]
@@ -1702,7 +1704,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         return self._get_last_ssa_variable_instances(target_state=False, target_local=True)
 
     @staticmethod
-    def _unchange_phi(ir: "Operation"):
+    def _unchange_phi(ir: "Operation") -> bool:
         from slither.slithir.operations import Phi, PhiCallback
 
         if not isinstance(ir, (Phi, PhiCallback)) or len(ir.rvalues) > 1:
@@ -1711,7 +1713,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             return True
         return ir.rvalues[0] == ir.lvalue
 
-    def fix_phi(self, last_state_variables_instances, initial_state_variables_instances):
+    def fix_phi(self, last_state_variables_instances: Dict[str, Union[List[Any], List[Union[Any,     "StateIRVariable"]], List[    "StateIRVariable"]]], initial_state_variables_instances: Dict[str,     "StateIRVariable"]) -> None:
         from slither.slithir.operations import InternalCall, PhiCallback
         from slither.slithir.variables import Constant, StateIRVariable
 
@@ -1745,7 +1747,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
             node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
 
-    def generate_slithir_and_analyze(self):
+    def generate_slithir_and_analyze(self) -> None:
         for node in self.nodes:
             node.slithir_generation()
 
@@ -1756,7 +1758,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def generate_slithir_ssa(self, all_ssa_state_variables_instances):
         pass
 
-    def update_read_write_using_ssa(self):
+    def update_read_write_using_ssa(self) -> None:
         for node in self.nodes:
             node.update_read_write_using_ssa()
         self._analyze_read_write()
@@ -1767,7 +1769,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
     ###################################################################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     # endregion

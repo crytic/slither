@@ -1,15 +1,20 @@
-from typing import Union, Tuple, List, Optional
+from typing import Any, Union, Tuple, List, Optional
 from slither.core.declarations import Modifier
 from slither.core.declarations.function import Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
+from slither.slithir.variables.tuple import TupleVariable
+from slither.slithir.variables.tuple_ssa import TupleVariableSSA
 
 
 class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     def __init__(
-        self, function: Union[Function, Tuple[str, str]], nbr_arguments, result, type_call
-    ):
+        self, function: Union[Function, Tuple[str, str]], nbr_arguments: int, result: Optional[Union[TupleVariableSSA, TemporaryVariableSSA, TupleVariable, TemporaryVariable]], type_call: str
+    ) -> None:
         super().__init__()
         self._contract_name = ""
         if isinstance(function, Function):
@@ -30,7 +35,7 @@ class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         self.function_candidates: Optional[List[Function]] = None
 
     @property
-    def read(self):
+    def read(self) -> List[Any]:
         return list(self._unroll(self.arguments))
 
     @property
@@ -42,19 +47,19 @@ class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         self._function = f
 
     @property
-    def function_name(self):
+    def function_name(self) -> Constant:
         return self._function_name
 
     @property
-    def contract_name(self):
+    def contract_name(self) -> str:
         return self._contract_name
 
     @property
-    def nbr_arguments(self):
+    def nbr_arguments(self) -> int:
         return self._nbr_arguments
 
     @property
-    def type_call(self):
+    def type_call(self) -> str:
         return self._type_call
 
     @property

@@ -1,4 +1,7 @@
 from slither.visitors.expression.expression import ExpressionVisitor
+from slither.core.expressions.call_expression import CallExpression
+from slither.core.expressions.identifier import Identifier
+from slither.core.expressions.literal import Literal
 
 key = "ExportValues"
 
@@ -32,7 +35,7 @@ class ExportValues(ExpressionVisitor):
         val = left + right
         set_val(expression, val)
 
-    def _post_call_expression(self, expression):
+    def _post_call_expression(self, expression: CallExpression) -> None:
         called = get(expression.called)
         args = [get(a) for a in expression.arguments if a]
         args = [item for sublist in args for item in sublist]
@@ -49,7 +52,7 @@ class ExportValues(ExpressionVisitor):
     def _post_elementary_type_name_expression(self, expression):
         set_val(expression, [])
 
-    def _post_identifier(self, expression):
+    def _post_identifier(self, expression: Identifier) -> None:
         set_val(expression, [expression.value])
 
     def _post_index_access(self, expression):
@@ -58,7 +61,7 @@ class ExportValues(ExpressionVisitor):
         val = left + right
         set_val(expression, val)
 
-    def _post_literal(self, expression):
+    def _post_literal(self, expression: Literal) -> None:
         set_val(expression, [])
 
     def _post_member_access(self, expression):

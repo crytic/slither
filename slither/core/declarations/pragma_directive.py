@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 
 class Pragma(SourceMapping):
-    def __init__(self, directive: List[str], scope: "FileScope"):
+    def __init__(self, directive: List[str], scope: "FileScope") -> None:
         super().__init__()
         self._directive = directive
         self.scope: "FileScope" = scope

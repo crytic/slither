@@ -1,7 +1,7 @@
 import logging
+from typing import Any, Union, List, TYPE_CHECKING
 
-from typing import List
-
+import slither.slithir.variables.reference
 from slither.core.declarations import (
     Function,
     SolidityVariable,
@@ -19,9 +19,20 @@ from slither.core.expressions import (
     Identifier,
     MemberAccess,
 )
+from slither.core.expressions.binary_operation import BinaryOperation
+from slither.core.expressions.expression import Expression
+from slither.core.expressions.index_access import IndexAccess
+from slither.core.expressions.literal import Literal
+from slither.core.expressions.new_array import NewArray
+from slither.core.expressions.new_contract import NewContract
+from slither.core.expressions.tuple_expression import TupleExpression
+from slither.core.expressions.unary_operation import UnaryOperation
 from slither.core.solidity_types import ArrayType, ElementaryType, TypeAlias
 from slither.core.solidity_types.type import Type
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
@@ -53,12 +64,15 @@ from slither.slithir.variables import (
 )
 from slither.visitors.expression.expression import ExpressionVisitor
 
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
+
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
 key = "expressionToSlithIR"
 
 
-def get(expression):
+def get(expression: Expression):
     val = expression.context[key]
     # we delete the item to reduce memory use
     del expression.context[key]
@@ -69,7 +83,7 @@ def get_without_removing(expression):
     return expression.context[key]
 
 
-def set_val(expression, val):
+def set_val(expression: Expression, val) -> None:
     expression.context[key] = val
 
 
@@ -104,7 +118,7 @@ _signed_to_unsigned = {
 }
 
 
-def convert_assignment(left, right, t, return_type):
+def convert_assignment(left: Union[LocalVariable, StateVariable, slither.slithir.variables.reference.ReferenceVariable], right: SourceMapping, t: slither.core.expressions.assignment_operation.AssignmentOperationType, return_type) -> Union[slither.slithir.operations.binary.Binary, slither.slithir.operations.assignment.Assignment]:
     if t == AssignmentOperationType.ASSIGN:
         return Assignment(left, right, return_type)
     if t == AssignmentOperationType.ASSIGN_OR:
@@ -132,7 +146,7 @@ def convert_assignment(left, right, t, return_type):
 
 
 class ExpressionToSlithIR(ExpressionVisitor):
-    def __init__(self, expression, node):  # pylint: disable=super-init-not-called
+    def __init__(self, expression: Expression, node: "Node") -> None:  # pylint: disable=super-init-not-called
         from slither.core.cfg.node import NodeType  # pylint: disable=import-outside-toplevel
 
         self._expression = expression
@@ -146,10 +160,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
         for ir in self._result:
             ir.set_node(node)
 
-    def result(self):
+    def result(self) -> List[Any]:
         return self._result
 
-    def _post_assignement_operation(self, expression):
+    def _post_assignement_operation(self, expression:     slither.core.expressions.assignment_operation.AssignmentOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         if isinstance(left, list):  # tuple expression:
@@ -211,7 +225,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 # a = b = 1;
                 set_val(expression, left)
 
-    def _post_binary_operation(self, expression):
+    def _post_binary_operation(self, expression: BinaryOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         val = TemporaryVariable(self._node)
@@ -249,8 +263,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
         set_val(expression, val)
 
     def _post_call_expression(
-        self, expression
-    ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals
+        self, expression:     slither.core.expressions.call_expression.CallExpression
+    ) -> None:  # pylint: disable=too-many-branches,too-many-statements,too-many-locals
 
         assert isinstance(expression, CallExpression)
 
@@ -358,13 +372,13 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _post_conditional_expression(self, expression):
         raise Exception(f"Ternary operator are not convertible to SlithIR {expression}")
 
-    def _post_elementary_type_name_expression(self, expression):
+    def _post_elementary_type_name_expression(self, expression:     slither.core.expressions.elementary_type_name_expression.ElementaryTypeNameExpression) -> None:
         set_val(expression, expression.type)
 
-    def _post_identifier(self, expression):
+    def _post_identifier(self, expression:     slither.core.expressions.identifier.Identifier) -> None:
         set_val(expression, expression.value)
 
-    def _post_index_access(self, expression):
+    def _post_index_access(self, expression: IndexAccess) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         # Left can be a type for abi.decode(var, uint[2])
@@ -390,11 +404,11 @@ class ExpressionToSlithIR(ExpressionVisitor):
         self._result.append(operation)
         set_val(expression, val)
 
-    def _post_literal(self, expression):
+    def _post_literal(self, expression: Literal) -> None:
         cst = Constant(expression.value, expression.type, expression.subdenomination)
         set_val(expression, cst)
 
-    def _post_member_access(self, expression):
+    def _post_member_access(self, expression:     slither.core.expressions.member_access.MemberAccess) -> None:
         expr = get(expression.expression)
 
         # Look for type(X).max / min
@@ -479,14 +493,14 @@ class ExpressionToSlithIR(ExpressionVisitor):
         self._result.append(member)
         set_val(expression, val)
 
-    def _post_new_array(self, expression):
+    def _post_new_array(self, expression: NewArray) -> None:
         val = TemporaryVariable(self._node)
         operation = TmpNewArray(expression.depth, expression.array_type, val)
         operation.set_expression(expression)
         self._result.append(operation)
         set_val(expression, val)
 
-    def _post_new_contract(self, expression):
+    def _post_new_contract(self, expression: NewContract) -> None:
         val = TemporaryVariable(self._node)
         operation = TmpNewContract(expression.contract_name, val)
         operation.set_expression(expression)
@@ -508,7 +522,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         self._result.append(operation)
         set_val(expression, val)
 
-    def _post_tuple_expression(self, expression):
+    def _post_tuple_expression(self, expression: TupleExpression) -> None:
         expressions = [get(e) if e else None for e in expression.expressions]
         if len(expressions) == 1:
             val = expressions[0]
@@ -516,7 +530,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             val = expressions
         set_val(expression, val)
 
-    def _post_type_conversion(self, expression):
+    def _post_type_conversion(self, expression:     slither.core.expressions.type_conversion.TypeConversion) -> None:
         expr = get(expression.expression)
         val = TemporaryVariable(self._node)
         operation = TypeConversion(val, expr, expression.type)
@@ -526,8 +540,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
         set_val(expression, val)
 
     def _post_unary_operation(
-        self, expression
-    ):  # pylint: disable=too-many-branches,too-many-statements
+        self, expression: UnaryOperation
+    ) -> None:  # pylint: disable=too-many-branches,too-many-statements
         value = get(expression.expression)
         if expression.type in [UnaryOperationType.BANG, UnaryOperationType.TILD]:
             lvalue = TemporaryVariable(self._node)

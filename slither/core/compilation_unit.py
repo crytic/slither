@@ -24,6 +24,12 @@ from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import InternalCall
 from slither.slithir.variables import Constant
+import crytic_compile.compilation_unit
+import slither.core.declarations.contract
+import slither.core.declarations.function
+import slither.core.declarations.import_directive
+import slither.core.declarations.modifier
+import slither.core.declarations.pragma_directive
 
 if TYPE_CHECKING:
     from slither.core.slither_core import SlitherCore
@@ -31,7 +37,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCompilationUnit(Context):
-    def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit):
+    def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit) -> None:
         super().__init__()
 
         self._core = core
@@ -150,21 +156,21 @@ class SlitherCompilationUnit(Context):
     def functions(self) -> List[Function]:
         return list(self._all_functions)
 
-    def add_function(self, func: Function):
+    def add_function(self, func: Function) -> None:
         self._all_functions.add(func)
 
     @property
     def modifiers(self) -> List[Modifier]:
         return list(self._all_modifiers)
 
-    def add_modifier(self, modif: Modifier):
+    def add_modifier(self, modif: Modifier) -> None:
         self._all_modifiers.add(modif)
 
     @property
     def functions_and_modifiers(self) -> List[Function]:
         return self.functions + self.modifiers
 
-    def propagate_function_calls(self):
+    def propagate_function_calls(self) -> None:
         for f in self.functions_and_modifiers:
             for node in f.nodes:
                 for ir in node.irs_ssa:
@@ -256,7 +262,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
     ###################################################################################
 
-    def compute_storage_layout(self):
+    def compute_storage_layout(self) -> None:
         for contract in self.contracts_derived:
             self._storage_layouts[contract.name] = {}
 

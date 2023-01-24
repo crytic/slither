@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from slither.core.children.child_node import ChildNode
 from slither.core.variables.variable import Variable
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class TemporaryVariable(ChildNode, Variable):
-    def __init__(self, node: "Node", index=None):
+    def __init__(self, node: "Node", index: Optional[int]=None) -> None:
         super().__init__()
         if index is None:
             self._index = node.compilation_unit.counter_slithir_temporary
@@ -26,8 +26,8 @@ class TemporaryVariable(ChildNode, Variable):
         self._index = idx
 
     @property
-    def name(self):
+    def name(self) -> str:
         return f"TMP_{self.index}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class TypeAlias(Type):
-    def __init__(self, underlying_type: Type, name: str):
+    def __init__(self, underlying_type: Type, name: str) -> None:
         super().__init__()
         self.name = name
         self.underlying_type = underlying_type
@@ -31,7 +31,7 @@ class TypeAlias(Type):
     def storage_size(self) -> Tuple[int, bool]:
         return self.underlying_type.storage_size
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))
 
     @property
@@ -40,18 +40,18 @@ class TypeAlias(Type):
 
 
 class TypeAliasTopLevel(TypeAlias, TopLevel):
-    def __init__(self, underlying_type: Type, name: str, scope: "FileScope"):
+    def __init__(self, underlying_type: Type, name: str, scope: "FileScope") -> None:
         super().__init__(underlying_type, name)
         self.file_scope: "FileScope" = scope
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class TypeAliasContract(TypeAlias, ChildContract):
-    def __init__(self, underlying_type: Type, name: str, contract: "Contract"):
+    def __init__(self, underlying_type: Type, name: str, contract: "Contract") -> None:
         super().__init__(underlying_type, name)
         self._contract: "Contract" = contract
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.contract.name + "." + self.name

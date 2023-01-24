@@ -7,10 +7,13 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.reference import ReferenceVariable
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.slithir.variables.reference_ssa import ReferenceVariableSSA
+from typing import List, Union
 
 
 class Member(OperationWithLValue):
-    def __init__(self, variable_left, variable_right, result):
+    def __init__(self, variable_left: SourceMapping, variable_right: Constant, result: Union[ReferenceVariable, ReferenceVariableSSA]) -> None:
         # Function can happen for something like
         # library FunctionExtensions {
         #     function h(function() internal _t, uint8) internal {  }
@@ -38,15 +41,15 @@ class Member(OperationWithLValue):
         self._value = None
 
     @property
-    def read(self):
+    def read(self) -> List[SourceMapping]:
         return [self.variable_left, self.variable_right]
 
     @property
-    def variable_left(self):
+    def variable_left(self) -> SourceMapping:
         return self._variable_left
 
     @property
-    def variable_right(self):
+    def variable_right(self) -> Constant:
         return self._variable_right
 
     @property

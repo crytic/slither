@@ -15,6 +15,12 @@ from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 from slither.utils.myprettytable import MyPrettyTable
+import slither.core.declarations.contract
+import slither.core.declarations.enum
+import slither.core.declarations.event
+import slither.core.declarations.function
+import slither.core.declarations.pragma_directive
+import slither.core.declarations.structure
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -218,7 +224,7 @@ def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: 
 ###################################################################################
 
 
-def _convert_to_description(d):
+def _convert_to_description(d: str) -> str:
     if isinstance(d, str):
         return d
 
@@ -239,7 +245,7 @@ def _convert_to_description(d):
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
 
-def _convert_to_markdown(d, markdown_root):
+def _convert_to_markdown(d: str, markdown_root: str) -> str:
     if isinstance(d, str):
         return d
 
@@ -260,7 +266,7 @@ def _convert_to_markdown(d, markdown_root):
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
 
-def _convert_to_id(d):
+def _convert_to_id(d: str) -> str:
     """
     Id keeps the source mapping of the node, otherwise we risk to consider two different node as the same
     :param d:
@@ -345,9 +351,9 @@ class Output:
         self,
         info_: Union[str, List[Union[str, SupportedOutput]]],
         additional_fields: Optional[Dict] = None,
-        markdown_root="",
-        standard_format=True,
-    ):
+        markdown_root: str="",
+        standard_format: bool=True,
+    ) -> None:
         if additional_fields is None:
             additional_fields = {}
 

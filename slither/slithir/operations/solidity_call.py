@@ -1,10 +1,13 @@
-from slither.core.declarations.solidity_variables import SolidityFunction
+from slither.core.declarations.solidity_variables import SolidityCustomRevert, SolidityFunction
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.core.children.child_node import ChildNode
+from slither.core.solidity_types.elementary_type import ElementaryType
+from typing import Any, List, Union
 
 
 class SolidityCall(Call, OperationWithLValue):
-    def __init__(self, function, nbr_arguments, result, type_call):
+    def __init__(self, function: Union[SolidityCustomRevert, SolidityFunction], nbr_arguments: int, result: ChildNode, type_call: Union[str, List[ElementaryType]]) -> None:
         assert isinstance(function, SolidityFunction)
         super().__init__()
         self._function = function
@@ -13,19 +16,19 @@ class SolidityCall(Call, OperationWithLValue):
         self._lvalue = result
 
     @property
-    def read(self):
+    def read(self) -> List[Any]:
         return self._unroll(self.arguments)
 
     @property
-    def function(self):
+    def function(self) -> Union[SolidityCustomRevert, SolidityFunction]:
         return self._function
 
     @property
-    def nbr_arguments(self):
+    def nbr_arguments(self) -> int:
         return self._nbr_arguments
 
     @property
-    def type_call(self):
+    def type_call(self) -> Union[str, List[ElementaryType]]:
         return self._type_call
 
     def __str__(self):

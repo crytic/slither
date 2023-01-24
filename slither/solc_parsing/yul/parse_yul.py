@@ -1,4 +1,8 @@
 import abc
+import slither.core.declarations.contract
+import slither.core.declarations.function
+import slither.core.expressions.identifier
+
 import json
 from typing import Optional, Dict, List, Union
 
@@ -43,7 +47,7 @@ from slither.visitors.expression.write_var import WriteVar
 
 
 class YulNode:
-    def __init__(self, node: Node, scope: "YulScope"):
+    def __init__(self, node: Node, scope: "YulScope") -> None:
         self._node = node
         self._scope = scope
         self._unparsed_expression: Optional[Dict] = None
@@ -99,7 +103,7 @@ class YulNode:
             ]
 
 
-def link_underlying_nodes(node1: YulNode, node2: YulNode):
+def link_underlying_nodes(node1: YulNode, node2: YulNode) -> None:
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
@@ -191,7 +195,7 @@ class YulScope(metaclass=abc.ABCMeta):
 class YulLocalVariable:  # pylint: disable=too-few-public-methods
     __slots__ = ["_variable", "_root"]
 
-    def __init__(self, var: LocalVariable, root: YulScope, ast: Dict):
+    def __init__(self, var: LocalVariable, root: YulScope, ast: Dict) -> None:
         assert ast["nodeType"] == "YulTypedName"
 
         self._variable = var
@@ -215,7 +219,7 @@ class YulFunction(YulScope):
 
     def __init__(
         self, func: Function, root: YulScope, ast: Dict, node_scope: Union[Function, Scope]
-    ):
+    ) -> None:
         super().__init__(root.contract, root.id + [ast["name"]], parent_func=root.parent_func)
 
         assert ast["nodeType"] == "YulFunctionDefinition"
@@ -272,7 +276,7 @@ class YulFunction(YulScope):
         for node in self._nodes:
             node.analyze_expressions()
 
-    def new_node(self, node_type, src) -> YulNode:
+    def new_node(self, node_type: NodeType, src: str) -> YulNode:
         if self._function:
             node = self._function.new_node(node_type, src, self.node_scope)
         else:
@@ -299,7 +303,7 @@ class YulBlock(YulScope):
         entrypoint: Node,
         yul_id: List[str],
         node_scope: Union[Scope, Function],
-    ):
+    ) -> None:
         super().__init__(contract, yul_id, entrypoint.function)
 
         self._entrypoint: YulNode = YulNode(entrypoint, self)
@@ -883,7 +887,7 @@ def vars_to_typestr(rets: List[Expression]) -> str:
     return f"tuple({','.join(str(ret.type) for ret in rets)})"
 
 
-def vars_to_val(vars_to_convert):
+def vars_to_val(vars_to_convert: List[slither.core.expressions.identifier.Identifier]) -> slither.core.expressions.identifier.Identifier:
     if len(vars_to_convert) == 1:
         return vars_to_convert[0]
     return TupleExpression(vars_to_convert)

@@ -7,7 +7,7 @@ from slither.slithir.variables.reference import ReferenceVariable
 
 
 class ReferenceVariableSSA(ReferenceVariable):  # pylint: disable=too-few-public-methods
-    def __init__(self, reference):
+    def __init__(self, reference: ReferenceVariable) -> None:
         super().__init__(reference.node, reference.index)
 
         self._non_ssa_version = reference

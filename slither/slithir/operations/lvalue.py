@@ -6,7 +6,7 @@ class OperationWithLValue(Operation):
     Operation with a lvalue
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._lvalue = None

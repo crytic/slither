@@ -40,7 +40,7 @@ class SlitherCore(Context):
     Slither static analyzer
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._filename: Optional[str] = None

@@ -12,6 +12,7 @@ from slither.exceptions import SlitherError
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 from slither.utils.output import Output
+import crytic_compile.crytic_compile
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -49,7 +50,7 @@ def _update_file_scopes(candidates: ValuesView[FileScope]):
 
 
 class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, target: Union[str, CryticCompile], **kwargs):
+    def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
         """
         Args:
             target (str | CryticCompile)

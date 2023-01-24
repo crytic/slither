@@ -7,11 +7,11 @@ if TYPE_CHECKING:
 
 
 class ChildContract(SourceMapping):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._contract = None
 
-    def set_contract(self, contract: "Contract"):
+    def set_contract(self, contract: "Contract") -> None:
         self._contract = contract
 
     @property

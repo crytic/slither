@@ -3,6 +3,7 @@ from slither.core.context.context import Context
 from slither.core.children.child_expression import ChildExpression
 from slither.core.children.child_node import ChildNode
 from slither.utils.utils import unroll
+from typing import Any, List
 
 
 class AbstractOperation(abc.ABC):
@@ -33,5 +34,5 @@ class Operation(Context, ChildExpression, ChildNode, AbstractOperation):
 
     # if array inside the parameters
     @staticmethod
-    def _unroll(l):
+    def _unroll(l: List[Any]) -> List[Any]:
         return unroll(l)

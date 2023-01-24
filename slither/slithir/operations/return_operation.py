@@ -3,6 +3,8 @@ from slither.slithir.operations.operation import Operation
 
 from slither.slithir.variables.tuple import TupleVariable
 from slither.slithir.utils.utils import is_valid_rvalue
+from slither.core.variables.variable import Variable
+from typing import List
 
 
 class Return(Operation):
@@ -11,7 +13,7 @@ class Return(Operation):
     Only present as last operation in RETURN node
     """
 
-    def __init__(self, values):
+    def __init__(self, values) -> None:
         # Note: Can return None
         # ex: return call()
         # where call() dont return
@@ -35,7 +37,7 @@ class Return(Operation):
         super().__init__()
         self._values = values
 
-    def _valid_value(self, value):
+    def _valid_value(self, value) -> bool:
         if isinstance(value, list):
             assert all(self._valid_value(v) for v in value)
         else:
@@ -43,11 +45,11 @@ class Return(Operation):
         return True
 
     @property
-    def read(self):
+    def read(self) -> List[Variable]:
         return self._unroll(self.values)
 
     @property
-    def values(self):
+    def values(self) -> List[Variable]:
         return self._unroll(self._values)
 
     def __str__(self):

@@ -15,6 +15,7 @@ from slither.core.solidity_types import TypeAliasTopLevel
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
+import slither.core.solidity_types.type_alias
 
 if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
@@ -77,7 +78,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         first_part: str,
         function_name: str,
         type_name: Union[TypeAliasTopLevel, UserDefinedType],
-    ):
+    ) -> None:
         # We check if the first part appear as alias for an import
         # if it is then function_name must be a top level function
         # otherwise it's a library function
@@ -132,7 +133,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                         f"Error when propagating global using for {type_name} {type(type_name)}"
                     )
 
-    def _propagate_global_UserDefinedType(self, scope: FileScope, type_name: UserDefinedType):
+    def _propagate_global_UserDefinedType(self, scope: FileScope, type_name: UserDefinedType) -> None:
         underlying = type_name.type
         if isinstance(underlying, StructureTopLevel):
             for struct in scope.structures.values():
