@@ -525,9 +525,7 @@ def _convert_type_contract(ir: Member) -> Assignment:
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
-def propagate_types(
-    ir: slither.slithir.operations.operation.Operation, node: "Node"
-):  # pylint: disable=too-many-locals
+def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
     using_for = (
@@ -1425,9 +1423,8 @@ def look_for_library_or_top_level(
     for destination in using_for[t]:
         if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
             arguments = [ir.destination] + ir.arguments
-            if (
-                len(destination.parameters) == len(arguments)
-                and _find_function_from_parameter(arguments, [destination], True) is not None
+            if len(destination.parameters) == len(arguments) and _find_function_from_parameter(
+                arguments, [destination], True
             ):
                 internalcall = InternalCall(destination, ir.nbr_arguments, ir.lvalue, ir.type_call)
                 internalcall.set_expression(ir.expression)
