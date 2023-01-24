@@ -1,7 +1,7 @@
 from slither.utils.myprettytable import MyPrettyTable
 
 
-def output_mutators(mutators_classes):
+def output_mutators(mutators_classes: List[Type[AbstractMutator]]) -> None:
     mutators_list = []
     for detector in mutators_classes:
         argument = detector.NAME

@@ -1,10 +1,11 @@
 import argparse
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Callable, Optional
 
 from crytic_compile import cryticparser
 from slither import Slither
+from slither.core.declarations import Contract
 from slither.utils.erc import ERCS
 from slither.utils.output import output_to_json
 from .erc.ercs import generic_erc_checks
@@ -24,7 +25,10 @@ logger.addHandler(ch)
 logger.handlers[0].setFormatter(formatter)
 logger.propagate = False
 
-ADDITIONAL_CHECKS = {"ERC20": check_erc20, "ERC1155": check_erc1155}
+ADDITIONAL_CHECKS: Dict[str, Callable[[Contract, Dict[str, List]], Dict[str, List]]] = {
+    "ERC20": check_erc20,
+    "ERC1155": check_erc1155,
+}
 
 
 def parse_args() -> argparse.Namespace:

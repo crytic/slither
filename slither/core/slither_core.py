@@ -443,7 +443,7 @@ class SlitherCore(Context):
 
         return True
 
-    def load_previous_results(self):
+    def load_previous_results(self) -> None:
         filename = self._previous_results_filename
         try:
             if os.path.isfile(filename):
@@ -456,7 +456,7 @@ class SlitherCore(Context):
         except json.decoder.JSONDecodeError:
             logger.error(red(f"Impossible to decode {filename}. Consider removing the file"))
 
-    def write_results_to_hide(self):
+    def write_results_to_hide(self) -> None:
         if not self._results_to_hide:
             return
         filename = self._previous_results_filename
@@ -464,7 +464,7 @@ class SlitherCore(Context):
             results = self._results_to_hide + self._previous_results
             json.dump(results, f)
 
-    def save_results_to_hide(self, results: List[Dict]):
+    def save_results_to_hide(self, results: List[Dict]) -> None:
         self._results_to_hide += results
 
     def add_path_to_filter(self, path: str):

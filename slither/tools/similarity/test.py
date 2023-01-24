@@ -2,6 +2,7 @@ import logging
 import operator
 import sys
 import traceback
+from argparse import Namespace
 
 from slither.tools.similarity.encode import encode_contract, load_and_encode, parse_target
 from slither.tools.similarity.model import load_model
@@ -10,7 +11,7 @@ from slither.tools.similarity.similarity import similarity
 logger = logging.getLogger("Slither-simil")
 
 
-def test(args):
+def est(args: Namespace) -> None:
 
     try:
         model = args.model

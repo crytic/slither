@@ -11,6 +11,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.exceptions import SlitherError
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+from slither.utils.output import Output
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -206,7 +207,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         self.write_results_to_hide()
         return results
 
-    def run_printers(self):
+    def run_printers(self) -> List[Output]:
         """
         :return: List of registered printers outputs.
         """
