@@ -1,16 +1,19 @@
 from functools import total_ordering
+from typing import Optional, Union
 
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
 from slither.slithir.variables.variable import SlithIRVariable
 from slither.utils.arithmetic import convert_subdenomination
 from slither.utils.integer_conversion import convert_string_to_int
-from typing import Optional, Union
 
 
 @total_ordering
 class Constant(SlithIRVariable):
     def __init__(
-        self, val: str, constant_type: Optional[ElementaryType]=None, subdenomination: Optional[str]=None
+        self,
+        val: str,
+        constant_type: Optional[ElementaryType] = None,
+        subdenomination: Optional[str] = None,
     ) -> None:  # pylint: disable=too-many-branches
         super().__init__()
         assert isinstance(val, str)

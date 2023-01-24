@@ -1,11 +1,12 @@
 import hashlib
-import os
 import json
 import logging
+import os
 import zipfile
 from collections import OrderedDict
 from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
 from zipfile import ZipFile
+
 from pkg_resources import require
 
 from slither.core.cfg.node import Node
@@ -15,12 +16,6 @@ from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 from slither.utils.myprettytable import MyPrettyTable
-import slither.core.declarations.contract
-import slither.core.declarations.enum
-import slither.core.declarations.event
-import slither.core.declarations.function
-import slither.core.declarations.pragma_directive
-import slither.core.declarations.structure
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -351,8 +346,8 @@ class Output:
         self,
         info_: Union[str, List[Union[str, SupportedOutput]]],
         additional_fields: Optional[Dict] = None,
-        markdown_root: str="",
-        standard_format: bool=True,
+        markdown_root: str = "",
+        standard_format: bool = True,
     ) -> None:
         if additional_fields is None:
             additional_fields = {}

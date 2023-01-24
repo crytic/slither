@@ -526,7 +526,9 @@ def _convert_type_contract(ir: Member) -> Assignment:
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
-def propagate_types(ir: slither.slithir.operations.operation.Operation, node: "Node"):  # pylint: disable=too-many-locals
+def propagate_types(
+    ir: slither.slithir.operations.operation.Operation, node: "Node"
+):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
     using_for = (
@@ -835,7 +837,10 @@ def propagate_types(ir: slither.slithir.operations.operation.Operation, node: "N
     return None
 
 
-def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> slither.slithir.operations.call.Call:  # pylint: disable=too-many-locals
+# pylint: disable=too-many-locals
+def extract_tmp_call(
+    ins: TmpCall, contract: Optional[Contract]
+) -> slither.slithir.operations.call.Call:
     assert isinstance(ins, TmpCall)
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
         # If the call is made to a variable member, where the member is this
@@ -1147,7 +1152,13 @@ def can_be_low_level(ir: slither.slithir.operations.high_level_call.HighLevelCal
     ]
 
 
-def convert_to_low_level(ir: slither.slithir.operations.high_level_call.HighLevelCall) -> Union[slither.slithir.operations.send.Send, slither.slithir.operations.low_level_call.LowLevelCall, slither.slithir.operations.transfer.Transfer]:
+def convert_to_low_level(
+    ir: slither.slithir.operations.high_level_call.HighLevelCall,
+) -> Union[
+    slither.slithir.operations.send.Send,
+    slither.slithir.operations.low_level_call.LowLevelCall,
+    slither.slithir.operations.transfer.Transfer,
+]:
     """
     Convert to a transfer/send/or low level call
     The funciton assume to receive a correct IR
@@ -1200,7 +1211,9 @@ def can_be_solidity_func(ir: slither.slithir.operations.high_level_call.HighLeve
     ]
 
 
-def convert_to_solidity_func(ir: slither.slithir.operations.high_level_call.HighLevelCall) -> slither.slithir.operations.solidity_call.SolidityCall:
+def convert_to_solidity_func(
+    ir: slither.slithir.operations.high_level_call.HighLevelCall,
+) -> slither.slithir.operations.solidity_call.SolidityCall:
     """
     Must be called after can_be_solidity_func
     :param ir:
@@ -1236,7 +1249,9 @@ def convert_to_solidity_func(ir: slither.slithir.operations.high_level_call.High
     return new_ir
 
 
-def convert_to_push_expand_arr(ir: slither.slithir.operations.high_level_call.HighLevelCall, node: "Node", ret: List[Any]) -> slither.slithir.variables.temporary.TemporaryVariable:
+def convert_to_push_expand_arr(
+    ir: slither.slithir.operations.high_level_call.HighLevelCall, node: "Node", ret: List[Any]
+) -> slither.slithir.variables.temporary.TemporaryVariable:
     arr = ir.destination
 
     length = ReferenceVariable(node)
@@ -1271,7 +1286,18 @@ def convert_to_push_expand_arr(ir: slither.slithir.operations.high_level_call.Hi
     return length_val
 
 
-def convert_to_push_set_val(ir: slither.slithir.operations.high_level_call.HighLevelCall, node: "Node", length_val: slither.slithir.variables.temporary.TemporaryVariable, ret: List[Union[slither.slithir.operations.length.Length, slither.slithir.operations.assignment.Assignment, slither.slithir.operations.binary.Binary]]) -> None:
+def convert_to_push_set_val(
+    ir: slither.slithir.operations.high_level_call.HighLevelCall,
+    node: "Node",
+    length_val: slither.slithir.variables.temporary.TemporaryVariable,
+    ret: List[
+        Union[
+            slither.slithir.operations.length.Length,
+            slither.slithir.operations.assignment.Assignment,
+            slither.slithir.operations.binary.Binary,
+        ]
+    ],
+) -> None:
     arr = ir.destination
 
     new_type = ir.destination.type.type
@@ -1306,7 +1332,17 @@ def convert_to_push_set_val(ir: slither.slithir.operations.high_level_call.HighL
         ret.append(ir_assign_value)
 
 
-def convert_to_push(ir: slither.slithir.operations.high_level_call.HighLevelCall, node: "Node") -> List[Union[slither.slithir.operations.length.Length, slither.slithir.operations.assignment.Assignment, slither.slithir.operations.binary.Binary, slither.slithir.operations.index.Index, slither.slithir.operations.init_array.InitArray]]:
+def convert_to_push(
+    ir: slither.slithir.operations.high_level_call.HighLevelCall, node: "Node"
+) -> List[
+    Union[
+        slither.slithir.operations.length.Length,
+        slither.slithir.operations.assignment.Assignment,
+        slither.slithir.operations.binary.Binary,
+        slither.slithir.operations.index.Index,
+        slither.slithir.operations.init_array.InitArray,
+    ]
+]:
     """
     Convert a call to a series of operations to push a new value onto the array
 
@@ -1380,7 +1416,22 @@ def convert_to_pop(ir, node):
     return ret
 
 
-def look_for_library_or_top_level(contract: slither.core.declarations.contract.Contract, ir: slither.slithir.operations.high_level_call.HighLevelCall, using_for, t: Union[slither.core.solidity_types.user_defined_type.UserDefinedType, slither.core.solidity_types.elementary_type.ElementaryType, str, TypeAliasTopLevel]) -> Optional[Union[slither.slithir.operations.library_call.LibraryCall, slither.slithir.operations.internal_call.InternalCall]]:
+def look_for_library_or_top_level(
+    contract: slither.core.declarations.contract.Contract,
+    ir: slither.slithir.operations.high_level_call.HighLevelCall,
+    using_for,
+    t: Union[
+        slither.core.solidity_types.user_defined_type.UserDefinedType,
+        slither.core.solidity_types.elementary_type.ElementaryType,
+        str,
+        TypeAliasTopLevel,
+    ],
+) -> Optional[
+    Union[
+        slither.slithir.operations.library_call.LibraryCall,
+        slither.slithir.operations.internal_call.InternalCall,
+    ]
+]:
     for destination in using_for[t]:
         if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
             arguments = [ir.destination] + ir.arguments
@@ -1425,7 +1476,14 @@ def look_for_library_or_top_level(contract: slither.core.declarations.contract.C
     return None
 
 
-def convert_to_library_or_top_level(ir: slither.slithir.operations.high_level_call.HighLevelCall, node: "Node", using_for) -> Optional[Union[slither.slithir.operations.library_call.LibraryCall, slither.slithir.operations.internal_call.InternalCall]]:
+def convert_to_library_or_top_level(
+    ir: slither.slithir.operations.high_level_call.HighLevelCall, node: "Node", using_for
+) -> Optional[
+    Union[
+        slither.slithir.operations.library_call.LibraryCall,
+        slither.slithir.operations.internal_call.InternalCall,
+    ]
+]:
     # We use contract_declarer, because Solidity resolve the library
     # before resolving the inheritance.
     # Though we could use .contract as libraries cannot be shadowed
@@ -1444,7 +1502,12 @@ def convert_to_library_or_top_level(ir: slither.slithir.operations.high_level_ca
     return None
 
 
-def get_type(t: Union[slither.core.solidity_types.user_defined_type.UserDefinedType, slither.core.solidity_types.elementary_type.ElementaryType]) -> str:
+def get_type(
+    t: Union[
+        slither.core.solidity_types.user_defined_type.UserDefinedType,
+        slither.core.solidity_types.elementary_type.ElementaryType,
+    ]
+) -> str:
     """
     Convert a type to a str
     If the instance is a Contract, return 'address' instead
@@ -1463,7 +1526,9 @@ def _can_be_implicitly_converted(source: str, target: str) -> bool:
     return source == target
 
 
-def convert_type_library_call(ir: HighLevelCall, lib_contract: Contract) -> Optional[slither.slithir.operations.library_call.LibraryCall]:
+def convert_type_library_call(
+    ir: HighLevelCall, lib_contract: Contract
+) -> Optional[slither.slithir.operations.library_call.LibraryCall]:
     func = None
     candidates = [
         f

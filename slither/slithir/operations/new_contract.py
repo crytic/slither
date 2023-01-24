@@ -1,14 +1,16 @@
+from typing import Any, List, Union
 from slither.slithir.operations import Call, OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
 from slither.core.declarations.contract import Contract
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
-from typing import Any, List, Union
 
 
 class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, contract_name: Constant, lvalue: Union[TemporaryVariableSSA, TemporaryVariable]) -> None:
+    def __init__(
+        self, contract_name: Constant, lvalue: Union[TemporaryVariableSSA, TemporaryVariable]
+    ) -> None:
         assert isinstance(contract_name, Constant)
         assert is_valid_lvalue(lvalue)
         super().__init__()

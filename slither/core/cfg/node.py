@@ -4,16 +4,19 @@
 from enum import Enum
 from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
 
+from slither.all_exceptions import SlitherException
 from slither.core.children.child_function import ChildFunction
+from slither.core.declarations import Contract, Function
 from slither.core.declarations.solidity_variables import (
     SolidityVariable,
     SolidityFunction,
 )
+from slither.core.expressions.expression import Expression
+from slither.core.solidity_types import ElementaryType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
-from slither.core.solidity_types import ElementaryType
 from slither.slithir.convert import convert_expression
 from slither.slithir.operations import (
     HighLevelCall,
@@ -38,11 +41,6 @@ from slither.slithir.variables import (
     TemporaryVariable,
     TupleVariable,
 )
-from slither.all_exceptions import SlitherException
-from slither.core.declarations import Contract, Function
-
-from slither.core.expressions.expression import Expression
-import slither.slithir.operations.operation
 
 if TYPE_CHECKING:
     from slither.slithir.variables.variable import SlithIRVariable
@@ -551,7 +549,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
             for c in self.internal_calls
         )
 
-    def contains_if(self, include_loop: bool=True) -> bool:
+    def contains_if(self, include_loop: bool = True) -> bool:
         """
             Check if the node is a IF node
         Returns:
@@ -561,7 +559,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
             return self.type in [NodeType.IF, NodeType.IFLOOP]
         return self.type == NodeType.IF
 
-    def is_conditional(self, include_loop: bool=True) -> bool:
+    def is_conditional(self, include_loop: bool = True) -> bool:
         """
             Check if the node is a conditional node
             A conditional node is either a IF or a require/assert or a RETURN bool

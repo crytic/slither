@@ -1,13 +1,15 @@
-from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.solidity_types.type import Type
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.core.solidity_types.type_alias import TypeAliasTopLevel
+from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.variables.temporary import TemporaryVariable
-from typing import Union
 
 
 class TmpNewArray(OperationWithLValue):
-    def __init__(self, depth: int, array_type: Union[TypeAliasTopLevel, ElementaryType], lvalue: TemporaryVariable) -> None:
+    def __init__(
+        self,
+        depth: int,
+        array_type: Type,
+        lvalue: TemporaryVariable,
+    ) -> None:
         super().__init__()
         assert isinstance(array_type, Type)
         self._depth = depth
@@ -15,7 +17,7 @@ class TmpNewArray(OperationWithLValue):
         self._lvalue = lvalue
 
     @property
-    def array_type(self) -> TypeAliasTopLevel:
+    def array_type(self) -> Type:
         return self._array_type
 
     @property

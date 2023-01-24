@@ -102,8 +102,13 @@ def filter_name(value: str) -> str:
 ###################################################################################
 ###################################################################################
 
-
-def parse_call(expression: Dict, caller_context: Union["FunctionSolc", "ContractSolc", "TopLevelVariableSolc"]) -> Union[slither.core.expressions.call_expression.CallExpression, slither.core.expressions.type_conversion.TypeConversion]:  # pylint: disable=too-many-statements
+# pylint: disable=too-many-statements
+def parse_call(
+    expression: Dict, caller_context: Union["FunctionSolc", "ContractSolc", "TopLevelVariableSolc"]
+) -> Union[
+    slither.core.expressions.call_expression.CallExpression,
+    slither.core.expressions.type_conversion.TypeConversion,
+]:
     src = expression["src"]
     if caller_context.is_compact_ast:
         attributes = expression

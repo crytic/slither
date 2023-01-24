@@ -1224,7 +1224,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         ret = [f(n) for n in func.nodes if n.is_conditional(include_loop)]
         return [item for sublist in ret for item in sublist]
 
-    def all_conditional_solidity_variables_read(self, include_loop: bool=True) -> List[SolidityVariable]:
+    def all_conditional_solidity_variables_read(
+        self, include_loop: bool = True
+    ) -> List[SolidityVariable]:
         """
         Return the Soldiity variables directly used in a condtion
 
@@ -1260,7 +1262,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         return [var for var in ret if isinstance(var, SolidityVariable)]
 
     @staticmethod
-    def _explore_func_nodes(func: "Function", f: Callable[["Node"], List[SolidityVariable]]) -> List[Union[Any, SolidityVariableComposed]]:
+    def _explore_func_nodes(
+        func: "Function", f: Callable[["Node"], List[SolidityVariable]]
+    ) -> List[Union[Any, SolidityVariableComposed]]:
         ret = [f(n) for n in func.nodes]
         return [item for sublist in ret for item in sublist]
 
@@ -1369,7 +1373,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         with open(filename, "w", encoding="utf8") as f:
             f.write(content)
 
-    def slithir_cfg_to_dot_str(self, skip_expressions: bool=False) -> str:
+    def slithir_cfg_to_dot_str(self, skip_expressions: bool = False) -> str:
         """
         Export the CFG to a DOT format. The nodes includes the Solidity expressions and the IRs
         :return: the DOT content
@@ -1713,7 +1717,13 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             return True
         return ir.rvalues[0] == ir.lvalue
 
-    def fix_phi(self, last_state_variables_instances: Dict[str, Union[List[Any], List[Union[Any,     "StateIRVariable"]], List[    "StateIRVariable"]]], initial_state_variables_instances: Dict[str,     "StateIRVariable"]) -> None:
+    def fix_phi(
+        self,
+        last_state_variables_instances: Dict[
+            str, Union[List[Any], List[Union[Any, "StateIRVariable"]], List["StateIRVariable"]]
+        ],
+        initial_state_variables_instances: Dict[str, "StateIRVariable"],
+    ) -> None:
         from slither.slithir.operations import InternalCall, PhiCallback
         from slither.slithir.variables import Constant, StateIRVariable
 

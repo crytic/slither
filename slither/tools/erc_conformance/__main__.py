@@ -1,16 +1,17 @@
 import argparse
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List, Callable, Optional
+from typing import Any, Dict, List, Callable
 
 from crytic_compile import cryticparser
+
 from slither import Slither
 from slither.core.declarations import Contract
 from slither.utils.erc import ERCS
 from slither.utils.output import output_to_json
-from .erc.ercs import generic_erc_checks
-from .erc.erc20 import check_erc20
 from .erc.erc1155 import check_erc1155
+from .erc.erc20 import check_erc20
+from .erc.ercs import generic_erc_checks
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)

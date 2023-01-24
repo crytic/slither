@@ -1,15 +1,13 @@
-import re
 import logging
+import re
 from argparse import Namespace
 from typing import Set, Tuple, List, Dict, Union, Optional, Callable
 
-from slither import Slither
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.core.declarations import Function, FunctionContract
+from slither.core.declarations import FunctionContract
 from slither.core.variables.state_variable import StateVariable
-from slither.core.variables.variable import Variable
-from slither.utils.colors import yellow, green, red
 from slither.utils import output
+from slither.utils.colors import yellow, green, red
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("Slither.kspec")

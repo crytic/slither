@@ -13,7 +13,13 @@ from slither.slithir.variables.tuple_ssa import TupleVariableSSA
 
 class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     def __init__(
-        self, function: Union[Function, Tuple[str, str]], nbr_arguments: int, result: Optional[Union[TupleVariableSSA, TemporaryVariableSSA, TupleVariable, TemporaryVariable]], type_call: str
+        self,
+        function: Union[Function, Tuple[str, str]],
+        nbr_arguments: int,
+        result: Optional[
+            Union[TupleVariableSSA, TemporaryVariableSSA, TupleVariable, TemporaryVariable]
+        ],
+        type_call: str,
     ) -> None:
         super().__init__()
         self._contract_name = ""

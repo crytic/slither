@@ -1,4 +1,5 @@
 import logging
+from typing import Union
 from enum import Enum
 
 from slither.core.expressions.expression_typed import ExpressionTyped
@@ -8,7 +9,7 @@ from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
 from slither.core.expressions.literal import Literal
 from slither.core.expressions.tuple_expression import TupleExpression
-from typing import Union
+
 
 logger = logging.getLogger("UnaryOperation")
 
@@ -91,7 +92,11 @@ class UnaryOperationType(Enum):
 
 
 class UnaryOperation(ExpressionTyped):
-    def __init__(self, expression: Union[Literal, Identifier, IndexAccess, TupleExpression], expression_type: UnaryOperationType) -> None:
+    def __init__(
+        self,
+        expression: Union[Literal, Identifier, IndexAccess, TupleExpression],
+        expression_type: UnaryOperationType,
+    ) -> None:
         assert isinstance(expression, Expression)
         super().__init__()
         self._expression: Expression = expression

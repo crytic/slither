@@ -1,6 +1,11 @@
+from typing import Any, List, Union
+
 from slither.visitors.expression.expression import ExpressionVisitor
 
-from slither.core.expressions.assignment_operation import AssignmentOperation, AssignmentOperationType
+from slither.core.expressions.assignment_operation import (
+    AssignmentOperation,
+    AssignmentOperationType,
+)
 
 from slither.core.variables.variable import Variable
 from slither.core.declarations.solidity_variables import SolidityVariable
@@ -18,7 +23,7 @@ from slither.core.expressions.new_contract import NewContract
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.unary_operation import UnaryOperation
-from typing import Any, List, Union
+
 
 key = "ReadVar"
 
@@ -76,7 +81,9 @@ class ReadVar(ExpressionVisitor):
         val = if_expr + else_expr + then_expr
         set_val(expression, val)
 
-    def _post_elementary_type_name_expression(self, expression: ElementaryTypeNameExpression) -> None:
+    def _post_elementary_type_name_expression(
+        self, expression: ElementaryTypeNameExpression
+    ) -> None:
         set_val(expression, [])
 
     # save only identifier expression

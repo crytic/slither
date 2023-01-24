@@ -64,7 +64,9 @@ class FindCalls(ExpressionVisitor):
         val = if_expr + else_expr + then_expr
         set_val(expression, val)
 
-    def _post_elementary_type_name_expression(self, expression: ElementaryTypeNameExpression) -> None:
+    def _post_elementary_type_name_expression(
+        self, expression: ElementaryTypeNameExpression
+    ) -> None:
         set_val(expression, [])
 
     # save only identifier expression

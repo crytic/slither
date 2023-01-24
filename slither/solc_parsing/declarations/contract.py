@@ -17,9 +17,6 @@ from slither.solc_parsing.declarations.structure_contract import StructureContra
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
-import slither.core.declarations.function
-import slither.core.declarations.modifier
-import slither.core.solidity_types.type
 
 LOGGER = logging.getLogger("ContractSolcParsing")
 
@@ -31,7 +28,9 @@ if TYPE_CHECKING:
 
 
 class ContractSolc(CallerContextExpression):
-    def __init__(self, slither_parser: "SlitherCompilationUnitSolc", contract: Contract, data: Dict[str, Any]) -> None:
+    def __init__(
+        self, slither_parser: "SlitherCompilationUnitSolc", contract: Contract, data: Dict[str, Any]
+    ) -> None:
         # assert slitherSolc.solc_version.startswith('0.4')
 
         self._contract = contract
@@ -132,7 +131,7 @@ class ContractSolc(CallerContextExpression):
     def get_key(self) -> str:
         return self._slither_parser.get_key()
 
-    def get_children(self, key: str="nodes") -> str:
+    def get_children(self, key: str = "nodes") -> str:
         if self.is_compact_ast:
             return key
         return "children"
@@ -688,7 +687,19 @@ class ContractSolc(CallerContextExpression):
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing enum {e}")
 
-    def _analyze_enum(self, enum: Dict[str, Union[str, int, List[Dict[str, Union[int, str]]], Dict[str, str], List[Dict[str, Union[Dict[str, str], int, str]]]]]) -> None:
+    def _analyze_enum(
+        self,
+        enum: Dict[
+            str,
+            Union[
+                str,
+                int,
+                List[Dict[str, Union[int, str]]],
+                Dict[str, str],
+                List[Dict[str, Union[Dict[str, str], int, str]]],
+            ],
+        ],
+    ) -> None:
         # Enum can be parsed in one pass
         if self.is_compact_ast:
             name = enum["name"]

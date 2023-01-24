@@ -1,8 +1,4 @@
 import abc
-import slither.core.declarations.contract
-import slither.core.declarations.function
-import slither.core.expressions.identifier
-
 import json
 from typing import Optional, Dict, List, Union
 
@@ -887,7 +883,9 @@ def vars_to_typestr(rets: List[Expression]) -> str:
     return f"tuple({','.join(str(ret.type) for ret in rets)})"
 
 
-def vars_to_val(vars_to_convert: List[slither.core.expressions.identifier.Identifier]) -> slither.core.expressions.identifier.Identifier:
+def vars_to_val(
+    vars_to_convert: List[Identifier],
+) -> Identifier:
     if len(vars_to_convert) == 1:
         return vars_to_convert[0]
     return TupleExpression(vars_to_convert)

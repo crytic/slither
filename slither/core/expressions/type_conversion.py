@@ -3,6 +3,7 @@ from typing import Union, TYPE_CHECKING
 from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.type import Type
+
 if TYPE_CHECKING:
     from slither.core.expressions.call_expression import CallExpression
     from slither.core.expressions.identifier import Identifier
@@ -14,7 +15,13 @@ if TYPE_CHECKING:
 
 
 class TypeConversion(ExpressionTyped):
-    def __init__(self, expression: Union["MemberAccess", "Literal", "CallExpression", "TypeConversion", "Identifier"], expression_type: Union["ElementaryType", "UserDefinedType", "TypeAliasContract"]) -> None:
+    def __init__(
+        self,
+        expression: Union[
+            "MemberAccess", "Literal", "CallExpression", "TypeConversion", "Identifier"
+        ],
+        expression_type: Union["ElementaryType", "UserDefinedType", "TypeAliasContract"],
+    ) -> None:
         super().__init__()
         assert isinstance(expression, Expression)
         assert isinstance(expression_type, Type)

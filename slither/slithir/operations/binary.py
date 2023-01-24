@@ -1,4 +1,6 @@
 import logging
+from typing import List
+
 from enum import Enum
 
 from slither.core.declarations import Function
@@ -9,7 +11,7 @@ from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.variables import ReferenceVariable
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
-from typing import List
+
 
 logger = logging.getLogger("BinaryOperationIR")
 
@@ -144,7 +146,13 @@ class BinaryType(Enum):
 
 
 class Binary(OperationWithLValue):
-    def __init__(self, result: Variable, left_variable: SourceMapping, right_variable: Variable, operation_type: BinaryType) -> None:
+    def __init__(
+        self,
+        result: Variable,
+        left_variable: SourceMapping,
+        right_variable: Variable,
+        operation_type: BinaryType,
+    ) -> None:
         assert is_valid_rvalue(left_variable) or isinstance(left_variable, Function)
         assert is_valid_rvalue(right_variable) or isinstance(right_variable, Function)
         assert is_valid_lvalue(result)

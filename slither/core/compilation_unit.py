@@ -16,20 +16,14 @@ from slither.core.declarations import (
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
-from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
-from slither.core.solidity_types.type_alias import TypeAliasTopLevel
+from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.scope.scope import FileScope
+from slither.core.solidity_types.type_alias import TypeAliasTopLevel
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import InternalCall
 from slither.slithir.variables import Constant
-import crytic_compile.compilation_unit
-import slither.core.declarations.contract
-import slither.core.declarations.function
-import slither.core.declarations.import_directive
-import slither.core.declarations.modifier
-import slither.core.declarations.pragma_directive
 
 if TYPE_CHECKING:
     from slither.core.slither_core import SlitherCore

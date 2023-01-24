@@ -35,7 +35,6 @@ if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
 
 
-
 LOGGER = logging.getLogger("FunctionSolc")
 
 

@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 
-def intersection_predecessor(node: "Node") -> Set[Node]:
+def intersection_predecessor(node: "Node") -> Set["Node"]:
     if not node.fathers:
         return set()
     ret = node.fathers[0].dominators

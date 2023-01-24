@@ -1,13 +1,19 @@
+from typing import Any, List, Union
 from slither.core.declarations.solidity_variables import SolidityCustomRevert, SolidityFunction
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.children.child_node import ChildNode
 from slither.core.solidity_types.elementary_type import ElementaryType
-from typing import Any, List, Union
 
 
 class SolidityCall(Call, OperationWithLValue):
-    def __init__(self, function: Union[SolidityCustomRevert, SolidityFunction], nbr_arguments: int, result: ChildNode, type_call: Union[str, List[ElementaryType]]) -> None:
+    def __init__(
+        self,
+        function: Union[SolidityCustomRevert, SolidityFunction],
+        nbr_arguments: int,
+        result: ChildNode,
+        type_call: Union[str, List[ElementaryType]],
+    ) -> None:
         assert isinstance(function, SolidityFunction)
         super().__init__()
         self._function = function

@@ -192,9 +192,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         enum.set_offset(top_level_data["src"], self._compilation_unit)
         self._compilation_unit.enums_top_level.append(enum)
 
-    def parse_top_level_from_loaded_json(
-        self, data_loaded: Dict, filename: str
-    ) -> None:  # pylint: disable=too-many-branches,too-many-statements,too-many-locals
+    # pylint: disable=too-many-branches,too-many-statements,too-many-locals
+    def parse_top_level_from_loaded_json(self, data_loaded: Dict, filename: str) -> None:
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 

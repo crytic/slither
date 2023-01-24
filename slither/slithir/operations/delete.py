@@ -1,3 +1,4 @@
+from typing import List, Union
 from slither.slithir.operations.lvalue import OperationWithLValue
 
 from slither.slithir.utils.utils import is_valid_lvalue
@@ -5,7 +6,6 @@ from slither.core.variables.state_variable import StateVariable
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.reference_ssa import ReferenceVariableSSA
 from slither.slithir.variables.state_variable import StateIRVariable
-from typing import List, Union
 
 
 class Delete(OperationWithLValue):
@@ -14,18 +14,26 @@ class Delete(OperationWithLValue):
     of its operand
     """
 
-    def __init__(self, lvalue: Union[StateIRVariable, StateVariable, ReferenceVariable], variable: Union[StateIRVariable, StateVariable, ReferenceVariable, ReferenceVariableSSA]) -> None:
+    def __init__(
+        self,
+        lvalue: Union[StateIRVariable, StateVariable, ReferenceVariable],
+        variable: Union[StateIRVariable, StateVariable, ReferenceVariable, ReferenceVariableSSA],
+    ) -> None:
         assert is_valid_lvalue(variable)
         super().__init__()
         self._variable = variable
         self._lvalue = lvalue
 
     @property
-    def read(self) -> List[Union[StateIRVariable, ReferenceVariable, ReferenceVariableSSA, StateVariable]]:
+    def read(
+        self,
+    ) -> List[Union[StateIRVariable, ReferenceVariable, ReferenceVariableSSA, StateVariable]]:
         return [self.variable]
 
     @property
-    def variable(self) -> Union[StateIRVariable, StateVariable, ReferenceVariable, ReferenceVariableSSA]:
+    def variable(
+        self,
+    ) -> Union[StateIRVariable, StateVariable, ReferenceVariable, ReferenceVariableSSA]:
         return self._variable
 
     def __str__(self):

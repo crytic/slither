@@ -1,3 +1,5 @@
+from typing import List, Union
+
 from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
@@ -8,11 +10,15 @@ from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
-from typing import List, Union
 
 
 class Send(Call, OperationWithLValue):
-    def __init__(self, destination: Union[LocalVariable, LocalIRVariable], value: Constant, result: Union[TemporaryVariable, TemporaryVariableSSA]) -> None:
+    def __init__(
+        self,
+        destination: Union[LocalVariable, LocalIRVariable],
+        value: Constant,
+        result: Union[TemporaryVariable, TemporaryVariableSSA],
+    ) -> None:
         assert is_valid_lvalue(result)
         assert isinstance(destination, (Variable, SolidityVariable))
         super().__init__()

@@ -1,13 +1,15 @@
+from typing import List, Union
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
-from typing import List, Union
 
 
 class InitArray(OperationWithLValue):
-    def __init__(self, init_values: List[Constant], lvalue: Union[TemporaryVariableSSA, TemporaryVariable]) -> None:
+    def __init__(
+        self, init_values: List[Constant], lvalue: Union[TemporaryVariableSSA, TemporaryVariable]
+    ) -> None:
         # init_values can be an array of n dimension
         # reduce was removed in py3
         super().__init__()

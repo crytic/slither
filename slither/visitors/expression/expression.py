@@ -38,7 +38,8 @@ class ExpressionVisitor:
 
     # visit an expression
     # call pre_visit, visit_expression_name, post_visit
-    def _visit_expression(self, expression: Expression) -> None:  # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches
+    def _visit_expression(self, expression: Expression) -> None:
         self._pre_visit(expression)
 
         if isinstance(expression, AssignmentOperation):
@@ -121,7 +122,9 @@ class ExpressionVisitor:
         self._visit_expression(expression.else_expression)
         self._visit_expression(expression.then_expression)
 
-    def _visit_elementary_type_name_expression(self, expression: ElementaryTypeNameExpression) -> None:
+    def _visit_elementary_type_name_expression(
+        self, expression: ElementaryTypeNameExpression
+    ) -> None:
         pass
 
     def _visit_identifier(self, expression: Identifier) -> None:
@@ -225,7 +228,9 @@ class ExpressionVisitor:
     def _pre_conditional_expression(self, expression: ConditionalExpression) -> None:
         pass
 
-    def _pre_elementary_type_name_expression(self, expression: ElementaryTypeNameExpression) -> None:
+    def _pre_elementary_type_name_expression(
+        self, expression: ElementaryTypeNameExpression
+    ) -> None:
         pass
 
     def _pre_identifier(self, expression: Identifier) -> None:
@@ -326,7 +331,9 @@ class ExpressionVisitor:
     def _post_conditional_expression(self, expression):
         pass
 
-    def _post_elementary_type_name_expression(self, expression: ElementaryTypeNameExpression) -> None:
+    def _post_elementary_type_name_expression(
+        self, expression: ElementaryTypeNameExpression
+    ) -> None:
         pass
 
     def _post_identifier(self, expression: Identifier) -> None:

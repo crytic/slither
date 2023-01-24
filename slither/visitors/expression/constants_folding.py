@@ -38,7 +38,9 @@ def set_val(expression: CONSTANT_TYPES_OPERATIONS, val: Union[bool, int, Fractio
 
 
 class ConstantFolding(ExpressionVisitor):
-    def __init__(self, expression: CONSTANT_TYPES_OPERATIONS, custom_type: Union[str, "ElementaryType"]) -> None:
+    def __init__(
+        self, expression: CONSTANT_TYPES_OPERATIONS, custom_type: Union[str, "ElementaryType"]
+    ) -> None:
         self._type = custom_type
         super().__init__(expression)
 
@@ -48,7 +50,7 @@ class ConstantFolding(ExpressionVisitor):
             value = int(value)
             # emulate 256-bit wrapping
             if str(self._type).startswith("uint"):
-                value = value & (2 ** 256 - 1)
+                value = value & (2**256 - 1)
         return Literal(value, self._type)
 
     def _post_identifier(self, expression: Identifier) -> None:
@@ -66,7 +68,7 @@ class ConstantFolding(ExpressionVisitor):
         left = get_val(expression.expression_left)
         right = get_val(expression.expression_right)
         if expression.type == BinaryOperationType.POWER:
-            set_val(expression, left ** right)
+            set_val(expression, left**right)
         elif expression.type == BinaryOperationType.MULTIPLICATION:
             set_val(expression, left * right)
         elif expression.type == BinaryOperationType.DIVISION:

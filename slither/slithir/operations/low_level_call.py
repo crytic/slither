@@ -1,3 +1,4 @@
+from typing import List, Union
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
@@ -10,7 +11,6 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 from slither.slithir.variables.tuple import TupleVariable
 from slither.slithir.variables.tuple_ssa import TupleVariableSSA
-from typing import List, Union
 
 
 class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
@@ -18,7 +18,14 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
     High level message call
     """
 
-    def __init__(self, destination: Union[LocalVariable, LocalIRVariable, TemporaryVariableSSA, TemporaryVariable], function_name: Constant, nbr_arguments: int, result: Union[TupleVariable, TupleVariableSSA], type_call: str) -> None:
+    def __init__(
+        self,
+        destination: Union[LocalVariable, LocalIRVariable, TemporaryVariableSSA, TemporaryVariable],
+        function_name: Constant,
+        nbr_arguments: int,
+        result: Union[TupleVariable, TupleVariableSSA],
+        type_call: str,
+    ) -> None:
         # pylint: disable=too-many-arguments
         assert isinstance(destination, (Variable, SolidityVariable))
         assert isinstance(function_name, Constant)
@@ -58,7 +65,11 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         self._call_gas = v
 
     @property
-    def read(self) -> List[Union[LocalIRVariable, Constant, LocalVariable, TemporaryVariableSSA, TemporaryVariable]]:
+    def read(
+        self,
+    ) -> List[
+        Union[LocalIRVariable, Constant, LocalVariable, TemporaryVariableSSA, TemporaryVariable]
+    ]:
         all_read = [self.destination, self.call_gas, self.call_value] + self.arguments
         # remove None
         return self._unroll([x for x in all_read if x])
@@ -80,7 +91,9 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         return self._call_value is not None
 
     @property
-    def destination(self) -> Union[LocalVariable, LocalIRVariable, TemporaryVariableSSA, TemporaryVariable]:
+    def destination(
+        self,
+    ) -> Union[LocalVariable, LocalIRVariable, TemporaryVariableSSA, TemporaryVariable]:
         return self._destination
 
     @property

@@ -10,8 +10,15 @@ from slither.slithir.variables.state_variable import StateIRVariable
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
+
 class PhiCallback(Phi):
-    def __init__(self, left_variable: StateIRVariable, nodes: Set["Node"], call_ir: Union[InternalCall, HighLevelCall], rvalue: StateIRVariable) -> None:
+    def __init__(
+        self,
+        left_variable: StateIRVariable,
+        nodes: Set["Node"],
+        call_ir: Union[InternalCall, HighLevelCall],
+        rvalue: StateIRVariable,
+    ) -> None:
         assert is_valid_lvalue(left_variable)
         assert isinstance(nodes, set)
         super().__init__(left_variable, nodes)

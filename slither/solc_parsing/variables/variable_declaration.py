@@ -30,9 +30,8 @@ class MultipleVariablesDeclaration(Exception):
 
 
 class VariableDeclarationSolc:
-    def __init__(
-        self, variable: Variable, variable_data: Dict
-    ) -> None:  # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches
+    def __init__(self, variable: Variable, variable_data: Dict) -> None:
         """
         A variable can be declared through a statement, or directly.
         If it is through a statement, the following children may contain
@@ -127,7 +126,9 @@ class VariableDeclarationSolc:
         else:
             self._variable.visibility = "internal"
 
-    def _init_from_declaration(self, var: Dict, init: bool) -> None:  # pylint: disable=too-many-branches
+    def _init_from_declaration(
+        self, var: Dict, init: bool
+    ) -> None:  # pylint: disable=too-many-branches
         if self._is_compact_ast:
             attributes = var
             self._typeName = attributes["typeDescriptions"]["typeString"]

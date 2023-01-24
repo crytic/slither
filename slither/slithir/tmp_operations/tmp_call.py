@@ -1,3 +1,5 @@
+from typing import Optional, Union
+
 from slither.core.declarations import (
     Event,
     Contract,
@@ -14,11 +16,16 @@ from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.tuple import TupleVariable
-from typing import Optional, Union
 
 
 class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, called: SourceMapping, nbr_arguments: int, result: Union[TupleVariable, TemporaryVariable], type_call: str) -> None:
+    def __init__(
+        self,
+        called: SourceMapping,
+        nbr_arguments: int,
+        result: Union[TupleVariable, TemporaryVariable],
+        type_call: str,
+    ) -> None:
         assert isinstance(
             called,
             (

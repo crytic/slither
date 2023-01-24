@@ -1,3 +1,4 @@
+from typing import List, Union
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
@@ -7,11 +8,14 @@ from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.reference_ssa import ReferenceVariableSSA
 from slither.slithir.variables.state_variable import StateIRVariable
-from typing import List, Union
 
 
 class Length(OperationWithLValue):
-    def __init__(self, value: Union[StateVariable, LocalIRVariable, LocalVariable, StateIRVariable], lvalue: Union[ReferenceVariable, ReferenceVariableSSA]) -> None:
+    def __init__(
+        self,
+        value: Union[StateVariable, LocalIRVariable, LocalVariable, StateIRVariable],
+        lvalue: Union[ReferenceVariable, ReferenceVariableSSA],
+    ) -> None:
         super().__init__()
         assert is_valid_rvalue(value)
         assert is_valid_lvalue(lvalue)

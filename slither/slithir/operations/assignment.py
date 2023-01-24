@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from slither.core.declarations.function import Function
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -6,13 +7,15 @@ from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.variables import TupleVariable, ReferenceVariable
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
-from typing import List
+
 
 logger = logging.getLogger("AssignmentOperationIR")
 
 
 class Assignment(OperationWithLValue):
-    def __init__(self, left_variable: Variable, right_variable: SourceMapping, variable_return_type) -> None:
+    def __init__(
+        self, left_variable: Variable, right_variable: SourceMapping, variable_return_type
+    ) -> None:
         assert is_valid_lvalue(left_variable)
         assert is_valid_rvalue(right_variable) or isinstance(
             right_variable, (Function, TupleVariable)

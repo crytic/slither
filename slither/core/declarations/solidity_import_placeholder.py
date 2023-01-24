@@ -1,14 +1,13 @@
 """
 Special variable to model import with renaming
 """
+from typing import Union
+
 from slither.core.declarations import Import
-from slither.core.solidity_types import ElementaryType
-from slither.core.variables.variable import Variable
-import slither.core.declarations.import_directive
-import slither.core.solidity_types.elementary_type
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.solidity_variables import SolidityVariable
-from typing import Union
+from slither.core.solidity_types import ElementaryType
+from slither.core.variables.variable import Variable
 
 
 class SolidityImportPlaceHolder(Variable):

@@ -25,10 +25,6 @@ from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import VariableNotFound
-import slither.core.declarations.enum
-import slither.core.declarations.event
-import slither.core.declarations.structure
-import slither.core.solidity_types.type_alias
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.function import FunctionSolc

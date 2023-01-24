@@ -20,7 +20,14 @@ class HighLevelCall(Call, OperationWithLValue):
     """
 
     # pylint: disable=too-many-arguments,too-many-instance-attributes
-    def __init__(self, destination: SourceMapping, function_name: Constant, nbr_arguments: int, result: Optional[Union[TemporaryVariable, TupleVariable, TemporaryVariableSSA]], type_call: str) -> None:
+    def __init__(
+        self,
+        destination: SourceMapping,
+        function_name: Constant,
+        nbr_arguments: int,
+        result: Optional[Union[TemporaryVariable, TupleVariable, TemporaryVariableSSA]],
+        type_call: str,
+    ) -> None:
         assert isinstance(function_name, Constant)
         assert is_valid_lvalue(result) or result is None
         self._check_destination(destination)

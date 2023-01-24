@@ -31,8 +31,6 @@ from slither.slithir.operations import (
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
 from slither.visitors.expression.constants_folding import ConstantFolding
-import slither.core.declarations.function
-import slither.slithir.operations.operation
 from slither.utils.output import Output
 
 

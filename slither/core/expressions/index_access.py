@@ -11,7 +11,12 @@ if TYPE_CHECKING:
 
 
 class IndexAccess(ExpressionTyped):
-    def __init__(self, left_expression: Union["IndexAccess", Identifier], right_expression: Union[Literal, Identifier], index_type: str) -> None:
+    def __init__(
+        self,
+        left_expression: Union["IndexAccess", Identifier],
+        right_expression: Union[Literal, Identifier],
+        index_type: str,
+    ) -> None:
         super().__init__()
         self._expressions = [left_expression, right_expression]
         # TODO type of undexAccess is not always a Type

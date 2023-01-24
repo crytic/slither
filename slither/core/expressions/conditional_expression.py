@@ -1,6 +1,5 @@
 from typing import Union, List
 
-from .expression import Expression
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
@@ -11,7 +10,14 @@ from slither.core.expressions.unary_operation import UnaryOperation
 
 
 class ConditionalExpression(Expression):
-    def __init__(self, if_expression: Union[BinaryOperation, Identifier, Literal], then_expression: Union["ConditionalExpression", TypeConversion, Literal, TupleExpression, Identifier], else_expression: Union[TupleExpression, UnaryOperation, Identifier, Literal]) -> None:
+    def __init__(
+        self,
+        if_expression: Union[BinaryOperation, Identifier, Literal],
+        then_expression: Union[
+            "ConditionalExpression", TypeConversion, Literal, TupleExpression, Identifier
+        ],
+        else_expression: Union[TupleExpression, UnaryOperation, Identifier, Literal],
+    ) -> None:
         assert isinstance(if_expression, Expression)
         assert isinstance(then_expression, Expression)
         assert isinstance(else_expression, Expression)

@@ -3,9 +3,9 @@ from typing import Union, Optional, Tuple, Any, TYPE_CHECKING
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.type import Type
 from slither.visitors.expression.constants_folding import ConstantFolding
+from slither.core.expressions.literal import Literal
 
 if TYPE_CHECKING:
-    from slither.core.expressions.literal import Literal
     from slither.core.expressions.binary_operation import BinaryOperation
     from slither.core.expressions.identifier import Identifier
     from slither.core.solidity_types.elementary_type import ElementaryType
@@ -14,7 +14,11 @@ if TYPE_CHECKING:
 
 
 class ArrayType(Type):
-    def __init__(self, t: Union["TypeAliasTopLevel", "ArrayType", "FunctionType", "ElementaryType"], length: Optional[Union["Identifier", "Literal", "BinaryOperation"]]) -> None:
+    def __init__(
+        self,
+        t: Union["TypeAliasTopLevel", "ArrayType", "FunctionType", "ElementaryType"],
+        length: Optional[Union["Identifier", "Literal", "BinaryOperation"]],
+    ) -> None:
         assert isinstance(t, Type)
         if length:
             if isinstance(length, int):

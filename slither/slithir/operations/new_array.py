@@ -11,8 +11,12 @@ if TYPE_CHECKING:
 
 
 class NewArray(Call, OperationWithLValue):
-    def __init__(self, depth: int, array_type: "TypeAliasTopLevel",
-                 lvalue: Union["TemporaryVariableSSA", "TemporaryVariable"]) -> None:
+    def __init__(
+        self,
+        depth: int,
+        array_type: "TypeAliasTopLevel",
+        lvalue: Union["TemporaryVariableSSA", "TemporaryVariable"],
+    ) -> None:
         super().__init__()
         assert isinstance(array_type, Type)
         self._depth = depth

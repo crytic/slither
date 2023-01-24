@@ -1,5 +1,7 @@
 import logging
+from typing import Any, Callable, Dict, List, Tuple, Union
 
+import slither.slithir.variables.tuple_ssa
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import (
     Contract,
@@ -9,11 +11,16 @@ from slither.core.declarations import (
     SolidityVariable,
     Structure,
 )
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.function_top_level import FunctionTopLevel
+from slither.core.declarations.modifier import Modifier
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
+from slither.core.variables.variable import Variable
+from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
     Binary,
@@ -45,7 +52,9 @@ from slither.slithir.operations import (
     Unpack,
     Nop,
 )
+from slither.slithir.operations.call import Call
 from slither.slithir.operations.codesize import CodeSize
+from slither.slithir.operations.operation import Operation
 from slither.slithir.variables import (
     Constant,
     LocalIRVariable,
@@ -57,22 +66,6 @@ from slither.slithir.variables import (
     TupleVariable,
     TupleVariableSSA,
 )
-from slither.slithir.exceptions import SlithIRError
-import slither.slithir.operations.init_array
-import slither.slithir.operations.new_array
-import slither.slithir.operations.return_operation
-import slither.slithir.variables.local_variable
-import slither.slithir.variables.reference_ssa
-import slither.slithir.variables.state_variable
-import slither.slithir.variables.temporary_ssa
-import slither.slithir.variables.tuple_ssa
-from slither.core.declarations.function_contract import FunctionContract
-from slither.core.declarations.function_top_level import FunctionTopLevel
-from slither.core.declarations.modifier import Modifier
-from slither.core.variables.variable import Variable
-from slither.slithir.operations.call import Call
-from slither.slithir.operations.operation import Operation
-from typing import Any, Callable, Dict, List, Tuple, Union
 
 logger = logging.getLogger("SSA_Conversion")
 
@@ -83,7 +76,9 @@ logger = logging.getLogger("SSA_Conversion")
 ###################################################################################
 
 
-def transform_slithir_vars_to_ssa(function: Union[FunctionContract, Modifier, FunctionTopLevel]) -> None:
+def transform_slithir_vars_to_ssa(
+    function: Union[FunctionContract, Modifier, FunctionTopLevel]
+) -> None:
     """
     Transform slithIR vars to SSA (TemporaryVariable, ReferenceVariable, TupleVariable)
     """
@@ -113,7 +108,12 @@ def transform_slithir_vars_to_ssa(function: Union[FunctionContract, Modifier, Fu
 # pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks,too-many-statements,too-many-branches
 
 
-def add_ssa_ir(function: Union[FunctionContract, Modifier, FunctionTopLevel], all_state_variables_instances: Dict[str, slither.slithir.variables.state_variable.StateIRVariable]) -> None:
+def add_ssa_ir(
+    function: Union[FunctionContract, Modifier, FunctionTopLevel],
+    all_state_variables_instances: Dict[
+        str, slither.slithir.variables.state_variable.StateIRVariable
+    ],
+) -> None:
     """
         Add SSA version of the IR
     Args:
@@ -216,10 +216,16 @@ def add_ssa_ir(function: Union[FunctionContract, Modifier, FunctionTopLevel], al
 def generate_ssa_irs(
     node: Node,
     local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
-    all_local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
+    all_local_variables_instances: Dict[
+        str, slither.slithir.variables.local_variable.LocalIRVariable
+    ],
     state_variables_instances: Dict[str, slither.slithir.variables.state_variable.StateIRVariable],
-    all_state_variables_instances: Dict[str, slither.slithir.variables.state_variable.StateIRVariable],
-    init_local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
+    all_state_variables_instances: Dict[
+        str, slither.slithir.variables.state_variable.StateIRVariable
+    ],
+    init_local_variables_instances: Dict[
+        str, slither.slithir.variables.local_variable.LocalIRVariable
+    ],
     visited: List[Union[Node, Any]],
 ) -> None:
 
@@ -338,7 +344,17 @@ def generate_ssa_irs(
 ###################################################################################
 
 
-def last_name(n: Node, var: Union[slither.slithir.variables.state_variable.StateIRVariable, slither.slithir.variables.local_variable.LocalIRVariable], init_vars: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable]) -> Union[slither.slithir.variables.state_variable.StateIRVariable, slither.slithir.variables.local_variable.LocalIRVariable]:
+def last_name(
+    n: Node,
+    var: Union[
+        slither.slithir.variables.state_variable.StateIRVariable,
+        slither.slithir.variables.local_variable.LocalIRVariable,
+    ],
+    init_vars: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
+) -> Union[
+    slither.slithir.variables.state_variable.StateIRVariable,
+    slither.slithir.variables.local_variable.LocalIRVariable,
+]:
     candidates = []
     # Todo optimize by creating a variables_ssa_written attribute
     for ir_ssa in n.irs_ssa:
@@ -357,7 +373,10 @@ def last_name(n: Node, var: Union[slither.slithir.variables.state_variable.State
     return max(candidates, key=lambda v: v.index)
 
 
-def is_used_later(initial_node: Node, variable: Union[slither.slithir.variables.state_variable.StateIRVariable, LocalVariable]) -> bool:
+def is_used_later(
+    initial_node: Node,
+    variable: Union[slither.slithir.variables.state_variable.StateIRVariable, LocalVariable],
+) -> bool:
     # TODO: does not handle the case where its read and written in the declaration node
     # It can be problematic if this happens in a loop/if structure
     # Ex:
@@ -407,9 +426,13 @@ def update_lvalue(
     new_ir: Operation,
     node: Node,
     local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
-    all_local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
+    all_local_variables_instances: Dict[
+        str, slither.slithir.variables.local_variable.LocalIRVariable
+    ],
     state_variables_instances: Dict[str, slither.slithir.variables.state_variable.StateIRVariable],
-    all_state_variables_instances: Dict[str, slither.slithir.variables.state_variable.StateIRVariable],
+    all_state_variables_instances: Dict[
+        str, slither.slithir.variables.state_variable.StateIRVariable
+    ],
 ) -> None:
     if isinstance(new_ir, OperationWithLValue):
         lvalue = new_ir.lvalue
@@ -452,7 +475,11 @@ def update_lvalue(
 
 
 def initiate_all_local_variables_instances(
-    nodes: List[Node], local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable], all_local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable]
+    nodes: List[Node],
+    local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
+    all_local_variables_instances: Dict[
+        str, slither.slithir.variables.local_variable.LocalIRVariable
+    ],
 ) -> None:
     for node in nodes:
         if node.variable_declaration:
@@ -474,10 +501,16 @@ def initiate_all_local_variables_instances(
 def fix_phi_rvalues_and_storage_ref(
     node: Node,
     local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
-    all_local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
+    all_local_variables_instances: Dict[
+        str, slither.slithir.variables.local_variable.LocalIRVariable
+    ],
     state_variables_instances: Dict[str, slither.slithir.variables.state_variable.StateIRVariable],
-    all_state_variables_instances: Dict[str, slither.slithir.variables.state_variable.StateIRVariable],
-    init_local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
+    all_state_variables_instances: Dict[
+        str, slither.slithir.variables.state_variable.StateIRVariable
+    ],
+    init_local_variables_instances: Dict[
+        str, slither.slithir.variables.local_variable.LocalIRVariable
+    ],
 ) -> None:
     for ir in node.irs_ssa:
         if isinstance(ir, (Phi)) and not ir.rvalues:
@@ -521,7 +554,11 @@ def fix_phi_rvalues_and_storage_ref(
         )
 
 
-def add_phi_origins(node: Node, local_variables_definition: Dict[str, Tuple[LocalVariable, Node]], state_variables_definition: Dict[str, Tuple[StateVariable, Node]]) -> None:
+def add_phi_origins(
+    node: Node,
+    local_variables_definition: Dict[str, Tuple[LocalVariable, Node]],
+    state_variables_definition: Dict[str, Tuple[StateVariable, Node]],
+) -> None:
 
     # Add new key to local_variables_definition
     # The key is the variable_name
@@ -574,10 +611,16 @@ def get(
     variable,
     local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
     state_variables_instances: Dict[str, slither.slithir.variables.state_variable.StateIRVariable],
-    temporary_variables_instances: Dict[int, slither.slithir.variables.temporary_ssa.TemporaryVariableSSA],
-    reference_variables_instances: Dict[int, slither.slithir.variables.reference_ssa.ReferenceVariableSSA],
+    temporary_variables_instances: Dict[
+        int, slither.slithir.variables.temporary_ssa.TemporaryVariableSSA
+    ],
+    reference_variables_instances: Dict[
+        int, slither.slithir.variables.reference_ssa.ReferenceVariableSSA
+    ],
     tuple_variables_instances: Dict[int, slither.slithir.variables.tuple_ssa.TupleVariableSSA],
-    all_local_variables_instances: Dict[str, slither.slithir.variables.local_variable.LocalIRVariable],
+    all_local_variables_instances: Dict[
+        str, slither.slithir.variables.local_variable.LocalIRVariable
+    ],
 ):
     # variable can be None
     # for example, on LowLevelCall, ir.lvalue can be none
@@ -661,7 +704,15 @@ def get_arguments(ir: Call, *instances) -> List[Any]:
     return _get_traversal(ir.arguments, *instances)
 
 
-def get_rec_values(ir: Union[slither.slithir.operations.init_array.InitArray, slither.slithir.operations.return_operation.Return, slither.slithir.operations.new_array.NewArray], f: Callable, *instances) -> List[Variable]:
+def get_rec_values(
+    ir: Union[
+        slither.slithir.operations.init_array.InitArray,
+        slither.slithir.operations.return_operation.Return,
+        slither.slithir.operations.new_array.NewArray,
+    ],
+    f: Callable,
+    *instances,
+) -> List[Variable]:
     # Use by InitArray and NewArray
     # Potential recursive array(s)
     ori_init_values = f(ir)

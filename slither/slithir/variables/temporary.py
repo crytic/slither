@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class TemporaryVariable(ChildNode, Variable):
-    def __init__(self, node: "Node", index: Optional[int]=None) -> None:
+    def __init__(self, node: "Node", index: Optional[int] = None) -> None:
         super().__init__()
         if index is None:
             self._index = node.compilation_unit.counter_slithir_temporary

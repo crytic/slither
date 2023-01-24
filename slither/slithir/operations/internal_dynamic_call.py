@@ -1,21 +1,25 @@
+from typing import List, Optional, Union
 from slither.core.solidity_types import FunctionType
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
-import slither.core.solidity_types.function_type
 from slither.core.variables.local_variable import LocalVariable
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
-from typing import List, Optional, Union
 
 
 class InternalDynamicCall(
     Call, OperationWithLValue
 ):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, lvalue: Optional[Union[TemporaryVariableSSA, TemporaryVariable]], function: Union[LocalVariable, LocalIRVariable], function_type:     slither.core.solidity_types.function_type.FunctionType) -> None:
+    def __init__(
+        self,
+        lvalue: Optional[Union[TemporaryVariableSSA, TemporaryVariable]],
+        function: Union[LocalVariable, LocalIRVariable],
+        function_type: FunctionType,
+    ) -> None:
         assert isinstance(function_type, FunctionType)
         assert isinstance(function, Variable)
         assert is_valid_lvalue(lvalue) or lvalue is None
@@ -37,7 +41,7 @@ class InternalDynamicCall(
         return self._function
 
     @property
-    def function_type(self) ->     slither.core.solidity_types.function_type.FunctionType:
+    def function_type(self) -> FunctionType:
         return self._function_type
 
     @property

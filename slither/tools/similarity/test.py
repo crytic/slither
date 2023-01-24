@@ -11,7 +11,7 @@ from slither.tools.similarity.similarity import similarity
 logger = logging.getLogger("Slither-simil")
 
 
-def est(args: Namespace) -> None:
+def test(args: Namespace) -> None:
 
     try:
         model = args.model

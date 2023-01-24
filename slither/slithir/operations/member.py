@@ -1,3 +1,4 @@
+from typing import List, Union
 from slither.core.declarations import Contract, Function
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum import Enum
@@ -9,11 +10,15 @@ from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.slithir.variables.reference_ssa import ReferenceVariableSSA
-from typing import List, Union
 
 
 class Member(OperationWithLValue):
-    def __init__(self, variable_left: SourceMapping, variable_right: Constant, result: Union[ReferenceVariable, ReferenceVariableSSA]) -> None:
+    def __init__(
+        self,
+        variable_left: SourceMapping,
+        variable_right: Constant,
+        result: Union[ReferenceVariable, ReferenceVariableSSA],
+    ) -> None:
         # Function can happen for something like
         # library FunctionExtensions {
         #     function h(function() internal _t, uint8) internal {  }

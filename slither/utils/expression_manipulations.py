@@ -4,6 +4,8 @@
 """
 import copy
 from typing import Union, Callable
+
+from slither.all_exceptions import SlitherException
 from slither.core.expressions import UnaryOperation
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
@@ -19,8 +21,7 @@ from slither.core.expressions.new_array import NewArray
 from slither.core.expressions.new_contract import NewContract
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
-from slither.all_exceptions import SlitherException
-import slither.core.expressions.unary_operation
+
 
 # pylint: disable=protected-access
 def f_expressions(
