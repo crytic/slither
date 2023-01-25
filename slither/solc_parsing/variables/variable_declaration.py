@@ -86,13 +86,14 @@ class VariableDeclarationSolc(Generic[T]):
 
     def _analyze_variable_attributes(self, var: VariableDeclaration):
         self._variable.visibility = var.visibility
+        self._variable.is_constant = var.mutability == "constant"
+        self._variable.is_immutable = var.mutability == "immutable"
 
     def _init_from_declaration(self, var: VariableDeclaration, init: Optional[Expression]):
         self._typeName = var.type_str
         self._variable.name = var.name
         self._reference_id = var.id
 
-        self._variable.is_constant = var.constant
         self._handle_comment(var)
         self._analyze_variable_attributes(var)
 

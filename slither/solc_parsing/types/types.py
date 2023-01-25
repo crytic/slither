@@ -19,18 +19,17 @@ class SourceUnit(ASTNode):
 
 
 class Declaration(ASTNode):
-    __slots__ = "name", "canonical_name", "visibility"
+    __slots__ = "name", "canonical_name", "visibility", "referenced_declaration"
 
-    def __init__(self, name: str, canonical_name: Optional[str], visibility: Optional[str], **kwargs):
+    def __init__(self, name: str, canonical_name: Optional[str], visibility: Optional[str], referenced_declaration: Optional[int], **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.canonical_name = canonical_name
+        self.referenced_declaration = referenced_declaration
         self.visibility = visibility
 
 class IdentifierPath(Declaration):
-    __slots__ = "referenced_declaration"
-    def __init__(self, referenced_declaration: Optional[int], **kwargs):
-        self.referenced_declaration = referenced_declaration
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
 class UserDefinedValueTypeDefinition(Declaration):
@@ -156,14 +155,14 @@ class FunctionDefinition(CallableDeclaration):
 
 
 class VariableDeclaration(Declaration):
-    __slots__ = "typename", "value", "type_str", "constant", "indexed", "location"
+    __slots__ = "typename", "value", "type_str", "mutability", "indexed", "location"
 
-    def __init__(self, typename: 'TypeName', value: Optional['Expression'], type_str: str, constant: bool,
+    def __init__(self, typename: 'TypeName', value: Optional['Expression'], type_str: str, mutability: str,
                  indexed: Optional[bool], location: str, **kwargs):
         super().__init__(**kwargs)
         self.type_str = type_str
         self.value = value
-        self.constant = constant
+        self.mutability = mutability
         self.typename = typename
         self.indexed = indexed
         self.location = location

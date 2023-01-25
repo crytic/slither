@@ -467,7 +467,7 @@ class FunctionSolc(CallerContextExpression):
                 new_node = self._new_node(NodeType.EXPRESSION, stmt.src, scope)
                 new_node.add_unparsed_expression(Assignment(
                     TupleExpression(
-                        [Identifier(v.name, type_str=v.type_str, constant=False, pure=False, src=v.src,
+                        [Identifier(v.name, v.referenced_declaration, type_str=v.type_str, constant=False, pure=False, src=v.src,
                                     id=v.id) if v else None for v in stmt.variables],
                         False,
                         type_str="tuple()",

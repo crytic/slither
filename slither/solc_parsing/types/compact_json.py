@@ -46,6 +46,7 @@ def _extract_decl_props(raw: Dict) -> Dict:
         'canonical_name': raw.get('canonicalName', ''),
         'visibility': raw.get('visibility', None),
         'documentation': documentation,
+        'referenced_declaration': raw.get('referencedDeclaration', None),
     }
 
 
@@ -73,7 +74,7 @@ def parse_source_unit(raw: Dict) -> SourceUnit:
     return SourceUnit(nodes_parsed, **_extract_base_props(raw))
 
 def parse_identifier_path(raw: Dict) -> IdentifierPath:
-    return IdentifierPath(raw['referencedDeclaration'], **_extract_decl_props(raw))
+    return IdentifierPath(**_extract_decl_props(raw))
 
 def parse_user_defined_value_type_definition(raw: Dict) -> UserDefinedValueTypeDefinition:
     underlying_type = parse(raw["underlyingType"])
@@ -263,8 +264,16 @@ def parse_variable_declaration(raw: Dict) -> VariableDeclaration:
 
     storage_location = raw['storageLocation']
 
+    mutability = "mutable"
+    if 'constant' in raw:
+        # >=0.4.11
+        mutability = 'constant' if raw['constant'] else "mutable"
+    if 'mutability' in raw:
+        mutability = raw['mutability']
+
+
     return VariableDeclaration(typename, value_parsed, raw['typeDescriptions']['typeString'],
-                               raw['constant'], indexed, storage_location, **_extract_decl_props(raw))
+                               mutability, indexed, storage_location, **_extract_decl_props(raw))
 
 
 def parse_modifier_definition(raw: Dict) -> ModifierDefinition:

@@ -33,7 +33,8 @@ def _extract_decl_props(raw: Dict) -> Dict:
         'name': raw['attributes']['name'],
         'canonical_name': raw.get('canonicalName', ''),
         'visibility': raw['attributes'].get('visibility', 'public'),
-        'documentation': raw['attributes'].get('documentation', None)
+        'documentation': raw['attributes'].get('documentation', None),
+        'referenced_declaration': raw['attributes'].get('referenced_delcaration', None)
     }
 
 
@@ -741,12 +742,14 @@ def parse_return(raw: Dict) -> Return:
 
 def parse_variable_declaration(raw: Dict) -> VariableDeclaration:
     attrs = raw['attributes']
+
+    mutability = "mutable"
     if 'constant' in attrs:
         # >=0.4.11
-        constant = attrs['constant']
-    else:
-        # >=0.4.0
-        constant = False
+        mutability = 'constant' if attrs['constant'] else "mutable"
+    if 'mutability' in attrs:
+        mutability = attrs['mutability']
+
     typename = None
     if raw['children']:
         typename = parse(raw['children'][0])
@@ -773,7 +776,7 @@ def parse_variable_declaration(raw: Dict) -> VariableDeclaration:
             storage_location = "default"
 
     return VariableDeclaration(
-        typename, value, raw['attributes']['type'], constant, indexed, storage_location, **_extract_decl_props(raw)
+        typename, value, attrs['type'], mutability, indexed, storage_location, **_extract_decl_props(raw)
     )
 
 
