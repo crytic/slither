@@ -512,7 +512,6 @@ class ContractSolc(CallerContextExpression):
                 self._contract.using_for.update(father.using_for)
 
             for using_for in self._usingForNotParsed:
-                lib_name = parse_type(using_for.library, self)
                 if using_for.typename == "*": #TODO 
                     type_name = "*"
                 else:
@@ -520,7 +519,6 @@ class ContractSolc(CallerContextExpression):
                     type_name = parse_type(using_for.typename, self)
                 if type_name not in self._contract.using_for:
                     self._contract.using_for[type_name] = []
-                self._contract.using_for[type_name].append(lib_name)
 
                 if using_for.library:
                     self._contract.using_for[type_name].append(

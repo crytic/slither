@@ -634,8 +634,10 @@ def parse_user_defined_type_name(raw: Dict) -> UserDefinedTypeName:
         referenced_declaration = raw['attributes']['referencedDeclaration']
     else:
         referenced_declaration = None
+    type_name_key = "type" if "type" in raw["attributes"] else 'name'
+    type_str = raw["attributes"][type_name_key]
 
-    return UserDefinedTypeName(name, referenced_declaration, **_extract_base_props(raw))
+    return UserDefinedTypeName(name, referenced_declaration, type_str, **_extract_base_props(raw))
 
 
 def parse_function_type_name(raw: Dict) -> FunctionTypeName:
@@ -865,8 +867,11 @@ def parse_identifier(raw: Dict) -> Identifier:
         type (string)
         value (string)
     """
-
-    return Identifier(raw['attributes']['value'], **_extract_expr_props(raw))
+    referenced_declaration = None
+    if 'referencedDeclaration' in raw['attributes']:
+        referenced_declaration = raw['attributes']['referencedDeclaration']
+        assert isinstance(referenced_declaration, int)
+    return Identifier(raw['attributes']['value'], referenced_declaration, **_extract_expr_props(raw))
 
 
 def parse_elementary_type_name_expression(raw: Dict) -> ElementaryTypeNameExpression:

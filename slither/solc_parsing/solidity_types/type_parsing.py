@@ -34,11 +34,11 @@ logger = logging.getLogger("TypeParsing")
 
 class UnknownType:  # pylint: disable=too-few-public-methods
     def __init__(self, name):
-        self._name = name
+        self.type_str = name
 
     @property
     def name(self):
-        return self._name
+        return self._type_str
 
 
 def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-arguments
@@ -340,9 +340,8 @@ def parse_type(
     if isinstance(t, ETN):
         return ElementaryType(t.name)
     elif isinstance(t, (UnknownType, UDTN)):
-        name = t.name
-        if name in renaming:
-            name = renaming[name]
+        # Use the type string as the name may be an alias
+        name = t.type_str
         if name in user_defined_types:
             return user_defined_types[name]
         type_found = _find_from_type_name(

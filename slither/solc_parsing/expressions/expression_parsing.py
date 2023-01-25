@@ -337,9 +337,8 @@ def parse_identifier(expr: IdentifierT, ctx: CallerContextExpression) -> "Expres
             value = value + "(" + found[0] + ")"
             value = filter_name(value)
 
-    referenced_declaration = None  # expr.referenced_declaration
-
-    var, was_created = find_variable(value, ctx, referenced_declaration)
+   
+    var, was_created = find_variable(value, ctx, expr.referenced_declaration)
     if was_created:
         var.set_offset(expr.src, ctx.compilation_unit)
 

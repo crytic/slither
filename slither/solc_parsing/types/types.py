@@ -211,11 +211,12 @@ class UserDefinedTypeName(TypeName):
     """
     referenced_declaration might be None for old versions of solidity
     """
-    __slots__ = "name", "referenced_declaration"
+    __slots__ = "name", "referenced_declaration", "type_str"
 
-    def __init__(self, name: str, referenced_declaration: Optional[int], **kwargs):
+    def __init__(self, name: str, referenced_declaration: Optional[int], type_str: str, **kwargs):
         super().__init__(**kwargs)
         self.name = name
+        self.type_str = type_str
         self.referenced_declaration = referenced_declaration
 
 
@@ -501,11 +502,12 @@ class IndexRangeAccess(Expression):
 
 
 class Identifier(Expression):
-    __slots__ = "name"
+    __slots__ = "name", "referenced_declaration"
 
-    def __init__(self, name: str, **kwargs):
+    def __init__(self, name: str, referenced_declaration: Optional[int], **kwargs):
         super().__init__(**kwargs)
         self.name = name
+        self.referenced_declaration = referenced_declaration
 
 
 class ElementaryTypeNameExpression(Expression):
