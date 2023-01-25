@@ -1,11 +1,10 @@
 """
     Check that the same pragma is used in all the files
 """
-
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.attributes.constant_pragma import custom_format
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 class ConstantPragma(AbstractDetector):

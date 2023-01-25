@@ -2,6 +2,7 @@
 Module detecting constant functions
 Recursively check the called functions
 """
+from typing import List
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -9,7 +10,6 @@ from slither.detectors.abstract_detector import (
 )
 from slither.formatters.attributes.const_functions import custom_format
 from slither.utils.output import Output
-from typing import List
 
 
 class ConstantFunctionsState(AbstractDetector):

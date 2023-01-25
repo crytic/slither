@@ -1,9 +1,8 @@
 from collections import defaultdict
-
+from typing import Any, List, Union
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit) -> List[Any]:
@@ -52,7 +51,10 @@ As a result, the second contract cannot be analyzed.
 
     WIKI_RECOMMENDATION = "Rename the contract."
 
-    def _detect(self) -> List[Union[Any, Output]]:  # pylint: disable=too-many-locals,too-many-branches
+    # pylint: disable=too-many-locals,too-many-branches
+    def _detect(
+        self,
+    ) -> List[Union[Any, Output]]:
         results = []
         compilation_unit = self.compilation_unit
 

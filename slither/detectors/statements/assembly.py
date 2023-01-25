@@ -1,13 +1,12 @@
 """
 Module detecting usage of inline assembly
 """
-
+from typing import Any, List, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
-from typing import Any, List, Tuple, Union
 
 
 class Assembly(AbstractDetector):
@@ -35,7 +34,9 @@ class Assembly(AbstractDetector):
         """
         return node.type == NodeType.ASSEMBLY
 
-    def detect_assembly(self, contract: Contract) -> List[Union[Any, Tuple[FunctionContract, List[Node]]]]:
+    def detect_assembly(
+        self, contract: Contract
+    ) -> List[Union[Any, Tuple[FunctionContract, List[Node]]]]:
         ret = []
         for f in contract.functions:
             if f.contract_declarer != contract:

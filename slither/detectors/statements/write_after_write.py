@@ -15,7 +15,6 @@ from slither.slithir.operations import (
 )
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable, TupleVariable
 from slither.slithir.variables.variable import SlithIRVariable
-import slither.slithir.operations.operation
 from slither.utils.output import Output
 
 

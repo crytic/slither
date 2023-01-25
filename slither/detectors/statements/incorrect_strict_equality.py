@@ -2,7 +2,7 @@
     Module detecting dangerous strict equality
 
 """
-
+from typing import Any, Dict, List, Union
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function
 from slither.core.declarations.function_top_level import FunctionTopLevel
@@ -31,7 +31,6 @@ from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 from slither.utils.output import Output
-from typing import Any, Dict, List, Union
 
 
 class IncorrectStrictEquality(AbstractDetector):
@@ -74,7 +73,21 @@ contract Crowdsale{
         return isinstance(ir, Binary) and ir.type == BinaryType.EQUAL
 
     @staticmethod
-    def is_any_tainted(variables: List[Union[Constant, LocalIRVariable, TemporaryVariableSSA, SolidityVariableComposed, SolidityVariable]], taints: List[Union[LocalIRVariable, SolidityVariable, SolidityVariableComposed, TemporaryVariableSSA]], function: FunctionContract) -> bool:
+    def is_any_tainted(
+        variables: List[
+            Union[
+                Constant,
+                LocalIRVariable,
+                TemporaryVariableSSA,
+                SolidityVariableComposed,
+                SolidityVariable,
+            ]
+        ],
+        taints: List[
+            Union[LocalIRVariable, SolidityVariable, SolidityVariableComposed, TemporaryVariableSSA]
+        ],
+        function: FunctionContract,
+    ) -> bool:
         return any(
             (
                 is_dependent_ssa(var, taint, function.contract)
@@ -83,7 +96,9 @@ contract Crowdsale{
             )
         )
 
-    def taint_balance_equalities(self, functions: List[Union[FunctionContract, Any]]) -> List[Union[LocalIRVariable, TemporaryVariableSSA, Any]]:
+    def taint_balance_equalities(
+        self, functions: List[Union[FunctionContract, Any]]
+    ) -> List[Union[LocalIRVariable, TemporaryVariableSSA, Any]]:
         taints = []
         for func in functions:
             for node in func.nodes:
@@ -114,7 +129,11 @@ contract Crowdsale{
         return taints
 
     # Retrieve all tainted (node, function) pairs
-    def tainted_equality_nodes(self, funcs: List[Union[FunctionContract, Any]], taints: List[Union[LocalIRVariable, TemporaryVariableSSA, Any]]) -> Dict[FunctionContract, List[Node]]:
+    def tainted_equality_nodes(
+        self,
+        funcs: List[Union[FunctionContract, Any]],
+        taints: List[Union[LocalIRVariable, TemporaryVariableSSA, Any]],
+    ) -> Dict[FunctionContract, List[Node]]:
         results = {}
         taints += self.sources_taint
 

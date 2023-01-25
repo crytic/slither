@@ -1,10 +1,10 @@
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.cfg.node import Node
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 def controlled_delegatecall(function: FunctionContract) -> List[Union[Node, Any]]:

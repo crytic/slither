@@ -1,7 +1,7 @@
 """
 Module detecting assignment of array length
 """
-
+from typing import List, Set
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -15,7 +15,6 @@ from slither.slithir.operations.binary import Binary
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.declarations.contract import Contract
 from slither.utils.output import Output
-from typing import List, Set
 
 
 def detect_array_length_assignment(contract: Contract) -> Set[Node]:

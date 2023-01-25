@@ -1,13 +1,12 @@
 """
 Module detecting the incorrect use of unary expressions
 """
-
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 class InvalidUnaryExpressionDetector(ExpressionVisitor):

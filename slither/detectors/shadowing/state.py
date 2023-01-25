@@ -2,13 +2,13 @@
 Module detecting shadowing of state variables
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.declarations import Contract
-from .common import is_upgradable_gap_variable
-import slither.core.declarations.contract
-from slither.core.variables.state_variable import StateVariable
-from slither.utils.output import Output
 from typing import Any, List, Union
+
+from slither.core.declarations import Contract
+from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils.output import Output
+from slither.detectors.shadowing.common import is_upgradable_gap_variable
 
 
 def detect_shadowing(contract: Contract) -> List[Union[List[StateVariable], Any]]:

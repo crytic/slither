@@ -7,12 +7,12 @@ Check for unimplemented functions that are never implemented
 Consider public state variables as implemented functions
 Do not consider fallback function or constructor
 """
-
+from typing import Any, List, Set, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
-from typing import Any, List, Set, Union
+
 
 # Since 0.5.1, Solidity allows creating state variable matching a function signature.
 older_solc_versions = ["0.5.0"] + ["0.4." + str(x) for x in range(0, 27)]

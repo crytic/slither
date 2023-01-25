@@ -1,7 +1,7 @@
 """
 Module detecting uninitialized function pointer calls in constructors
 """
-
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -15,7 +15,6 @@ from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.slithir.variables.state_variable import StateIRVariable
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 def _get_variables_entrance(function: FunctionContract) -> List[Union[Any, StateIRVariable]]:
@@ -90,7 +89,9 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
     VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 5, 25) + make_solc_versions(5, 0, 8)
 
     @staticmethod
-    def _detect_uninitialized_function_ptr_in_constructor(contract: Contract) -> List[Union[Any, Node]]:
+    def _detect_uninitialized_function_ptr_in_constructor(
+        contract: Contract,
+    ) -> List[Union[Any, Node]]:
         """
         Detect uninitialized function pointer calls in constructors
         :param contract: The contract of interest for detection

@@ -1,5 +1,5 @@
-from slither.slithir.operations.operation import Operation
 from typing import Any, List
+from slither.slithir.operations.operation import Operation
 
 
 class OperationWithLValue(Operation):

@@ -5,11 +5,10 @@ Note that require()/assert() are not considered here. Even if they
 are in the outermost scope, they do not guarantee a revert, so a
 default value can still be returned.
 """
-
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.cfg.node import Node, NodeType
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 def is_revert(node: Node) -> bool:

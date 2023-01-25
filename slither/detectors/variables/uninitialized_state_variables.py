@@ -8,7 +8,7 @@
 
     Only analyze "leaf" contracts (contracts that are not inherited by another contract)
 """
-
+from typing import Any, List, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import InternalCall, LibraryCall
 from slither.slithir.variables import ReferenceVariable
@@ -16,7 +16,6 @@ from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.state_variable import StateVariable
 from slither.utils.output import Output
-from typing import Any, List, Tuple, Union
 
 
 class UninitializedStateVarsDetection(AbstractDetector):
@@ -113,7 +112,9 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             ret += f.state_variables_read
         return ret
 
-    def _detect_uninitialized(self, contract: Contract) -> List[Union[Any, Tuple[StateVariable, List[FunctionContract]]]]:
+    def _detect_uninitialized(
+        self, contract: Contract
+    ) -> List[Union[Any, Tuple[StateVariable, List[FunctionContract]]]]:
         written_variables = self._written_variables(contract)
         written_variables += self._written_variables_in_proxy(contract)
         read_variables = self._read_variables(contract)

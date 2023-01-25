@@ -1,8 +1,8 @@
 import re
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.naming_convention.naming_convention import custom_format
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 class NamingConvention(AbstractDetector):
@@ -59,7 +59,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
     def should_avoid_name(name: str) -> bool:
         return re.search("^[lOI]$", name) is not None
 
-    def _detect(self) -> List[Union[Any, Output]]:  # pylint: disable=too-many-branches,too-many-statements
+    # pylint: disable=too-many-branches,too-many-statements
+    def _detect(
+        self,
+    ) -> List[Union[Any, Output]]:
 
         results = []
         for contract in self.contracts:

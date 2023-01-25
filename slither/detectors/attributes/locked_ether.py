@@ -1,7 +1,7 @@
 """
     Check if ethers are locked in the contract
 """
-
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
     HighLevelCall,
@@ -14,7 +14,6 @@ from slither.slithir.operations import (
 )
 from slither.core.declarations.contract import Contract
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 class LockedEther(AbstractDetector):  # pylint: disable=too-many-nested-blocks

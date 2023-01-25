@@ -1,14 +1,20 @@
+from typing import List, Union
+
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.tuple import TupleVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.tuple_ssa import TupleVariableSSA
-from typing import List, Union
 
 
 class Unpack(OperationWithLValue):
-    def __init__(self, result: Union[LocalVariableInitFromTuple, LocalIRVariable], tuple_var: Union[TupleVariable, TupleVariableSSA], idx: int) -> None:
+    def __init__(
+        self,
+        result: Union[LocalVariableInitFromTuple, LocalIRVariable],
+        tuple_var: Union[TupleVariable, TupleVariableSSA],
+        idx: int,
+    ) -> None:
         assert is_valid_lvalue(result)
         assert isinstance(tuple_var, TupleVariable)
         assert isinstance(idx, int)

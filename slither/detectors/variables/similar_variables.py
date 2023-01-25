@@ -3,12 +3,11 @@ Check for state variables too similar
 Do not check contract inheritance
 """
 import difflib
-
+from typing import Any, List, Set, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.declarations.contract import Contract
 from slither.core.variables.local_variable import LocalVariable
 from slither.utils.output import Output
-from typing import Any, List, Set, Tuple, Union
 
 
 class SimilarVarsDetection(AbstractDetector):

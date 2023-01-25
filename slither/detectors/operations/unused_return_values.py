@@ -1,7 +1,7 @@
 """
 Module detecting unused return values from external calls
 """
-
+from typing import Any, List, Union
 from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import HighLevelCall
@@ -10,7 +10,6 @@ from slither.core.cfg.node import Node
 from slither.core.declarations.function_contract import FunctionContract
 from slither.slithir.operations.operation import Operation
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 class UnusedReturnValues(AbstractDetector):
@@ -55,7 +54,9 @@ contract MyConc{
             or not isinstance(ir.function, Function)
         )
 
-    def detect_unused_return_values(self, f: FunctionContract) -> List[Union[Node, Any]]:  # pylint: disable=no-self-use
+    def detect_unused_return_values(
+        self, f: FunctionContract
+    ) -> List[Union[Node, Any]]:  # pylint: disable=no-self-use
         """
             Return the nodes where the return value of a call is unused
         Args:

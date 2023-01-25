@@ -1,7 +1,8 @@
 import re
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
-from typing import Any, List, Union
+
 
 # pylint: disable=bidirectional-unicode
 class RightToLeftOverride(AbstractDetector):

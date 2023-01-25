@@ -66,7 +66,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
     ###################################################################################
     ###################################################################################
 
-    def can_reenter(self, callstack: Optional[List[FunctionContract]]=None) -> bool:
+    def can_reenter(self, callstack: Optional[List[FunctionContract]] = None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view

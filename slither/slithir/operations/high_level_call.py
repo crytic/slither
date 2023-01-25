@@ -116,7 +116,7 @@ class HighLevelCall(Call, OperationWithLValue):
                 return True
         return False
 
-    def can_reenter(self, callstack: None=None) -> bool:
+    def can_reenter(self, callstack: None = None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view

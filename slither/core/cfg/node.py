@@ -41,7 +41,6 @@ from slither.slithir.variables import (
     TemporaryVariable,
     TupleVariable,
 )
-import slither.slithir.operations.operation
 
 if TYPE_CHECKING:
     from slither.slithir.variables.variable import SlithIRVariable

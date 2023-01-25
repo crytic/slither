@@ -1,16 +1,18 @@
 """
 Module detecting state changes in assert calls
 """
+from typing import Any, List, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations.internal_call import InternalCall
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
-from typing import Any, List, Tuple, Union
 
 
-def detect_assert_state_change(contract: Contract) -> List[Union[Tuple[FunctionContract, Node], Any]]:
+def detect_assert_state_change(
+    contract: Contract,
+) -> List[Union[Tuple[FunctionContract, Node], Any]]:
     """
     Detects and returns all nodes with assert calls that change contract state from within the invariant
     :param contract: Contract to detect

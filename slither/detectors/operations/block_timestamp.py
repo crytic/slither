@@ -13,8 +13,6 @@ from slither.core.declarations.solidity_variables import (
 )
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, BinaryType
-import slither.core.declarations.contract
-import slither.core.declarations.function
 from slither.utils.output import Output
 
 

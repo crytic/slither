@@ -1,14 +1,13 @@
 """
 Module detecting redundant statements.
 """
-
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.cfg.node import Node, NodeType
 from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
 from slither.core.expressions.identifier import Identifier
 from slither.core.declarations.contract import Contract
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 class RedundantStatements(AbstractDetector):

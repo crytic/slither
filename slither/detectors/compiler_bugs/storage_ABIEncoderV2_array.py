@@ -1,7 +1,7 @@
 """
 Module detecting ABIEncoderV2 array bug
 """
-
+from typing import List, Set, Tuple
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -20,7 +20,6 @@ from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
-from typing import List, Set, Tuple
 
 
 class ABIEncoderV2Array(AbstractDetector):
@@ -60,7 +59,9 @@ contract A {
     VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 7, 25) + make_solc_versions(5, 0, 9)
 
     @staticmethod
-    def _detect_storage_abiencoderv2_arrays(contract: Contract) -> Set[Tuple[FunctionContract, Node]]:
+    def _detect_storage_abiencoderv2_arrays(
+        contract: Contract,
+    ) -> Set[Tuple[FunctionContract, Node]]:
         """
         Detects and returns all nodes with storage-allocated abiencoderv2 arrays of arrays/structs in abi.encode, events or external calls
         :param contract: Contract to detect within

@@ -1,9 +1,9 @@
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 class ShiftParameterMixup(AbstractDetector):

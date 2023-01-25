@@ -1,14 +1,13 @@
 """
 Module detecting reserved keyword shadowing
 """
-
+from typing import Any, List, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.modifier import Modifier
 from slither.core.variables.local_variable import LocalVariable
 from slither.utils.output import Output
-from typing import Any, List, Tuple, Union
 
 
 class BuiltinSymbolShadowing(AbstractDetector):
@@ -128,7 +127,9 @@ contract Bug {
 
         return word in self.BUILTIN_SYMBOLS or word in self.RESERVED_KEYWORDS
 
-    def detect_builtin_shadowing_locals(self, function_or_modifier: Union[Modifier, FunctionContract]) -> List[Union[Any, Tuple[str, LocalVariable]]]:
+    def detect_builtin_shadowing_locals(
+        self, function_or_modifier: Union[Modifier, FunctionContract]
+    ) -> List[Union[Any, Tuple[str, LocalVariable]]]:
         """Detects if local variables in a given function/modifier are named after built-in symbols.
             Any such items are returned in a list.
 

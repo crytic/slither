@@ -2,7 +2,7 @@
 Module detecting missing events for critical contract parameters set by owners and used in access control
 
 """
-
+from typing import Any, List, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.slithir.operations.event_call import EventCall
@@ -13,7 +13,6 @@ from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.modifier import Modifier
 from slither.core.variables.state_variable import StateVariable
 from slither.utils.output import Output
-from typing import Any, List, Tuple, Union
 
 
 class MissingEventsAccessControl(AbstractDetector):
@@ -52,7 +51,9 @@ contract C {
     WIKI_RECOMMENDATION = "Emit an event for critical parameter changes."
 
     @staticmethod
-    def _detect_missing_events(contract: Contract) -> List[Union[Any, Tuple[FunctionContract, List[Tuple[Node, StateVariable, Modifier]]]]]:
+    def _detect_missing_events(
+        contract: Contract,
+    ) -> List[Union[Any, Tuple[FunctionContract, List[Tuple[Node, StateVariable, Modifier]]]]]:
         """
         Detects if critical contract parameters set by owners and used in access control are missing events
         :param contract: The contract to check

@@ -5,19 +5,11 @@ from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
-from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
+from slither.utils.colors import green, yellow, red
 from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output, SupportedOutput
-import slither.core.declarations.contract
-from slither.core.cfg.node import Node
-from slither.core.declarations.enum import Enum
-from slither.core.declarations.event import Event
-from slither.core.declarations.function import Function
-from slither.core.declarations.pragma_directive import Pragma
-from slither.core.declarations.structure import Structure
-from slither.core.variables.variable import Variable
 
 if TYPE_CHECKING:
     from slither import Slither

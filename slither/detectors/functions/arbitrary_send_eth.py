@@ -11,9 +11,10 @@
 """
 from typing import Any, Tuple, Union, List
 
+from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, Contract
-from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.solidity_variables import (
     SolidityFunction,
     SolidityVariableComposed,
@@ -28,12 +29,8 @@ from slither.slithir.operations import (
     Transfer,
 )
 
-
 # pylint: disable=too-many-nested-blocks,too-many-branches
 from slither.utils.output import Output
-import slither.core.declarations.contract
-import slither.core.declarations.function
-from slither.core.declarations.function_contract import FunctionContract
 
 
 def arbitrary_send(func: Function) -> Union[bool, List[Node]]:
@@ -77,7 +74,9 @@ def arbitrary_send(func: Function) -> Union[bool, List[Node]]:
     return ret
 
 
-def detect_arbitrary_send(contract: Contract) -> List[Union[Tuple[FunctionContract, List[Node]], Any]]:
+def detect_arbitrary_send(
+    contract: Contract,
+) -> List[Union[Tuple[FunctionContract, List[Node]], Any]]:
     """
         Detect arbitrary send
     Args:

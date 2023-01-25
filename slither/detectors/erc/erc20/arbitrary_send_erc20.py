@@ -1,11 +1,11 @@
 from typing import List
+
+from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
+from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.core.declarations import Contract, Function, SolidityVariableComposed
 from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.slithir.operations import HighLevelCall, LibraryCall
-from slither.core.declarations import Contract, Function, SolidityVariableComposed
-from slither.analyses.data_dependency.data_dependency import is_dependent
-from slither.core.compilation_unit import SlitherCompilationUnit
-import slither.core.declarations.contract
 
 
 class ArbitrarySendErc20:

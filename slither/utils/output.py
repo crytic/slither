@@ -16,12 +16,6 @@ from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 from slither.utils.myprettytable import MyPrettyTable
-import slither.core.declarations.contract
-import slither.core.declarations.enum
-import slither.core.declarations.event
-import slither.core.declarations.function
-import slither.core.declarations.pragma_directive
-import slither.core.declarations.structure
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -305,7 +299,34 @@ def _convert_to_id(d: str) -> str:
 
 
 def _create_base_element(
-    custom_type: str, name: str, source_mapping: Dict, type_specific_fields: Optional[Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]], Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]]]], Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str, List[str]]]]=None, additional_fields: Optional[Dict[str, str]]=None
+    custom_type: str,
+    name: str,
+    source_mapping: Dict,
+    type_specific_fields: Optional[
+        Dict[
+            str,
+            Union[
+                Dict[
+                    str,
+                    Union[
+                        str,
+                        Dict[str, Union[int, str, bool, List[int]]],
+                        Dict[
+                            str,
+                            Union[
+                                Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]],
+                                str,
+                            ],
+                        ],
+                    ],
+                ],
+                Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]],
+                str,
+                List[str],
+            ],
+        ]
+    ] = None,
+    additional_fields: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     if additional_fields is None:
         additional_fields = {}
@@ -319,7 +340,16 @@ def _create_base_element(
     return element
 
 
-def _create_parent_element(element: SourceMapping) -> Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]], Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]]]]:
+def _create_parent_element(
+    element: SourceMapping,
+) -> Dict[
+    str,
+    Union[
+        str,
+        Dict[str, Union[int, str, bool, List[int]]],
+        Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]],
+    ],
+]:
     # pylint: disable=import-outside-toplevel
     from slither.core.children.child_contract import ChildContract
     from slither.core.children.child_function import ChildFunction

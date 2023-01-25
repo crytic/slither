@@ -3,12 +3,13 @@ Module detecting numbers with too many digits.
 """
 
 import re
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.variables import Constant
 from slither.core.cfg.node import Node
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
-from typing import Any, List, Union
+
 
 _HEX_ADDRESS_REGEXP = re.compile("(0[xX])?[0-9a-fA-F]{40}")
 

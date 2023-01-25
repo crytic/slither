@@ -28,7 +28,6 @@ from slither.utils.type import convert_type_for_solidity_signature_to_string
 from slither.utils.utils import unroll
 
 
-
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
 
 if TYPE_CHECKING:
@@ -299,7 +298,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def contains_assembly(self, c: bool):
         self._contains_assembly = c
 
-    def can_reenter(self, callstack: Optional[List["FunctionContract"]]=None) -> bool:
+    def can_reenter(self, callstack: Optional[List["FunctionContract"]] = None) -> bool:
         """
         Check if the function can re-enter
         Follow internal calls.

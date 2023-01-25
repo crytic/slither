@@ -1,9 +1,9 @@
 from typing import Any, Union, List
+
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, SolidityVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations.high_level_call import HighLevelCall
-import slither.core.declarations.function
 from slither.utils.output import Output
 
 

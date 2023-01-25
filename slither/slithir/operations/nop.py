@@ -1,10 +1,13 @@
-from .operation import Operation
-from typing import Any, List
+from typing import List
+
+
+from slither.core.variables.variable import Variable
+from slither.slithir.operations import Operation
 
 
 class Nop(Operation):
     @property
-    def read(self) -> List[Any]:
+    def read(self) -> List[Variable]:
         return []
 
     @property

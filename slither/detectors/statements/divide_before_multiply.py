@@ -2,6 +2,7 @@
 Module detecting possible loss of precision due to divide before multiple
 """
 from collections import defaultdict
+from typing import Any, DefaultDict, List, Set, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, Assignment, BinaryType, LibraryCall
 from slither.slithir.variables import Constant
@@ -13,10 +14,11 @@ from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.return_operation import Return
 from slither.utils.output import Output
-from typing import Any, DefaultDict, List, Set, Tuple, Union
 
 
-def is_division(ir: Union[Member, slither.slithir.operations.binary.Binary, HighLevelCall, Return]) -> bool:
+def is_division(
+    ir: Union[Member, slither.slithir.operations.binary.Binary, HighLevelCall, Return]
+) -> bool:
     if isinstance(ir, Binary):
         if ir.type == BinaryType.DIVISION:
             return True
@@ -32,7 +34,9 @@ def is_division(ir: Union[Member, slither.slithir.operations.binary.Binary, High
     return False
 
 
-def is_multiplication(ir: Union[Member, slither.slithir.operations.binary.Binary, HighLevelCall, Return]) -> bool:
+def is_multiplication(
+    ir: Union[Member, slither.slithir.operations.binary.Binary, HighLevelCall, Return]
+) -> bool:
     if isinstance(ir, Binary):
         if ir.type == BinaryType.MULTIPLICATION:
             return True
@@ -59,7 +63,8 @@ def is_assert(node: Node) -> bool:
     return False
 
 
-def _explore(to_explore: Set[Node], f_results: List[Any], divisions: DefaultDict[Any, Any]) -> None:  # pylint: disable=too-many-branches
+# pylint: disable=too-many-branches
+def _explore(to_explore: Set[Node], f_results: List[Any], divisions: DefaultDict[Any, Any]) -> None:
     explored = set()
     while to_explore:  # pylint: disable=too-many-nested-blocks
         node = to_explore.pop()
@@ -113,7 +118,9 @@ def _explore(to_explore: Set[Node], f_results: List[Any], divisions: DefaultDict
             to_explore.add(son)
 
 
-def detect_divide_before_multiply(contract: Contract) -> List[Union[Tuple[FunctionContract, List[Node]], Any]]:
+def detect_divide_before_multiply(
+    contract: Contract,
+) -> List[Union[Tuple[FunctionContract, List[Node]], Any]]:
     """
     Detects and returns all nodes with multiplications of division results.
     :param contract: Contract to detect assignment within.

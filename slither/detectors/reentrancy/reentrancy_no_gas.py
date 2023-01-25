@@ -5,15 +5,15 @@
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
 from collections import namedtuple, defaultdict
-
+from typing import Any, DefaultDict, List, Union
 from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.slithir.operations import Send, Transfer, EventCall
-from .reentrancy import Reentrancy, to_hashable
+from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.member import Member
 from slither.slithir.operations.return_operation import Return
-from typing import Any, DefaultDict, List, Union
+
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])

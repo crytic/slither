@@ -1,7 +1,7 @@
 """
 Detects the passing of arrays located in memory to functions which expect to modify arrays via storage reference.
 """
-
+from typing import Any, List, Set, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.variables.state_variable import StateVariable
@@ -12,7 +12,6 @@ from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
-from typing import Any, List, Set, Tuple, Union
 
 
 class ArrayByReference(AbstractDetector):
@@ -88,7 +87,15 @@ As a result, Bob's usage of the contract is incorrect."""
         return results
 
     @staticmethod
-    def detect_calls_passing_ref_to_function(contracts: List[Contract], array_modifying_funcs: Set[FunctionContract]) -> List[Union[Tuple[Node, StateVariable, FunctionContract], Tuple[Node, LocalVariable, FunctionContract], Any]]:
+    def detect_calls_passing_ref_to_function(
+        contracts: List[Contract], array_modifying_funcs: Set[FunctionContract]
+    ) -> List[
+        Union[
+            Tuple[Node, StateVariable, FunctionContract],
+            Tuple[Node, LocalVariable, FunctionContract],
+            Any,
+        ]
+    ]:
         """
         Obtains all calls passing storage arrays by value to a function which cannot write to them successfully.
         :param contracts: The collection of contracts to check for problematic calls in.

@@ -1,7 +1,7 @@
 """
 Module detecting public mappings with nested variables (returns incorrect values prior to 0.5.x)
 """
-
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -13,7 +13,6 @@ from slither.core.declarations.structure import Structure
 from slither.core.declarations.contract import Contract
 from slither.core.variables.state_variable import StateVariable
 from slither.utils.output import Output
-from typing import Any, List, Union
 
 
 def detect_public_nested_mappings(contract: Contract) -> List[Union[StateVariable, Any]]:

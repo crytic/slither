@@ -56,7 +56,7 @@ class Source:
         filename_short: str = self.filename.short if self.filename.short else ""
         return f"{filename_short}{lines} ({self.starting_column} - {self.ending_column})"
 
-    def _get_lines_str(self, line_descr: str="") -> str:
+    def _get_lines_str(self, line_descr: str = "") -> str:
 
         # If the compilation unit was not initialized, it means that the set_offset was never called
         # on the corresponding object, which should not happen

@@ -1,12 +1,12 @@
 """
 Detect mistakenly un-indexed ERC20 event parameters
 """
+from typing import Any, List, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.event import Event
 from slither.core.variables.event_variable import EventVariable
 from slither.utils.output import Output
-from typing import Any, List, Tuple, Union
 
 
 class UnindexedERC20EventParameters(AbstractDetector):
@@ -44,7 +44,9 @@ Failure to include these keywords will exclude the parameter data in the transac
     STANDARD_JSON = False
 
     @staticmethod
-    def detect_erc20_unindexed_event_params(contract: Contract) -> List[Union[Tuple[Event, EventVariable], Any]]:
+    def detect_erc20_unindexed_event_params(
+        contract: Contract,
+    ) -> List[Union[Tuple[Event, EventVariable], Any]]:
         """
         Detect un-indexed ERC20 event parameters in a given contract.
         :param contract: The contract to check ERC20 events for un-indexed parameters in.
