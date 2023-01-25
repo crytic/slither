@@ -1423,8 +1423,9 @@ def look_for_library_or_top_level(
     for destination in using_for[t]:
         if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
             arguments = [ir.destination] + ir.arguments
-            if len(destination.parameters) == len(arguments) and _find_function_from_parameter(
-                arguments, [destination], True
+            if (
+                len(destination.parameters) == len(arguments)
+                and _find_function_from_parameter(arguments, [destination], True) is not None
             ):
                 internalcall = InternalCall(destination, ir.nbr_arguments, ir.lvalue, ir.type_call)
                 internalcall.set_expression(ir.expression)
