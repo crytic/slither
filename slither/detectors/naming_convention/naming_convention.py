@@ -139,7 +139,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     # For ERC20 compatibility
                     if var.name in ["symbol", "name", "decimals"]:
                         continue
-
+                    if var.visibility == "public":
+                        continue
                     if not self.is_upper_case_with_underscores(var.name):
                         info = [
                             "Constant ",
