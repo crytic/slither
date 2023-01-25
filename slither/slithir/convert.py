@@ -165,7 +165,7 @@ def convert_expression(expression: Expression, node: "Node") -> List[Any]:
 ###################################################################################
 
 
-def is_value(ins: slither.slithir.operations.operation.Operation) -> bool:
+def is_value(ins: Operation) -> bool:
     if isinstance(ins, TmpCall):
         if isinstance(ins.ori, Member):
             if ins.ori.variable_right == "value":
@@ -173,7 +173,7 @@ def is_value(ins: slither.slithir.operations.operation.Operation) -> bool:
     return False
 
 
-def is_gas(ins: slither.slithir.operations.operation.Operation) -> bool:
+def is_gas(ins: Operation) -> bool:
     if isinstance(ins, TmpCall):
         if isinstance(ins.ori, Member):
             if ins.ori.variable_right == "gas":
@@ -293,7 +293,7 @@ def _find_function_from_parameter(
     return None
 
 
-def is_temporary(ins: slither.slithir.operations.operation.Operation) -> bool:
+def is_temporary(ins: Operation) -> bool:
     return isinstance(
         ins,
         (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
@@ -1153,12 +1153,8 @@ def can_be_low_level(ir: slither.slithir.operations.high_level_call.HighLevelCal
 
 
 def convert_to_low_level(
-    ir: slither.slithir.operations.high_level_call.HighLevelCall,
-) -> Union[
-    slither.slithir.operations.send.Send,
-    slither.slithir.operations.low_level_call.LowLevelCall,
-    slither.slithir.operations.transfer.Transfer,
-]:
+    ir: HighLevelCall,
+) -> Union[Send, LowLevelCall, Transfer,]:
     """
     Convert to a transfer/send/or low level call
     The funciton assume to receive a correct IR
@@ -1198,7 +1194,7 @@ def convert_to_low_level(
     raise SlithIRError(f"Incorrect conversion to low level {ir}")
 
 
-def can_be_solidity_func(ir: slither.slithir.operations.high_level_call.HighLevelCall) -> bool:
+def can_be_solidity_func(ir: HighLevelCall) -> bool:
     if not isinstance(ir, HighLevelCall):
         return False
     return ir.destination.name == "abi" and ir.function_name in [
@@ -1212,8 +1208,8 @@ def can_be_solidity_func(ir: slither.slithir.operations.high_level_call.HighLeve
 
 
 def convert_to_solidity_func(
-    ir: slither.slithir.operations.high_level_call.HighLevelCall,
-) -> slither.slithir.operations.solidity_call.SolidityCall:
+    ir: HighLevelCall,
+) -> SolidityCall:
     """
     Must be called after can_be_solidity_func
     :param ir:
@@ -1250,8 +1246,8 @@ def convert_to_solidity_func(
 
 
 def convert_to_push_expand_arr(
-    ir: slither.slithir.operations.high_level_call.HighLevelCall, node: "Node", ret: List[Any]
-) -> slither.slithir.variables.temporary.TemporaryVariable:
+    ir: HighLevelCall, node: "Node", ret: List[Any]
+) -> TemporaryVariable:
     arr = ir.destination
 
     length = ReferenceVariable(node)
@@ -1287,14 +1283,14 @@ def convert_to_push_expand_arr(
 
 
 def convert_to_push_set_val(
-    ir: slither.slithir.operations.high_level_call.HighLevelCall,
+    ir: HighLevelCall,
     node: "Node",
-    length_val: slither.slithir.variables.temporary.TemporaryVariable,
+    length_val: TemporaryVariable,
     ret: List[
         Union[
-            slither.slithir.operations.length.Length,
-            slither.slithir.operations.assignment.Assignment,
-            slither.slithir.operations.binary.Binary,
+            Length,
+            Assignment,
+            Binary,
         ]
     ],
 ) -> None:
@@ -1417,21 +1413,16 @@ def convert_to_pop(ir, node):
 
 
 def look_for_library_or_top_level(
-    contract: slither.core.declarations.contract.Contract,
-    ir: slither.slithir.operations.high_level_call.HighLevelCall,
+    contract: Contract,
+    ir: HighLevelCall,
     using_for,
     t: Union[
-        slither.core.solidity_types.user_defined_type.UserDefinedType,
-        slither.core.solidity_types.elementary_type.ElementaryType,
+        UserDefinedType,
+        ElementaryType,
         str,
         TypeAliasTopLevel,
     ],
-) -> Optional[
-    Union[
-        slither.slithir.operations.library_call.LibraryCall,
-        slither.slithir.operations.internal_call.InternalCall,
-    ]
-]:
+) -> Optional[Union[LibraryCall, InternalCall,]]:
     for destination in using_for[t]:
         if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
             arguments = [ir.destination] + ir.arguments
@@ -1477,13 +1468,8 @@ def look_for_library_or_top_level(
 
 
 def convert_to_library_or_top_level(
-    ir: slither.slithir.operations.high_level_call.HighLevelCall, node: "Node", using_for
-) -> Optional[
-    Union[
-        slither.slithir.operations.library_call.LibraryCall,
-        slither.slithir.operations.internal_call.InternalCall,
-    ]
-]:
+    ir: HighLevelCall, node: "Node", using_for
+) -> Optional[Union[LibraryCall, InternalCall,]]:
     # We use contract_declarer, because Solidity resolve the library
     # before resolving the inheritance.
     # Though we could use .contract as libraries cannot be shadowed
@@ -1504,8 +1490,8 @@ def convert_to_library_or_top_level(
 
 def get_type(
     t: Union[
-        slither.core.solidity_types.user_defined_type.UserDefinedType,
-        slither.core.solidity_types.elementary_type.ElementaryType,
+        UserDefinedType,
+        ElementaryType,
     ]
 ) -> str:
     """
@@ -1526,9 +1512,7 @@ def _can_be_implicitly_converted(source: str, target: str) -> bool:
     return source == target
 
 
-def convert_type_library_call(
-    ir: HighLevelCall, lib_contract: Contract
-) -> Optional[slither.slithir.operations.library_call.LibraryCall]:
+def convert_type_library_call(ir: HighLevelCall, lib_contract: Contract) -> Optional[LibraryCall]:
     func = None
     candidates = [
         f
@@ -1739,7 +1723,7 @@ def convert_type_of_high_and_internal_level_call(
 ###################################################################################
 
 
-def find_references_origin(irs: List[Any]) -> None:
+def find_references_origin(irs: List[Operation]) -> None:
     """
     Make lvalue of each Index, Member operation
     points to the left variable
@@ -1776,7 +1760,7 @@ def remove_temporary(result):
     return result
 
 
-def remove_unused(result: List[Any]) -> List[Any]:
+def remove_unused(result: List[Operation]) -> List[Operation]:
     removed = True
 
     if not result:
@@ -1823,7 +1807,7 @@ def remove_unused(result: List[Any]) -> List[Any]:
 ###################################################################################
 
 
-def convert_constant_types(irs: List[Any]) -> None:
+def convert_constant_types(irs: List[Operation]) -> None:
     """
     late conversion of uint -> type for constant (Literal)
     :param irs:
@@ -1899,7 +1883,7 @@ def convert_constant_types(irs: List[Any]) -> None:
 ###################################################################################
 
 
-def convert_delete(irs: List[Any]) -> None:
+def convert_delete(irs: List[Operation]) -> None:
     """
     Convert the lvalue of the Delete to point to the variable removed
     This can only be done after find_references_origin is called
@@ -1935,7 +1919,7 @@ def _find_source_mapping_references(irs: List[Operation]) -> None:
 ###################################################################################
 
 
-def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Any]:
+def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Operation]:
     """
     Apply a set of heuristic to improve slithIR
     """

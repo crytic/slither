@@ -9,6 +9,7 @@ from slither.core.declarations.top_level import TopLevel
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.scope.scope import FileScope
+    from slither.slithir.variables.state_variable import StateIRVariable
 
 
 class FunctionTopLevel(Function, TopLevel):
@@ -78,7 +79,9 @@ class FunctionTopLevel(Function, TopLevel):
     ###################################################################################
     ###################################################################################
 
-    def generate_slithir_ssa(self, all_ssa_state_variables_instances: Dict[Any, Any]) -> None:
+    def generate_slithir_ssa(
+        self, all_ssa_state_variables_instances: Dict[str, "StateIRVariable"]
+    ) -> None:
         # pylint: disable=import-outside-toplevel
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (

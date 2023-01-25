@@ -119,15 +119,11 @@ _signed_to_unsigned = {
 
 
 def convert_assignment(
-    left: Union[
-        LocalVariable, StateVariable, slither.slithir.variables.reference.ReferenceVariable
-    ],
+    left: Union[LocalVariable, StateVariable, ReferenceVariable],
     right: SourceMapping,
-    t: slither.core.expressions.assignment_operation.AssignmentOperationType,
+    t: AssignmentOperationType,
     return_type,
-) -> Union[
-    slither.slithir.operations.binary.Binary, slither.slithir.operations.assignment.Assignment
-]:
+) -> Union[Binary, Assignment]:
     if t == AssignmentOperationType.ASSIGN:
         return Assignment(left, right, return_type)
     if t == AssignmentOperationType.ASSIGN_OR:
@@ -173,9 +169,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def result(self) -> List[Any]:
         return self._result
 
-    def _post_assignement_operation(
-        self, expression: slither.core.expressions.assignment_operation.AssignmentOperation
-    ) -> None:
+    def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         if isinstance(left, list):  # tuple expression:
@@ -275,9 +269,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         set_val(expression, val)
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
-    def _post_call_expression(
-        self, expression: slither.core.expressions.call_expression.CallExpression
-    ) -> None:
+    def _post_call_expression(self, expression: CallExpression) -> None:
 
         assert isinstance(expression, CallExpression)
 
@@ -387,11 +379,11 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     def _post_elementary_type_name_expression(
         self,
-        expression: slither.core.expressions.elementary_type_name_expression.ElementaryTypeNameExpression,
+        expression: ElementaryTypeNameExpression,
     ) -> None:
         set_val(expression, expression.type)
 
-    def _post_identifier(self, expression: slither.core.expressions.identifier.Identifier) -> None:
+    def _post_identifier(self, expression: Identifier) -> None:
         set_val(expression, expression.value)
 
     def _post_index_access(self, expression: IndexAccess) -> None:
