@@ -31,7 +31,7 @@ def _extract_decl_props(raw: Dict) -> Dict:
     return {
         **_extract_base_props(raw),
         'name': raw['attributes']['name'],
-        'canonical_name': raw.get('canonicalName', ''),
+        'canonical_name': raw.get('canonicalName', None),
         'visibility': raw['attributes'].get('visibility', 'public'),
         'documentation': raw['attributes'].get('documentation', None),
         'referenced_declaration': raw['attributes'].get('referenced_delcaration', None)
@@ -497,13 +497,6 @@ def parse_using_for_directive(raw: Dict) -> UsingForDirective:
 
 
 def parse_struct_definition(raw: Dict) -> StructDefinition:
-    attrs = raw['attributes']
-
-    if 'canonicalName' in attrs:
-        # >=0.4.12
-        canonical_name = attrs['canonicalName']
-    else:
-        canonical_name = None
 
     members_parsed: List[VariableDeclaration] = []
     for child in raw['children']:
@@ -511,18 +504,11 @@ def parse_struct_definition(raw: Dict) -> StructDefinition:
         assert isinstance(child_parsed, VariableDeclaration)
         members_parsed.append(child_parsed)
 
-    return StructDefinition(members_parsed, name=attrs['name'], canonical_name=canonical_name, visibility=None,
-                            **_extract_base_props(raw))
+    return StructDefinition(members_parsed, **_extract_decl_props(raw))
 
 
 def parse_enum_definition(raw: Dict) -> EnumDefinition:
     attrs = raw['attributes']
-
-    if 'canonicalName' in attrs:
-        # >=0.4.12
-        canonical_name = attrs['canonicalName']
-    else:
-        canonical_name = None
 
     members_parsed: List[EnumValue] = []
     for child in raw['children']:
@@ -530,16 +516,13 @@ def parse_enum_definition(raw: Dict) -> EnumDefinition:
         assert isinstance(child_parsed, EnumValue)
         members_parsed.append(child_parsed)
 
-    return EnumDefinition(members_parsed, name=attrs['name'], canonical_name=canonical_name, visibility=None,
-                          **_extract_base_props(raw))
+    return EnumDefinition(members_parsed,
+                          **{**_extract_decl_props(raw), 'visibility': None})
 
 
 def parse_enum_value(raw: Dict) -> EnumValue:
     return EnumValue(
-        name=raw['attributes']['name'],
-        canonical_name=None,
-        visibility=None,
-        **_extract_base_props(raw)
+        **_extract_decl_props(raw)
     )
 
 
@@ -792,11 +775,7 @@ def parse_modifier_definition(raw: Dict) -> ModifierDefinition:
     return ModifierDefinition(
         body=body,
         params=params,
-        rets=None,
-        name=raw['attributes']['name'],
-        canonical_name=None,
-        visibility="internal",
-        **_extract_base_props(raw)
+        **{**_extract_decl_props(raw), 'rets': None, 'visibility': 'internal' }
     )
 
 
@@ -831,9 +810,8 @@ def parse_event_definition(raw: Dict) -> EventDefinition:
 
     return EventDefinition(
         anonymous,
-        params=params, rets=None,
-        name=attrs['name'], canonical_name=attrs['name'], visibility=None,
-        **_extract_base_props(raw),
+        params=params,
+        **{**_extract_decl_props(raw), 'visibility': None, 'rets': None}
     )
 
 
