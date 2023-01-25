@@ -162,7 +162,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if self.logger:
             self.logger.info(self.color(info))
 
-    @property
+    @staticmethod
     def uses_certik_ir() -> bool:
         """
         Does this detector expect the CertiK version of SlithIR?

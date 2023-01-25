@@ -192,7 +192,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         """
         _check_common_things("detector", detector_class, AbstractDetector, self._detectors)
 
-        if detector_class.uses_certik_ir:
+        if detector_class.uses_certik_ir():
             for compilation_unit in self.certik_compilation_units:
                 instance = detector_class(compilation_unit, self, logger_detector)
                 self._detectors.append(instance)
