@@ -119,7 +119,7 @@ def _generate_output_unresolved(
 
 
 def _run_coverage_analysis(
-    args, slither: SlitherCompilationUnit, kspec_functions: Set[Tuple[str, str]]
+    args: Namespace, slither: SlitherCompilationUnit, kspec_functions: Set[Tuple[str, str]]
 ) -> None:
     # Collect all slither functions
     slither_functions = _get_slither_functions(slither)

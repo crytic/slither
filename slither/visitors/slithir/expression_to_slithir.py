@@ -11,6 +11,7 @@ from slither.core.declarations import (
 )
 from slither.core.declarations.enum import Enum
 from slither.core.expressions import (
+    AssignmentOperation,
     AssignmentOperationType,
     UnaryOperationType,
     BinaryOperationType,
