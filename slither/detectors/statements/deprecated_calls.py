@@ -2,7 +2,7 @@
 Module detecting deprecated standards.
 """
 
-from slither.core.cfg.node import NodeType
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.solidity_variables import (
     SolidityVariableComposed,
     SolidityFunction,
@@ -10,6 +10,12 @@ from slither.core.declarations.solidity_variables import (
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
 from slither.visitors.expression.export_values import ExportValues
+from slither.core.declarations.contract import Contract
+from slither.core.expressions.binary_operation import BinaryOperation
+from slither.core.expressions.call_expression import CallExpression
+from slither.core.expressions.member_access import MemberAccess
+from slither.utils.output import Output
+from typing import Any, List, Tuple, Union
 
 
 # Reference: https://smartcontractsecurity.github.io/SWC-registry/docs/SWC-111
@@ -73,7 +79,7 @@ contract ContractWithDeprecatedReferences {
     DEPRECATED_NODE_TYPES = [(NodeType.THROW, "throw", "revert()")]
     DEPRECATED_LOW_LEVEL_CALLS = [("callcode", "callcode", "delegatecall")]
 
-    def detect_deprecation_in_expression(self, expression):
+    def detect_deprecation_in_expression(self, expression: Union[BinaryOperation, MemberAccess, CallExpression]) -> List[Union[Any, Tuple[str, str, str]]]:
         """Detects if an expression makes use of any deprecated standards.
 
         Returns:
@@ -95,7 +101,7 @@ contract ContractWithDeprecatedReferences {
 
         return results
 
-    def detect_deprecated_references_in_node(self, node):
+    def detect_deprecated_references_in_node(self, node: Node) -> List[Union[Any, Tuple[str, str, str], Tuple[NodeType, str, str]]]:
         """Detects if a node makes use of any deprecated standards.
 
         Returns:
@@ -114,7 +120,7 @@ contract ContractWithDeprecatedReferences {
 
         return results
 
-    def detect_deprecated_references_in_contract(self, contract):
+    def detect_deprecated_references_in_contract(self, contract: Contract) -> List[Union[Any, Tuple[Node, List[Tuple[str, str, str]]], Tuple[Node, List[Tuple[NodeType, str, str]]]]]:
         """Detects the usage of any deprecated built-in symbols.
 
         Returns:
@@ -150,7 +156,7 @@ contract ContractWithDeprecatedReferences {
 
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """Detects if an expression makes use of any deprecated standards.
 
         Recursively visit the calls

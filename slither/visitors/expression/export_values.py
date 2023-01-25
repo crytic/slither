@@ -2,23 +2,29 @@ from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.literal import Literal
+from slither.core.expressions.binary_operation import BinaryOperation
+from slither.core.expressions.expression import Expression
+from slither.core.expressions.member_access import MemberAccess
+from slither.core.expressions.tuple_expression import TupleExpression
+from slither.core.expressions.type_conversion import TypeConversion
+from typing import Any, List
 
 key = "ExportValues"
 
 
-def get(expression):
+def get(expression: Expression) -> List[Any]:
     val = expression.context[key]
     # we delete the item to reduce memory use
     del expression.context[key]
     return val
 
 
-def set_val(expression, val):
+def set_val(expression: Expression, val: List[Any]) -> None:
     expression.context[key] = val
 
 
 class ExportValues(ExpressionVisitor):
-    def result(self):
+    def result(self) -> List[Any]:
         if self._result is None:
             self._result = list(set(get(self.expression)))
         return self._result
@@ -29,7 +35,7 @@ class ExportValues(ExpressionVisitor):
         val = left + right
         set_val(expression, val)
 
-    def _post_binary_operation(self, expression):
+    def _post_binary_operation(self, expression: BinaryOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         val = left + right
@@ -64,7 +70,7 @@ class ExportValues(ExpressionVisitor):
     def _post_literal(self, expression: Literal) -> None:
         set_val(expression, [])
 
-    def _post_member_access(self, expression):
+    def _post_member_access(self, expression: MemberAccess) -> None:
         expr = get(expression.expression)
         val = expr
         set_val(expression, val)
@@ -78,12 +84,12 @@ class ExportValues(ExpressionVisitor):
     def _post_new_elementary_type(self, expression):
         set_val(expression, [])
 
-    def _post_tuple_expression(self, expression):
+    def _post_tuple_expression(self, expression: TupleExpression) -> None:
         expressions = [get(e) for e in expression.expressions if e]
         val = [item for sublist in expressions for item in sublist]
         set_val(expression, val)
 
-    def _post_type_conversion(self, expression):
+    def _post_type_conversion(self, expression: TypeConversion) -> None:
         expr = get(expression.expression)
         val = expr
         set_val(expression, val)

@@ -28,6 +28,7 @@ from slither.utils.type import convert_type_for_solidity_signature_to_string
 from slither.utils.utils import unroll
 
 
+
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
 
 if TYPE_CHECKING:
@@ -47,6 +48,7 @@ if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.scope.scope import FileScope
     from slither.slithir.variables.state_variable import StateIRVariable
+    from slither.core.declarations.function_contract import FunctionContract
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -297,7 +299,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def contains_assembly(self, c: bool):
         self._contains_assembly = c
 
-    def can_reenter(self, callstack=None) -> bool:
+    def can_reenter(self, callstack: Optional[List["FunctionContract"]]=None) -> bool:
         """
         Check if the function can re-enter
         Follow internal calls.

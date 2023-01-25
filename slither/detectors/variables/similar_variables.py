@@ -5,6 +5,10 @@ Do not check contract inheritance
 import difflib
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations.contract import Contract
+from slither.core.variables.local_variable import LocalVariable
+from slither.utils.output import Output
+from typing import Any, List, Set, Tuple, Union
 
 
 class SimilarVarsDetection(AbstractDetector):
@@ -27,7 +31,7 @@ class SimilarVarsDetection(AbstractDetector):
     WIKI_RECOMMENDATION = "Prevent variables from having similar names."
 
     @staticmethod
-    def similar(seq1, seq2):
+    def similar(seq1: str, seq2: str) -> bool:
         """Test the name similarity
 
         Two name are similar if difflib.SequenceMatcher on the lowercase
@@ -46,7 +50,7 @@ class SimilarVarsDetection(AbstractDetector):
         return ret
 
     @staticmethod
-    def detect_sim(contract):
+    def detect_sim(contract: Contract) -> Set[Tuple[LocalVariable, LocalVariable]]:
         """Detect variables with similar name
 
         Returns:
@@ -69,7 +73,7 @@ class SimilarVarsDetection(AbstractDetector):
 
         return set(ret)
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """Detect similar variables name
 
         Returns:

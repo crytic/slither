@@ -74,7 +74,7 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         # remove None
         return self._unroll([x for x in all_read if x])
 
-    def can_reenter(self, _callstack=None):
+    def can_reenter(self, _callstack: None=None) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool
@@ -83,7 +83,7 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
             return False
         return True
 
-    def can_send_eth(self):
+    def can_send_eth(self) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool

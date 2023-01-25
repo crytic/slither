@@ -7,9 +7,12 @@ from slither.core.solidity_types import ArrayType
 from slither.visitors.expression.export_values import ExportValues
 from slither.core.variables.state_variable import StateVariable
 from slither.formatters.variables.unused_state_variables import custom_format
+from slither.core.declarations.contract import Contract
+from slither.utils.output import Output
+from typing import Any, List, Optional, Union
 
 
-def detect_unused(contract):
+def detect_unused(contract: Contract) -> Optional[List[StateVariable]]:
     if contract.is_signature_only():
         return None
     # Get all the variables read in all the functions and modifiers
@@ -54,7 +57,7 @@ class UnusedStateVars(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = ""
     WIKI_RECOMMENDATION = "Remove unused state variables."
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         """Detect unused state variables"""
         results = []
         for c in self.compilation_unit.contracts_derived:

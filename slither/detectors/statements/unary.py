@@ -5,10 +5,13 @@ Module detecting the incorrect use of unary expressions
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
+from slither.core.expressions.assignment_operation import AssignmentOperation
+from slither.utils.output import Output
+from typing import Any, List, Union
 
 
 class InvalidUnaryExpressionDetector(ExpressionVisitor):
-    def _post_assignement_operation(self, expression):
+    def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
         if isinstance(expression.expression_right, UnaryOperation):
             if expression.expression_right.type == UnaryOperationType.PLUS_PRE:
                 # This is defined in ExpressionVisitor but pylint
@@ -18,7 +21,7 @@ class InvalidUnaryExpressionDetector(ExpressionVisitor):
 
 
 class InvalidUnaryStateVariableDetector(ExpressionVisitor):
-    def _post_unary_operation(self, expression):
+    def _post_unary_operation(self, expression: UnaryOperation) -> None:
         if expression.type == UnaryOperationType.PLUS_PRE:
             # This is defined in ExpressionVisitor but pylint
             # Seems to think its not
@@ -60,7 +63,7 @@ contract Bug{
 
     WIKI_RECOMMENDATION = "Remove the unary expression."
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """
         Detect the incorrect use of unary expressions
         """

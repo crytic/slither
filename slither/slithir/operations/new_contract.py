@@ -1,10 +1,11 @@
-from typing import Any, List, Union
+from typing import Optional, Any, List, Union
 from slither.slithir.operations import Call, OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
 from slither.core.declarations.contract import Contract
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
+from slither.core.declarations.function_contract import FunctionContract
 
 
 class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
@@ -65,7 +66,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
     ###################################################################################
     ###################################################################################
 
-    def can_reenter(self, callstack=None):
+    def can_reenter(self, callstack: Optional[List[FunctionContract]]=None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view
@@ -82,7 +83,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
         callstack = callstack + [constructor]
         return constructor.can_reenter(callstack)
 
-    def can_send_eth(self):
+    def can_send_eth(self) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool

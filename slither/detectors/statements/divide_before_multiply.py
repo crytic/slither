@@ -5,9 +5,18 @@ from collections import defaultdict
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, Assignment, BinaryType, LibraryCall
 from slither.slithir.variables import Constant
+import slither.slithir.operations.binary
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.slithir.operations.member import Member
+from slither.slithir.operations.return_operation import Return
+from slither.utils.output import Output
+from typing import Any, DefaultDict, List, Set, Tuple, Union
 
 
-def is_division(ir):
+def is_division(ir: Union[Member, slither.slithir.operations.binary.Binary, HighLevelCall, Return]) -> bool:
     if isinstance(ir, Binary):
         if ir.type == BinaryType.DIVISION:
             return True
@@ -23,7 +32,7 @@ def is_division(ir):
     return False
 
 
-def is_multiplication(ir):
+def is_multiplication(ir: Union[Member, slither.slithir.operations.binary.Binary, HighLevelCall, Return]) -> bool:
     if isinstance(ir, Binary):
         if ir.type == BinaryType.MULTIPLICATION:
             return True
@@ -39,7 +48,7 @@ def is_multiplication(ir):
     return False
 
 
-def is_assert(node):
+def is_assert(node: Node) -> bool:
     if node.contains_require_or_assert():
         return True
     # Old Solidity code where using an internal 'assert(bool)' function
@@ -50,7 +59,7 @@ def is_assert(node):
     return False
 
 
-def _explore(to_explore, f_results, divisions):  # pylint: disable=too-many-branches
+def _explore(to_explore: Set[Node], f_results: List[Any], divisions: DefaultDict[Any, Any]) -> None:  # pylint: disable=too-many-branches
     explored = set()
     while to_explore:  # pylint: disable=too-many-nested-blocks
         node = to_explore.pop()
@@ -104,7 +113,7 @@ def _explore(to_explore, f_results, divisions):  # pylint: disable=too-many-bran
             to_explore.add(son)
 
 
-def detect_divide_before_multiply(contract):
+def detect_divide_before_multiply(contract: Contract) -> List[Union[Tuple[FunctionContract, List[Node]], Any]]:
     """
     Detects and returns all nodes with multiplications of division results.
     :param contract: Contract to detect assignment within.
@@ -170,7 +179,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
 
     WIKI_RECOMMENDATION = """Consider ordering multiplication before division."""
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         """
         Detect divisions before multiplications
         """

@@ -107,7 +107,7 @@ class HighLevelCall(Call, OperationWithLValue):
     # region Analyses
     ###################################################################################
     ###################################################################################
-    def is_static_call(self):
+    def is_static_call(self) -> bool:
         # If solidity >0.5, STATICCALL is used
         if self.compilation_unit.solc_version and self.compilation_unit.solc_version >= "0.5.0":
             if isinstance(self.function, Function) and (self.function.view or self.function.pure):
@@ -116,7 +116,7 @@ class HighLevelCall(Call, OperationWithLValue):
                 return True
         return False
 
-    def can_reenter(self, callstack=None):
+    def can_reenter(self, callstack: None=None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view
@@ -145,7 +145,7 @@ class HighLevelCall(Call, OperationWithLValue):
 
         return True
 
-    def can_send_eth(self):
+    def can_send_eth(self) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool

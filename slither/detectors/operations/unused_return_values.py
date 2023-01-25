@@ -6,6 +6,11 @@ from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import HighLevelCall
 from slither.core.declarations import Function
+from slither.core.cfg.node import Node
+from slither.core.declarations.function_contract import FunctionContract
+from slither.slithir.operations.operation import Operation
+from slither.utils.output import Output
+from typing import Any, List, Union
 
 
 class UnusedReturnValues(AbstractDetector):
@@ -40,7 +45,7 @@ contract MyConc{
 
     WIKI_RECOMMENDATION = "Ensure that all the return values of the function calls are used."
 
-    def _is_instance(self, ir):  # pylint: disable=no-self-use
+    def _is_instance(self, ir: Operation) -> bool:  # pylint: disable=no-self-use
         return isinstance(ir, HighLevelCall) and (
             (
                 isinstance(ir.function, Function)
@@ -50,7 +55,7 @@ contract MyConc{
             or not isinstance(ir.function, Function)
         )
 
-    def detect_unused_return_values(self, f):  # pylint: disable=no-self-use
+    def detect_unused_return_values(self, f: FunctionContract) -> List[Union[Node, Any]]:  # pylint: disable=no-self-use
         """
             Return the nodes where the return value of a call is unused
         Args:
@@ -73,7 +78,7 @@ contract MyConc{
 
         return [nodes_origin[value].node for value in values_returned]
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """Detect high level calls which return a value that are never used"""
         results = []
         for c in self.compilation_unit.contracts:

@@ -41,6 +41,7 @@ from slither.slithir.variables import (
     TemporaryVariable,
     TupleVariable,
 )
+import slither.slithir.operations.operation
 
 if TYPE_CHECKING:
     from slither.slithir.variables.variable import SlithIRVariable
@@ -1007,7 +1008,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
     ###################################################################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         additional_info = ""
         if self.expression:
             additional_info += " " + str(self.expression)

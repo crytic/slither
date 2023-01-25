@@ -6,9 +6,12 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.visitors.expression.export_values import ExportValues
 from slither.core.declarations.function import Function
 from slither.core.variables.state_variable import StateVariable
+from slither.core.declarations.contract import Contract
+from slither.utils.output import Output
+from typing import Any, List, Union
 
 
-def detect_function_init_state_vars(contract):
+def detect_function_init_state_vars(contract: Contract) -> List[Union[StateVariable, Any]]:
     """
     Detect any state variables that are initialized from an immediate function call (prior to constructor run).
     :param contract: The contract to detect state variable definitions for.
@@ -87,7 +90,7 @@ Special care must be taken when initializing state variables from an immediate f
 
     WIKI_RECOMMENDATION = "Remove any initialization of state variables via non-constant state variables or function calls. If variables must be set upon contract deployment, locate initialization in the constructor instead."
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         """
         Detect state variables defined from an immediate function call (pre-contract deployment).
 

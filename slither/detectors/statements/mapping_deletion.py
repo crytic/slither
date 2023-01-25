@@ -6,6 +6,12 @@ from slither.core.declarations import Structure
 from slither.core.solidity_types import MappingType, UserDefinedType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Delete
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.structure_contract import StructureContract
+from slither.utils.output import Output
+from typing import Any, List, Tuple, Union
 
 
 class MappingDeletionDetection(AbstractDetector):
@@ -45,7 +51,7 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
     )
 
     @staticmethod
-    def detect_mapping_deletion(contract):
+    def detect_mapping_deletion(contract: Contract) -> List[Union[Any, Tuple[FunctionContract, StructureContract, Node]]]:
         """Detect deletion on structure containing a mapping
 
         Returns:
@@ -66,7 +72,7 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
                                 ret.append((f, st, node))
         return ret
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """Detect mapping deletion
 
         Returns:

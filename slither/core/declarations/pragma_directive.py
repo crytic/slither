@@ -39,5 +39,5 @@ class Pragma(SourceMapping):
             return self._directive[0] == "experimental" and self._directive[1] == "ABIEncoderV2"
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "pragma " + "".join(self.directive)

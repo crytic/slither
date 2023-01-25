@@ -10,6 +10,10 @@ from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.slithir.operations import Send, Transfer, EventCall
 from .reentrancy import Reentrancy, to_hashable
+from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.slithir.operations.member import Member
+from slither.slithir.operations.return_operation import Return
+from typing import Any, DefaultDict, List, Union
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])
@@ -50,7 +54,7 @@ Only report reentrancy that is based on `transfer` or `send`."""
     WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
 
     @staticmethod
-    def can_callback(ir):
+    def can_callback(ir: Union[Member, Return, HighLevelCall]) -> bool:
         """
         Same as Reentrancy, but also consider Send and Transfer
 
@@ -59,7 +63,7 @@ Only report reentrancy that is based on `transfer` or `send`."""
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self):
+    def find_reentrancies(self) -> DefaultDict[Any, Any]:
         result = defaultdict(set)
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_declared:
@@ -97,7 +101,7 @@ Only report reentrancy that is based on `transfer` or `send`."""
                             result[finding_key] |= finding_vars
         return result
 
-    def _detect(self):  # pylint: disable=too-many-branches,too-many-locals
+    def _detect(self) -> List[Any]:  # pylint: disable=too-many-branches,too-many-locals
         """"""
 
         super()._detect()

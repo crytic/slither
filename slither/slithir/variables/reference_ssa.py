@@ -4,6 +4,8 @@
     as the ReferenceVariable are in SSA form in both version
 """
 from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.variables.tuple import TupleVariable
+from typing import Union
 
 
 class ReferenceVariableSSA(ReferenceVariable):  # pylint: disable=too-few-public-methods
@@ -13,5 +15,5 @@ class ReferenceVariableSSA(ReferenceVariable):  # pylint: disable=too-few-public
         self._non_ssa_version = reference
 
     @property
-    def non_ssa_version(self):
+    def non_ssa_version(self) -> Union[ReferenceVariable, TupleVariable]:
         return self._non_ssa_version

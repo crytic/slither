@@ -5,6 +5,8 @@
 import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.attributes.incorrect_solc import custom_format
+from slither.utils.output import Output
+from typing import Any, List, Optional, Tuple, Union
 
 # group:
 # 0: ^ > >= < <= (optional)
@@ -83,7 +85,7 @@ Consider using the latest version of Solidity for testing."""
         "^0.8.8",
     ]
 
-    def _check_version(self, version):
+    def _check_version(self, version: Tuple[str, str, str, str, str]) -> Optional[str]:
         op = version[0]
         if op and op not in [">", ">=", "^"]:
             return self.LESS_THAN_TXT
@@ -96,7 +98,7 @@ Consider using the latest version of Solidity for testing."""
             return self.OLD_VERSION_TXT
         return None
 
-    def _check_pragma(self, version):
+    def _check_pragma(self, version: str) -> Optional[str]:
         if version in self.BUGGY_VERSIONS:
             return self.BUGGY_VERSION_TXT
         versions = PATTERN.findall(version)
@@ -117,7 +119,7 @@ Consider using the latest version of Solidity for testing."""
             return self._check_version(version_left)
         return self.COMPLEX_PRAGMA_TXT
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         """
         Detects pragma statements that allow for outdated solc versions.
         :return: Returns the relevant JSON data for the findings.

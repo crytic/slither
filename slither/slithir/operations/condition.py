@@ -7,6 +7,7 @@ from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
+from slither.core.variables.variable import Variable
 
 
 class Condition(Operation):
@@ -34,7 +35,7 @@ class Condition(Operation):
         return [self.value]
 
     @property
-    def value(self):
+    def value(self) -> Variable:
         return self._value
 
     def __str__(self):

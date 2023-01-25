@@ -15,7 +15,7 @@ class Transfer(Call):
 
         self._call_value = value
 
-    def can_send_eth(self):
+    def can_send_eth(self) -> bool:
         return True
 
     @property

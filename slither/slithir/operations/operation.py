@@ -26,7 +26,7 @@ class AbstractOperation(abc.ABC):
 
 class Operation(Context, ChildExpression, ChildNode, AbstractOperation):
     @property
-    def used(self):
+    def used(self) -> List[Any]:
         """
         By default used is all the variables read
         """

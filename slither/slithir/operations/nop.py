@@ -1,9 +1,10 @@
 from .operation import Operation
+from typing import Any, List
 
 
 class Nop(Operation):
     @property
-    def read(self):
+    def read(self) -> List[Any]:
         return []
 
     @property

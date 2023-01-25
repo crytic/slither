@@ -8,6 +8,8 @@ from collections import namedtuple, defaultdict
 
 from slither.detectors.abstract_detector import DetectorClassification
 from .reentrancy import Reentrancy, to_hashable
+from slither.utils.output import Output
+from typing import Any, DefaultDict, List, Set, Union
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])
@@ -48,7 +50,7 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self):
+    def find_reentrancies(self) -> DefaultDict[FindingKey, Set[FindingValue]]:
         result = defaultdict(set)
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_declared:
@@ -80,7 +82,7 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                             result[finding_key] |= finding_vars
         return result
 
-    def _detect(self):  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Union[Any, Output]]:  # pylint: disable=too-many-branches
         """"""
         super()._detect()
 

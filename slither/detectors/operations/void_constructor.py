@@ -1,5 +1,7 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Nop
+from slither.utils.output import Output
+from typing import Any, List, Union
 
 
 class VoidConstructor(AbstractDetector):
@@ -26,7 +28,7 @@ contract B is A{
 When reading `B`'s constructor definition, we might assume that `A()` initiates the contract, but no code is executed."""
     # endregion wiki_exploit_scenario
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """"""
         results = []
         for c in self.contracts:

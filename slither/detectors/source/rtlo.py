@@ -1,5 +1,7 @@
 import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils.output import Output
+from typing import Any, List, Union
 
 # pylint: disable=bidirectional-unicode
 class RightToLeftOverride(AbstractDetector):
@@ -52,7 +54,7 @@ contract Token
     RTLO_CHARACTER_ENCODED = "\u202e".encode("utf-8")
     STANDARD_JSON = False
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         results = []
         pattern = re.compile(".*\u202e.*".encode("utf-8"))
 

@@ -1,4 +1,5 @@
 from slither.slithir.operations.operation import Operation
+from typing import Any, List
 
 
 class OperationWithLValue(Operation):
@@ -16,7 +17,7 @@ class OperationWithLValue(Operation):
         return self._lvalue
 
     @property
-    def used(self):
+    def used(self) -> List[Any]:
         return self.read + [self.lvalue]
 
     @lvalue.setter

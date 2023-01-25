@@ -53,7 +53,7 @@ class Constant(SlithIRVariable):
         return self._val
 
     @property
-    def original_value(self):
+    def original_value(self) -> str:
         """
         Return the string representation of the value
         :return: str

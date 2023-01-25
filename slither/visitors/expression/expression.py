@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Optional, Any
 
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
@@ -29,7 +29,7 @@ class ExpressionVisitor:
         self._result: Any = None
         self._visit_expression(self.expression)
 
-    def result(self):
+    def result(self) -> Optional[bool]:
         return self._result
 
     @property

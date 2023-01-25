@@ -3,6 +3,11 @@ Module detecting usage of `tx.origin` in a conditional node
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.utils.output import Output
+from typing import Any, List, Tuple, Union
 
 
 class TxOrigin(AbstractDetector):
@@ -38,7 +43,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
     WIKI_RECOMMENDATION = "Do not use `tx.origin` for authorization."
 
     @staticmethod
-    def _contains_incorrect_tx_origin_use(node):
+    def _contains_incorrect_tx_origin_use(node: Node) -> bool:
         """
              Check if the node reads tx.origin and doesn't read msg.sender
              Avoid the FP due to (msg.sender == tx.origin)
@@ -52,7 +57,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
             )
         return False
 
-    def detect_tx_origin(self, contract):
+    def detect_tx_origin(self, contract: Contract) -> List[Union[Tuple[FunctionContract, List[Node]], Any]]:
         ret = []
         for f in contract.functions:
 
@@ -67,7 +72,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
                 ret.append((f, bad_tx_nodes))
         return ret
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """Detect the functions that use tx.origin in a conditional node"""
         results = []
         for c in self.contracts:

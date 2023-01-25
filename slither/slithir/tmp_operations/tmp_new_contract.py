@@ -11,7 +11,7 @@ class TmpNewContract(OperationWithLValue):
         self._call_salt = None
 
     @property
-    def contract_name(self):
+    def contract_name(self) -> str:
         return self._contract_name
 
     @property

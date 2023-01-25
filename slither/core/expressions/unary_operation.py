@@ -49,7 +49,7 @@ class UnaryOperationType(Enum):
                 return UnaryOperationType.MINUSMINUS_POST
         raise SlitherCoreError(f"get_type: Unknown operation type {operation_type}")
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self == UnaryOperationType.BANG:
             return "!"
         if self == UnaryOperationType.TILD:
@@ -71,7 +71,7 @@ class UnaryOperationType(Enum):
         raise SlitherCoreError(f"str: Unknown operation type {self}")
 
     @staticmethod
-    def is_prefix(operation_type):
+    def is_prefix(operation_type: "UnaryOperationType") -> bool:
         if operation_type in [
             UnaryOperationType.BANG,
             UnaryOperationType.TILD,
@@ -124,7 +124,7 @@ class UnaryOperation(ExpressionTyped):
     def is_prefix(self) -> bool:
         return UnaryOperationType.is_prefix(self._type)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.is_prefix:
             return str(self.type) + " " + str(self._expression)
         return str(self._expression) + " " + str(self.type)

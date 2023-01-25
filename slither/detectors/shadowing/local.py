@@ -3,6 +3,14 @@ Module detecting local variable shadowing
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.event import Event
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.modifier import Modifier
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.state_variable import StateVariable
+from slither.utils.output import Output
+from typing import Any, List, Tuple, Union
 
 
 class LocalShadowing(AbstractDetector):
@@ -50,7 +58,7 @@ contract Bug {
     OVERSHADOWED_STATE_VARIABLE = "state variable"
     OVERSHADOWED_EVENT = "event"
 
-    def detect_shadowing_definitions(self, contract):  # pylint: disable=too-many-branches
+    def detect_shadowing_definitions(self, contract: Contract) -> List[Union[Any, Tuple[LocalVariable, List[Tuple[str, StateVariable]]], Tuple[LocalVariable, List[Tuple[str, FunctionContract]]], Tuple[LocalVariable, List[Tuple[str, Modifier]]], Tuple[LocalVariable, List[Tuple[str, Event]]]]]:  # pylint: disable=too-many-branches
         """Detects if functions, access modifiers, events, state variables, and local variables are named after
         reserved keywords. Any such definitions are returned in a list.
 
@@ -93,7 +101,7 @@ contract Bug {
 
         return result
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """Detect shadowing local variables
 
         Recursively visit the calls

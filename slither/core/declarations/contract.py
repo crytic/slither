@@ -4,7 +4,7 @@
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set
+from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set, Any
 
 from crytic_compile.platform import Type as PlatformType
 
@@ -1459,12 +1459,12 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def __eq__(self, other: SourceMapping):
+    def __eq__(self, other: SourceMapping) -> bool:
         if isinstance(other, str):
             return other == self.name
         return NotImplemented
 
-    def __neq__(self, other):
+    def __neq__(self, other: Any) -> bool:
         if isinstance(other, str):
             return other != self.name
         return NotImplemented

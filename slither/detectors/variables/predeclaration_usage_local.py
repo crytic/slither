@@ -3,6 +3,12 @@ Module detecting any path leading to usage of a local variable before it is decl
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.variables.local_variable import LocalVariable
+from slither.utils.output import Output
+from typing import Any, List, Set, Tuple, Union
 
 
 class PredeclarationUsageLocal(AbstractDetector):
@@ -48,7 +54,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
 
     WIKI_RECOMMENDATION = "Move all variable declarations prior to any usage of the variable, and ensure that reaching a variable declaration does not depend on some conditional if it is used unconditionally."
 
-    def detect_predeclared_local_usage(self, node, results, already_declared, visited):
+    def detect_predeclared_local_usage(self, node: Node, results: List[Union[Tuple[Node, LocalVariable], Any]], already_declared: Set[LocalVariable], visited: Set[Node]) -> None:
         """
         Detects if a given node uses a variable prior to declaration in any code path.
         :param node: The node to initiate the scan from (searches recursively through all sons)
@@ -87,7 +93,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         for son in node.sons:
             self.detect_predeclared_local_usage(son, results, already_declared, visited)
 
-    def detect_predeclared_in_contract(self, contract):
+    def detect_predeclared_in_contract(self, contract: Contract) -> List[Union[Any, Tuple[FunctionContract, List[Tuple[Node, LocalVariable]]]]]:
         """
         Detects and returns all nodes in a contract which use a variable before it is declared.
         :param contract: Contract to detect pre-declaration usage of locals within.
@@ -113,7 +119,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         # Return the resulting set of nodes which set array length.
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         """
         Detect usage of a local variable before it is declared.
         """

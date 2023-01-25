@@ -4,7 +4,7 @@ import logging
 import os
 import zipfile
 from collections import OrderedDict
-from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
+from typing import Tuple, Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
 from zipfile import ZipFile
 
 from pkg_resources import require
@@ -16,6 +16,12 @@ from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 from slither.utils.myprettytable import MyPrettyTable
+import slither.core.declarations.contract
+import slither.core.declarations.enum
+import slither.core.declarations.event
+import slither.core.declarations.function
+import slither.core.declarations.pragma_directive
+import slither.core.declarations.structure
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -299,8 +305,8 @@ def _convert_to_id(d: str) -> str:
 
 
 def _create_base_element(
-    custom_type, name, source_mapping: Dict, type_specific_fields=None, additional_fields=None
-):
+    custom_type: str, name: str, source_mapping: Dict, type_specific_fields: Optional[Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]], Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]]]], Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str, List[str]]]]=None, additional_fields: Optional[Dict[str, str]]=None
+) -> Dict[str, Any]:
     if additional_fields is None:
         additional_fields = {}
     if type_specific_fields is None:
@@ -313,7 +319,7 @@ def _create_base_element(
     return element
 
 
-def _create_parent_element(element):
+def _create_parent_element(element: SourceMapping) -> Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]], Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]]]]:
     # pylint: disable=import-outside-toplevel
     from slither.core.children.child_contract import ChildContract
     from slither.core.children.child_function import ChildFunction
@@ -378,7 +384,7 @@ class Output:
         if additional_fields:
             self._data["additional_fields"] = additional_fields
 
-    def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None):
+    def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None) -> None:
         if not self._data["first_markdown_element"]:
             self._data["first_markdown_element"] = add.source_mapping.to_markdown(
                 self._markdown_root
@@ -417,7 +423,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_variable(self, variable: Variable, additional_fields: Optional[Dict] = None):
+    def add_variable(self, variable: Variable, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(variable)}
@@ -441,7 +447,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_contract(self, contract: Contract, additional_fields: Optional[Dict] = None):
+    def add_contract(self, contract: Contract, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         element = _create_base_element(
@@ -456,7 +462,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_function(self, function: Function, additional_fields: Optional[Dict] = None):
+    def add_function(self, function: Function, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -485,7 +491,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_enum(self, enum: Enum, additional_fields: Optional[Dict] = None):
+    def add_enum(self, enum: Enum, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(enum)}
@@ -505,7 +511,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_struct(self, struct: Structure, additional_fields: Optional[Dict] = None):
+    def add_struct(self, struct: Structure, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(struct)}
@@ -525,7 +531,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_event(self, event: Event, additional_fields: Optional[Dict] = None):
+    def add_event(self, event: Event, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -549,7 +555,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_node(self, node: Node, additional_fields: Optional[Dict] = None):
+    def add_node(self, node: Node, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -576,7 +582,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_pragma(self, pragma: Pragma, additional_fields: Optional[Dict] = None):
+    def add_pragma(self, pragma: Pragma, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"directive": pragma.directive}
@@ -634,10 +640,10 @@ class Output:
     def add_other(
         self,
         name: str,
-        source_mapping,
+        source_mapping: Tuple[str, int, int],
         compilation_unit: "SlitherCompilationUnit",
         additional_fields: Optional[Dict] = None,
-    ):
+    ) -> None:
         # If this a tuple with (filename, start, end), convert it to a source mapping.
         if additional_fields is None:
             additional_fields = {}

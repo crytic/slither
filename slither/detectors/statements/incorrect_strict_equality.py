@@ -23,6 +23,15 @@ from slither.core.declarations.solidity_variables import (
     SolidityVariableComposed,
     SolidityFunction,
 )
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.slithir.operations.operation import Operation
+from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.local_variable import LocalIRVariable
+from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
+from slither.utils.output import Output
+from typing import Any, Dict, List, Union
 
 
 class IncorrectStrictEquality(AbstractDetector):
@@ -61,11 +70,11 @@ contract Crowdsale{
     ]
 
     @staticmethod
-    def is_direct_comparison(ir):
+    def is_direct_comparison(ir: Operation) -> bool:
         return isinstance(ir, Binary) and ir.type == BinaryType.EQUAL
 
     @staticmethod
-    def is_any_tainted(variables, taints, function) -> bool:
+    def is_any_tainted(variables: List[Union[Constant, LocalIRVariable, TemporaryVariableSSA, SolidityVariableComposed, SolidityVariable]], taints: List[Union[LocalIRVariable, SolidityVariable, SolidityVariableComposed, TemporaryVariableSSA]], function: FunctionContract) -> bool:
         return any(
             (
                 is_dependent_ssa(var, taint, function.contract)
@@ -74,7 +83,7 @@ contract Crowdsale{
             )
         )
 
-    def taint_balance_equalities(self, functions):
+    def taint_balance_equalities(self, functions: List[Union[FunctionContract, Any]]) -> List[Union[LocalIRVariable, TemporaryVariableSSA, Any]]:
         taints = []
         for func in functions:
             for node in func.nodes:
@@ -105,7 +114,7 @@ contract Crowdsale{
         return taints
 
     # Retrieve all tainted (node, function) pairs
-    def tainted_equality_nodes(self, funcs, taints):
+    def tainted_equality_nodes(self, funcs: List[Union[FunctionContract, Any]], taints: List[Union[LocalIRVariable, TemporaryVariableSSA, Any]]) -> Dict[FunctionContract, List[Node]]:
         results = {}
         taints += self.sources_taint
 
@@ -124,7 +133,7 @@ contract Crowdsale{
 
         return results
 
-    def detect_strict_equality(self, contract):
+    def detect_strict_equality(self, contract: Contract) -> Dict[FunctionContract, List[Node]]:
         funcs = contract.all_functions_called + contract.modifiers
 
         # Taint all BALANCE accesses
@@ -135,7 +144,7 @@ contract Crowdsale{
 
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         results = []
 
         for c in self.compilation_unit.contracts_derived:

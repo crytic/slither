@@ -5,7 +5,7 @@ from slither.core.variables.local_variable_init_from_tuple import LocalVariableI
 
 
 class LocalVariableInitFromTupleSolc(VariableDeclarationSolc):
-    def __init__(self, variable: LocalVariableInitFromTuple, variable_data: Dict, index: int):
+    def __init__(self, variable: LocalVariableInitFromTuple, variable_data: Dict, index: int) -> None:
         super().__init__(variable, variable_data)
         variable.tuple_index = index
 

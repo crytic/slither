@@ -10,6 +10,14 @@ from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output, SupportedOutput
+import slither.core.declarations.contract
+from slither.core.cfg.node import Node
+from slither.core.declarations.enum import Enum
+from slither.core.declarations.event import Event
+from slither.core.declarations.function import Function
+from slither.core.declarations.pragma_directive import Pragma
+from slither.core.declarations.structure import Structure
+from slither.core.variables.variable import Variable
 
 if TYPE_CHECKING:
     from slither import Slither
@@ -81,7 +89,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
-    ):
+    ) -> None:
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
         self.contracts: List[Contract] = compilation_unit.contracts
         self.slither: "Slither" = slither

@@ -59,5 +59,5 @@ class Event(ChildContract, SourceMapping):
         """
         return self.contract == contract
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
