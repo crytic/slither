@@ -14,12 +14,14 @@ from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.elementary_type import Byte, ElementaryType, Int, Uint
 from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.solidity_types.function_type import FunctionType
 
 def get_default_value(ty : Type) -> Expression:
     """
     When a Solidity variable declaration does not have an initializer expression,
     we use the expression returned by this function as a default initializer.
     """
+    assert not isinstance(ty, FunctionType)
     if isinstance(ty, ElementaryType) and (ty.type in Int + Uint + Byte + ["address"]):
         return Literal("0", ElementaryType(ty.type))
     elif isinstance(ty, ElementaryType) and (ty.type == "string"):

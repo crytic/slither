@@ -32,13 +32,13 @@ from slither.visitors.expression.has_conditional import HasConditional
 from slither.core.expressions.assignment_operation import AssignmentOperationType
 from slither.core.expressions.identifier import Identifier
 from slither.solc_parsing.default_values import get_default_value
+from slither.core.solidity_types.function_type import FunctionType as FunctionSolidityType
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.compilation_unit import SlitherCompilationUnit
-
 
 LOGGER = logging.getLogger("FunctionSolc")
 
@@ -1184,6 +1184,9 @@ class FunctionSolc(CallerContextExpression):
             for ret in self._function.returns:
                 if not (ret.location in ["memory", "default"]):
                     continue
+                if isinstance(ret.type, FunctionSolidityType):
+                    continue
+                print(type(ret.type))
                 assign_node = self._new_node(NodeType.EXPRESSION, cfg["src"], self._function)
                 assign_node.underlying_node.add_expression(
                     AssignmentOperation(

@@ -11,6 +11,7 @@ from slither.core.variables.local_variable import LocalVariable
 
 from slither.solc_parsing.solidity_types.type_parsing import parse_type, UnknownType
 
+from slither.core.solidity_types.function_type import FunctionType
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
     NonElementaryType,
@@ -235,5 +236,6 @@ class VariableDeclarationSolc:
             isinstance(self._variable, LocalVariable)
             and self._variable.location in ["memory", "default"]
             and caller_context.slither_parser.generates_certik_ir
+            and not isinstance(self._variable.type, FunctionType)
         ):
             self._variable.expression = get_default_value(self._variable.type)
