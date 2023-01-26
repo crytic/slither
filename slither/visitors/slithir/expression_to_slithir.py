@@ -18,6 +18,8 @@ from slither.core.expressions import (
     CallExpression,
     Identifier,
     MemberAccess,
+    AssignmentOperation,
+    TupleExpression,
 )
 from slither.core.solidity_types import ArrayType, ElementaryType, TypeAlias
 from slither.core.solidity_types.type import Type
@@ -150,21 +152,32 @@ class ExpressionToSlithIR(ExpressionVisitor):
         return self._result
 
     def _post_assignement_operation(self, expression):
-        left = get(expression.expression_left)
-        right = get(expression.expression_right)
+        expr_left = expression.expression_left
+        expr_right = expression.expression_right
+        left = get(expr_left)
+        right = get(expr_right)
         if isinstance(left, list):  # tuple expression:
-            if isinstance(right, list):  # unbox assigment
-                assert len(left) == len(right)
-                for idx, _ in enumerate(left):
-                    if not left[idx] is None:
-                        operation = convert_assignment(
-                            left[idx],
-                            right[idx],
-                            expression.type,
-                            expression.expression_return_type,
-                        )
-                        operation.set_expression(expression)
-                        self._result.append(operation)
+            if isinstance(right, list):  # unbox assignment
+                assert len(expr_left.expressions) == len(expr_right.expressions)
+                for idx, _ in enumerate(expr_left.expressions):
+                    if not expr_left.expressions[idx] is None:
+                        if isinstance(expr_left.expressions[idx], TupleExpression):  # nested tuple
+                            nested_expression = AssignmentOperation(
+                                expr_left.expressions[idx],
+                                expr_right.expressions[idx],
+                                expression.type,
+                                expression.expression_return_type,
+                            )
+                            self._post_assignement_operation(nested_expression)
+                        else:
+                            operation = convert_assignment(
+                                left[idx],
+                                right[idx],
+                                expression.type,
+                                expression.expression_return_type,
+                            )
+                            operation.set_expression(expression)
+                            self._result.append(operation)
                 set_val(expression, None)
             else:
                 assert isinstance(right, TupleVariable)
@@ -509,7 +522,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
         set_val(expression, val)
 
     def _post_tuple_expression(self, expression):
-        expressions = [get(e) if e else None for e in expression.expressions]
+        # don't use get(e) here, since e.context[key] may still be needed in case of nested tuples
+        expressions = [e.context[key] if e else None for e in expression.expressions]
         if len(expressions) == 1:
             val = expressions[0]
         else:
