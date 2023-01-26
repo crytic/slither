@@ -17,8 +17,20 @@ from slither.solc_parsing.declarations.structure_contract import StructureContra
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
-from slither.solc_parsing.ast.types import (ContractDefinition, EventDefinition, UsingForDirective,
-    StructDefinition, EnumDefinition, VariableDeclaration, FunctionDefinition, ErrorDefinition, ModifierDefinition, UserDefinedValueTypeDefinition, InheritanceSpecifier, WildCardTypeName)
+from slither.solc_parsing.ast.types import (
+    ContractDefinition,
+    EventDefinition,
+    UsingForDirective,
+    StructDefinition,
+    EnumDefinition,
+    VariableDeclaration,
+    FunctionDefinition,
+    ErrorDefinition,
+    ModifierDefinition,
+    UserDefinedValueTypeDefinition,
+    InheritanceSpecifier,
+    WildCardTypeName,
+)
 
 LOGGER = logging.getLogger("ContractSolcParsing")
 
@@ -31,7 +43,12 @@ if TYPE_CHECKING:
 
 
 class ContractSolc(CallerContextExpression):
-    def __init__(self, slither_parser: "SlitherCompilationUnitSolc", contract: Contract, contract_def: ContractDefinition):
+    def __init__(
+        self,
+        slither_parser: "SlitherCompilationUnitSolc",
+        contract: Contract,
+        contract_def: ContractDefinition,
+    ):
         # assert slitherSolc.solc_version.startswith('0.4')
 
         self._contract = contract
@@ -116,7 +133,7 @@ class ContractSolc(CallerContextExpression):
     @property
     def enums_not_parsed(self) -> List[Dict]:
         return self._enumsNotParsed
-    
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -139,13 +156,13 @@ class ContractSolc(CallerContextExpression):
         self._contract.is_interface = False
         if self._contract_def.kind:
             if self._contract_def.kind == "interface":
-                    self._contract.is_interface = True
+                self._contract.is_interface = True
             elif self._contract_def.kind == "library":
                 self._contract.is_library = True
             self._contract.contract_kind = self._contract_def.kind
 
         self._linearized_base_contracts = self._contract_def.linearized_base_contracts
-        
+
         # Parse base contract information
         self._parse_base_contract_info()
 
@@ -154,7 +171,9 @@ class ContractSolc(CallerContextExpression):
             if not base_contract.basename.referenced_declaration:
                 continue
 
-            self._remapping[str(base_contract.basename.referenced_declaration)] = base_contract.basename.name
+            self._remapping[
+                str(base_contract.basename.referenced_declaration)
+            ] = base_contract.basename.name
 
     def _parse_base_contract_info(self):
         for base_contract in self._contract_def.base_contracts:
@@ -195,7 +214,7 @@ class ContractSolc(CallerContextExpression):
                 raise ParsingError("Unknown contract item: " + child)
 
     def _parse_type_alias(self, item: UserDefinedValueTypeDefinition) -> None:
-        # For user defined types defined at the contract level the lookup 
+        # For user defined types defined at the contract level the lookup
         # can be done using the name or the canonical name.
         # For example during the type parsing the canonical name
         # Note, that Solidity allows shadowing of user defined types
@@ -203,7 +222,9 @@ class ContractSolc(CallerContextExpression):
         alias = item.name
         alias_canonical = self._contract.name + "." + alias
 
-        user_defined_type = TypeAliasContract(ElementaryType(item.underlying_type.name), alias, self.underlying_contract)
+        user_defined_type = TypeAliasContract(
+            ElementaryType(item.underlying_type.name), alias, self.underlying_contract
+        )
         user_defined_type.set_offset(item.src, self.compilation_unit)
         self._contract.file_scope.user_defined_types[alias] = user_defined_type
         self._contract.file_scope.user_defined_types[alias_canonical] = user_defined_type
@@ -510,7 +531,7 @@ class ContractSolc(CallerContextExpression):
                 self._contract.using_for.update(father.using_for)
 
             for using_for in self._usingForNotParsed:
-                if isinstance(using_for.typename, WildCardTypeName): 
+                if isinstance(using_for.typename, WildCardTypeName):
                     type_name = "*"
                 else:
                     assert using_for.typename
@@ -519,15 +540,13 @@ class ContractSolc(CallerContextExpression):
                     self._contract.using_for[type_name] = []
 
                 if using_for.library:
-                    self._contract.using_for[type_name].append(
-                        parse_type(using_for.library, self)
-                    )
+                    self._contract.using_for[type_name].append(parse_type(using_for.library, self))
                 else:
                     # We have a list of functions. A function can be topLevel or a library function
                     self._analyze_function_list(using_for.function_list, type_name)
-            
+
             self._usingForNotParsed.clear()
-            
+
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing using for {e}")
 

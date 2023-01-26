@@ -293,6 +293,8 @@ def parse_member_access(expr: MemberAccessT, ctx: CallerContextExpression) -> "E
             var.set_offset(expr.src, ctx.compilation_unit)
         sup = SuperIdentifier(var)
         sup.set_offset(expr.src, ctx.compilation_unit)
+        var.references.append(sup.source_mapping)
+
         return sup
 
     member_access = MemberAccess(member_name, member_type, member_expression)
@@ -349,6 +351,8 @@ def parse_identifier(expr: IdentifierT, ctx: CallerContextExpression) -> "Expres
 
     identifier = Identifier(var)
     identifier.set_offset(expr.src, ctx.compilation_unit)
+    var.references.append(identifier.source_mapping)
+
     return identifier
 
 

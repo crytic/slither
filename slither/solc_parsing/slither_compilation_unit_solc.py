@@ -26,8 +26,19 @@ from slither.solc_parsing.declarations.structure_top_level import StructureTopLe
 from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
 from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
-from slither.solc_parsing.ast.types import (SourceUnit, ContractDefinition, PragmaDirective, ImportDirective, 
-    StructDefinition, EnumDefinition, VariableDeclaration, FunctionDefinition, ErrorDefinition, UserDefinedValueTypeDefinition, UsingForDirective)
+from slither.solc_parsing.ast.types import (
+    SourceUnit,
+    ContractDefinition,
+    PragmaDirective,
+    ImportDirective,
+    StructDefinition,
+    EnumDefinition,
+    VariableDeclaration,
+    FunctionDefinition,
+    ErrorDefinition,
+    UserDefinedValueTypeDefinition,
+    UsingForDirective,
+)
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 
 logging.basicConfig()
@@ -148,6 +159,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals
         from slither.solc_parsing.ast.sniffer import sniff
         from slither.solc_parsing.ast.dump import dumps
+
         node = sniff(data_loaded)(data_loaded)
         # print(dumps(node))
         if "sourcePaths" in data_loaded:
@@ -167,7 +179,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         scope = self.compilation_unit.get_scope(filename)
 
         for child in node.nodes:
-            if isinstance(child,  ContractDefinition):
+            if isinstance(child, ContractDefinition):
                 contract = Contract(self._compilation_unit, scope)
                 contract_parser = ContractSolc(self, contract, child)
                 scope.contracts[contract.name] = contract
@@ -176,14 +188,14 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 self._underlying_contract_to_parser[contract] = contract_parser
 
-            elif isinstance(child,  PragmaDirective):
+            elif isinstance(child, PragmaDirective):
                 pragma = Pragma(child.literals, scope)
                 scope.pragmas.add(pragma)
                 pragma.set_offset(child.src, self._compilation_unit)
 
                 self._compilation_unit.pragma_directives.append(pragma)
-            
-            elif isinstance(child,  UsingForDirective):
+
+            elif isinstance(child, UsingForDirective):
                 using_for = UsingForTopLevel(scope)
                 using_for_parser = UsingForTopLevelSolc(using_for, child, self)
                 using_for.set_offset(child.src, self._compilation_unit)
@@ -192,7 +204,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.using_for_top_level.append(using_for)
                 self._using_for_top_level_parser.append(using_for_parser)
 
-            elif isinstance(child,  ImportDirective):
+            elif isinstance(child, ImportDirective):
                 import_directive = Import(Path(child.path), scope)
                 scope.imports.add(import_directive)
                 import_directive.set_offset(child.src, self._compilation_unit)
@@ -208,7 +220,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
                 scope.accessible_scopes.append(get_imported_scope)
 
-            elif isinstance(child,  StructDefinition):
+            elif isinstance(child, StructDefinition):
                 st = StructureTopLevel(self.compilation_unit, scope)
                 st.set_offset(child.src, self._compilation_unit)
                 st_parser = StructureTopLevelSolc(st, child, self)
@@ -217,7 +229,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.structures_top_level.append(st)
                 self._structures_top_level_parser.append(st_parser)
 
-            elif isinstance(child,  EnumDefinition):
+            elif isinstance(child, EnumDefinition):
                 # Note enum don't need a complex parser, so everything is directly done
                 scope = self.compilation_unit.get_scope(filename)
                 enum = EnumTopLevel(child.name, child.canonical_name, child.members, scope)
@@ -225,7 +237,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 enum.set_offset(child.src, self._compilation_unit)
                 self._compilation_unit.enums_top_level.append(enum)
 
-            elif isinstance(child,  VariableDeclaration):
+            elif isinstance(child, VariableDeclaration):
                 var = TopLevelVariable(scope)
                 var_parser = TopLevelVariableSolc(var, child, self)
                 var.set_offset(child.src, self._compilation_unit)
@@ -234,7 +246,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._variables_top_level_parser.append(var_parser)
                 scope.variables[var.name] = var
 
-            elif isinstance(child,  FunctionDefinition):
+            elif isinstance(child, FunctionDefinition):
                 func = FunctionTopLevel(self._compilation_unit, scope)
                 scope.functions.add(func)
                 func.set_offset(child.src, self._compilation_unit)
@@ -244,7 +256,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._functions_top_level_parser.append(func_parser)
                 self.add_function_or_modifier_parser(func_parser)
 
-            elif isinstance(child,  ErrorDefinition):
+            elif isinstance(child, ErrorDefinition):
                 custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
                 custom_error.set_offset(child.src, self._compilation_unit)
 
@@ -253,8 +265,10 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
 
-            elif isinstance(child,  UserDefinedValueTypeDefinition):
-                user_defined_type = TypeAliasTopLevel(ElementaryType(child.underlying_type.name), child.alias, scope)
+            elif isinstance(child, UserDefinedValueTypeDefinition):
+                user_defined_type = TypeAliasTopLevel(
+                    ElementaryType(child.underlying_type.name), child.alias, scope
+                )
                 user_defined_type.set_offset(child.src, self._compilation_unit)
                 self._compilation_unit.user_defined_value_types[child.alias] = user_defined_type
                 scope.user_defined_types[child.alias] = user_defined_type
