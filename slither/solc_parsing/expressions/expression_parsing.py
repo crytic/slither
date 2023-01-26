@@ -268,7 +268,7 @@ def parse_new_expression(expr: NewExpressionT, ctx: CallerContextExpression) -> 
         array.set_offset(expr.src, ctx.compilation_unit)
         return array
     elif isinstance(typename, ElementaryTypeName):
-        new_elem = NewElementaryType(typename.name)
+        new_elem = NewElementaryType(ElementaryType(typename.name))
         new_elem.set_offset(expr.src, ctx.compilation_unit)
         return new_elem
     elif isinstance(typename, UserDefinedTypeName):
