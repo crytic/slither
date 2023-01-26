@@ -167,102 +167,100 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         scope = self.compilation_unit.get_scope(filename)
 
         for child in node.nodes:
-            match child:
-                case ContractDefinition():
-                    contract = Contract(self._compilation_unit, scope)
-                    contract_parser = ContractSolc(self, contract, child)
-                    scope.contracts[contract.name] = contract
-                    if child.src:
-                        contract.set_offset(child.src, self._compilation_unit)
+            if isinstance(child,  ContractDefinition):
+                contract = Contract(self._compilation_unit, scope)
+                contract_parser = ContractSolc(self, contract, child)
+                scope.contracts[contract.name] = contract
+                if child.src:
+                    contract.set_offset(child.src, self._compilation_unit)
 
-                    self._underlying_contract_to_parser[contract] = contract_parser
+                self._underlying_contract_to_parser[contract] = contract_parser
 
-                case PragmaDirective():
-                    pragma = Pragma(child.literals, scope)
-                    scope.pragmas.add(pragma)
-                    pragma.set_offset(child.src, self._compilation_unit)
+            elif isinstance(child,  PragmaDirective):
+                pragma = Pragma(child.literals, scope)
+                scope.pragmas.add(pragma)
+                pragma.set_offset(child.src, self._compilation_unit)
 
-                    self._compilation_unit.pragma_directives.append(pragma)
-                
-                case UsingForDirective():
-                    using_for = UsingForTopLevel(scope)
-                    using_for_parser = UsingForTopLevelSolc(using_for, child, self)
-                    using_for.set_offset(child.src, self._compilation_unit)
-                    scope.using_for_directives.add(using_for)
+                self._compilation_unit.pragma_directives.append(pragma)
+            
+            elif isinstance(child,  UsingForDirective):
+                using_for = UsingForTopLevel(scope)
+                using_for_parser = UsingForTopLevelSolc(using_for, child, self)
+                using_for.set_offset(child.src, self._compilation_unit)
+                scope.using_for_directives.add(using_for)
 
-                    self._compilation_unit.using_for_top_level.append(using_for)
-                    self._using_for_top_level_parser.append(using_for_parser)
+                self._compilation_unit.using_for_top_level.append(using_for)
+                self._using_for_top_level_parser.append(using_for_parser)
 
-                case ImportDirective():
-                    import_directive = Import(Path(child.path), scope)
-                    scope.imports.add(import_directive)
-                    import_directive.set_offset(child.src, self._compilation_unit)
+            elif isinstance(child,  ImportDirective):
+                import_directive = Import(Path(child.path), scope)
+                scope.imports.add(import_directive)
+                import_directive.set_offset(child.src, self._compilation_unit)
 
-                    self._compilation_unit.import_directives.append(import_directive)
+                self._compilation_unit.import_directives.append(import_directive)
 
-                    if child.unit_alias:
-                        import_directive.alias = child.unit_alias.name
+                if child.unit_alias:
+                    import_directive.alias = child.unit_alias.name
 
-                    if child.symbol_aliases:
-                        _handle_import_aliases(child.symbol_aliases, import_directive, scope)
+                if child.symbol_aliases:
+                    _handle_import_aliases(child.symbol_aliases, import_directive, scope)
 
-                    get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
-                    scope.accessible_scopes.append(get_imported_scope)
+                get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
+                scope.accessible_scopes.append(get_imported_scope)
 
-                case StructDefinition():
-                    st = StructureTopLevel(self.compilation_unit, scope)
-                    st.set_offset(child.src, self._compilation_unit)
-                    st_parser = StructureTopLevelSolc(st, child, self)
-                    scope.structures[st.name] = st
+            elif isinstance(child,  StructDefinition):
+                st = StructureTopLevel(self.compilation_unit, scope)
+                st.set_offset(child.src, self._compilation_unit)
+                st_parser = StructureTopLevelSolc(st, child, self)
+                scope.structures[st.name] = st
 
-                    self._compilation_unit.structures_top_level.append(st)
-                    self._structures_top_level_parser.append(st_parser)
+                self._compilation_unit.structures_top_level.append(st)
+                self._structures_top_level_parser.append(st_parser)
 
-                case EnumDefinition():
-                    # Note enum don't need a complex parser, so everything is directly done
-                    # self._parse_enum(top_level_data, filename)
-                    scope = self.compilation_unit.get_scope(filename)
-                    enum = EnumTopLevel(child.name, child.canonical_name, child.members, scope)
-                    scope.enums[child.name] = enum
-                    enum.set_offset(child.src, self._compilation_unit)
-                    self._compilation_unit.enums_top_level.append(enum)
+            elif isinstance(child,  EnumDefinition):
+                # Note enum don't need a complex parser, so everything is directly done
+                scope = self.compilation_unit.get_scope(filename)
+                enum = EnumTopLevel(child.name, child.canonical_name, child.members, scope)
+                scope.enums[child.name] = enum
+                enum.set_offset(child.src, self._compilation_unit)
+                self._compilation_unit.enums_top_level.append(enum)
 
-                case VariableDeclaration():
-                    var = TopLevelVariable(scope)
-                    var_parser = TopLevelVariableSolc(var, child, self)
-                    var.set_offset(child.src, self._compilation_unit)
+            elif isinstance(child,  VariableDeclaration):
+                var = TopLevelVariable(scope)
+                var_parser = TopLevelVariableSolc(var, child, self)
+                var.set_offset(child.src, self._compilation_unit)
 
-                    self._compilation_unit.variables_top_level.append(var)
-                    self._variables_top_level_parser.append(var_parser)
-                    scope.variables[var.name] = var
+                self._compilation_unit.variables_top_level.append(var)
+                self._variables_top_level_parser.append(var_parser)
+                scope.variables[var.name] = var
 
-                case FunctionDefinition():
-                    func = FunctionTopLevel(self._compilation_unit, scope)
-                    scope.functions.add(func)
-                    func.set_offset(child.src, self._compilation_unit)
-                    func_parser = FunctionSolc(func, child, None, self)
+            elif isinstance(child,  FunctionDefinition):
+                func = FunctionTopLevel(self._compilation_unit, scope)
+                scope.functions.add(func)
+                func.set_offset(child.src, self._compilation_unit)
+                func_parser = FunctionSolc(func, child, None, self)
 
-                    self._compilation_unit.functions_top_level.append(func)
-                    self._functions_top_level_parser.append(func_parser)
-                    self.add_function_or_modifier_parser(func_parser)
+                self._compilation_unit.functions_top_level.append(func)
+                self._functions_top_level_parser.append(func_parser)
+                self.add_function_or_modifier_parser(func_parser)
 
-                case ErrorDefinition():
-                    custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
-                    custom_error.set_offset(child.src, self._compilation_unit)
+            elif isinstance(child,  ErrorDefinition):
+                custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
+                custom_error.set_offset(child.src, self._compilation_unit)
 
-                    custom_error_parser = CustomErrorSolc(custom_error, child, self)
-                    scope.custom_errors.add(custom_error)
-                    self._compilation_unit.custom_errors.append(custom_error)
-                    self._custom_error_parser.append(custom_error_parser)
+                custom_error_parser = CustomErrorSolc(custom_error, child, self)
+                scope.custom_errors.add(custom_error)
+                self._compilation_unit.custom_errors.append(custom_error)
+                self._custom_error_parser.append(custom_error_parser)
 
-                case UserDefinedValueTypeDefinition():
-                    user_defined_type = TypeAliasTopLevel(ElementaryType(child.underlying_type.name), child.alias, scope)
-                    user_defined_type.set_offset(child.src, self._compilation_unit)
-                    self._compilation_unit.user_defined_value_types[child.alias] = user_defined_type
-                    scope.user_defined_types[child.alias] = user_defined_type
+            elif isinstance(child,  UserDefinedValueTypeDefinition):
+                user_defined_type = TypeAliasTopLevel(ElementaryType(child.underlying_type.name), child.alias, scope)
+                user_defined_type.set_offset(child.src, self._compilation_unit)
+                self._compilation_unit.user_defined_value_types[child.alias] = user_defined_type
+                scope.user_defined_types[child.alias] = user_defined_type
 
-                case _:
-                    raise SlitherException(f"Top level {child} not supported")
+            else:
+                raise SlitherException(f"Top level {child} not supported")
 
     def _parse_source_unit(self, data: SourceUnit, filename: str):
         # match any char for filename

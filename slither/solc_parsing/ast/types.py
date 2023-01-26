@@ -287,7 +287,7 @@ class ExpressionStatement(Statement):
 
 @dataclass
 class Expression(ASTNode):
-    type_str: str
+    type_str: Optional[str]
     constant: bool
     pure: bool
 

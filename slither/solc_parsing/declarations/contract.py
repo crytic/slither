@@ -169,32 +169,30 @@ class ContractSolc(CallerContextExpression):
 
     def _parse_contract_items(self):
         for child in self._contract_def.nodes:
-            match child:
-                case FunctionDefinition():
-                    self._functionsNotParsed.append(child)
-                case EventDefinition():
-                    self._eventsNotParsed.append(child)
-                case InheritanceSpecifier():
-                    # we dont need to parse it as it is redundant
-                    # with self.linearizedBaseContracts
-                    continue
-                case VariableDeclaration():
-                    self._variablesNotParsed.append(child)
-                case EnumDefinition():
-                    self._enumsNotParsed.append(child)
-                case ModifierDefinition():
-                    self._modifiersNotParsed.append(child)
-                case StructDefinition():
-                    self._structuresNotParsed.append(child)
-                case UsingForDirective():
-                    self._usingForNotParsed.append(child)
-                case ErrorDefinition():
-                    self._customErrorParsed.append(child)
-                case UserDefinedValueTypeDefinition():
-                    self._parse_type_alias(child)
-                case _:
-                    raise ParsingError("Unknown contract item: " + child)
-        return
+            if isinstance(child, FunctionDefinition):
+                self._functionsNotParsed.append(child)
+            elif isinstance(child, EventDefinition):
+                self._eventsNotParsed.append(child)
+            elif isinstance(child, InheritanceSpecifier):
+                # we dont need to parse it as it is redundant
+                # with self.linearizedBaseContracts
+                continue
+            elif isinstance(child, VariableDeclaration):
+                self._variablesNotParsed.append(child)
+            elif isinstance(child, EnumDefinition):
+                self._enumsNotParsed.append(child)
+            elif isinstance(child, ModifierDefinition):
+                self._modifiersNotParsed.append(child)
+            elif isinstance(child, StructDefinition):
+                self._structuresNotParsed.append(child)
+            elif isinstance(child, UsingForDirective):
+                self._usingForNotParsed.append(child)
+            elif isinstance(child, ErrorDefinition):
+                self._customErrorParsed.append(child)
+            elif isinstance(child, UserDefinedValueTypeDefinition):
+                self._parse_type_alias(child)
+            else:
+                raise ParsingError("Unknown contract item: " + child)
 
     def _parse_type_alias(self, item: UserDefinedValueTypeDefinition) -> None:
         # For user defined types defined at the contract level the lookup 
