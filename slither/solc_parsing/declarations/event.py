@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Dict, List
 from slither.core.variables.event_variable import EventVariable
 from slither.solc_parsing.variables.event_variable import EventVariableSolc
 from slither.core.declarations.event import Event
-from slither.solc_parsing.types.types import EventDefinition, VariableDeclaration
+from slither.solc_parsing.ast.types import EventDefinition, VariableDeclaration
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc

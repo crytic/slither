@@ -6,7 +6,7 @@ from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.variables.local_variable import LocalVariable
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
-from slither.solc_parsing.types.types import ErrorDefinition, ParameterList, VariableDeclaration
+from slither.solc_parsing.ast.types import ErrorDefinition, ParameterList, VariableDeclaration
 
 if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc

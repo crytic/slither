@@ -2,8 +2,9 @@ from typing import Type
 
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.core.variables.local_variable import LocalVariable
+from slither.solc_parsing.ast.types import VariableDeclarationStatement, VariableDeclaration
 from .variable_declaration import VariableDeclarationSolc
-from ..types.types import VariableDeclarationStatement, VariableDeclaration
+
 
 class LocalVariableSolc(VariableDeclarationSolc[Type[LocalVariable]]):
     def __init__(self, variable: LocalVariable, variable_data: VariableDeclarationStatement):

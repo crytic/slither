@@ -17,8 +17,8 @@ from slither.solc_parsing.declarations.structure_contract import StructureContra
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
-from slither.solc_parsing.types.types import (ContractDefinition, EventDefinition, UsingForDirective,
-    StructDefinition, EnumDefinition, VariableDeclaration, FunctionDefinition, ErrorDefinition, ModifierDefinition, UserDefinedValueTypeDefinition, InheritanceSpecifier)
+from slither.solc_parsing.ast.types import (ContractDefinition, EventDefinition, UsingForDirective,
+    StructDefinition, EnumDefinition, VariableDeclaration, FunctionDefinition, ErrorDefinition, ModifierDefinition, UserDefinedValueTypeDefinition, InheritanceSpecifier, WildCardTypeName)
 
 LOGGER = logging.getLogger("ContractSolcParsing")
 
@@ -210,7 +210,7 @@ class ContractSolc(CallerContextExpression):
         self._contract.file_scope.user_defined_types[alias] = user_defined_type
         self._contract.file_scope.user_defined_types[alias_canonical] = user_defined_type
 
-    def _parse_struct(self, struct: Dict):
+    def _parse_struct(self, struct: StructDefinition):
 
         st = StructureContract(self._contract.compilation_unit)
         st.set_contract(self._contract)
@@ -228,7 +228,7 @@ class ContractSolc(CallerContextExpression):
             self._parse_struct(struct)
         self._structuresNotParsed = None
 
-    def _parse_custom_error(self, custom_error: Dict):
+    def _parse_custom_error(self, custom_error: ErrorDefinition):
         ce = CustomErrorContract(self.compilation_unit)
         ce.set_contract(self._contract)
         ce.set_offset(custom_error.src, self.compilation_unit)
@@ -273,7 +273,7 @@ class ContractSolc(CallerContextExpression):
             self._contract.variables_as_dict[var.name] = var
             self._contract.add_variables_ordered([var])
 
-    def _parse_modifier(self, modifier_data: Dict):
+    def _parse_modifier(self, modifier_data: ModifierDefinition):
         modif = Modifier(self._contract.compilation_unit)
         modif.set_offset(modifier_data.src, self._contract.compilation_unit)
         modif.set_contract(self._contract)
@@ -512,7 +512,7 @@ class ContractSolc(CallerContextExpression):
                 self._contract.using_for.update(father.using_for)
 
             for using_for in self._usingForNotParsed:
-                if using_for.typename == "*": #TODO 
+                if isinstance(using_for.typename, WildCardTypeName): 
                     type_name = "*"
                 else:
                     assert using_for.typename

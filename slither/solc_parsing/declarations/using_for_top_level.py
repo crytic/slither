@@ -15,7 +15,7 @@ from slither.core.solidity_types import TypeAliasTopLevel
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
-from slither.solc_parsing.types.types import UsingForDirective
+from slither.solc_parsing.ast.types import UsingForDirective
 
 if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc

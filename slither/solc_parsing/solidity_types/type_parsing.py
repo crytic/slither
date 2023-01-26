@@ -19,7 +19,7 @@ from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.exceptions import SlitherError
 from slither.solc_parsing.exceptions import ParsingError
-from slither.solc_parsing.types.types import TypeName
+from slither.solc_parsing.ast.types import TypeName
 
 if TYPE_CHECKING:
     from slither.core.declarations import Structure, Enum, Function
@@ -31,6 +31,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger("TypeParsing")
 
 # pylint: disable=anomalous-backslash-in-string
+
 
 class UnknownType:  # pylint: disable=too-few-public-methods
     def __init__(self, name):
@@ -329,13 +330,14 @@ def parse_type(
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
 
-    from slither.solc_parsing.types.types import \
-        ElementaryTypeName as ETN, \
-        UserDefinedTypeName as UDTN, \
-        ArrayTypeName as ATN, \
-        Mapping as M, \
-        FunctionTypeName as FTN, \
-        IdentifierPath
+    from slither.solc_parsing.ast.types import (
+        ElementaryTypeName as ETN,
+        UserDefinedTypeName as UDTN,
+        ArrayTypeName as ATN,
+        Mapping as M,
+        FunctionTypeName as FTN,
+        IdentifierPath,
+    )
 
     if isinstance(t, ETN):
         return ElementaryType(t.name)

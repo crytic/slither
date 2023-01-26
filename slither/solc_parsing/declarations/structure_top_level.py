@@ -8,7 +8,7 @@ from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.variables.structure_variable import StructureVariable
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.variables.structure_variable import StructureVariableSolc
-from slither.solc_parsing.types.types import StructDefinition
+from slither.solc_parsing.ast.types import StructDefinition
 
 if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc

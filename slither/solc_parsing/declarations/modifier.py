@@ -9,7 +9,7 @@ from slither.core.cfg.scope import Scope
 from slither.core.declarations.modifier import Modifier
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
-from slither.solc_parsing.types.types import ModifierDefinition, ASTNode, PlaceholderStatement
+from slither.solc_parsing.ast.types import ModifierDefinition, ASTNode, PlaceholderStatement
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
@@ -68,9 +68,7 @@ class ModifierSolc(FunctionSolc):
         # self._analyze_read_write()
         # self._analyze_calls()
 
-    def _parse(
-        self, stmt: ASTNode, node: NodeSolc, scope: Union[Scope, "Function"]
-    ) -> NodeSolc:
+    def _parse(self, stmt: ASTNode, node: NodeSolc, scope: Union[Scope, "Function"]) -> NodeSolc:
         if isinstance(stmt, PlaceholderStatement):
             placeholder_node = self._new_node(NodeType.PLACEHOLDER, stmt.src, scope)
             link_nodes(node.underlying_node, placeholder_node.underlying_node)

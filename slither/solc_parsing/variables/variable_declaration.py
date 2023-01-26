@@ -13,11 +13,17 @@ from slither.core.solidity_types.elementary_type import (
     ElementaryType,
     NonElementaryType,
 )
-from slither.solc_parsing.types.types import VariableDeclaration, VariableDeclarationStatement, TypeName, Expression
+from slither.solc_parsing.ast.types import (
+    VariableDeclaration,
+    VariableDeclarationStatement,
+    TypeName,
+    Expression,
+)
 
 logger = logging.getLogger("VariableDeclarationSolcParsing")
 
-T = TypeVar('T', bound=Variable)
+T = TypeVar("T", bound=Variable)
+
 
 class MultipleVariablesDeclaration(Exception):
     """
@@ -104,7 +110,6 @@ class VariableDeclarationSolc(Generic[T]):
         self._initializedNotParsed = init
         if init:
             self._variable.initialized = True
-
 
     def analyze(self, caller_context: CallerContextExpression):
         # Can be re-analyzed due to inheritance

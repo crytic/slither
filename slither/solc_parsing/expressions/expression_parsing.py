@@ -49,25 +49,28 @@ from slither.solc_parsing.declarations.caller_context import CallerContextExpres
 from slither.core.variables.variable import Variable
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
-from slither.solc_parsing.types.types import \
-    Expression as ExpressionT, \
-    Literal as LiteralT, \
-    FunctionCallOptions as FunctionCallOptionsT, \
-    NewExpression as NewExpressionT, \
-    ModifierInvocation as ModifierInvocationT, \
-    IndexAccess as IndexAccessT, \
-    IndexRangeAccess as IndexRangeAccessT, \
-    ElementaryTypeNameExpression as ElementaryTypeNameExpressionT, \
-    Conditional as ConditionalT, \
-    TupleExpression as TupleExpressionT, \
-    Assignment as AssignmentT, \
-    UnaryOperation as UnaryOperationT, \
-    BinaryOperation as BinaryOperationT, \
-    Identifier as IdentifierT, \
-    MemberAccess as MemberAccessT, \
-    FunctionCall as FunctionCallT, \
-    IdentifierPath as IdentifierPathT, \
-    ArrayTypeName, ElementaryTypeName, UserDefinedTypeName
+from slither.solc_parsing.ast.types import (
+    Expression as ExpressionT,
+    Literal as LiteralT,
+    FunctionCallOptions as FunctionCallOptionsT,
+    NewExpression as NewExpressionT,
+    ModifierInvocation as ModifierInvocationT,
+    IndexAccess as IndexAccessT,
+    IndexRangeAccess as IndexRangeAccessT,
+    ElementaryTypeNameExpression as ElementaryTypeNameExpressionT,
+    Conditional as ConditionalT,
+    TupleExpression as TupleExpressionT,
+    Assignment as AssignmentT,
+    UnaryOperation as UnaryOperationT,
+    BinaryOperation as BinaryOperationT,
+    Identifier as IdentifierT,
+    MemberAccess as MemberAccessT,
+    FunctionCall as FunctionCallT,
+    IdentifierPath as IdentifierPathT,
+    ArrayTypeName,
+    ElementaryTypeName,
+    UserDefinedTypeName,
+)
 from .find_variable import find_variable
 
 if TYPE_CHECKING:
@@ -77,13 +80,14 @@ logger = logging.getLogger("ExpressionParsing")
 
 # pylint: disable=anomalous-backslash-in-string,import-outside-toplevel,too-many-branches,too-many-locals
 
+
 def parse_super_name(expression: MemberAccessT) -> str:
     arguments = expression.type_str
     base_name = expression.member_name
 
     assert arguments.startswith("function ")
     # remove function (...()
-    arguments = arguments[len("function "):]
+    arguments = arguments[len("function ") :]
 
     arguments = filter_name(arguments)
     if " " in arguments:
@@ -241,7 +245,9 @@ def parse_function_call(expr: FunctionCallT, ctx: CallerContextExpression) -> "E
     return call_expression
 
 
-def parse_function_call_options(expr: FunctionCallOptionsT, ctx: CallerContextExpression) -> "Expression":
+def parse_function_call_options(
+    expr: FunctionCallOptionsT, ctx: CallerContextExpression
+) -> "Expression":
     # call/gas info are handled in parse_call
     called = parse_expression(expr.expression, ctx)
     assert isinstance(called, (MemberAccess, NewContract, Identifier, TupleExpression))
@@ -284,7 +290,7 @@ def parse_member_access(expr: MemberAccessT, ctx: CallerContextExpression) -> "E
         if var is None:
             raise VariableNotFound(f"Super variable not found: {super_name}")
         if was_created:
-                var.set_offset(expr.src, ctx.compilation_unit)
+            var.set_offset(expr.src, ctx.compilation_unit)
         sup = SuperIdentifier(var)
         sup.set_offset(expr.src, ctx.compilation_unit)
         return sup
@@ -337,7 +343,6 @@ def parse_identifier(expr: IdentifierT, ctx: CallerContextExpression) -> "Expres
             value = value + "(" + found[0] + ")"
             value = filter_name(value)
 
-   
     var, was_created = find_variable(value, ctx, expr.referenced_declaration)
     if was_created:
         var.set_offset(expr.src, ctx.compilation_unit)
@@ -347,11 +352,14 @@ def parse_identifier(expr: IdentifierT, ctx: CallerContextExpression) -> "Expres
     return identifier
 
 
-def parse_elementary_type_name_expression(expr: ElementaryTypeNameExpressionT, ctx: CallerContextExpression) -> "Expression":
+def parse_elementary_type_name_expression(
+    expr: ElementaryTypeNameExpressionT, ctx: CallerContextExpression
+) -> "Expression":
     t = parse_type(expr.typename, ctx)
     e = ElementaryTypeNameExpression(t)
     e.set_offset(expr.src, ctx.compilation_unit)
     return e
+
 
 def parse_literal(expr: LiteralT, ctx: CallerContextExpression) -> "Expression":
     subdenomination = None
@@ -385,13 +393,17 @@ def parse_literal(expr: LiteralT, ctx: CallerContextExpression) -> "Expression":
     literal.set_offset(expr.src, ctx.compilation_unit)
     return literal
 
-def parse_modifier_invocation(expr: ModifierInvocationT, ctx: CallerContextExpression) -> "Expression":
+
+def parse_modifier_invocation(
+    expr: ModifierInvocationT, ctx: CallerContextExpression
+) -> "Expression":
     called = parse_expression(expr.modifier, ctx)
     args = [parse_expression(a, ctx) for a in expr.args] if expr.args else []
 
     call = CallExpression(called, args, "Modifier")
     call.set_offset(expr.src, ctx.compilation_unit)
     return call
+
 
 def parse_identifier_path(expr: IdentifierPathT, ctx: CallerContextExpression) -> "Expression":
     var, was_created = find_variable(
@@ -406,6 +418,7 @@ def parse_identifier_path(expr: IdentifierPathT, ctx: CallerContextExpression) -
     var.references.append(identifier.source_mapping)
 
     return identifier
+
 
 def parse_unhandled(expr: ExpressionT, ctx: CallerContextExpression) -> "Expression":
     raise Exception("unhandled expr", type(expr))

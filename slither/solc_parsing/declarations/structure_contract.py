@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING, Dict, List
 from slither.core.declarations.structure import Structure
 from slither.core.variables.structure_variable import StructureVariable
 from slither.solc_parsing.variables.structure_variable import StructureVariableSolc
-from slither.solc_parsing.types.types import VariableDeclaration, StructDefinition
+from slither.solc_parsing.ast.types import VariableDeclaration, StructDefinition
+
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
 

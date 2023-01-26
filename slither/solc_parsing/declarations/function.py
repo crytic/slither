@@ -18,10 +18,32 @@ from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
-from slither.solc_parsing.types.types import ASTNode, Block, IfStatement, ForStatement, WhileStatement, \
-    VariableDeclarationStatement, TryStatement, TryCatchClause, VariableDeclaration, ExpressionStatement, \
-    TupleExpression, Identifier, Assignment, ParameterList, Return, Continue, Break, EmitStatement, Throw, \
-    FunctionDefinition, ModifierInvocation, InlineAssembly, Revert, UncheckedBlock
+from slither.solc_parsing.ast.types import (
+    ASTNode,
+    Block,
+    IfStatement,
+    ForStatement,
+    WhileStatement,
+    VariableDeclarationStatement,
+    TryStatement,
+    TryCatchClause,
+    VariableDeclaration,
+    ExpressionStatement,
+    TupleExpression,
+    Identifier,
+    Assignment,
+    ParameterList,
+    Return,
+    Continue,
+    Break,
+    EmitStatement,
+    Throw,
+    FunctionDefinition,
+    ModifierInvocation,
+    InlineAssembly,
+    Revert,
+    UncheckedBlock,
+)
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from slither.solc_parsing.variables.local_variable_init_from_tuple import (
     LocalVariableInitFromTupleSolc,
@@ -49,7 +71,6 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
 
 
 class FunctionSolc(CallerContextExpression):
-
     def __init__(
         self,
         function: Function,
@@ -132,12 +153,12 @@ class FunctionSolc(CallerContextExpression):
 
     @property
     def variables_renamed(
-            self,
+        self,
     ) -> Dict[int, Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]]:
         return self._variables_renamed
 
     def _add_local_variable(
-            self, local_var_parser: Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
+        self, local_var_parser: Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
     ):
         # If two local variables have the same name
         # We add a suffix to the new variable
@@ -188,17 +209,20 @@ class FunctionSolc(CallerContextExpression):
             self._function.function_type = FunctionType.NORMAL
 
         # Top level functions do not have declarer
-        if isinstance(self._function, FunctionContract) and self._function.name == self._function.contract_declarer.name:
+        if (
+            isinstance(self._function, FunctionContract)
+            and self._function.name == self._function.contract_declarer.name
+        ):
             self._function.function_type = FunctionType.CONSTRUCTOR
 
     def _analyze_attributes(self):
         if isinstance(self._functionNotParsed, FunctionDefinition):
-            if self._functionNotParsed.mutability == 'payable':
+            if self._functionNotParsed.mutability == "payable":
                 self._function.payable = True
-            elif self._functionNotParsed.mutability == 'pure':
+            elif self._functionNotParsed.mutability == "pure":
                 self._function.pure = True
                 self._function.view = True
-            elif self._functionNotParsed.mutability == 'view':
+            elif self._functionNotParsed.mutability == "view":
                 self._function.view = True
 
             if self._functionNotParsed.kind == "constructor":
@@ -253,13 +277,17 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
     ###################################################################################
 
-    def _new_node(self, node_type: NodeType, src: Union[str, Dict], scope: Union[Scope, "Function"]) -> NodeSolc:
+    def _new_node(
+        self, node_type: NodeType, src: Union[str, Dict], scope: Union[Scope, "Function"]
+    ) -> NodeSolc:
         node = self._function.new_node(node_type, src, scope)
         node_parser = NodeSolc(node)
         self._node_to_nodesolc[node] = node_parser
         return node_parser
 
-    def _new_yul_block(self, src: Union[str, Dict], father_scope: Union[Scope, Function]) -> YulBlock:
+    def _new_yul_block(
+        self, src: Union[str, Dict], father_scope: Union[Scope, Function]
+    ) -> YulBlock:
         scope = Scope(False, True, father_scope)
         node = self._function.new_node(NodeType.ASSEMBLY, src, scope)
         contract = None
@@ -281,16 +309,16 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
     ###################################################################################
 
-    def _parse_if(self, stmt: IfStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_if(
+        self, stmt: IfStatement, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         falseStatement = None
         condition_node = self._new_node(NodeType.IF, stmt.condition.src, node.underlying_node.scope)
         condition_node.add_unparsed_expression(stmt.condition)
         link_underlying_nodes(node, condition_node)
-        true_scope = Scope(
-                node.underlying_node.scope.is_checked, False, node.underlying_node.scope
-            )
+        true_scope = Scope(node.underlying_node.scope.is_checked, False, node.underlying_node.scope)
         trueStatement = self._parse(stmt.true_body, condition_node, true_scope)
-        
+
         if stmt.false_body:
             false_scope = Scope(
                 node.underlying_node.scope.is_checked, False, node.underlying_node.scope
@@ -306,11 +334,15 @@ class FunctionSolc(CallerContextExpression):
             link_underlying_nodes(condition_node, endIf_node)
         return endIf_node
 
-    def _parse_while(self, stmt: WhileStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_while(
+        self, stmt: WhileStatement, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         node_startWhile = self._new_node(NodeType.STARTLOOP, stmt.src, node.underlying_node.scope)
         body_scope = Scope(node.underlying_node.scope.is_checked, False, node.underlying_node.scope)
 
-        node_condition = self._new_node(NodeType.IFLOOP, stmt.condition.src, node.underlying_node.scope)
+        node_condition = self._new_node(
+            NodeType.IFLOOP, stmt.condition.src, node.underlying_node.scope
+        )
         node_condition.add_unparsed_expression(stmt.condition)
         statement = self._parse(stmt.body, node_condition, body_scope)
 
@@ -331,7 +363,9 @@ class FunctionSolc(CallerContextExpression):
 
         return node_endWhile
 
-    def _parse_for(self, stmt: ForStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_for(
+        self, stmt: ForStatement, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         node_startLoop = self._new_node(NodeType.STARTLOOP, stmt.src, node.underlying_node.scope)
         node_endLoop = self._new_node(NodeType.ENDLOOP, stmt.src, node.underlying_node.scope)
         last_scope = scope
@@ -381,10 +415,10 @@ class FunctionSolc(CallerContextExpression):
 
         return node_endLoop
 
-    def _parse_try_catch(self, stmt: TryStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
-        catch_scope = Scope(
-            scope.is_checked, False, scope
-        )
+    def _parse_try_catch(
+        self, stmt: TryStatement, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
+        catch_scope = Scope(scope.is_checked, False, scope)
         new_node = self._new_node(NodeType.TRY, stmt.src, catch_scope)
         new_node.add_unparsed_expression(stmt.external_call)
         link_underlying_nodes(node, new_node)
@@ -394,7 +428,9 @@ class FunctionSolc(CallerContextExpression):
             self._parse(clause, node, scope)
         return node
 
-    def _parse_catch(self, stmt: TryCatchClause, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_catch(
+        self, stmt: TryCatchClause, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         try_scope = Scope(scope.is_checked, False, scope)
 
         try_node = self._new_node(NodeType.CATCH, stmt.src, try_scope)
@@ -406,7 +442,9 @@ class FunctionSolc(CallerContextExpression):
 
         return self._parse(stmt.block, try_node, try_scope)
 
-    def _parse_variable_definition(self, stmt: VariableDeclarationStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_variable_definition(
+        self, stmt: VariableDeclarationStatement, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         if len(stmt.variables) == 1:
             local_var = LocalVariable()
             local_var.set_function(self._function)
@@ -422,13 +460,13 @@ class FunctionSolc(CallerContextExpression):
         else:
             """
             There are 2 cases we need to handle
-            
+
             1)  Initializing multiple vars with multiple individual values:
                     var (a, b) = (1,2);
                 In this case, we convert to the following code:
                     var a = 1;
                     var b = 2;
-                    
+
             2)  Initializing multiple vars with any other method (function call, skipped args, etc):
                     var (a, , c) = f();
                 In this case, we convert to the following code:
@@ -437,19 +475,24 @@ class FunctionSolc(CallerContextExpression):
                     (a, , c) = f();
             """
 
-            if isinstance(stmt.initial_value, TupleExpression) \
-                    and len(stmt.initial_value.components) == len(stmt.variables):
-                    
+            if isinstance(stmt.initial_value, TupleExpression) and len(
+                stmt.initial_value.components
+            ) == len(stmt.variables):
+
                 for i, variable in enumerate(stmt.variables):
                     if variable is None:
                         continue
 
-                    node = self._parse_variable_definition(VariableDeclarationStatement(
-                        [variable],
-                        stmt.initial_value.components[i],
-                        src=variable.src,
-                        id=variable.id,
-                    ), node, scope)
+                    node = self._parse_variable_definition(
+                        VariableDeclarationStatement(
+                            variables=[variable],
+                            initial_value=stmt.initial_value.components[i],
+                            src=variable.src,
+                            id=variable.id,
+                        ),
+                        node,
+                        scope,
+                    )
 
                 return node
             else:
@@ -457,38 +500,61 @@ class FunctionSolc(CallerContextExpression):
                     if not variable:
                         continue
 
-                    node = self._parse_variable_definition_init_tuple(VariableDeclarationStatement(
-                        [variable],
-                        None,
-                        src=variable.src,
-                        id=variable.id,
-                    ), i, node, scope)
+                    node = self._parse_variable_definition_init_tuple(
+                        VariableDeclarationStatement(
+                            variables=[variable],
+                            initial_value=None,
+                            src=variable.src,
+                            id=variable.id,
+                        ),
+                        i,
+                        node,
+                        scope,
+                    )
 
                 new_node = self._new_node(NodeType.EXPRESSION, stmt.src, scope)
-                new_node.add_unparsed_expression(Assignment(
-                    TupleExpression(
-                        [Identifier(v.name, v.referenced_declaration, type_str=v.type_str, constant=False, pure=False, src=v.src,
-                                    id=v.id) if v else None for v in stmt.variables],
-                        False,
+                new_node.add_unparsed_expression(
+                    Assignment(
+                        left=TupleExpression(
+                            components=[
+                                Identifier(
+                                    name=v.name,
+                                    referenced_declaration=v.referenced_declaration,
+                                    type_str=v.type_str,
+                                    constant=False,
+                                    pure=False,
+                                    src=v.src,
+                                    id=v.id,
+                                )
+                                if v
+                                else None
+                                for v in stmt.variables
+                            ],
+                            is_array=False,
+                            type_str="tuple()",
+                            constant=False,
+                            pure=False,
+                            src=stmt.src,
+                            id=stmt.id,
+                        ),
+                        operator="=",
+                        right=stmt.initial_value,
                         type_str="tuple()",
                         constant=False,
                         pure=False,
                         src=stmt.src,
                         id=stmt.id,
-                    ),
-                    "=",
-                    stmt.initial_value,
-                    type_str="tuple()",
-                    constant=False,
-                    pure=False,
-                    src=stmt.src,
-                    id=stmt.id,
-                ))
+                    )
+                )
                 link_underlying_nodes(node, new_node)
                 return new_node
 
     def _parse_variable_definition_init_tuple(
-            self, stmt: VariableDeclarationStatement, index: int, node: NodeSolc, scope: Union[Scope, Function] 
+        self,
+        stmt: VariableDeclarationStatement,
+        index: int,
+        node: NodeSolc,
+        scope: Union[Scope, Function],
     ) -> NodeSolc:
         local_var = LocalVariableInitFromTuple()
         local_var.set_function(self._function)
@@ -503,7 +569,9 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(node, new_node)
         return new_node
 
-    def _parse_continue(self, stmt: Continue, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_continue(
+        self, stmt: Continue, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         new_node = self._new_node(NodeType.CONTINUE, stmt.src, scope)
         link_underlying_nodes(node, new_node)
         return new_node
@@ -513,7 +581,9 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(node, new_node)
         return new_node
 
-    def _parse_revert(self, stmt: Revert, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_revert(
+        self, stmt: Revert, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         new_node = self._new_node(NodeType.EXPRESSION, stmt.src, scope)
         new_node.add_unparsed_expression(stmt.error_call)
         link_underlying_nodes(node, new_node)
@@ -524,25 +594,37 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(node, new_node)
         return new_node
 
-    def _parse_emit_statement(self, stmt: EmitStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_emit_statement(
+        self, stmt: EmitStatement, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         new_node = self._new_node(NodeType.EXPRESSION, stmt.src, scope)
         new_node.add_unparsed_expression(stmt.event_call)
         link_underlying_nodes(node, new_node)
         return new_node
 
-    def _parse_block(self, stmt: Union[Block, UncheckedBlock], node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
-        scope = Scope(node.underlying_node.scope.is_checked & ( not isinstance(stmt, UncheckedBlock)), False, node.underlying_node.scope)
+    def _parse_block(
+        self, stmt: Union[Block, UncheckedBlock], node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
+        scope = Scope(
+            node.underlying_node.scope.is_checked & (not isinstance(stmt, UncheckedBlock)),
+            False,
+            node.underlying_node.scope,
+        )
         for statement in stmt.statements:
             node = self._parse(statement, node, scope)
         return node
 
-    def _parse_expression_statement(self, stmt: ExpressionStatement, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_expression_statement(
+        self, stmt: ExpressionStatement, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         new_node = self._new_node(NodeType.EXPRESSION, stmt.src, scope)
         new_node.add_unparsed_expression(stmt.expression)
         link_underlying_nodes(node, new_node)
         return new_node
 
-    def _parse_return(self, stmt: Return, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_return(
+        self, stmt: Return, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         return_node = self._new_node(NodeType.RETURN, stmt.src, scope)
         link_underlying_nodes(node, return_node)
 
@@ -551,7 +633,9 @@ class FunctionSolc(CallerContextExpression):
 
         return return_node
 
-    def _parse_inline_assembly(self, stmt: InlineAssembly, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_inline_assembly(
+        self, stmt: InlineAssembly, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         self._function.contains_assembly = True
 
         if stmt.ast:
@@ -576,14 +660,20 @@ class FunctionSolc(CallerContextExpression):
             link_underlying_nodes(node, asm_node)
             return asm_node
 
-    def _parse_unhandled(self, stmt: ASTNode, node: NodeSolc, scope: Union[Scope, Function]) -> NodeSolc:
+    def _parse_unhandled(
+        self, stmt: ASTNode, node: NodeSolc, scope: Union[Scope, Function]
+    ) -> NodeSolc:
         raise Exception("unhandled ast node", stmt.__class__)
 
-    def _parse(self, stmt: ASTNode, node: NodeSolc, scope: Optional[Union[Scope, Function]]) -> NodeSolc:
+    def _parse(
+        self, stmt: ASTNode, node: NodeSolc, scope: Optional[Union[Scope, Function]]
+    ) -> NodeSolc:
         if not scope:
             checked_arithmetic = self.compilation_unit.solc_version >= "0.8.0"
             scope = Scope(checked_arithmetic, False, node.underlying_node.scope)
-        return FunctionSolc.PARSERS.get(stmt.__class__, FunctionSolc._parse_unhandled)(self, stmt, node, scope)
+        return FunctionSolc.PARSERS.get(stmt.__class__, FunctionSolc._parse_unhandled)(
+            self, stmt, node, scope
+        )
 
     PARSERS = {
         VariableDeclarationStatement: _parse_variable_definition,
@@ -744,7 +834,9 @@ class FunctionSolc(CallerContextExpression):
 
         for m in ExportValues(m).result():
             if isinstance(m, Function):
-                node_parser = self._new_node(NodeType.EXPRESSION, modifier.src, self.underlying_function)
+                node_parser = self._new_node(
+                    NodeType.EXPRESSION, modifier.src, self.underlying_function
+                )
                 node_parser.add_unparsed_expression(modifier)
                 # The latest entry point is the entry point, or the latest modifier call
                 if self._function.modifiers:
@@ -761,7 +853,9 @@ class FunctionSolc(CallerContextExpression):
                 )
 
             elif isinstance(m, Contract):
-                node_parser = self._new_node(NodeType.EXPRESSION, modifier.src, self.underlying_function)
+                node_parser = self._new_node(
+                    NodeType.EXPRESSION, modifier.src, self.underlying_function
+                )
                 node_parser.add_unparsed_expression(modifier)
                 # The latest entry point is the entry point, or the latest constructor call
                 if self._function.explicit_base_constructor_calls_statements:
@@ -799,7 +893,6 @@ class FunctionSolc(CallerContextExpression):
             if node.type in [NodeType.TRY]:
                 self._fix_try(node)
 
-    
         # this step needs to happen after all of the break statements are fixed
         # really, we should be passing some sort of context down so the break statement doesn't
         # need to be fixed out-of-band in the first place
@@ -884,11 +977,11 @@ class FunctionSolc(CallerContextExpression):
         return updated
 
     def _split_ternary_node(
-            self,
-            node: Node,
-            condition: "Expression",
-            true_expr: "Expression",
-            false_expr: "Expression",
+        self,
+        node: Node,
+        condition: "Expression",
+        true_expr: "Expression",
+        false_expr: "Expression",
     ):
         condition_node = self._new_node(NodeType.IF, node.source_mapping, node.scope)
         condition_node.underlying_node.add_expression(condition)

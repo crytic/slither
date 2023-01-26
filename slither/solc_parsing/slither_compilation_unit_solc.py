@@ -26,7 +26,7 @@ from slither.solc_parsing.declarations.structure_top_level import StructureTopLe
 from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
 from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
-from slither.solc_parsing.types.types import (SourceUnit, ContractDefinition, PragmaDirective, ImportDirective, 
+from slither.solc_parsing.ast.types import (SourceUnit, ContractDefinition, PragmaDirective, ImportDirective, 
     StructDefinition, EnumDefinition, VariableDeclaration, FunctionDefinition, ErrorDefinition, UserDefinedValueTypeDefinition, UsingForDirective)
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 
@@ -146,8 +146,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def parse_top_level_from_loaded_json(
         self, data_loaded: Dict, filename: str
     ):  # pylint: disable=too-many-branches,too-many-statements,too-many-locals
-        from slither.solc_parsing.types.sniffer import sniff
-        from slither.solc_parsing.types.dump import dumps
+        from slither.solc_parsing.ast.sniffer import sniff
+        from slither.solc_parsing.ast.dump import dumps
         node = sniff(data_loaded)(data_loaded)
         # print(dumps(node))
         if "sourcePaths" in data_loaded:

@@ -2,7 +2,8 @@ from typing import Dict
 
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.core.variables.event_variable import EventVariable
-from slither.solc_parsing.types.types import VariableDeclaration
+from slither.solc_parsing.ast.types import VariableDeclaration
+
 
 class EventVariableSolc(VariableDeclarationSolc[EventVariable]):
     def __init__(self, variable: EventVariable, variable_data: VariableDeclaration):

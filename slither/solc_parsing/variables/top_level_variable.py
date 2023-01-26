@@ -3,7 +3,7 @@ from typing import Union, TYPE_CHECKING
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
-from slither.solc_parsing.types.types import VariableDeclaration, VariableDeclarationStatement
+from slither.solc_parsing.ast.types import VariableDeclaration, VariableDeclarationStatement
 
 if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
