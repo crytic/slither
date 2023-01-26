@@ -1186,7 +1186,6 @@ class FunctionSolc(CallerContextExpression):
                     continue
                 if isinstance(ret.type, FunctionSolidityType):
                     continue
-                print(type(ret.type))
                 assign_node = self._new_node(NodeType.EXPRESSION, cfg["src"], self._function)
                 assign_node.underlying_node.add_expression(
                     AssignmentOperation(
