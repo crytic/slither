@@ -1,0 +1,4 @@
+# Solidity Contract Operations Security Detectors
+
+This category includes detectors that are designed to identify potential vulnerabilities and issues related to the functionality and security of smart contracts written in the Solidity programming language. 
+These detectors check for weaknesses in the PRNG caused by modulos on block.timestamp, keywords like now or blockhash, dangerous usage of block.timestamp, low-level calls which are not checked for success, missing events for critical access control or arithmetic parameters, missing zero address validation, return values of low-level calls, sends, external transfers/transferFrom calls which are not checked, return value of external call is not stored in a local or state variable and also detect calls to constructors that are not implemented. They help identify potential security vulnerabilities and assist in adhering to best practices for secure smart contract development.

@@ -1,0 +1,4 @@
+# ERC Token Compliance and Security Detectors
+
+This category includes detectors that are designed to identify known vulnerabilities and potential issues related to the implementation of ERC token standard smart contracts. 
+These detectors check for the return values of ERC721 functions, missing indexed keywords in events defined by ERC20, Arbitrary address usage in ERC20, wrong usage of msg.sender in transferFrom, and also check for incorrect return values for ERC20 functions, these detectors help identify potential vulnerabilities and ensure adherence to best practices for secure ERC token contract development, helping to mitigate the risk of exploitation and loss of funds.

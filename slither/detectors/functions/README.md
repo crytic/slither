@@ -1,0 +1,4 @@
+# Solidity Contract Functions Security and Vulnerabilities Detectors
+
+This category includes detectors that are designed to identify potential vulnerabilities and issues related to the functionality and security of smart contracts written in the Solidity programming language. 
+These detectors check for functions that send Ether to arbitrary destinations, use of Codex to find vulnerabilities, dead-code, public functions that could be declared as external, incorrect modifiers that do not execute or revert, ERC20 tokens that have a function whose signature collides with EIP-2612's DOMAIN_SEPARATOR, unprotected variables that are marked protected, unprotected calls to functions executing selfdestruct/suicide and also detects functions that are not implemented on derived-most contracts. These detectors help identify potential security vulnerabilities and assist in adhering to best practices for secure smart contract development.

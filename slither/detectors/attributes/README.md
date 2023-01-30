@@ -1,0 +1,4 @@
+# Solidity Contract State Modification and Compliance Detectors
+
+This category includes detectors that are designed to identify potential issues related to state modification, compliance, and adherence to best practices for smart contract development in the Solidity programming language. 
+These detectors check for properties and functionality of the contracts such as functions declared as constant/pure/view change the state, usage of different Solidity versions or pragma directives, usage of old solc version and also check for specific contract features such as contracts that lock Ether without withdrawal capacity, and check if contract intends to implement an interface but fails to do so. These detectors help identify potential security vulnerabilities and compliance issues in smart contract code.
