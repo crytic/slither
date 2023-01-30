@@ -603,10 +603,9 @@ def parse_return(raw: Dict) -> Return:
     expression (Expression?)
     functionReturnParameters (int)
     """
-    if raw["expression"]:
+    expr_parsed = None
+    if "expression" in raw:
         expr_parsed = parse(raw["expression"])
-    else:
-        expr_parsed = None
 
     return Return(expression=expr_parsed, **_extract_base_props(raw))
 
