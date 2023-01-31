@@ -66,80 +66,41 @@ if TYPE_CHECKING:
 
 
 class NodeType(Enum):
-    ENTRYPOINT = 0x0  # no expression
+    ENTRYPOINT = "ENTRY_POINT"  # no expression
 
-    # Node with expression
+    # Nodes that may have an expression
 
-    EXPRESSION = 0x10  # normal case
-    RETURN = 0x11  # RETURN may contain an expression
-    IF = 0x12
-    VARIABLE = 0x13  # Declaration of variable
-    ASSEMBLY = 0x14
-    IFLOOP = 0x15
+    EXPRESSION = "EXPRESSION"  # normal case
+    RETURN = "RETURN"  # RETURN may contain an expression
+    IF = "IF"
+    VARIABLE = "NEW VARIABLE"  # Variable declaration
+    ASSEMBLY = "INLINE ASM"
+    IFLOOP = "IF_LOOP"
 
-    # Merging nodes
+    # Nodes where control flow merges
     # Can have phi IR operation
-    ENDIF = 0x50  # ENDIF node source mapping points to the if/else body
-    STARTLOOP = 0x51  # STARTLOOP node source mapping points to the entire loop body
-    ENDLOOP = 0x52  # ENDLOOP node source mapping points to the entire loop body
+    ENDIF = "END_IF"  # ENDIF node source mapping points to the if/else "body"
+    STARTLOOP = "BEGIN_LOOP"  # STARTLOOP node source mapping points to the entire loop "body"
+    ENDLOOP = "END_LOOP"  # ENDLOOP node source mapping points to the entire loop "body"
 
-    # Below the nodes have no expression
-    # But are used to expression CFG structure
+    # Below the nodes do not have an expression but are used to expression CFG structure.
 
     # Absorbing node
-    THROW = 0x20
+    THROW = "THROW"
 
     # Loop related nodes
-    BREAK = 0x31
-    CONTINUE = 0x32
+    BREAK = "BREAK"
+    CONTINUE = "CONTINUE"
 
     # Only modifier node
-    PLACEHOLDER = 0x40
+    PLACEHOLDER = "_"
 
-    TRY = 0x41
-    CATCH = 0x42
+    TRY = "TRY"
+    CATCH = "CATCH"
 
     # Node not related to the CFG
     # Use for state variable declaration
-    OTHER_ENTRYPOINT = 0x60
-
-    #    @staticmethod
-    def __str__(self):
-        if self == NodeType.ENTRYPOINT:
-            return "ENTRY_POINT"
-        if self == NodeType.EXPRESSION:
-            return "EXPRESSION"
-        if self == NodeType.RETURN:
-            return "RETURN"
-        if self == NodeType.IF:
-            return "IF"
-        if self == NodeType.VARIABLE:
-            return "NEW VARIABLE"
-        if self == NodeType.ASSEMBLY:
-            return "INLINE ASM"
-        if self == NodeType.IFLOOP:
-            return "IF_LOOP"
-        if self == NodeType.THROW:
-            return "THROW"
-        if self == NodeType.BREAK:
-            return "BREAK"
-        if self == NodeType.CONTINUE:
-            return "CONTINUE"
-        if self == NodeType.PLACEHOLDER:
-            return "_"
-        if self == NodeType.TRY:
-            return "TRY"
-        if self == NodeType.CATCH:
-            return "CATCH"
-        if self == NodeType.ENDIF:
-            return "END_IF"
-        if self == NodeType.STARTLOOP:
-            return "BEGIN_LOOP"
-        if self == NodeType.ENDLOOP:
-            return "END_LOOP"
-        if self == NodeType.OTHER_ENTRYPOINT:
-            return "OTHER_ENTRYPOINT"
-        return f"Unknown type {hex(self.value)}"
+    OTHER_ENTRYPOINT = "OTHER_ENTRYPOINT"
 
 
 # endregion

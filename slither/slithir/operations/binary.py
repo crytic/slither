@@ -12,25 +12,25 @@ logger = logging.getLogger("BinaryOperationIR")
 
 
 class BinaryType(Enum):
-    POWER = 0  # **
-    MULTIPLICATION = 1  # *
-    DIVISION = 2  # /
-    MODULO = 3  # %
-    ADDITION = 4  # +
-    SUBTRACTION = 5  # -
-    LEFT_SHIFT = 6  # <<
-    RIGHT_SHIFT = 7  # >>
-    AND = 8  # &
-    CARET = 9  # ^
-    OR = 10  # |
-    LESS = 11  # <
-    GREATER = 12  # >
-    LESS_EQUAL = 13  # <=
-    GREATER_EQUAL = 14  # >=
-    EQUAL = 15  # ==
-    NOT_EQUAL = 16  # !=
-    ANDAND = 17  # &&
-    OROR = 18  # ||
+    POWER = "**"
+    MULTIPLICATION = "*"
+    DIVISION = "/"
+    MODULO = "%"
+    ADDITION = "+"
+    SUBTRACTION = "-"
+    LEFT_SHIFT = "<<"
+    RIGHT_SHIFT = ">>"
+    AND = "&"
+    CARET = "^"
+    OR = "|"
+    LESS = "<"
+    GREATER = ">"
+    LESS_EQUAL = "<="
+    GREATER_EQUAL = ">="
+    EQUAL = "=="
+    NOT_EQUAL = "!="
+    ANDAND = "&&"
+    OROR = "||"
 
     @staticmethod
     def return_bool(operation_type):
@@ -98,47 +98,6 @@ class BinaryType(Enum):
             BinaryType.DIVISION,
         ]
 
-    def __str__(self):  # pylint: disable=too-many-branches
-        if self == BinaryType.POWER:
-            return "**"
-        if self == BinaryType.MULTIPLICATION:
-            return "*"
-        if self == BinaryType.DIVISION:
-            return "/"
-        if self == BinaryType.MODULO:
-            return "%"
-        if self == BinaryType.ADDITION:
-            return "+"
-        if self == BinaryType.SUBTRACTION:
-            return "-"
-        if self == BinaryType.LEFT_SHIFT:
-            return "<<"
-        if self == BinaryType.RIGHT_SHIFT:
-            return ">>"
-        if self == BinaryType.AND:
-            return "&"
-        if self == BinaryType.CARET:
-            return "^"
-        if self == BinaryType.OR:
-            return "|"
-        if self == BinaryType.LESS:
-            return "<"
-        if self == BinaryType.GREATER:
-            return ">"
-        if self == BinaryType.LESS_EQUAL:
-            return "<="
-        if self == BinaryType.GREATER_EQUAL:
-            return ">="
-        if self == BinaryType.EQUAL:
-            return "=="
-        if self == BinaryType.NOT_EQUAL:
-            return "!="
-        if self == BinaryType.ANDAND:
-            return "&&"
-        if self == BinaryType.OROR:
-            return "||"
-        raise SlithIRError(f"str: Unknown operation type {self} {type(self)})")
-
 
 class Binary(OperationWithLValue):
     def __init__(self, result, left_variable, right_variable, operation_type: BinaryType):
@@ -178,8 +137,8 @@ class Binary(OperationWithLValue):
     @property
     def type_str(self):
         if self.node.scope.is_checked and self._type.can_be_checked_for_overflow():
-            return "(c)" + str(self._type)
-        return str(self._type)
+            return "(c)" + self._type.value
+        return self._type.value
 
     def __str__(self):
         if isinstance(self.lvalue, ReferenceVariable):
