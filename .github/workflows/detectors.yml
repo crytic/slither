@@ -38,4 +38,4 @@ jobs:
           solc-select use 0.7.3 --always-install
       - name: Test with pytest
         run: |
-          pytest tests/test_detectors.py
+          pytest tests/test_detectors.py -n auto
