@@ -975,7 +975,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
             additional_info += " " + str(self.expression)
         elif self.variable_declaration:
             additional_info += " " + str(self.variable_declaration)
-        txt = str(self._node_type) + additional_info
+        txt = self._node_type.value + additional_info
         return txt
 
 
