@@ -9,13 +9,16 @@ defaults:
 on:
   pull_request:
     branches: [master, dev]
+    paths:
+      - "**/*.py"
+    
   schedule:
     # run CI every day even if no PRs/merges occur
     - cron: '0 12 * * *'
 
 jobs:
   build:
-    name: Lint Code Base
+    name: Pylint
     runs-on: ubuntu-latest
 
     steps:
