@@ -118,8 +118,9 @@ class UnchangedStateVariables:
                         self.constant_candidates.append(v)
 
                     elif (
-                        v in constructor_variables_written or v in variables_initialized
-                    ) and version.parse(self.compilation_unit.solc_version) >= version.parse(
-                        "0.6.5"
+                        v.type != ElementaryType("string")
+                        and version.parse(self.compilation_unit.solc_version)
+                        >= version.parse("0.6.5")
+                        and (v in constructor_variables_written or v in variables_initialized)
                     ):
                         self.immutable_candidates.append(v)
