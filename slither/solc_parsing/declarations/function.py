@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional, Union, List, TYPE_CHECKING
+from typing import Dict, Optional, Union, List, TYPE_CHECKING, Tuple
 
 from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
 from slither.core.cfg.scope import Scope
@@ -445,7 +445,7 @@ class FunctionSolc(CallerContextExpression):
 
     def _parse_for_compact_ast(  # pylint: disable=no-self-use
         self, statement: Dict
-    ) -> (Optional[Dict], Optional[Dict], Optional[Dict], Dict):
+    ) -> Tuple[Optional[Dict], Optional[Dict], Optional[Dict], Dict]:
         body = statement["body"]
         init_expression = statement.get("initializationExpression", None)
         condition = statement.get("condition", None)
@@ -455,7 +455,7 @@ class FunctionSolc(CallerContextExpression):
 
     def _parse_for_legacy_ast(
         self, statement: Dict
-    ) -> (Optional[Dict], Optional[Dict], Optional[Dict], Dict):
+    ) -> Tuple[Optional[Dict], Optional[Dict], Optional[Dict], Dict]:
         # if we're using an old version of solc (anything below and including 0.4.11) or if the user
         # explicitly enabled compact ast, we might need to make some best-effort guesses
         children = statement[self.get_children("children")]

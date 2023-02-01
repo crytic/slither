@@ -8,14 +8,10 @@ if TYPE_CHECKING:
     from slither.core.declarations.structure import Structure
     from slither.core.declarations.enum import Enum
     from slither.core.declarations.contract import Contract
-    from slither.core.declarations import EnumContract
-    from slither.core.declarations.structure_top_level import StructureTopLevel
 
 # pylint: disable=import-outside-toplevel
 class UserDefinedType(Type):
-    def __init__(
-        self, t: Union["EnumContract", "StructureTopLevel", "Contract", "StructureContract"]
-    ) -> None:
+    def __init__(self, t: Union["Enum", "Contract", "Structure"]) -> None:
         from slither.core.declarations.structure import Structure
         from slither.core.declarations.enum import Enum
         from slither.core.declarations.contract import Contract

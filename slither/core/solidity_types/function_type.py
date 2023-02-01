@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 from slither.core.solidity_types.type import Type
 from slither.core.variables.function_type_variable import FunctionTypeVariable
@@ -69,7 +69,7 @@ class FunctionType(Type):
             return f"({params}) returns({return_values})"
         return f"({params})"
 
-    def __eq__(self, other: ElementaryType) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, FunctionType):
             return False
         return self.params == other.params and self.return_values == other.return_values

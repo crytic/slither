@@ -5,13 +5,13 @@ from slither.core.solidity_types.type import Type
 
 if TYPE_CHECKING:
     from slither.core.declarations.contract import Contract
-    from slither.core.declarations.enum_top_level import EnumTopLevel
+    from slither.core.declarations.enum import Enum
 
 
 # Use to model the Type(X) function, which returns an undefined type
 # https://solidity.readthedocs.io/en/latest/units-and-global-variables.html#type-information
 class TypeInformation(Type):
-    def __init__(self, c: Union[ElementaryType, "Contract", "EnumTopLevel"]) -> None:
+    def __init__(self, c: Union[ElementaryType, "Contract", "Enum"]) -> None:
         # pylint: disable=import-outside-toplevel
         from slither.core.declarations.contract import Contract
         from slither.core.declarations.enum import Enum
@@ -21,7 +21,7 @@ class TypeInformation(Type):
         self._type = c
 
     @property
-    def type(self) -> "Contract":
+    def type(self) -> Union["Contract", ElementaryType, "Enum"]:
         return self._type
 
     @property

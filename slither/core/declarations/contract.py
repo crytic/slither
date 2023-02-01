@@ -38,13 +38,13 @@ if TYPE_CHECKING:
         EnumContract,
         StructureContract,
         FunctionContract,
+        CustomErrorContract,
     )
     from slither.slithir.variables.variable import SlithIRVariable
-    from slither.core.variables.variable import Variable
-    from slither.core.variables.state_variable import StateVariable
+    from slither.core.variables import Variable, StateVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.core.declarations.custom_error_contract import CustomErrorContract
     from slither.core.scope.scope import FileScope
+    from slither.core.cfg.node import Node
 
 
 LOGGER = logging.getLogger("Contract")
@@ -803,23 +803,25 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         return next((v for v in self.state_variables if v.name == canonical_name), None)
 
-    def get_structure_from_name(self, structure_name: str) -> Optional["Structure"]:
+    def get_structure_from_name(self, structure_name: str) -> Optional["StructureContract"]:
         """
             Return a structure from a name
         Args:
             structure_name (str): name of the structure
         Returns:
-            Structure
+            StructureContract
         """
         return next((st for st in self.structures if st.name == structure_name), None)
 
-    def get_structure_from_canonical_name(self, structure_name: str) -> Optional["Structure"]:
+    def get_structure_from_canonical_name(
+        self, structure_name: str
+    ) -> Optional["StructureContract"]:
         """
             Return a structure from a canonical name
         Args:
             structure_name (str): canonical name of the structure
         Returns:
-            Structure
+            StructureContract
         """
         return next((st for st in self.structures if st.canonical_name == structure_name), None)
 

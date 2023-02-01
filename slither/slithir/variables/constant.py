@@ -11,7 +11,7 @@ from slither.utils.integer_conversion import convert_string_to_int
 class Constant(SlithIRVariable):
     def __init__(
         self,
-        val: str,
+        val: Union[int, str],
         constant_type: Optional[ElementaryType] = None,
         subdenomination: Optional[str] = None,
     ) -> None:  # pylint: disable=too-many-branches

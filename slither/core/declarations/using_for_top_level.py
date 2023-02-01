@@ -14,5 +14,5 @@ class UsingForTopLevel(TopLevel):
         self.file_scope: "FileScope" = scope
 
     @property
-    def using_for(self) -> Dict[Type, List[Type]]:
+    def using_for(self) -> Dict[Union[str, Type], List[Type]]:
         return self._using_for
