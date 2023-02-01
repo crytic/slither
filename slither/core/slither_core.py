@@ -74,7 +74,7 @@ class SlitherCore(Context):
         # Maps from file to detector name to the start/end ranges for that detector.
         # Infinity is used to signal a detector has no end range.
         self._ignore_ranges: Dict[str, Dict[str, List[Tuple[int, ...]]]] = defaultdict(
-            lambda: defaultdict(lambda: [-1, -1])
+            lambda: defaultdict(lambda: [(-1, -1)])
         )
 
         self._compilation_units: List[SlitherCompilationUnit] = []
