@@ -41,14 +41,15 @@ def _node(node, label=None):
         )
     )
 
-#pylint: disable=too-few-public-methods
+
+# pylint: disable=too-few-public-methods
 class DummyContractForTopLevel:
     """Dummy Class to simulate Contract Declarer for top level functions"""
-    def __init__(self,identifier,name):
+
+    def __init__(self, identifier, name):
         self.id = identifier
         self.name = name
 
-d = DummyContractForTopLevel("TopLevelFunction","toplevel")
 
 # pylint: disable=too-many-arguments
 def _process_internal_call(
@@ -58,12 +59,13 @@ def _process_internal_call(
     contract_calls,
     solidity_functions,
     solidity_calls,
+    top_level_dict,
 ):
-    if isinstance(internal_call,(FunctionTopLevel)):
+    if isinstance(internal_call, (FunctionTopLevel)):
         contract_calls[contract].add(
             _edge(
-                _function_node(contract,function),
-                _function_node(d,internal_call),
+                _function_node(contract, function),
+                _function_node(top_level_dict[internal_call], internal_call),
             )
         )
     elif isinstance(internal_call, (Function)):
@@ -101,7 +103,8 @@ def _render_internal_nodes(contract, contract_functions):
 
     return "\n".join(lines)
 
-def _render_internal_edges(contract,contract_calls):
+
+def _render_internal_edges(contract, contract_calls):
     lines = []
     lines.extend(contract_calls[contract])
     return "\n".join(lines)
@@ -118,6 +121,7 @@ def _render_solidity_nodes(solidity_functions):
 
     return "\n".join(lines)
 
+
 def _render_solidity_edges(solidity_calls):
     lines = []
     lines.extend(solidity_calls)
@@ -131,6 +135,7 @@ def _process_external_call(
     contract_functions,
     external_calls,
     all_contracts,
+    top_level_dict,
 ):
     external_contract, external_function = external_call
 
@@ -145,13 +150,20 @@ def _process_external_call(
                 external_function.name,
             )
         )
-
-    external_calls.add(
-        _edge(
-            _function_node(contract, function),
-            _function_node(external_contract, external_function),
+    if isinstance(external_function, (FunctionTopLevel)):
+        external_calls.add(
+            _edge(
+                _function_node(contract, function),
+                _function_node(top_level_dict[external_function], external_function),
+            )
         )
-    )
+    else:
+        external_calls.add(
+            _edge(
+                _function_node(contract, function),
+                _function_node(external_contract, external_function),
+            )
+        )
 
 
 # pylint: disable=too-many-arguments
@@ -164,6 +176,7 @@ def _process_function(
     solidity_calls,
     external_calls,
     all_contracts,
+    top_level_dict,
 ):
     contract_functions[contract].add(
         _node(_function_node(contract, function), function.name),
@@ -177,6 +190,7 @@ def _process_function(
             contract_calls,
             solidity_functions,
             solidity_calls,
+            top_level_dict,
         )
     for external_call in function.high_level_calls:
         _process_external_call(
@@ -186,13 +200,41 @@ def _process_function(
             contract_functions,
             external_calls,
             all_contracts,
+            top_level_dict,
         )
 
-#Todo: grab top level functions by common source map
-# Make contracts with the same source file declaration be in the same contract declarer
-# Deal with the inlined functions
 
-def _process_functions(functions):
+def _create_dummy_declarers(top_level_functions):
+    if top_level_functions == []:
+        return
+
+    my_filenames = []
+    sorted_by_filename = sorted(top_level_functions, key=lambda x: x.source_mapping.filename)
+    current_filename = sorted_by_filename[0].source_mapping.filename.absolute
+
+    formatted_name = current_filename[current_filename.rfind("/") + 1 : current_filename.rfind(".")]
+    current_declarer = DummyContractForTopLevel(
+        f"TopLevelFunctions_{formatted_name}", f"TopLevel_{formatted_name}"
+    )
+    function_to_contract = {}
+    for fn in sorted_by_filename:
+        if fn.source_mapping.filename in my_filenames:
+            function_to_contract[fn] = current_declarer
+        else:
+            current_filename = fn.source_mapping.filename.absolute
+            formatted_name = current_filename[
+                current_filename.rfind("/") + 1 : current_filename.rfind(".")
+            ]
+            current_declarer = DummyContractForTopLevel(
+                f"TopLevelFunctions_{formatted_name}", f"TopLevel_{formatted_name}"
+            )
+            function_to_contract[fn] = current_declarer
+            my_filenames.append(fn.source_mapping.filename)
+
+    return function_to_contract
+
+
+def _process_functions(functions, top_level_dict):
     contract_functions = defaultdict(set)  # contract -> contract functions nodes
     contract_calls = defaultdict(set)  # contract -> contract calls edges
 
@@ -201,46 +243,42 @@ def _process_functions(functions):
     external_calls = set()  # external calls edges
 
     all_contracts = set()
-
+    for function in functions:
+        all_contracts.add(function.contract_declarer)
 
     for function in functions:
-        if isinstance(function,(FunctionTopLevel)):
-
-            all_contracts.add(d)
-        else:
-            all_contracts.add(function.contract_declarer)
-
-    for function in functions:
-        if isinstance(function,(FunctionTopLevel)):
+        _process_function(
+            function.contract_declarer,
+            function,
+            contract_functions,
+            contract_calls,
+            solidity_functions,
+            solidity_calls,
+            external_calls,
+            all_contracts,
+            top_level_dict,
+        )
+    if top_level_dict is not None:
+        for top_level in top_level_dict.keys():
+            all_contracts.add(top_level_dict[top_level])
+        for top_level in top_level_dict.keys():
             _process_function(
-                d,
-                function,
+                top_level_dict[top_level],
+                top_level,
                 contract_functions,
                 contract_calls,
                 solidity_functions,
                 solidity_calls,
                 external_calls,
                 all_contracts,
-            )
-        else:
-            _process_function(
-                function.contract_declarer,
-                function,
-                contract_functions,
-                contract_calls,
-                solidity_functions,
-                solidity_calls,
-                external_calls,
-                all_contracts,
+                top_level_dict,
             )
 
     render_internal_nodes = ""
     render_internal_edges = ""
     for contract in all_contracts:
-        render_internal_nodes += _render_internal_nodes(
-            contract, contract_functions
-        )
-        render_internal_edges += _render_internal_edges(contract,contract_calls)
+        render_internal_nodes += _render_internal_nodes(contract, contract_functions)
+        render_internal_edges += _render_internal_edges(contract, contract_calls)
 
     render_solidity_nodes = _render_solidity_nodes(solidity_functions)
 
@@ -248,7 +286,13 @@ def _process_functions(functions):
 
     render_solidity_edges = _render_solidity_edges(solidity_calls)
 
-    return render_internal_nodes + render_solidity_nodes + render_external_calls + render_internal_edges + render_solidity_edges
+    return (
+        render_internal_nodes
+        + render_solidity_nodes
+        + render_external_calls
+        + render_internal_edges
+        + render_solidity_edges
+    )
 
 
 class PrinterCallGraph(AbstractPrinter):
@@ -285,20 +329,41 @@ class PrinterCallGraph(AbstractPrinter):
                 compilation_unit.functions for compilation_unit in self.slither.compilation_units
             ]
             all_functions = [item for sublist in all_functionss for item in sublist]
-            all_functions_as_dict = {
-                function.canonical_name: function for function in all_functions
-            }
+
+            top_levels = [
+                compilation_unit.functions_top_level
+                for compilation_unit in self.slither.compilation_units
+            ]
+            top_levels_flat = [item for sublist in top_levels for item in sublist]
+            top_level_dict = _create_dummy_declarers(top_levels_flat)
+
+            if top_level_dict is not None:
+                all_functions_as_dict = {
+                    function.canonical_name: function
+                    for function in all_functions
+                    if function not in top_level_dict
+                }
+            else:
+                all_functions_as_dict = {
+                    function.canonical_name: function for function in all_functions
+                }
+
             content = "\n".join(
-                ["strict digraph {"] + [_process_functions(all_functions_as_dict.values())] + ["}"]
+                ["strict digraph {"]
+                + [_process_functions(all_functions_as_dict.values(), top_level_dict)]
+                + ["}"]
             )
             f.write(content)
             results.append((all_contracts_filename, content))
+
         for derived_contract in self.slither.contracts_derived:
             derived_output_filename = f"{filename}{derived_contract.name}.call-graph.dot"
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
-                    ["strict digraph {"] + [_process_functions(derived_contract.functions)] + ["}"]
+                    ["strict digraph {"]
+                    + [_process_functions(derived_contract.functions, top_level_dict)]
+                    + ["}"]
                 )
                 f.write(content)
                 results.append((derived_output_filename, content))
