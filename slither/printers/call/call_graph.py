@@ -18,8 +18,11 @@ def _contract_subgraph(contract):
 
 
 # return unique id for contract function to use as node name
-def _function_node(contract, function):
-    return f"{contract.id}_{function.name}"
+def _function_node(contract, function,top_level_dict):
+    if isinstance(function, (FunctionTopLevel)):
+        return f"{top_level_dict[function]}_{function.name}"
+    else:
+        return f"{function.contract_declarer.id}_{function.name}"
 
 
 # return unique id for solidity function to use as node name
@@ -64,15 +67,15 @@ def _process_internal_call(
     if isinstance(internal_call, (FunctionTopLevel)):
         contract_calls[contract].add(
             _edge(
-                _function_node(contract, function),
-                _function_node(top_level_dict[internal_call], internal_call),
+                _function_node(contract, function,top_level_dict),
+                _function_node(top_level_dict[internal_call], internal_call,top_level_dict),
             )
         )
     elif isinstance(internal_call, (Function)):
         contract_calls[contract].add(
             _edge(
-                _function_node(contract, function),
-                _function_node(contract, internal_call),
+                _function_node(contract, function,top_level_dict),
+                _function_node(contract, internal_call,top_level_dict),
             )
         )
     elif isinstance(internal_call, (SolidityFunction)):
@@ -81,7 +84,7 @@ def _process_internal_call(
         )
         solidity_calls.add(
             _edge(
-                _function_node(contract, function),
+                _function_node(contract, function,top_level_dict),
                 _solidity_function_node(internal_call),
             )
         )
@@ -146,22 +149,22 @@ def _process_external_call(
     if isinstance(external_function, (Variable)):
         contract_functions[external_contract].add(
             _node(
-                _function_node(external_contract, external_function),
+                _function_node(external_contract, external_function,top_level_dict),
                 external_function.name,
             )
         )
     if isinstance(external_function, (FunctionTopLevel)):
         external_calls.add(
             _edge(
-                _function_node(contract, function),
-                _function_node(top_level_dict[external_function], external_function),
+                _function_node(contract, function,top_level_dict),
+                _function_node(top_level_dict[external_function], external_function,top_level_dict),
             )
         )
     else:
         external_calls.add(
             _edge(
-                _function_node(contract, function),
-                _function_node(external_contract, external_function),
+                _function_node(contract, function,top_level_dict),
+                _function_node(external_contract, external_function,top_level_dict),
             )
         )
 
@@ -179,7 +182,7 @@ def _process_function(
     top_level_dict,
 ):
     contract_functions[contract].add(
-        _node(_function_node(contract, function), function.name),
+        _node(_function_node(contract, function,top_level_dict), function.name),
     )
 
     for internal_call in function.internal_calls:
