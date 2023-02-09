@@ -118,7 +118,7 @@ class UnchangedStateVariables:
                         self.constant_candidates.append(v)
 
                     elif (
-                        not v.is_dynamic
+                        not v.type.is_dynamic
                         and version.parse(self.compilation_unit.solc_version)
                         >= version.parse("0.6.5")
                         and (v in constructor_variables_written or v in variables_initialized)
