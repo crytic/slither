@@ -25,10 +25,12 @@ class IncorrectUsingFor(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-using-for-usage"
 
     WIKI_TITLE = "Incorrect usage of using-for statement"
-    WIKI_DESCRIPTION = "In Solidity, it is possible to use libraries for certain types, by the `using-for` statement " \
-                       "(`using <library> for <type>`). However, the Solidity compiler doesn't check whether a given " \
-                       "library has at least one function matching a given type. If it doesn't, such a statement has " \
-                       "no effect and may be confusing. "
+    WIKI_DESCRIPTION = (
+        "In Solidity, it is possible to use libraries for certain types, by the `using-for` statement "
+        "(`using <library> for <type>`). However, the Solidity compiler doesn't check whether a given "
+        "library has at least one function matching a given type. If it doesn't, such a statement has "
+        "no effect and may be confusing. "
+    )
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
@@ -41,8 +43,10 @@ class IncorrectUsingFor(AbstractDetector):
     ```
     Such a code will compile despite the fact that `L` has no function with `uint` as its first argument."""
     # endregion wiki_exploit_scenario
-    WIKI_RECOMMENDATION = "Make sure that the libraries used in `using-for` statements have at least one function " \
-                          "matching a type used in these statements. "
+    WIKI_RECOMMENDATION = (
+        "Make sure that the libraries used in `using-for` statements have at least one function "
+        "matching a type used in these statements. "
+    )
 
     @staticmethod
     def _implicitly_convertible_to_for_contracts(contract1: Contract, contract2: Contract) -> bool:
@@ -179,8 +183,10 @@ class IncorrectUsingFor(AbstractDetector):
         return False
 
     def _append_result(self, results: list, uf: UsingForTopLevel, type_: Type, library: Contract):
-        info = f"using-for statement at {uf.source_mapping} is incorrect - no matching function for {type_} found in " \
-               f"{library}.\n"
+        info = (
+            f"using-for statement at {uf.source_mapping} is incorrect - no matching function for {type_} found in "
+            f"{library}.\n"
+        )
         res = self.generate_result(info)
         results.append(res)
 
