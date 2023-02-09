@@ -1,5 +1,6 @@
-import "./Math.sol" as m;
+import "./Casting.sol" as C;
+import "./Math.sol" as M;
 
 type MyTypeA is int256;
 
-using {m.mul, m.unwrap} for MyTypeA global;
+using {M.mul, C.unwrap} for MyTypeA global;
