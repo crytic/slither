@@ -230,6 +230,10 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self.scope: Union["Scope", "Function"] = scope
         self.file_scope: "FileScope" = file_scope
 
+        # Record the continue destination in the STARTLOOP node, so `continue` node can
+        # find the correct jump destination.
+        self.continue_destination: Node = None
+
     ###################################################################################
     ###################################################################################
     # region General's properties

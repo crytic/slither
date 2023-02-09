@@ -432,6 +432,7 @@ class FunctionSolc(CallerContextExpression):
             node_condition.add_unparsed_expression(expression)
             statement = self._parse_statement(children[1], node_condition, body_scope)
 
+        node_startWhile.underlying_node.continue_destination = node_condition.underlying_node
         node_endWhile = self._new_node(
             NodeType.ENDLOOP, whilte_statement["src"], node.underlying_node.scope
         )
@@ -606,9 +607,13 @@ class FunctionSolc(CallerContextExpression):
         if post:
             node_loopexpression = self._parse_statement(post, node_body, last_scope)
             link_underlying_nodes(node_loopexpression, node_beforeBody)
+            continue_destination = node_loopexpression
         else:
             # node_loopexpression = None
             link_underlying_nodes(node_body, node_beforeBody)
+            continue_destination = node_beforeBody
+
+        node_startLoop.underlying_node.continue_destination = continue_destination.underlying_node
 
         if node_condition:
             link_underlying_nodes(node_condition, node_endLoop)
@@ -644,6 +649,15 @@ class FunctionSolc(CallerContextExpression):
             node_condition.add_unparsed_expression(expression)
             statement = self._parse_statement(children[1], node_condition, condition_scope)
 
+        if self.compilation_unit.solc_version < "0.5.0":
+            if not node_condition.underlying_node.sons:
+                continue_destination_underlying = node_condition.underlying_node
+            else:
+                continue_destination_underlying = node_condition.underlying_node.sons[0]
+        else:
+            continue_destination_underlying = node_condition.underlying_node
+
+        node_startDoWhile.underlying_node.continue_destination = continue_destination_underlying
         body_scope = Scope(node.underlying_node.scope.is_checked, False, condition_scope)
         node_endDoWhile = self._new_node(NodeType.ENDLOOP, do_while_statement["src"], body_scope)
 
@@ -1140,10 +1154,12 @@ class FunctionSolc(CallerContextExpression):
         if not start_node:
             raise ParsingError(f"Continue in no-loop context {node.node_id}")
 
+        dest = start_node.continue_destination if start_node.continue_destination else start_node
+
         for son in node.sons:
             son.remove_father(node)
-        node.set_sons([start_node])
-        start_node.add_father(node)
+        node.set_sons([dest])
+        dest.add_father(node)
 
     def _fix_try(self, node: Node):
         end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
