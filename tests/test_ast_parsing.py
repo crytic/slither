@@ -272,10 +272,9 @@ ALL_TESTS = [
     Test("variable-0.6.5.sol", make_version(6, 5, 8)),
     Test("variable-0.6.9.sol", make_version(6, 9, 12) + VERSIONS_07),
     Test("variable-0.8.0.sol", VERSIONS_08),
-    Test(
-        "continue-all.sol",
-        ALL_VERSIONS,
-    ),
+    Test("continue-0.4.0.sol", VERSIONS_04),
+    Test("continue-0.4.5.sol", make_version(4, 5, 26)),
+    Test("continue-0.5.0.sol", VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08),
     Test(
         "if-all.sol",
         ALL_VERSIONS,
