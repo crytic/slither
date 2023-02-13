@@ -171,12 +171,15 @@ def _find_in_contract(
         return conc_variables_ptr[var_name]
 
     if is_super:
-        getter_available = lambda f: f.functions_declared
+
+        def functions_declared(f):
+            return f.functions_declared
+
         d = {f.canonical_name: f for f in contract.functions}
         functions = {
             f.full_name: f
             for f in contract_declarer.available_elements_from_inheritances(
-                d, getter_available
+                d, functions_declared
             ).values()
         }
     else:
@@ -185,12 +188,15 @@ def _find_in_contract(
         return functions[var_name]
 
     if is_super:
-        getter_available = lambda m: m.modifiers_declared
+
+        def modifiers_declared(m):
+            return m.modifiers_declared
+
         d = {m.canonical_name: m for m in contract.modifiers}
         modifiers = {
             m.full_name: m
             for m in contract_declarer.available_elements_from_inheritances(
-                d, getter_available
+                d, modifiers_declared
             ).values()
         }
     else:

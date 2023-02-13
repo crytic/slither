@@ -467,7 +467,7 @@ def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-ma
 
                         idx_beginning = func.source_mapping.start
                         idx_beginning += -func.source_mapping.starting_column + 1
-                        idx_beginning += -sum([len(c) for c in potential_comments])
+                        idx_beginning += -sum(len(c) for c in potential_comments)
 
                         old_comment = f"@param {old_str}".encode("utf8")
 

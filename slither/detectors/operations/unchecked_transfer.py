@@ -45,7 +45,7 @@ Several tokens do not revert in case of failure and return false. If one of thes
         "Use `SafeERC20`, or ensure that the transfer/transferFrom return value is checked."
     )
 
-    def _is_instance(self, ir):  # pylint: disable=no-self-use
+    def _is_instance(self, ir):
         return (
             isinstance(ir, HighLevelCall)
             and isinstance(ir.function, Function)

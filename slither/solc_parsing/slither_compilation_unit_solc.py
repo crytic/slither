@@ -67,7 +67,7 @@ def _handle_import_aliases(
 
 
 class SlitherCompilationUnitSolc(CallerContextExpression):
-    # pylint: disable=no-self-use,too-many-instance-attributes
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, compilation_unit: SlitherCompilationUnit):
         super().__init__()
 

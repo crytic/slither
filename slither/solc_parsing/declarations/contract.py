@@ -420,14 +420,19 @@ class ContractSolc(CallerContextExpression):
     def analyze_params_modifiers(self):
         try:
             elements_no_params = self._modifiers_no_params
-            getter = lambda c: c.modifiers_parser
-            getter_available = lambda c: c.modifiers_declared
+
+            def modifiers_parser(c):
+                return c.modifiers_parser
+
+            def modifiers_declared(c):
+                return c.modifiers_declared
+
             Cls = Modifier
             Cls_parser = ModifierSolc
             modifiers = self._analyze_params_elements(
                 elements_no_params,
-                getter,
-                getter_available,
+                modifiers_parser,
+                modifiers_declared,
                 Cls,
                 Cls_parser,
                 self._modifiers_parser,
@@ -440,14 +445,19 @@ class ContractSolc(CallerContextExpression):
     def analyze_params_functions(self):
         try:
             elements_no_params = self._functions_no_params
-            getter = lambda c: c.functions_parser
-            getter_available = lambda c: c.functions_declared
+
+            def functions_parser(c):
+                return c.functions_parser
+
+            def functions_declared(c):
+                return c.functions_declared
+
             Cls = FunctionContract
             Cls_parser = FunctionSolc
             functions = self._analyze_params_elements(
                 elements_no_params,
-                getter,
-                getter_available,
+                functions_parser,
+                functions_declared,
                 Cls,
                 Cls_parser,
                 self._functions_parser,
@@ -710,7 +720,7 @@ class ContractSolc(CallerContextExpression):
         new_enum.set_offset(enum["src"], self._contract.compilation_unit)
         self._contract.enums_as_dict[canonicalName] = new_enum
 
-    def _analyze_struct(self, struct: StructureContractSolc):  # pylint: disable=no-self-use
+    def _analyze_struct(self, struct: StructureContractSolc):
         struct.analyze()
 
     def analyze_structs(self):

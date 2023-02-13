@@ -38,5 +38,5 @@ If `send` is used to prevent blocking operations, consider logging the failed `s
 
     WIKI_RECOMMENDATION = "Ensure that the return value of `send` is checked or logged."
 
-    def _is_instance(self, ir):  # pylint: disable=no-self-use
+    def _is_instance(self, ir):
         return isinstance(ir, Send)

@@ -37,5 +37,5 @@ If the low level is used to prevent blocking operations, consider logging failed
 
     WIKI_RECOMMENDATION = "Ensure that the return value of a low-level call is checked or logged."
 
-    def _is_instance(self, ir):  # pylint: disable=no-self-use
+    def _is_instance(self, ir):
         return isinstance(ir, LowLevelCall)

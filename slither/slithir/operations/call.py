@@ -16,14 +16,14 @@ class Call(Operation):
     def arguments(self, v):
         self._arguments = v
 
-    def can_reenter(self, _callstack: Optional[List] = None) -> bool:  # pylint: disable=no-self-use
+    def can_reenter(self, _callstack: Optional[List] = None) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool
         """
         return False
 
-    def can_send_eth(self) -> bool:  # pylint: disable=no-self-use
+    def can_send_eth(self) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool

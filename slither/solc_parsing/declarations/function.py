@@ -443,7 +443,7 @@ class FunctionSolc(CallerContextExpression):
 
         return node_endWhile
 
-    def _parse_for_compact_ast(  # pylint: disable=no-self-use
+    def _parse_for_compact_ast(
         self, statement: Dict
     ) -> (Optional[Dict], Optional[Dict], Optional[Dict], Dict):
         body = statement["body"]

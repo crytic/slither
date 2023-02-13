@@ -460,7 +460,6 @@ def pytest_generate_tests(metafunc):
 
 
 class TestASTParsing:
-    # pylint: disable=no-self-use
     def test_parsing(self, test_file, version, flavor):
         actual = os.path.join(TEST_ROOT, "compile", f"{test_file}-{version}-{flavor}.zip")
         expected = os.path.join(TEST_ROOT, "expected", f"{test_file}-{version}-{flavor}.json")

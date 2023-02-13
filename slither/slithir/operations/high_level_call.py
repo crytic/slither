@@ -34,7 +34,7 @@ class HighLevelCall(Call, OperationWithLValue):
 
     # Development function, to be removed once the code is stable
     # It is ovveride by LbraryCall
-    def _check_destination(self, destination):  # pylint: disable=no-self-use
+    def _check_destination(self, destination):
         assert isinstance(destination, (Variable, SolidityVariable))
 
     @property
