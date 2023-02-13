@@ -64,6 +64,13 @@ def init_parser(parser: ArgumentParser, always_enable_codex: bool = False) -> No
         default=defaults_flag_in_config["codex_max_tokens"],
     )
 
+    group_codex.add_argument(
+        "--codex-organization",
+        help="Codex organization",
+        action="store",
+        default=None,
+    )
+
 
 # TODO: investigate how to set the correct return type
 # So that the other modules can work with openai
