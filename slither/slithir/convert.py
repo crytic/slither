@@ -554,9 +554,9 @@ def propagate_types(ir, node: "Node"):  # pylint: disable=too-many-locals
                 if (isinstance(t, ElementaryType) and t.name == "address") or (
                     isinstance(t, TypeAlias) and t.underlying_type.name == "address"
                 ):
-                    # Cannot be a top level function with this.
-                    assert isinstance(node_function, FunctionContract)
                     if ir.destination.name == "this":
+                        # Cannot be a top level function with this.
+                        assert isinstance(node_function, FunctionContract)
                         # the target contract is the contract itself
                         return convert_type_of_high_and_internal_level_call(
                             ir, node_function.contract
