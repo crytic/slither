@@ -98,11 +98,13 @@ class SplitTernaryExpression:
 
         if isinstance(
             expression,
-            (Literal, Identifier, IndexAccess, NewArray, NewContract, ElementaryTypeNameExpression),
+            (Literal, Identifier, NewArray, NewContract, ElementaryTypeNameExpression),
         ):
             return
 
-        if isinstance(expression, (AssignmentOperation, BinaryOperation, TupleExpression)):
+        if isinstance(
+            expression, (AssignmentOperation, BinaryOperation, TupleExpression, IndexAccess)
+        ):
             true_expression._expressions = []
             false_expression._expressions = []
             self.convert_expressions(expression, true_expression, false_expression)
@@ -137,8 +139,6 @@ class SplitTernaryExpression:
             # TODO: can we get rid of `NoneType` expressions in `TupleExpression`?
             # montyly: this might happen with unnamed tuple (ex: (,,,) = f()), but it needs to be checked
             if next_expr:
-                if isinstance(next_expr, IndexAccess):
-                    self.convert_index_access(next_expr, true_expression, false_expression)
 
                 if self.conditional_not_ahead(
                     next_expr, true_expression, false_expression, f_expressions
