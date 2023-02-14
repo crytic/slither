@@ -35,13 +35,6 @@ class ReferenceVariable(ChildNode, Variable):
         """
         return self._points_to
 
-    @property
-    def points_to_origin(self):
-        points = self.points_to
-        while isinstance(points, ReferenceVariable):
-            points = points.points_to
-        return points
-
     @points_to.setter
     def points_to(self, points_to):
         # Can only be a rvalue of
@@ -54,6 +47,13 @@ class ReferenceVariable(ChildNode, Variable):
         )
 
         self._points_to = points_to
+
+    @property
+    def points_to_origin(self):
+        points = self.points_to
+        while isinstance(points, ReferenceVariable):
+            points = points.points_to
+        return points
 
     @property
     def name(self) -> str:

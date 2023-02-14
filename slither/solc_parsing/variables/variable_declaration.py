@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Dict
+from typing import Dict, Optional
 
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
@@ -127,7 +127,7 @@ class VariableDeclarationSolc:
             self._variable.visibility = "internal"
 
     def _init_from_declaration(
-        self, var: Dict, init: bool
+        self, var: Dict, init: Optional[bool]
     ) -> None:  # pylint: disable=too-many-branches
         if self._is_compact_ast:
             attributes = var

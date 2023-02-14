@@ -17,7 +17,7 @@ class ArrayType(Type):
     def __init__(
         self,
         t: Union["TypeAliasTopLevel", "ArrayType", "FunctionType", "ElementaryType"],
-        length: Optional[Union["Identifier", Literal, "BinaryOperation"]],
+        length: Optional[Union["Identifier", Literal, "BinaryOperation", int]],
     ) -> None:
         assert isinstance(t, Type)
         if length:

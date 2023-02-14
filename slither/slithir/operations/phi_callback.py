@@ -38,16 +38,16 @@ class PhiCallback(Phi):
     def rvalues(self):
         return self._rvalues
 
+    @rvalues.setter
+    def rvalues(self, vals):
+        self._rvalues = vals
+
     @property
     def rvalue_no_callback(self):
         """
         rvalue if callback are not considered
         """
         return self._rvalue_no_callback
-
-    @rvalues.setter
-    def rvalues(self, vals):
-        self._rvalues = vals
 
     @property
     def nodes(self):

@@ -8,7 +8,7 @@ import pathlib
 import posixpath
 import re
 from collections import defaultdict
-from typing import Optional, Dict, List, Set, Union
+from typing import Optional, Dict, List, Set, Union, Tuple
 
 from crytic_compile import CryticCompile
 from crytic_compile.utils.naming import Filename
@@ -73,8 +73,8 @@ class SlitherCore(Context):
 
         # Maps from file to detector name to the start/end ranges for that detector.
         # Infinity is used to signal a detector has no end range.
-        self._ignore_ranges: defaultdict[str, defaultdict[str, List[(int, int)]]] = defaultdict(
-            lambda: defaultdict(lambda: [])
+        self._ignore_ranges: Dict[str, Dict[str, List[Tuple[int, ...]]]] = defaultdict(
+            lambda: defaultdict(lambda: [(-1, -1)])
         )
 
         self._compilation_units: List[SlitherCompilationUnit] = []

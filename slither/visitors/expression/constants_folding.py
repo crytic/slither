@@ -8,6 +8,8 @@ from slither.core.expressions import (
     Identifier,
     BinaryOperation,
     UnaryOperation,
+    TupleExpression,
+    TypeConversion,
 )
 
 from slither.utils.integer_conversion import convert_string_to_fraction, convert_string_to_int
@@ -23,7 +25,9 @@ class NotConstant(Exception):
 
 KEY = "ConstantFolding"
 
-CONSTANT_TYPES_OPERATIONS = Union[Literal, BinaryOperation, UnaryOperation, Identifier]
+CONSTANT_TYPES_OPERATIONS = Union[
+    Literal, BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion
+]
 
 
 def get_val(expression: CONSTANT_TYPES_OPERATIONS) -> Union[bool, int, Fraction, str]:

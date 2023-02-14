@@ -1,7 +1,6 @@
 import logging
-from typing import Any, Union, List, TYPE_CHECKING
+from typing import Any, Union, List, TYPE_CHECKING, TypeVar, Generic
 
-import slither.slithir.variables.reference
 from slither.core.declarations import (
     Function,
     SolidityVariable,
@@ -67,13 +66,14 @@ from slither.visitors.expression.expression import ExpressionVisitor
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
+    from slither.slithir.operations import Operation
 
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
 key = "expressionToSlithIR"
 
 
-def get(expression: Expression):
+def get(expression: Union[Expression, Operation]):
     val = expression.context[key]
     # we delete the item to reduce memory use
     del expression.context[key]
@@ -84,7 +84,7 @@ def get_without_removing(expression):
     return expression.context[key]
 
 
-def set_val(expression: Expression, val) -> None:
+def set_val(expression: Union[Expression, Operation], val) -> None:
     expression.context[key] = val
 
 
@@ -121,7 +121,7 @@ _signed_to_unsigned = {
 
 def convert_assignment(
     left: Union[LocalVariable, StateVariable, ReferenceVariable],
-    right: SourceMapping,
+    right: Union[LocalVariable, StateVariable, ReferenceVariable],
     t: AssignmentOperationType,
     return_type,
 ) -> Union[Binary, Assignment]:
@@ -417,9 +417,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         cst = Constant(expression.value, expression.type, expression.subdenomination)
         set_val(expression, cst)
 
-    def _post_member_access(
-        self, expression: slither.core.expressions.member_access.MemberAccess
-    ) -> None:
+    def _post_member_access(self, expression: MemberAccess) -> None:
         expr = get(expression.expression)
 
         # Look for type(X).max / min
@@ -541,9 +539,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             val = expressions
         set_val(expression, val)
 
-    def _post_type_conversion(
-        self, expression: slither.core.expressions.type_conversion.TypeConversion
-    ) -> None:
+    def _post_type_conversion(self, expression: TypeConversion) -> None:
         expr = get(expression.expression)
         val = TemporaryVariable(self._node)
         operation = TypeConversion(val, expr, expression.type)

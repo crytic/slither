@@ -1,3 +1,4 @@
+from typing import Set
 from slither.core.variables.local_variable import LocalVariable
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.variable import SlithIRVariable
@@ -31,7 +32,7 @@ class LocalIRVariable(
 
         # Additional field
         # points to state variables
-        self._refers_to = set()
+        self._refers_to: Set[StateIRVariable] = set()
 
         # keep un-ssa version
         if isinstance(local_variable, LocalIRVariable):
