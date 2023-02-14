@@ -35,6 +35,7 @@ from slither.core.expressions import (
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
+    UserDefinedType,
 )
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
@@ -112,7 +113,6 @@ def parse_call(expression: Dict, caller_context):  # pylint: disable=too-many-st
 
     if type_conversion:
         type_call = parse_type(UnknownType(type_return), caller_context)
-
         if caller_context.is_compact_ast:
             assert len(expression["arguments"]) == 1
             expression_to_parse = expression["arguments"][0]
@@ -133,6 +133,8 @@ def parse_call(expression: Dict, caller_context):  # pylint: disable=too-many-st
         expression = parse_expression(expression_to_parse, caller_context)
         t = TypeConversion(expression, type_call)
         t.set_offset(src, caller_context.compilation_unit)
+        if isinstance(type_call, UserDefinedType):
+            type_call.type.references.append(t.source_mapping)
         return t
 
     call_gas = None
