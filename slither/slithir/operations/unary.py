@@ -9,8 +9,8 @@ logger = logging.getLogger("BinaryOperationIR")
 
 
 class UnaryType(Enum):
-    BANG = 0  # !
-    TILD = 1  # ~
+    BANG = "!"
+    TILD = "~"
 
     @staticmethod
     def get_type(operation_type, isprefix):
@@ -20,14 +20,6 @@ class UnaryType(Enum):
             if operation_type == "~":
                 return UnaryType.TILD
         raise SlithIRError(f"get_type: Unknown operation type {operation_type}")
-
-    def __str__(self):
-        if self == UnaryType.BANG:
-            return "!"
-        if self == UnaryType.TILD:
-            return "~"
-
-        raise SlithIRError(f"str: Unknown operation type {self}")
 
 
 class Unary(OperationWithLValue):
@@ -53,7 +45,7 @@ class Unary(OperationWithLValue):
 
     @property
     def type_str(self):
-        return str(self._type)
+        return self._type.value
 
     def __str__(self):
         return f"{self.lvalue} = {self.type_str} {self.rvalue} "

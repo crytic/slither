@@ -1378,7 +1378,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         content = ""
         content += "digraph{\n"
         for node in self.nodes:
-            label = f"Node Type: {str(node.type)} {node.node_id}\n"
+            label = f"Node Type: {node.type.value} {node.node_id}\n"
             if node.expression and not skip_expressions:
                 label += f"\nEXPRESSION:\n{node.expression}\n"
             if node.irs and not skip_expressions:
