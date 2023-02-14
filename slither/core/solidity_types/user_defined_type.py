@@ -1,4 +1,4 @@
-from typing import Union, TYPE_CHECKING, Tuple
+from typing import Union, TYPE_CHECKING, Tuple, Any
 import math
 
 from slither.core.solidity_types.type import Type
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=import-outside-toplevel
 class UserDefinedType(Type):
-    def __init__(self, t):
+    def __init__(self, t: Union["Enum", "Contract", "Structure"]) -> None:
         from slither.core.declarations.structure import Structure
         from slither.core.declarations.enum import Enum
         from slither.core.declarations.contract import Contract
@@ -62,7 +62,7 @@ class UserDefinedType(Type):
         to_log = f"{self} does not have storage size"
         raise SlitherException(to_log)
 
-    def __str__(self):
+    def __str__(self) -> str:
         from slither.core.declarations.structure_contract import StructureContract
         from slither.core.declarations.enum_contract import EnumContract
 
@@ -71,10 +71,10 @@ class UserDefinedType(Type):
             return str(type_used.contract) + "." + str(type_used.name)
         return str(type_used.name)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, UserDefinedType):
             return False
         return self.type == other.type
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))

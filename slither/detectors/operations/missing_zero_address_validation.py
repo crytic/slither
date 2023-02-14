@@ -3,12 +3,18 @@ Module detecting missing zero address validation
 
 """
 from collections import defaultdict
-
+from typing import Any, DefaultDict, List, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations import Send, Transfer, LowLevelCall
 from slither.slithir.operations import Call
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function import ModifierStatements
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.variables.local_variable import LocalVariable
+from slither.utils.output import Output
 
 
 class MissingZeroAddressValidation(AbstractDetector):
@@ -46,7 +52,9 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
 
     WIKI_RECOMMENDATION = "Check that the address is not zero."
 
-    def _zero_address_validation_in_modifier(self, var, modifier_exprs):
+    def _zero_address_validation_in_modifier(
+        self, var: LocalVariable, modifier_exprs: List[Union[ModifierStatements, Any]]
+    ) -> bool:
         for mod in modifier_exprs:
             for node in mod.nodes:
                 # Skip validation if the modifier's parameters contains more than one variable
@@ -62,7 +70,9 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
                     return True
         return False
 
-    def _zero_address_validation(self, var, node, explored):
+    def _zero_address_validation(
+        self, var: LocalVariable, node: Node, explored: List[Union[Any, Node]]
+    ) -> bool:
         """
         Detects (recursively) if var is (zero address) checked in the function node
         """
@@ -83,7 +93,9 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
                 return True
         return False
 
-    def _detect_missing_zero_address_validation(self, contract):
+    def _detect_missing_zero_address_validation(
+        self, contract: Contract
+    ) -> List[Union[Tuple[FunctionContract, DefaultDict[LocalVariable, List[Node]]], Any]]:
         """
         Detects if addresses are zero address validated before use.
         :param contract: The contract to check
@@ -130,7 +142,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
                 results.append((function, var_nodes))
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         """Detect if addresses are zero address validated before use.
         Returns:
             list: {'(function, node)'}

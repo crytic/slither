@@ -16,10 +16,10 @@ from slither.core.declarations import (
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
-from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
-from slither.core.solidity_types.type_alias import TypeAliasTopLevel
+from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.scope.scope import FileScope
+from slither.core.solidity_types.type_alias import TypeAliasTopLevel
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import InternalCall
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCompilationUnit(Context):
-    def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit):
+    def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit) -> None:
         super().__init__()
 
         self._core = core
@@ -150,21 +150,21 @@ class SlitherCompilationUnit(Context):
     def functions(self) -> List[Function]:
         return list(self._all_functions)
 
-    def add_function(self, func: Function):
+    def add_function(self, func: Function) -> None:
         self._all_functions.add(func)
 
     @property
     def modifiers(self) -> List[Modifier]:
         return list(self._all_modifiers)
 
-    def add_modifier(self, modif: Modifier):
+    def add_modifier(self, modif: Modifier) -> None:
         self._all_modifiers.add(modif)
 
     @property
     def functions_and_modifiers(self) -> List[Function]:
         return self.functions + self.modifiers
 
-    def propagate_function_calls(self):
+    def propagate_function_calls(self) -> None:
         for f in self.functions_and_modifiers:
             for node in f.nodes:
                 for ir in node.irs_ssa:
@@ -256,7 +256,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
     ###################################################################################
 
-    def compute_storage_layout(self):
+    def compute_storage_layout(self) -> None:
         for contract in self.contracts_derived:
             self._storage_layouts[contract.name] = {}
 

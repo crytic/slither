@@ -8,10 +8,14 @@
 
     Only analyze "leaf" contracts (contracts that are not inherited by another contract)
 """
-
+from typing import Any, List, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import InternalCall, LibraryCall
 from slither.slithir.variables import ReferenceVariable
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.variables.state_variable import StateVariable
+from slither.utils.output import Output
 
 
 class UninitializedStateVarsDetection(AbstractDetector):
@@ -51,7 +55,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
     # endregion wiki_recommendation
 
     @staticmethod
-    def _written_variables(contract):
+    def _written_variables(contract: Contract) -> List[Union[Any, StateVariable]]:
         ret = []
         # pylint: disable=too-many-nested-blocks
         for f in contract.all_functions_called + contract.modifiers:
@@ -88,7 +92,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         self.__variables_written_in_proxy = list({v.name for v in variables_written_in_proxy})
         return self.__variables_written_in_proxy
 
-    def _written_variables_in_proxy(self, contract):
+    def _written_variables_in_proxy(self, contract: Contract) -> List[Any]:
         variables = []
         if contract.is_upgradeable:
             variables_name_written_in_proxy = self._variable_written_in_proxy()
@@ -102,13 +106,15 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         return list(set(variables))
 
     @staticmethod
-    def _read_variables(contract):
+    def _read_variables(contract: Contract) -> List[Union[Any, StateVariable]]:
         ret = []
         for f in contract.all_functions_called + contract.modifiers:
             ret += f.state_variables_read
         return ret
 
-    def _detect_uninitialized(self, contract):
+    def _detect_uninitialized(
+        self, contract: Contract
+    ) -> List[Union[Any, Tuple[StateVariable, List[FunctionContract]]]]:
         written_variables = self._written_variables(contract)
         written_variables += self._written_variables_in_proxy(contract)
         read_variables = self._read_variables(contract)
@@ -120,7 +126,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             and variable in read_variables
         ]
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """Detect uninitialized state variables
 
         Recursively visit the calls

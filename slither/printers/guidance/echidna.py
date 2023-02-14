@@ -31,6 +31,7 @@ from slither.slithir.operations import (
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
 from slither.visitors.expression.constants_folding import ConstantFolding
+from slither.utils.output import Output
 
 
 def _get_name(f: Union[Function, Variable]) -> str:
@@ -168,7 +169,7 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
     all_cst_used: List[ConstantValue],
     all_cst_used_in_binary: Dict[str, List[ConstantValue]],
     context_explored: Set[Node],
-):
+) -> None:
     for ir in irs:
         if isinstance(ir, Binary):
             for r in ir.read:
@@ -364,7 +365,7 @@ class Echidna(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#echidna"
 
-    def output(self, filename):  # pylint: disable=too-many-locals
+    def output(self, filename: str) -> Output:  # pylint: disable=too-many-locals
         """
         Output the inheritance relation
 

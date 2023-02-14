@@ -1,4 +1,6 @@
 import logging
+from typing import List
+
 from enum import Enum
 
 from slither.core.declarations import Function
@@ -7,6 +9,9 @@ from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.variables import ReferenceVariable
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.variable import Variable
+
 
 logger = logging.getLogger("BinaryOperationIR")
 
@@ -33,7 +38,7 @@ class BinaryType(Enum):
     OROR = "||"
 
     @staticmethod
-    def return_bool(operation_type):
+    def return_bool(operation_type: "BinaryType") -> bool:
         return operation_type in [
             BinaryType.OROR,
             BinaryType.ANDAND,
@@ -100,7 +105,13 @@ class BinaryType(Enum):
 
 
 class Binary(OperationWithLValue):
-    def __init__(self, result, left_variable, right_variable, operation_type: BinaryType):
+    def __init__(
+        self,
+        result: Variable,
+        left_variable: SourceMapping,
+        right_variable: Variable,
+        operation_type: BinaryType,
+    ) -> None:
         assert is_valid_rvalue(left_variable) or isinstance(left_variable, Function)
         assert is_valid_rvalue(right_variable) or isinstance(right_variable, Function)
         assert is_valid_lvalue(result)
@@ -115,7 +126,7 @@ class Binary(OperationWithLValue):
             result.set_type(left_variable.type)
 
     @property
-    def read(self):
+    def read(self) -> List[SourceMapping]:
         return [self.variable_left, self.variable_right]
 
     @property
@@ -123,15 +134,15 @@ class Binary(OperationWithLValue):
         return self._variables
 
     @property
-    def variable_left(self):
+    def variable_left(self) -> SourceMapping:
         return self._variables[0]
 
     @property
-    def variable_right(self):
+    def variable_right(self) -> Variable:
         return self._variables[1]
 
     @property
-    def type(self):
+    def type(self) -> BinaryType:
         return self._type
 
     @property

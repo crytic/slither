@@ -1,13 +1,17 @@
 """
 Module detecting misuse of Boolean constants
 """
-
+from typing import Any, List, Set, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
     Binary,
     BinaryType,
 )
 from slither.slithir.variables import Constant
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.utils.output import Output
 
 
 class BooleanEquality(AbstractDetector):
@@ -44,7 +48,9 @@ Boolean constants can be used directly and do not need to be compare to `true` o
     WIKI_RECOMMENDATION = """Remove the equality to the boolean constant."""
 
     @staticmethod
-    def _detect_boolean_equality(contract):
+    def _detect_boolean_equality(
+        contract: Contract,
+    ) -> List[Union[Tuple[FunctionContract, Set[Any]], Tuple[FunctionContract, Set[Node]], Any]]:
 
         # Create our result set.
         results = []
@@ -68,7 +74,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
         # Return the resulting set of nodes with improper uses of Boolean constants
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         """
         Detect Boolean constant misuses
         """

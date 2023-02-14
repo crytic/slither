@@ -5,18 +5,19 @@ Note that require()/assert() are not considered here. Even if they
 are in the outermost scope, they do not guarantee a revert, so a
 default value can still be returned.
 """
-
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.cfg.node import NodeType
+from slither.core.cfg.node import Node, NodeType
+from slither.utils.output import Output
 
 
-def is_revert(node):
+def is_revert(node: Node) -> bool:
     return node.type == NodeType.THROW or any(
         c.name in ["revert()", "revert(string"] for c in node.internal_calls
     )
 
 
-def _get_false_son(node):
+def _get_false_son(node: Node) -> Node:
     """Select the son node corresponding to a false branch
     Following this node stays on the outer scope of the function
     """
@@ -60,7 +61,7 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
 
     WIKI_RECOMMENDATION = "All the paths in a modifier must execute `_` or revert."
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         results = []
         for c in self.contracts:
             for mod in c.modifiers:

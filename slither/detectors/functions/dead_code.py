@@ -1,10 +1,11 @@
 """
 Module detecting dead code
 """
-from typing import List, Tuple
+from typing import Any, Union, List, Tuple
 
 from slither.core.declarations import Function, FunctionContract, Contract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils.output import Output
 
 
 class DeadCode(AbstractDetector):
@@ -34,7 +35,7 @@ contract Contract{
 
     WIKI_RECOMMENDATION = "Remove unused functions."
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
 
         results = []
 

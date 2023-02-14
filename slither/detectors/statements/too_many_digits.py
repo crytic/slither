@@ -3,13 +3,18 @@ Module detecting numbers with too many digits.
 """
 
 import re
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.variables import Constant
+from slither.core.cfg.node import Node
+from slither.core.declarations.function_contract import FunctionContract
+from slither.utils.output import Output
+
 
 _HEX_ADDRESS_REGEXP = re.compile("(0[xX])?[0-9a-fA-F]{40}")
 
 
-def is_hex_address(value) -> bool:
+def is_hex_address(value: str) -> bool:
     """
     Checks if the given string of text type is an address in hexadecimal encoded form.
     """
@@ -57,7 +62,7 @@ Use:
     # endregion wiki_recommendation
 
     @staticmethod
-    def _detect_too_many_digits(f):
+    def _detect_too_many_digits(f: FunctionContract) -> List[Union[Any, Node]]:
         ret = []
         for node in f.nodes:
             # each node contains a list of IR instruction
@@ -73,7 +78,7 @@ Use:
                             ret.append(node)
         return ret
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         results = []
 
         # iterate over all contracts

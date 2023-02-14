@@ -1,12 +1,14 @@
 import logging
+from typing import Dict, List, Optional
 
+from slither.core.declarations import Contract
 from slither.slithir.operations import EventCall
 from slither.utils import output
 
 logger = logging.getLogger("Slither-conformance")
 
 
-def events_safeBatchTransferFrom(contract, ret):
+def events_safeBatchTransferFrom(contract: Contract, ret: Dict[str, List]) -> None:
     function = contract.get_function_from_signature(
         "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"
     )
@@ -44,7 +46,9 @@ def events_safeBatchTransferFrom(contract, ret):
         )
 
 
-def check_erc1155(contract, ret, explored=None):
+def check_erc1155(
+    contract: Contract, ret: Dict[str, List], explored: Optional[bool] = None
+) -> Dict[str, List]:
     if explored is None:
         explored = set()
 

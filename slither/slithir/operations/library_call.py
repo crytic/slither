@@ -9,10 +9,10 @@ class LibraryCall(HighLevelCall):
     """
 
     # Development function, to be removed once the code is stable
-    def _check_destination(self, destination):
+    def _check_destination(self, destination: Contract) -> None:
         assert isinstance(destination, Contract)
 
-    def can_reenter(self, callstack=None):
+    def can_reenter(self, callstack: None = None) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool

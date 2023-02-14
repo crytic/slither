@@ -5,10 +5,11 @@
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
 from collections import namedtuple, defaultdict
-from typing import List
+from typing import Any, DefaultDict, Set, Union, List
 
 from slither.detectors.abstract_detector import DetectorClassification
-from .reentrancy import Reentrancy, to_hashable
+from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable
+from slither.utils.output import Output
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])
@@ -50,7 +51,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self):
+    def find_reentrancies(self) -> DefaultDict[FindingKey, Set[FindingValue]]:
         result = defaultdict(set)
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_declared:
@@ -87,7 +88,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                             result[finding_key] |= not_read_then_written
         return result
 
-    def _detect(self):  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Union[Output, Any]]:  # pylint: disable=too-many-branches
         """"""
 
         super()._detect()

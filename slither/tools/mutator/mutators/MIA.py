@@ -1,3 +1,5 @@
+from typing import Dict
+
 from slither.core.cfg.node import NodeType
 from slither.formatters.utils.patches import create_patch
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
@@ -9,13 +11,13 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
     FAULTCLASS = FaultClass.Checking
     FAULTNATURE = FaultNature.Missing
 
-    def _mutate(self):
+    def _mutate(self) -> Dict:
 
-        result = {}
+        result: Dict = {}
 
         for contract in self.slither.contracts:
 
-            for function in contract.functions_declared + contract.modifiers_declared:
+            for function in contract.functions_declared + list(contract.modifiers_declared):
 
                 for node in function.nodes:
                     if node.type == NodeType.IF:

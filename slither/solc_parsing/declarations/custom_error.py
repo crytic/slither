@@ -22,7 +22,7 @@ class CustomErrorSolc(CallerContextExpression):
         custom_error: CustomError,
         custom_error_data: dict,
         slither_parser: "SlitherCompilationUnitSolc",
-    ):
+    ) -> None:
         self._slither_parser: "SlitherCompilationUnitSolc" = slither_parser
         self._custom_error = custom_error
         custom_error.name = custom_error_data["name"]
@@ -32,7 +32,7 @@ class CustomErrorSolc(CallerContextExpression):
             custom_error_data = custom_error_data["attributes"]
         self._custom_error_data = custom_error_data
 
-    def analyze_params(self):
+    def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
             return
@@ -68,7 +68,7 @@ class CustomErrorSolc(CallerContextExpression):
             return key
         return "children"
 
-    def _parse_params(self, params: Dict):
+    def _parse_params(self, params: Dict) -> None:
         assert params[self.get_key()] == "ParameterList"
 
         if self._slither_parser.is_compact_ast:

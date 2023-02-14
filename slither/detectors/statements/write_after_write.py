@@ -1,4 +1,4 @@
-from typing import List, Set, Tuple, Dict
+from typing import Any, Union, List, Set, Tuple, Dict
 
 from slither.core.cfg.node import Node, NodeType
 from slither.core.solidity_types import ElementaryType
@@ -15,9 +15,10 @@ from slither.slithir.operations import (
 )
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable, TupleVariable
 from slither.slithir.variables.variable import SlithIRVariable
+from slither.utils.output import Output
 
 
-def _remove_states(written: Dict[Variable, Node]):
+def _remove_states(written: Dict[Variable, Node]) -> None:
     for key in list(written.keys()):
         if isinstance(key, StateVariable):
             del written[key]
@@ -27,7 +28,7 @@ def _handle_ir(
     ir: Operation,
     written: Dict[Variable, Node],
     ret: List[Tuple[Variable, Node, Node]],
-):
+) -> None:
     if isinstance(ir, (HighLevelCall, InternalDynamicCall, LowLevelCall)):
         _remove_states(written)
 
@@ -73,7 +74,7 @@ def _detect_write_after_write(
     explored: Set[Node],
     written: Dict[Variable, Node],
     ret: List[Tuple[Variable, Node, Node]],
-):
+) -> None:
     if node in explored:
         return
 
@@ -121,7 +122,7 @@ class WriteAfterWrite(AbstractDetector):
 
     WIKI_RECOMMENDATION = """Fix or remove the writes."""
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Output, Any]]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:

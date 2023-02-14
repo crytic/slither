@@ -4,8 +4,10 @@ Module detecting unimplemented interfaces
 Collect all the interfaces
 Check for contracts which implement all interface functions but do not explicitly derive from those interfaces.
 """
-
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations.contract import Contract
+from slither.utils.output import Output
 
 
 class MissingInheritance(AbstractDetector):
@@ -42,7 +44,9 @@ contract Something {
     WIKI_RECOMMENDATION = "Inherit from the missing interface or contract."
 
     @staticmethod
-    def detect_unimplemented_interface(contract, interfaces):
+    def detect_unimplemented_interface(
+        contract: Contract, interfaces: List[Union[Any, Contract]]
+    ) -> List[Union[Any, Contract]]:
         """
         Detects if contract intends to implement one of the interfaces but does not explicitly do so by deriving from it
         :param contract: The contract to check
@@ -111,7 +115,7 @@ contract Something {
 
         return intended_interfaces
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """Detect unimplemented interfaces
         Returns:
             list: {'contract'}

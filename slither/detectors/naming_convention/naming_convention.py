@@ -1,6 +1,8 @@
 import re
+from typing import Any, List, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.naming_convention.naming_convention import custom_format
+from slither.utils.output import Output
 
 
 class NamingConvention(AbstractDetector):
@@ -36,28 +38,31 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
     STANDARD_JSON = False
 
     @staticmethod
-    def is_cap_words(name):
+    def is_cap_words(name: str) -> bool:
         return re.search("^[A-Z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
-    def is_mixed_case(name):
+    def is_mixed_case(name: str) -> bool:
         return re.search("^[a-z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
-    def is_mixed_case_with_underscore(name):
+    def is_mixed_case_with_underscore(name: str) -> bool:
         # Allow _ at the beginning to represent private variable
         # or unused parameters
         return re.search("^[_]?[a-z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
-    def is_upper_case_with_underscores(name):
+    def is_upper_case_with_underscores(name: str) -> bool:
         return re.search("^[A-Z0-9_]+_?$", name) is not None
 
     @staticmethod
-    def should_avoid_name(name):
+    def should_avoid_name(name: str) -> bool:
         return re.search("^[lOI]$", name) is not None
 
-    def _detect(self):  # pylint: disable=too-many-branches,too-many-statements
+    # pylint: disable=too-many-branches,too-many-statements
+    def _detect(
+        self,
+    ) -> List[Union[Any, Output]]:
 
         results = []
         for contract in self.contracts:

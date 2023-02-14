@@ -1,7 +1,11 @@
 """
 Detect incorrect erc721 interface.
 """
+from typing import Any, List, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.utils.output import Output
 
 
 class IncorrectERC721InterfaceDetection(AbstractDetector):
@@ -37,7 +41,9 @@ contract Token{
     )
 
     @staticmethod
-    def incorrect_erc721_interface(signature):
+    def incorrect_erc721_interface(
+        signature: Union[Tuple[str, List[str], List[str]], Tuple[str, List[str], List[Any]]]
+    ) -> bool:
         (name, parameters, returnVars) = signature
 
         # ERC721
@@ -83,7 +89,7 @@ contract Token{
         return False
 
     @staticmethod
-    def detect_incorrect_erc721_interface(contract):
+    def detect_incorrect_erc721_interface(contract: Contract) -> List[Union[FunctionContract, Any]]:
         """Detect incorrect ERC721 interface
 
         Returns:
@@ -102,7 +108,7 @@ contract Token{
         ]
         return functions
 
-    def _detect(self):
+    def _detect(self) -> List[Union[Any, Output]]:
         """Detect incorrect erc721 interface
 
         Returns:

@@ -11,6 +11,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.exceptions import SlitherError
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+from slither.utils.output import Output
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -48,7 +49,7 @@ def _update_file_scopes(candidates: ValuesView[FileScope]):
 
 
 class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, target: Union[str, CryticCompile], **kwargs):
+    def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
         """
         Args:
             target (str | CryticCompile)
@@ -207,7 +208,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         self.write_results_to_hide()
         return results
 
-    def run_printers(self):
+    def run_printers(self) -> List[Output]:
         """
         :return: List of registered printers outputs.
         """
@@ -215,5 +216,5 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         return [p.output(self._crytic_compile.target).data for p in self._printers]
 
     @property
-    def triage_mode(self):
+    def triage_mode(self) -> bool:
         return self._triage_mode

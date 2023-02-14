@@ -225,7 +225,7 @@ function_args = {
 }
 
 
-def format_function_descriptor(name):
+def format_function_descriptor(name: str) -> str:
     if name not in function_args:
         return name + "()"
 

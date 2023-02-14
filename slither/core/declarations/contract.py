@@ -4,7 +4,7 @@
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set
+from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set, Any
 
 from crytic_compile.platform import Type as PlatformType
 
@@ -38,13 +38,13 @@ if TYPE_CHECKING:
         EnumContract,
         StructureContract,
         FunctionContract,
+        CustomErrorContract,
     )
     from slither.slithir.variables.variable import SlithIRVariable
-    from slither.core.variables.variable import Variable
-    from slither.core.variables.state_variable import StateVariable
+    from slither.core.variables import Variable, StateVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.core.declarations.custom_error_contract import CustomErrorContract
     from slither.core.scope.scope import FileScope
+    from slither.core.cfg.node import Node
 
 
 LOGGER = logging.getLogger("Contract")
@@ -55,7 +55,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     Contract class
     """
 
-    def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope"):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope") -> None:
         super().__init__()
 
         self._name: Optional[str] = None
@@ -366,7 +366,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         return list(self._variables_ordered)
 
-    def add_variables_ordered(self, new_vars: List["StateVariable"]):
+    def add_variables_ordered(self, new_vars: List["StateVariable"]) -> None:
         self._variables_ordered += new_vars
 
     @property
@@ -534,7 +534,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def add_function(self, func: "FunctionContract"):
         self._functions[func.canonical_name] = func
 
-    def set_functions(self, functions: Dict[str, "FunctionContract"]):
+    def set_functions(self, functions: Dict[str, "FunctionContract"]) -> None:
         """
         Set the functions
 
@@ -578,7 +578,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def available_modifiers_as_dict(self) -> Dict[str, "Modifier"]:
         return {m.full_name: m for m in self._modifiers.values() if not m.is_shadowed}
 
-    def set_modifiers(self, modifiers: Dict[str, "Modifier"]):
+    def set_modifiers(self, modifiers: Dict[str, "Modifier"]) -> None:
         """
         Set the modifiers
 
@@ -688,7 +688,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         inheritance: List["Contract"],
         immediate_inheritance: List["Contract"],
         called_base_constructor_contracts: List["Contract"],
-    ):
+    ) -> None:
         self._inheritance = inheritance
         self._immediate_inheritance = immediate_inheritance
         self._explicit_base_constructor_calls = called_base_constructor_contracts
@@ -803,23 +803,25 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         return next((v for v in self.state_variables if v.name == canonical_name), None)
 
-    def get_structure_from_name(self, structure_name: str) -> Optional["Structure"]:
+    def get_structure_from_name(self, structure_name: str) -> Optional["StructureContract"]:
         """
             Return a structure from a name
         Args:
             structure_name (str): name of the structure
         Returns:
-            Structure
+            StructureContract
         """
         return next((st for st in self.structures if st.name == structure_name), None)
 
-    def get_structure_from_canonical_name(self, structure_name: str) -> Optional["Structure"]:
+    def get_structure_from_canonical_name(
+        self, structure_name: str
+    ) -> Optional["StructureContract"]:
         """
             Return a structure from a canonical name
         Args:
             structure_name (str): canonical name of the structure
         Returns:
-            Structure
+            StructureContract
         """
         return next((st for st in self.structures if st.canonical_name == structure_name), None)
 
@@ -1216,7 +1218,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def update_read_write_using_ssa(self):
+    def update_read_write_using_ssa(self) -> None:
         for function in self.functions + self.modifiers:
             function.update_read_write_using_ssa()
 
@@ -1311,7 +1313,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def is_incorrectly_constructed(self, incorrect: bool):
         self._is_incorrectly_parsed = incorrect
 
-    def add_constructor_variables(self):
+    def add_constructor_variables(self) -> None:
         from slither.core.declarations.function_contract import FunctionContract
 
         if self.state_variables:
@@ -1380,7 +1382,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def _create_node(
         self, func: Function, counter: int, variable: "Variable", scope: Union[Scope, Function]
-    ):
+    ) -> "Node":
         from slither.core.cfg.node import Node, NodeType
         from slither.core.expressions import (
             AssignmentOperationType,
@@ -1412,7 +1414,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def convert_expression_to_slithir_ssa(self):
+    def convert_expression_to_slithir_ssa(self) -> None:
         """
         Assume generate_slithir_and_analyze was called on all functions
 
@@ -1437,7 +1439,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         for func in self.functions + self.modifiers:
             func.generate_slithir_ssa(all_ssa_state_variables_instances)
 
-    def fix_phi(self):
+    def fix_phi(self) -> None:
         last_state_variables_instances = {}
         initial_state_variables_instances = {}
         for v in self._initial_state_variables:
@@ -1459,20 +1461,20 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def __eq__(self, other):
+    def __eq__(self, other: SourceMapping) -> bool:
         if isinstance(other, str):
             return other == self.name
         return NotImplemented
 
-    def __neq__(self, other):
+    def __neq__(self, other: Any) -> bool:
         if isinstance(other, str):
             return other != self.name
         return NotImplemented
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return self._id
 
     # endregion

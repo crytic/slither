@@ -4,6 +4,8 @@
 """
 import copy
 from typing import Union, Callable
+
+from slither.all_exceptions import SlitherException
 from slither.core.expressions import UnaryOperation
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
@@ -19,7 +21,7 @@ from slither.core.expressions.new_array import NewArray
 from slither.core.expressions.new_contract import NewContract
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
-from slither.all_exceptions import SlitherException
+
 
 # pylint: disable=protected-access
 def f_expressions(
@@ -29,7 +31,7 @@ def f_expressions(
     e._expressions.append(x)
 
 
-def f_call(e: CallExpression, x):
+def f_call(e: CallExpression, x: ElementaryTypeNameExpression) -> None:
     e._arguments.append(x)
 
 
@@ -41,11 +43,11 @@ def f_call_gas(e: CallExpression, x):
     e._gas = x
 
 
-def f_expression(e: Union[TypeConversion, UnaryOperation, MemberAccess], x):
+def f_expression(e: Union[TypeConversion, UnaryOperation, MemberAccess], x: CallExpression) -> None:
     e._expression = x
 
 
-def f_called(e: CallExpression, x):
+def f_called(e: CallExpression, x: Identifier) -> None:
     e._called = x
 
 

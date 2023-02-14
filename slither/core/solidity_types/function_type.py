@@ -1,7 +1,8 @@
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 from slither.core.solidity_types.type import Type
 from slither.core.variables.function_type_variable import FunctionTypeVariable
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 
 class FunctionType(Type):
@@ -9,7 +10,7 @@ class FunctionType(Type):
         self,
         params: List[FunctionTypeVariable],
         return_values: List[FunctionTypeVariable],
-    ):
+    ) -> None:
         assert all(isinstance(x, FunctionTypeVariable) for x in params)
         assert all(isinstance(x, FunctionTypeVariable) for x in return_values)
         super().__init__()
@@ -68,7 +69,7 @@ class FunctionType(Type):
             return f"({params}) returns({return_values})"
         return f"({params})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, FunctionType):
             return False
         return self.params == other.params and self.return_values == other.return_values

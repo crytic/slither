@@ -16,7 +16,7 @@ class EventSolc:
     Event class
     """
 
-    def __init__(self, event: Event, event_data: Dict, contract_parser: "ContractSolc"):
+    def __init__(self, event: Event, event_data: Dict, contract_parser: "ContractSolc") -> None:
 
         self._event = event
         event.set_contract(contract_parser.underlying_contract)
@@ -43,7 +43,7 @@ class EventSolc:
     def is_compact_ast(self) -> bool:
         return self._parser_contract.is_compact_ast
 
-    def analyze(self, contract: "ContractSolc"):
+    def analyze(self, contract: "ContractSolc") -> None:
         for elem_to_parse in self._elemsNotParsed:
             elem = EventVariable()
             # Todo: check if the source offset is always here

@@ -5,7 +5,7 @@ from slither.core.solidity_types.type import Type
 
 
 class MemberAccess(ExpressionTyped):
-    def __init__(self, member_name, member_type, expression):
+    def __init__(self, member_name: str, member_type: str, expression: Expression) -> None:
         # assert isinstance(member_type, Type)
         # TODO member_type is not always a Type
         assert isinstance(expression, Expression)
@@ -26,5 +26,5 @@ class MemberAccess(ExpressionTyped):
     def type(self) -> Type:
         return self._type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.expression) + "." + self.member_name

@@ -1,10 +1,11 @@
 from collections import defaultdict
-
+from typing import Any, List, Union
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils.output import Output
 
 
-def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit):
+def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit) -> List[Any]:
     """
     Filter contracts with missing inheritance to return only the "most base" contracts
     in the inheritance tree.
@@ -50,7 +51,10 @@ As a result, the second contract cannot be analyzed.
 
     WIKI_RECOMMENDATION = "Rename the contract."
 
-    def _detect(self):  # pylint: disable=too-many-locals,too-many-branches
+    # pylint: disable=too-many-locals,too-many-branches
+    def _detect(
+        self,
+    ) -> List[Union[Any, Output]]:
         results = []
         compilation_unit = self.compilation_unit
 
