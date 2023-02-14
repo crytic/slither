@@ -64,8 +64,7 @@ def _explore(to_explore, f_results, divisions):  # pylint: disable=too-many-bran
         node_results = []
 
         for ir in node.irs:
-            # check for Constant, has its not hashable (TODO: make Constant hashable)
-            if isinstance(ir, Assignment) and not isinstance(ir.rvalue, Constant):
+            if isinstance(ir, Assignment):
                 if ir.rvalue in divisions:
                     # Avoid dupplicate. We dont use set so we keep the order of the nodes
                     if node not in divisions[ir.rvalue]:
