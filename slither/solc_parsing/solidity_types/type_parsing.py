@@ -6,7 +6,7 @@ from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions.literal import Literal
-from slither.core.solidity_types import TypeAlias
+from slither.core.solidity_types import TypeAlias, TypeAliasTopLevel, TypeAliasContract
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
@@ -199,6 +199,9 @@ def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit
 
     if isinstance(type_found, UserDefinedType):
         type_found.type.add_reference_from_raw_source(src, sl)
+    elif isinstance(type_found, (TypeAliasTopLevel, TypeAliasContract)):
+        type_found.type.add_reference_from_raw_source(src, sl)
+        type_found.add_reference_from_raw_source(src, sl)
 
 
 # TODO: since the add of FileScope, we can probably refactor this function and makes it a lot simpler
@@ -363,6 +366,7 @@ def parse_type(
             if name in renaming:
                 name = renaming[name]
             if name in user_defined_types:
+                _add_type_references(user_defined_types[name], t["src"], sl)
                 return user_defined_types[name]
             type_found = _find_from_type_name(
                 name,
@@ -383,6 +387,7 @@ def parse_type(
         if name in renaming:
             name = renaming[name]
         if name in user_defined_types:
+            _add_type_references(user_defined_types[name], t["src"], sl)
             return user_defined_types[name]
         type_found = _find_from_type_name(
             name,

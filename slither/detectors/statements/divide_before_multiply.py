@@ -78,8 +78,7 @@ def _explore(to_explore: Set[Node], f_results: List[Any], divisions: DefaultDict
         node_results = []
 
         for ir in node.irs:
-            # check for Constant, has its not hashable (TODO: make Constant hashable)
-            if isinstance(ir, Assignment) and not isinstance(ir.rvalue, Constant):
+            if isinstance(ir, Assignment):
                 if ir.rvalue in divisions:
                     # Avoid dupplicate. We dont use set so we keep the order of the nodes
                     if node not in divisions[ir.rvalue]:
