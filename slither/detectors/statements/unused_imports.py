@@ -131,21 +131,12 @@ class UnusedImports(AbstractDetector):
         for st in self.compilation_unit.structures_top_level:
             self._add_item_by_references(st)
 
-    def _find_custom_types_uses_at_top_level(self):
+    def _find_top_level_custom_types_uses(self):
         """
-        For each top level struct declaration, see the type of each member, and if it's a user defined type, take it
-        into account.
-        For each top level variable (can only be constant) see its type, and if it's a user defined type, take it into
-        account.
-        At the moment, we cannot iterate over user defined types and see their references, so they are handled this way.
-        This is a temporary workaround and may not cover all possible use cases.
-        We are checking here uses of both contract level and top level custom types (but used at top level).
+        For each top level user defined type, analyse all of its uses.
         """
-        for st in self.compilation_unit.structures_top_level:
-            for m in st.elems_ordered:
-                self._add_custom_type(m)
-        for var in self.compilation_unit.variables_top_level:
-            self._add_custom_type(var)
+        for _, ct in self.compilation_unit.user_defined_value_types.items():
+            self._add_item_by_references(ct)
 
     def _find_top_level_enums_uses(self):
         """
@@ -188,7 +179,7 @@ class UnusedImports(AbstractDetector):
         It's not possible to declare top level variables (not constants), events and modifiers at the moment.
         """
         self._find_top_level_structs_uses()
-        self._find_custom_types_uses_at_top_level()
+        self._find_top_level_custom_types_uses()
         self._find_top_level_enums_uses()
         self._find_top_level_constants_uses()
         self._find_top_level_custom_errors_uses()
@@ -201,24 +192,12 @@ class UnusedImports(AbstractDetector):
         for st in c.structures:
             self._add_item_by_references(st)
 
-    def _find_custom_types_uses_at_contract_level(self, c: Contract):
+    def _find_contract_level_custom_types_uses(self, c: Contract):
         """
-        For each contract level struct declaration, see the type of each member, and if it's a user defined type, take
-        it into account.
-        For each variable used anywhere in a contract see its type, and if it's a user defined type, take it into
-        account.
-        At the moment, we cannot iterate over user defined types and see their references, so they are handled this way.
-        This is a temporary workaround and may not cover all possible use cases.
-        We are checking here uses of both contract level and top level custom types (but used at contract level).
+        For each contract level user defined type, analyse all of its uses.
         """
-        for st in c.structures:
-            for m in st.elems_ordered:
-                self._add_custom_type(m)
-        for var in c.variables:
-            self._add_custom_type(var)
-        for fm in c.functions_and_modifiers:
-            for v in fm.variables:
-                self._add_custom_type(v)
+        for _, ct in c.file_scope.user_defined_types.items():
+            self._add_item_by_references(ct)
 
     def _find_contract_level_enums_uses(self, c: Contract):
         """
@@ -277,7 +256,7 @@ class UnusedImports(AbstractDetector):
         """
         for c in self.compilation_unit.contracts:
             self._find_contract_level_structs_uses(c)
-            self._find_custom_types_uses_at_contract_level(c)
+            self._find_contract_level_custom_types_uses(c)
             self._find_contract_level_enums_uses(c)
             self._find_contract_level_variables_uses(c)
             self._find_contract_level_custom_errors_uses(c)
