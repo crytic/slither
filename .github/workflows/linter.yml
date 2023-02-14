@@ -54,5 +54,7 @@ jobs:
           VALIDATE_EDITORCONFIG: false
           VALIDATE_JSCPD: false
           VALIDATE_PYTHON_MYPY: false
+          # Until we upgrade the super linter for actionlintÒ
+          VALIDATE_GITHUB_ACTIONS: false
           SHELLCHECK_OPTS: "-e SC1090"
           FILTER_REGEX_EXCLUDE: .*tests/.*.(json|zip|sol)
