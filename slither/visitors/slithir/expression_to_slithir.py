@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Union, List, TYPE_CHECKING
+from typing import Union, List, TYPE_CHECKING
 
 from slither.core.declarations import (
     Function,
