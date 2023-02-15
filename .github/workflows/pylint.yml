@@ -43,8 +43,8 @@ jobs:
         uses: github/super-linter/slim@v4.9.2
         if: always()
         env:
-          # run linter on everything to catch preexisting problems
-          VALIDATE_ALL_CODEBASE: true
+          # Run linters only on new files for pylint to speed up the CI
+          VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Run only pylint
