@@ -108,7 +108,6 @@ from slither.core.expressions.expression import Expression
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
-    from slither.core.compilation_unit import SlitherCompilationUnit
 
 logger = logging.getLogger("ConvertToIR")
 
@@ -322,7 +321,7 @@ def _make_function_type(func: Function) -> FunctionType:
 ###################################################################################
 
 
-def integrate_value_gas(result: List[Any]) -> List[Any]:
+def integrate_value_gas(result: List[Operation]) -> List[Operation]:
     """
     Integrate value and gas temporary arguments to call instruction
     """
@@ -1141,7 +1140,7 @@ def extract_tmp_call(
 ###################################################################################
 
 
-def can_be_low_level(ir: slither.slithir.operations.high_level_call.HighLevelCall) -> bool:
+def can_be_low_level(ir: HighLevelCall) -> bool:
     return ir.function_name in [
         "transfer",
         "send",
