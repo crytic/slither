@@ -13,6 +13,10 @@ on:
     # run CI every day even if no PRs/merges occur
     - cron: '0 12 * * *'
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: IR tests
