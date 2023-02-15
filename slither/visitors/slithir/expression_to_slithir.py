@@ -65,7 +65,6 @@ from slither.visitors.expression.expression import ExpressionVisitor
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
-    from slither.slithir.operations import Operation
 
 logger = logging.getLogger("VISTIOR:ExpressionToSlithIR")
 
