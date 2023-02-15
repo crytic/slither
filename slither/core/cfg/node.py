@@ -4,16 +4,19 @@
 from enum import Enum
 from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
 
+from slither.all_exceptions import SlitherException
 from slither.core.children.child_function import ChildFunction
+from slither.core.declarations import Contract, Function
 from slither.core.declarations.solidity_variables import (
     SolidityVariable,
     SolidityFunction,
 )
+from slither.core.expressions.expression import Expression
+from slither.core.solidity_types import ElementaryType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
-from slither.core.solidity_types import ElementaryType
 from slither.slithir.convert import convert_expression
 from slither.slithir.operations import (
     HighLevelCall,
@@ -38,10 +41,6 @@ from slither.slithir.variables import (
     TemporaryVariable,
     TupleVariable,
 )
-from slither.all_exceptions import SlitherException
-from slither.core.declarations import Contract, Function
-
-from slither.core.expressions.expression import Expression
 
 if TYPE_CHECKING:
     from slither.slithir.variables.variable import SlithIRVariable
@@ -119,7 +118,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         node_id: int,
         scope: Union["Scope", "Function"],
         file_scope: "FileScope",
-    ):
+    ) -> None:
         super().__init__()
         self._node_type = node_type
 
@@ -474,11 +473,11 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         """
         return self._expression
 
-    def add_expression(self, expression: Expression, bypass_verif_empty: bool = False):
+    def add_expression(self, expression: Expression, bypass_verif_empty: bool = False) -> None:
         assert self._expression is None or bypass_verif_empty
         self._expression = expression
 
-    def add_variable_declaration(self, var: LocalVariable):
+    def add_variable_declaration(self, var: LocalVariable) -> None:
         assert self._variable_declaration is None
         self._variable_declaration = var
         if var.expression:
@@ -511,7 +510,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
             for c in self.internal_calls
         )
 
-    def contains_if(self, include_loop=True) -> bool:
+    def contains_if(self, include_loop: bool = True) -> bool:
         """
             Check if the node is a IF node
         Returns:
@@ -521,7 +520,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
             return self.type in [NodeType.IF, NodeType.IFLOOP]
         return self.type == NodeType.IF
 
-    def is_conditional(self, include_loop=True) -> bool:
+    def is_conditional(self, include_loop: bool = True) -> bool:
         """
             Check if the node is a conditional node
             A conditional node is either a IF or a require/assert or a RETURN bool
@@ -550,7 +549,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     def inline_asm(self) -> Optional[Union[str, Dict]]:
         return self._asm_source_code
 
-    def add_inline_asm(self, asm: Union[str, Dict]):
+    def add_inline_asm(self, asm: Union[str, Dict]) -> None:
         self._asm_source_code = asm
 
     # endregion
@@ -560,7 +559,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
     ###################################################################################
 
-    def add_father(self, father: "Node"):
+    def add_father(self, father: "Node") -> None:
         """Add a father node
 
         Args:
@@ -585,7 +584,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         """
         return list(self._fathers)
 
-    def remove_father(self, father: "Node"):
+    def remove_father(self, father: "Node") -> None:
         """Remove the father node. Do nothing if the node is not a father
 
         Args:
@@ -593,7 +592,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         """
         self._fathers = [x for x in self._fathers if x.node_id != father.node_id]
 
-    def remove_son(self, son: "Node"):
+    def remove_son(self, son: "Node") -> None:
         """Remove the son node. Do nothing if the node is not a son
 
         Args:
@@ -601,7 +600,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         """
         self._sons = [x for x in self._sons if x.node_id != son.node_id]
 
-    def add_son(self, son: "Node"):
+    def add_son(self, son: "Node") -> None:
         """Add a son node
 
         Args:
@@ -609,7 +608,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         """
         self._sons.append(son)
 
-    def set_sons(self, sons: List["Node"]):
+    def set_sons(self, sons: List["Node"]) -> None:
         """Set the son nodes
 
         Args:
@@ -667,14 +666,14 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     def irs_ssa(self, irs):
         self._irs_ssa = irs
 
-    def add_ssa_ir(self, ir: Operation):
+    def add_ssa_ir(self, ir: Operation) -> None:
         """
         Use to place phi operation
         """
         ir.set_node(self)
         self._irs_ssa.append(ir)
 
-    def slithir_generation(self):
+    def slithir_generation(self) -> None:
         if self.expression:
             expression = self.expression
             self._irs = convert_expression(expression, self)
@@ -691,11 +690,11 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         return self._all_slithir_operations
 
     @staticmethod
-    def _is_non_slithir_var(var: Variable):
+    def _is_non_slithir_var(var: Variable) -> bool:
         return not isinstance(var, (Constant, ReferenceVariable, TemporaryVariable, TupleVariable))
 
     @staticmethod
-    def _is_valid_slithir_var(var: Variable):
+    def _is_valid_slithir_var(var: Variable) -> bool:
         return isinstance(var, (ReferenceVariable, TemporaryVariable, TupleVariable))
 
     # endregion
@@ -746,7 +745,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._dominance_frontier = doms
 
     @property
-    def dominator_successors(self):
+    def dominator_successors(self) -> Set["Node"]:
         return self._dom_successors
 
     @property
@@ -788,14 +787,14 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     # def phi_origin_member_variables(self) -> Dict[str, Tuple[MemberVariable, Set["Node"]]]:
     #     return self._phi_origins_member_variables
 
-    def add_phi_origin_local_variable(self, variable: LocalVariable, node: "Node"):
+    def add_phi_origin_local_variable(self, variable: LocalVariable, node: "Node") -> None:
         if variable.name not in self._phi_origins_local_variables:
             self._phi_origins_local_variables[variable.name] = (variable, set())
         (v, nodes) = self._phi_origins_local_variables[variable.name]
         assert v == variable
         nodes.add(node)
 
-    def add_phi_origin_state_variable(self, variable: StateVariable, node: "Node"):
+    def add_phi_origin_state_variable(self, variable: StateVariable, node: "Node") -> None:
         if variable.canonical_name not in self._phi_origins_state_variables:
             self._phi_origins_state_variables[variable.canonical_name] = (
                 variable,
@@ -819,7 +818,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
     ###################################################################################
 
-    def _find_read_write_call(self):  # pylint: disable=too-many-statements
+    def _find_read_write_call(self) -> None:  # pylint: disable=too-many-statements
 
         for ir in self.irs:
 
@@ -895,7 +894,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         self._low_level_calls = list(set(self._low_level_calls))
 
     @staticmethod
-    def _convert_ssa(v: Variable):
+    def _convert_ssa(v: Variable) -> Optional[Union[StateVariable, LocalVariable]]:
         if isinstance(v, StateIRVariable):
             contract = v.contract
             non_ssa_var = contract.get_state_variable_from_name(v.name)
@@ -905,7 +904,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         non_ssa_var = function.get_local_variable_from_name(v.name)
         return non_ssa_var
 
-    def update_read_write_using_ssa(self):
+    def update_read_write_using_ssa(self) -> None:
         if not self.expression:
             return
         for ir in self.irs_ssa:
@@ -969,7 +968,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     ###################################################################################
     ###################################################################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         additional_info = ""
         if self.expression:
             additional_info += " " + str(self.expression)
@@ -987,12 +986,12 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 ###################################################################################
 
 
-def link_nodes(node1: Node, node2: Node):
+def link_nodes(node1: Node, node2: Node) -> None:
     node1.add_son(node2)
     node2.add_father(node1)
 
 
-def insert_node(origin: Node, node_inserted: Node):
+def insert_node(origin: Node, node_inserted: Node) -> None:
     sons = origin.sons
     link_nodes(origin, node_inserted)
     for son in sons:

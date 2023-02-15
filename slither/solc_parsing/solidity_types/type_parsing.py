@@ -22,7 +22,7 @@ from slither.solc_parsing.exceptions import ParsingError
 from slither.solc_parsing.expressions.expression_parsing import CallerContextExpression
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Structure, Enum
+    from slither.core.declarations import Structure, Enum, Function
     from slither.core.declarations.contract import Contract
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
@@ -33,11 +33,11 @@ logger = logging.getLogger("TypeParsing")
 
 
 class UnknownType:  # pylint: disable=too-few-public-methods
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self._name = name
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
 
@@ -195,7 +195,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     return UserDefinedType(var_type)
 
 
-def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit"):
+def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit") -> None:
 
     if isinstance(type_found, UserDefinedType):
         type_found.type.add_reference_from_raw_source(src, sl)
@@ -236,6 +236,7 @@ def parse_type(
     sl: "SlitherCompilationUnit"
     renaming: Dict[str, str]
     user_defined_types: Dict[str, TypeAlias]
+    enums_direct_access: List["Enum"] = []
     # Note: for convenicence top level functions use the same parser than function in contract
     # but contract_parser is set to None
     if isinstance(caller_context, SlitherCompilationUnitSolc) or (
@@ -257,7 +258,7 @@ def parse_type(
         all_structuress = [c.structures for c in sl.contracts]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += structures_direct_access
-        enums_direct_access = sl.enums_top_level
+        enums_direct_access += sl.enums_top_level
         all_enumss = [c.enums for c in sl.contracts]
         all_enums = [item for sublist in all_enumss for item in sublist]
         all_enums += enums_direct_access
@@ -319,7 +320,7 @@ def parse_type(
         all_structuress = [c.structures for c in contract.file_scope.contracts.values()]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += contract.file_scope.structures.values()
-        enums_direct_access: List["Enum"] = contract.enums
+        enums_direct_access += contract.enums
         enums_direct_access += contract.file_scope.enums.values()
         all_enumss = [c.enums for c in contract.file_scope.contracts.values()]
         all_enums = [item for sublist in all_enumss for item in sublist]

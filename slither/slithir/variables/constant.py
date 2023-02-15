@@ -1,4 +1,5 @@
 from functools import total_ordering
+from typing import Optional, Union
 
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
 from slither.slithir.variables.variable import SlithIRVariable
@@ -9,8 +10,11 @@ from slither.utils.integer_conversion import convert_string_to_int
 @total_ordering
 class Constant(SlithIRVariable):
     def __init__(
-        self, val, constant_type=None, subdenomination=None
-    ):  # pylint: disable=too-many-branches
+        self,
+        val: Union[int, str],
+        constant_type: Optional[ElementaryType] = None,
+        subdenomination: Optional[str] = None,
+    ) -> None:  # pylint: disable=too-many-branches
         super().__init__()
         assert isinstance(val, str)
 
@@ -38,7 +42,7 @@ class Constant(SlithIRVariable):
                 self._val = val
 
     @property
-    def value(self):
+    def value(self) -> Union[bool, int, str]:
         """
         Return the value.
         If the expression was an hexadecimal delcared as hex'...'
@@ -49,21 +53,21 @@ class Constant(SlithIRVariable):
         return self._val
 
     @property
-    def original_value(self):
+    def original_value(self) -> str:
         """
         Return the string representation of the value
         :return: str
         """
         return self._original_value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
 
     @property
-    def name(self):
+    def name(self) -> str:
         return str(self)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Union["Constant", str]) -> bool:
         return self.value == other
 
     def __ne__(self, other):

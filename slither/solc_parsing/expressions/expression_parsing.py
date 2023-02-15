@@ -1,18 +1,11 @@
 import logging
 import re
-from typing import Dict, TYPE_CHECKING
+from typing import Union, Dict, TYPE_CHECKING
 
+import slither.core.expressions.type_conversion
 from slither.core.declarations.solidity_variables import (
     SOLIDITY_VARIABLES_COMPOSED,
     SolidityVariableComposed,
-)
-from slither.core.expressions.assignment_operation import (
-    AssignmentOperation,
-    AssignmentOperationType,
-)
-from slither.core.expressions.binary_operation import (
-    BinaryOperation,
-    BinaryOperationType,
 )
 from slither.core.expressions import (
     CallExpression,
@@ -32,6 +25,14 @@ from slither.core.expressions import (
     UnaryOperation,
     UnaryOperationType,
 )
+from slither.core.expressions.assignment_operation import (
+    AssignmentOperation,
+    AssignmentOperationType,
+)
+from slither.core.expressions.binary_operation import (
+    BinaryOperation,
+    BinaryOperationType,
+)
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
@@ -42,8 +43,12 @@ from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.expressions.find_variable import find_variable
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 
+
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
+    from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
 logger = logging.getLogger("ExpressionParsing")
 
@@ -98,8 +103,13 @@ def filter_name(value: str) -> str:
 ###################################################################################
 ###################################################################################
 
-
-def parse_call(expression: Dict, caller_context):  # pylint: disable=too-many-statements
+# pylint: disable=too-many-statements
+def parse_call(
+    expression: Dict, caller_context: Union["FunctionSolc", "ContractSolc", "TopLevelVariableSolc"]
+) -> Union[
+    slither.core.expressions.call_expression.CallExpression,
+    slither.core.expressions.type_conversion.TypeConversion,
+]:
     src = expression["src"]
     if caller_context.is_compact_ast:
         attributes = expression
@@ -223,8 +233,7 @@ def _parse_elementary_type_name_expression(
 
 
 if TYPE_CHECKING:
-
-    from slither.core.scope.scope import FileScope
+    pass
 
 
 def parse_expression(expression: Dict, caller_context: CallerContextExpression) -> "Expression":

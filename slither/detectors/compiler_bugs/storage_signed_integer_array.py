@@ -1,6 +1,7 @@
 """
 Module detecting storage signed integer array bug
 """
+from typing import List
 
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -14,6 +15,7 @@ from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.init_array import InitArray
+from slither.utils.output import Output
 
 
 class StorageSignedIntegerArray(AbstractDetector):
@@ -108,7 +110,7 @@ contract A {
         # Return the resulting set of tuples
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect storage signed integer array init/assignment
         """
