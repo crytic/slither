@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Union, List, TYPE_CHECKING, TypeVar, Generic
+from typing import Any, Union, List, TYPE_CHECKING
 
 from slither.core.declarations import (
     Function,
@@ -29,7 +29,6 @@ from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.unary_operation import UnaryOperation
 from slither.core.solidity_types import ArrayType, ElementaryType, TypeAlias
 from slither.core.solidity_types.type import Type
-from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.core.variables.state_variable import StateVariable
