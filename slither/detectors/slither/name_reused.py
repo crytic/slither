@@ -1,5 +1,6 @@
 from collections import defaultdict
-from typing import Any, List, Union
+from typing import Any, List
+
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
@@ -52,9 +53,7 @@ As a result, the second contract cannot be analyzed.
     WIKI_RECOMMENDATION = "Rename the contract."
 
     # pylint: disable=too-many-locals,too-many-branches
-    def _detect(
-        self,
-    ) -> List[Union[Any, Output]]:
+    def _detect(self) -> List[Output]:
         results = []
         compilation_unit = self.compilation_unit
 

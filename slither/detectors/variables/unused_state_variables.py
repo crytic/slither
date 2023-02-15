@@ -1,15 +1,16 @@
 """
 Module detecting unused state variables
 """
-from typing import Any, List, Optional, Union
+from typing import List, Optional
+
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.solidity_types import ArrayType
-from slither.visitors.expression.export_values import ExportValues
-from slither.core.variables.state_variable import StateVariable
-from slither.formatters.variables.unused_state_variables import custom_format
 from slither.core.declarations.contract import Contract
+from slither.core.solidity_types import ArrayType
+from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.formatters.variables.unused_state_variables import custom_format
 from slither.utils.output import Output
+from slither.visitors.expression.export_values import ExportValues
 
 
 def detect_unused(contract: Contract) -> Optional[List[StateVariable]]:
@@ -57,7 +58,7 @@ class UnusedStateVars(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = ""
     WIKI_RECOMMENDATION = "Remove unused state variables."
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         """Detect unused state variables"""
         results = []
         for c in self.compilation_unit.contracts_derived:

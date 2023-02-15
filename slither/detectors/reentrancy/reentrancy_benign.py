@@ -5,7 +5,7 @@
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
 from collections import namedtuple, defaultdict
-from typing import Any, DefaultDict, Set, Union, List
+from typing import DefaultDict, Set, List
 
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable
@@ -88,7 +88,7 @@ Only report reentrancy that acts as a double call (see `reentrancy-eth`, `reentr
                             result[finding_key] |= not_read_then_written
         return result
 
-    def _detect(self) -> List[Union[Output, Any]]:  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
         """"""
 
         super()._detect()

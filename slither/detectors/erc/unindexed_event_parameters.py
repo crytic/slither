@@ -75,7 +75,7 @@ Failure to include these keywords will exclude the parameter data in the transac
         # Return the results.
         return results
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         """
         Detect un-indexed ERC20 event parameters in all contracts.
         """

@@ -4,11 +4,11 @@
     Recursively explore the CFG to only report uninitialized local variables that are
     read before being written
 """
-from typing import Any, List, Union
+from typing import List
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.cfg.node import Node
 from slither.core.declarations.function_contract import FunctionContract
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
 
@@ -42,7 +42,7 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
     key = "UNINITIALIZEDLOCAL"
 
     def _detect_uninitialized(
-        self, function: FunctionContract, node: Node, visited: List[Union[Any, Node]]
+        self, function: FunctionContract, node: Node, visited: List[Node]
     ) -> None:
         if node in visited:
             return
@@ -79,7 +79,7 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
         for son in node.sons:
             self._detect_uninitialized(function, son, visited)
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         """Detect uninitialized local variables
 
         Recursively visit the calls

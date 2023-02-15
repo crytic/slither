@@ -1,4 +1,4 @@
-from typing import Any, Union, List, Set, Tuple, Dict
+from typing import List, Set, Tuple, Dict
 
 from slither.core.cfg.node import Node, NodeType
 from slither.core.solidity_types import ElementaryType
@@ -122,7 +122,7 @@ class WriteAfterWrite(AbstractDetector):
 
     WIKI_RECOMMENDATION = """Fix or remove the writes."""
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:

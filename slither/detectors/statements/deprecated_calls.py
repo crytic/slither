@@ -1,20 +1,20 @@
 """
 Module detecting deprecated standards.
 """
-from typing import Any, List, Tuple, Union
+from typing import List, Tuple, Union
+
 from slither.core.cfg.node import Node, NodeType
+from slither.core.declarations.contract import Contract
 from slither.core.declarations.solidity_variables import (
     SolidityVariableComposed,
     SolidityFunction,
 )
+from slither.core.expressions.expression import Expression
+from slither.core.variables import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
-from slither.visitors.expression.export_values import ExportValues
-from slither.core.declarations.contract import Contract
-from slither.core.expressions.binary_operation import BinaryOperation
-from slither.core.expressions.call_expression import CallExpression
-from slither.core.expressions.member_access import MemberAccess
 from slither.utils.output import Output
+from slither.visitors.expression.export_values import ExportValues
 
 
 # Reference: https://smartcontractsecurity.github.io/SWC-registry/docs/SWC-111
@@ -79,8 +79,8 @@ contract ContractWithDeprecatedReferences {
     DEPRECATED_LOW_LEVEL_CALLS = [("callcode", "callcode", "delegatecall")]
 
     def detect_deprecation_in_expression(
-        self, expression: Union[BinaryOperation, MemberAccess, CallExpression]
-    ) -> List[Union[Any, Tuple[str, str, str]]]:
+        self, expression: Expression
+    ) -> List[Tuple[str, str, str]]:
         """Detects if an expression makes use of any deprecated standards.
 
         Returns:
@@ -104,13 +104,13 @@ contract ContractWithDeprecatedReferences {
 
     def detect_deprecated_references_in_node(
         self, node: Node
-    ) -> List[Union[Any, Tuple[str, str, str], Tuple[NodeType, str, str]]]:
+    ) -> List[Tuple[Union[str, NodeType], str, str]]:
         """Detects if a node makes use of any deprecated standards.
 
         Returns:
             list of tuple: (detecting_signature, original_text, recommended_text)"""
         # Define our results list
-        results = []
+        results: List[Tuple[Union[str, NodeType], str, str]] = []
 
         # If this node has an expression, we check the underlying expression.
         if node.expression:
@@ -127,16 +127,20 @@ contract ContractWithDeprecatedReferences {
         self, contract: Contract
     ) -> List[
         Union[
-            Any,
-            Tuple[Node, List[Tuple[str, str, str]]],
-            Tuple[Node, List[Tuple[NodeType, str, str]]],
+            Tuple[StateVariable, List[Tuple[str, str, str]]],
+            Tuple[Node, List[Tuple[Union[str, NodeType], str, str]]],
         ]
     ]:
         """Detects the usage of any deprecated built-in symbols.
 
         Returns:
             list of tuple: (state_variable | node, (detecting_signature, original_text, recommended_text))"""
-        results = []
+        results: List[
+            Union[
+                Tuple[StateVariable, List[Tuple[str, str, str]]],
+                Tuple[Node, List[Tuple[Union[str, NodeType], str, str]]],
+            ]
+        ] = []
 
         for state_variable in contract.state_variables_declared:
             if state_variable.expression:
@@ -152,22 +156,22 @@ contract ContractWithDeprecatedReferences {
             # Loop through each node in this function.
             for node in function.nodes:
                 # Detect deprecated references in the node.
-                deprecated_results = self.detect_deprecated_references_in_node(node)
+                deprecated_results_node = self.detect_deprecated_references_in_node(node)
 
                 # Detect additional deprecated low-level-calls.
                 for ir in node.irs:
                     if isinstance(ir, LowLevelCall):
                         for dep_llc in self.DEPRECATED_LOW_LEVEL_CALLS:
                             if ir.function_name == dep_llc[0]:
-                                deprecated_results.append(dep_llc)
+                                deprecated_results_node.append(dep_llc)
 
                 # If we have any results from this iteration, add them to our results list.
-                if deprecated_results:
-                    results.append((node, deprecated_results))
+                if deprecated_results_node:
+                    results.append((node, deprecated_results_node))
 
         return results
 
-    def _detect(self) -> List[Union[Any, Output]]:
+    def _detect(self) -> List[Output]:
         """Detects if an expression makes use of any deprecated standards.
 
         Recursively visit the calls

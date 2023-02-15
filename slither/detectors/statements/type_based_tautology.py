@@ -1,14 +1,15 @@
 """
 Module detecting tautologies and contradictions based on types in comparison operations over integers
 """
-from typing import Any, List, Set, Tuple, Union
+from typing import List, Set, Tuple
+
+from slither.core.cfg.node import Node
+from slither.core.declarations import Function
+from slither.core.declarations.contract import Contract
+from slither.core.solidity_types.elementary_type import Int, Uint
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
-from slither.core.solidity_types.elementary_type import Int, Uint
-from slither.core.cfg.node import Node
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
 
 
@@ -114,9 +115,7 @@ contract A {
         BinaryType.LESS_EQUAL: BinaryType.GREATER_EQUAL,
     }
 
-    def detect_type_based_tautologies(
-        self, contract: Contract
-    ) -> List[Union[Any, Tuple[FunctionContract, Set[Node]], Tuple[FunctionContract, Set[Any]]]]:
+    def detect_type_based_tautologies(self, contract: Contract) -> List[Tuple[Function, Set[Node]]]:
         """
         Detects and returns all nodes with tautology/contradiction comparisons (based on type alone).
         :param contract: Contract to detect assignment within.
@@ -124,7 +123,7 @@ contract A {
         """
 
         # Create our result set.
-        results = []
+        results: List[Tuple[Function, Set[Node]]] = []
         allInts = Int + Uint
 
         # Loop for each function and modifier.
@@ -157,7 +156,7 @@ contract A {
         # Return the resulting set of nodes with tautologies and contradictions
         return results
 
-    def _detect(self) -> List[Union[Any, Output]]:
+    def _detect(self) -> List[Output]:
         """
         Detect tautological (or contradictory) comparisons
         """

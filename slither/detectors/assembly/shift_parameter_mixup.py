@@ -1,4 +1,4 @@
-from typing import Any, List, Union
+from typing import List
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
@@ -39,7 +39,7 @@ The shift statement will right-shift the constant 8 by `a` bits"""
 
     WIKI_RECOMMENDATION = "Swap the order of parameters."
 
-    def _check_function(self, f: FunctionContract) -> List[Union[Output, Any]]:
+    def _check_function(self, f: FunctionContract) -> List[Output]:
         results = []
 
         for node in f.nodes:
@@ -55,7 +55,7 @@ The shift statement will right-shift the constant 8 by `a` bits"""
                         results.append(json)
         return results
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         results = []
         for c in self.contracts:
             for f in c.functions:

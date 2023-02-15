@@ -1,8 +1,11 @@
 """
 Module detecting misuse of Boolean constants
 """
-from typing import Any, List, Set, Tuple, Union
+from typing import List, Set, Tuple
+
 from slither.core.cfg.node import Node, NodeType
+from slither.core.declarations import Function
+from slither.core.declarations.contract import Contract
 from slither.core.solidity_types import ElementaryType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
@@ -15,8 +18,6 @@ from slither.slithir.operations import (
     Condition,
 )
 from slither.slithir.variables import Constant
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
 
 
@@ -65,9 +66,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
     @staticmethod
     def _detect_boolean_constant_misuses(
         contract: Contract,
-    ) -> List[
-        Union[Tuple[FunctionContract, Set[Any]], Tuple[FunctionContract, Set[Node]], Any]
-    ]:  # pylint: disable=too-many-branches
+    ) -> List[Tuple[Function, Set[Node]]]:  # pylint: disable=too-many-branches
         """
         Detects and returns all nodes which misuse a Boolean constant.
         :param contract: Contract to detect assignment within.
@@ -75,7 +74,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
         """
 
         # Create our result set.
-        results = []
+        results: List[Tuple[Function, Set[Node]]] = []
 
         # Loop for each function and modifier.
         for function in contract.functions_declared:
@@ -112,7 +111,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
         # Return the resulting set of nodes with improper uses of Boolean constants
         return results
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         """
         Detect Boolean constant misuses
         """

@@ -7,7 +7,7 @@ Check for unimplemented functions that are never implemented
 Consider public state variables as implemented functions
 Do not consider fallback function or constructor
 """
-from typing import Any, List, Set, Union
+from typing import List, Set
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
@@ -91,7 +91,7 @@ All unimplemented functions must be implemented on a contract that is meant to b
                     unimplemented.add(f)
         return unimplemented
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         """Detect unimplemented functions
 
         Recursively visit the calls

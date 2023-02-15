@@ -163,7 +163,7 @@ contract Crowdsale{
 
         return results
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         results = []
 
         for c in self.compilation_unit.contracts_derived:

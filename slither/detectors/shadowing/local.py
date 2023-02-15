@@ -1,14 +1,15 @@
 """
 Module detecting local variable shadowing
 """
-from typing import Any, List, Tuple, Union
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List, Tuple, Union
+
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.event import Event
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.modifier import Modifier
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
 
@@ -62,7 +63,6 @@ contract Bug {
         self, contract: Contract
     ) -> List[
         Union[
-            Any,
             Tuple[LocalVariable, List[Tuple[str, StateVariable]]],
             Tuple[LocalVariable, List[Tuple[str, FunctionContract]]],
             Tuple[LocalVariable, List[Tuple[str, Modifier]]],
@@ -74,7 +74,14 @@ contract Bug {
 
         Returns:
             list of tuple: (type, contract name, definition)"""
-        result = []
+        result: List[
+            Union[
+                Tuple[LocalVariable, List[Tuple[str, StateVariable]]],
+                Tuple[LocalVariable, List[Tuple[str, FunctionContract]]],
+                Tuple[LocalVariable, List[Tuple[str, Modifier]]],
+                Tuple[LocalVariable, List[Tuple[str, Event]]],
+            ]
+        ] = []
 
         # Loop through all functions + modifiers in this contract.
         for function in contract.functions + contract.modifiers:
@@ -111,7 +118,7 @@ contract Bug {
 
         return result
 
-    def _detect(self) -> List[Union[Any, Output]]:
+    def _detect(self) -> List[Output]:
         """Detect shadowing local variables
 
         Recursively visit the calls

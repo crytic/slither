@@ -1,7 +1,7 @@
 """
 Detects the passing of arrays located in memory to functions which expect to modify arrays via storage reference.
 """
-from typing import Any, List, Set, Tuple, Union
+from typing import List, Set, Tuple, Union
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.variables.state_variable import StateVariable
@@ -93,7 +93,6 @@ As a result, Bob's usage of the contract is incorrect."""
         Union[
             Tuple[Node, StateVariable, FunctionContract],
             Tuple[Node, LocalVariable, FunctionContract],
-            Any,
         ]
     ]:
         """
@@ -146,7 +145,7 @@ As a result, Bob's usage of the contract is incorrect."""
                                 results.append((node, arg, ir.function))
         return results
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         """
         Detects passing of arrays located in memory to functions which expect to modify arrays via storage reference.
         :return: The JSON results of the detector, which contains the calling_node, affected_argument_variable and

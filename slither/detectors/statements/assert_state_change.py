@@ -1,18 +1,19 @@
 """
 Module detecting state changes in assert calls
 """
-from typing import Any, List, Tuple, Union
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations.internal_call import InternalCall
+from typing import List, Tuple
+
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.slithir.operations.internal_call import InternalCall
 from slither.utils.output import Output
 
 
 def detect_assert_state_change(
     contract: Contract,
-) -> List[Union[Tuple[FunctionContract, Node], Any]]:
+) -> List[Tuple[FunctionContract, Node]]:
     """
     Detects and returns all nodes with assert calls that change contract state from within the invariant
     :param contract: Contract to detect
@@ -76,7 +77,7 @@ The assert in `bad()` increments the state variable `s_a` while checking for the
 
     WIKI_RECOMMENDATION = """Use `require` for invariants modifying the state."""
 
-    def _detect(self) -> List[Union[Any, Output]]:
+    def _detect(self) -> List[Output]:
         """
         Detect assert calls that change state from within the invariant
         """

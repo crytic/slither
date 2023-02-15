@@ -1,4 +1,5 @@
-from typing import Any, List, Union
+from typing import List
+
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
@@ -45,7 +46,7 @@ In Solidity [0.4.22](https://github.com/ethereum/solidity/releases/tag/v0.4.23),
 
     WIKI_RECOMMENDATION = "Only declare one constructor, preferably using the new scheme `constructor(...)` instead of `function <contractName>(...)`."
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         """
         Detect multiple constructor schemes in the same contract
         :return: Returns a list of contract JSON result, where each result contains all constructor definitions.

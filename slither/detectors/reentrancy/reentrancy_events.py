@@ -5,11 +5,11 @@
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
 from collections import namedtuple, defaultdict
-from typing import Any, DefaultDict, List, Set, Union
+from typing import DefaultDict, List, Set
+
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable
 from slither.utils.output import Output
-
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])
@@ -82,7 +82,7 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                             result[finding_key] |= finding_vars
         return result
 
-    def _detect(self) -> List[Union[Any, Output]]:  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
         """"""
         super()._detect()
 

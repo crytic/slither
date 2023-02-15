@@ -2,7 +2,7 @@
     Module detecting dangerous use of block.timestamp
 
 """
-from typing import Any, Union, List, Tuple
+from typing import List, Tuple
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
@@ -70,7 +70,7 @@ class Timestamp(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = """"Bob's contract relies on `block.timestamp` for its randomness. Eve is a miner and manipulates `block.timestamp` to exploit Bob's contract."""
     WIKI_RECOMMENDATION = "Avoid relying on `block.timestamp`."
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         """"""
         results = []
 

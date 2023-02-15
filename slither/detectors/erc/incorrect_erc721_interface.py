@@ -108,7 +108,7 @@ contract Token{
         ]
         return functions
 
-    def _detect(self) -> List[Union[Any, Output]]:
+    def _detect(self) -> List[Output]:
         """Detect incorrect erc721 interface
 
         Returns:

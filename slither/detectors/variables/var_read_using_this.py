@@ -1,4 +1,4 @@
-from typing import Any, Union, List
+from typing import List
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, SolidityVariable
@@ -30,7 +30,7 @@ contract C {
 
     WIKI_RECOMMENDATION = "Read the variable directly from storage instead of calling the contract."
 
-    def _detect(self) -> List[Union[Any, Output]]:
+    def _detect(self) -> List[Output]:
         results = []
         for c in self.contracts:
             for func in c.functions:

@@ -5,7 +5,7 @@ Note that require()/assert() are not considered here. Even if they
 are in the outermost scope, they do not guarantee a revert, so a
 default value can still be returned.
 """
-from typing import Any, List, Union
+from typing import List
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.cfg.node import Node, NodeType
 from slither.utils.output import Output
@@ -61,7 +61,7 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
 
     WIKI_RECOMMENDATION = "All the paths in a modifier must execute `_` or revert."
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         results = []
         for c in self.contracts:
             for mod in c.modifiers:

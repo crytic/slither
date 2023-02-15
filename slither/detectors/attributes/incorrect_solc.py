@@ -3,11 +3,11 @@
 """
 
 import re
-from typing import Any, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
+
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.attributes.incorrect_solc import custom_format
 from slither.utils.output import Output
-
 
 # group:
 # 0: ^ > >= < <= (optional)
@@ -120,7 +120,7 @@ Consider using the latest version of Solidity for testing."""
             return self._check_version(version_left)
         return self.COMPLEX_PRAGMA_TXT
 
-    def _detect(self) -> List[Union[Output, Any]]:
+    def _detect(self) -> List[Output]:
         """
         Detects pragma statements that allow for outdated solc versions.
         :return: Returns the relevant JSON data for the findings.
