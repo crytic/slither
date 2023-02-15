@@ -1,5 +1,5 @@
 ---
-name: Lint Code Base
+name: Run pylint
 
 defaults:
   run:
@@ -13,6 +13,10 @@ on:
     # run CI every day even if no PRs/merges occur
     - cron: '0 12 * * *'
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Lint Code Base
@@ -20,7 +24,10 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v3

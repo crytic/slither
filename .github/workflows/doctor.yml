@@ -12,6 +12,10 @@ on:
       - 'slither/tools/doctor/**'
       - '.github/workflows/doctor.yml'
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   slither-doctor:
     runs-on: ${{ matrix.os }}
