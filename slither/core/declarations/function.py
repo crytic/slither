@@ -1720,9 +1720,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
     def fix_phi(
         self,
-        last_state_variables_instances: Dict[
-            str, Union[List[Any], List[Union[Any, "StateIRVariable"]], List["StateIRVariable"]]
-        ],
+        last_state_variables_instances: Dict[str, List["StateIRVariable"]],
         initial_state_variables_instances: Dict[str, "StateIRVariable"],
     ) -> None:
         from slither.slithir.operations import InternalCall, PhiCallback

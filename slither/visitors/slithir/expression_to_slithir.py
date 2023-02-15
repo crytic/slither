@@ -165,7 +165,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         for ir in self._result:
             ir.set_node(node)
 
-    def result(self) -> List[Any]:
+    def result(self) -> List[Operation]:
         return self._result
 
     def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
