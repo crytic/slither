@@ -257,6 +257,11 @@ ALL_TEST_OBJECTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.IncorrectERC4626InterfaceDetection,
+        "incorrect_erc4626_interface.sol",
+        "0.7.6",
+    ),
+    Test(
         all_detectors.UninitializedStateVarsDetection,
         "uninitialized.sol",
         "0.4.25",

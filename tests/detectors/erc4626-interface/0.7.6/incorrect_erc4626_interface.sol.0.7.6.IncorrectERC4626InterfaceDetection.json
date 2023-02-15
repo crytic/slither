@@ -1,0 +1,1620 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "totalAssets",
+                    "source_mapping": {
+                        "start": 492,
+                        "length": 40,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            12
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 45
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "totalAssets()"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.totalAssets() (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#12)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.totalAssets()](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L12)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "06720a57f359e56caa595ca36f431d42a9d5c177681be67c39802744e27574ef",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "asset",
+                    "source_mapping": {
+                        "start": 453,
+                        "length": 34,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 39
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "asset()"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.asset() (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#11)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.asset()](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L11)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "07df6617396c3acb1f23500d58f3b77ed001e88637a4b8949b0e645dd41c53f8",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "convertToShares",
+                    "source_mapping": {
+                        "start": 537,
+                        "length": 58,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            13
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 63
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "convertToShares(uint256)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.convertToShares(uint256) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#13)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.convertToShares(uint256)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L13)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "30c0f28eb98445c089a84e1e1c597248ccda9c212e6e190aea34e8f84232b6b0",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "previewWithdraw",
+                    "source_mapping": {
+                        "start": 1102,
+                        "length": 58,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            22
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 63
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "previewWithdraw(uint256)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.previewWithdraw(uint256) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#22)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.previewWithdraw(uint256)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L22)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "3e0fec82ddf827f1061841aa4e0e970fe876016f1e42db7de19521eb57b652da",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "mint",
+                    "source_mapping": {
+                        "start": 974,
+                        "length": 65,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            20
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 70
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "mint(uint256,address)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.mint(uint256,address) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#20)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.mint(uint256,address)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L20)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "4048db703ef9fc8f1e3da0612fa1e8bbeab2dbd9021a5d6f233a08297bf64f58",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "previewMint",
+                    "source_mapping": {
+                        "start": 915,
+                        "length": 54,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            19
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 59
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "previewMint(uint256)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.previewMint(uint256) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#19)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.previewMint(uint256)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L19)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "43d29ec01d42d3addf4518116ec6793747c7e79356e57a9b774685f8722c19aa",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "withdraw",
+                    "source_mapping": {
+                        "start": 1165,
+                        "length": 84,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            23
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 89
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "withdraw(uint256,address,address)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.withdraw(uint256,address,address) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#23)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.withdraw(uint256,address,address)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L23)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "5e59181d44f2f1c220cde314396cd38134a93c6ca6c5ecd73c80a450722813c5",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "maxRedeem",
+                    "source_mapping": {
+                        "start": 1254,
+                        "length": 51,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            24
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 56
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "maxRedeem(address)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.maxRedeem(address) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#24)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.maxRedeem(address)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L24)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "630f012012fd85e68834ed71bc4731d5b97be879fda97d5eed87cb75687a53c1",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "deposit",
+                    "source_mapping": {
+                        "start": 785,
+                        "length": 68,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            17
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 73
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "deposit(uint256,address)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.deposit(uint256,address) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#17)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.deposit(uint256,address)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L17)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "7933038dfc9aa7804409e2df7d596f3d1b033068ac97f3a0014af5dbacf4f594",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "previewRedeem",
+                    "source_mapping": {
+                        "start": 1310,
+                        "length": 56,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            25
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 61
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "previewRedeem(uint256)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.previewRedeem(uint256) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#25)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.previewRedeem(uint256)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L25)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "8e9e13ca9b77bef975b31da7ccffa3ef54b515d8006cec4eb5b3e0797d83d0b3",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "redeem",
+                    "source_mapping": {
+                        "start": 1371,
+                        "length": 82,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 87
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "redeem(uint256,address,address)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.redeem(uint256,address,address) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#26)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.redeem(uint256,address,address)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L26)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "afc2317ce5699519a733b2bd36e9dff622ca838f6f6c8accccebc7071fcc5be4",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "maxDeposit",
+                    "source_mapping": {
+                        "start": 663,
+                        "length": 55,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            15
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 60
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "maxDeposit(address)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.maxDeposit(address) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#15)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.maxDeposit(address)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L15)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "d2cb569fd4c2cad95165f5f6751ee1d23706c37b62f9a8ab877b8e045e3d868e",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "maxWithdraw",
+                    "source_mapping": {
+                        "start": 1044,
+                        "length": 53,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            21
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 58
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "maxWithdraw(address)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.maxWithdraw(address) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#21)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.maxWithdraw(address)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L21)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "e0e85542832a92e1a33de15b0da766d1ac1f7c2f27747d6fc173a1e31eba5c97",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "previewDeposit",
+                    "source_mapping": {
+                        "start": 723,
+                        "length": 57,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            16
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 62
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "previewDeposit(uint256)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.previewDeposit(uint256) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#16)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.previewDeposit(uint256)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L16)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "e78a742a31a3cc65626264101c173ce893e4a50f5b730c066e89df8aa410c780",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "convertToAssets",
+                    "source_mapping": {
+                        "start": 600,
+                        "length": 58,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            14
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 63
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "convertToAssets(uint256)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.convertToAssets(uint256) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#14)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.convertToAssets(uint256)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L14)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "f26e18d2d9120bcfc1be9485c5b8a9c083f9463f80b54c2ad166bd6bf1905713",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "contract",
+                    "name": "Vault",
+                    "source_mapping": {
+                        "start": 414,
+                        "length": 1041,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 0
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "maxMint",
+                    "source_mapping": {
+                        "start": 858,
+                        "length": 52,
+                        "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            18
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 57
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "Vault",
+                            "source_mapping": {
+                                "start": 414,
+                                "length": 1041,
+                                "filename_relative": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "maxMint(address)"
+                    }
+                }
+            ],
+            "description": "Vault (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#10-28) has incorrect ERC4626 function interface:Vault.maxMint(address) (tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#18)\n",
+            "markdown": "[Vault](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28) has incorrect ERC4626 function interface:[Vault.maxMint(address)](tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L18)\n",
+            "first_markdown_element": "tests/detectors/erc4626-interface/0.7.6/incorrect_erc4626_interface.sol#L10-L28",
+            "id": "fda76656849a48d605677c10936a2ea99ff15e90f714d2eb01a31bb2cbcda69b",
+            "check": "erc4626-interface",
+            "impact": "Medium",
+            "confidence": "High"
+        }
+    ]
+]
