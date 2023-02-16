@@ -4,6 +4,7 @@
 from collections import defaultdict
 from typing import Union, Set, Dict, TYPE_CHECKING
 
+from slither.core.cfg.node import Node
 from slither.core.declarations import (
     Contract,
     Enum,
@@ -12,6 +13,7 @@ from slither.core.declarations import (
     SolidityVariable,
     SolidityVariableComposed,
     Structure,
+    FunctionContract,
 )
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.variables.top_level_variable import TopLevelVariable
@@ -40,25 +42,37 @@ if TYPE_CHECKING:
 
 
 Variable_types = Union[Variable, SolidityVariable]
+# TODO refactor the data deps to be better suited for top level function object
+# Right now we allow to pass a node to ease the API, but we need something
+# better
+# The deps propagation for top level elements is also not working as expected
+Context_types_API = Union[Contract, Function, Node]
 Context_types = Union[Contract, Function]
 
 
 def is_dependent(
     variable: Variable_types,
     source: Variable_types,
-    context: Context_types,
+    context: Context_types_API,
     only_unprotected: bool = False,
 ) -> bool:
     """
+    If Node is provided as context, the context will be the broader context, either the contract or the function,
+    depending on if the node is in a top level function or not
+
     Args:
         variable (Variable)
         source (Variable)
-        context (Contract|Function)
+        context (Contract|Function|Node).
         only_unprotected (bool): True only unprotected function are considered
     Returns:
         bool
     """
-    assert isinstance(context, (Contract, Function))
+    assert isinstance(context, (Contract, Function, Node))
+    if isinstance(context, Node):
+        func = context.function
+        context = func.contract if isinstance(func, FunctionContract) else func
+
     if isinstance(variable, Constant):
         return False
     if variable == source:
@@ -76,10 +90,13 @@ def is_dependent(
 def is_dependent_ssa(
     variable: Variable_types,
     source: Variable_types,
-    context: Context_types,
+    context: Context_types_API,
     only_unprotected: bool = False,
 ) -> bool:
     """
+    If Node is provided as context, the context will be the broader context, either the contract or the function,
+    depending on if the node is in a top level function or not
+
     Args:
         variable (Variable)
         taint (Variable)
@@ -88,7 +105,10 @@ def is_dependent_ssa(
     Returns:
         bool
     """
-    assert isinstance(context, (Contract, Function))
+    assert isinstance(context, (Contract, Function, Node))
+    if isinstance(context, Node):
+        func = context.function
+        context = func.contract if isinstance(func, FunctionContract) else func
     context_dict = context.context
     if isinstance(variable, Constant):
         return False
@@ -112,11 +132,14 @@ GENERIC_TAINT = {
 
 def is_tainted(
     variable: Variable_types,
-    context: Context_types,
+    context: Context_types_API,
     only_unprotected: bool = False,
     ignore_generic_taint: bool = False,
 ) -> bool:
     """
+    If Node is provided as context, the context will be the broader context, either the contract or the function,
+    depending on if the node is in a top level function or not
+
         Args:
         variable
         context (Contract|Function)
@@ -124,7 +147,10 @@ def is_tainted(
     Returns:
         bool
     """
-    assert isinstance(context, (Contract, Function))
+    assert isinstance(context, (Contract, Function, Node))
+    if isinstance(context, Node):
+        func = context.function
+        context = func.contract if isinstance(func, FunctionContract) else func
     assert isinstance(only_unprotected, bool)
     if isinstance(variable, Constant):
         return False
@@ -139,11 +165,14 @@ def is_tainted(
 
 def is_tainted_ssa(
     variable: Variable_types,
-    context: Context_types,
+    context: Context_types_API,
     only_unprotected: bool = False,
     ignore_generic_taint: bool = False,
-):
+) -> bool:
     """
+    If Node is provided as context, the context will be the broader context, either the contract or the function,
+    depending on if the node is in a top level function or not
+
     Args:
         variable
         context (Contract|Function)
@@ -151,7 +180,10 @@ def is_tainted_ssa(
     Returns:
         bool
     """
-    assert isinstance(context, (Contract, Function))
+    assert isinstance(context, (Contract, Function, Node))
+    if isinstance(context, Node):
+        func = context.function
+        context = func.contract if isinstance(func, FunctionContract) else func
     assert isinstance(only_unprotected, bool)
     if isinstance(variable, Constant):
         return False
@@ -166,18 +198,23 @@ def is_tainted_ssa(
 
 def get_dependencies(
     variable: Variable_types,
-    context: Context_types,
+    context: Context_types_API,
     only_unprotected: bool = False,
 ) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on.
+    If Node is provided as context, the context will be the broader context, either the contract or the function,
+    depending on if the node is in a top level function or not
 
     :param variable: The target
     :param context: Either a function (interprocedural) or a contract (inter transactional)
     :param only_unprotected: True if consider only protected functions
     :return: set(Variable)
     """
-    assert isinstance(context, (Contract, Function))
+    assert isinstance(context, (Contract, Function, Node))
+    if isinstance(context, Node):
+        func = context.function
+        context = func.contract if isinstance(func, FunctionContract) else func
     assert isinstance(only_unprotected, bool)
     if only_unprotected:
         return context.context[KEY_NON_SSA_UNPROTECTED].get(variable, set())
@@ -185,16 +222,21 @@ def get_dependencies(
 
 
 def get_all_dependencies(
-    context: Context_types, only_unprotected: bool = False
+    context: Context_types_API, only_unprotected: bool = False
 ) -> Dict[Variable, Set[Variable]]:
     """
     Return the dictionary of dependencies.
+    If Node is provided as context, the context will be the broader context, either the contract or the function,
+    depending on if the node is in a top level function or not
 
     :param context: Either a function (interprocedural) or a contract (inter transactional)
     :param only_unprotected: True if consider only protected functions
     :return: Dict(Variable, set(Variable))
     """
-    assert isinstance(context, (Contract, Function))
+    assert isinstance(context, (Contract, Function, Node))
+    if isinstance(context, Node):
+        func = context.function
+        context = func.contract if isinstance(func, FunctionContract) else func
     assert isinstance(only_unprotected, bool)
     if only_unprotected:
         return context.context[KEY_NON_SSA_UNPROTECTED]
@@ -203,18 +245,23 @@ def get_all_dependencies(
 
 def get_dependencies_ssa(
     variable: Variable_types,
-    context: Context_types,
+    context: Context_types_API,
     only_unprotected: bool = False,
 ) -> Set[Variable]:
     """
     Return the variables for which `variable` depends on (SSA version).
+    If Node is provided as context, the context will be the broader context, either the contract or the function,
+    depending on if the node is in a top level function or not
 
     :param variable: The target (must be SSA variable)
     :param context: Either a function (interprocedural) or a contract (inter transactional)
     :param only_unprotected: True if consider only protected functions
     :return: set(Variable)
     """
-    assert isinstance(context, (Contract, Function))
+    assert isinstance(context, (Contract, Function, Node))
+    if isinstance(context, Node):
+        func = context.function
+        context = func.contract if isinstance(func, FunctionContract) else func
     assert isinstance(only_unprotected, bool)
     if only_unprotected:
         return context.context[KEY_SSA_UNPROTECTED].get(variable, set())
@@ -222,16 +269,21 @@ def get_dependencies_ssa(
 
 
 def get_all_dependencies_ssa(
-    context: Context_types, only_unprotected: bool = False
+    context: Context_types_API, only_unprotected: bool = False
 ) -> Dict[Variable, Set[Variable]]:
     """
     Return the dictionary of dependencies.
+    If Node is provided as context, the context will be the broader context, either the contract or the function,
+    depending on if the node is in a top level function or not
 
     :param context: Either a function (interprocedural) or a contract (inter transactional)
     :param only_unprotected: True if consider only protected functions
     :return: Dict(Variable, set(Variable))
     """
-    assert isinstance(context, (Contract, Function))
+    assert isinstance(context, (Contract, Function, Node))
+    if isinstance(context, Node):
+        func = context.function
+        context = func.contract if isinstance(func, FunctionContract) else func
     assert isinstance(only_unprotected, bool)
     if only_unprotected:
         return context.context[KEY_SSA_UNPROTECTED]

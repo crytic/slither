@@ -105,7 +105,12 @@ As a result, Bob's usage of the contract is incorrect."""
         write to the array unsuccessfully.
         """
         # Define our resulting array.
-        results = []
+        results: List[
+            Union[
+                Tuple[Node, StateVariable, FunctionContract],
+                Tuple[Node, LocalVariable, FunctionContract],
+            ]
+        ] = []
 
         # Verify we have functions in our list to check for.
         if not array_modifying_funcs:

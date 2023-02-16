@@ -482,8 +482,8 @@ class SlitherCore(Context):
     ###################################################################################
 
     @property
-    def crytic_compile(self) -> Optional[CryticCompile]:
-        return self._crytic_compile
+    def crytic_compile(self) -> CryticCompile:
+        return self._crytic_compile  # type: ignore
 
     # endregion
     ###################################################################################

@@ -1,4 +1,4 @@
-from typing import Union, Tuple, TYPE_CHECKING
+from typing import Union, Tuple, TYPE_CHECKING, Any
 
 from slither.core.solidity_types.type import Type
 
@@ -38,7 +38,7 @@ class MappingType(Type):
     def __str__(self) -> str:
         return f"mapping({str(self._from)} => {str(self._to)})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, MappingType):
             return False
         return self.type_from == other.type_from and self.type_to == other.type_to

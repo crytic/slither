@@ -91,7 +91,7 @@ class AssignmentOperation(ExpressionTyped):
         super().__init__()
         left_expression.set_lvalue()
         self._expressions = [left_expression, right_expression]
-        self._type: Optional["AssignmentOperationType"] = expression_type
+        self._type: AssignmentOperationType = expression_type
         self._expression_return_type: Optional["Type"] = expression_return_type
 
     @property

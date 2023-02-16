@@ -51,7 +51,7 @@ class CustomError(SourceMapping):
         return str(t)
 
     @property
-    def solidity_signature(self) -> Optional[str]:
+    def solidity_signature(self) -> str:
         """
         Return a signature following the Solidity Standard
         Contract and converted into address
@@ -63,7 +63,7 @@ class CustomError(SourceMapping):
         # (set_solidity_sig was not called before find_variable)
         if self._solidity_signature is None:
             raise ValueError("Custom Error not yet built")
-        return self._solidity_signature
+        return self._solidity_signature  # type: ignore
 
     def set_solidity_sig(self) -> None:
         """

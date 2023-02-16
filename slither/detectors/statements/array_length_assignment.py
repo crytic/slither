@@ -7,6 +7,7 @@ from slither.detectors.abstract_detector import (
     DetectorClassification,
     ALL_SOLC_VERSIONS_04,
     ALL_SOLC_VERSIONS_05,
+    DETECTOR_INFO,
 )
 from slither.core.cfg.node import Node, NodeType
 from slither.slithir.operations import Assignment, Length
@@ -120,7 +121,7 @@ Otherwise, thoroughly review the contract to ensure a user-controlled variable c
         for contract in self.contracts:
             array_length_assignments = detect_array_length_assignment(contract)
             if array_length_assignments:
-                contract_info = [
+                contract_info: DETECTOR_INFO = [
                     contract,
                     " contract sets array length with a user-controlled value:\n",
                 ]

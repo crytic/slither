@@ -55,7 +55,7 @@ class Variable(SourceMapping):
         return self._initialized
 
     @initialized.setter
-    def initialized(self, is_init: bool):
+    def initialized(self, is_init: bool) -> None:
         self._initialized = is_init
 
     @property
@@ -73,7 +73,7 @@ class Variable(SourceMapping):
         return self._name
 
     @name.setter
-    def name(self, name):
+    def name(self, name: str) -> None:
         self._name = name
 
     @property
@@ -89,7 +89,7 @@ class Variable(SourceMapping):
         return self._is_constant
 
     @is_constant.setter
-    def is_constant(self, is_cst: bool):
+    def is_constant(self, is_cst: bool) -> None:
         self._is_constant = is_cst
 
     @property

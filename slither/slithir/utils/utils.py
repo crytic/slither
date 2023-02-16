@@ -1,3 +1,5 @@
+from typing import Union
+
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 
@@ -9,6 +11,24 @@ from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.tuple import TupleVariable
 from slither.core.source_mapping.source_mapping import SourceMapping
+
+RVALUE = Union[
+    StateVariable,
+    LocalVariable,
+    TopLevelVariable,
+    TemporaryVariable,
+    Constant,
+    SolidityVariable,
+    ReferenceVariable,
+]
+
+LVALUE = Union[
+    StateVariable,
+    LocalVariable,
+    TemporaryVariable,
+    ReferenceVariable,
+    TupleVariable,
+]
 
 
 def is_valid_rvalue(v: SourceMapping) -> bool:

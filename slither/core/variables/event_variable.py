@@ -16,5 +16,5 @@ class EventVariable(ChildEvent, Variable):
         return self._indexed
 
     @indexed.setter
-    def indexed(self, is_indexed: bool):
+    def indexed(self, is_indexed: bool) -> bool:
         self._indexed = is_indexed

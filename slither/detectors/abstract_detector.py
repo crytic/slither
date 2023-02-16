@@ -59,6 +59,8 @@ ALL_SOLC_VERSIONS_06 = make_solc_versions(6, 0, 12)
 ALL_SOLC_VERSIONS_07 = make_solc_versions(7, 0, 6)
 # No VERSIONS_08 as it is still in dev
 
+DETECTOR_INFO = Union[str, List[Union[str, SupportedOutput]]]
+
 
 class AbstractDetector(metaclass=abc.ABCMeta):
     ARGUMENT = ""  # run the detector with slither.py --ARGUMENT
@@ -251,7 +253,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     def generate_result(
         self,
-        info: Union[str, List[Union[str, SupportedOutput]]],
+        info: DETECTOR_INFO,
         additional_fields: Optional[Dict] = None,
     ) -> Output:
         output = Output(

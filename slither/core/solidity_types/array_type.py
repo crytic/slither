@@ -4,11 +4,11 @@ from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.type import Type
 from slither.visitors.expression.constants_folding import ConstantFolding
 from slither.core.expressions.literal import Literal
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 if TYPE_CHECKING:
     from slither.core.expressions.binary_operation import BinaryOperation
     from slither.core.expressions.identifier import Identifier
-    from slither.core.solidity_types.elementary_type import ElementaryType
     from slither.core.solidity_types.function_type import FunctionType
     from slither.core.solidity_types.type_alias import TypeAliasTopLevel
 
@@ -22,7 +22,7 @@ class ArrayType(Type):
         assert isinstance(t, Type)
         if length:
             if isinstance(length, int):
-                length = Literal(length, "uint256")
+                length = Literal(length, ElementaryType("uint256"))
             assert isinstance(length, Expression)
         super().__init__()
         self._type: Type = t
