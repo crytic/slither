@@ -1,19 +1,21 @@
 """
 Detects ERC4626 vaults vulnerable to share inflation attacks
 """
-from analyses.data_dependency.data_dependency import (
+from typing import List, Tuple
+
+from slither.analyses.data_dependency.data_dependency import (
     is_dependent,
 )
-from core.cfg.node import Node
-from core.variables.variable import Variable
-from utils.output import Output
+from slither.core.cfg.node import Node
+from slither.core.variables.variable import Variable
+from slither.utils.output import Output
 from slither.core.variables.state_variable import StateVariable
 from slither.core.declarations import SolidityVariable, FunctionContract, Contract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, BinaryType, HighLevelCall
 
 
-def _get_balanceof_this_variables(contract) -> list[Variable]:
+def _get_balanceof_this_variables(contract) -> List[Variable]:
     """
     Returns a list of variables that are populated by external contract.balanceOf(address(this)) calls.
     """
@@ -31,7 +33,7 @@ def _get_balanceof_this_variables(contract) -> list[Variable]:
     return variables
 
 
-def _get_variables_from_add_operations(contract) -> list[Variable]:
+def _get_variables_from_add_operations(contract) -> List[Variable]:
     """
     Returns a list of variables that are calculated from addition operations.
     """
@@ -49,7 +51,7 @@ def _get_variables_from_add_operations(contract) -> list[Variable]:
     return add_src_vars
 
 
-def _locate_variable_writes(contract, variable) -> list[Node]:
+def _locate_variable_writes(contract, variable) -> List[Node]:
     """
     Returns a list of nodes from the provided contract that write to the specified variable.
     """
@@ -73,7 +75,7 @@ def _is_contract_eligible_for_detector(contract) -> bool:
 
 def _detect_share_inflation_attack_erc4626(
     contract,
-) -> list[tuple[Contract, FunctionContract, FunctionContract]]:
+) -> List[Tuple[Contract, FunctionContract, FunctionContract]]:
     """
     Given a contract, locate share inflation attacks and return the results
     """
@@ -192,8 +194,8 @@ Alternately, use a higher precision for tracking vault shares as is described he
 """
 
     def _format_results(
-        self, unformatted_results: list[tuple[Contract, FunctionContract, FunctionContract]]
-    ) -> list[Output]:
+        self, unformatted_results: List[Tuple[Contract, FunctionContract, FunctionContract]]
+    ) -> List[Output]:
         formatted_results = []
 
         for contract, balanceof_function, deposit_function in unformatted_results:
