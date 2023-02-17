@@ -7,7 +7,11 @@ from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
 from slither.core.variables.local_variable import LocalVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -148,7 +152,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
                         predeclared_usage_node,
                         predeclared_usage_local_variable,
                     ) in predeclared_usage_nodes:
-                        info = [
+                        info: DETECTOR_INFO = [
                             "Variable '",
                             predeclared_usage_local_variable,
                             "' in ",

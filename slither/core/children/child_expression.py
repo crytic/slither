@@ -19,5 +19,5 @@ class ChildExpression:
         self._expression = expression
 
     @property
-    def expression(self) -> Union["Expression", "Operation"]:
+    def expression(self) -> "Expression":
         return self._expression  # type: ignore

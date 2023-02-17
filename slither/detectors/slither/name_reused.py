@@ -2,7 +2,11 @@ from collections import defaultdict
 from typing import Any, List
 
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -80,7 +84,7 @@ As a result, the second contract cannot be analyzed.
                 inheritance_corrupted[father.name].append(contract)
 
         for contract_name, files in names_reused.items():
-            info = [contract_name, " is re-used:\n"]
+            info: DETECTOR_INFO = [contract_name, " is re-used:\n"]
             for file in files:
                 if file is None:
                     info += ["\t- In an file not found, most likely in\n"]

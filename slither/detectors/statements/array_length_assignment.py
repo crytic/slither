@@ -1,13 +1,14 @@
 """
 Module detecting assignment of array length
 """
-from typing import List, Set
+from typing import List, Set, Union
+
+from slither.core.variables import Variable
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     ALL_SOLC_VERSIONS_04,
     ALL_SOLC_VERSIONS_05,
-    DETECTOR_INFO,
 )
 from slither.core.cfg.node import Node, NodeType
 from slither.slithir.operations import Assignment, Length
@@ -15,7 +16,7 @@ from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.operations.binary import Binary
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.declarations.contract import Contract
-from slither.utils.output import Output
+from slither.utils.output import Output, SupportedOutput
 
 
 def detect_array_length_assignment(contract: Contract) -> Set[Node]:
@@ -51,7 +52,7 @@ def detect_array_length_assignment(contract: Contract) -> Set[Node]:
                     elif isinstance(ir, (Assignment, Binary)):
                         if isinstance(ir.lvalue, ReferenceVariable):
                             if ir.lvalue in array_length_refs and any(
-                                is_tainted(v, contract) for v in ir.read
+                                is_tainted(v, contract) for v in ir.read if isinstance(v, Variable)
                             ):
                                 # the taint is not precise enough yet
                                 # as a result, REF_0 = REF_0 + 1
@@ -121,12 +122,16 @@ Otherwise, thoroughly review the contract to ensure a user-controlled variable c
         for contract in self.contracts:
             array_length_assignments = detect_array_length_assignment(contract)
             if array_length_assignments:
-                contract_info: DETECTOR_INFO = [
+                contract_info: List[Union[str, SupportedOutput]] = [
                     contract,
                     " contract sets array length with a user-controlled value:\n",
                 ]
                 for node in array_length_assignments:
-                    node_info = contract_info + ["\t- ", node, "\n"]
+                    node_info: List[Union[str, SupportedOutput]] = contract_info + [
+                        "\t- ",
+                        node,
+                        "\n",
+                    ]
                     res = self.generate_result(node_info)
                     results.append(res)
 

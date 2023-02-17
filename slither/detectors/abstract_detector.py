@@ -59,7 +59,7 @@ ALL_SOLC_VERSIONS_06 = make_solc_versions(6, 0, 12)
 ALL_SOLC_VERSIONS_07 = make_solc_versions(7, 0, 6)
 # No VERSIONS_08 as it is still in dev
 
-DETECTOR_INFO = Union[str, List[Union[str, SupportedOutput]]]
+DETECTOR_INFO = List[Union[str, SupportedOutput]]
 
 
 class AbstractDetector(metaclass=abc.ABCMeta):

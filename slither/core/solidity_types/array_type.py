@@ -23,16 +23,17 @@ class ArrayType(Type):
         if length:
             if isinstance(length, int):
                 length = Literal(length, ElementaryType("uint256"))
-            assert isinstance(length, Expression)
+
         super().__init__()
         self._type: Type = t
+        assert length is None or isinstance(length, Expression)
         self._length: Optional[Expression] = length
 
         if length:
             if not isinstance(length, Literal):
                 cf = ConstantFolding(length, "uint256")
                 length = cf.result()
-            self._length_value = length
+            self._length_value: Optional[Literal] = length
         else:
             self._length_value = None
 

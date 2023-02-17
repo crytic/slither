@@ -455,7 +455,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         )
 
     @property
-    def constructors(self) -> List["Function"]:
+    def constructors(self) -> List["FunctionContract"]:
         """
         Return the list of constructors (including inherited)
         """

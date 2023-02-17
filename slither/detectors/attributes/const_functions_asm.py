@@ -2,7 +2,9 @@
 Module detecting constant functions
 Recursively check the called functions
 """
-from typing import List
+from typing import List, Dict
+
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -85,5 +87,5 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
         return results
 
     @staticmethod
-    def _format(comilation_unit, result):
+    def _format(comilation_unit: SlitherCompilationUnit, result: Dict) -> None:
         custom_format(comilation_unit, result)

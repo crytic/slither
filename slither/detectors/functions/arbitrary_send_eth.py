@@ -18,7 +18,9 @@ from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.solidity_variables import (
     SolidityFunction,
     SolidityVariableComposed,
+    SolidityVariable,
 )
+from slither.core.variables import Variable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
     HighLevelCall,
@@ -72,8 +74,9 @@ def arbitrary_send(func: Function) -> Union[bool, List[Node]]:
                 ):
                     continue
 
-                if is_tainted(ir.destination, node):
-                    ret.append(node)
+                if isinstance(ir.destination, (Variable, SolidityVariable)):
+                    if is_tainted(ir.destination, node):
+                        ret.append(node)
 
     return ret
 

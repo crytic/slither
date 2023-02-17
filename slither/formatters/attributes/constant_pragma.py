@@ -1,4 +1,7 @@
 import re
+from typing import Dict
+
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import create_patch
 
@@ -16,7 +19,7 @@ REPLACEMENT_VERSIONS = ["^0.4.25", "^0.5.3"]
 PATTERN = re.compile(r"(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
 
 
-def custom_format(slither, result):
+def custom_format(slither: SlitherCompilationUnit, result: Dict) -> None:
     elements = result["elements"]
     versions_used = []
     for element in elements:

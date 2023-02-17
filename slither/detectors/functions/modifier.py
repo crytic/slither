@@ -6,7 +6,11 @@ are in the outermost scope, they do not guarantee a revert, so a
 default value can still be returned.
 """
 from typing import List
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.core.cfg.node import Node, NodeType
 from slither.utils.output import Output
 
@@ -82,7 +86,11 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
                         node = None
                 else:
                     # Nothing was found in the outer scope
-                    info = ["Modifier ", mod, " does not always execute _; or revert"]
+                    info: DETECTOR_INFO = [
+                        "Modifier ",
+                        mod,
+                        " does not always execute _; or revert",
+                    ]
 
                     res = self.generate_result(info)
                     results.append(res)

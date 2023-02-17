@@ -16,6 +16,7 @@ from slither.core.declarations import (
     FunctionContract,
 )
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
+from slither.core.solidity_types.type import Type
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import Index, OperationWithLValue, InternalCall, Operation
@@ -28,11 +29,9 @@ from slither.slithir.variables import (
     TemporaryVariableSSA,
     TupleVariableSSA,
 )
-from slither.core.solidity_types.type import Type
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
-
 
 ###################################################################################
 ###################################################################################
@@ -41,7 +40,8 @@ if TYPE_CHECKING:
 ###################################################################################
 
 
-Variable_types = Union[Variable, SolidityVariable]
+SUPPORTED_TYPES = Union[Variable, SolidityVariable]
+
 # TODO refactor the data deps to be better suited for top level function object
 # Right now we allow to pass a node to ease the API, but we need something
 # better
@@ -51,8 +51,8 @@ Context_types = Union[Contract, Function]
 
 
 def is_dependent(
-    variable: Variable_types,
-    source: Variable_types,
+    variable: SUPPORTED_TYPES,
+    source: SUPPORTED_TYPES,
     context: Context_types_API,
     only_unprotected: bool = False,
 ) -> bool:
@@ -88,8 +88,8 @@ def is_dependent(
 
 
 def is_dependent_ssa(
-    variable: Variable_types,
-    source: Variable_types,
+    variable: SUPPORTED_TYPES,
+    source: SUPPORTED_TYPES,
     context: Context_types_API,
     only_unprotected: bool = False,
 ) -> bool:
@@ -131,7 +131,7 @@ GENERIC_TAINT = {
 
 
 def is_tainted(
-    variable: Variable_types,
+    variable: SUPPORTED_TYPES,
     context: Context_types_API,
     only_unprotected: bool = False,
     ignore_generic_taint: bool = False,
@@ -164,7 +164,7 @@ def is_tainted(
 
 
 def is_tainted_ssa(
-    variable: Variable_types,
+    variable: SUPPORTED_TYPES,
     context: Context_types_API,
     only_unprotected: bool = False,
     ignore_generic_taint: bool = False,
@@ -197,7 +197,7 @@ def is_tainted_ssa(
 
 
 def get_dependencies(
-    variable: Variable_types,
+    variable: SUPPORTED_TYPES,
     context: Context_types_API,
     only_unprotected: bool = False,
 ) -> Set[Variable]:
@@ -244,7 +244,7 @@ def get_all_dependencies(
 
 
 def get_dependencies_ssa(
-    variable: Variable_types,
+    variable: SUPPORTED_TYPES,
     context: Context_types_API,
     only_unprotected: bool = False,
 ) -> Set[Variable]:
@@ -459,7 +459,7 @@ def compute_dependency_function(function: Function) -> None:
     )
 
 
-def convert_variable_to_non_ssa(v: Variable_types) -> Variable_types:
+def convert_variable_to_non_ssa(v: SUPPORTED_TYPES) -> SUPPORTED_TYPES:
     if isinstance(
         v,
         (
@@ -490,10 +490,10 @@ def convert_variable_to_non_ssa(v: Variable_types) -> Variable_types:
 
 
 def convert_to_non_ssa(
-    data_depencies: Dict[Variable_types, Set[Variable_types]]
-) -> Dict[Variable_types, Set[Variable_types]]:
+    data_depencies: Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]]
+) -> Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]]:
     # Need to create new set() as its changed during iteration
-    ret: Dict[Variable_types, Set[Variable_types]] = {}
+    ret: Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]] = {}
     for (k, values) in data_depencies.items():
         var = convert_variable_to_non_ssa(k)
         if not var in ret:

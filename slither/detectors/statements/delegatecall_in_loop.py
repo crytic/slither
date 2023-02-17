@@ -1,6 +1,10 @@
 from typing import List, Optional
 from slither.core.cfg.node import NodeType, Node
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import LowLevelCall, InternalCall
 from slither.core.declarations import Contract
 from slither.utils.output import Output
@@ -94,7 +98,12 @@ Carefully check that the function called by `delegatecall` is not payable/doesn'
             for node in values:
                 func = node.function
 
-                info = [func, " has delegatecall inside a loop in a payable function: ", node, "\n"]
+                info: DETECTOR_INFO = [
+                    func,
+                    " has delegatecall inside a loop in a payable function: ",
+                    node,
+                    "\n",
+                ]
                 res = self.generate_result(info)
                 results.append(res)
 

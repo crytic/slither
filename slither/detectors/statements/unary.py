@@ -5,7 +5,11 @@ from typing import List
 
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 from slither.visitors.expression.expression import ExpressionVisitor
 
@@ -74,7 +78,10 @@ contract Bug{
                     variable.expression
                     and InvalidUnaryStateVariableDetector(variable.expression).result()
                 ):
-                    info = [variable, f" uses an dangerous unary operator: {variable.expression}\n"]
+                    info: DETECTOR_INFO = [
+                        variable,
+                        f" uses an dangerous unary operator: {variable.expression}\n",
+                    ]
                     json = self.generate_result(info)
                     results.append(json)
 
