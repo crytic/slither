@@ -10,6 +10,7 @@ from .attributes.locked_ether import LockedEther
 from .functions.arbitrary_send_eth import ArbitrarySendEth
 from .erc.erc20.arbitrary_send_erc20_no_permit import ArbitrarySendErc20NoPermit
 from .erc.erc20.arbitrary_send_erc20_permit import ArbitrarySendErc20Permit
+from .erc.erc4626.share_inflation_erc4626 import DetectERC4626ShareInflation
 from .functions.suicidal import Suicidal
 
 # from .functions.complex_function import ComplexFunction
