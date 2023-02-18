@@ -11,7 +11,9 @@ from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.conditional_expression import ConditionalExpression
-from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
+from slither.core.expressions.elementary_type_name_expression import (
+    ElementaryTypeNameExpression,
+)
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
@@ -53,7 +55,6 @@ def f_called(e: CallExpression, x: Identifier) -> None:
 
 class SplitTernaryExpression:
     def __init__(self, expression: Union[AssignmentOperation, ConditionalExpression]) -> None:
-
         if isinstance(expression, ConditionalExpression):
             self.true_expression = copy.copy(expression.then_expression)
             self.false_expression = copy.copy(expression.else_expression)
@@ -141,7 +142,6 @@ class SplitTernaryExpression:
             # TODO: can we get rid of `NoneType` expressions in `TupleExpression`?
             # montyly: this might happen with unnamed tuple (ex: (,,,) = f()), but it needs to be checked
             if next_expr:
-
                 if self.conditional_not_ahead(
                     next_expr, true_expression, false_expression, f_expressions
                 ):

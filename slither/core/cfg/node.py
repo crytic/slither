@@ -2,14 +2,14 @@
     Node module
 """
 from enum import Enum
-from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Union
 
 from slither.all_exceptions import SlitherException
 from slither.core.children.child_function import ChildFunction
 from slither.core.declarations import Contract, Function
 from slither.core.declarations.solidity_variables import (
-    SolidityVariable,
     SolidityFunction,
+    SolidityVariable,
 )
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types import ElementaryType
@@ -26,12 +26,12 @@ from slither.slithir.operations import (
     LibraryCall,
     LowLevelCall,
     Member,
+    Operation,
     OperationWithLValue,
     Phi,
     PhiCallback,
-    SolidityCall,
     Return,
-    Operation,
+    SolidityCall,
 )
 from slither.slithir.variables import (
     Constant,
@@ -43,16 +43,16 @@ from slither.slithir.variables import (
 )
 
 if TYPE_CHECKING:
-    from slither.slithir.variables.variable import SlithIRVariable
+    from slither.core.cfg.scope import Scope
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.scope.scope import FileScope
+    from slither.slithir.variables.variable import SlithIRVariable
     from slither.utils.type_helpers import (
-        InternalCallType,
         HighLevelCallType,
+        InternalCallType,
         LibraryCallType,
         LowLevelCallType,
     )
-    from slither.core.cfg.scope import Scope
-    from slither.core.scope.scope import FileScope
 
 
 # pylint: disable=too-many-lines,too-many-branches,too-many-instance-attributes
@@ -103,6 +103,7 @@ class NodeType(Enum):
 
 
 # endregion
+
 
 # I am not sure why, but pylint reports a lot of "no-member" issue that are not real (Josselin)
 # pylint: disable=no-member
@@ -821,7 +822,6 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
     def _find_read_write_call(self) -> None:  # pylint: disable=too-many-statements
 
         for ir in self.irs:
-
             self._slithir_vars |= {v for v in ir.read if self._is_valid_slithir_var(v)}
 
             if isinstance(ir, OperationWithLValue):

@@ -3,17 +3,16 @@ import os
 import pathlib
 import sys
 from pprint import pprint
-from typing import Type, Optional, List
+from typing import List, Optional, Type
 
 import pytest
 from deepdiff import DeepDiff  # pip install deepdiff
-
 from solc_select.solc_select import install_artifacts as install_solc_versions
 from solc_select.solc_select import installed_versions as get_installed_solc_versions
 
 from slither import Slither
-from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
+from slither.detectors.abstract_detector import AbstractDetector
 
 
 class Test:  # pylint: disable=too-few-public-methods

@@ -1,17 +1,16 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from slither.exceptions import SlitherException
 from slither.utils.integer_conversion import convert_string_to_fraction
 
-
 if TYPE_CHECKING:
     from slither.core.declarations import Contract, Function
+
 
 # pylint: disable=too-many-branches
 def convert_subdenomination(
     value: str, sub: str
 ) -> int:  # pylint: disable=too-many-return-statements
-
     decimal_value = convert_string_to_fraction(value)
     if sub == "wei":
         return int(decimal_value)

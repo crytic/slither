@@ -1,26 +1,22 @@
 import abc
 import json
-from typing import Optional, Dict, List, Union
+from typing import Dict, List, Optional, Union
 
-from slither.core.cfg.node import NodeType, Node, link_nodes
+from slither.core.cfg.node import Node, NodeType, link_nodes
 from slither.core.cfg.scope import Scope
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.core.declarations import (
-    Function,
-    SolidityFunction,
-    Contract,
-)
+from slither.core.declarations import Contract, Function, SolidityFunction
 from slither.core.declarations.function import FunctionLanguage
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.expressions import (
-    Literal,
     AssignmentOperation,
     AssignmentOperationType,
-    Identifier,
-    CallExpression,
-    TupleExpression,
     BinaryOperation,
+    CallExpression,
+    Identifier,
+    Literal,
+    TupleExpression,
     UnaryOperation,
 )
 from slither.core.expressions.expression import Expression
@@ -29,14 +25,14 @@ from slither.core.solidity_types import ElementaryType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.exceptions import SlitherException
-from slither.solc_parsing.yul.evm_functions import (
-    format_function_descriptor,
-    builtins,
-    YulBuiltin,
-    unary_ops,
-    binary_ops,
-)
 from slither.solc_parsing.expressions.find_variable import find_top_level
+from slither.solc_parsing.yul.evm_functions import (
+    YulBuiltin,
+    binary_ops,
+    builtins,
+    format_function_descriptor,
+    unary_ops,
+)
 from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar

@@ -13,7 +13,7 @@ on:
       - "**/*.py"
   schedule:
     # run CI every day even if no PRs/merges occur
-    - cron: '0 12 * * *'
+    - cron: "0 12 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   build:
-    name: Black 
+    name: Black
     runs-on: ubuntu-latest
 
     steps:

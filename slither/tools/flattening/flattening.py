@@ -4,23 +4,28 @@ import uuid
 from collections import namedtuple
 from enum import Enum as PythonEnum
 from pathlib import Path
-from typing import List, Set, Dict, Optional, Sequence
+from typing import Dict, List, Optional, Sequence, Set
 
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.core.declarations import SolidityFunction, EnumContract, StructureContract
+from slither.core.declarations import EnumContract, SolidityFunction, StructureContract
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.top_level import TopLevel
-from slither.core.solidity_types import MappingType, ArrayType
+from slither.core.solidity_types import ArrayType, MappingType
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.exceptions import SlitherException
-from slither.slithir.operations import NewContract, TypeConversion, SolidityCall, InternalCall
+from slither.slithir.operations import (
+    InternalCall,
+    NewContract,
+    SolidityCall,
+    TypeConversion,
+)
 from slither.tools.flattening.export.export import (
     Export,
     export_as_json,
-    save_to_zip,
     save_to_disk,
+    save_to_zip,
 )
 
 logger = logging.getLogger("Slither-flattening")
@@ -321,7 +326,7 @@ class Flattening:
         for f in contract.functions_declared:
             for ir in f.slithir_operations:
                 if isinstance(ir, NewContract):
-                    if ir.contract_created != contract and not ir.contract_created in exported:
+                    if ir.contract_created != contract and ir.contract_created not in exported:
                         self._export_list_used_contracts(
                             ir.contract_created, exported, list_contract, list_top_level
                         )
@@ -433,7 +438,6 @@ class Flattening:
         zip: Optional[str] = None,  # pylint: disable=redefined-builtin
         zip_type: Optional[str] = None,
     ):
-
         if not self._export_path.exists():
             self._export_path.mkdir(parents=True)
 

@@ -1,26 +1,23 @@
---- 
-body: 
-  - 
-    attributes: 
+---
+body:
+  - attributes:
       value: |
-          Please check the issues tab to avoid duplicates.
-          Thanks for taking the time to fill out this bug report!
+        Please check the issues tab to avoid duplicates.
+        Thanks for taking the time to fill out this bug report!
     type: markdown
-  - 
-    attributes: 
+  - attributes:
       label: "What operating system are you using?"
     id: os
     type: textarea
-    validations: 
+    validations:
       required: true
-  - 
-    attributes: 
+  - attributes:
       label: "How did you install slither?"
       description: |
         For example, using git or python's pip.
     id: install-method
     type: textarea
-    validations: 
+    validations:
       required: true
   - type: dropdown
     id: python
@@ -39,17 +36,16 @@ body:
       options:
         - "Yes"
         - "No"
-  - 
-    attributes: 
+  - attributes:
       description: |
-          Please copy and paste any relevant log output. This 
-          will be automatically formatted into code, so no need for backticks.
+        Please copy and paste any relevant log output. This
+        will be automatically formatted into code, so no need for backticks.
       render: shell
       label: "Output of running `slither-doctor .`:"
     id: logs
     type: textarea
 description: "Get help troubleshooting slither installation"
-labels: 
+labels:
   - installation-help
 name: "Trouble with Installing Slither"
 title: "[Installation-Help]: "

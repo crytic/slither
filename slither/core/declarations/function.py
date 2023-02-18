@@ -2,11 +2,11 @@
     Function module
 """
 import logging
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby
-from typing import Any, Dict, TYPE_CHECKING, List, Optional, Set, Union, Callable, Tuple
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from slither.core.cfg.scope import Scope
 from slither.core.declarations.solidity_variables import (
@@ -31,23 +31,21 @@ from slither.utils.utils import unroll
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
 
 if TYPE_CHECKING:
-    from slither.utils.type_helpers import (
-        InternalCallType,
-        LowLevelCallType,
-        HighLevelCallType,
-        LibraryCallType,
-    )
-    from slither.core.declarations import Contract
     from slither.core.cfg.node import Node, NodeType
-    from slither.core.variables.variable import Variable
-    from slither.slithir.variables.variable import SlithIRVariable
-    from slither.slithir.variables import LocalIRVariable
-    from slither.core.expressions.expression import Expression
-    from slither.slithir.operations import Operation
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.declarations import Contract
+    from slither.core.expressions.expression import Expression
     from slither.core.scope.scope import FileScope
-    from slither.slithir.variables.state_variable import StateIRVariable
-    from slither.core.declarations.function_contract import FunctionContract
+    from slither.core.variables.variable import Variable
+    from slither.slithir.operations import Operation
+    from slither.slithir.variables import LocalIRVariable
+    from slither.slithir.variables.variable import SlithIRVariable
+    from slither.utils.type_helpers import (
+        HighLevelCallType,
+        InternalCallType,
+        LibraryCallType,
+        LowLevelCallType,
+    )
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -574,7 +572,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
             for node in self.nodes:
                 # if node.type == NodeType.OTHER_ENTRYPOINT:
-                if not node in self._nodes_ordered_dominators:
+                if node not in self._nodes_ordered_dominators:
                     self._compute_nodes_ordered_dominators(node)
 
         return self._nodes_ordered_dominators
@@ -1643,9 +1641,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self, target_state: bool, target_local: bool
     ) -> Dict[str, Set["SlithIRVariable"]]:
         # pylint: disable=too-many-locals,too-many-branches
-        from slither.slithir.variables import ReferenceVariable
-        from slither.slithir.operations import OperationWithLValue
         from slither.core.cfg.node import NodeType
+        from slither.slithir.operations import OperationWithLValue
+        from slither.slithir.variables import ReferenceVariable
 
         if not self.is_implemented:
             return {}

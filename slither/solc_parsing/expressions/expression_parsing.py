@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Union, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 import slither.core.expressions.type_conversion
 from slither.core.declarations.solidity_variables import (
@@ -33,11 +33,7 @@ from slither.core.expressions.binary_operation import (
     BinaryOperation,
     BinaryOperationType,
 )
-from slither.core.solidity_types import (
-    ArrayType,
-    ElementaryType,
-    UserDefinedType,
-)
+from slither.core.solidity_types import ArrayType, ElementaryType, UserDefinedType
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.expressions.find_variable import find_variable
@@ -232,10 +228,6 @@ def _parse_elementary_type_name_expression(
     return e
 
 
-if TYPE_CHECKING:
-    pass
-
-
 def parse_expression(expression: Dict, caller_context: CallerContextExpression) -> "Expression":
     # pylint: disable=too-many-nested-blocks,too-many-statements
     """
@@ -395,7 +387,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         return assignement
 
     if name == "Literal":
-
         subdenomination = None
 
         assert "children" not in expression
@@ -547,7 +538,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
     # NewExpression is not a root expression, it's always the child of another expression
     if name == "NewExpression":
-
         if is_compact_ast:
             type_name = expression["typeName"]
         else:
@@ -602,7 +592,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         assert type_name[caller_context.get_key()] == "UserDefinedTypeName"
 
         if is_compact_ast:
-
             # Changed introduced in Solidity 0.8
             # see https://github.com/crytic/slither/issues/794
 
@@ -619,7 +608,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         return new
 
     if name == "ModifierInvocation":
-
         if is_compact_ast:
             called = parse_expression(expression["modifierName"], caller_context)
             arguments = []
@@ -645,7 +633,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
     # Introduced with solc 0.8
     if name == "IdentifierPath":
-
         if caller_context.is_compact_ast:
             value = expression["name"]
 

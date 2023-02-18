@@ -11,7 +11,7 @@ on:
     branches: [master, dev]
   schedule:
     # run CI every day even if no PRs/merges occur
-    - cron: '0 12 * * *'
+    - cron: "0 12 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -42,4 +42,4 @@ jobs:
           solc-select use 0.7.3 --always-install
       - name: Test with pytest
         run: |
-          pytest tests/test_detectors.py 
+          pytest tests/test_detectors.py

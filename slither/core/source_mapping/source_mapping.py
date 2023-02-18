@@ -1,9 +1,10 @@
 import re
 from abc import ABCMeta
-from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
 from Crypto.Hash import SHA1
 from crytic_compile.utils.naming import Filename
+
 from slither.core.context.context import Context
 
 if TYPE_CHECKING:
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
 # To have then everything accessible through obj.source_mapping._
 # All an object needs to do is to inherits from SourceMapping
 # And call set_offset at some point
+
 
 # pylint: disable=too-many-instance-attributes
 class Source:
@@ -57,7 +59,6 @@ class Source:
         return f"{filename_short}{lines} ({self.starting_column} - {self.ending_column})"
 
     def _get_lines_str(self, line_descr: str = "") -> str:
-
         # If the compilation unit was not initialized, it means that the set_offset was never called
         # on the corresponding object, which should not happen
         assert self.compilation_unit is not None
@@ -153,17 +154,17 @@ def _convert_source_mapping(
     if len(position) != 1:
         return Source()
 
-    s, l, f = position[0]
-    s = int(s)
-    l = int(l)
-    f = int(f)
+    start, length, file = position[0]
+    start = int(start)
+    length = int(length)
+    file = int(file)
 
-    if f not in sourceUnits:
+    if file not in sourceUnits:
         new_source = Source()
-        new_source.start = s
-        new_source.length = l
+        new_source.start = start
+        new_source.length = length
         return new_source
-    filename_used = sourceUnits[f]
+    filename_used = sourceUnits[file]
 
     # If possible, convert the filename to its absolute/relative version
     assert compilation_unit.core.crytic_compile
@@ -171,17 +172,19 @@ def _convert_source_mapping(
     filename: Filename = compilation_unit.core.crytic_compile.filename_lookup(filename_used)
     is_dependency = compilation_unit.core.crytic_compile.is_dependency(filename.absolute)
 
-    (lines, starting_column, ending_column) = _compute_line(compilation_unit, filename, s, l)
+    (lines, starting_column, ending_column) = _compute_line(
+        compilation_unit, filename, start, length
+    )
 
     new_source = Source()
-    new_source.start = s
-    new_source.length = l
+    new_source.start = start
+    new_source.length = length
     new_source.filename = filename
     new_source.is_dependency = is_dependency
     new_source.lines = lines
     new_source.starting_column = starting_column
     new_source.ending_column = ending_column
-    new_source.end = new_source.start + l
+    new_source.end = new_source.start + length
     return new_source
 
 

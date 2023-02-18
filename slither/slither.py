@@ -1,5 +1,5 @@
 import logging
-from typing import Union, List, ValuesView, Type, Dict, Optional
+from typing import Dict, List, Optional, Type, Union, ValuesView
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
@@ -23,14 +23,13 @@ logger_printer = logging.getLogger("Printers")
 def _check_common_things(
     thing_name: str, cls: Type, base_cls: Type, instances_list: List[Type[AbstractDetector]]
 ) -> None:
-
     if not issubclass(cls, base_cls) or cls is base_cls:
-        raise Exception(
+        raise ValueError(
             f"You can't register {cls!r} as a {thing_name}. You need to pass a class that inherits from {base_cls.__name__}"
         )
 
     if any(type(obj) == cls for obj in instances_list):  # pylint: disable=unidiomatic-typecheck
-        raise Exception(f"You can't register {cls!r} twice.")
+        raise ValueError(f"You can't register {cls!r} twice.")
 
 
 def _update_file_scopes(candidates: ValuesView[FileScope]):
@@ -135,7 +134,6 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
 
     def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:
-
         for parser in self._parsers:
             try:
                 parser.parse_contracts()

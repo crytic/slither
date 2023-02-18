@@ -1,6 +1,7 @@
-from pathlib import Path
-from typing import Optional, TYPE_CHECKING
 from hashlib import sha1
+from pathlib import Path
+from typing import TYPE_CHECKING, Optional
+
 from slither.utils.oz_hashes import oz_hashes
 
 if TYPE_CHECKING:

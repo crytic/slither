@@ -1,0 +1,17 @@
+name: Lint
+
+on:
+  pull_request: 
+    branches: [master, dev]
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    uses: trailofbits/.github/.github/workflows/lint.yml@v0.1.0
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: write

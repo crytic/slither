@@ -8,7 +8,7 @@ from slither import Slither
 from slither.core.variables.state_variable import StateVariable
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector
-from slither.slithir.operations import LibraryCall, InternalCall
+from slither.slithir.operations import InternalCall, LibraryCall
 from slither.utils.arithmetic import unchecked_arithemtic_usage
 
 
@@ -31,7 +31,6 @@ def test_node() -> None:
 
 
 def test_collision() -> None:
-
     standard_json = SolcStandardJson()
     standard_json.add_source_file("./tests/collisions/a.sol")
     standard_json.add_source_file("./tests/collisions/b.sol")

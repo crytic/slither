@@ -1,18 +1,19 @@
 """
 Module detecting state variables that could be declared as constant
 """
-from typing import Set, List
-from packaging import version
-from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.core.variables.variable import Variable
+from typing import List, Set
 
-from slither.visitors.expression.export_values import ExportValues
+from packaging import version
+
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract, Function
 from slither.core.declarations.solidity_variables import SolidityFunction
-from slither.core.variables.state_variable import StateVariable
 from slither.core.expressions import CallExpression, NewContract
+from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.variable import Variable
+from slither.visitors.expression.export_values import ExportValues
 
 
 def _is_valid_type(v: StateVariable) -> bool:

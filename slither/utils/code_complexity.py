@@ -2,8 +2,8 @@
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Function
     from slither.core.cfg.node import Node
+    from slither.core.declarations import Function
 
 
 def compute_number_edges(function: "Function") -> int:
@@ -33,14 +33,14 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
     visited = {n: False for n in function.nodes}
     assigned = {n: False for n in function.nodes}
     components = []
-    l = []
+    postorder_nodes = []
 
     def visit(node):
         if not visited[node]:
             visited[node] = True
             for son in node.sons:
                 visit(son)
-            l.append(node)
+            postorder_nodes.append(node)
 
     for n in function.nodes:
         visit(n)
@@ -52,7 +52,7 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
             for father in node.fathers:
                 assign(father, root)
 
-    for n in reversed(l):
+    for n in reversed(postorder_nodes):
         component: List["Node"] = []
         assign(n, component)
         if component:

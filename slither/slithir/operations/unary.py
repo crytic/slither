@@ -2,6 +2,7 @@ import logging
 from typing import List, Union
 from enum import Enum
 
+from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.exceptions import SlithIRError

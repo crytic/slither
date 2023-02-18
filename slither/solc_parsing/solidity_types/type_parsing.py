@@ -1,12 +1,12 @@
 import logging
 import re
-from typing import List, TYPE_CHECKING, Union, Dict, ValuesView
+from typing import TYPE_CHECKING, Dict, List, Union, ValuesView
 
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions.literal import Literal
-from slither.core.solidity_types import TypeAlias, TypeAliasTopLevel, TypeAliasContract
+from slither.core.solidity_types import TypeAlias, TypeAliasContract, TypeAliasTopLevel
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
@@ -22,10 +22,11 @@ from slither.solc_parsing.exceptions import ParsingError
 from slither.solc_parsing.expressions.expression_parsing import CallerContextExpression
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Structure, Enum, Function
-    from slither.core.declarations.contract import Contract
     from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+    from slither.core.declarations import Contract, Enum, Function, Structure
+    from slither.solc_parsing.slither_compilation_unit_solc import (
+        SlitherCompilationUnitSolc,
+    )
 
 logger = logging.getLogger("TypeParsing")
 
@@ -195,8 +196,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     return UserDefinedType(var_type)
 
 
-def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit") -> None:
-
+def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit"):
     if isinstance(type_found, UserDefinedType):
         type_found.type.add_reference_from_raw_source(src, sl)
     elif isinstance(type_found, (TypeAliasTopLevel, TypeAliasContract)):
@@ -223,14 +223,22 @@ def parse_type(
     # local import to avoid circular dependency
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     # pylint: disable=import-outside-toplevel
-    from slither.solc_parsing.expressions.expression_parsing import parse_expression
-    from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
-    from slither.solc_parsing.declarations.function import FunctionSolc
-    from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
     from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
-    from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
-    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+    from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.declarations.structure_top_level import (
+        StructureTopLevelSolc,
+    )
+    from slither.solc_parsing.declarations.using_for_top_level import (
+        UsingForTopLevelSolc,
+    )
+    from slither.solc_parsing.expressions.expression_parsing import parse_expression
+    from slither.solc_parsing.slither_compilation_unit_solc import (
+        SlitherCompilationUnitSolc,
+    )
+    from slither.solc_parsing.variables.function_type_variable import (
+        FunctionTypeVariableSolc,
+    )
     from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
     sl: "SlitherCompilationUnit"
@@ -438,7 +446,6 @@ def parse_type(
         return ArrayType(array_type, length)
 
     if t[key] == "Mapping":
-
         if is_compact_ast:
             mappingFrom = parse_type(t["keyType"], next_context)
             mappingTo = parse_type(t["valueType"], next_context)
@@ -451,7 +458,6 @@ def parse_type(
         return MappingType(mappingFrom, mappingTo)
 
     if t[key] == "FunctionTypeName":
-
         if is_compact_ast:
             params = t["parameterTypes"]
             return_values = t["returnParameterTypes"]

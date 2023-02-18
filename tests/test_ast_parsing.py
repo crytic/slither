@@ -3,14 +3,14 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
 
 import pytest
+from crytic_compile import CryticCompile, save_to_zip
+from crytic_compile.utils.zip import load_from_zip
 from deepdiff import DeepDiff
 from solc_select.solc_select import install_artifacts as install_solc_versions
 from solc_select.solc_select import installed_versions as get_installed_solc_versions
-from crytic_compile import CryticCompile, save_to_zip
-from crytic_compile.utils.zip import load_from_zip
 
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
@@ -579,7 +579,6 @@ def _generate_compile(test_item: Test, skip_existing=False):
 
 
 if __name__ == "__main__":
-
     required_solcs = set()
     for test in ALL_TESTS:
         required_solcs |= set(test.solc_versions)

@@ -1,5 +1,5 @@
 import re
-from typing import List
+
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.naming_convention.naming_convention import custom_format
 from slither.utils.output import Output
@@ -59,12 +59,9 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
     def should_avoid_name(name: str) -> bool:
         return re.search("^[lOI]$", name) is not None
 
-    # pylint: disable=too-many-branches,too-many-statements
-    def _detect(self) -> List[Output]:
-
+    def _detect(self):  # pylint: disable=too-many-branches,too-many-statements
         results = []
         for contract in self.contracts:
-
             if not self.is_cap_words(contract.name):
                 info = ["Contract ", contract, " is not in CapWords\n"]
 

@@ -1,13 +1,14 @@
 import argparse
 import logging
 import uuid
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional
+
 from crytic_compile import cryticparser
+
 from slither import Slither
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Function
-
-from slither.formatters.utils.patches import create_patch, apply_patch, create_diff
+from slither.formatters.utils.patches import apply_patch, create_diff, create_patch
 from slither.utils import codex
 
 logging.basicConfig()
