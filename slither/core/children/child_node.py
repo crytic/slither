@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.cfg.node import Node
-    from slither.core.declarations import Function, Contract
+    from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.declarations import Contract, Function
 
 
 class ChildNode:

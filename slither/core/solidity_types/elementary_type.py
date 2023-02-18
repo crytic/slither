@@ -3,7 +3,6 @@ from typing import Tuple
 
 from slither.core.solidity_types.type import Type
 
-
 # see https://solidity.readthedocs.io/en/v0.4.24/miscellaneous.html?highlight=grammar
 from slither.exceptions import SlitherException
 

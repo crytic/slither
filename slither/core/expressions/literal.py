@@ -1,4 +1,4 @@
-from typing import Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.elementary_type import Fixed, Int, Ufixed, Uint

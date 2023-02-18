@@ -1,13 +1,14 @@
 from typing import List, Union
-from slither.core.declarations import Contract
-from slither.core.solidity_types.type import Type
-from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
+
 import slither.core.declarations.contract
+from slither.core.declarations import Contract
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.type_alias import TypeAliasContract, TypeAliasTopLevel
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 

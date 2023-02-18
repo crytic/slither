@@ -1,9 +1,10 @@
 from typing import List, Union
+
 from slither.core.solidity_types import ElementaryType
-from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.reference_ssa import ReferenceVariableSSA

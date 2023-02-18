@@ -1,4 +1,5 @@
 from typing import List, Union
+
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue
 from slither.slithir.variables.constant import Constant

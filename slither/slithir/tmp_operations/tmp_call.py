@@ -1,16 +1,16 @@
 from typing import Optional, Union
 
 from slither.core.declarations import (
-    Event,
     Contract,
-    SolidityVariableComposed,
+    Event,
     SolidityFunction,
+    SolidityVariableComposed,
     Structure,
 )
 from slither.core.declarations.custom_error import CustomError
+from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.slithir.operations.member import Member
 from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract

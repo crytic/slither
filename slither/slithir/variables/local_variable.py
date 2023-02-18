@@ -1,8 +1,9 @@
 from typing import Set
+
 from slither.core.variables.local_variable import LocalVariable
+from slither.slithir.variables.state_variable import StateIRVariable
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.variable import SlithIRVariable
-from slither.slithir.variables.state_variable import StateIRVariable
 
 
 class LocalIRVariable(

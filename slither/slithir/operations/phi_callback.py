@@ -1,10 +1,9 @@
-from typing import List, Set, Union, TYPE_CHECKING
-
-from slither.slithir.utils.utils import is_valid_lvalue
-from slither.slithir.operations.phi import Phi
+from typing import TYPE_CHECKING, List, Set, Union
 
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
+from slither.slithir.operations.phi import Phi
+from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.state_variable import StateIRVariable
 
 if TYPE_CHECKING:

@@ -5,8 +5,9 @@ Collect all the interfaces
 Check for contracts which implement all interface functions but do not explicitly derive from those interfaces.
 """
 from typing import List
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+
 from slither.core.declarations.contract import Contract
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
 

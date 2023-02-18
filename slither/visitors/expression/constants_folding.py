@@ -1,18 +1,20 @@
 from fractions import Fraction
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from slither.core.expressions import (
-    BinaryOperationType,
-    Literal,
-    UnaryOperationType,
-    Identifier,
     BinaryOperation,
-    UnaryOperation,
+    BinaryOperationType,
+    Identifier,
+    Literal,
     TupleExpression,
     TypeConversion,
+    UnaryOperation,
+    UnaryOperationType,
 )
-
-from slither.utils.integer_conversion import convert_string_to_fraction, convert_string_to_int
+from slither.utils.integer_conversion import (
+    convert_string_to_fraction,
+    convert_string_to_int,
+)
 from slither.visitors.expression.expression import ExpressionVisitor
 
 if TYPE_CHECKING:

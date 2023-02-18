@@ -3,9 +3,9 @@
 """
 from typing import TYPE_CHECKING, Dict
 
+from slither.core.declarations.event import Event
 from slither.core.variables.event_variable import EventVariable
 from slither.solc_parsing.variables.event_variable import EventVariableSolc
-from slither.core.declarations.event import Event
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.contract import ContractSolc
@@ -17,7 +17,6 @@ class EventSolc:
     """
 
     def __init__(self, event: Event, event_data: Dict, contract_parser: "ContractSolc") -> None:
-
         self._event = event
         event.set_contract(contract_parser.underlying_contract)
         self._parser_contract = contract_parser

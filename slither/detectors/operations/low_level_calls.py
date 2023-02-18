@@ -2,11 +2,12 @@
 Module detecting usage of low level calls
 """
 from typing import List, Tuple
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import LowLevelCall
+
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.slithir.operations import LowLevelCall
 from slither.utils.output import Output
 
 

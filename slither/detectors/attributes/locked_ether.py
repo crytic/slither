@@ -7,18 +7,17 @@ from slither.core.declarations.contract import Contract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
     HighLevelCall,
+    InternalCall,
+    LibraryCall,
     LowLevelCall,
+    NewContract,
     Send,
     Transfer,
-    NewContract,
-    LibraryCall,
-    InternalCall,
 )
 from slither.utils.output import Output
 
 
 class LockedEther(AbstractDetector):  # pylint: disable=too-many-nested-blocks
-
     ARGUMENT = "locked-ether"
     HELP = "Contracts that lock ether"
     IMPACT = DetectorClassification.MEDIUM

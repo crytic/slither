@@ -10,7 +10,9 @@ from slither.solc_parsing.declarations.caller_context import CallerContextExpres
 from slither.solc_parsing.variables.structure_variable import StructureVariableSolc
 
 if TYPE_CHECKING:
-    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+    from slither.solc_parsing.slither_compilation_unit_solc import (
+        SlitherCompilationUnitSolc,
+    )
 
 
 class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-public-methods
@@ -26,7 +28,6 @@ class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few
         struct: Dict,
         slither_parser: "SlitherCompilationUnitSolc",
     ) -> None:
-
         if slither_parser.is_compact_ast:
             name = struct["name"]
             attributes = struct

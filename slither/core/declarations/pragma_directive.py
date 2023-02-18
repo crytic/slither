@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 

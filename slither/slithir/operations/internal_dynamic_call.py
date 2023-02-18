@@ -1,10 +1,11 @@
 from typing import List, Optional, Union
+
 from slither.core.solidity_types import FunctionType
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
-from slither.core.variables.local_variable import LocalVariable
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.temporary import TemporaryVariable

@@ -1,12 +1,14 @@
-from typing import Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 from slither.core.variables.top_level_variable import TopLevelVariable
-from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
+from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 
 if TYPE_CHECKING:
-    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.solc_parsing.slither_compilation_unit_solc import (
+        SlitherCompilationUnitSolc,
+    )
 
 
 class TopLevelVariableSolc(VariableDeclarationSolc, CallerContextExpression):

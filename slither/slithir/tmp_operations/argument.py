@@ -1,4 +1,5 @@
 from enum import Enum
+
 from slither.slithir.operations.operation import Operation
 
 

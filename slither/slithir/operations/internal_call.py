@@ -1,4 +1,5 @@
-from typing import Any, Union, Tuple, List, Optional
+from typing import Any, List, Optional, Tuple, Union
+
 from slither.core.declarations import Modifier
 from slither.core.declarations.function import Function
 from slither.core.declarations.function_contract import FunctionContract

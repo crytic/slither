@@ -9,11 +9,11 @@
 
     TODO: dont report if the value is tainted by msg.value
 """
-from typing import Any, Tuple, Union, List
+from typing import Any, List, Tuple, Union
 
-from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
+from slither.analyses.data_dependency.data_dependency import is_dependent, is_tainted
 from slither.core.cfg.node import Node
-from slither.core.declarations import Function, Contract
+from slither.core.declarations import Contract, Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.solidity_variables import (
     SolidityFunction,
@@ -128,8 +128,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
 
         for c in self.contracts:
             arbitrary_send_result = detect_arbitrary_send(c)
-            for (func, nodes) in arbitrary_send_result:
-
+            for func, nodes in arbitrary_send_result:
                 info = [func, " sends eth to arbitrary user\n"]
                 info += ["\tDangerous calls:\n"]
 

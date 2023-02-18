@@ -1,13 +1,13 @@
 import abc
 import re
 from logging import Logger
-from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
-from slither.utils.colors import green, yellow, red
+from slither.utils.colors import green, red, yellow
 from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output, SupportedOutput
 

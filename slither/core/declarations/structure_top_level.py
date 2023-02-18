@@ -4,8 +4,8 @@ from slither.core.declarations import Structure
 from slither.core.declarations.top_level import TopLevel
 
 if TYPE_CHECKING:
-    from slither.core.scope.scope import FileScope
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.scope.scope import FileScope
 
 
 class StructureTopLevel(Structure, TopLevel):

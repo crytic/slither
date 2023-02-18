@@ -1,4 +1,4 @@
-from typing import List, Tuple, Any
+from typing import Any, List, Tuple
 
 from slither.core.solidity_types.type import Type
 from slither.core.variables.function_type_variable import FunctionTypeVariable

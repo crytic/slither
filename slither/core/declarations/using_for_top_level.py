@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, List, Dict, Union
+from typing import TYPE_CHECKING, Dict, List, Union
 
-from slither.core.solidity_types.type import Type
 from slither.core.declarations.top_level import TopLevel
+from slither.core.solidity_types.type import Type
 
 if TYPE_CHECKING:
     from slither.core.scope.scope import FileScope

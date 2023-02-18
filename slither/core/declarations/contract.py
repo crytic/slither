@@ -4,25 +4,24 @@
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set, Any
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from crytic_compile.platform import Type as PlatformType
 
 from slither.core.cfg.scope import Scope
+from slither.core.declarations.function import Function, FunctionLanguage, FunctionType
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
-
-from slither.core.declarations.function import Function, FunctionType, FunctionLanguage
 from slither.utils.erc import (
     ERC20_signatures,
     ERC165_signatures,
     ERC223_signatures,
     ERC721_signatures,
-    ERC1820_signatures,
     ERC777_signatures,
     ERC1155_signatures,
-    ERC2612_signatures,
     ERC1363_signatures,
+    ERC1820_signatures,
+    ERC2612_signatures,
     ERC4524_signatures,
     ERC4626_signatures,
 )
@@ -30,21 +29,25 @@ from slither.utils.tests_pattern import is_test_contract
 
 # pylint: disable=too-many-lines,too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks
 if TYPE_CHECKING:
-    from slither.utils.type_helpers import LibraryCallType, HighLevelCallType, InternalCallType
-    from slither.core.declarations import (
-        Enum,
-        Event,
-        Modifier,
-        EnumContract,
-        StructureContract,
-        FunctionContract,
-        CustomErrorContract,
-    )
-    from slither.slithir.variables.variable import SlithIRVariable
-    from slither.core.variables import Variable, StateVariable
-    from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.core.scope.scope import FileScope
     from slither.core.cfg.node import Node
+    from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.core.declarations import (
+        CustomErrorContract,
+        Enum,
+        EnumContract,
+        Event,
+        FunctionContract,
+        Modifier,
+        StructureContract,
+    )
+    from slither.core.scope.scope import FileScope
+    from slither.core.variables import StateVariable, Variable
+    from slither.slithir.variables.variable import SlithIRVariable
+    from slither.utils.type_helpers import (
+        HighLevelCallType,
+        InternalCallType,
+        LibraryCallType,
+    )
 
 
 LOGGER = logging.getLogger("Contract")
@@ -1317,9 +1320,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         from slither.core.declarations.function_contract import FunctionContract
 
         if self.state_variables:
-            for (idx, variable_candidate) in enumerate(self.state_variables):
+            for idx, variable_candidate in enumerate(self.state_variables):
                 if variable_candidate.expression and not variable_candidate.is_constant:
-
                     constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
                     constructor_variable.set_contract(self)
@@ -1347,9 +1349,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                             counter += 1
                     break
 
-            for (idx, variable_candidate) in enumerate(self.state_variables):
+            for idx, variable_candidate in enumerate(self.state_variables):
                 if variable_candidate.expression and variable_candidate.is_constant:
-
                     constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(
                         FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES
@@ -1385,8 +1386,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ) -> "Node":
         from slither.core.cfg.node import Node, NodeType
         from slither.core.expressions import (
-            AssignmentOperationType,
             AssignmentOperation,
+            AssignmentOperationType,
             Identifier,
         )
 

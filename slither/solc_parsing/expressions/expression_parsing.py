@@ -39,7 +39,6 @@ from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.expressions.find_variable import find_variable
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 
-
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
     from slither.solc_parsing.declarations.contract import ContractSolc
@@ -98,6 +97,7 @@ def filter_name(value: str) -> str:
 # region Parsing
 ###################################################################################
 ###################################################################################
+
 
 # pylint: disable=too-many-statements
 def parse_call(

@@ -1,7 +1,8 @@
-from typing import List, Union, TYPE_CHECKING
-from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.operations.call import Call
+from typing import TYPE_CHECKING, List, Union
+
 from slither.core.solidity_types.type import Type
+from slither.slithir.operations.call import Call
+from slither.slithir.operations.lvalue import OperationWithLValue
 
 if TYPE_CHECKING:
     from slither.core.solidity_types.type_alias import TypeAliasTopLevel

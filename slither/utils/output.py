@@ -4,13 +4,13 @@ import logging
 import os
 import zipfile
 from collections import OrderedDict
-from typing import Tuple, Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
 from zipfile import ZipFile
 
 from pkg_resources import require
 
 from slither.core.cfg.node import Node
-from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma
+from slither.core.declarations import Contract, Enum, Event, Function, Pragma, Structure
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError

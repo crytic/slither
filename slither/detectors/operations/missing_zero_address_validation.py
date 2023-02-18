@@ -13,8 +13,7 @@ from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Call
-from slither.slithir.operations import Send, Transfer, LowLevelCall
+from slither.slithir.operations import Call, LowLevelCall, Send, Transfer
 from slither.utils.output import Output
 
 
@@ -153,7 +152,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
         results = []
         for contract in self.compilation_unit.contracts_derived:
             missing_zero_address_validation = self._detect_missing_zero_address_validation(contract)
-            for (_, var_nodes) in missing_zero_address_validation:
+            for _, var_nodes in missing_zero_address_validation:
                 for var, nodes in var_nodes.items():
                     info = [var, " lacks a zero-check on ", ":\n"]
                     for node in nodes:

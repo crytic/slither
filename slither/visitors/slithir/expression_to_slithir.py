@@ -1,23 +1,23 @@
 import logging
-from typing import Union, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Union
 
 from slither.core.declarations import (
+    Contract,
     Function,
+    SolidityFunction,
     SolidityVariable,
     SolidityVariableComposed,
-    SolidityFunction,
-    Contract,
 )
 from slither.core.declarations.enum import Enum
 from slither.core.expressions import (
     AssignmentOperation,
     AssignmentOperationType,
-    UnaryOperationType,
     BinaryOperationType,
-    ElementaryTypeNameExpression,
     CallExpression,
+    ElementaryTypeNameExpression,
     Identifier,
     MemberAccess,
+    UnaryOperationType,
 )
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.expression import Expression
@@ -30,7 +30,9 @@ from slither.core.expressions.unary_operation import UnaryOperation
 from slither.core.solidity_types import ArrayType, ElementaryType, TypeAlias
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.variables.local_variable_init_from_tuple import (
+    LocalVariableInitFromTuple,
+)
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
@@ -43,12 +45,12 @@ from slither.slithir.operations import (
     InitArray,
     InternalCall,
     Member,
+    Operation,
+    Return,
+    SolidityCall,
     TypeConversion,
     Unary,
     Unpack,
-    Return,
-    SolidityCall,
-    Operation,
 )
 from slither.slithir.tmp_operations.argument import Argument
 from slither.slithir.tmp_operations.tmp_call import TmpCall
@@ -152,7 +154,9 @@ def convert_assignment(
 class ExpressionToSlithIR(ExpressionVisitor):
     # pylint: disable=super-init-not-called
     def __init__(self, expression: Expression, node: "Node") -> None:
-        from slither.core.cfg.node import NodeType  # pylint: disable=import-outside-toplevel
+        from slither.core.cfg.node import (
+            NodeType,  # pylint: disable=import-outside-toplevel
+        )
 
         self._expression = expression
         self._node = node
@@ -269,7 +273,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def _post_call_expression(self, expression: CallExpression) -> None:
-
         assert isinstance(expression, CallExpression)
 
         expression_called = expression.called

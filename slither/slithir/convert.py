@@ -1,6 +1,28 @@
 import logging
 from pathlib import Path
-from typing import Any, List, TYPE_CHECKING, Union, Optional
+from typing import TYPE_CHECKING, Any, List, Optional, Union
+
+import slither.core.declarations.contract
+import slither.core.declarations.function
+import slither.core.solidity_types.elementary_type
+import slither.core.solidity_types.function_type
+import slither.core.solidity_types.user_defined_type
+import slither.slithir.operations.assignment
+import slither.slithir.operations.binary
+import slither.slithir.operations.call
+import slither.slithir.operations.high_level_call
+import slither.slithir.operations.index
+import slither.slithir.operations.init_array
+import slither.slithir.operations.internal_call
+import slither.slithir.operations.length
+import slither.slithir.operations.library_call
+import slither.slithir.operations.low_level_call
+import slither.slithir.operations.member
+import slither.slithir.operations.operation
+import slither.slithir.operations.send
+import slither.slithir.operations.solidity_call
+import slither.slithir.operations.transfer
+import slither.slithir.variables.temporary
 
 # pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
 from slither.core.declarations import (
@@ -16,25 +38,25 @@ from slither.core.declarations import (
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
-from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
+from slither.core.declarations.solidity_import_placeholder import (
+    SolidityImportPlaceHolder,
+)
 from slither.core.declarations.solidity_variables import SolidityCustomRevert
 from slither.core.expressions import Identifier, Literal
+from slither.core.expressions.expression import Expression
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
     FunctionType,
     MappingType,
-    UserDefinedType,
     TypeInformation,
+    UserDefinedType,
 )
-from slither.core.solidity_types.elementary_type import (
-    Int as ElementaryTypeInt,
-    Uint,
-    Byte,
-    MaxValues,
-)
+from slither.core.solidity_types.elementary_type import Byte
+from slither.core.solidity_types.elementary_type import Int as ElementaryTypeInt
+from slither.core.solidity_types.elementary_type import MaxValues, Uint
 from slither.core.solidity_types.type import Type
-from slither.core.solidity_types.type_alias import TypeAliasTopLevel, TypeAlias
+from slither.core.solidity_types.type_alias import TypeAlias, TypeAliasTopLevel
 from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
@@ -60,6 +82,8 @@ from slither.slithir.operations import (
     NewContract,
     NewElementaryType,
     NewStructure,
+    Nop,
+    Operation,
     OperationWithLValue,
     Return,
     Send,
@@ -68,8 +92,6 @@ from slither.slithir.operations import (
     TypeConversion,
     Unary,
     Unpack,
-    Nop,
-    Operation,
 )
 from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.tmp_operations.argument import Argument, ArgumentType
@@ -78,33 +100,15 @@ from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
 from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
 from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElementaryType
 from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
-from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable
-from slither.slithir.variables import TupleVariable
+from slither.slithir.variables import (
+    Constant,
+    ReferenceVariable,
+    TemporaryVariable,
+    TupleVariable,
+)
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
-import slither.core.declarations.contract
-import slither.core.declarations.function
-import slither.core.solidity_types.elementary_type
-import slither.core.solidity_types.function_type
-import slither.core.solidity_types.user_defined_type
-import slither.slithir.operations.assignment
-import slither.slithir.operations.binary
-import slither.slithir.operations.call
-import slither.slithir.operations.high_level_call
-import slither.slithir.operations.index
-import slither.slithir.operations.init_array
-import slither.slithir.operations.internal_call
-import slither.slithir.operations.length
-import slither.slithir.operations.library_call
-import slither.slithir.operations.low_level_call
-import slither.slithir.operations.member
-import slither.slithir.operations.operation
-import slither.slithir.operations.send
-import slither.slithir.operations.solidity_call
-import slither.slithir.operations.transfer
-import slither.slithir.variables.temporary
-from slither.core.expressions.expression import Expression
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
@@ -1696,7 +1700,6 @@ def convert_type_of_high_and_internal_level_call(
         else:
             return_type = func.type
     if return_type:
-
         # If the return type is a structure, but the lvalue is a tuple
         # We convert the type of the structure to a list of element
         # TODO: explore to replace all tuple variables by structures
@@ -1905,7 +1908,6 @@ def convert_delete(irs: List[Operation]) -> None:
 
 def _find_source_mapping_references(irs: List[Operation]) -> None:
     for ir in irs:
-
         if isinstance(ir, NewContract):
             ir.contract_created.references.append(ir.expression.source_mapping)
 

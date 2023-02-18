@@ -6,8 +6,9 @@ are in the outermost scope, they do not guarantee a revert, so a
 default value can still be returned.
 """
 from typing import List
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+
 from slither.core.cfg.node import Node, NodeType
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
 

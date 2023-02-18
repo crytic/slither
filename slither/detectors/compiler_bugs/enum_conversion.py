@@ -5,6 +5,7 @@ from typing import List, Tuple
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import Contract
+from slither.core.declarations.enum import Enum
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -12,7 +13,6 @@ from slither.detectors.abstract_detector import (
     make_solc_versions,
 )
 from slither.slithir.operations import TypeConversion
-from slither.core.declarations.enum import Enum
 from slither.utils.output import Output
 
 

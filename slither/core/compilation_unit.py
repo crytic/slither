@@ -1,18 +1,12 @@
 import math
-from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Union
 
 from crytic_compile import CompilationUnit, CryticCompile
 from crytic_compile.compiler.compiler import CompilerVersion
 from crytic_compile.utils.naming import Filename
 
 from slither.core.context.context import Context
-from slither.core.declarations import (
-    Contract,
-    Pragma,
-    Import,
-    Function,
-    Modifier,
-)
+from slither.core.declarations import Contract, Function, Import, Modifier, Pragma
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel

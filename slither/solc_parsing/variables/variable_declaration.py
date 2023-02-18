@@ -2,18 +2,15 @@ import logging
 import re
 from typing import Dict, Optional
 
-from slither.solc_parsing.declarations.caller_context import CallerContextExpression
-from slither.solc_parsing.expressions.expression_parsing import parse_expression
-
-from slither.core.variables.variable import Variable
-
-from slither.solc_parsing.solidity_types.type_parsing import parse_type, UnknownType
-
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
     NonElementaryType,
 )
+from slither.core.variables.variable import Variable
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError
+from slither.solc_parsing.expressions.expression_parsing import parse_expression
+from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 
 logger = logging.getLogger("VariableDeclarationSolcParsing")
 
@@ -105,7 +102,6 @@ class VariableDeclarationSolc:
 
     def _handle_comment(self, attributes: Dict) -> None:
         if "documentation" in attributes and "text" in attributes["documentation"]:
-
             candidates = attributes["documentation"]["text"].split(",")
 
             for candidate in candidates:

@@ -1,5 +1,4 @@
-from typing import Union, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Union
 
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.type import Type
@@ -10,7 +9,6 @@ if TYPE_CHECKING:
 
 
 class NewArray(Expression):
-
     # note: dont conserve the size of the array if provided
     def __init__(
         self, depth: int, array_type: Union["TypeAliasTopLevel", "ElementaryType"]

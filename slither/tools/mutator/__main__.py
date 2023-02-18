@@ -2,12 +2,13 @@ import argparse
 import inspect
 import logging
 import sys
-from typing import Type, List, Any
+from typing import Any, List, Type
 
 from crytic_compile import cryticparser
 
 from slither import Slither
 from slither.tools.mutator.mutators import all_mutators
+
 from .mutators.abstract_mutator import AbstractMutator
 from .utils.command_line import output_mutators
 
@@ -73,7 +74,6 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 
 
 def main() -> None:
-
     args = parse_args()
 
     print(args.codebase)

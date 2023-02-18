@@ -4,8 +4,8 @@ import sys
 
 from crytic_compile import cryticparser
 
-from slither.tools.doctor.utils import report_section
 from slither.tools.doctor.checks import ALL_CHECKS
+from slither.tools.doctor.utils import report_section
 
 
 def parse_args() -> argparse.Namespace:

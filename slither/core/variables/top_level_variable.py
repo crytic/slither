@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations.top_level import TopLevel
 from slither.core.variables.variable import Variable

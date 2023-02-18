@@ -3,16 +3,16 @@ Module detecting storage signed integer array bug
 """
 from typing import List
 
+from slither.core.cfg.node import NodeType
+from slither.core.solidity_types import ArrayType
+from slither.core.solidity_types.elementary_type import ElementaryType, Int
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     make_solc_versions,
 )
-from slither.core.cfg.node import NodeType
-from slither.core.solidity_types import ArrayType
-from slither.core.solidity_types.elementary_type import Int, ElementaryType
-from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.init_array import InitArray
 from slither.utils.output import Output

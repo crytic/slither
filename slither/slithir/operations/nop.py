@@ -1,6 +1,5 @@
 from typing import List
 
-
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import Operation
 

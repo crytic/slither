@@ -2,8 +2,8 @@
     This expression does nothing, if a contract used it, its probably a bug
 """
 from slither.core.expressions.expression import Expression
-from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.type import Type
 
 
 class ElementaryTypeNameExpression(Expression):

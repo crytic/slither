@@ -6,10 +6,10 @@ from typing import List, Tuple
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
-from slither.core.declarations import Function, Contract
+from slither.core.declarations import Contract, Function
 from slither.core.declarations.solidity_variables import (
-    SolidityVariableComposed,
     SolidityVariable,
+    SolidityVariableComposed,
 )
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, BinaryType
@@ -55,7 +55,6 @@ def _detect_dangerous_timestamp(
 
 
 class Timestamp(AbstractDetector):
-
     ARGUMENT = "timestamp"
     HELP = "Dangerous usage of `block.timestamp`"
     IMPACT = DetectorClassification.LOW
@@ -76,8 +75,7 @@ class Timestamp(AbstractDetector):
 
         for c in self.contracts:
             dangerous_timestamp = _detect_dangerous_timestamp(c)
-            for (func, nodes) in dangerous_timestamp:
-
+            for func, nodes in dangerous_timestamp:
                 info = [func, " uses timestamp for comparisons\n"]
 
                 info += ["\tDangerous comparisons:\n"]

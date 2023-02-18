@@ -1,20 +1,21 @@
-from typing import Union, TYPE_CHECKING, Tuple, Any
 import math
+from typing import TYPE_CHECKING, Any, Tuple, Union
 
 from slither.core.solidity_types.type import Type
 from slither.exceptions import SlitherException
 
 if TYPE_CHECKING:
-    from slither.core.declarations.structure import Structure
-    from slither.core.declarations.enum import Enum
     from slither.core.declarations.contract import Contract
+    from slither.core.declarations.enum import Enum
+    from slither.core.declarations.structure import Structure
+
 
 # pylint: disable=import-outside-toplevel
 class UserDefinedType(Type):
     def __init__(self, t: Union["Enum", "Contract", "Structure"]) -> None:
-        from slither.core.declarations.structure import Structure
-        from slither.core.declarations.enum import Enum
         from slither.core.declarations.contract import Contract
+        from slither.core.declarations.enum import Enum
+        from slither.core.declarations.structure import Structure
 
         assert isinstance(t, (Contract, Enum, Structure))
         super().__init__()
@@ -30,9 +31,9 @@ class UserDefinedType(Type):
 
     @property
     def storage_size(self) -> Tuple[int, bool]:
-        from slither.core.declarations.structure import Structure
-        from slither.core.declarations.enum import Enum
         from slither.core.declarations.contract import Contract
+        from slither.core.declarations.enum import Enum
+        from slither.core.declarations.structure import Structure
 
         if isinstance(self._type, Contract):
             return 20, False
@@ -63,8 +64,8 @@ class UserDefinedType(Type):
         raise SlitherException(to_log)
 
     def __str__(self) -> str:
-        from slither.core.declarations.structure_contract import StructureContract
         from slither.core.declarations.enum_contract import EnumContract
+        from slither.core.declarations.structure_contract import StructureContract
 
         type_used = self.type
         if isinstance(type_used, (EnumContract, StructureContract)):

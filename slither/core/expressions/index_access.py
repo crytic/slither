@@ -1,9 +1,8 @@
-from typing import Union, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Union
 
 from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.literal import Literal
-
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression

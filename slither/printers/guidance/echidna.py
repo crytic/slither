@@ -1,14 +1,14 @@
 import json
 from collections import defaultdict
-from typing import Dict, List, Set, Tuple, NamedTuple, Union
+from typing import Dict, List, NamedTuple, Set, Tuple, Union
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.solidity_variables import (
-    SolidityVariableComposed,
     SolidityFunction,
     SolidityVariable,
+    SolidityVariableComposed,
 )
 from slither.core.expressions import NewContract
 from slither.core.slither_core import SlitherCore
@@ -16,22 +16,22 @@ from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.operations import (
+    EventCall,
+    HighLevelCall,
+    InternalCall,
+    InternalDynamicCall,
+    LowLevelCall,
     Member,
     Operation,
-    SolidityCall,
-    LowLevelCall,
-    HighLevelCall,
-    EventCall,
     Send,
+    SolidityCall,
     Transfer,
-    InternalDynamicCall,
-    InternalCall,
     TypeConversion,
 )
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
-from slither.visitors.expression.constants_folding import ConstantFolding
 from slither.utils.output import Output
+from slither.visitors.expression.constants_folding import ConstantFolding
 
 
 def _get_name(f: Union[Function, Variable]) -> str:

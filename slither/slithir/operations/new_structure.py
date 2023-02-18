@@ -1,12 +1,10 @@
 from typing import List, Union
 
-from slither.slithir.operations.call import Call
-from slither.slithir.operations.lvalue import OperationWithLValue
-
-from slither.slithir.utils.utils import is_valid_lvalue
-
 from slither.core.declarations.structure import Structure
 from slither.core.declarations.structure_contract import StructureContract
+from slither.slithir.operations.call import Call
+from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA

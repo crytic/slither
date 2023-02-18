@@ -1,7 +1,8 @@
-from typing import List, Set, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Set, Union
+
+from slither.core.declarations.solidity_variables import SolidityVariableComposed
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
-from slither.core.declarations.solidity_variables import SolidityVariableComposed
 from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.state_variable import StateIRVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA

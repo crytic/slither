@@ -1,15 +1,14 @@
 import logging
-from typing import Union
 from enum import Enum
+from typing import Union
 
-from slither.core.expressions.expression_typed import ExpressionTyped
-from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
+from slither.core.expressions.expression import Expression
+from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
 from slither.core.expressions.literal import Literal
 from slither.core.expressions.tuple_expression import TupleExpression
-
 
 logger = logging.getLogger("UnaryOperation")
 

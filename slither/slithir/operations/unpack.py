@@ -1,10 +1,12 @@
 from typing import List, Union
 
+from slither.core.variables.local_variable_init_from_tuple import (
+    LocalVariableInitFromTuple,
+)
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
-from slither.slithir.variables.tuple import TupleVariable
-from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.slithir.variables.local_variable import LocalIRVariable
+from slither.slithir.variables.tuple import TupleVariable
 from slither.slithir.variables.tuple_ssa import TupleVariableSSA
 
 

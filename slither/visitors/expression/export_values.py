@@ -1,14 +1,14 @@
 from typing import Any, List
-from slither.visitors.expression.expression import ExpressionVisitor
+
+from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.call_expression import CallExpression
+from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.literal import Literal
-from slither.core.expressions.binary_operation import BinaryOperation
-from slither.core.expressions.expression import Expression
 from slither.core.expressions.member_access import MemberAccess
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
-
+from slither.visitors.expression.expression import ExpressionVisitor
 
 key = "ExportValues"
 

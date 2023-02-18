@@ -3,7 +3,7 @@ Module detecting dead code
 """
 from typing import List, Tuple
 
-from slither.core.declarations import Function, FunctionContract, Contract
+from slither.core.declarations import Contract, Function, FunctionContract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
@@ -36,7 +36,6 @@ contract Contract{
     WIKI_RECOMMENDATION = "Remove unused functions."
 
     def _detect(self) -> List[Output]:
-
         results = []
 
         functions_used = set()

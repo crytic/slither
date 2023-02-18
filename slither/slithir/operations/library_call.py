@@ -1,6 +1,6 @@
 from slither.core.declarations import Function
-from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.core.declarations.contract import Contract
+from slither.slithir.operations.high_level_call import HighLevelCall
 
 
 class LibraryCall(HighLevelCall):

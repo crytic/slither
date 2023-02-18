@@ -1,7 +1,7 @@
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
-from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
+from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.solidity_types.type import Type
 
 if TYPE_CHECKING:

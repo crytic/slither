@@ -2,7 +2,11 @@ from typing import Dict
 
 from slither.core.expressions import Literal
 from slither.core.variables.variable import Variable
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
+from slither.tools.mutator.mutators.abstract_mutator import (
+    AbstractMutator,
+    FaultClass,
+    FaultNature,
+)
 from slither.tools.mutator.utils.generic_patching import remove_assignement
 
 
@@ -13,11 +17,9 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
-
         result: Dict = {}
         variable: Variable
         for contract in self.slither.contracts:
-
             # Create fault for state variables declaration
             for variable in contract.state_variables_declared:
                 if variable.initialized:

@@ -3,10 +3,11 @@ Module detecting constant functions
 Recursively check the called functions
 """
 from typing import List
+
 from slither.detectors.abstract_detector import (
+    ALL_SOLC_VERSIONS_04,
     AbstractDetector,
     DetectorClassification,
-    ALL_SOLC_VERSIONS_04,
 )
 from slither.formatters.attributes.const_functions import custom_format
 from slither.utils.output import Output

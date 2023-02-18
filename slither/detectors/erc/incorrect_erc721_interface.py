@@ -2,9 +2,10 @@
 Detect incorrect erc721 interface.
 """
 from typing import Any, List, Tuple, Union
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
 

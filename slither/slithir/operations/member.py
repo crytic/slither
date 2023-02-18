@@ -1,14 +1,17 @@
 from typing import List, Union
+
 from slither.core.declarations import Contract, Function
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum import Enum
-from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
+from slither.core.declarations.solidity_import_placeholder import (
+    SolidityImportPlaceHolder,
+)
 from slither.core.solidity_types import ElementaryType
+from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.reference import ReferenceVariable
-from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.slithir.variables.reference_ssa import ReferenceVariableSSA
 
 

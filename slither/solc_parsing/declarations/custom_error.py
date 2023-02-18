@@ -8,8 +8,10 @@ from slither.solc_parsing.declarations.caller_context import CallerContextExpres
 from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 
 if TYPE_CHECKING:
-    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.solc_parsing.slither_compilation_unit_solc import (
+        SlitherCompilationUnitSolc,
+    )
 
 
 # Part of the code was copied from the function parsing
@@ -83,7 +85,6 @@ class CustomErrorSolc(CallerContextExpression):
         self._custom_error.set_solidity_sig()
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
-
         local_var = LocalVariable()
         local_var.set_offset(param["src"], self._slither_parser.compilation_unit)
 

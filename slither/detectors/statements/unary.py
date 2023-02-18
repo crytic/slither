@@ -4,7 +4,7 @@ Module detecting the incorrect use of unary expressions
 from typing import List
 
 from slither.core.expressions.assignment_operation import AssignmentOperation
-from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
+from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 from slither.visitors.expression.expression import ExpressionVisitor

@@ -1,11 +1,12 @@
-from typing import Optional, Any, List, Union
+from typing import Any, List, Optional, Union
+
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
 from slither.slithir.operations import Call, OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
-from slither.core.declarations.contract import Contract
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
-from slither.core.declarations.function_contract import FunctionContract
 
 
 class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes

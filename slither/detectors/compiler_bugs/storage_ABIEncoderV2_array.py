@@ -2,24 +2,22 @@
 Module detecting ABIEncoderV2 array bug
 """
 from typing import List, Set, Tuple
+
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.solidity_variables import SolidityFunction
+from slither.core.solidity_types import ArrayType, UserDefinedType
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     make_solc_versions,
 )
-from slither.core.solidity_types import ArrayType
-from slither.core.solidity_types import UserDefinedType
-from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.state_variable import StateVariable
-from slither.slithir.operations import SolidityCall
-from slither.core.declarations.solidity_variables import SolidityFunction
-from slither.slithir.operations import EventCall
-from slither.slithir.operations import HighLevelCall
-from slither.utils.utils import unroll
-from slither.core.cfg.node import Node
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.function_contract import FunctionContract
+from slither.slithir.operations import EventCall, HighLevelCall, SolidityCall
 from slither.utils.output import Output
+from slither.utils.utils import unroll
 
 
 class ABIEncoderV2Array(AbstractDetector):

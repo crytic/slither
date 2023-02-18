@@ -1,9 +1,9 @@
-from typing import Union, Optional, Tuple, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional, Tuple, Union
 
 from slither.core.expressions.expression import Expression
+from slither.core.expressions.literal import Literal
 from slither.core.solidity_types.type import Type
 from slither.visitors.expression.constants_folding import ConstantFolding
-from slither.core.expressions.literal import Literal
 
 if TYPE_CHECKING:
     from slither.core.expressions.binary_operation import BinaryOperation

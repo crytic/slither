@@ -1,10 +1,12 @@
 from typing import Any, List
-from slither.visitors.expression.expression import ExpressionVisitor
+
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.conditional_expression import ConditionalExpression
-from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
+from slither.core.expressions.elementary_type_name_expression import (
+    ElementaryTypeNameExpression,
+)
 from slither.core.expressions.expression import Expression
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.index_access import IndexAccess
@@ -15,7 +17,7 @@ from slither.core.expressions.new_contract import NewContract
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.unary_operation import UnaryOperation
-
+from slither.visitors.expression.expression import ExpressionVisitor
 
 key = "WriteVar"
 

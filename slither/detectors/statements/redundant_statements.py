@@ -5,7 +5,9 @@ from typing import List
 
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.contract import Contract
-from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
+from slither.core.expressions.elementary_type_name_expression import (
+    ElementaryTypeNameExpression,
+)
 from slither.core.expressions.identifier import Identifier
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
@@ -62,7 +64,6 @@ Each commented line references types/identifiers, but performs no action with th
 
         # Loop through all functions + modifiers defined explicitly in this contract.
         for function in contract.functions_and_modifiers_declared:
-
             # Loop through each node in this function.
             for node in function.nodes:
                 if node.expression:
@@ -85,7 +86,6 @@ Each commented line references types/identifiers, but performs no action with th
         for contract in self.contracts:
             redundant_statements = self.detect_redundant_statements_contract(contract)
             if redundant_statements:
-
                 for redundant_statement in redundant_statements:
                     info = ['Redundant expression "', redundant_statement, '" in', contract, "\n"]
                     json = self.generate_result(info)

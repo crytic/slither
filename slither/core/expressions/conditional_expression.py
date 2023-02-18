@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import List, Union
 
 from slither.core.expressions.binary_operation import BinaryOperation
 from slither.core.expressions.expression import Expression

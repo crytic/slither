@@ -24,7 +24,6 @@ class StructureContractSolc:  # pylint: disable=too-few-public-methods
         struct: Dict,
         contract_parser: "ContractSolc",
     ) -> None:
-
         if contract_parser.is_compact_ast:
             name = struct["name"]
             attributes = struct

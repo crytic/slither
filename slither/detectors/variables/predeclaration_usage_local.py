@@ -143,7 +143,7 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
         for contract in self.contracts:
             predeclared_usages = self.detect_predeclared_in_contract(contract)
             if predeclared_usages:
-                for (predeclared_usage_function, predeclared_usage_nodes) in predeclared_usages:
+                for predeclared_usage_function, predeclared_usage_nodes in predeclared_usages:
                     for (
                         predeclared_usage_node,
                         predeclared_usage_local_variable,

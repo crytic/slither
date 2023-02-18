@@ -1,4 +1,4 @@
-from typing import List, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Tuple
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.source_mapping.source_mapping import SourceMapping

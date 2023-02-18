@@ -7,10 +7,7 @@ from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import (
-    Binary,
-    BinaryType,
-)
+from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
 from slither.utils.output import Output
 
@@ -52,7 +49,6 @@ Boolean constants can be used directly and do not need to be compare to `true` o
     def _detect_boolean_equality(
         contract: Contract,
     ) -> List[Tuple[Function, Set[Node]]]:
-
         # Create our result set.
         results: List[Tuple[Function, Set[Node]]] = []
 
@@ -82,7 +78,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
         results = []
         for contract in self.contracts:
             boolean_constant_misuses = self._detect_boolean_equality(contract)
-            for (func, nodes) in boolean_constant_misuses:
+            for func, nodes in boolean_constant_misuses:
                 for node in nodes:
                     info = [
                         func,

@@ -2,7 +2,11 @@ from typing import Dict
 
 from slither.core.cfg.node import NodeType
 from slither.formatters.utils.patches import create_patch
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
+from slither.tools.mutator.mutators.abstract_mutator import (
+    AbstractMutator,
+    FaultClass,
+    FaultNature,
+)
 
 
 class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
@@ -12,13 +16,10 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
-
         result: Dict = {}
 
         for contract in self.slither.contracts:
-
             for function in contract.functions_declared + list(contract.modifiers_declared):
-
                 for node in function.nodes:
                     if node.type == NodeType.IF:
                         # Retrieve the file

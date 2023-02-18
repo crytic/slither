@@ -1,8 +1,9 @@
 from typing import List, Union
-from slither.slithir.operations.call import Call
-from slither.core.variables.variable import Variable
+
 from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.variable import Variable
+from slither.slithir.operations.call import Call
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.local_variable import LocalIRVariable
 

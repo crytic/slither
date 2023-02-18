@@ -6,8 +6,8 @@ from typing import List, Tuple, Union
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.solidity_variables import (
-    SolidityVariableComposed,
     SolidityFunction,
+    SolidityVariableComposed,
 )
 from slither.core.expressions.expression import Expression
 from slither.core.variables import StateVariable
@@ -134,7 +134,8 @@ contract ContractWithDeprecatedReferences {
         """Detects the usage of any deprecated built-in symbols.
 
         Returns:
-            list of tuple: (state_variable | node, (detecting_signature, original_text, recommended_text))"""
+            list of tuple: (state_variable | node, (detecting_signature, original_text, recommended_text))
+        """
         results: List[
             Union[
                 Tuple[StateVariable, List[Tuple[str, str, str]]],
@@ -188,7 +189,7 @@ contract ContractWithDeprecatedReferences {
                     deprecated_entries = deprecated_reference[1]
                     info = ["Deprecated standard detected ", source_object, ":\n"]
 
-                    for (_dep_id, original_desc, recommended_disc) in deprecated_entries:
+                    for _dep_id, original_desc, recommended_disc in deprecated_entries:
                         info += [
                             f'\t- Usage of "{original_desc}" should be replaced with "{recommended_disc}"\n'
                         ]

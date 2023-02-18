@@ -1,14 +1,13 @@
 from typing import List, Optional, Union
 
+from slither.core.declarations.function import Function
+from slither.core.declarations.solidity_variables import SolidityVariable
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.variable import Variable
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.core.variables.variable import Variable
-from slither.core.declarations.solidity_variables import SolidityVariable
-from slither.core.declarations.function import Function
-
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
-from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 from slither.slithir.variables.tuple import TupleVariable

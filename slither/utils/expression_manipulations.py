@@ -3,7 +3,7 @@
     as they should be immutable
 """
 import copy
-from typing import Union, Callable
+from typing import Callable, Union
 
 from slither.all_exceptions import SlitherException
 from slither.core.expressions import UnaryOperation

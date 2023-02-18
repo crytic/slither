@@ -1,18 +1,16 @@
 import logging
-from typing import List, Union
 from enum import Enum
+from typing import List, Union
 
+from slither.core.expressions.unary_operation import UnaryOperationType
+from slither.core.variables.local_variable import LocalVariable
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
-from slither.slithir.exceptions import SlithIRError
-from slither.core.expressions.unary_operation import UnaryOperationType
-from slither.core.variables.local_variable import LocalVariable
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
-
 
 logger = logging.getLogger("BinaryOperationIR")
 

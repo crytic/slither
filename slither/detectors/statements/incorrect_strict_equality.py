@@ -3,9 +3,20 @@
 
 """
 from typing import Any, Dict, List, Union
+
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
+from slither.core.cfg.node import Node
 from slither.core.declarations import Function
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
+from slither.core.declarations.solidity_variables import (
+    SolidityFunction,
+    SolidityVariable,
+    SolidityVariableComposed,
+)
+from slither.core.solidity_types import ElementaryType, MappingType
+from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
     Assignment,
@@ -14,18 +25,6 @@ from slither.slithir.operations import (
     HighLevelCall,
     SolidityCall,
 )
-
-from slither.core.solidity_types import MappingType, ElementaryType
-
-from slither.core.variables.state_variable import StateVariable
-from slither.core.declarations.solidity_variables import (
-    SolidityVariable,
-    SolidityVariableComposed,
-    SolidityFunction,
-)
-from slither.core.cfg.node import Node
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.function_contract import FunctionContract
 from slither.slithir.operations.operation import Operation
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.local_variable import LocalIRVariable
@@ -143,7 +142,6 @@ contract Crowdsale{
                 continue
             for node in func.nodes:
                 for ir in node.irs_ssa:
-
                     # Filter to only tainted equality (==) comparisons
                     if self.is_direct_comparison(ir) and self.is_any_tainted(ir.used, taints, func):
                         if func not in results:
@@ -172,7 +170,6 @@ contract Crowdsale{
             # sort ret to get deterministic results
             ret = sorted(list(ret.items()), key=lambda x: x[0].name)
             for f, nodes in ret:
-
                 func_info = [f, " uses a dangerous strict equality:\n"]
 
                 # sort the nodes to get deterministic results

@@ -1,9 +1,13 @@
 from typing import Any, List, Union
-from slither.core.declarations.solidity_variables import SolidityCustomRevert, SolidityFunction
+
+from slither.core.children.child_node import ChildNode
+from slither.core.declarations.solidity_variables import (
+    SolidityCustomRevert,
+    SolidityFunction,
+)
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.core.children.child_node import ChildNode
-from slither.core.solidity_types.elementary_type import ElementaryType
 
 
 class SolidityCall(Call, OperationWithLValue):

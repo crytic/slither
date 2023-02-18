@@ -8,7 +8,7 @@ import pathlib
 import posixpath
 import re
 from collections import defaultdict
-from typing import Optional, Dict, List, Set, Union, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 from crytic_compile import CryticCompile
 from crytic_compile.utils.naming import Filename
@@ -18,10 +18,14 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.context.context import Context
 from slither.core.declarations import Contract, FunctionContract
 from slither.core.declarations.top_level import TopLevel
-from slither.core.source_mapping.source_mapping import SourceMapping, Source
+from slither.core.source_mapping.source_mapping import Source, SourceMapping
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
-from slither.utils.source_mapping import get_definition, get_references, get_implementation
+from slither.utils.source_mapping import (
+    get_definition,
+    get_implementation,
+    get_references,
+)
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -199,7 +203,6 @@ class SlitherCore(Context):
         implementation = get_implementation(thing)
 
         for offset in range(definition.start, definition.end + 1):
-
             if (
                 isinstance(thing, TopLevel)
                 or (
@@ -216,7 +219,6 @@ class SlitherCore(Context):
 
         for ref in references:
             for offset in range(ref.start, ref.end + 1):
-
                 if (
                     isinstance(thing, TopLevel)
                     or (
@@ -300,7 +302,6 @@ class SlitherCore(Context):
         # The first time we check a file, find all start/end ignore comments and memoize them.
         line_number = 1
         while True:
-
             line_text = self.crytic_compile.get_code_from_line(file, line_number)
             if line_text is None:
                 break
@@ -358,7 +359,6 @@ class SlitherCore(Context):
         )
 
         for file, lines in mapping_elements_with_lines:
-
             # Check if result is within an ignored range.
             ignore_ranges = self._ignore_ranges[file][r["check"]] + self._ignore_ranges[file]["all"]
             for start, end in ignore_ranges:

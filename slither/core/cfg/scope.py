@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, List, Union
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node

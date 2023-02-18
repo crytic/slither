@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Tuple
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.declarations.top_level import TopLevel
-from slither.core.solidity_types import Type, ElementaryType
+from slither.core.solidity_types import ElementaryType, Type
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract

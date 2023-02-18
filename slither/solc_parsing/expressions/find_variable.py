@@ -1,12 +1,14 @@
-from typing import TYPE_CHECKING, Optional, Union, List, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
-from slither.core.declarations import Event, Enum, Structure
+from slither.core.declarations import Enum, Event, Structure
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function import Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
-from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
+from slither.core.declarations.solidity_import_placeholder import (
+    SolidityImportPlaceHolder,
+)
 from slither.core.declarations.solidity_variables import (
     SOLIDITY_FUNCTIONS,
     SOLIDITY_VARIABLES,
@@ -14,12 +16,7 @@ from slither.core.declarations.solidity_variables import (
     SolidityVariable,
 )
 from slither.core.scope.scope import FileScope
-from slither.core.solidity_types import (
-    ArrayType,
-    FunctionType,
-    MappingType,
-    TypeAlias,
-)
+from slither.core.solidity_types import ArrayType, FunctionType, MappingType, TypeAlias
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
@@ -27,8 +24,8 @@ from slither.solc_parsing.declarations.caller_context import CallerContextExpres
 from slither.solc_parsing.exceptions import VariableNotFound
 
 if TYPE_CHECKING:
-    from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.declarations.function import FunctionSolc
 
 # pylint: disable=import-outside-toplevel,too-many-branches,too-many-locals
 
@@ -245,7 +242,9 @@ def _find_variable_init(
 ) -> Tuple[List[Contract], List["Function"], FileScope,]:
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
-    from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
+    from slither.solc_parsing.declarations.structure_top_level import (
+        StructureTopLevelSolc,
+    )
     from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
     direct_contracts: List[Contract]
@@ -335,8 +334,8 @@ def find_variable(
     :return:
     :rtype:
     """
-    from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.declarations.function import FunctionSolc
 
     # variable are looked from the contract declarer
     # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer

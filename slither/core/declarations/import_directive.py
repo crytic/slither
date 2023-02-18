@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 from slither.core.source_mapping.source_mapping import SourceMapping
 

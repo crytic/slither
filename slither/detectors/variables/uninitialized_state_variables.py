@@ -139,7 +139,6 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
         for c in self.compilation_unit.contracts_derived:
             ret = self._detect_uninitialized(c)
             for variable, functions in ret:
-
                 info = [variable, " is never initialized. It is used in:\n"]
 
                 for f in functions:

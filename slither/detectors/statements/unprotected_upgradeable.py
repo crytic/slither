@@ -1,6 +1,6 @@
 from typing import List
 
-from slither.core.declarations import SolidityFunction, Function
+from slither.core.declarations import Function, SolidityFunction
 from slither.core.declarations.contract import Contract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall, SolidityCall
@@ -53,7 +53,6 @@ def _initialize_functions(contract: Contract) -> List[Function]:
 
 
 class UnprotectedUpgradeable(AbstractDetector):
-
     ARGUMENT = "unprotected-upgrade"
     HELP = "Unprotected upgradeable contract"
     IMPACT = DetectorClassification.HIGH

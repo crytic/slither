@@ -1,8 +1,9 @@
 import abc
 from typing import Any, List
-from slither.core.context.context import Context
+
 from slither.core.children.child_expression import ChildExpression
 from slither.core.children.child_node import ChildNode
+from slither.core.context.context import Context
 from slither.core.variables.variable import Variable
 from slither.utils.utils import unroll
 

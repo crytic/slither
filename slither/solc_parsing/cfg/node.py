@@ -1,7 +1,6 @@
-from typing import Union, Optional, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Optional, Union
 
-from slither.core.cfg.node import Node
-from slither.core.cfg.node import NodeType
+from slither.core.cfg.node import Node, NodeType
 from slither.core.expressions.assignment_operation import (
     AssignmentOperation,
     AssignmentOperationType,
@@ -39,7 +38,6 @@ class NodeSolc:
             # self._unparsed_expression = None
 
         if self._node.expression:
-
             if self._node.type == NodeType.VARIABLE:
                 # Update the expression to be an assignement to the variable
                 _expression = AssignmentOperation(

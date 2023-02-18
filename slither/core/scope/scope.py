@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Optional, Union, Set, TypeVar, Callable
+from typing import Any, Callable, Dict, List, Optional, Set, TypeVar, Union
 
 from crytic_compile import CompilationUnit
 from crytic_compile.source_unit import SourceUnit
@@ -8,8 +8,8 @@ from slither.core.declarations import Contract, Import, Pragma
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
-from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
+from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.solidity_types import TypeAlias
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.variables import Constant
@@ -114,7 +114,6 @@ class FileScope:
         name: str,
         getter: Callable[[SourceUnit], Dict[str, AbstractReturnType]],
     ) -> Optional[AbstractReturnType]:
-
         assert self.filename in crytic_compile_compilation_unit.source_units
 
         source_unit = crytic_compile_compilation_unit.source_unit(self.filename)

@@ -4,8 +4,9 @@
     as the TemporaryVariable are in SSA form in both version
 """
 from typing import Union
-from slither.slithir.variables.temporary import TemporaryVariable
+
 from slither.slithir.variables.reference import ReferenceVariable
+from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.tuple import TupleVariable
 
 

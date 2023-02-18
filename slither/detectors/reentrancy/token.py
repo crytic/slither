@@ -3,9 +3,9 @@ from typing import Dict, List
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
-from slither.core.declarations import Function, Contract, SolidityVariableComposed
+from slither.core.declarations import Contract, Function, SolidityVariableComposed
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import LowLevelCall, HighLevelCall
+from slither.slithir.operations import HighLevelCall, LowLevelCall
 from slither.utils.output import Output
 
 

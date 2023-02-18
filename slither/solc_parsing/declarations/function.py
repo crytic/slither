@@ -1,19 +1,21 @@
 import logging
-from typing import Dict, Optional, Union, List, TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
 
-from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
+from slither.core.cfg.node import Node, NodeType, insert_node, link_nodes
 from slither.core.cfg.scope import Scope
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import (
     Function,
-    ModifierStatements,
     FunctionType,
+    ModifierStatements,
 )
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import AssignmentOperation
 from slither.core.source_mapping.source_mapping import Source
 from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.variables.local_variable_init_from_tuple import (
+    LocalVariableInitFromTuple,
+)
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError
@@ -22,17 +24,21 @@ from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 from slither.solc_parsing.variables.local_variable_init_from_tuple import (
     LocalVariableInitFromTupleSolc,
 )
-from slither.solc_parsing.variables.variable_declaration import MultipleVariablesDeclaration
+from slither.solc_parsing.variables.variable_declaration import (
+    MultipleVariablesDeclaration,
+)
+from slither.solc_parsing.yul.parse_yul import YulBlock
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
-from slither.solc_parsing.yul.parse_yul import YulBlock
 
 if TYPE_CHECKING:
+    from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.expressions.expression import Expression
     from slither.solc_parsing.declarations.contract import ContractSolc
-    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
-    from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.solc_parsing.slither_compilation_unit_solc import (
+        SlitherCompilationUnitSolc,
+    )
 
 
 LOGGER = logging.getLogger("FunctionSolc")
@@ -46,7 +52,6 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
 
 
 class FunctionSolc(CallerContextExpression):
-
     # elems = [(type, name)]
 
     def __init__(
@@ -620,7 +625,6 @@ class FunctionSolc(CallerContextExpression):
         return node_endLoop
 
     def _parse_dowhile(self, do_while_statement: Dict, node: NodeSolc) -> NodeSolc:
-
         node_startDoWhile = self._new_node(
             NodeType.STARTLOOP, do_while_statement["src"], node.underlying_node.scope
         )
@@ -1054,7 +1058,6 @@ class FunctionSolc(CallerContextExpression):
         return node
 
     def _parse_cfg(self, cfg: Dict) -> None:
-
         assert cfg[self.get_key()] == "Block"
 
         node = self._new_node(NodeType.ENTRYPOINT, cfg["src"], self.underlying_function)
@@ -1161,7 +1164,6 @@ class FunctionSolc(CallerContextExpression):
                     self._fix_catch(son, end_node)
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
-
         local_var = LocalVariable()
         local_var.set_function(self._function)
         local_var.set_offset(param["src"], self._function.compilation_unit)
@@ -1193,7 +1195,6 @@ class FunctionSolc(CallerContextExpression):
             self._function.add_parameters(local_var.underlying_variable)
 
     def _parse_returns(self, returns: Dict):
-
         assert returns[self.get_key()] == "ParameterList"
 
         self._function.returns_src().set_offset(returns["src"], self._function.compilation_unit)

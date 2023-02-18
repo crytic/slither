@@ -10,7 +10,9 @@ from slither.core.slither_core import SlitherCore
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.exceptions import SlitherError
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+from slither.solc_parsing.slither_compilation_unit_solc import (
+    SlitherCompilationUnitSolc,
+)
 from slither.utils.output import Output
 
 logger = logging.getLogger("Slither")

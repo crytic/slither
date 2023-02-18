@@ -1,4 +1,4 @@
-from typing import Union, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, Union
 
 from slither.core.solidity_types.type import Type
 

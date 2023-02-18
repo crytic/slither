@@ -82,7 +82,7 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
         results = []
         for c in self.contracts:
             mapping = MappingDeletionDetection.detect_mapping_deletion(c)
-            for (func, struct, node) in mapping:
+            for func, struct, node in mapping:
                 info = [func, " deletes ", struct, " which contains a mapping:\n"]
                 info += ["\t-", node, "\n"]
 

@@ -99,9 +99,9 @@ contract C {
         results = []
         for contract in self.compilation_unit.contracts_derived:
             missing_events = self._detect_missing_events(contract)
-            for (function, nodes) in missing_events:
+            for function, nodes in missing_events:
                 info = [function, " should emit an event for: \n"]
-                for (node, _sv, _mod) in nodes:
+                for node, _sv, _mod in nodes:
                     info += ["\t- ", node, " \n"]
                 res = self.generate_result(info)
                 results.append(res)

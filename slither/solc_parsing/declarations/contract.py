@@ -1,12 +1,18 @@
 import logging
 import re
-from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Set, Union
 
-from slither.core.declarations import Modifier, Event, EnumContract, StructureContract, Function
+from slither.core.declarations import (
+    EnumContract,
+    Event,
+    Function,
+    Modifier,
+    StructureContract,
+)
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract
-from slither.core.solidity_types import ElementaryType, TypeAliasContract, Type
+from slither.core.solidity_types import ElementaryType, Type, TypeAliasContract
 from slither.core.variables.state_variable import StateVariable
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
@@ -21,8 +27,10 @@ from slither.solc_parsing.variables.state_variable import StateVariableSolc
 LOGGER = logging.getLogger("ContractSolcParsing")
 
 if TYPE_CHECKING:
-    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.solc_parsing.slither_compilation_unit_solc import (
+        SlitherCompilationUnitSolc,
+    )
 
 # pylint: disable=too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks,too-many-public-methods
 
@@ -291,7 +299,6 @@ class ContractSolc(CallerContextExpression):
         self._contract.file_scope.user_defined_types[alias_canonical] = user_defined_type
 
     def _parse_struct(self, struct: Dict) -> None:
-
         st = StructureContract(self._contract.compilation_unit)
         st.set_contract(self._contract)
         st.set_offset(struct["src"], self._contract.compilation_unit)
@@ -385,7 +392,6 @@ class ContractSolc(CallerContextExpression):
         self._slither_parser.add_function_or_modifier_parser(func_parser)
 
     def parse_functions(self) -> None:
-
         for function in self._functionsNotParsed:
             self._parse_function(function)
 

@@ -2,6 +2,10 @@
 Module detecting uninitialized function pointer calls in constructors
 """
 from typing import Any, List, Union
+
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -9,11 +13,8 @@ from slither.detectors.abstract_detector import (
 )
 from slither.slithir.operations import InternalDynamicCall, OperationWithLValue
 from slither.slithir.variables import ReferenceVariable
-from slither.slithir.variables.variable import SlithIRVariable
-from slither.core.cfg.node import Node
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.function_contract import FunctionContract
 from slither.slithir.variables.state_variable import StateIRVariable
+from slither.slithir.variables.variable import SlithIRVariable
 from slither.utils.output import Output
 
 

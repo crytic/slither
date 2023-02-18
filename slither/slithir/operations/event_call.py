@@ -1,4 +1,5 @@
 from typing import Any, List, Union
+
 from slither.slithir.operations.call import Call
 from slither.slithir.variables.constant import Constant
 

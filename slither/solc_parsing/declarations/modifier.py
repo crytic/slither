@@ -1,19 +1,20 @@
 """
     Event module
 """
-from typing import Dict, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Dict, Union
 
-from slither.core.cfg.node import NodeType
-from slither.core.cfg.node import link_nodes
+from slither.core.cfg.node import NodeType, link_nodes
 from slither.core.cfg.scope import Scope
 from slither.core.declarations.modifier import Modifier
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 
 if TYPE_CHECKING:
-    from slither.solc_parsing.declarations.contract import ContractSolc
-    from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.declarations import Function
+    from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.slither_compilation_unit_solc import (
+        SlitherCompilationUnitSolc,
+    )
 
 
 class ModifierSolc(FunctionSolc):

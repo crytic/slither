@@ -1,9 +1,9 @@
 """
 Module detecting reserved keyword shadowing
 """
-from typing import List, Tuple, Union, Optional
+from typing import List, Optional, Tuple, Union
 
-from slither.core.declarations import Function, Event
+from slither.core.declarations import Event, Function
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.modifier import Modifier

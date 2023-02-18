@@ -1,7 +1,7 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from slither.core.children.child_node import ChildNode
-from slither.core.declarations import Contract, Enum, SolidityVariable, Function
+from slither.core.declarations import Contract, Enum, Function, SolidityVariable
 from slither.core.variables.variable import Variable
 
 if TYPE_CHECKING:

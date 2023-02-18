@@ -2,18 +2,19 @@
 Module detecting assignment of array length
 """
 from typing import List, Set
+
+from slither.analyses.data_dependency.data_dependency import is_tainted
+from slither.core.cfg.node import Node, NodeType
+from slither.core.declarations.contract import Contract
 from slither.detectors.abstract_detector import (
-    AbstractDetector,
-    DetectorClassification,
     ALL_SOLC_VERSIONS_04,
     ALL_SOLC_VERSIONS_05,
+    AbstractDetector,
+    DetectorClassification,
 )
-from slither.core.cfg.node import Node, NodeType
 from slither.slithir.operations import Assignment, Length
-from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.operations.binary import Binary
-from slither.analyses.data_dependency.data_dependency import is_tainted
-from slither.core.declarations.contract import Contract
+from slither.slithir.variables.reference import ReferenceVariable
 from slither.utils.output import Output
 
 
@@ -38,7 +39,6 @@ def detect_array_length_assignment(contract: Contract) -> Set[Node]:
         for node in function.nodes:
             if node.type == NodeType.EXPRESSION:
                 for ir in node.irs:
-
                     # First we look for the member access for 'length', for which a reference is created.
                     # We add the reference to our list of array length references.
                     if isinstance(ir, Length):  # a

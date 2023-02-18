@@ -1,8 +1,8 @@
 from typing import List, Union
-from slither.slithir.operations.lvalue import OperationWithLValue
 
-from slither.slithir.utils.utils import is_valid_lvalue
 from slither.core.variables.state_variable import StateVariable
+from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.reference_ssa import ReferenceVariableSSA
 from slither.slithir.variables.state_variable import StateIRVariable

@@ -1,4 +1,4 @@
-from typing import List, Set, Tuple, Dict
+from typing import Dict, List, Set, Tuple
 
 from slither.core.cfg.node import Node, NodeType
 from slither.core.solidity_types import ElementaryType
@@ -6,14 +6,18 @@ from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
-    OperationWithLValue,
     HighLevelCall,
-    InternalDynamicCall,
     InternalCall,
+    InternalDynamicCall,
     LowLevelCall,
     Operation,
+    OperationWithLValue,
 )
-from slither.slithir.variables import ReferenceVariable, TemporaryVariable, TupleVariable
+from slither.slithir.variables import (
+    ReferenceVariable,
+    TemporaryVariable,
+    TupleVariable,
+)
 from slither.slithir.variables.variable import SlithIRVariable
 from slither.utils.output import Output
 

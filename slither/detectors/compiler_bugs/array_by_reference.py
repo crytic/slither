@@ -2,15 +2,16 @@
 Detects the passing of arrays located in memory to functions which expect to modify arrays via storage reference.
 """
 from typing import List, Set, Tuple, Union
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.solidity_types.array_type import ArrayType
-from slither.core.variables.state_variable import StateVariable
-from slither.core.variables.local_variable import LocalVariable
-from slither.slithir.operations.high_level_call import HighLevelCall
-from slither.slithir.operations.internal_call import InternalCall
+
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
+from slither.core.solidity_types.array_type import ArrayType
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.slithir.operations.internal_call import InternalCall
 from slither.utils.output import Output
 
 
@@ -71,7 +72,6 @@ As a result, Bob's usage of the contract is incorrect."""
         # Loop through all functions in all contracts.
         for contract in contracts:
             for function in contract.functions_declared:
-
                 # Skip any constructor functions.
                 if function.is_constructor:
                     continue
@@ -116,7 +116,6 @@ As a result, Bob's usage of the contract is incorrect."""
         for contract in contracts:
             for function in contract.functions_and_modifiers_declared:
                 for node in function.nodes:
-
                     # If this node has no expression, skip it.
                     if not node.expression:
                         continue

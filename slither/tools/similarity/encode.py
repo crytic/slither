@@ -1,57 +1,60 @@
 import logging
 import os
-from typing import Optional, Tuple, List
+from typing import List, Optional, Tuple
 
 from slither import Slither
 from slither.core.declarations import (
-    Structure,
     Enum,
-    SolidityVariableComposed,
-    SolidityVariable,
     Function,
+    SolidityVariable,
+    SolidityVariableComposed,
+    Structure,
 )
 from slither.core.solidity_types import (
-    ElementaryType,
     ArrayType,
+    ElementaryType,
     MappingType,
     UserDefinedType,
 )
 from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.variables.local_variable_init_from_tuple import (
+    LocalVariableInitFromTuple,
+)
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
     Assignment,
-    Index,
-    Member,
-    Length,
     Binary,
-    Unary,
     Condition,
-    NewArray,
-    NewStructure,
-    NewContract,
-    NewElementaryType,
-    SolidityCall,
     Delete,
     EventCall,
-    LibraryCall,
-    InternalDynamicCall,
     HighLevelCall,
-    LowLevelCall,
-    TypeConversion,
-    Return,
-    Transfer,
-    Send,
-    Unpack,
+    Index,
     InitArray,
     InternalCall,
+    InternalDynamicCall,
+    Length,
+    LibraryCall,
+    LowLevelCall,
+    Member,
+    NewArray,
+    NewContract,
+    NewElementaryType,
+    NewStructure,
+    Return,
+    Send,
+    SolidityCall,
+    Transfer,
+    TypeConversion,
+    Unary,
+    Unpack,
 )
 from slither.slithir.variables import (
-    TemporaryVariable,
-    TupleVariable,
     Constant,
     ReferenceVariable,
+    TemporaryVariable,
+    TupleVariable,
 )
+
 from .cache import load_cache
 
 simil_logger = logging.getLogger("Slither-simil")
@@ -233,10 +236,8 @@ def encode_contract(cfilename, **kwargs):
 
     # Iterate over all the contracts
     for contract in slither.contracts:
-
         # Iterate over all the functions
         for function in contract.functions_declared:
-
             if function.nodes == [] or function.is_constructor_variables:
                 continue
 

@@ -1,4 +1,4 @@
-from typing import Set, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Set
 
 from slither.core.cfg.node import NodeType
 

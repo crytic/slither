@@ -1,4 +1,5 @@
 from typing import Any, List
+
 from slither.slithir.operations.operation import Operation
 
 

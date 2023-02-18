@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.variables.variable import Variable

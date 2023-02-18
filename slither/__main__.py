@@ -10,45 +10,43 @@ import os
 import pstats
 import sys
 import traceback
-from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
 
-from pkg_resources import iter_entry_points, require
-
-from crytic_compile import cryticparser, CryticCompile
-from crytic_compile.platform.standard import generate_standard_export
+from crytic_compile import CryticCompile, compile_all, cryticparser, is_supported
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
-from crytic_compile import compile_all, is_supported
+from crytic_compile.platform.standard import generate_standard_export
+from pkg_resources import iter_entry_points, require
 
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.exceptions import SlitherException
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils import codex
-from slither.utils.output import (
-    output_to_json,
-    output_to_zip,
-    output_to_sarif,
-    ZIP_TYPES_ACCEPTED,
-    Output,
-)
-from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
+    DEFAULT_JSON_OUTPUT_TYPES,
+    JSON_OUTPUT_TYPES,
+    check_and_sanitize_markdown_root,
+    defaults_flag_in_config,
     output_detectors,
-    output_results_to_markdown,
     output_detectors_json,
     output_printers,
     output_printers_json,
+    output_results_to_markdown,
     output_to_markdown,
     output_wiki,
-    defaults_flag_in_config,
     read_config_file,
-    JSON_OUTPUT_TYPES,
-    DEFAULT_JSON_OUTPUT_TYPES,
-    check_and_sanitize_markdown_root,
 )
-from slither.exceptions import SlitherException
+from slither.utils.output import (
+    ZIP_TYPES_ACCEPTED,
+    Output,
+    output_to_json,
+    output_to_sarif,
+    output_to_zip,
+)
+from slither.utils.output_capture import StandardOutputCapture
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -170,9 +168,9 @@ def process_from_asts(
 ###################################################################################
 
 
-def get_detectors_and_printers() -> Tuple[
-    List[Type[AbstractDetector]], List[Type[AbstractPrinter]]
-]:
+def get_detectors_and_printers() -> (
+    Tuple[List[Type[AbstractDetector]], List[Type[AbstractPrinter]]]
+):
     detectors_ = [getattr(all_detectors, name) for name in dir(all_detectors)]
     detectors = [d for d in detectors_ if inspect.isclass(d) and issubclass(d, AbstractDetector)]
 
@@ -768,7 +766,7 @@ def main_impl(
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
-    for (l_name, l_level) in [
+    for l_name, l_level in [
         ("Slither", default_log),
         ("Contract", default_log),
         ("Function", default_log),

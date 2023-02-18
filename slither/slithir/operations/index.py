@@ -1,11 +1,12 @@
 from typing import List, Union
+
 from slither.core.declarations import SolidityVariableComposed
-from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
-from slither.slithir.variables.reference import ReferenceVariable
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
+from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
+from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.reference_ssa import ReferenceVariableSSA
 
 

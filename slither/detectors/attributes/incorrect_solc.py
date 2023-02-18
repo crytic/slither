@@ -142,7 +142,7 @@ Consider using the latest version of Solidity for testing."""
 
         # If we found any disallowed pragmas, we output our findings.
         if disallowed_pragmas:
-            for (reason, p) in disallowed_pragmas:
+            for reason, p in disallowed_pragmas:
                 info = ["Pragma version", p, f" {reason}\n"]
 
                 json = self.generate_result(info)
@@ -150,7 +150,6 @@ Consider using the latest version of Solidity for testing."""
                 results.append(json)
 
         if self.compilation_unit.solc_version not in self.ALLOWED_VERSIONS:
-
             if self.compilation_unit.solc_version in self.BUGGY_VERSIONS:
                 info = [
                     "solc-",

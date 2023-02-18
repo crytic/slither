@@ -1,7 +1,7 @@
 import argparse
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List, Callable
+from typing import Any, Callable, Dict, List
 
 from crytic_compile import cryticparser
 
@@ -9,8 +9,9 @@ from slither import Slither
 from slither.core.declarations import Contract
 from slither.utils.erc import ERCS
 from slither.utils.output import output_to_json
-from .erc.erc1155 import check_erc1155
+
 from .erc.erc20 import check_erc20
+from .erc.erc1155 import check_erc1155
 from .erc.ercs import generic_erc_checks
 
 logging.basicConfig()
@@ -85,7 +86,6 @@ def main() -> None:
     ret: Dict[str, List] = defaultdict(list)
 
     if args.erc.upper() in ERCS:
-
         contracts = slither.get_contract_from_name(args.contract_name)
 
         if len(contracts) != 1:

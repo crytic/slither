@@ -2,10 +2,11 @@
 Detect mistakenly un-indexed ERC20 event parameters
 """
 from typing import Any, List, Tuple, Union
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.event import Event
 from slither.core.variables.event_variable import EventVariable
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
 
 
@@ -61,7 +62,6 @@ Failure to include these keywords will exclude the parameter data in the transac
 
         # Loop through all events to look for poor form.
         for event in contract.events_declared:
-
             # If this is transfer/approval events, expect the first two parameters to be indexed.
             if event.full_name in [
                 "Transfer(address,address,uint256)",
@@ -84,8 +84,7 @@ Failure to include these keywords will exclude the parameter data in the transac
             unindexed_params = self.detect_erc20_unindexed_event_params(c)
             if unindexed_params:
                 # Add each problematic event definition to our result list
-                for (event, parameter) in unindexed_params:
-
+                for event, parameter in unindexed_params:
                     info = [
                         "ERC20 event ",
                         event,

@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, Optional, Type, Union
+from typing import TYPE_CHECKING, List, Optional, Type, Union
 
 from slither.core.solidity_types import UserDefinedType
 from slither.core.source_mapping.source_mapping import SourceMapping

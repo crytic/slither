@@ -1,7 +1,7 @@
 """
     Function module
 """
-from typing import Dict, List, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Tuple
 
 from slither.core.declarations import Function
 from slither.core.declarations.top_level import TopLevel
@@ -83,11 +83,11 @@ class FunctionTopLevel(Function, TopLevel):
         self, all_ssa_state_variables_instances: Dict[str, "StateIRVariable"]
     ) -> None:
         # pylint: disable=import-outside-toplevel
-        from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (
             compute_dominance_frontier,
             compute_dominators,
         )
+        from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
 
         compute_dominators(self.nodes)
         compute_dominance_frontier(self.nodes)

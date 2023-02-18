@@ -1,5 +1,5 @@
-from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.expressions.conditional_expression import ConditionalExpression
+from slither.visitors.expression.expression import ExpressionVisitor
 
 
 class HasConditional(ExpressionVisitor):
