@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Union
 
 import slither.core.expressions.type_conversion
 from slither.core.declarations.solidity_variables import (

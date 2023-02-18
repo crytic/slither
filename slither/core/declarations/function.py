@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 from enum import Enum
 from itertools import groupby
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from slither.core.cfg.scope import Scope
 from slither.core.declarations.solidity_variables import (
@@ -32,12 +32,12 @@ from slither.utils.utils import unroll
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node, NodeType
     from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.core.declarations import Contract
+    from slither.core.declarations import Contract, FunctionContract
     from slither.core.expressions.expression import Expression
     from slither.core.scope.scope import FileScope
     from slither.core.variables.variable import Variable
     from slither.slithir.operations import Operation
-    from slither.slithir.variables import LocalIRVariable
+    from slither.slithir.variables import LocalIRVariable, StateIRVariable
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.utils.type_helpers import (
         HighLevelCallType,
