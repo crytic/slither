@@ -244,7 +244,11 @@ class UnusedImports(AbstractDetector):
                 for f in fm.functions_shadowed:
                     references -= set(f.references)
                 for ref in references:
-                    self._add_import(self.needed_imports, ref.filename.absolute, fm.source_mapping.filename.absolute)
+                    self._add_import(
+                        self.needed_imports,
+                        ref.filename.absolute,
+                        fm.source_mapping.filename.absolute,
+                    )
 
     def _find_contract_level_custom_events_uses(self, c: Contract) -> None:
         """
