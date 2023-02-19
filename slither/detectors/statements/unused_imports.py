@@ -233,7 +233,18 @@ class UnusedImports(AbstractDetector):
                 fm.file_scope.filename.absolute,
                 fm.source_mapping.filename.absolute,
             )
-            self._add_item_by_references(fm)
+            if len(fm.functions_shadowed) == 0:
+                self._add_item_by_references(fm)
+            else:
+                # function `fm` is overriding some other (virtual) functions
+                # it means that its references list will contain all usages of these virtual functions
+                # but if they are referenced, it doesn't necessarily mean that `fm` is referenced
+                # so we are adding only references of `fm` that aren't references to virtual functions it overrides
+                references = set(fm.references)
+                for f in fm.functions_shadowed:
+                    references -= set(f.references)
+                for ref in references:
+                    self._add_import(self.needed_imports, ref.filename.absolute, fm.source_mapping.filename.absolute)
 
     def _find_contract_level_custom_events_uses(self, c: Contract) -> None:
         """
