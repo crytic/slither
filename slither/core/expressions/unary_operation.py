@@ -2,7 +2,6 @@ import logging
 from typing import Union
 from enum import Enum
 
-from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
 from slither.core.expressions.identifier import Identifier
@@ -91,7 +90,7 @@ class UnaryOperationType(Enum):
         raise SlitherCoreError(f"is_prefix: Unknown operation type {operation_type}")
 
 
-class UnaryOperation(ExpressionTyped):
+class UnaryOperation(Expression):
     def __init__(
         self,
         expression: Union[Literal, Identifier, IndexAccess, TupleExpression],

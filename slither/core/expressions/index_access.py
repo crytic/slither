@@ -1,16 +1,14 @@
 from typing import Union, List, TYPE_CHECKING
 
-from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.literal import Literal
-
+from slither.core.expressions.expression import Expression
 
 if TYPE_CHECKING:
-    from slither.core.expressions.expression import Expression
     from slither.core.solidity_types.type import Type
 
 
-class IndexAccess(ExpressionTyped):
+class IndexAccess(Expression):
     def __init__(
         self,
         left_expression: Union["IndexAccess", Identifier],
