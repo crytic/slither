@@ -1,5 +1,6 @@
-from typing import Any, List, Union
+from typing import Any, List, Union, Optional
 
+from slither.core.expressions import NewElementaryType
 from slither.visitors.expression.expression import ExpressionVisitor
 
 from slither.core.expressions.assignment_operation import (
@@ -40,7 +41,11 @@ def set_val(expression: Expression, val: List[Union[Identifier, IndexAccess, Any
 
 
 class ReadVar(ExpressionVisitor):
-    def result(self) -> List[Union[Identifier, IndexAccess, Any]]:
+    def __init__(self, expression: Expression) -> None:
+        self._result: Optional[List[Expression]] = None
+        super().__init__(expression)
+
+    def result(self) -> List[Expression]:
         if self._result is None:
             self._result = list(set(get(self.expression)))
         return self._result
@@ -69,8 +74,8 @@ class ReadVar(ExpressionVisitor):
 
     def _post_call_expression(self, expression: CallExpression) -> None:
         called = get(expression.called)
-        args = [get(a) for a in expression.arguments if a]
-        args = [item for sublist in args for item in sublist]
+        argss = [get(a) for a in expression.arguments if a]
+        args = [item for sublist in argss for item in sublist]
         val = called + args
         set_val(expression, val)
 
@@ -91,6 +96,7 @@ class ReadVar(ExpressionVisitor):
         if isinstance(expression.value, Variable):
             set_val(expression, [expression])
         elif isinstance(expression.value, SolidityVariable):
+            # TODO: investigate if this branch can be reached, and if Identifier.value has the correct type
             set_val(expression, [expression])
         else:
             set_val(expression, [])
@@ -115,7 +121,7 @@ class ReadVar(ExpressionVisitor):
     def _post_new_contract(self, expression: NewContract) -> None:
         set_val(expression, [])
 
-    def _post_new_elementary_type(self, expression):
+    def _post_new_elementary_type(self, expression: NewElementaryType) -> None:
         set_val(expression, [])
 
     def _post_tuple_expression(self, expression: TupleExpression) -> None:

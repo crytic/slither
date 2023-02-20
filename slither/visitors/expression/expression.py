@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
@@ -22,15 +21,13 @@ from slither.exceptions import SlitherError
 logger = logging.getLogger("ExpressionVisitor")
 
 
+# pylint: disable=too-few-public-methods
 class ExpressionVisitor:
     def __init__(self, expression: Expression) -> None:
-        # Inherited class must declared their variables prior calling super().__init__
+        super().__init__()
+        # Inherited class must declare their variables prior calling super().__init__
         self._expression = expression
-        self._result: Any = None
         self._visit_expression(self.expression)
-
-    def result(self) -> Any:
-        return self._result
 
     @property
     def expression(self) -> Expression:
@@ -146,7 +143,7 @@ class ExpressionVisitor:
     def _visit_new_contract(self, expression: NewContract) -> None:
         pass
 
-    def _visit_new_elementary_type(self, expression: Expression) -> None:
+    def _visit_new_elementary_type(self, expression: NewElementaryType) -> None:
         pass
 
     def _visit_tuple_expression(self, expression: TupleExpression) -> None:

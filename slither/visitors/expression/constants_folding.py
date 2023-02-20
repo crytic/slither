@@ -1,6 +1,7 @@
 from fractions import Fraction
-from typing import Union, TYPE_CHECKING
+from typing import Union
 
+from slither.core import expressions
 from slither.core.expressions import (
     BinaryOperationType,
     Literal,
@@ -14,9 +15,7 @@ from slither.core.expressions import (
 
 from slither.utils.integer_conversion import convert_string_to_fraction, convert_string_to_int
 from slither.visitors.expression.expression import ExpressionVisitor
-
-if TYPE_CHECKING:
-    from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 
 class NotConstant(Exception):
@@ -45,11 +44,19 @@ class ConstantFolding(ExpressionVisitor):
     def __init__(
         self, expression: CONSTANT_TYPES_OPERATIONS, custom_type: Union[str, "ElementaryType"]
     ) -> None:
-        self._type = custom_type
+        if isinstance(custom_type, str):
+            custom_type = ElementaryType(custom_type)
+        self._type: ElementaryType = custom_type
         super().__init__(expression)
 
+    @property
+    def expression(self) -> CONSTANT_TYPES_OPERATIONS:
+        # We make the assumption that the expression is always a CONSTANT_TYPES_OPERATIONS
+        # Other expression are not supported for constant unfolding
+        return self._expression  # type: ignore
+
     def result(self) -> "Literal":
-        value = get_val(self._expression)
+        value = get_val(self.expression)
         if isinstance(value, Fraction):
             value = int(value)
             # emulate 256-bit wrapping
@@ -62,9 +69,13 @@ class ConstantFolding(ExpressionVisitor):
             raise NotConstant
         expr = expression.value.expression
         # assumption that we won't have infinite loop
-        if not isinstance(expr, Literal):
+        # Everything outside of literal
+        if isinstance(
+            expr, (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion)
+        ):
             cf = ConstantFolding(expr, self._type)
             expr = cf.result()
+        assert isinstance(expr, Literal)
         set_val(expression, convert_string_to_int(expr.converted_value))
 
     # pylint: disable=too-many-branches
@@ -118,7 +129,10 @@ class ConstantFolding(ExpressionVisitor):
         # Case of uint a = -7; uint[-a] arr;
         if expression.type == UnaryOperationType.MINUS_PRE:
             expr = expression.expression
-            if not isinstance(expr, Literal):
+            # Everything outside of literal
+            if isinstance(
+                expr, (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion)
+            ):
                 cf = ConstantFolding(expr, self._type)
                 expr = cf.result()
             assert isinstance(expr, Literal)
@@ -135,34 +149,36 @@ class ConstantFolding(ExpressionVisitor):
             except ValueError as e:
                 raise NotConstant from e
 
-    def _post_assignement_operation(self, expression):
+    def _post_assignement_operation(self, expression: expressions.AssignmentOperation) -> None:
         raise NotConstant
 
-    def _post_call_expression(self, expression):
+    def _post_call_expression(self, expression: expressions.CallExpression) -> None:
         raise NotConstant
 
-    def _post_conditional_expression(self, expression):
+    def _post_conditional_expression(self, expression: expressions.ConditionalExpression) -> None:
         raise NotConstant
 
-    def _post_elementary_type_name_expression(self, expression):
+    def _post_elementary_type_name_expression(
+        self, expression: expressions.ElementaryTypeNameExpression
+    ) -> None:
         raise NotConstant
 
-    def _post_index_access(self, expression):
+    def _post_index_access(self, expression: expressions.IndexAccess) -> None:
         raise NotConstant
 
-    def _post_member_access(self, expression):
+    def _post_member_access(self, expression: expressions.MemberAccess) -> None:
         raise NotConstant
 
-    def _post_new_array(self, expression):
+    def _post_new_array(self, expression: expressions.NewArray) -> None:
         raise NotConstant
 
-    def _post_new_contract(self, expression):
+    def _post_new_contract(self, expression: expressions.NewContract) -> None:
         raise NotConstant
 
-    def _post_new_elementary_type(self, expression):
+    def _post_new_elementary_type(self, expression: expressions.NewElementaryType) -> None:
         raise NotConstant
 
-    def _post_tuple_expression(self, expression):
+    def _post_tuple_expression(self, expression: expressions.TupleExpression) -> None:
         if expression.expressions:
             if len(expression.expressions) == 1:
                 cf = ConstantFolding(expression.expressions[0], self._type)
@@ -172,7 +188,7 @@ class ConstantFolding(ExpressionVisitor):
                 return
         raise NotConstant
 
-    def _post_type_conversion(self, expression):
+    def _post_type_conversion(self, expression: expressions.TypeConversion) -> None:
         cf = ConstantFolding(expression.expression, self._type)
         expr = cf.result()
         assert isinstance(expr, Literal)
