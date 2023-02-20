@@ -93,7 +93,9 @@ contract Token{
         return False
 
     @staticmethod
-    def detect_incorrect_erc721_interface(contract: Contract) -> List[Union[FunctionContract, Any]]:
+    def detect_incorrect_erc721_interface(
+        contract: Contract,
+    ) -> List[Union[FunctionContract, Any]]:
         """Detect incorrect ERC721 interface
 
         Returns:

@@ -1,8 +1,7 @@
 from slither.core.variables.variable import Variable
-from slither.core.children.child_event import ChildEvent
 
 
-class EventVariable(ChildEvent, Variable):
+class EventVariable(Variable):
     def __init__(self) -> None:
         super().__init__()
         self._indexed = False
@@ -16,5 +15,5 @@ class EventVariable(ChildEvent, Variable):
         return self._indexed
 
     @indexed.setter
-    def indexed(self, is_indexed: bool) -> bool:
+    def indexed(self, is_indexed: bool) -> None:
         self._indexed = is_indexed

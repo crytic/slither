@@ -689,7 +689,7 @@ def test_initial_version_exists_for_state_variables_function_assign():
         # temporary variable, that is then assigned to a
 
         call = get_ssa_of_type(ctor, InternalCall)[0]
-        assert call.function == f
+        assert call.node.function == f
         assign = get_ssa_of_type(ctor, Assignment)[0]
         assert assign.rvalue == call.lvalue
         assert isinstance(assign.lvalue, StateIRVariable)

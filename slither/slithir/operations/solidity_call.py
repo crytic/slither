@@ -1,6 +1,4 @@
 from typing import Any, List, Union
-
-from slither.core.children.child_node import ChildNode
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.call import Call
@@ -12,7 +10,7 @@ class SolidityCall(Call, OperationWithLValue):
         self,
         function: SolidityFunction,
         nbr_arguments: int,
-        result: ChildNode,
+        result,
         type_call: Union[str, List[ElementaryType]],
     ) -> None:
         assert isinstance(function, SolidityFunction)

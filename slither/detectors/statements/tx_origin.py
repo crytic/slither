@@ -61,7 +61,9 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
             )
         return False
 
-    def detect_tx_origin(self, contract: Contract) -> List[Tuple[FunctionContract, List[Node]]]:
+    def detect_tx_origin(
+        self, contract: Contract
+    ) -> List[Tuple[FunctionContract, List[Node]]]:
         ret = []
         for f in contract.functions:
 

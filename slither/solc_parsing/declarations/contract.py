@@ -2,7 +2,13 @@ import logging
 import re
 from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set
 
-from slither.core.declarations import Modifier, Event, EnumContract, StructureContract, Function
+from slither.core.declarations import (
+    Modifier,
+    Event,
+    EnumContract,
+    StructureContract,
+    Function,
+)
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract

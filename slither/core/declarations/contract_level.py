@@ -6,7 +6,13 @@ if TYPE_CHECKING:
     from slither.core.declarations import Contract
 
 
-class ChildContract(SourceMapping):
+class ContractLevel(SourceMapping):
+    """
+    This class is used to represent objects that are at the contract level
+    The opposite is TopLevel
+
+    """
+
     def __init__(self) -> None:
         super().__init__()
         # TODO remove all the setters for the child objects
@@ -19,4 +25,5 @@ class ChildContract(SourceMapping):
 
     @property
     def contract(self) -> "Contract":
-        return self._contract  # type: ignore
+        assert self._contract
+        return self._contract

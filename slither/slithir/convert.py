@@ -731,7 +731,7 @@ def propagate_types(
                     return _convert_type_contract(ir)
                 left = ir.variable_left
                 t = None
-                ir_func = ir.function
+                ir_func = ir.node.function
                 # Handling of this.function_name usage
                 if (
                     left == SolidityVariable("this")
