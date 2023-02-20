@@ -6,7 +6,7 @@ from collections import defaultdict
 from contextlib import contextmanager
 from inspect import getsourcefile
 from tempfile import NamedTemporaryFile
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Dict, Callable
 
 import pytest
 from solc_select import solc_select
@@ -15,6 +15,7 @@ from solc_select.solc_select import valid_version as solc_valid_version
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
     OperationWithLValue,
@@ -34,10 +35,11 @@ from slither.slithir.variables import (
     ReferenceVariable,
     LocalIRVariable,
     StateIRVariable,
+    TemporaryVariableSSA,
 )
 
 # Directory of currently executing script. Will be used as basis for temporary file names.
-SCRIPT_DIR = pathlib.Path(getsourcefile(lambda: 0)).parent
+SCRIPT_DIR = pathlib.Path(getsourcefile(lambda: 0)).parent  # type:ignore
 
 
 def valid_version(ver: str) -> bool:
@@ -53,15 +55,15 @@ def valid_version(ver: str) -> bool:
         return False
 
 
-def have_ssa_if_ir(function: Function):
+def have_ssa_if_ir(function: Function) -> None:
     """Verifies that all nodes in a function that have IR also have SSA IR"""
     for n in function.nodes:
         if n.irs:
             assert n.irs_ssa
 
 
-# pylint: disable=too-many-branches
-def ssa_basic_properties(function: Function):
+# pylint: disable=too-many-branches, too-many-locals
+def ssa_basic_properties(function: Function) -> None:
     """Verifies that basic properties of ssa holds
 
     1. Every name is defined only once
@@ -75,12 +77,14 @@ def ssa_basic_properties(function: Function):
     """
     ssa_lvalues = set()
     ssa_rvalues = set()
-    lvalue_assignments = {}
+    lvalue_assignments: Dict[str, int] = {}
 
     for n in function.nodes:
         for ir in n.irs:
-            if isinstance(ir, OperationWithLValue):
+            if isinstance(ir, OperationWithLValue) and ir.lvalue:
                 name = ir.lvalue.name
+                if name is None:
+                    continue
                 if name in lvalue_assignments:
                     lvalue_assignments[name] += 1
                 else:
@@ -93,8 +97,9 @@ def ssa_basic_properties(function: Function):
                 ssa_lvalues.add(ssa.lvalue)
 
                 # 2 (if Local/State Var)
-                if isinstance(ssa.lvalue, (StateIRVariable, LocalIRVariable)):
-                    assert ssa.lvalue.index > 0
+                ssa_lvalue = ssa.lvalue
+                if isinstance(ssa_lvalue, (StateIRVariable, LocalIRVariable)):
+                    assert ssa_lvalue.index > 0
 
             for rvalue in filter(
                 lambda x: not isinstance(x, (StateIRVariable, Constant)), ssa.read
@@ -111,15 +116,18 @@ def ssa_basic_properties(function: Function):
             undef_vars.add(rvalue.non_ssa_version)
 
     # 4
-    ssa_defs = defaultdict(int)
+    ssa_defs: Dict[str, int] = defaultdict(int)
     for v in ssa_lvalues:
-        ssa_defs[v.name] += 1
+        if v and v.name:
+            ssa_defs[v.name] += 1
 
-    for (k, n) in lvalue_assignments.items():
-        assert ssa_defs[k] >= n
+    for (k, count) in lvalue_assignments.items():
+        assert ssa_defs[k] >= count
 
     # Helper 5/6
-    def check_property_5_and_6(variables, ssavars):
+    def check_property_5_and_6(
+        variables: List[LocalVariable], ssavars: List[LocalIRVariable]
+    ) -> None:
         for var in filter(lambda x: x.name, variables):
             ssa_vars = [x for x in ssavars if x.non_ssa_version == var]
             assert len(ssa_vars) == 1
@@ -136,7 +144,7 @@ def ssa_basic_properties(function: Function):
     check_property_5_and_6(function.returns, function.returns_ssa)
 
 
-def ssa_phi_node_properties(f: Function):
+def ssa_phi_node_properties(f: Function) -> None:
     """Every phi-function should have as many args as predecessors
 
     This does not apply if the phi-node refers to state variables,
@@ -152,7 +160,7 @@ def ssa_phi_node_properties(f: Function):
 
 
 # TODO (hbrodin): This should probably go into another file, not specific to SSA
-def dominance_properties(f: Function):
+def dominance_properties(f: Function) -> None:
     """Verifies properties related to dominators holds
 
     1. Every node have an immediate dominator except entry_node which have none
@@ -180,14 +188,16 @@ def dominance_properties(f: Function):
             assert find_path(node.immediate_dominator, node)
 
 
-def phi_values_inserted(f: Function):
+def phi_values_inserted(f: Function) -> None:
     """Verifies that phi-values are inserted at the right places
 
     For every node that has a dominance frontier, any def (including
     phi) should be a phi function in its dominance frontier
     """
 
-    def have_phi_for_var(node: Node, var):
+    def have_phi_for_var(
+        node: Node, var: Union[StateIRVariable, LocalIRVariable, TemporaryVariableSSA]
+    ) -> bool:
         """Checks if a node has a phi-instruction for var
 
         The ssa version would ideally be checked, but then
@@ -198,7 +208,14 @@ def phi_values_inserted(f: Function):
         non_ssa = var.non_ssa_version
         for ssa in node.irs_ssa:
             if isinstance(ssa, Phi):
-                if non_ssa in map(lambda ssa_var: ssa_var.non_ssa_version, ssa.read):
+                if non_ssa in map(
+                    lambda ssa_var: ssa_var.non_ssa_version,
+                    [
+                        r
+                        for r in ssa.read
+                        if isinstance(r, (StateIRVariable, LocalIRVariable, TemporaryVariableSSA))
+                    ],
+                ):
                     return True
         return False
 
@@ -206,12 +223,15 @@ def phi_values_inserted(f: Function):
         for df in node.dominance_frontier:
             for ssa in node.irs_ssa:
                 if isinstance(ssa, OperationWithLValue):
-                    if is_used_later(node, ssa.lvalue):
-                        assert have_phi_for_var(df, ssa.lvalue)
+                    ssa_lvalue = ssa.lvalue
+                    if isinstance(
+                        ssa_lvalue, (StateIRVariable, LocalIRVariable, TemporaryVariableSSA)
+                    ) and is_used_later(node, ssa_lvalue):
+                        assert have_phi_for_var(df, ssa_lvalue)
 
 
 @contextmanager
-def select_solc_version(version: Optional[str]):
+def select_solc_version(version: Optional[str]) -> None:
     """Selects solc version to use for running tests.
 
     If no version is provided, latest is used."""
@@ -256,17 +276,17 @@ def slither_from_source(source_code: str, solc_version: Optional[str] = None):
         pathlib.Path(fname).unlink()
 
 
-def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
+def verify_properties_hold(source_code_or_slither: Union[str, Slither]) -> None:
     """Ensures that basic properties of SSA hold true"""
 
-    def verify_func(func: Function):
+    def verify_func(func: Function) -> None:
         have_ssa_if_ir(func)
         phi_values_inserted(func)
         ssa_basic_properties(func)
         ssa_phi_node_properties(func)
         dominance_properties(func)
 
-    def verify(slither):
+    def verify(slither: Slither) -> None:
         for cu in slither.compilation_units:
             for func in cu.functions_and_modifiers:
                 _dump_function(func)
@@ -280,11 +300,12 @@ def verify_properties_hold(source_code_or_slither: Union[str, Slither]):
     if isinstance(source_code_or_slither, Slither):
         verify(source_code_or_slither)
     else:
+        slither: Slither
         with slither_from_source(source_code_or_slither) as slither:
             verify(slither)
 
 
-def _dump_function(f: Function):
+def _dump_function(f: Function) -> None:
     """Helper function to print nodes/ssa ir for a function or modifier"""
     print(f"---- {f.name} ----")
     for n in f.nodes:
@@ -294,13 +315,13 @@ def _dump_function(f: Function):
     print("")
 
 
-def _dump_functions(c: Contract):
+def _dump_functions(c: Contract) -> None:
     """Helper function to print functions and modifiers of a contract"""
     for f in c.functions_and_modifiers:
         _dump_function(f)
 
 
-def get_filtered_ssa(f: Union[Function, Node], flt) -> List[Operation]:
+def get_filtered_ssa(f: Union[Function, Node], flt: Callable) -> List[Operation]:
     """Returns a list of all ssanodes filtered by filter for all nodes in function f"""
     if isinstance(f, Function):
         return [ssanode for node in f.nodes for ssanode in node.irs_ssa if flt(ssanode)]
@@ -314,7 +335,7 @@ def get_ssa_of_type(f: Union[Function, Node], ssatype) -> List[Operation]:
     return get_filtered_ssa(f, lambda ssanode: isinstance(ssanode, ssatype))
 
 
-def test_multi_write():
+def test_multi_write() -> None:
     contract = """
     pragma solidity ^0.8.11;
     contract Test {
@@ -327,7 +348,7 @@ def test_multi_write():
     verify_properties_hold(contract)
 
 
-def test_single_branch_phi():
+def test_single_branch_phi() -> None:
     contract = """
         pragma solidity ^0.8.11;
         contract Test {
@@ -342,7 +363,7 @@ def test_single_branch_phi():
     verify_properties_hold(contract)
 
 
-def test_basic_phi():
+def test_basic_phi() -> None:
     contract = """
     pragma solidity ^0.8.11;
     contract Test {
@@ -359,7 +380,7 @@ def test_basic_phi():
     verify_properties_hold(contract)
 
 
-def test_basic_loop_phi():
+def test_basic_loop_phi() -> None:
     contract = """
     pragma solidity ^0.8.11;
     contract Test {
@@ -375,7 +396,7 @@ def test_basic_loop_phi():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_phi_propagation_loop():
+def test_phi_propagation_loop() -> None:
     contract = """
      pragma solidity ^0.8.11;
      contract Test {
@@ -396,7 +417,7 @@ def test_phi_propagation_loop():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_free_function_properties():
+def test_free_function_properties() -> None:
     contract = """
         pragma solidity ^0.8.11;
 
@@ -417,7 +438,7 @@ def test_free_function_properties():
     verify_properties_hold(contract)
 
 
-def test_ssa_inter_transactional():
+def test_ssa_inter_transactional() -> None:
     source = """
     pragma solidity ^0.8.11;
     contract A {
@@ -460,7 +481,7 @@ def test_ssa_inter_transactional():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_ssa_phi_callbacks():
+def test_ssa_phi_callbacks() -> None:
     source = """
     pragma solidity ^0.8.11;
     contract A {
@@ -519,7 +540,7 @@ def test_ssa_phi_callbacks():
 
 
 @pytest.mark.skip(reason="Fails in current slither version. Fix in #1102.")
-def test_storage_refers_to():
+def test_storage_refers_to() -> None:
     """Test the storage aspects of the SSA IR
 
     When declaring a var as being storage, start tracking what storage it refers_to.

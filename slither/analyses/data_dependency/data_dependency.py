@@ -2,7 +2,7 @@
     Compute the data depenency between all the SSA variables
 """
 from collections import defaultdict
-from typing import Union, Set, Dict, TYPE_CHECKING
+from typing import Union, Set, Dict, TYPE_CHECKING, List
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import (
@@ -20,6 +20,7 @@ from slither.core.solidity_types.type import Type
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import Index, OperationWithLValue, InternalCall, Operation
+from slither.slithir.utils.utils import LVALUE
 from slither.slithir.variables import (
     Constant,
     LocalIRVariable,
@@ -29,6 +30,7 @@ from slither.slithir.variables import (
     TemporaryVariableSSA,
     TupleVariableSSA,
 )
+from slither.slithir.variables.variable import SlithIRVariable
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -393,13 +395,9 @@ def transitive_close_dependencies(
     while changed:
         changed = False
         to_add = defaultdict(set)
-        [  # pylint: disable=expression-not-assigned
-            [
+        for key, items in context.context[context_key].items():
+            for item in items & keys:
                 to_add[key].update(context.context[context_key][item] - {key} - items)
-                for item in items & keys
-            ]
-            for key, items in context.context[context_key].items()
-        ]
         for k, v in to_add.items():
             # Because we dont have any check on the update operation
             # We might update an empty set with an empty set
@@ -418,20 +416,20 @@ def add_dependency(lvalue: Variable, function: Function, ir: Operation, is_prote
         function.context[KEY_SSA][lvalue] = set()
         if not is_protected:
             function.context[KEY_SSA_UNPROTECTED][lvalue] = set()
+    read: Union[List[Union[LVALUE, SolidityVariableComposed]], List[SlithIRVariable]]
     if isinstance(ir, Index):
         read = [ir.variable_left]
-    elif isinstance(ir, InternalCall):
+    elif isinstance(ir, InternalCall) and ir.function:
         read = ir.function.return_values_ssa
     else:
         read = ir.read
-    # pylint: disable=expression-not-assigned
-    [function.context[KEY_SSA][lvalue].add(v) for v in read if not isinstance(v, Constant)]
+    for v in read:
+        if not isinstance(v, Constant):
+            function.context[KEY_SSA][lvalue].add(v)
     if not is_protected:
-        [
-            function.context[KEY_SSA_UNPROTECTED][lvalue].add(v)
-            for v in read
-            if not isinstance(v, Constant)
-        ]
+        for v in read:
+            if not isinstance(v, Constant):
+                function.context[KEY_SSA_UNPROTECTED][lvalue].add(v)
 
 
 def compute_dependency_function(function: Function) -> None:

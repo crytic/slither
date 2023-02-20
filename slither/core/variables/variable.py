@@ -160,8 +160,8 @@ class Variable(SourceMapping):
 
         return (
             self.name,
-            [str(x) for x in export_nested_types_from_variable(self)],
-            [str(x) for x in export_return_type_from_variable(self)],
+            [str(x) for x in export_nested_types_from_variable(self)],  # type: ignore
+            [str(x) for x in export_return_type_from_variable(self)],  # type: ignore
         )
 
     @property
@@ -179,4 +179,5 @@ class Variable(SourceMapping):
         return f'{name}({",".join(parameters)})'
 
     def __str__(self) -> str:
+        assert self._name
         return self._name

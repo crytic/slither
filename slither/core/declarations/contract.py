@@ -49,6 +49,9 @@ if TYPE_CHECKING:
 
 LOGGER = logging.getLogger("Contract")
 
+USING_FOR_KEY = Union[str, Type]
+USING_FOR_ITEM = List[Union[Type, Function]]
+
 
 class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     """
@@ -80,8 +83,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._custom_errors: Dict[str, "CustomErrorContract"] = {}
 
         # The only str is "*"
-        self._using_for: Dict[Union[str, Type], List[Type]] = {}
-        self._using_for_complete: Optional[Dict[Union[str, Type], List[Type]]] = None
+        self._using_for: Dict[USING_FOR_KEY, USING_FOR_ITEM] = {}
+        self._using_for_complete: Optional[Dict[USING_FOR_KEY, USING_FOR_ITEM]] = None
         self._kind: Optional[str] = None
         self._is_interface: bool = False
         self._is_library: bool = False
@@ -123,7 +126,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._name
 
     @name.setter
-    def name(self, name: str):
+    def name(self, name: str) -> None:
         self._name = name
 
     @property
@@ -133,7 +136,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._id
 
     @id.setter
-    def id(self, new_id):
+    def id(self, new_id: int) -> None:
         """Unique id."""
         self._id = new_id
 
@@ -146,7 +149,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._kind
 
     @contract_kind.setter
-    def contract_kind(self, kind):
+    def contract_kind(self, kind: str) -> None:
         self._kind = kind
 
     @property
@@ -154,7 +157,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._is_interface
 
     @is_interface.setter
-    def is_interface(self, is_interface: bool):
+    def is_interface(self, is_interface: bool) -> None:
         self._is_interface = is_interface
 
     @property
@@ -162,7 +165,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._is_library
 
     @is_library.setter
-    def is_library(self, is_library: bool):
+    def is_library(self, is_library: bool) -> None:
         self._is_library = is_library
 
     # endregion
@@ -266,16 +269,18 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def using_for(self) -> Dict[Union[str, Type], List[Type]]:
+    def using_for(self) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
         return self._using_for
 
     @property
-    def using_for_complete(self) -> Dict[Union[str, Type], List[Type]]:
+    def using_for_complete(self) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
         """
         Dict[Union[str, Type], List[Type]]: Dict of merged local using for directive with top level directive
         """
 
-        def _merge_using_for(uf1: Dict, uf2: Dict) -> Dict:
+        def _merge_using_for(
+            uf1: Dict[USING_FOR_KEY, USING_FOR_ITEM], uf2: Dict[USING_FOR_KEY, USING_FOR_ITEM]
+        ) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
             result = {**uf1, **uf2}
             for key, value in result.items():
                 if key in uf1 and key in uf2:
@@ -1452,7 +1457,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             result = func.get_last_ssa_state_variables_instances()
             for variable_name, instances in result.items():
                 # TODO: investigate the next operation
-                last_state_variables_instances[variable_name] += instances
+                last_state_variables_instances[variable_name] += list(instances)
 
         for func in self.functions + list(self.modifiers):
             func.fix_phi(last_state_variables_instances, initial_state_variables_instances)

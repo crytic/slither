@@ -41,11 +41,11 @@ class LocalIRVariable(
             self._non_ssa_version = local_variable
 
     @property
-    def index(self):
+    def index(self) -> int:
         return self._index
 
     @index.setter
-    def index(self, idx):
+    def index(self, idx: int) -> None:
         self._index = idx
 
     @property

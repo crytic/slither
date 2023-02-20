@@ -104,7 +104,7 @@ class ConstantFolding(ExpressionVisitor):
             and isinstance(left, (int, Fraction))
             and isinstance(right, (int, Fraction))
         ):
-            set_val(expression, left**right) #type: ignore
+            set_val(expression, left**right)  # type: ignore
         elif (
             expression.type == BinaryOperationType.MULTIPLICATION
             and isinstance(left, (int, Fraction))

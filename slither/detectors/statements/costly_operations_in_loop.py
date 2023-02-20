@@ -43,7 +43,7 @@ def costly_operations_in_loop(
             if isinstance(ir, OperationWithLValue) and isinstance(ir.lvalue, StateVariable):
                 ret.append(ir.node)
                 break
-            if isinstance(ir, (InternalCall)):
+            if isinstance(ir, (InternalCall)) and ir.function:
                 costly_operations_in_loop(ir.function.entry_point, in_loop_counter, visited, ret)
 
     for son in node.sons:

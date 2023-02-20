@@ -46,7 +46,7 @@ def is_valid_rvalue(v: SourceMapping) -> bool:
     )
 
 
-def is_valid_lvalue(v) -> bool:
+def is_valid_lvalue(v: SourceMapping) -> bool:
     return isinstance(
         v,
         (

@@ -13,6 +13,7 @@ from slither.core.declarations.function import Function
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils.output import Output
 
 
 def _contract_subgraph(contract: Contract) -> str:
@@ -222,7 +223,7 @@ class PrinterCallGraph(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph"
 
-    def output(self, filename):
+    def output(self, filename: str) -> Output:
         """
         Output the graph in filename
         Args:

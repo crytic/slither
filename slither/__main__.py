@@ -615,7 +615,9 @@ def parse_args(
 
 
 class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
         detectors, _ = get_detectors_and_printers()
         output_detectors(detectors)
         parser.exit()

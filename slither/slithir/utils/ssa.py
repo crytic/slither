@@ -366,7 +366,7 @@ def last_name(
 
 def is_used_later(
     initial_node: Node,
-    variable: Union[StateIRVariable, LocalVariable],
+    variable: Union[StateIRVariable, LocalVariable, TemporaryVariableSSA],
 ) -> bool:
     # TODO: does not handle the case where its read and written in the declaration node
     # It can be problematic if this happens in a loop/if structure

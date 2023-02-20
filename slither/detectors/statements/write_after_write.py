@@ -37,6 +37,8 @@ def _handle_ir(
         _remove_states(written)
 
     if isinstance(ir, InternalCall):
+        if not ir.function:
+            return
         if ir.function.all_high_level_calls() or ir.function.all_library_calls():
             _remove_states(written)
 
