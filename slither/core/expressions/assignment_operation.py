@@ -2,7 +2,6 @@ import logging
 from enum import Enum
 from typing import Optional, TYPE_CHECKING, List
 
-from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
 
@@ -78,7 +77,7 @@ class AssignmentOperationType(Enum):
         raise SlitherCoreError(f"str: Unknown operation type {self})")
 
 
-class AssignmentOperation(ExpressionTyped):
+class AssignmentOperation(Expression):
     def __init__(
         self,
         left_expression: Expression,
