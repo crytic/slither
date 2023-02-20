@@ -5,7 +5,6 @@ from enum import Enum
 from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
 
 from slither.all_exceptions import SlitherException
-from slither.core.children.child_function import ChildFunction
 from slither.core.declarations import Contract, Function
 from slither.core.declarations.solidity_variables import (
     SolidityVariable,
@@ -106,7 +105,7 @@ class NodeType(Enum):
 
 # I am not sure why, but pylint reports a lot of "no-member" issue that are not real (Josselin)
 # pylint: disable=no-member
-class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-methods
+class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     """
     Node class
 
@@ -189,6 +188,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
 
         self.scope: Union["Scope", "Function"] = scope
         self.file_scope: "FileScope" = file_scope
+        self._function: Optional["Function"] = None
 
     ###################################################################################
     ###################################################################################
@@ -223,6 +223,13 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                 if SolidityFunction("revert(string)") not in self.solidity_calls:
                     return True
         return False
+
+    def set_function(self, function: "Function") -> None:
+        self._function = function
+
+    @property
+    def function(self) -> "Function":
+        return self._function
 
     # endregion
     ###################################################################################

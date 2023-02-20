@@ -1,8 +1,8 @@
-from slither.core.children.child_contract import ChildContract
+from slither.core.declarations.contract_level import ContractLevel
 from slither.core.declarations.custom_error import CustomError
 
 
-class CustomErrorContract(CustomError, ChildContract):
+class CustomErrorContract(CustomError, ContractLevel):
     def is_declared_by(self, contract):
         """
         Check if the element is declared by the contract

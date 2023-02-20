@@ -70,7 +70,9 @@ contract C {
 
     def _detect_missing_events(
         self, contract: Contract
-    ) -> List[Tuple[FunctionContract, List[Tuple[Node, List[Tuple[Node, FunctionContract]]]]]]:
+    ) -> List[
+        Tuple[FunctionContract, List[Tuple[Node, List[Tuple[Node, FunctionContract]]]]]
+    ]:
         """
         Detects if critical contract parameters set by owners and used in arithmetic are missing events
         :param contract: The contract to check

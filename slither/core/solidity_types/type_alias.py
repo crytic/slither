@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Tuple
 
-from slither.core.children.child_contract import ChildContract
+from slither.core.declarations.contract_level import ContractLevel
 from slither.core.declarations.top_level import TopLevel
 from slither.core.solidity_types import Type, ElementaryType
 
@@ -48,7 +48,7 @@ class TypeAliasTopLevel(TypeAlias, TopLevel):
         return self.name
 
 
-class TypeAliasContract(TypeAlias, ChildContract):
+class TypeAliasContract(TypeAlias, ContractLevel):
     def __init__(self, underlying_type: Type, name: str, contract: "Contract") -> None:
         super().__init__(underlying_type, name)
         self._contract: "Contract" = contract

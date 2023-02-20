@@ -1,13 +1,12 @@
 from typing import Optional, TYPE_CHECKING
 
-from slither.core.children.child_node import ChildNode
 from slither.core.variables.variable import Variable
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 
-class TemporaryVariable(ChildNode, Variable):
+class TemporaryVariable(Variable):
     def __init__(self, node: "Node", index: Optional[int] = None) -> None:
         super().__init__()
         if index is None:
@@ -16,6 +15,10 @@ class TemporaryVariable(ChildNode, Variable):
         else:
             self._index = index
         self._node = node
+
+    @property
+    def node(self) -> "Node":
+        return self._node
 
     @property
     def index(self):
