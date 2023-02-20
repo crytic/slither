@@ -49,7 +49,7 @@ class TypeAliasTopLevel(TypeAlias, TopLevel):
 
 
 class TypeAliasContract(TypeAlias, ContractLevel):
-    def __init__(self, underlying_type: Type, name: str, contract: "Contract") -> None:
+    def __init__(self, underlying_type: ElementaryType, name: str, contract: "Contract") -> None:
         super().__init__(underlying_type, name)
         self._contract: "Contract" = contract
 

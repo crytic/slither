@@ -206,10 +206,7 @@ class SlitherCore(Context):
                     isinstance(thing, FunctionContract)
                     and thing.contract_declarer == thing.contract
                 )
-                or (
-                    isinstance(thing, ContractLevel)
-                    and not isinstance(thing, FunctionContract)
-                )
+                or (isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract))
             ):
                 self._offset_to_objects[definition.filename][offset].add(thing)
 
@@ -227,8 +224,7 @@ class SlitherCore(Context):
                         and thing.contract_declarer == thing.contract
                     )
                     or (
-                        isinstance(thing, ContractLevel)
-                        and not isinstance(thing, FunctionContract)
+                        isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract)
                     )
                 ):
                     self._offset_to_objects[definition.filename][offset].add(thing)

@@ -17,9 +17,7 @@ class TypeConversion(OperationWithLValue):
         self,
         result: Union[TemporaryVariableSSA, TemporaryVariable],
         variable: SourceMapping,
-        variable_type: Union[
-            TypeAliasContract, UserDefinedType, ElementaryType, TypeAliasTopLevel
-        ],
+        variable_type: Union[TypeAliasContract, UserDefinedType, ElementaryType, TypeAliasTopLevel],
     ) -> None:
         super().__init__()
         assert is_valid_rvalue(variable) or isinstance(variable, Contract)

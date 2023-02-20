@@ -1,5 +1,6 @@
-from slither.core.declarations.contract_level import ContractLevel
 from typing import TYPE_CHECKING
+from slither.core.declarations.contract_level import ContractLevel
+
 
 from slither.core.declarations.custom_error import CustomError
 
