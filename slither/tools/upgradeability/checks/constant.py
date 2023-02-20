@@ -1,7 +1,11 @@
+from typing import List
+
 from slither.tools.upgradeability.checks.abstract_checks import (
     AbstractCheck,
     CheckClassification,
+    CHECK_INFO,
 )
+from slither.utils.output import Output
 
 
 class WereConstant(AbstractCheck):
@@ -47,10 +51,12 @@ Do not remove `constant` from a state variables during an update.
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True
 
-    def _check(self):
+    def _check(self) -> List[Output]:
         contract_v1 = self.contract
         contract_v2 = self.contract_v2
 
+        if contract_v2 is None:
+            raise Exception("were-constant requires a V2 contract")
         state_variables_v1 = contract_v1.state_variables
         state_variables_v2 = contract_v2.state_variables
 
@@ -81,7 +87,7 @@ Do not remove `constant` from a state variables during an update.
                             v2_additional_variables -= 1
                             idx_v2 += 1
                             continue
-                        info = [state_v1, " was constant, but ", state_v2, "is not.\n"]
+                        info: CHECK_INFO = [state_v1, " was constant, but ", state_v2, "is not.\n"]
                         json = self.generate_result(info)
                         results.append(json)
 
@@ -134,9 +140,12 @@ Do not make an existing state variable `constant`.
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True
 
-    def _check(self):
+    def _check(self) -> List[Output]:
         contract_v1 = self.contract
         contract_v2 = self.contract_v2
+
+        if contract_v2 is None:
+            raise Exception("became-constant requires a V2 contract")
 
         state_variables_v1 = contract_v1.state_variables
         state_variables_v2 = contract_v2.state_variables
@@ -169,7 +178,7 @@ Do not make an existing state variable `constant`.
                             idx_v2 += 1
                             continue
                 elif state_v2.is_constant:
-                    info = [state_v1, " was not constant but ", state_v2, " is.\n"]
+                    info: CHECK_INFO = [state_v1, " was not constant but ", state_v2, " is.\n"]
                     json = self.generate_result(info)
                     results.append(json)
 

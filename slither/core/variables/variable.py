@@ -77,12 +77,13 @@ class Variable(SourceMapping):
         self._name = name
 
     @property
-    def type(self) -> Optional[Union[Type, List[Type]]]:
+    def type(self) -> Optional[Type]:
         return self._type
 
     @type.setter
-    def type(self, types: Union[Type, List[Type]]):
-        self._type = types
+    def type(self, new_type: Type) -> None:
+        assert isinstance(new_type, Type)
+        self._type = new_type
 
     @property
     def is_constant(self) -> bool:

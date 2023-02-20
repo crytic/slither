@@ -42,7 +42,7 @@ class ConditionalExpression(Expression):
     def then_expression(self) -> Expression:
         return self._then_expression
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             "if "
             + str(self._if_expression)

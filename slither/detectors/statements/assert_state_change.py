@@ -40,7 +40,9 @@ def detect_assert_state_change(
                 any(
                     ir
                     for ir in node.irs
-                    if isinstance(ir, InternalCall) and ir.function.state_variables_written
+                    if isinstance(ir, InternalCall)
+                    and ir.function
+                    and ir.function.state_variables_written
                 )
             ):
                 results.append((function, node))

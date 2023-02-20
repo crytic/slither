@@ -8,14 +8,14 @@ from slither.slithir.operations.operation import Operation
 class Call(Operation):
     def __init__(self) -> None:
         super().__init__()
-        self._arguments = []
+        self._arguments: List[Variable] = []
 
     @property
-    def arguments(self):
+    def arguments(self) -> List[Variable]:
         return self._arguments
 
     @arguments.setter
-    def arguments(self, v):
+    def arguments(self, v: List[Variable]) -> None:
         self._arguments = v
 
     # pylint: disable=no-self-use

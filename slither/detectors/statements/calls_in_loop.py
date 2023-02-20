@@ -48,6 +48,7 @@ def call_in_loop(
                     continue
                 ret.append(ir.node)
             if isinstance(ir, (InternalCall)):
+                assert ir.function
                 call_in_loop(ir.function.entry_point, in_loop_counter, visited, ret)
 
     for son in node.sons:

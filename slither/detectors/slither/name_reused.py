@@ -1,7 +1,8 @@
 from collections import defaultdict
-from typing import Any, List
+from typing import List
 
 from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.core.declarations import Contract
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -10,7 +11,7 @@ from slither.detectors.abstract_detector import (
 from slither.utils.output import Output
 
 
-def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit) -> List[Any]:
+def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit) -> List[Contract]:
     """
     Filter contracts with missing inheritance to return only the "most base" contracts
     in the inheritance tree.

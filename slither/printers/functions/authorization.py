@@ -1,10 +1,12 @@
 """
     Module printing summary of the contract
 """
+from typing import List
 
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
 from slither.utils.myprettytable import MyPrettyTable
+from slither.utils.output import Output
 
 
 class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
@@ -15,11 +17,15 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#variables-written-and-authorization"
 
     @staticmethod
-    def get_msg_sender_checks(function):
-        all_functions = function.all_internal_calls() + [function] + function.modifiers
+    def get_msg_sender_checks(function: Function) -> List[str]:
+        all_functions = (
+            [f for f in function.all_internal_calls() if isinstance(f, Function)]
+            + [function]
+            + [m for m in function.modifiers if isinstance(m, Function)]
+        )
 
-        all_nodes = [f.nodes for f in all_functions if isinstance(f, Function)]
-        all_nodes = [item for sublist in all_nodes for item in sublist]
+        all_nodes_ = [f.nodes for f in all_functions]
+        all_nodes = [item for sublist in all_nodes_ for item in sublist]
 
         all_conditional_nodes = [
             n for n in all_nodes if n.contains_if() or n.contains_require_or_assert()
@@ -31,7 +37,7 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
         ]
         return all_conditional_nodes_on_msg_sender
 
-    def output(self, _filename):
+    def output(self, _filename: str) -> Output:
         """
         _filename is not used
         Args:
@@ -40,7 +46,7 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
 
         txt = ""
         all_tables = []
-        for contract in self.contracts:
+        for contract in self.contracts:  # type: ignore
             if contract.is_top_level:
                 continue
             txt += f"\nContract {contract.name}\n"
@@ -49,7 +55,9 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
             )
             for function in contract.functions:
 
-                state_variables_written = [v.name for v in function.all_state_variables_written()]
+                state_variables_written = [
+                    v.name for v in function.all_state_variables_written() if v.name
+                ]
                 msg_sender_condition = self.get_msg_sender_checks(function)
                 table.add_row(
                     [

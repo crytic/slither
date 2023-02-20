@@ -34,8 +34,12 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> Non
 
 
 def _patch(
-    compilation_unit: SlitherCompilationUnit, result, in_file, modify_loc_start, modify_loc_end
-):
+    compilation_unit: SlitherCompilationUnit,
+    result: Dict,
+    in_file: str,
+    modify_loc_start: int,
+    modify_loc_end: int,
+) -> None:
     in_file_str = compilation_unit.core.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Find the keywords view|pure|constant and remove them
