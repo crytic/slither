@@ -12,6 +12,7 @@ from slither.core.expressions import (
     TupleExpression,
     TypeConversion,
 )
+from slither.core.variables import Variable
 
 from slither.utils.integer_conversion import convert_string_to_fraction, convert_string_to_int
 from slither.visitors.expression.expression import ExpressionVisitor
@@ -65,6 +66,8 @@ class ConstantFolding(ExpressionVisitor):
         return Literal(value, self._type)
 
     def _post_identifier(self, expression: Identifier) -> None:
+        if not isinstance(expression.value, Variable):
+            return
         if not expression.value.is_constant:
             raise NotConstant
         expr = expression.value.expression
@@ -80,19 +83,58 @@ class ConstantFolding(ExpressionVisitor):
 
     # pylint: disable=too-many-branches
     def _post_binary_operation(self, expression: BinaryOperation) -> None:
-        left = get_val(expression.expression_left)
-        right = get_val(expression.expression_right)
-        if expression.type == BinaryOperationType.POWER:
-            set_val(expression, left**right)
-        elif expression.type == BinaryOperationType.MULTIPLICATION:
+        expression_left = expression.expression_left
+        expression_right = expression.expression_right
+        if not isinstance(
+            expression_left,
+            (Literal, BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
+        ):
+            raise NotConstant
+        if not isinstance(
+            expression_right,
+            (Literal, BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
+        ):
+            raise NotConstant
+
+        left = get_val(expression_left)
+        right = get_val(expression_right)
+
+        if (
+            expression.type == BinaryOperationType.POWER
+            and isinstance(left, (int, Fraction))
+            and isinstance(right, (int, Fraction))
+        ):
+            set_val(expression, left**right) #type: ignore
+        elif (
+            expression.type == BinaryOperationType.MULTIPLICATION
+            and isinstance(left, (int, Fraction))
+            and isinstance(right, (int, Fraction))
+        ):
             set_val(expression, left * right)
-        elif expression.type == BinaryOperationType.DIVISION:
-            set_val(expression, left / right)
-        elif expression.type == BinaryOperationType.MODULO:
+        elif (
+            expression.type == BinaryOperationType.DIVISION
+            and isinstance(left, (int, Fraction))
+            and isinstance(right, (int, Fraction))
+        ):
+            # TODO: maybe check for right + left to be int to use // ?
+            set_val(expression, left // right if isinstance(right, int) else left / right)
+        elif (
+            expression.type == BinaryOperationType.MODULO
+            and isinstance(left, (int, Fraction))
+            and isinstance(right, (int, Fraction))
+        ):
             set_val(expression, left % right)
-        elif expression.type == BinaryOperationType.ADDITION:
+        elif (
+            expression.type == BinaryOperationType.ADDITION
+            and isinstance(left, (int, Fraction))
+            and isinstance(right, (int, Fraction))
+        ):
             set_val(expression, left + right)
-        elif expression.type == BinaryOperationType.SUBTRACTION:
+        elif (
+            expression.type == BinaryOperationType.SUBTRACTION
+            and isinstance(left, (int, Fraction))
+            and isinstance(right, (int, Fraction))
+        ):
             set_val(expression, left - right)
         # Convert to int for operations not supported by Fraction
         elif expression.type == BinaryOperationType.LEFT_SHIFT:
@@ -181,7 +223,20 @@ class ConstantFolding(ExpressionVisitor):
     def _post_tuple_expression(self, expression: expressions.TupleExpression) -> None:
         if expression.expressions:
             if len(expression.expressions) == 1:
-                cf = ConstantFolding(expression.expressions[0], self._type)
+                first_expr = expression.expressions[0]
+                if not isinstance(
+                    first_expr,
+                    (
+                        Literal,
+                        BinaryOperation,
+                        UnaryOperation,
+                        Identifier,
+                        TupleExpression,
+                        TypeConversion,
+                    ),
+                ):
+                    raise NotConstant
+                cf = ConstantFolding(first_expr, self._type)
                 expr = cf.result()
                 assert isinstance(expr, Literal)
                 set_val(expression, convert_string_to_fraction(expr.converted_value))
@@ -189,7 +244,13 @@ class ConstantFolding(ExpressionVisitor):
         raise NotConstant
 
     def _post_type_conversion(self, expression: expressions.TypeConversion) -> None:
-        cf = ConstantFolding(expression.expression, self._type)
+        expr = expression.expression
+        if not isinstance(
+            expr,
+            (Literal, BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
+        ):
+            raise NotConstant
+        cf = ConstantFolding(expr, self._type)
         expr = cf.result()
         assert isinstance(expr, Literal)
         set_val(expression, convert_string_to_fraction(expr.converted_value))

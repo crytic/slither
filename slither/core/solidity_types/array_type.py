@@ -1,22 +1,20 @@
 from typing import Union, Optional, Tuple, Any, TYPE_CHECKING
 
 from slither.core.expressions.expression import Expression
-from slither.core.solidity_types.type import Type
-from slither.visitors.expression.constants_folding import ConstantFolding
 from slither.core.expressions.literal import Literal
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.type import Type
+from slither.visitors.expression.constants_folding import ConstantFolding
 
 if TYPE_CHECKING:
     from slither.core.expressions.binary_operation import BinaryOperation
     from slither.core.expressions.identifier import Identifier
-    from slither.core.solidity_types.function_type import FunctionType
-    from slither.core.solidity_types.type_alias import TypeAliasTopLevel
 
 
 class ArrayType(Type):
     def __init__(
         self,
-        t: Union["TypeAliasTopLevel", "ArrayType", "FunctionType", "ElementaryType"],
+        t: Type,
         length: Optional[Union["Identifier", Literal, "BinaryOperation", int]],
     ) -> None:
         assert isinstance(t, Type)

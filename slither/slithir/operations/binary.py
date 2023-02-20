@@ -105,7 +105,7 @@ class Binary(OperationWithLValue):
     def __init__(
         self,
         result: Variable,
-        left_variable: Union[LVALUE, Function],
+        left_variable: Union[RVALUE, Function],
         right_variable: Union[RVALUE, Function],
         operation_type: BinaryType,
     ) -> None:
@@ -127,11 +127,11 @@ class Binary(OperationWithLValue):
         return [self.variable_left, self.variable_right]
 
     @property
-    def get_variable(self) -> List[Union[RVALUE, LVALUE, Function]]:
+    def get_variable(self) -> List[Union[RVALUE, Function]]:
         return self._variables
 
     @property
-    def variable_left(self) -> Union[LVALUE, Function]:
+    def variable_left(self) -> Union[RVALUE, Function]:
         return self._variables[0]  # type: ignore
 
     @property

@@ -1299,7 +1299,7 @@ def convert_to_push_set_val(
 
     element_to_add = ReferenceVariable(node)
     element_to_add.set_type(new_type)
-    ir_assign_element_to_add = Index(element_to_add, arr, length_val, ElementaryType("uint256"))
+    ir_assign_element_to_add = Index(element_to_add, arr, length_val)
     ir_assign_element_to_add.set_expression(ir.expression)
     ir_assign_element_to_add.set_node(ir.node)
     ret.append(ir_assign_element_to_add)
@@ -1383,7 +1383,7 @@ def convert_to_pop(ir, node):
     ret.append(ir_sub_1)
 
     element_to_delete = ReferenceVariable(node)
-    ir_assign_element_to_delete = Index(element_to_delete, arr, val, ElementaryType("uint256"))
+    ir_assign_element_to_delete = Index(element_to_delete, arr, val)
     ir_length.lvalue.points_to = arr
     element_to_delete.set_type(ElementaryType("uint256"))
     ir_assign_element_to_delete.set_expression(ir.expression)

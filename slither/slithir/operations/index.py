@@ -1,7 +1,6 @@
 from typing import List, Union
 
 from slither.core.declarations import SolidityVariableComposed
-from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -11,11 +10,7 @@ from slither.slithir.variables.reference import ReferenceVariable
 
 class Index(OperationWithLValue):
     def __init__(
-        self,
-        result: ReferenceVariable,
-        left_variable: Variable,
-        right_variable: RVALUE,
-        index_type: Union[ElementaryType, str],
+        self, result: ReferenceVariable, left_variable: Variable, right_variable: RVALUE
     ) -> None:
         super().__init__()
         assert is_valid_lvalue(left_variable) or left_variable == SolidityVariableComposed(
@@ -24,7 +19,6 @@ class Index(OperationWithLValue):
         assert is_valid_rvalue(right_variable)
         assert isinstance(result, ReferenceVariable)
         self._variables = [left_variable, right_variable]
-        self._type = index_type
         self._lvalue: ReferenceVariable = result
 
     @property
@@ -43,9 +37,5 @@ class Index(OperationWithLValue):
     def variable_right(self) -> RVALUE:
         return self._variables[1]  # type: ignore
 
-    @property
-    def index_type(self) -> Union[ElementaryType, str]:
-        return self._type
-
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.lvalue}({self.lvalue.type}) -> {self.variable_left}[{self.variable_right}]"

@@ -751,8 +751,7 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         variable_left = get_variable(ir, lambda x: x.variable_left, *instances)
         variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
-        index_type = ir.index_type
-        return Index(lvalue, variable_left, variable_right, index_type)
+        return Index(lvalue, variable_left, variable_right)
     if isinstance(ir, InitArray):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         init_values = get_rec_values(ir, lambda x: x.init_values, *instances)
