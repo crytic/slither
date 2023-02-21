@@ -1633,6 +1633,21 @@ ALL_TEST_OBJECTS = [
         "LowCyclomaticComplexity.sol",
         "0.8.16",
     ),
+    Test(
+        all_detectors.DetectERC4626ShareInflation,
+        "share-inflation-erc4626.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.DetectERC4626ShareInflation,
+        "share-inflation-internal-tracking-mitigation.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.DetectERC4626ShareInflation,
+        "share-inflation-offset-mitigation.sol",
+        "0.8.0",
+    ),
 ]
 
 
