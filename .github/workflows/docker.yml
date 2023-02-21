@@ -6,7 +6,7 @@ on:
       - master
       - dev
     tags:
-      - '*'
+      - "*"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

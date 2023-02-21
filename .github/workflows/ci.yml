@@ -13,7 +13,7 @@ on:
   pull_request:
   schedule:
     # run CI every day even if no PRs/merges occur
-    - cron: '0 12 * * *'
+    - cron: "0 12 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,23 +26,25 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
-        type: ["cli",
-               "dapp",
-               "data_dependency",
-               "path_filtering",
-               # "embark",
-               "erc",
-               # "etherlime",
-               "etherscan",
-               "find_paths",
-               "flat",
-               "kspec",
-               "printers",
-               # "prop"
-               "simil",
-               "slither_config",
-               "truffle",
-               "upgradability"]
+        type: [
+            "cli",
+            "dapp",
+            "data_dependency",
+            "path_filtering",
+            # "embark",
+            "erc",
+            # "etherlime",
+            "etherscan",
+            "find_paths",
+            "flat",
+            "kspec",
+            "printers",
+            # "prop"
+            "simil",
+            "slither_config",
+            "truffle",
+            "upgradability",
+          ]
         exclude:
           # Requires nix
           - os: windows-2022
