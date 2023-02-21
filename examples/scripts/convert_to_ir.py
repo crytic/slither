@@ -1,7 +1,7 @@
 import sys
-
 from slither.slither import Slither
 from slither.slithir.convert import convert_expression
+
 
 if len(sys.argv) != 2:
     print("python function_called.py functions_called.sol")

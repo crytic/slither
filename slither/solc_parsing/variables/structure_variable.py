@@ -1,7 +1,7 @@
 from typing import Dict
 
-from slither.core.variables.structure_variable import StructureVariable
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
+from slither.core.variables.structure_variable import StructureVariable
 
 
 class StructureVariableSolc(VariableDeclarationSolc):

@@ -1,10 +1,9 @@
-import difflib
 import os
-from collections import defaultdict
+import difflib
 from typing import Dict, Tuple, Union
+from collections import defaultdict
 
 from slither.core.compilation_unit import SlitherCompilationUnit
-
 
 # pylint: disable=too-many-arguments
 def create_patch(

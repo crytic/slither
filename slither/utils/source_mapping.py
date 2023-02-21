@@ -1,16 +1,6 @@
 from typing import List
-
 from crytic_compile import CryticCompile
-
-from slither.core.declarations import (
-    Contract,
-    Enum,
-    Event,
-    Function,
-    Import,
-    Pragma,
-    Structure,
-)
+from slither.core.declarations import Contract, Function, Enum, Event, Import, Pragma, Structure
 from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import Source, SourceMapping
 from slither.core.variables.variable import Variable

@@ -1,6 +1,6 @@
+from functools import partial
 import platform
 import sys
-from functools import partial
 
 
 class Colors:  # pylint: disable=too-few-public-methods
@@ -28,7 +28,7 @@ def enable_windows_virtual_terminal_sequences() -> bool:
 
     try:
         # pylint: disable=import-outside-toplevel
-        from ctypes import byref, windll
+        from ctypes import windll, byref
         from ctypes.wintypes import DWORD, HANDLE
 
         kernel32 = windll.kernel32
@@ -41,6 +41,7 @@ def enable_windows_virtual_terminal_sequences() -> bool:
 
         # Loop for each stdout/stderr handle.
         for current_handle in [handle_stdout, handle_stderr]:
+
             # If we get a null handle, or fail any subsequent calls in this scope, we do not colorize any output.
             if current_handle is None or current_handle == HANDLE(-1):
                 return False

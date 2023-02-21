@@ -6,7 +6,7 @@ from collections import defaultdict
 from contextlib import contextmanager
 from inspect import getsourcefile
 from tempfile import NamedTemporaryFile
-from typing import List, Optional, Union
+from typing import Union, List, Optional
 
 import pytest
 from solc_select import solc_select
@@ -14,25 +14,25 @@ from solc_select.solc_select import valid_version as solc_valid_version
 
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations import Contract, Function
+from slither.core.declarations import Function, Contract
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
-    Assignment,
-    Binary,
-    BinaryType,
-    HighLevelCall,
-    Index,
-    InternalCall,
-    Operation,
     OperationWithLValue,
     Phi,
+    Assignment,
+    HighLevelCall,
     Return,
+    Operation,
+    Binary,
+    BinaryType,
+    InternalCall,
+    Index,
 )
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import (
     Constant,
-    LocalIRVariable,
     ReferenceVariable,
+    LocalIRVariable,
     StateIRVariable,
 )
 
@@ -115,7 +115,7 @@ def ssa_basic_properties(function: Function):
     for v in ssa_lvalues:
         ssa_defs[v.name] += 1
 
-    for k, n in lvalue_assignments.items():
+    for (k, n) in lvalue_assignments.items():
         assert ssa_defs[k] >= n
 
     # Helper 5/6

@@ -1,6 +1,6 @@
 from slither.core.declarations import Contract
-from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.core.variables.state_variable import StateVariable
+from slither.core.solidity_types import ArrayType, ElementaryType
 
 
 def is_upgradable_gap_variable(contract: Contract, variable: StateVariable) -> bool:

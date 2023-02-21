@@ -1,33 +1,30 @@
 import logging
 import sys
 from math import floor
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Optional, Tuple, Union, List, Dict, Any
 
 try:
-    from eth_abi import decode_single, encode_abi
-    from eth_typing.evm import ChecksumAddress
-    from eth_utils import keccak
     from web3 import Web3
-
-    from .utils import coerce_type, get_offset_value, get_storage_data
+    from eth_typing.evm import ChecksumAddress
+    from eth_abi import decode_single, encode_abi
+    from eth_utils import keccak
+    from .utils import (
+        get_offset_value,
+        get_storage_data,
+        coerce_type,
+    )
 except ImportError:
     print("ERROR: in order to use slither-read-storage, you need to install web3")
     print("$ pip3 install web3 --user\n")
     sys.exit(-1)
 
 import dataclasses
-
-from slither.core.declarations import Contract, Structure
-from slither.core.solidity_types import (
-    ArrayType,
-    ElementaryType,
-    MappingType,
-    UserDefinedType,
-)
+from slither.utils.myprettytable import MyPrettyTable
 from slither.core.solidity_types.type import Type
+from slither.core.solidity_types import ArrayType, ElementaryType, UserDefinedType, MappingType
+from slither.core.declarations import Contract, Structure
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
-from slither.utils.myprettytable import MyPrettyTable
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-read-storage")

@@ -3,7 +3,7 @@ Detects various properties of inheritance in provided contracts.
 """
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, List, Set, Tuple
+from typing import TYPE_CHECKING, List, Dict, Set, Tuple
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract, Function

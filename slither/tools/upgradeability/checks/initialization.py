@@ -376,6 +376,7 @@ Ensure that the function is called at deployment.
     REQUIRE_CONTRACT = True
 
     def _check(self):
+
         # TODO: handle MultipleInitTarget
         try:
             most_derived_init = _get_most_derived_init(self.contract)

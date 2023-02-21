@@ -1,8 +1,7 @@
-import shutil
 from pathlib import Path
+import shutil
 
 import pytest
-
 from slither import Slither
 
 # NB: read tests/source_unit/README.md for setup before using this test

@@ -12,6 +12,7 @@ logger = logging.getLogger("Slither-simil")
 
 
 def train(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
+
     try:
         last_data_train_filename = "last_data_train.txt"
         model_filename = args.model

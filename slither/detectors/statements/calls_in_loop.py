@@ -1,17 +1,16 @@
 from typing import List, Optional
-
-from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations import Contract
+from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations import Contract
+from slither.utils.output import Output
 from slither.slithir.operations import (
     HighLevelCall,
-    InternalCall,
     LibraryCall,
     LowLevelCall,
     Send,
     Transfer,
+    InternalCall,
 )
-from slither.utils.output import Output
 
 
 def detect_call_in_loop(contract: Contract) -> List[Node]:
@@ -52,6 +51,7 @@ def call_in_loop(
 
 
 class MultipleCallsInLoop(AbstractDetector):
+
     ARGUMENT = "calls-loop"
     HELP = "Multiple calls in a loop"
     IMPACT = DetectorClassification.LOW

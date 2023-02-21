@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 from typing import Callable, List
+from dataclasses import dataclass
 
 from slither.tools.doctor.checks.paths import check_slither_path
 from slither.tools.doctor.checks.platform import compile_project, detect_platform

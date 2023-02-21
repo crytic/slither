@@ -1,9 +1,5 @@
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.utils.source_mapping import (
-    get_definition,
-    get_implementation,
-    get_references,
-)
+from slither.utils.source_mapping import get_definition, get_implementation, get_references
 
 
 class Declaration(AbstractPrinter):

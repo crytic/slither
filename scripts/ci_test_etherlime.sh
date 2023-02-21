@@ -15,8 +15,8 @@ npm i -g etherlime
 etherlime init
 
 if ! slither .; then
-	echo "Etherlime test failed"
-	exit 1
+    echo "Etherlime test failed"
+    exit 1
 fi
 
 exit 0

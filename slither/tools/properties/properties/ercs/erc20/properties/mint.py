@@ -1,8 +1,8 @@
 from slither.tools.properties.properties.properties import (
+    PropertyType,
+    PropertyReturn,
     Property,
     PropertyCaller,
-    PropertyReturn,
-    PropertyType,
 )
 
 ERC20_NotMintable = [

@@ -7,6 +7,7 @@ from slither.utils.myprettytable import MyPrettyTable
 
 
 class VariableOrder(AbstractPrinter):
+
     ARGUMENT = "variable-order"
     HELP = "Print the storage order of the state variables"
 

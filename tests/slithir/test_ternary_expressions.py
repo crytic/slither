@@ -1,8 +1,7 @@
 from slither import Slither
 from slither.core.cfg.node import NodeType
-from slither.core.expressions import AssignmentOperation, TupleExpression
 from slither.slithir.operations import Assignment
-
+from slither.core.expressions import AssignmentOperation, TupleExpression
 
 # pylint: disable=too-many-nested-blocks
 def test_ternary_conversions() -> None:
@@ -14,6 +13,7 @@ def test_ternary_conversions() -> None:
             vars_assigned = 0
             for node in function.nodes:
                 if node.type in [NodeType.IF, NodeType.IFLOOP]:
+
                     # Iterate over true and false son
                     for inner_node in node.sons:
                         # Count all variables declared

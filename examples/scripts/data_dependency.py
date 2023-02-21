@@ -1,7 +1,10 @@
 import sys
 
 from slither import Slither
-from slither.analyses.data_dependency.data_dependency import is_dependent, is_tainted
+from slither.analyses.data_dependency.data_dependency import (
+    is_dependent,
+    is_tainted,
+)
 from slither.core.declarations.solidity_variables import SolidityVariableComposed
 
 if len(sys.argv) != 2:

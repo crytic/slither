@@ -1,8 +1,7 @@
-import logging
 from contextlib import contextmanager
+import logging
 from typing import Optional
-
-from slither.utils.colors import bold, red, yellow
+from slither.utils.colors import bold, yellow, red
 
 
 @contextmanager

@@ -2,7 +2,7 @@
     Compute the data depenency between all the SSA variables
 """
 from collections import defaultdict
-from typing import TYPE_CHECKING, Dict, Set, Union
+from typing import Union, Set, Dict, TYPE_CHECKING
 
 from slither.core.declarations import (
     Contract,
@@ -13,18 +13,10 @@ from slither.core.declarations import (
     SolidityVariableComposed,
     Structure,
 )
-from slither.core.declarations.solidity_import_placeholder import (
-    SolidityImportPlaceHolder,
-)
-from slither.core.solidity_types.type import Type
+from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
-from slither.slithir.operations import (
-    Index,
-    InternalCall,
-    Operation,
-    OperationWithLValue,
-)
+from slither.slithir.operations import Index, OperationWithLValue, InternalCall, Operation
 from slither.slithir.variables import (
     Constant,
     LocalIRVariable,
@@ -34,6 +26,7 @@ from slither.slithir.variables import (
     TemporaryVariableSSA,
     TupleVariableSSA,
 )
+from slither.core.solidity_types.type import Type
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -332,7 +325,7 @@ def propagate_function(
     transitive_close_dependencies(function, context_key, context_key_non_ssa)
     # Propage data dependency
     data_depencencies = function.context[context_key]
-    for key, values in data_depencencies.items():
+    for (key, values) in data_depencencies.items():
         if not key in contract.context[context_key]:
             contract.context[context_key][key] = set(values)
         else:
@@ -449,7 +442,7 @@ def convert_to_non_ssa(
 ) -> Dict[Variable_types, Set[Variable_types]]:
     # Need to create new set() as its changed during iteration
     ret: Dict[Variable_types, Set[Variable_types]] = {}
-    for k, values in data_depencies.items():
+    for (k, values) in data_depencies.items():
         var = convert_variable_to_non_ssa(k)
         if not var in ret:
             ret[var] = set()

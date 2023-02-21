@@ -1,17 +1,17 @@
-import logging
 import sys
+
+import logging
 from argparse import ArgumentParser, Namespace
 
 from crytic_compile import cryticparser
-
 from slither import Slither
 from slither.core.declarations import FunctionContract
+from slither.utils.colors import red
 from slither.tools.possible_paths.possible_paths import (
-    ResolveFunctionException,
     find_target_paths,
     resolve_functions,
+    ResolveFunctionException,
 )
-from slither.utils.colors import red
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)

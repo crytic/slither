@@ -3,26 +3,27 @@ import inspect
 import json
 import logging
 import sys
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
+from typing import List, Any, Type, Dict, Tuple, Union, Sequence, Optional
 
 from crytic_compile import cryticparser
+
 
 from slither import Slither
 from slither.core.declarations import Contract
 from slither.exceptions import SlitherException
+from slither.utils.colors import red
+from slither.utils.output import output_to_json
 from slither.tools.upgradeability.checks import all_checks
 from slither.tools.upgradeability.checks.abstract_checks import (
     AbstractCheck,
     CheckClassification,
 )
 from slither.tools.upgradeability.utils.command_line import (
-    output_detectors,
     output_detectors_json,
-    output_to_markdown,
     output_wiki,
+    output_detectors,
+    output_to_markdown,
 )
-from slither.utils.colors import red
-from slither.utils.output import output_to_json
 
 logging.basicConfig()
 logger: logging.Logger = logging.getLogger("Slither")
@@ -277,7 +278,6 @@ def _checks_on_contract_and_proxy(
 # region Main
 ###################################################################################
 ###################################################################################
-
 
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main() -> None:

@@ -1,9 +1,6 @@
-from typing import Dict, List, Type, Union
+from typing import List, Union, Dict, Type
 
-from slither.tools.upgradeability.checks.abstract_checks import (
-    AbstractCheck,
-    classification_txt,
-)
+from slither.tools.upgradeability.checks.abstract_checks import classification_txt, AbstractCheck
 from slither.utils.myprettytable import MyPrettyTable
 
 
@@ -50,7 +47,7 @@ def output_detectors(detector_classes: List[Type[AbstractCheck]]) -> None:
     # Sort by impact, confidence, and name
     detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
     idx = 1
-    for argument, help_info, impact, proxy, v2 in detectors_list:
+    for (argument, help_info, impact, proxy, v2) in detectors_list:
         table.add_row(
             [
                 str(idx),
@@ -83,7 +80,7 @@ def output_to_markdown(detector_classes: List[Type[AbstractCheck]], _filter_wiki
     # Sort by impact, confidence, and name
     detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
     idx = 1
-    for argument, help_info, impact, proxy, v2 in detectors_list:
+    for (argument, help_info, impact, proxy, v2) in detectors_list:
         print(
             f"{idx} | `{argument}` | {help_info} | {classification_txt[impact]} | {'X' if proxy else ''} | {'X' if v2 else ''}"
         )

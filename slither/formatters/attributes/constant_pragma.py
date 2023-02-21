@@ -1,5 +1,4 @@
 import re
-
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import create_patch
 

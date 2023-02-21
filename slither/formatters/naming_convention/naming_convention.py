@@ -1,24 +1,26 @@
-import logging
 import re
+import logging
+
 from typing import List
 
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.core.declarations import Contract, Enum, Function, Modifier, Structure
-from slither.core.solidity_types import MappingType, UserDefinedType
+from slither.slithir.operations import (
+    Send,
+    Transfer,
+    OperationWithLValue,
+    HighLevelCall,
+    LowLevelCall,
+    InternalCall,
+    InternalDynamicCall,
+    Operation,
+)
+from slither.core.declarations import Modifier
+from slither.core.solidity_types import UserDefinedType, MappingType
+from slither.core.declarations import Enum, Contract, Structure, Function
 from slither.core.solidity_types.elementary_type import ElementaryTypeName
 from slither.core.variables.local_variable import LocalVariable
 from slither.formatters.exceptions import FormatError, FormatImpossible
 from slither.formatters.utils.patches import create_patch
-from slither.slithir.operations import (
-    HighLevelCall,
-    InternalCall,
-    InternalDynamicCall,
-    LowLevelCall,
-    Operation,
-    OperationWithLValue,
-    Send,
-    Transfer,
-)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Slither.Format")
@@ -372,6 +374,7 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
             custom_type.type_from,
             custom_type.type_to,
         ]:
+
             full_txt_start = start
             full_txt_end = end
             full_txt = slither.source_code[filename_source_code].encode("utf8")[

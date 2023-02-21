@@ -1,12 +1,11 @@
+import sys
 import argparse
 import logging
-import sys
-
 from crytic_compile import cryticparser
-
 from slither import Slither
-from slither.tools.slither_format.slither_format import slither_format
 from slither.utils.command_line import read_config_file
+from slither.tools.slither_format.slither_format import slither_format
+
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)

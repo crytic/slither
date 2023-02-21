@@ -1,18 +1,20 @@
 import argparse
 import logging
-import os.path
 import sys
+import os.path
 import traceback
 
-from .encode import encode_contract, parse_target
 from .model import load_model
+from .encode import parse_target, encode_contract
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-simil")
 
 
 def info(args: argparse.Namespace) -> None:
+
     try:
+
         model = args.model
         if os.path.isfile(model):
             model = load_model(model)

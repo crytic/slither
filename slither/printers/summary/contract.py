@@ -2,7 +2,6 @@
     Module printing summary of the contract
 """
 import collections
-
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils import output
 from slither.utils.colors import blue, green, magenta

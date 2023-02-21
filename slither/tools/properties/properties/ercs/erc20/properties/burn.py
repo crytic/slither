@@ -1,8 +1,8 @@
 from slither.tools.properties.properties.properties import (
     Property,
-    PropertyCaller,
-    PropertyReturn,
     PropertyType,
+    PropertyReturn,
+    PropertyCaller,
 )
 
 ERC20_NotBurnable = [

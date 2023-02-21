@@ -1,9 +1,5 @@
 from solc_select import solc_select
-
 from slither import Slither
-
-# {"contracts":{"functions_ids.sol:C":{"hashes":{"a()":"0dbe671f","a_array(uint256)":"4a1f689d","arrayOfMappings(uint256,uint256)":"98fc2aa5","b_mapping_of_array(address,uint256)":"4ea7a557","contractMap(address)":"3c0af344","function_with_array(((uint256,uint256),uint256)[],(uint256,(uint256,uint256)))":"20969954","function_with_struct(((uint256,uint256),uint256))":"1c039831","mapping_of_double_array_of_struct(address,uint256,uint256)":"37e66bae","multiDimensionalArray(uint256,uint256)":"f29872a8","normalMappingArrayField(uint256,uint256)":"9539e3c8","outer()":"87c3dbb6","simple()":"df201a46","stateMap(uint16)":"5a20851f"}},"functions_ids.sol:Contract":{"hashes":{}}},"version":"0.7.0+commit.9e61f92b.Darwin.appleclang"}
-from slither.utils.function import get_function_id
 
 # % solc functions_ids.sol --hashes
 # ======= functions_ids.sol:C =======
@@ -22,6 +18,8 @@ from slither.utils.function import get_function_id
 # df201a46: simple()
 # 5a20851f: stateMap(uint16)
 
+# {"contracts":{"functions_ids.sol:C":{"hashes":{"a()":"0dbe671f","a_array(uint256)":"4a1f689d","arrayOfMappings(uint256,uint256)":"98fc2aa5","b_mapping_of_array(address,uint256)":"4ea7a557","contractMap(address)":"3c0af344","function_with_array(((uint256,uint256),uint256)[],(uint256,(uint256,uint256)))":"20969954","function_with_struct(((uint256,uint256),uint256))":"1c039831","mapping_of_double_array_of_struct(address,uint256,uint256)":"37e66bae","multiDimensionalArray(uint256,uint256)":"f29872a8","normalMappingArrayField(uint256,uint256)":"9539e3c8","outer()":"87c3dbb6","simple()":"df201a46","stateMap(uint16)":"5a20851f"}},"functions_ids.sol:Contract":{"hashes":{}}},"version":"0.7.0+commit.9e61f92b.Darwin.appleclang"}
+from slither.utils.function import get_function_id
 
 signatures = {
     "a()": "0dbe671f",

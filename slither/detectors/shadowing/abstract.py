@@ -7,8 +7,7 @@ from typing import List
 from slither.core.declarations import Contract
 from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.utils.output import AllSupportedOutput, Output
-
+from slither.utils.output import Output, AllSupportedOutput
 from .common import is_upgradable_gap_variable
 
 

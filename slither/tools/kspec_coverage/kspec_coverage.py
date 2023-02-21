@@ -1,10 +1,11 @@
 import argparse
 
-from slither import Slither
 from slither.tools.kspec_coverage.analysis import run_analysis
+from slither import Slither
 
 
 def kspec_coverage(args: argparse.Namespace) -> None:
+
     contract = args.contract
     kspec = args.kspec
 

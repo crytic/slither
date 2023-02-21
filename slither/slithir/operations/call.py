@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional, List
 
 from slither.slithir.operations.operation import Operation
 

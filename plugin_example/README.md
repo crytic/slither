@@ -11,7 +11,6 @@ See the [detector documentation](https://github.com/trailofbits/slither/wiki/Add
 - `slither_my_plugin/detectors/example.py`: Detector plugin skeleton.
 
 Once these files are updated with your plugin, you can install it:
-
 ```bash
 python setup.py develop
 ```

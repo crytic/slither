@@ -1,10 +1,10 @@
+from pathlib import Path
+from typing import List, Optional, Tuple
 import shutil
 import sys
 import sysconfig
-from pathlib import Path
-from typing import List, Optional, Tuple
 
-from slither.utils.colors import green, red, yellow
+from slither.utils.colors import yellow, green, red
 
 
 def path_is_relative_to(path: Path, relative_to: Path) -> bool:
@@ -22,7 +22,7 @@ def path_is_relative_to(path: Path, relative_to: Path) -> bool:
     if len(path_parts) < len(relative_to_parts):
         return False
 
-    for a, b in zip(path_parts, relative_to_parts):
+    for (a, b) in zip(path_parts, relative_to_parts):
         if a != b:
             return False
 

@@ -7,9 +7,9 @@ import sys
 from crytic_compile import cryticparser
 
 from slither.tools.similarity.info import info
-from slither.tools.similarity.plot import plot
 from slither.tools.similarity.test import test
 from slither.tools.similarity.train import train
+from slither.tools.similarity.plot import plot
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-simil")

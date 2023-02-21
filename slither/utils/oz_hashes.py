@@ -1,4 +1,4 @@
-from typing import List, NamedTuple
+from typing import NamedTuple, List
 
 
 class LibraryInfo(NamedTuple):

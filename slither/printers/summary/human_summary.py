@@ -3,24 +3,24 @@ Module printing summary of the contract
 """
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Tuple, List, Dict
 
-from slither.core.cfg.node import NodeType
-from slither.core.declarations import Function, SolidityFunction
+from slither.core.declarations import SolidityFunction, Function
 from slither.core.variables.state_variable import StateVariable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.operations import (
-    HighLevelCall,
     LowLevelCall,
+    HighLevelCall,
+    Transfer,
     Send,
     SolidityCall,
-    Transfer,
 )
 from slither.utils import output
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 from slither.utils.colors import green, red, yellow
 from slither.utils.myprettytable import MyPrettyTable
 from slither.utils.standard_libraries import is_standard_library
+from slither.core.cfg.node import NodeType
 from slither.utils.tests_pattern import is_test_file
 
 
@@ -32,6 +32,7 @@ class PrinterHumanSummary(AbstractPrinter):
 
     @staticmethod
     def _get_summary_erc20(contract):
+
         functions_name = [f.name for f in contract.functions]
         state_variables = [v.name for v in contract.state_variables]
 
@@ -225,6 +226,7 @@ class PrinterHumanSummary(AbstractPrinter):
         return list(set(ercs))
 
     def _get_features(self, contract):  # pylint: disable=too-many-branches
+
         has_payable = False
         can_send_eth = False
         can_selfdestruct = False
@@ -361,6 +363,7 @@ class PrinterHumanSummary(AbstractPrinter):
             ["Name", "# functions", "ERCS", "ERC20 info", "Complex code", "Features"]
         )
         for contract in self.slither.contracts_derived:
+
             if contract.is_from_dependency() or contract.is_test:
                 continue
 

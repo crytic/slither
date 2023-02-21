@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List, Dict
 
 from prettytable import PrettyTable
 

@@ -8,9 +8,7 @@ from slither.tools.properties.platforms.truffle import (
     generate_migration,
     generate_unit_test,
 )
-from slither.tools.properties.properties.ercs.erc20.properties.initialization import (
-    ERC20_CONFIG,
-)
+from slither.tools.properties.properties.ercs.erc20.properties.initialization import ERC20_CONFIG
 from slither.tools.properties.properties.properties import Property
 
 logger = logging.getLogger("Slither")

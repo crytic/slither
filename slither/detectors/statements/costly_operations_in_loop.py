@@ -1,11 +1,10 @@
 from typing import List, Optional
-
-from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations import Contract
-from slither.core.variables.state_variable import StateVariable
+from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import InternalCall, OperationWithLValue
+from slither.core.declarations import Contract
 from slither.utils.output import Output
+from slither.slithir.operations import InternalCall, OperationWithLValue
+from slither.core.variables.state_variable import StateVariable
 
 
 def detect_costly_operations_in_loop(contract: Contract) -> List[Node]:
@@ -20,6 +19,7 @@ def detect_costly_operations_in_loop(contract: Contract) -> List[Node]:
 def costly_operations_in_loop(
     node: Optional[Node], in_loop_counter: int, visited: List[Node], ret: List[Node]
 ) -> None:
+
     if node is None:
         return
 
@@ -47,6 +47,7 @@ def costly_operations_in_loop(
 
 
 class CostlyOperationsInLoop(AbstractDetector):
+
     ARGUMENT = "costly-loop"
     HELP = "Costly operations in a loop"
     IMPACT = DetectorClassification.INFORMATIONAL

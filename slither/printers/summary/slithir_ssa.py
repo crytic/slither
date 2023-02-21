@@ -6,6 +6,7 @@ from slither.printers.abstract_printer import AbstractPrinter
 
 
 class PrinterSlithIRSSA(AbstractPrinter):
+
     ARGUMENT = "slithir-ssa"
     HELP = "Print the slithIR representation of the functions"
 

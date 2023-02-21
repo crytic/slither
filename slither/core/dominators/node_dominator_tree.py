@@ -1,7 +1,7 @@
 """
     Nodes of the dominator tree
 """
-from typing import TYPE_CHECKING, List, Set
+from typing import TYPE_CHECKING, Set, List
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node

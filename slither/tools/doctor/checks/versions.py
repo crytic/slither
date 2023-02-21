@@ -1,11 +1,11 @@
-import json
-import urllib
 from importlib import metadata
+import json
 from typing import Optional
+import urllib
 
-from packaging.version import Version, parse
+from packaging.version import parse, Version
 
-from slither.utils.colors import green, yellow
+from slither.utils.colors import yellow, green
 
 
 def get_installed_version(name: str) -> Optional[Version]:

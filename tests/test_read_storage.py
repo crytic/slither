@@ -1,15 +1,14 @@
-import json
-import os
 import re
+import os
+import sys
+import json
 import shutil
 import subprocess
-import sys
 from time import sleep
 from typing import Generator
 
 import pytest
 from deepdiff import DeepDiff
-
 from slither import Slither
 from slither.tools.read_storage import SlitherReadStorage
 
@@ -23,7 +22,6 @@ except ImportError:
 
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STORAGE_TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "storage-layout")
-
 
 # pylint: disable=too-few-public-methods
 class GanacheInstance:
@@ -63,6 +61,7 @@ def fixture_ganache() -> Generator[GanacheInstance, None, None]:
         ),
         shell=True,
     ) as p:
+
         sleep(3)
         yield GanacheInstance(f"http://127.0.0.1:{port}", eth_address, eth_privkey)
         p.kill()

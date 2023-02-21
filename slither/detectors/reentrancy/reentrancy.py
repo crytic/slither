@@ -5,10 +5,10 @@
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Set, Dict, List, Tuple, Optional
 
-from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations import Contract, Function
+from slither.core.cfg.node import NodeType, Node
+from slither.core.declarations import Function, Contract
 from slither.core.expressions import UnaryOperation, UnaryOperationType
 from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import AbstractDetector

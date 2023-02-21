@@ -12,6 +12,7 @@ logger = logging.getLogger("Slither")
 def generate_solidity_properties(
     contract: Contract, type_property: str, solidity_properties: str, output_dir: Path
 ) -> Path:
+
     solidity_import = 'import "./interfaces.sol";\n'
     solidity_import += f'import "../{contract.source_mapping.filename.short}";'
 

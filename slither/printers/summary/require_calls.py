@@ -15,6 +15,7 @@ require_or_assert = [
 
 
 class RequireOrAssert(AbstractPrinter):
+
     ARGUMENT = "require"
     HELP = "Print the require and assert calls of each function"
 

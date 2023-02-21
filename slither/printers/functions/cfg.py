@@ -2,6 +2,7 @@ from slither.printers.abstract_printer import AbstractPrinter
 
 
 class CFG(AbstractPrinter):
+
     ARGUMENT = "cfg"
     HELP = "Export the CFG of each functions"
 

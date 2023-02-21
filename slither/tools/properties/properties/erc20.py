@@ -1,44 +1,38 @@
 import logging
 from collections import namedtuple
 from pathlib import Path
-from typing import List, Tuple
+from typing import Tuple, List
 
-from crytic_compile.platform import Type as PlatformType
 from crytic_compile.platform.abstract_platform import AbstractPlatform
+from crytic_compile.platform import Type as PlatformType
 
 from slither.core.declarations import Contract
 from slither.tools.properties.addresses.address import Addresses
 from slither.tools.properties.platforms.echidna import generate_echidna_config
 from slither.tools.properties.properties.ercs.erc20.properties.burn import (
-    ERC20_Burnable,
     ERC20_NotBurnable,
+    ERC20_Burnable,
 )
-from slither.tools.properties.properties.ercs.erc20.properties.initialization import (
-    ERC20_CONFIG,
-)
-from slither.tools.properties.properties.ercs.erc20.properties.mint import (
-    ERC20_NotMintable,
-)
+from slither.tools.properties.properties.ercs.erc20.properties.initialization import ERC20_CONFIG
+from slither.tools.properties.properties.ercs.erc20.properties.mint import ERC20_NotMintable
 from slither.tools.properties.properties.ercs.erc20.properties.mint_and_burn import (
     ERC20_NotMintableNotBurnable,
 )
 from slither.tools.properties.properties.ercs.erc20.properties.transfer import (
-    ERC20_Pausable,
     ERC20_Transferable,
+    ERC20_Pausable,
 )
-from slither.tools.properties.properties.ercs.erc20.unit_tests.truffle import (
-    generate_truffle_test,
-)
+from slither.tools.properties.properties.ercs.erc20.unit_tests.truffle import generate_truffle_test
 from slither.tools.properties.properties.properties import (
-    Property,
     property_to_solidity,
+    Property,
 )
 from slither.tools.properties.solidity.generate_properties import (
-    generate_solidity_interface,
     generate_solidity_properties,
     generate_test_contract,
+    generate_solidity_interface,
 )
-from slither.utils.colors import green, red
+from slither.utils.colors import red, green
 
 logger = logging.getLogger("Slither")
 

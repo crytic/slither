@@ -1,7 +1,7 @@
 from typing import List
 
-from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 
 class TmpNewElementaryType(OperationWithLValue):

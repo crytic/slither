@@ -7,10 +7,10 @@ from crytic_compile.utils.zip import ZIP_TYPES_ACCEPTED
 
 from slither import Slither
 from slither.tools.flattening.flattening import (
-    DEFAULT_EXPORT_PATH,
-    STRATEGIES_NAMES,
     Flattening,
     Strategy,
+    STRATEGIES_NAMES,
+    DEFAULT_EXPORT_PATH,
 )
 
 logging.basicConfig()
@@ -112,6 +112,7 @@ def main() -> None:
     slither = Slither(args.filename, **vars(args))
 
     for compilation_unit in slither.compilation_units:
+
         flat = Flattening(
             compilation_unit,
             external_to_public=args.convert_external,
