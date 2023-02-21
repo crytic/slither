@@ -4,7 +4,7 @@ from typing import Dict, List, Set, Tuple, NamedTuple, Union
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
-from slither.core.declarations import Function
+from slither.core.declarations import Enum, Function
 from slither.core.declarations.solidity_variables import (
     SolidityVariableComposed,
     SolidityFunction,
@@ -186,6 +186,17 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
             if isinstance(ir.variable, Constant):
                 all_cst_used.append(ConstantValue(str(ir.variable.value), str(ir.type)))
                 continue
+        if (
+            isinstance(ir, Member)
+            and isinstance(ir.variable_left, Enum)
+            and isinstance(ir.variable_right, Constant)
+        ):
+            # enums are constant values
+            try:
+                internal_num = ir.variable_left.values.index(ir.variable_right.value)
+                all_cst_used.append(ConstantValue(str(internal_num), "uint256"))
+            except ValueError:  # index could fail; should never happen in working solidity code
+                pass
         for r in ir.read:
             # Do not report struct_name in a.struct_name
             if isinstance(ir, Member):
