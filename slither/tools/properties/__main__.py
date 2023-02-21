@@ -6,13 +6,13 @@ from typing import Any
 from crytic_compile import cryticparser
 
 from slither import Slither
-from slither.tools.properties.properties.erc20 import generate_erc20, ERC20_PROPERTIES
 from slither.tools.properties.addresses.address import (
-    Addresses,
+    ATTACKER_ADDRESS,
     OWNER_ADDRESS,
     USER_ADDRESS,
-    ATTACKER_ADDRESS,
+    Addresses,
 )
+from slither.tools.properties.properties.erc20 import ERC20_PROPERTIES, generate_erc20
 from slither.utils.myprettytable import MyPrettyTable
 
 logging.basicConfig()

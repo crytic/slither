@@ -1,7 +1,6 @@
 import abc
 from logging import Logger
-
-from typing import TYPE_CHECKING, Union, List, Optional, Dict
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 from slither.utils import output
 from slither.utils.output import SupportedOutput

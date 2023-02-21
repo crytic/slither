@@ -1,4 +1,5 @@
 import logging
+
 from slither.exceptions import SlitherError
 
 logger = logging.getLogger("ConvertToEVM")

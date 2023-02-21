@@ -1,5 +1,4 @@
 from slither.visitors.expression.expression import ExpressionVisitor
-
 from slither.visitors.expression.right_value import RightValue
 
 key = "FindPush"

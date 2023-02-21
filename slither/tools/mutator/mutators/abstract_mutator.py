@@ -1,7 +1,7 @@
 import abc
 import logging
 from enum import Enum
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 from slither import Slither
 from slither.formatters.utils.patches import apply_patch, create_diff

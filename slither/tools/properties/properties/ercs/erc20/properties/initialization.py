@@ -1,8 +1,8 @@
 from slither.tools.properties.properties.properties import (
     Property,
-    PropertyType,
-    PropertyReturn,
     PropertyCaller,
+    PropertyReturn,
+    PropertyType,
 )
 
 ERC20_CONFIG = [

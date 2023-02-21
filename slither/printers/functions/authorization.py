@@ -2,13 +2,12 @@
     Module printing summary of the contract
 """
 
-from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function import Function
+from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.myprettytable import MyPrettyTable
 
 
 class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
-
     ARGUMENT = "vars-and-auth"
     HELP = "Print the state variables written and the authorization of the functions"
 
@@ -48,7 +47,6 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
                 ["Function", "State variables written", "Conditions on msg.sender"]
             )
             for function in contract.functions:
-
                 state_variables_written = [v.name for v in function.all_state_variables_written()]
                 msg_sender_condition = self.get_msg_sender_checks(function)
                 table.add_row(

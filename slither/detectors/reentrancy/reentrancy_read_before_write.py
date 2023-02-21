@@ -4,12 +4,13 @@
     Based on heuristics, it may lead to FP and FN
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
-from collections import namedtuple, defaultdict
-from typing import Dict, Set, List
+from collections import defaultdict, namedtuple
+from typing import Dict, List, Set
 
 from slither.detectors.abstract_detector import DetectorClassification
-from .reentrancy import Reentrancy, to_hashable
+
 from ...utils.output import Output
+from .reentrancy import Reentrancy, to_hashable
 
 FindingKey = namedtuple("FindingKey", ["function", "calls"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes", "cross_functions"])
@@ -110,7 +111,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
             info = ["Reentrancy in ", func, ":\n"]
 
             info += ["\tExternal calls:\n"]
-            for (call_info, calls_list) in calls:
+            for call_info, calls_list in calls:
                 info += ["\t- ", call_info, "\n"]
                 for call_list_info in calls_list:
                     if call_list_info != call_info:
@@ -137,7 +138,7 @@ Do not report reentrancies that involve Ether (see `reentrancy-eth`)."""
             res.add(func)
 
             # Add all underlying calls in the function which are potentially problematic.
-            for (call_info, calls_list) in calls:
+            for call_info, calls_list in calls:
                 res.add(call_info, {"underlying_type": "external_calls"})
                 for call_list_info in calls_list:
                     if call_list_info != call_info:

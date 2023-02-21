@@ -2,7 +2,6 @@ from slither.printers.abstract_printer import AbstractPrinter
 
 
 class Dominator(AbstractPrinter):
-
     ARGUMENT = "dominator"
     HELP = "Export the dominator tree of each functions"
 

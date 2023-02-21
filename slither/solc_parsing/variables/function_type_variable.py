@@ -1,7 +1,7 @@
 from typing import Dict
 
-from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.core.variables.function_type_variable import FunctionTypeVariable
+from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 
 
 class FunctionTypeVariableSolc(VariableDeclarationSolc):

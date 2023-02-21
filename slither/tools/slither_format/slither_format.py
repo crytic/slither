@@ -1,18 +1,18 @@
 import logging
 from pathlib import Path
-from typing import Type, List, Dict
+from typing import Dict, List, Type
 
 from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
-from slither.detectors.variables.unused_state_variables import UnusedStateVars
-from slither.detectors.attributes.incorrect_solc import IncorrectSolc
-from slither.detectors.attributes.constant_pragma import ConstantPragma
-from slither.detectors.naming_convention.naming_convention import NamingConvention
-from slither.detectors.functions.external_function import ExternalFunction
-from slither.detectors.variables.could_be_constant import CouldBeConstant
-from slither.detectors.variables.could_be_immutable import CouldBeImmutable
 from slither.detectors.attributes.const_functions_asm import ConstantFunctionsAsm
 from slither.detectors.attributes.const_functions_state import ConstantFunctionsState
+from slither.detectors.attributes.constant_pragma import ConstantPragma
+from slither.detectors.attributes.incorrect_solc import IncorrectSolc
+from slither.detectors.functions.external_function import ExternalFunction
+from slither.detectors.naming_convention.naming_convention import NamingConvention
+from slither.detectors.variables.could_be_constant import CouldBeConstant
+from slither.detectors.variables.could_be_immutable import CouldBeImmutable
+from slither.detectors.variables.unused_state_variables import UnusedStateVars
 from slither.utils.colors import yellow
 
 logging.basicConfig(level=logging.INFO)

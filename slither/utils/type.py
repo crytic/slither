@@ -1,7 +1,12 @@
 import math
-from typing import List, Union, Set
+from typing import List, Set, Union
 
-from slither.core.solidity_types import ArrayType, MappingType, ElementaryType, UserDefinedType
+from slither.core.solidity_types import (
+    ArrayType,
+    ElementaryType,
+    MappingType,
+    UserDefinedType,
+)
 from slither.core.solidity_types.type import Type
 from slither.core.variables.variable import Variable
 

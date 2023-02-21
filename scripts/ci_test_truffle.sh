@@ -15,8 +15,8 @@ npm install -g truffle
 truffle unbox metacoin
 
 if ! slither . --no-fail-pedantic; then
-    echo "Truffle test failed"
-    exit 1
+	echo "Truffle test failed"
+	exit 1
 fi
 
 exit 0

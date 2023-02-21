@@ -22,7 +22,6 @@ def _use_modifier(function: Function, modifier_name: str = "whenNotPaused") -> b
 
 
 class PrinterWhenNotPaused(AbstractPrinter):
-
     ARGUMENT = "pausable"
     HELP = "Print functions that do not use whenNotPaused"
 
@@ -41,7 +40,6 @@ class PrinterWhenNotPaused(AbstractPrinter):
         txt += "Constructor and pure/view functions are not displayed\n"
         all_tables = []
         for contract in self.slither.contracts:
-
             txt += f"\n{contract.name}:\n"
             table = MyPrettyTable(["Name", "Use whenNotPaused"])
 

@@ -5,9 +5,9 @@ from typing import List
 
 from slither.tools.properties.addresses.address import Addresses
 from slither.tools.properties.properties.properties import (
-    PropertyReturn,
     Property,
     PropertyCaller,
+    PropertyReturn,
 )
 from slither.tools.properties.utils import write_file
 

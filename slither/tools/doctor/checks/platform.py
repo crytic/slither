@@ -4,7 +4,7 @@ from pathlib import Path
 from crytic_compile import crytic_compile
 
 from slither.tools.doctor.utils import snip_section
-from slither.utils.colors import red, yellow, green
+from slither.utils.colors import green, red, yellow
 
 
 def detect_platform(project: str, **kwargs) -> None:

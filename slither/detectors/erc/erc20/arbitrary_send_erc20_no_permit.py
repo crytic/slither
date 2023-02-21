@@ -1,6 +1,8 @@
 from typing import List
+
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
+
 from .arbitrary_send_erc20 import ArbitrarySendErc20
 
 

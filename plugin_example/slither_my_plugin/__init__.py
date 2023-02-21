@@ -1,4 +1,4 @@
-from typing import Tuple, List, Type
+from typing import List, Tuple, Type
 
 from slither_my_plugin.detectors.example import Example
 

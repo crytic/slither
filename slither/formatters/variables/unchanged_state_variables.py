@@ -8,7 +8,6 @@ from slither.formatters.utils.patches import create_patch
 def custom_format(compilation_unit: SlitherCompilationUnit, result, attribute: str) -> None:
     elements = result["elements"]
     for element in elements:
-
         # TODO: decide if this should be changed in the constant detector
         contract_name = element["type_specific_fields"]["parent"]["name"]
         scope = compilation_unit.get_scope(element["source_mapping"]["filename_absolute"])

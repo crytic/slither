@@ -1,20 +1,19 @@
 from typing import List, Set
 
-from slither.core.declarations import Function, FunctionContract, Contract
+from slither.core.declarations import Contract, Function, FunctionContract
 from slither.core.declarations.structure import Structure
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import (
-    AbstractDetector,
-    DetectorClassification,
     ALL_SOLC_VERSIONS_04,
     ALL_SOLC_VERSIONS_05,
+    AbstractDetector,
+    DetectorClassification,
     make_solc_versions,
 )
 from slither.formatters.functions.external_function import custom_format
-from slither.slithir.operations import InternalCall, InternalDynamicCall
-from slither.slithir.operations import SolidityCall
+from slither.slithir.operations import InternalCall, InternalDynamicCall, SolidityCall
 from slither.utils.output import Output
 
 
@@ -91,10 +90,8 @@ class ExternalFunction(AbstractDetector):
         # Loop through the list of inherited contracts and this contract, to find the first function instance which
         # matches this function's signature. Note here that `inheritance` is in order from most basic to most extended.
         for contract in function.contract.inheritance + [function.contract]:
-
             # Loop through the functions not inherited (explicitly defined in this contract).
             for f in contract.functions_declared:
-
                 # If it matches names, this is the base most function.
                 if f.full_name == function.full_name:
                     return f
@@ -159,14 +156,12 @@ class ExternalFunction(AbstractDetector):
 
         # Loop through all contracts
         for contract in self.contracts:
-
             # Filter false-positives: Immediately filter this contract if it's in blacklist
             if contract in dynamic_call_contracts:
                 continue
 
             # Next we'll want to loop through all functions defined directly in this contract.
             for function in contract.functions_declared:
-
                 # If all of the function arguments are non-reference type or calldata, we skip it.
                 reference_args = []
                 for arg in function.parameters:
