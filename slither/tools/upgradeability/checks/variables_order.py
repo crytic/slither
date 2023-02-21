@@ -1,6 +1,6 @@
 from slither.tools.upgradeability.checks.abstract_checks import (
-    CheckClassification,
     AbstractCheck,
+    CheckClassification,
 )
 
 

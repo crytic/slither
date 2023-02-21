@@ -2,9 +2,9 @@
     Module printing summary of the contract
 """
 
-from slither.printers.abstract_printer import AbstractPrinter
 from slither.analyses.data_dependency.data_dependency import get_dependencies
-from slither.slithir.variables import TemporaryVariable, ReferenceVariable
+from slither.printers.abstract_printer import AbstractPrinter
+from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 from slither.utils.myprettytable import MyPrettyTable
 
 
@@ -19,7 +19,6 @@ def _get(v, c):
 
 
 class DataDependency(AbstractPrinter):
-
     ARGUMENT = "data-dependency"
     HELP = "Print the data dependencies of the variables"
 

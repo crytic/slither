@@ -1,9 +1,9 @@
 import abc
 from logging import Logger
-from typing import Optional, List, Dict, Union, Callable
+from typing import Callable, Dict, List, Optional, Union
 
 from slither.core.declarations import Contract
-from slither.utils.colors import green, yellow, red
+from slither.utils.colors import green, red, yellow
 from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output, SupportedOutput
 

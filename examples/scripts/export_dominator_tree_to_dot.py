@@ -1,6 +1,6 @@
 import sys
-from slither.slither import Slither
 
+from slither.slither import Slither
 
 if len(sys.argv) != 2:
     print("python export_dominator_tree_to_dot.py contract.sol")

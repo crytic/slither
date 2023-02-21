@@ -1,5 +1,1 @@
-from .utils import (
-    get_offset_value,
-    get_storage_data,
-    coerce_type,
-)
+from .utils import coerce_type, get_offset_value, get_storage_data

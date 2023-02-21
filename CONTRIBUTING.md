@@ -1,15 +1,19 @@
 # Contributing to Slither
+
 First, thanks for your interest in contributing to Slither! We welcome and appreciate all contributions, including bug reports, feature suggestions, tutorials/blog posts, and code improvements.
 
 If you're unsure where to start, we recommend our [`good first issue`](https://github.com/crytic/slither/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and [`help wanted`](https://github.com/crytic/slither/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) issue labels.
 
 ## Bug reports and feature suggestions
+
 Bug reports and feature suggestions can be submitted to our issue tracker. For bug reports, attaching the contract that caused the bug will help us in debugging and resolving the issue quickly. If you find a security vulnerability, do not open an issue; email opensource@trailofbits.com instead.
 
 ## Questions
+
 Questions can be submitted to the issue tracker, but you may get a faster response if you ask in our [chat room](https://empireslacking.herokuapp.com/) (in the #ethereum channel).
 
 ## Code
+
 Slither uses the pull request contribution model. Please make an account on Github, fork this repo, and submit code contributions via pull request. For more documentation, look [here](https://guides.github.com/activities/forking/).
 
 Some pull request guidelines:
@@ -23,11 +27,12 @@ Some pull request guidelines:
 ## Directory Structure
 
 Below is a rough outline of slither's design:
+
 ```text
 .
-├── analyses # Provides additional info such as data dependency 
+├── analyses # Provides additional info such as data dependency
 ├── core # Ties everything together
-├── detectors # Rules that define and identify issues 
+├── detectors # Rules that define and identify issues
 ├── slither.py # Main entry point
 ├── slithir # Contains the semantics of slither's intermediate representation
 ├── solc_parsing # Responsible for parsing the solc AST
@@ -39,6 +44,7 @@ Below is a rough outline of slither's design:
 A code walkthrough is available [here](https://www.youtube.com/watch?v=EUl3UlYSluU).
 
 ## Development Environment
+
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
 To run the unit tests, you need to clone this repository and run `pip install ".[dev]"`.
@@ -70,19 +76,22 @@ To run tests for a specific version, run `pytest tests/test_detectors.py -k 0.7.
 The IDs of tests can be inspected using `pytest tests/test_detectors.py --collect-only`.
 
 ### Parser tests
+
 - Create a test in `tests/ast-parsing`
 - Run `python ./tests/test_ast_parsing.py --compile`. This will compile the artifact in `tests/ast-parsing/compile`. Add the compiled artifact to git.
 - Run `python ./tests/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/ast-parsing/expected_json`. Add the generated files to git.
 - Run `pytest ./tests/test_ast_parsing.py` and check that everything worked.
 
 To see the tests coverage, run `pytest  tests/test_ast_parsing.py  --cov=slither/solc_parsing --cov-branch --cov-report html`
-To run tests for a specific test case, run `pytest tests/test_ast_parsing.py -k user_defined_value_type`  (the filename is the argument).
+To run tests for a specific test case, run `pytest tests/test_ast_parsing.py -k user_defined_value_type` (the filename is the argument).
 To run tests for a specific version, run `pytest tests/test_ast_parsing.py -k 0.8.12`.
 To run tests for a specific compiler json format, run `pytest tests/test_ast_parsing.py -k legacy` (can be legacy or compact).
 The IDs of tests can be inspected using ``pytest tests/test_ast_parsing.py --collect-only`.
 
 ### Synchronization with crytic-compile
+
 By default, `slither` follows either the latest version of crytic-compile in pip, or `crytic-compile@master` (look for dependencies in [`setup.py`](./setup.py). If crytic-compile development comes with breaking changes, the process to update `slither` is:
+
 - Update `slither/setup.py` to point to the related crytic-compile's branch
 - Create a PR in `slither` and ensure it passes the CI
 - Once the development branch is merged in `crytic-compile@master`, ensure `slither` follows the `master` branch

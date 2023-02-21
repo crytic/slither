@@ -190,7 +190,6 @@ def generic_erc_checks(
     ret: Dict[str, List],
     explored: Optional[Set[Contract]] = None,
 ) -> None:
-
     if explored is None:
         explored = set()
 

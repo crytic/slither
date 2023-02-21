@@ -1,6 +1,8 @@
 import argparse
 import logging
+
 from crytic_compile import cryticparser
+
 from slither import Slither
 
 logging.basicConfig()

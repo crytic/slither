@@ -3,12 +3,10 @@
 # on member access, return the member_name
 # a.b.c[d] returns c
 
-from slither.visitors.expression.expression import ExpressionVisitor
-
 from slither.core.expressions.assignment_operation import AssignmentOperationType
 from slither.core.expressions.expression import Expression
-
 from slither.core.variables.variable import Variable
+from slither.visitors.expression.expression import ExpressionVisitor
 
 key = "RightValue"
 

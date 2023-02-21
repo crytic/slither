@@ -1,9 +1,10 @@
 import logging
-from slither.core.declarations import Contract, Function
-from slither.core.cfg.node import Node
-from slither.utils.function import get_function_id
-from slither.exceptions import SlitherError
+
 from slither.analyses.evm.evm_cfg_builder import load_evm_cfg_builder
+from slither.core.cfg.node import Node
+from slither.core.declarations import Contract, Function
+from slither.exceptions import SlitherError
+from slither.utils.function import get_function_id
 
 logger = logging.getLogger("ConvertToEVM")
 
@@ -14,7 +15,6 @@ def get_evm_instructions(obj):
     assert isinstance(obj, (Function, Contract, Node))
 
     if KEY_EVM_INS not in obj.context:
-
         CFG = load_evm_cfg_builder()
 
         slither = obj.slither

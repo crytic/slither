@@ -7,7 +7,6 @@ from slither.utils.myprettytable import MyPrettyTable
 
 
 class FunctionSummary(AbstractPrinter):
-
     ARGUMENT = "function-summary"
     HELP = "Print a summary of the functions"
 

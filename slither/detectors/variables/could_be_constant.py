@@ -1,8 +1,10 @@
-from typing import List, Dict
-from slither.utils.output import Output
+from typing import Dict, List
+
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.formatters.variables.unchanged_state_variables import custom_format
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.formatters.variables.unchanged_state_variables import custom_format
+from slither.utils.output import Output
+
 from .unchanged_state_variables import UnchangedStateVariables
 
 

@@ -1,4 +1,5 @@
 import sys
+
 from slither.slither import Slither
 
 if len(sys.argv) != 2:

@@ -9,15 +9,19 @@ from .index import Index
 from .init_array import InitArray
 from .internal_call import InternalCall
 from .internal_dynamic_call import InternalDynamicCall
+from .length import Length
 from .library_call import LibraryCall
 from .low_level_call import LowLevelCall
 from .lvalue import OperationWithLValue
 from .member import Member
 from .new_array import NewArray
-from .new_elementary_type import NewElementaryType
 from .new_contract import NewContract
+from .new_elementary_type import NewElementaryType
 from .new_structure import NewStructure
+from .nop import Nop
 from .operation import Operation
+from .phi import Phi
+from .phi_callback import PhiCallback
 from .return_operation import Return
 from .send import Send
 from .solidity_call import SolidityCall
@@ -25,7 +29,3 @@ from .transfer import Transfer
 from .type_conversion import TypeConversion
 from .unary import Unary, UnaryType
 from .unpack import Unpack
-from .length import Length
-from .phi import Phi
-from .phi_callback import PhiCallback
-from .nop import Nop

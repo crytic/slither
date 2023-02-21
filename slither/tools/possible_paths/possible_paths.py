@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union, Optional, Set
+from typing import List, Optional, Set, Tuple, Union
 
 from slither import Slither
 from slither.core.declarations import Function, FunctionContract
@@ -116,7 +116,6 @@ def __find_target_paths(
     # Look through all functions
     for contract in slither.contracts:
         for function in contract.functions_and_modifiers_declared:
-
             # If the function is already in our path, skip it.
             if function in current_path:
                 continue

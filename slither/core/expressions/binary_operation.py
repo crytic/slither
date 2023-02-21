@@ -2,10 +2,9 @@ import logging
 from enum import Enum
 from typing import List
 
-from slither.core.expressions.expression_typed import ExpressionTyped
-from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
-
+from slither.core.expressions.expression import Expression
+from slither.core.expressions.expression_typed import ExpressionTyped
 
 logger = logging.getLogger("BinaryOperation")
 

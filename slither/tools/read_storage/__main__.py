@@ -1,8 +1,8 @@
 """
 Tool to read on-chain storage from EVM
 """
-import json
 import argparse
+import json
 
 from crytic_compile import cryticparser
 

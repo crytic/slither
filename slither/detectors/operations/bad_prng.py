@@ -6,17 +6,16 @@ from typing import List, Tuple
 
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.cfg.node import Node
-from slither.core.declarations import Function, Contract
+from slither.core.declarations import Contract, Function
 from slither.core.declarations.solidity_variables import (
-    SolidityVariable,
     SolidityFunction,
+    SolidityVariable,
     SolidityVariableComposed,
 )
 from slither.core.variables.variable import Variable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import BinaryType, Binary
-from slither.slithir.operations import SolidityCall
-from slither.utils.output import Output, AllSupportedOutput
+from slither.slithir.operations import Binary, BinaryType, SolidityCall
+from slither.utils.output import AllSupportedOutput, Output
 
 
 def collect_return_values_of_bad_PRNG_functions(f: Function) -> List:
@@ -122,7 +121,6 @@ As a result, Eve wins the game."""
         for c in self.compilation_unit.contracts_derived:
             values = detect_bad_PRNG(c)
             for func, nodes in values:
-
                 for node in nodes:
                     info: List[AllSupportedOutput] = [func, ' uses a weak PRNG: "', node, '" \n']
                     res = self.generate_result(info)

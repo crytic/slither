@@ -1,8 +1,8 @@
-import sys
 import json
+import sys
 from pprint import pprint
-from deepdiff import DeepDiff  # pip install deepdiff
 
+from deepdiff import DeepDiff  # pip install deepdiff
 
 if len(sys.argv) != 3:
     print("Usage: python json_diff.py 1.json 2.json")
