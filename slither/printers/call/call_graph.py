@@ -18,11 +18,10 @@ def _contract_subgraph(contract):
 
 
 # return unique id for contract function to use as node name
-def _function_node(contract, function,top_level_dict):
+def _function_node(function, top_level_dict):
     if isinstance(function, (FunctionTopLevel)):
-        return f"{top_level_dict[function]}_{function.name}"
-    else:
-        return f"{function.contract_declarer.id}_{function.name}"
+        return f"{top_level_dict[function].id}_{function.name}"
+    return f"{function.contract_declarer.id}_{function.name}"
 
 
 # return unique id for solidity function to use as node name
@@ -67,15 +66,15 @@ def _process_internal_call(
     if isinstance(internal_call, (FunctionTopLevel)):
         contract_calls[contract].add(
             _edge(
-                _function_node(contract, function,top_level_dict),
-                _function_node(top_level_dict[internal_call], internal_call,top_level_dict),
+                _function_node(function, top_level_dict),
+                _function_node(internal_call, top_level_dict),
             )
         )
     elif isinstance(internal_call, (Function)):
         contract_calls[contract].add(
             _edge(
-                _function_node(contract, function,top_level_dict),
-                _function_node(contract, internal_call,top_level_dict),
+                _function_node(function, top_level_dict),
+                _function_node(internal_call, top_level_dict),
             )
         )
     elif isinstance(internal_call, (SolidityFunction)):
@@ -84,7 +83,7 @@ def _process_internal_call(
         )
         solidity_calls.add(
             _edge(
-                _function_node(contract, function,top_level_dict),
+                _function_node(function, top_level_dict),
                 _solidity_function_node(internal_call),
             )
         )
@@ -132,7 +131,6 @@ def _render_solidity_edges(solidity_calls):
 
 
 def _process_external_call(
-    contract,
     function,
     external_call,
     contract_functions,
@@ -149,22 +147,22 @@ def _process_external_call(
     if isinstance(external_function, (Variable)):
         contract_functions[external_contract].add(
             _node(
-                _function_node(external_contract, external_function,top_level_dict),
+                _function_node(external_function, top_level_dict),
                 external_function.name,
             )
         )
     if isinstance(external_function, (FunctionTopLevel)):
         external_calls.add(
             _edge(
-                _function_node(contract, function,top_level_dict),
-                _function_node(top_level_dict[external_function], external_function,top_level_dict),
+                _function_node(function, top_level_dict),
+                _function_node(external_function, top_level_dict),
             )
         )
     else:
         external_calls.add(
             _edge(
-                _function_node(contract, function,top_level_dict),
-                _function_node(external_contract, external_function,top_level_dict),
+                _function_node(function, top_level_dict),
+                _function_node(external_function, top_level_dict),
             )
         )
 
@@ -182,7 +180,7 @@ def _process_function(
     top_level_dict,
 ):
     contract_functions[contract].add(
-        _node(_function_node(contract, function,top_level_dict), function.name),
+        _node(_function_node(function, top_level_dict), function.name),
     )
 
     for internal_call in function.internal_calls:
@@ -197,7 +195,6 @@ def _process_function(
         )
     for external_call in function.high_level_calls:
         _process_external_call(
-            contract,
             function,
             external_call,
             contract_functions,
@@ -332,7 +329,6 @@ class PrinterCallGraph(AbstractPrinter):
                 compilation_unit.functions for compilation_unit in self.slither.compilation_units
             ]
             all_functions = [item for sublist in all_functionss for item in sublist]
-
             top_levels = [
                 compilation_unit.functions_top_level
                 for compilation_unit in self.slither.compilation_units
@@ -350,7 +346,6 @@ class PrinterCallGraph(AbstractPrinter):
                 all_functions_as_dict = {
                     function.canonical_name: function for function in all_functions
                 }
-
             content = "\n".join(
                 ["strict digraph {"]
                 + [_process_functions(all_functions_as_dict.values(), top_level_dict)]
@@ -361,6 +356,7 @@ class PrinterCallGraph(AbstractPrinter):
 
         for derived_contract in self.slither.contracts_derived:
             derived_output_filename = f"{filename}{derived_contract.name}.call-graph.dot"
+
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
