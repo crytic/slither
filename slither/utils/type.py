@@ -1,7 +1,7 @@
 import math
 from typing import List, Union, Set
 
-from slither.core.solidity_types import ArrayType, MappingType, ElementaryType, UserDefinedType
+from slither.core.solidity_types import ArrayType, MappingType, ElementaryType, UserDefinedType, TypeAlias
 from slither.core.solidity_types.type import Type
 from slither.core.variables.variable import Variable
 
@@ -88,6 +88,9 @@ def convert_type_for_solidity_signature(t: Type, seen: Set[Type]) -> Union[Type,
                 for x in underlying_type.elems_ordered
             ]
             return types
+    
+    if isinstance(t, TypeAlias):
+        return t.type
 
     return t
 
