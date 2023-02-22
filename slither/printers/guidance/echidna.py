@@ -28,6 +28,7 @@ from slither.slithir.operations import (
     InternalCall,
     TypeConversion,
 )
+from slither.core.solidity_types import TypeAlias, Type
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
 from slither.visitors.expression.constants_folding import ConstantFolding
@@ -184,7 +185,11 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
                     all_cst_used.append(ConstantValue(str(cst.value), str(type_)))
         if isinstance(ir, TypeConversion):
             if isinstance(ir.variable, Constant):
-                all_cst_used.append(ConstantValue(str(ir.variable.value), str(ir.type)))
+                if isinstance(ir.type, TypeAlias):
+                    value_type = ir.type.type
+                else:
+                    value_type = ir.type
+                all_cst_used.append(ConstantValue(str(ir.variable.value), str(value_type)))
                 continue
         if (
             isinstance(ir, Member)
