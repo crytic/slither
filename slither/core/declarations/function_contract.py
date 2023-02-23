@@ -90,7 +90,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
             [str(x) for x in self.state_variables_written],
             [str(x) for x in self.internal_calls],
             [str(x) for x in self.external_calls_as_expressions],
-            compute_cyclomatic_complexity(self)
+            compute_cyclomatic_complexity(self),
         )
 
     # endregion
