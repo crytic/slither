@@ -6,6 +6,7 @@ from typing import Dict, TYPE_CHECKING, List, Tuple
 from slither.core.children.child_contract import ChildContract
 from slither.core.children.child_inheritance import ChildInheritance
 from slither.core.declarations import Function
+from slither.utils.code_complexity import compute_cyclomatic_complexity
 
 
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
@@ -73,7 +74,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
 
     def get_summary(
         self,
-    ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str]]:
+    ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str], int]:
         """
             Return the function summary
         Returns:
@@ -89,6 +90,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
             [str(x) for x in self.state_variables_written],
             [str(x) for x in self.internal_calls],
             [str(x) for x in self.external_calls_as_expressions],
+            compute_cyclomatic_complexity(self)
         )
 
     # endregion

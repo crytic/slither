@@ -48,6 +48,7 @@ class FunctionSummary(AbstractPrinter):
                     "Write",
                     "Internal Calls",
                     "External Calls",
+                    "Cyclomatic Complexity"
                 ]
             )
             for (
@@ -59,6 +60,7 @@ class FunctionSummary(AbstractPrinter):
                 write,
                 internal_calls,
                 external_calls,
+                cyclomatic_complexity
             ) in func_summaries:
                 read = self._convert(sorted(read))
                 write = self._convert(sorted(write))
@@ -73,6 +75,7 @@ class FunctionSummary(AbstractPrinter):
                         write,
                         internal_calls,
                         external_calls,
+                        cyclomatic_complexity
                     ]
                 )
             txt += "\n \n" + str(table)
