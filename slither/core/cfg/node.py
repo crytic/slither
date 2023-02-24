@@ -908,7 +908,7 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
         if not self.expression:
             return
         for ir in self.irs_ssa:
-            if isinstance(ir, PhiCallback):
+            if isinstance(ir, (PhiCallback, Phi)):
                 continue
             if not isinstance(ir, (Phi, Index, Member)):
                 self._ssa_vars_read += [
