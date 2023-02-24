@@ -81,9 +81,6 @@ Failure to include these keywords will exclude the parameter data in the transac
         """
         results = []
         for c in self.contracts:
-            for func in c.functions:
-                irs = func.slithir_ssa_operations
-                g = 5
             unindexed_params = self.detect_erc20_unindexed_event_params(c)
             if unindexed_params:
                 # Add each problematic event definition to our result list
