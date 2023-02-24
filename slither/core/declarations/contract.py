@@ -1435,8 +1435,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 FunctionType.CONSTRUCTOR_VARIABLES,
                 FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES,
             ):
-                # todo ben: update code
-                pass
+                var_ctor.generate_slithir_ssa(ssa_state)
 
         for contract in self.inheritance:
             for v in contract.state_variables_declared:
