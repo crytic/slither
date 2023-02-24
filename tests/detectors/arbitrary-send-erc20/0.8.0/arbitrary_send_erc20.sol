@@ -41,7 +41,6 @@ contract C {
         int_transferFrom(from_msgsender, to, am);
     }
 
-    // This is not detected
     function bad2(address from, address to, uint256 am) public {
         int_transferFrom(from, to, am);
     }

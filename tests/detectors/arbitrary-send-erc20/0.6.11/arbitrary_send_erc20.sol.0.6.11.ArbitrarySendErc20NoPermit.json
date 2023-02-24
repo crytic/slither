@@ -26,7 +26,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 403,
-                                "length": 1721,
+                                "length": 1693,
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
@@ -91,8 +91,7 @@
                                     73,
                                     74,
                                     75,
-                                    76,
-                                    77
+                                    76
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -142,7 +141,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 403,
-                                        "length": 1721,
+                                        "length": 1693,
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
@@ -207,8 +206,7 @@
                                             73,
                                             74,
                                             75,
-                                            76,
-                                            77
+                                            76
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -232,18 +230,18 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad4",
+                    "name": "int_transferFrom",
                     "source_mapping": {
-                        "start": 1711,
-                        "length": 133,
+                        "start": 1158,
+                        "length": 130,
                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                         "is_dependency": false,
                         "lines": [
-                            65,
-                            66,
-                            67
+                            48,
+                            49,
+                            50
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -254,7 +252,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 403,
-                                "length": 1721,
+                                "length": 1693,
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
@@ -319,8 +317,233 @@
                                     73,
                                     74,
                                     75,
-                                    76,
-                                    77
+                                    76
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "int_transferFrom(address,address,uint256)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "erc20.transferFrom(from,to,amount)",
+                    "source_mapping": {
+                        "start": 1245,
+                        "length": 36,
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            49
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 45
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "int_transferFrom",
+                            "source_mapping": {
+                                "start": 1158,
+                                "length": 130,
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    48,
+                                    49,
+                                    50
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 403,
+                                        "length": 1693,
+                                        "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64,
+                                            65,
+                                            66,
+                                            67,
+                                            68,
+                                            69,
+                                            70,
+                                            71,
+                                            72,
+                                            73,
+                                            74,
+                                            75,
+                                            76
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "int_transferFrom(address,address,uint256)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.int_transferFrom(address,address,uint256) (tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#48-50) uses arbitrary from in transferFrom: erc20.transferFrom(from,to,amount) (tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#49)\n",
+            "markdown": "[C.int_transferFrom(address,address,uint256)](tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L48-L50) uses arbitrary from in transferFrom: [erc20.transferFrom(from,to,amount)](tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L49)\n",
+            "first_markdown_element": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L48-L50",
+            "id": "1a7b35c126d7ff256c6f91de46497deff7a0fb8203da2e5d35e1e521e5f2ca38",
+            "check": "arbitrary-send-erc20",
+            "impact": "High",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad4",
+                    "source_mapping": {
+                        "start": 1683,
+                        "length": 133,
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            64,
+                            65,
+                            66
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 403,
+                                "length": 1693,
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66,
+                                    67,
+                                    68,
+                                    69,
+                                    70,
+                                    71,
+                                    72,
+                                    73,
+                                    74,
+                                    75,
+                                    76
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -333,14 +556,14 @@
                     "type": "node",
                     "name": "SafeERC20.safeTransferFrom(erc20,from,to,amount)",
                     "source_mapping": {
-                        "start": 1786,
+                        "start": 1758,
                         "length": 51,
                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                         "is_dependency": false,
                         "lines": [
-                            66
+                            65
                         ],
                         "starting_column": 9,
                         "ending_column": 60
@@ -350,16 +573,16 @@
                             "type": "function",
                             "name": "bad4",
                             "source_mapping": {
-                                "start": 1711,
+                                "start": 1683,
                                 "length": 133,
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                                 "is_dependency": false,
                                 "lines": [
+                                    64,
                                     65,
-                                    66,
-                                    67
+                                    66
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -370,7 +593,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 403,
-                                        "length": 1721,
+                                        "length": 1693,
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
@@ -435,8 +658,7 @@
                                             73,
                                             74,
                                             75,
-                                            76,
-                                            77
+                                            76
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -448,10 +670,10 @@
                     }
                 }
             ],
-            "description": "C.bad4(address,address,uint256) (tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#65-67) uses arbitrary from in transferFrom: SafeERC20.safeTransferFrom(erc20,from,to,amount) (tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#66)\n",
-            "markdown": "[C.bad4(address,address,uint256)](tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L65-L67) uses arbitrary from in transferFrom: [SafeERC20.safeTransferFrom(erc20,from,to,amount)](tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L66)\n",
-            "first_markdown_element": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L65-L67",
-            "id": "61438092d2da6c23ecfa13e5e55c489e538249e47bddd9335b533d28a242aea1",
+            "description": "C.bad4(address,address,uint256) (tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#64-66) uses arbitrary from in transferFrom: SafeERC20.safeTransferFrom(erc20,from,to,amount) (tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#65)\n",
+            "markdown": "[C.bad4(address,address,uint256)](tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L64-L66) uses arbitrary from in transferFrom: [SafeERC20.safeTransferFrom(erc20,from,to,amount)](tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L65)\n",
+            "first_markdown_element": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L64-L66",
+            "id": "6bdb49982d8d85b0d9e84724838231600f731b35e2d8bc6e641b65f323ca0d88",
             "check": "arbitrary-send-erc20",
             "impact": "High",
             "confidence": "High"
@@ -462,16 +684,16 @@
                     "type": "function",
                     "name": "bad3",
                     "source_mapping": {
-                        "start": 1443,
+                        "start": 1415,
                         "length": 122,
                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                         "is_dependency": false,
                         "lines": [
+                            56,
                             57,
-                            58,
-                            59
+                            58
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -482,7 +704,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 403,
-                                "length": 1721,
+                                "length": 1693,
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
@@ -547,8 +769,7 @@
                                     73,
                                     74,
                                     75,
-                                    76,
-                                    77
+                                    76
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -561,14 +782,14 @@
                     "type": "node",
                     "name": "erc20.safeTransferFrom(from,to,amount)",
                     "source_mapping": {
-                        "start": 1518,
+                        "start": 1490,
                         "length": 40,
                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                         "is_dependency": false,
                         "lines": [
-                            58
+                            57
                         ],
                         "starting_column": 9,
                         "ending_column": 49
@@ -578,16 +799,16 @@
                             "type": "function",
                             "name": "bad3",
                             "source_mapping": {
-                                "start": 1443,
+                                "start": 1415,
                                 "length": 122,
                                 "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                                 "is_dependency": false,
                                 "lines": [
+                                    56,
                                     57,
-                                    58,
-                                    59
+                                    58
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -598,7 +819,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 403,
-                                        "length": 1721,
+                                        "length": 1693,
                                         "filename_relative": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol",
@@ -663,8 +884,7 @@
                                             73,
                                             74,
                                             75,
-                                            76,
-                                            77
+                                            76
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -676,10 +896,10 @@
                     }
                 }
             ],
-            "description": "C.bad3(address,address,uint256) (tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#57-59) uses arbitrary from in transferFrom: erc20.safeTransferFrom(from,to,amount) (tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#58)\n",
-            "markdown": "[C.bad3(address,address,uint256)](tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L57-L59) uses arbitrary from in transferFrom: [erc20.safeTransferFrom(from,to,amount)](tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L58)\n",
-            "first_markdown_element": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L57-L59",
-            "id": "8551e9d33fdd4f73f1eb7776480b2e8cd2cf9c897b52285c3a287caab6822ce3",
+            "description": "C.bad3(address,address,uint256) (tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#56-58) uses arbitrary from in transferFrom: erc20.safeTransferFrom(from,to,amount) (tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#57)\n",
+            "markdown": "[C.bad3(address,address,uint256)](tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L56-L58) uses arbitrary from in transferFrom: [erc20.safeTransferFrom(from,to,amount)](tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L57)\n",
+            "first_markdown_element": "tests/detectors/arbitrary-send-erc20/0.6.11/arbitrary_send_erc20.sol#L56-L58",
+            "id": "fba75679ee03039ed422cd14ccd7196fbdfd4f4a4fdcf4aefea6bf897544c9e8",
             "check": "arbitrary-send-erc20",
             "impact": "High",
             "confidence": "High"
