@@ -98,9 +98,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
     ###################################################################################
     ###################################################################################
 
-    def generate_slithir_ssa(
-        self, all_ssa_state_variables_instances: Dict[str, "StateIRVariable"]
-    ) -> None:
+    def generate_slithir_ssa(self, ssa_state=None) -> None:
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (
             compute_dominance_frontier,
@@ -111,4 +109,4 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
         compute_dominance_frontier(self.nodes)
         transform_slithir_vars_to_ssa(self)
         if not self.contract.is_incorrectly_constructed:
-            add_ssa_ir(self, all_ssa_state_variables_instances)
+            add_ssa_ir(self, ssa_state)

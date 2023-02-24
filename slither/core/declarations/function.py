@@ -1754,7 +1754,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                         additional = last_state_variables_instances[ir.lvalue.canonical_name]
                         ir.rvalues = list(set(additional + ir.rvalues))
 
-            node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
+            if node != self.entry_point:
+                node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
 
     def generate_slithir_and_analyze(self) -> None:
         for node in self.nodes:
@@ -1764,7 +1765,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._analyze_calls()
 
     @abstractmethod
-    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
+    def generate_slithir_ssa(self, ssa_state):
         pass
 
     def update_read_write_using_ssa(self) -> None:

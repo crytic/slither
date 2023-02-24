@@ -750,7 +750,7 @@ Please rename it, this name is reserved for Slither's internals"""
 
         for func in self._compilation_unit.functions_top_level:
             func.generate_slithir_and_analyze()
-            func.generate_slithir_ssa({})
+            func.generate_slithir_ssa()
         self._compilation_unit.propagate_function_calls()
         for contract in self._compilation_unit.contracts:
             contract.fix_phi()
