@@ -53,7 +53,7 @@ slither tests/uninitialized.sol
 
 ## How to install
 
-Slither requires Python 3.8+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler. We recommned using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions, but it is not required. For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
+Slither requires Python 3.8+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler. We recommend using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions, but it is not required. For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
 ### Using Pip
 
