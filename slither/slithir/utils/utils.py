@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Optional
 
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
@@ -31,7 +31,7 @@ LVALUE = Union[
 ]
 
 
-def is_valid_rvalue(v: SourceMapping) -> bool:
+def is_valid_rvalue(v: Optional[SourceMapping]) -> bool:
     return isinstance(
         v,
         (
@@ -46,7 +46,7 @@ def is_valid_rvalue(v: SourceMapping) -> bool:
     )
 
 
-def is_valid_lvalue(v: SourceMapping) -> bool:
+def is_valid_lvalue(v: Optional[SourceMapping]) -> bool:
     return isinstance(
         v,
         (
