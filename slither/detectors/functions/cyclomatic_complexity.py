@@ -22,7 +22,7 @@ class CyclomaticComplexity(AbstractDetector):
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#cyclomatic-complexity"'
+    WIKI = 'https://github.com/crytic/slither/wiki/Detector-Documentation#cyclomatic-complexity'
 
     WIKI_TITLE = "Cyclomatic complexity"
     WIKI_DESCRIPTION = "Detects functions with high (> 11) cyclomatic complexity."
