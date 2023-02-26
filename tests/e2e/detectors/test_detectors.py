@@ -1639,6 +1639,11 @@ ALL_TEST_OBJECTS = [
         "LowCyclomaticComplexity.sol",
         "0.8.16",
     ),
+    Test(
+        all_detectors.CacheArrayLength,
+        "CacheArrayLength.sol",
+        "0.8.17",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"

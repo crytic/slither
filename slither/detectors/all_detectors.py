@@ -89,3 +89,4 @@ from .functions.protected_variable import ProtectedVariables
 from .functions.permit_domain_signature_collision import DomainSeparatorCollision
 from .functions.codex import Codex
 from .functions.cyclomatic_complexity import CyclomaticComplexity
+from .operations.cache_array_length import CacheArrayLength

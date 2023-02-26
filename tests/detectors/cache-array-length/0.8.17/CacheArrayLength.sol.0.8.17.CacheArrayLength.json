@@ -1,0 +1,74 @@
+[
+    [
+        {
+            "elements": [],
+            "description": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#88 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "markdown": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#88 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "first_markdown_element": "",
+            "id": "66f0059f2e2608b9e532ab9f6a473aa9128f1e9f02fe16fcb960b4ae4970b2cb",
+            "check": "cache-array-length",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#16 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "markdown": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#16 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "first_markdown_element": "",
+            "id": "8463e2cd88985588ad2426476df033957fb4f8969117b7649f1165244b86d2e0",
+            "check": "cache-array-length",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#105 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "markdown": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#105 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "first_markdown_element": "",
+            "id": "961db8345eea46c3814eb2c6f6fc6d1506a2feaa85630349266cff940f33a7ab",
+            "check": "cache-array-length",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#59 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "markdown": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#59 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "first_markdown_element": "",
+            "id": "aea0a11159dec6d660f39a09aa44b56ad0effb7ced7183552b21b69f0f62e0c7",
+            "check": "cache-array-length",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#78 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "markdown": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#78 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "first_markdown_element": "",
+            "id": "d296a0fd4cbe7b9a2db11b3d08b2db08a53414326a91eeda1f78853c4d4c5714",
+            "check": "cache-array-length",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#112 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "markdown": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#112 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "first_markdown_element": "",
+            "id": "db2bfdc710cfa1ea5339e1f14b1a5b80735c50c37522f983a220b579df34c5d0",
+            "check": "cache-array-length",
+            "impact": "Optimization",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#47 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "markdown": "Loop condition at tests/detectors/cache-array-length/0.8.17/CacheArrayLength.sol#47 should use cached array length instead of referencing `length` member of the storage array.\n",
+            "first_markdown_element": "",
+            "id": "f5085e5d1ddd69d59f60443b7e89ea5f7301ba6a0a42786624b783389474aaf7",
+            "check": "cache-array-length",
+            "impact": "Optimization",
+            "confidence": "High"
+        }
+    ]
+]
