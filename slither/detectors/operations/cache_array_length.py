@@ -81,7 +81,7 @@ contract C
         )
 
     @staticmethod
-    def _extract_array_from_length_member_access(exp: MemberAccess) -> [StateVariable | None]:
+    def _extract_array_from_length_member_access(exp: MemberAccess) -> StateVariable:
         """
         Given a member access `exp`, it returns state array which `length` member is accessed through `exp`.
         If array is not a state array or its `length` member is not referenced, it returns `None`.
