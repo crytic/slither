@@ -1,16 +1,17 @@
 from typing import List
+
+from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
+from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.core.declarations import Contract, Function, SolidityVariableComposed
 from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.slithir.operations import HighLevelCall, LibraryCall
-from slither.core.declarations import Contract, Function, SolidityVariableComposed
-from slither.analyses.data_dependency.data_dependency import is_dependent
-from slither.core.compilation_unit import SlitherCompilationUnit
 
 
 class ArbitrarySendErc20:
     """Detects instances where ERC20 can be sent from an arbitrary from address."""
 
-    def __init__(self, compilation_unit: SlitherCompilationUnit):
+    def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
         self._compilation_unit = compilation_unit
         self._no_permit_results: List[Node] = []
         self._permit_results: List[Node] = []
@@ -27,7 +28,7 @@ class ArbitrarySendErc20:
     def permit_results(self) -> List[Node]:
         return self._permit_results
 
-    def _detect_arbitrary_from(self, contract: Contract):
+    def _detect_arbitrary_from(self, contract: Contract) -> None:
         for f in contract.functions:
             all_high_level_calls = [
                 f_called[1].solidity_signature
@@ -48,7 +49,7 @@ class ArbitrarySendErc20:
                     ArbitrarySendErc20._arbitrary_from(f.nodes, self._no_permit_results)
 
     @staticmethod
-    def _arbitrary_from(nodes: List[Node], results: List[Node]):
+    def _arbitrary_from(nodes: List[Node], results: List[Node]) -> None:
         """Finds instances of (safe)transferFrom that do not use msg.sender or address(this) as from parameter."""
         for node in nodes:
             for ir in node.irs:
@@ -89,7 +90,7 @@ class ArbitrarySendErc20:
                 ):
                     results.append(ir.node)
 
-    def detect(self):
+    def detect(self) -> None:
         """Detect transfers that use arbitrary `from` parameter."""
         for c in self.compilation_unit.contracts_derived:
             self._detect_arbitrary_from(c)

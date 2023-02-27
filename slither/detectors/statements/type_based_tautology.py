@@ -1,14 +1,19 @@
 """
 Module detecting tautologies and contradictions based on types in comparison operations over integers
 """
+from typing import List, Set, Tuple
 
+from slither.core.cfg.node import Node
+from slither.core.declarations import Function
+from slither.core.declarations.contract import Contract
+from slither.core.solidity_types.elementary_type import Int, Uint
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
-from slither.core.solidity_types.elementary_type import Int, Uint
+from slither.utils.output import Output
 
 
-def typeRange(t):
+def typeRange(t: str) -> Tuple[int, int]:
     bits = int(t.split("int")[1])
     if t in Uint:
         return 0, (2**bits) - 1
@@ -18,7 +23,7 @@ def typeRange(t):
     return None
 
 
-def _detect_tautology_or_contradiction(low, high, cval, op):
+def _detect_tautology_or_contradiction(low: int, high: int, cval: int, op: BinaryType) -> bool:
     """
     Return true if "[low high] op cval " is always true or always false
     :param low:
@@ -110,7 +115,7 @@ contract A {
         BinaryType.LESS_EQUAL: BinaryType.GREATER_EQUAL,
     }
 
-    def detect_type_based_tautologies(self, contract):
+    def detect_type_based_tautologies(self, contract: Contract) -> List[Tuple[Function, Set[Node]]]:
         """
         Detects and returns all nodes with tautology/contradiction comparisons (based on type alone).
         :param contract: Contract to detect assignment within.
@@ -118,7 +123,7 @@ contract A {
         """
 
         # Create our result set.
-        results = []
+        results: List[Tuple[Function, Set[Node]]] = []
         allInts = Int + Uint
 
         # Loop for each function and modifier.
@@ -151,7 +156,7 @@ contract A {
         # Return the resulting set of nodes with tautologies and contradictions
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect tautological (or contradictory) comparisons
         """

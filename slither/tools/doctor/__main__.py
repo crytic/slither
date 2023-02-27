@@ -26,7 +26,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     # log on stdout to keep output in order
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True)
 

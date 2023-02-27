@@ -25,7 +25,7 @@ def _dict_contain(d1: Dict, d2: Dict) -> bool:
 
 # pylint: disable=too-many-instance-attributes
 class FileScope:
-    def __init__(self, filename: Filename):
+    def __init__(self, filename: Filename) -> None:
         self.filename = filename
         self.accessible_scopes: List[FileScope] = []
 

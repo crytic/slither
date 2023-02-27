@@ -1,19 +1,17 @@
 # Slither, the Solidity source analyzer
 <img src="./logo.png" alt="Logo" width="500"/>
 
-[![Build Status](https://img.shields.io/github/workflow/status/crytic/slither/CI/master)](https://github.com/crytic/slither/actions?query=workflow%3ACI)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/crytic/slither/ci.yml?branch=master)](https://github.com/crytic/slither/actions?query=workflow%3ACI)
 [![Slack Status](https://empireslacking.herokuapp.com/badge.svg)](https://empireslacking.herokuapp.com)
 [![PyPI version](https://badge.fury.io/py/slither-analyzer.svg)](https://badge.fury.io/py/slither-analyzer)
 
-Slither is a Solidity static analysis framework written in Python3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses. Slither enables developers to find vulnerabilities, enhance their code comprehension, and quickly prototype custom analyses.
+Slither is a Solidity static analysis framework written in Python 3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses. Slither enables developers to find vulnerabilities, enhance their code comprehension, and quickly prototype custom analyses.
 
 - [Features](#features)
-- [Usage](#usage)
-- [How to Install](#how-to-install)
-- [API Documentation](#api-documentation)
-- [Detectors](#detectors)
+- [Bugs and Optimizations Detection](#bugs-and-optimizations-detection)
 - [Printers](#printers)
 - [Tools](#tools)
+- [How to Install](#how-to-install)
 - [Getting Help](#getting-help)
 - [FAQ](#faq)
 - [Publications](#publications)
@@ -22,74 +20,35 @@ Slither is a Solidity static analysis framework written in Python3. It runs a su
 
 * Detects vulnerable Solidity code with low false positives (see the list of [trophies](./trophies.md))
 * Identifies where the error condition occurs in the source code
-* Easily integrates into continuous integration and Hardhat/Foundry builds
+* Easily integrates into continuous integration and Truffle builds
 * Built-in 'printers' quickly report crucial contract information
 * Detector API to write custom analyses in Python
 * Ability to analyze contracts written with Solidity >= 0.4
 * Intermediate representation ([SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR)) enables simple, high-precision analyses
 * Correctly parses 99.9% of all public Solidity code
 * Average execution time of less than 1 second per contract
-* Integrates with Github's code scanning in [CI](https://github.com/marketplace/actions/slither-action)
 
-## Usage
 
-Run Slither on a Hardhat/Foundry/Dapp/Brownie application:
+## Bugs and Optimizations Detection
+
+Run Slither on a Truffle/Embark/Dapp/Etherlime/Hardhat application:
 ```bash
 slither .
 ```
-This is the preferred option if your project has dependencies as Slither relies on the underlying compilation framework to compile source code.
 
-However, you can run Slither on a single file that does not import dependencies:
+Run Slither on a single file:
 ```bash
 slither tests/uninitialized.sol
 ```
-
 
 ### Integration
 - For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
 - To generate a Markdown report, use `slither [target] --checklist`.
 - To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
 
+Use [solc-select](https://github.com/crytic/solc-select) if your contracts require older versions of solc. For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
 
-## How to install
-
-Slither requires Python 3.8+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler. We recommend using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions, but it is not required. For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
-
-### Using Pip
-
-```bash
-pip3 install slither-analyzer
-```
-
-### Using Git
-
-```bash
-git clone https://github.com/crytic/slither.git && cd slither
-python3 setup.py install
-```
-
-We recommend using a Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
-
-### Using Docker
-
-Use the [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/) docker image. It includes all of our security tools and every major version of Solidity in a single image. `/home/share` will be mounted to `/share` in the container.
-
-```bash
-docker pull trailofbits/eth-security-toolbox
-```
-
-To share a directory in the container:
-
-```bash
-docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
-```
-
-
-## API Documentation
-Documentation on Slither's internals is available [here](https://crytic.github.io/slither/slither.html).
-
-
-## Detectors
+### Detectors
 
 
 Num | Detector | What it Detects | Impact | Confidence
@@ -214,6 +173,40 @@ See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documen
 
 [Contact us](https://www.trailofbits.com/contact/) to get help on building custom tools.
 
+## How to install
+
+Slither requires Python 3.8+.
+If you're **not** going to use one of the [supported compilation frameworks](https://github.com/crytic/crytic-compile),
+you need to have on your machine the right version of [solc](https://github.com/ethereum/solidity/), the Solidity compiler.
+
+### Using Pip
+
+```bash
+pip3 install slither-analyzer
+```
+
+### Using Git
+
+```bash
+git clone https://github.com/crytic/slither.git && cd slither
+python3 setup.py install
+```
+
+We recommend using a Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
+
+### Using Docker
+
+Use the [`eth-security-toolbox`](https://github.com/trailofbits/eth-security-toolbox/) docker image. It includes all of our security tools and every major version of Solidity in a single image. `/home/share` will be mounted to `/share` in the container.
+
+```bash
+docker pull trailofbits/eth-security-toolbox
+```
+
+To share a directory in the container:
+
+```bash
+docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
+```
 
 ## Getting Help
 

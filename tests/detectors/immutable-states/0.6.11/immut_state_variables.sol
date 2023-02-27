@@ -67,9 +67,11 @@ contract Good {
     uint immutable should_be_immutable_3 = 10 + block.number;
     B immutable should_be_immutable_4 = new B();
     uint immutable should_be_immutable_5;
+    string cannote_be_immutable;
     
-	constructor(uint b) public {
+	constructor(uint b, string memory c) public {
 		should_be_immutable_5 = b;
+        cannote_be_immutable = c;
 	}
 
     function getNumber() public returns(uint){

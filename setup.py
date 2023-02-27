@@ -24,6 +24,7 @@ setup(
             "pylint==2.13.4",
             "pytest",
             "pytest-cov",
+            "pytest-xdist",
             "deepdiff",
             "numpy",
             "solc-select>=v1.0.0b1",

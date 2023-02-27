@@ -1,9 +1,24 @@
+from typing import List, Set, Union, TYPE_CHECKING
+
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.operations.phi import Phi
 
+from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.slithir.operations.internal_call import InternalCall
+from slither.slithir.variables.state_variable import StateIRVariable
+
+if TYPE_CHECKING:
+    from slither.core.cfg.node import Node
+
 
 class PhiCallback(Phi):
-    def __init__(self, left_variable, nodes, call_ir, rvalue):
+    def __init__(
+        self,
+        left_variable: StateIRVariable,
+        nodes: Set["Node"],
+        call_ir: Union[InternalCall, HighLevelCall],
+        rvalue: StateIRVariable,
+    ) -> None:
         assert is_valid_lvalue(left_variable)
         assert isinstance(nodes, set)
         super().__init__(left_variable, nodes)
@@ -12,16 +27,20 @@ class PhiCallback(Phi):
         self._rvalue_no_callback = rvalue
 
     @property
-    def callee_ir(self):
+    def callee_ir(self) -> Union[InternalCall, HighLevelCall]:
         return self._call_ir
 
     @property
-    def read(self):
+    def read(self) -> List[StateIRVariable]:
         return self.rvalues
 
     @property
     def rvalues(self):
         return self._rvalues
+
+    @rvalues.setter
+    def rvalues(self, vals):
+        self._rvalues = vals
 
     @property
     def rvalue_no_callback(self):
@@ -29,10 +48,6 @@ class PhiCallback(Phi):
         rvalue if callback are not considered
         """
         return self._rvalue_no_callback
-
-    @rvalues.setter
-    def rvalues(self, vals):
-        self._rvalues = vals
 
     @property
     def nodes(self):

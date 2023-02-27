@@ -1,9 +1,14 @@
+from typing import List
+
+from slither.analyses.data_dependency.data_dependency import is_tainted
+from slither.core.cfg.node import Node
+from slither.core.declarations.function_contract import FunctionContract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall
-from slither.analyses.data_dependency.data_dependency import is_tainted
+from slither.utils.output import Output
 
 
-def controlled_delegatecall(function):
+def controlled_delegatecall(function: FunctionContract) -> List[Node]:
     ret = []
     for node in function.nodes:
         for ir in node.irs:
@@ -42,7 +47,7 @@ Bob calls `delegate` and delegates the execution to his malicious contract. As a
 
     WIKI_RECOMMENDATION = "Avoid using `delegatecall`. Use only trusted destinations."
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:
