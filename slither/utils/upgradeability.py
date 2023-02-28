@@ -74,6 +74,8 @@ def compare(v1: Contract, v2: Contract) -> dict:
         elif any(func in read_by or func in written_by for func in new_modified_functions):
             results["tainted-variables"].append(var)
 
+    return results
+
 
 def is_function_modified(f1: Function, f2: Function) -> bool:
     """
