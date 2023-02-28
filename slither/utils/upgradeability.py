@@ -55,7 +55,9 @@ def compare(v1: Contract, v2: Contract) -> dict:
             new_modified_function_vars += (
                 function.state_variables_read + function.state_variables_written
             )
-        elif is_function_modified(orig_function, function):
+        elif not function.name.startswith("slither") and is_function_modified(
+            orig_function, function
+        ):
             new_modified_functions.append(function)
             results["modified-functions"].append(function)
             new_modified_function_vars += (
