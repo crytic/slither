@@ -45,6 +45,7 @@ def compare(v1: Contract, v2: Contract) -> dict:
 
     # Find all new and modified functions in the v2 contract
     new_modified_functions = []
+    new_modified_function_vars = []
     for sig in func_sigs2:
         function = v2.get_function_from_signature(sig)
         orig_function = v1.get_function_from_signature(sig)
@@ -54,15 +55,24 @@ def compare(v1: Contract, v2: Contract) -> dict:
         elif is_function_modified(orig_function, function):
             new_modified_functions.append(function)
             results["modified-functions"].append(function)
+        else:
+            continue
+        for var in function.state_variables_read + function.state_variables_written:
+            if var not in new_modified_function_vars:
+                new_modified_function_vars.append(var)
 
-    # Find all unmodified functions that call a modified function, i.e., tainted functions
+    # Find all unmodified functions that call a modified function or read/write the
+    # same state variable(s) as a new/modified function, i.e., tainted functions
     for function in v2.functions:
         if function in new_modified_functions:
             continue
         modified_calls = [
             func for func in new_modified_functions if func in function.internal_calls
         ]
-        if len(modified_calls) > 0:
+        tainted_vars = [
+            var for var in new_modified_function_vars if var in function.variables_read_or_written
+        ]
+        if len(modified_calls) > 0 or len(tainted_vars) > 0:
             results["tainted-functions"].append(function)
 
     # Find all new or tainted variables, i.e., variables that are read or written by a new/modified function
