@@ -65,7 +65,7 @@ def compare(v1: Contract, v2: Contract) -> dict:
     # Find all unmodified functions that call a modified function or read/write the
     # same state variable(s) as a new/modified function, i.e., tainted functions
     for function in v2.functions:
-        if function in new_modified_functions:
+        if function in new_modified_functions or function.is_constructor:
             continue
         modified_calls = [
             func for func in new_modified_functions if func in function.internal_calls
