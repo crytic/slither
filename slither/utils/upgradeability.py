@@ -52,11 +52,15 @@ def compare(v1: Contract, v2: Contract) -> dict:
         if sig not in func_sigs1:
             new_modified_functions.append(function)
             results["new-functions"].append(function)
-            new_modified_function_vars += function.state_variables_read + function.state_variables_written
+            new_modified_function_vars += (
+                function.state_variables_read + function.state_variables_written
+            )
         elif is_function_modified(orig_function, function):
             new_modified_functions.append(function)
             results["modified-functions"].append(function)
-            new_modified_function_vars += function.state_variables_read + function.state_variables_written
+            new_modified_function_vars += (
+                function.state_variables_read + function.state_variables_written
+            )
 
     # Find all unmodified functions that call a modified function or read/write the
     # same state variable(s) as a new/modified function, i.e., tainted functions
@@ -67,7 +71,11 @@ def compare(v1: Contract, v2: Contract) -> dict:
             func for func in new_modified_functions if func in function.internal_calls
         ]
         tainted_vars = [
-            var for var in new_modified_function_vars if var in function.variables_read_or_written
+            var
+            for var in set(new_modified_function_vars)
+            if var in function.variables_read_or_written
+            and not var.is_constant
+            and not var.is_immutable
         ]
         if len(modified_calls) > 0 or len(tainted_vars) > 0:
             results["tainted-functions"].append(function)
