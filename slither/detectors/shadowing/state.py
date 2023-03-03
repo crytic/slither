@@ -16,7 +16,7 @@ def detect_shadowing(contract: Contract) -> List[List[StateVariable]]:
     variables_fathers = []
     for father in contract.inheritance:
         if any(f.is_implemented for f in father.functions + father.modifiers):
-            variables_fathers += father.state_variables_declared
+            variables_fathers += [var for var in father.state_variables_declared if var.visibility != "private"]
 
     for var in contract.state_variables_declared:
         # Ignore __gap variables for updatable contracts
