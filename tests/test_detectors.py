@@ -1651,8 +1651,28 @@ ALL_TESTS = get_all_tests()
 GENERIC_PATH = "/GENERIC_PATH"
 
 
+from syrupy.extensions.amber import AmberSnapshotExtension
+from syrupy.location import PyTestLocation
+
+from pathlib import Path
+
+
+def create_versioned_fixture(test_item: Test):
+    class VersionedJSONExtension(AmberSnapshotExtension):
+        @classmethod
+        def dirname(cls, *, test_location: "PyTestLocation") -> str:
+            return str(
+                Path(test_location.filepath).parent.joinpath(
+                    "__snapshots__", f"{test_item.detector.__name__}", f"{test_item.solc_ver}"
+                )
+            )
+
+
+    return VersionedJSONExtension
+
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
-def test_detector(test_item: Test):
+def test_detector(test_item: Test, snapshot):
+    snapshot = snapshot.use_extension(create_versioned_fixture(test_item))
     test_dir_path = pathlib.Path(
         pathlib.Path().absolute(),
         "tests",
@@ -1680,6 +1700,8 @@ def test_detector(test_item: Test):
     test_file_path = test_file_path.replace("\\", "\\\\")
     results_as_string = results_as_string.replace(test_file_path, GENERIC_PATH)
     results = json.loads(results_as_string)
+
+    assert results == snapshot
 
     diff = DeepDiff(results, expected_result, ignore_order=True, verbose_level=2)
     if diff:
