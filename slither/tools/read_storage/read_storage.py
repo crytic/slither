@@ -2,17 +2,17 @@ import logging
 import sys
 from math import floor
 from typing import Callable, Optional, Tuple, Union, List, Dict, Any
+from eth_typing.evm import ChecksumAddress
+from eth_abi import decode, encode
+from eth_utils import keccak
+from .utils import (
+    get_offset_value,
+    get_storage_data,
+    coerce_type,
+    )
 
 try:
     from web3 import Web3
-    from eth_typing.evm import ChecksumAddress
-    from eth_abi import decode_single, encode_abi
-    from eth_utils import keccak
-    from .utils import (
-        get_offset_value,
-        get_storage_data,
-        coerce_type,
-    )
 except ImportError:
     print("ERROR: in order to use slither-read-storage, you need to install web3")
     print("$ pip3 install web3 --user\n")
@@ -449,7 +449,7 @@ class SlitherReadStorage:
         if "int" in key_type:  # without this eth_utils encoding fails
             key = int(key)
         key = coerce_type(key_type, key)
-        slot = keccak(encode_abi([key_type, "uint256"], [key, decode_single("uint256", slot)]))
+        slot = keccak(encode_abi([key_type, "uint256"], [key, decode("uint256", slot)]))
 
         if isinstance(target_variable_type.type_to, UserDefinedType) and isinstance(
             target_variable_type.type_to.type, Structure
