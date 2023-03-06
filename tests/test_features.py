@@ -161,7 +161,8 @@ def test_arithmetic_usage() -> None:
     assert {
         f.source_mapping.content_hash for f in unchecked_arithemtic_usage(slither.contracts[0])
     } == {"2b4bc73cf59d486dd9043e840b5028b679354dd9", "e4ecd4d0fda7e762d29aceb8425f2c5d4d0bf962"}
-    
+
+
 def test_using_for_global_collision(slither_from_dir):
     with slither_from_dir("./tests/using-for-global-collision") as sl:
         _run_all_detectors(sl)
