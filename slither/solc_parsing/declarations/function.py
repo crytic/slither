@@ -6,11 +6,12 @@ from slither.core.cfg.scope import Scope
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import (
     Function,
+    SolidityFunction,
     ModifierStatements,
     FunctionType,
 )
 from slither.core.declarations.function_contract import FunctionContract
-from slither.core.expressions import AssignmentOperation
+from slither.core.expressions import AssignmentOperation, Identifier
 from slither.core.source_mapping.source_mapping import Source
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
@@ -27,6 +28,7 @@ from slither.solc_parsing.yul.parse_yul import YulBlock
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
+from slither.visitors.expression.expression import ExpressionVisitor
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
@@ -40,6 +42,31 @@ LOGGER = logging.getLogger("FunctionSolc")
 
 def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
     link_nodes(node1.underlying_node, node2.underlying_node)
+
+
+_revert_functions = [
+    SolidityFunction("revert()"),
+    SolidityFunction("revert(string)"),
+]
+
+# Find `revert` calls using ExpressionVisitor, since IR is not available at this point.
+class RevertFinder(ExpressionVisitor):
+    def __init__(self, expr):
+        self._found = False
+        super().__init__(expr)
+
+    def result(self) -> bool:
+        return self._found
+
+    def _post_call_expression(self, expression):
+        if isinstance(expression.called, Identifier):
+            if expression.called.value in _revert_functions:
+                self._found = True
+
+
+def _calls_revert(node: Node):
+    finder = RevertFinder(node.expression)
+    return finder.result()
 
 
 # pylint: disable=too-many-lines,too-many-branches,too-many-locals,too-many-statements,too-many-instance-attributes
@@ -313,6 +340,7 @@ class FunctionSolc(CallerContextExpression):
 
         self._rewrite_ternary_as_if_else()
 
+        self._remove_edges_from_revert()
         self._remove_alone_endif()
 
     # endregion
@@ -1330,6 +1358,15 @@ class FunctionSolc(CallerContextExpression):
             for remove in to_remove:
                 if remove in self._node_to_nodesolc:
                     del self._node_to_nodesolc[remove]
+
+    # Removes the outgoing edges from nodes with a revert call.
+    # This should be called after expressions are parsed.
+    def _remove_edges_from_revert(self):
+        for node in self._node_to_nodesolc:
+            if _calls_revert(node):
+                for son in node.sons:
+                    son.remove_father(node)
+                node.set_sons([])
 
     # endregion
     ###################################################################################
