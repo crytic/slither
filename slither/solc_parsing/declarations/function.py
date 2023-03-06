@@ -43,6 +43,7 @@ LOGGER = logging.getLogger("FunctionSolc")
 def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
+
 _revert_functions = [
     SolidityFunction("revert()"),
     SolidityFunction("revert(string)"),
@@ -52,18 +53,19 @@ _revert_functions = [
 class RevertFinder(ExpressionVisitor):
     def __init__(self, expr):
         self._found = False
-        self._visit_expression( expr )
+        super().__init__(expr)
 
     def result(self) -> bool:
         return self._found
 
-    def _post_call_expression( self, expression ):
+    def _post_call_expression(self, expression):
         if isinstance(expression.called, Identifier):
             if expression.called.value in _revert_functions:
                 self._found = True
 
+
 def _calls_revert(node: Node):
-    finder = RevertFinder( node.expression )
+    finder = RevertFinder(node.expression)
     return finder.result()
 
 
