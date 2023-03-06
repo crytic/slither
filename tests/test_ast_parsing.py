@@ -4,7 +4,7 @@ import re
 import sys
 from pathlib import Path
 from typing import List, Dict, Tuple
-
+from packaging.version import parse as parse_version
 import pytest
 from deepdiff import DeepDiff
 from solc_select.solc_select import install_artifacts as install_solc_versions
@@ -32,8 +32,15 @@ class Test:
             flavors += ["legacy"]
         for version in solc_versions:
             for flavor in flavors:
-                if flavor == "legacy" and version > "0.8":
-                    # No legacy for >0.8
+                # No legacy AST format for >0.8
+                legacy_unavailable = flavor == "legacy" and parse_version(version) >= parse_version(
+                    "0.8"
+                )
+                # No compact AST format for <0.4.12
+                compact_unavailable = flavor == "compact" and parse_version(
+                    version
+                ) < parse_version("0.4.12")
+                if legacy_unavailable or compact_unavailable:
                     continue
                 versions_with_flavors.append((version, flavor))
         self.versions_with_flavors = versions_with_flavors
@@ -467,6 +474,15 @@ class TestASTParsing:
         expected = os.path.join(TEST_ROOT, "expected", f"{test_file}-{version}-{flavor}.json")
 
         cc = load_from_zip(actual)[0]
+
+        # Validate that the AST is in the expected format
+        for compiled in cc.compilation_units.values():
+            for source in compiled.source_units.values():
+                if source.ast:
+                    if flavor == "compact":
+                        assert "nodeType" in source.ast, "AST is not compact"
+                    else:
+                        assert "nodeType" not in source.ast, "AST is not legacy"
 
         sl = Slither(
             cc,
