@@ -73,6 +73,14 @@ contract Crowdsale{
         return isinstance(ir, Binary) and ir.type == BinaryType.EQUAL
 
     @staticmethod
+    def is_not_comparing_addresses(ir: Binary) -> bool:
+        """
+        Comparing addresses strictly should not be flagged.
+        """
+        addr = ElementaryType("address")
+        return ir.variable_left.type != addr or ir.variable_right.type != addr
+
+    @staticmethod
     def is_any_tainted(
         variables: List[
             Union[
@@ -145,7 +153,12 @@ contract Crowdsale{
                 for ir in node.irs_ssa:
 
                     # Filter to only tainted equality (==) comparisons
-                    if self.is_direct_comparison(ir) and self.is_any_tainted(ir.used, taints, func):
+                    if (
+                        self.is_direct_comparison(ir)
+                        and self.is_not_comparing_addresses(ir)
+                        and self.is_any_tainted(ir.used, taints, func)
+                    ):
+                        #
                         if func not in results:
                             results[func] = []
                         results[func].append(node)
