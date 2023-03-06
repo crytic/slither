@@ -1414,22 +1414,15 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def convert_expression_to_slithir_ssa(self) -> None:
+    def _generate_constructor_ssa(self, ssa_state) -> None:
         """
-        Assume generate_slithir_and_analyze was called on all functions
+        Iterates over all constructor functions and builds their slithir SSA form.
 
+        :param ssa_state: object for tracking variable states
         :return:
         """
-        from slither.slithir.variables import StateIRVariable
-        from slither.slithir.utils.ssa import VarStates
-        from slither.slithir.operations import Phi, PhiCallback
-
-        ssa_state = VarStates()
-
         all_funcs = self.functions_and_modifiers
-        # If there are any constructor variable functions (artifical functions created by Slither)
-        # start by transforming their IR. This ensures state_0 is from them.
-        # It's okay to generate their SSA now because these functions are only called when the contract is deployed.
+
         for var_ctor in all_funcs:
             if var_ctor.function_type in (
                 FunctionType.CONSTRUCTOR_VARIABLES,
@@ -1437,20 +1430,13 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             ):
                 var_ctor.generate_slithir_ssa(ssa_state)
 
-        for contract in self.inheritance:
-            for v in contract.state_variables_declared:
-                if v not in ssa_state.state_variables():
-                    ssa_state.add(v)
-                new_var = StateIRVariable(v)
-                self._initial_state_variables.append(new_var)
+    def _generate_function_ssa(self, ssa_state) -> None:
+        """
+        Iterates over all non-constructor functions and builds their slithir SSA form.
 
-        for v in self.variables:
-            if v.contract == self:
-                if v not in ssa_state.state_variables():
-                    ssa_state.add(v)
-                new_var = StateIRVariable(v)
-                self._initial_state_variables.append(new_var)
-
+        :param ssa_state: object for tracking variable states
+        :return:
+        """
         for func in self.functions + self.modifiers:
             # Already processed these
             if func.function_type in (
@@ -1461,12 +1447,57 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
             func.generate_slithir_ssa(ssa_state)
 
-            # For contracts (not free functions) update state variable phis to track dependencies
-            # between function invocations (inter-transactional). Phi-functions are already placed
-            # this just updates the r-values.
+    def _generate_state_variables(self, ssa_state) -> None:
+        """
+        Iterates over all state variables & adds them to ssa_state if not already present.
+        Also populates self._initial_state_variables.
+
+        :param ssa_state: object for tracking variable states
+        :return:
+        """
+        from slither.slithir.variables import StateIRVariable
+
+        # First populate state variables from inheritance
+        for contract in self.inheritance:
+            for v in contract.state_variables_declared:
+                if v not in ssa_state.state_variables():
+                    ssa_state.add(v)
+                new_var = StateIRVariable(v)
+                self._initial_state_variables.append(new_var)
+
+        # Now populate state variables defined by this contract itself
+        for v in self.variables:
+            if v.contract == self:
+                if v not in ssa_state.state_variables():
+                    ssa_state.add(v)
+                new_var = StateIRVariable(v)
+                self._initial_state_variables.append(new_var)
+
+    def convert_expression_to_slithir_ssa(self) -> None:
+        """
+        Assume generate_slithir_and_analyze was called on all functions
+
+        :return:
+        """
+        from slither.slithir.variables import StateIRVariable
+        from slither.slithir.operations import Phi, PhiCallback
+        from slither.slithir.utils.ssa_version_tracker import VarStates
+
+        ssa_state = VarStates()
+
+        # If there are any constructor variable functions (artifical functions created by Slither)
+        # start by transforming their IR. This ensures state_0 is from them.
+        # It's okay to generate their SSA now because these functions are only called when the contract is deployed.
+        self._generate_constructor_ssa(ssa_state)
+        self._generate_state_variables(ssa_state)
+        self._generate_function_ssa(ssa_state)
+
+        # For contracts (not free functions) update state variable phis to track dependencies
+        # between function invocations (inter-transactional). Phi-functions are already placed
+        # this just updates the r-values.
         entry_phis = ssa_state.compute_entry_phis()
         end_states = ssa_state.end_states()
-        for func in all_funcs:
+        for func in self.functions_and_modifiers:
             for node in func.nodes:
                 for ir in node.irs_ssa:
                     if node == func.entry_point and isinstance(ir, Phi):
@@ -1483,22 +1514,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                         # if so we should discard it from the set
                         values = end_states[sv].difference([ir.lvalue])
                         ir.rvalues.extend(values)
-
-    def fix_phi(self) -> None:
-        pass
-        last_state_variables_instances = {}
-        initial_state_variables_instances = {}
-        for v in self._initial_state_variables:
-            last_state_variables_instances[v.canonical_name] = []
-            initial_state_variables_instances[v.canonical_name] = v
-
-        for func in self.functions + self.modifiers:
-            result = func.get_last_ssa_state_variables_instances()
-            for variable_name, instances in result.items():
-                last_state_variables_instances[variable_name] += instances
-
-        for func in self.functions + self.modifiers:
-            func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
 
     # endregion
     ###################################################################################

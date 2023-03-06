@@ -1,7 +1,7 @@
 """
     Function module
 """
-from typing import Dict, List, Tuple, TYPE_CHECKING
+from typing import List, Tuple, TYPE_CHECKING
 
 from slither.core.declarations import Function
 from slither.core.declarations.top_level import TopLevel

@@ -1,7 +1,7 @@
 """
     Function module
 """
-from typing import Dict, TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, List, Tuple
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.children.child_inheritance import ChildInheritance

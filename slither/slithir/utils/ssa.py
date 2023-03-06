@@ -1,28 +1,18 @@
 import logging
 from functools import cmp_to_key
-from typing import Union, Set
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Set
+from typing import Union
 
-import slither.slithir.variables.tuple_ssa
-from slither.core.cfg.node import Node, NodeType
+from slither.core.cfg.node import Node
 from slither.core.declarations import (
-    Contract,
-    Enum,
     Function,
-    SolidityFunction,
-    SolidityVariable,
-    Structure,
 )
 from slither.core.declarations.function import FunctionType
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.modifier import Modifier
-from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
-from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
-from slither.core.variables.top_level_variable import TopLevelVariable
-from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
@@ -55,7 +45,6 @@ from slither.slithir.operations import (
     Unpack,
     Nop,
 )
-from slither.slithir.operations.call import Call
 from slither.slithir.operations.codesize import CodeSize
 from slither.slithir.operations.operation import Operation
 from slither.slithir.utils.ssa_version_tracker import VarStates, StateVarDefRecorder
@@ -63,12 +52,9 @@ from slither.slithir.variables import (
     Constant,
     LocalIRVariable,
     ReferenceVariable,
-    ReferenceVariableSSA,
     StateIRVariable,
     TemporaryVariable,
-    TemporaryVariableSSA,
     TupleVariable,
-    TupleVariableSSA,
 )
 from slither.slithir.variables.variable import SlithIRVariable
 

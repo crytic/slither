@@ -753,7 +753,6 @@ Please rename it, this name is reserved for Slither's internals"""
             func.generate_slithir_ssa()
         self._compilation_unit.propagate_function_calls()
         for contract in self._compilation_unit.contracts:
-            contract.fix_phi()
             contract.update_read_write_using_ssa()
 
     # endregion
