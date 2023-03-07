@@ -1,5 +1,4 @@
 import inspect
-from tests.conftest import slither_from_dir
 
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
@@ -9,7 +8,7 @@ from slither import Slither
 from slither.core.variables.state_variable import StateVariable
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector
-from slither.slithir.operations import LibraryCall, InternalCall
+from slither.slithir.operations import InternalCall, LibraryCall
 from slither.utils.arithmetic import unchecked_arithemtic_usage
 
 
@@ -163,6 +162,6 @@ def test_arithmetic_usage() -> None:
     } == {"2b4bc73cf59d486dd9043e840b5028b679354dd9", "e4ecd4d0fda7e762d29aceb8425f2c5d4d0bf962"}
 
 
-def test_using_for_global_collision(slither_from_dir):
+def test_using_for_global_collision(slither_from_dir) -> None:
     with slither_from_dir("./tests/using-for-global-collision") as sl:
         _run_all_detectors(sl)

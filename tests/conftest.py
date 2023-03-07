@@ -1,13 +1,14 @@
 import os
-from pathlib import Path
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Optional
 
 import pytest
-from slither import Slither
-from solc_select import solc_select
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
+from solc_select import solc_select
+
+from slither import Slither
 
 
 @contextmanager
