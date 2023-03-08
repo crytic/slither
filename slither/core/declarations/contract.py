@@ -956,7 +956,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def generate_interface(self) -> str:
         interface = f"interface I{self.name} {{\n"
         for struct in self.structures:
-            interface += struct.interface_def_str()
+            if isinstance(struct.interface_def_str(), str):
+                interface += struct.interface_def_str()
         for var in self.state_variables_entry_points:
             interface += (
                 f"    function {var.signature_str.replace('returns', 'external returns ')};\n"
@@ -965,6 +966,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             if func.is_constructor or func.is_fallback or func.is_receive:
                 continue
             interface += f"    function {func.interface_signature_str};\n"
+        interface += "}\n"
         return interface
 
     # endregion
