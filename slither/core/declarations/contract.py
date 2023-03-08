@@ -966,7 +966,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             if func.is_constructor or func.is_fallback or func.is_receive:
                 continue
             interface += f"    function {func.interface_signature_str};\n"
-        interface += "}\n"
+        interface += "}\n\n"
         return interface
 
     # endregion
