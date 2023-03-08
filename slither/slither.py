@@ -194,7 +194,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         """
 
         for obj in self._detectors:
-            if type(obj) == detector_class :
+            if type(obj) == detector_class :   # pylint: disable=unidiomatic-typecheck
                 self._detectors.remove(obj)
                 return
 
