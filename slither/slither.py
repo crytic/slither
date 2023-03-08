@@ -196,7 +196,17 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
-
+    
+    def deregister_printer(self, printer_class: Type[AbstractPrinter]) -> None:
+        """
+        :param printer_class: Class inheriting from `AbstractPrinter`.
+        """
+        
+        for obj in self._printers:
+            if type(obj) == printer_class :
+                self._printers.remove(obj)
+                return
+            
     def run_detectors(self) -> List[Dict]:
         """
         :return: List of registered detectors results.
