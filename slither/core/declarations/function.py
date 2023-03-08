@@ -21,6 +21,7 @@ from slither.core.expressions import (
     UnaryOperation,
 )
 from slither.core.solidity_types.type import Type
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
@@ -1023,11 +1024,13 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             view = " view" if self.view else ""
             pure = " pure" if self.pure else ""
             payable = " payable" if self.payable else ""
+            returns = ["address" if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, Contract)
+                       else str(ret.type) for ret in self.returns]
             self._interface_signature_str = (
                 name + "(" + ",".join(parameters) + ") external" + payable + pure + view
             )
             if len(returnVars) > 0:
-                self._interface_signature_str += " returns (" + ",".join(returnVars) + ")"
+                self._interface_signature_str += " returns (" + ",".join(returns) + ")"
         return self._interface_signature_str
 
     # endregion
