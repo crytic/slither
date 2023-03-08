@@ -196,6 +196,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         for obj in self._detectors:
             if type(obj) == detector_class :
                 self._detectors.remove(obj)
+                return
 
     def register_printer(self, printer_class: Type[AbstractPrinter]) -> None:
         """
