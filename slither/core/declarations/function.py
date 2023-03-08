@@ -1024,8 +1024,12 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             view = " view" if self.view else ""
             pure = " pure" if self.pure else ""
             payable = " payable" if self.payable else ""
-            returns = ["address" if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, Contract)
-                       else str(ret.type) for ret in self.returns]
+            returns = [
+                "address"
+                if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, Contract)
+                else str(ret.type)
+                for ret in self.returns
+            ]
             self._interface_signature_str = (
                 name + "(" + ",".join(parameters) + ") external" + payable + pure + view
             )
