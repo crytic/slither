@@ -4,8 +4,13 @@ contract Uninitialized{
         uint a;
     }
 
-    function test() internal returns (St storage ret){
+    function bad() internal returns (St storage ret){
         ret =  ret;
+        ret.a += 1;
+    }    
+
+    function ok(St storage ret) internal {
+        ret = ret;
         ret.a += 1;
     }    
 
