@@ -131,7 +131,7 @@ As a result, Bob's usage of the contract is incorrect."""
                             continue
 
                         # Verify one of these parameters is an array in storage.
-                        for arg in ir.arguments:
+                        for (param, arg) in zip(ir.function.parameters, ir.arguments):
                             # Verify this argument is a variable that is an array type.
                             if not isinstance(arg, (StateVariable, LocalVariable)):
                                 continue
@@ -139,9 +139,10 @@ As a result, Bob's usage of the contract is incorrect."""
                                 continue
 
                             # If it is a state variable OR a local variable referencing storage, we add it to the list.
-                            if isinstance(arg, StateVariable) or (
+                            if (isinstance(arg, StateVariable) or (
                                 isinstance(arg, LocalVariable) and arg.location == "storage"
-                            ):
+                            )) and (
+                                isinstance(param.type, ArrayType) and param.location != "storage" ):
                                 results.append((node, arg, ir.function))
         return results
 

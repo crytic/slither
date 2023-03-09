@@ -56,11 +56,10 @@
                                     48,
                                     49,
                                     50,
-                                    51,
-                                    52
+                                    51
                                 ],
                                 "starting_column": 1,
-                                "ending_column": 0
+                                "ending_column": 2
                             }
                         },
                         "signature": "f()"
@@ -114,11 +113,10 @@
                                     48,
                                     49,
                                     50,
-                                    51,
-                                    52
+                                    51
                                 ],
                                 "starting_column": 1,
-                                "ending_column": 0
+                                "ending_column": 2
                             }
                         }
                     }
@@ -256,11 +254,10 @@
                                     48,
                                     49,
                                     50,
-                                    51,
-                                    52
+                                    51
                                 ],
                                 "starting_column": 1,
-                                "ending_column": 0
+                                "ending_column": 2
                             }
                         },
                         "signature": "f()"
@@ -314,11 +311,10 @@
                                     48,
                                     49,
                                     50,
-                                    51,
-                                    52
+                                    51
                                 ],
                                 "starting_column": 1,
-                                "ending_column": 0
+                                "ending_column": 2
                             }
                         }
                     }
@@ -1293,6 +1289,194 @@
             "markdown": "[C.g()](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L10-L15) passes array [C.g().y](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L11)by reference to [C.setByValue(uint256[1])](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L21-L23)which only takes arrays by value\n",
             "first_markdown_element": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L10-L15",
             "id": "d039169712808e785bf2e53f322c1c6fcd6b93a0a0c17f1a701addd09ed83996",
+            "check": "array-by-reference",
+            "impact": "High",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
+                        "start": 1228,
+                        "length": 169,
+                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            57,
+                            58,
+                            59,
+                            60,
+                            61
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "E",
+                            "source_mapping": {
+                                "start": 1144,
+                                "length": 503,
+                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66,
+                                    67,
+                                    68,
+                                    69,
+                                    70,
+                                    71,
+                                    72,
+                                    73
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "f()"
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "x",
+                    "source_mapping": {
+                        "start": 1161,
+                        "length": 16,
+                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            54
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 21
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "E",
+                            "source_mapping": {
+                                "start": 1144,
+                                "length": 503,
+                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66,
+                                    67,
+                                    68,
+                                    69,
+                                    70,
+                                    71,
+                                    72,
+                                    73
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "name": "setByValue",
+                    "source_mapping": {
+                        "start": 1403,
+                        "length": 118,
+                        "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            63,
+                            64,
+                            65,
+                            66
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "E",
+                            "source_mapping": {
+                                "start": 1144,
+                                "length": 503,
+                                "filename_relative": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66,
+                                    67,
+                                    68,
+                                    69,
+                                    70,
+                                    71,
+                                    72,
+                                    73
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "setByValue(uint256[1],uint256[1])"
+                    }
+                }
+            ],
+            "description": "E.f() (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#57-61) passes array E.x (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#54)by reference to E.setByValue(uint256[1],uint256[1]) (tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#63-66)which only takes arrays by value\n",
+            "markdown": "[E.f()](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L57-L61) passes array [E.x](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L54)by reference to [E.setByValue(uint256[1],uint256[1])](tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L63-L66)which only takes arrays by value\n",
+            "first_markdown_element": "tests/detectors/array-by-reference/0.5.16/array_by_reference.sol#L57-L61",
+            "id": "e0cfcc2c2528a7e6c8277654a24e7d287196ae799e79b212a2fbc41e9541ce09",
             "check": "array-by-reference",
             "impact": "High",
             "confidence": "High"
