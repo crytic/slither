@@ -6,18 +6,18 @@
                     "type": "function",
                     "name": "f",
                     "source_mapping": {
-                        "start": 19,
-                        "length": 106,
+                        "start": 17,
+                        "length": 113,
                         "filename_relative": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                         "is_dependency": false,
                         "lines": [
+                            2,
                             3,
                             4,
                             5,
-                            6,
-                            7
+                            6
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -28,7 +28,7 @@
                             "name": "C",
                             "source_mapping": {
                                 "start": 0,
-                                "length": 128,
+                                "length": 132,
                                 "filename_relative": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
@@ -40,8 +40,7 @@
                                     4,
                                     5,
                                     6,
-                                    7,
-                                    8
+                                    7
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -52,37 +51,37 @@
                 },
                 {
                     "type": "node",
-                    "name": "a = 8 >> a",
+                    "name": "a = 1 & 8 >> a",
                     "source_mapping": {
-                        "start": 93,
-                        "length": 14,
+                        "start": 92,
+                        "length": 22,
                         "filename_relative": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                         "is_dependency": false,
                         "lines": [
-                            5
+                            4
                         ],
                         "starting_column": 13,
-                        "ending_column": 27
+                        "ending_column": 35
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
                             "name": "f",
                             "source_mapping": {
-                                "start": 19,
-                                "length": 106,
+                                "start": 17,
+                                "length": 113,
                                 "filename_relative": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                                 "is_dependency": false,
                                 "lines": [
+                                    2,
                                     3,
                                     4,
                                     5,
-                                    6,
-                                    7
+                                    6
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -93,7 +92,7 @@
                                     "name": "C",
                                     "source_mapping": {
                                         "start": 0,
-                                        "length": 128,
+                                        "length": 132,
                                         "filename_relative": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
                                         "filename_absolute": "/GENERIC_PATH",
                                         "filename_short": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
@@ -105,8 +104,7 @@
                                             4,
                                             5,
                                             6,
-                                            7,
-                                            8
+                                            7
                                         ],
                                         "starting_column": 1,
                                         "ending_column": 2
@@ -118,10 +116,10 @@
                     }
                 }
             ],
-            "description": "C.f() (tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol#3-7) contains an incorrect shift operation: a = 8 >> a (tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol#5)\n",
-            "markdown": "[C.f()](tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol#L3-L7) contains an incorrect shift operation: [a = 8 >> a](tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol#L5)\n",
-            "first_markdown_element": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol#L3-L7",
-            "id": "8aa2292fd8d53a23f05aed92384dde452ea1f879d2422c4726b75a79a5aa6f81",
+            "description": "C.f() (tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol#2-6) contains an incorrect shift operation: a = 1 & 8 >> a (tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol#4)\n",
+            "markdown": "[C.f()](tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol#L2-L6) contains an incorrect shift operation: [a = 1 & 8 >> a](tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol#L4)\n",
+            "first_markdown_element": "tests/detectors/incorrect-shift/0.7.6/shift_parameter_mixup.sol#L2-L6",
+            "id": "7fd78e2db50ea692c77c3e3823b18a68dde7ad77e54f9385b5069c469990222c",
             "check": "incorrect-shift",
             "impact": "High",
             "confidence": "High"
