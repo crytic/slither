@@ -187,14 +187,14 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         for compilation_unit in self.compilation_units:
             instance = detector_class(compilation_unit, self, logger_detector)
             self._detectors.append(instance)
-            
+
     def deregister_detector(self, detector_class: Type[AbstractDetector]) -> None:
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
 
         for obj in self._detectors:
-            if type(obj) == detector_class :   # pylint: disable=unidiomatic-typecheck
+            if type(obj) == detector_class:  # pylint: disable=unidiomatic-typecheck
                 self._detectors.remove(obj)
                 return
 
