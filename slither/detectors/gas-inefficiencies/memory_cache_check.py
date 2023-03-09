@@ -1,6 +1,5 @@
 from slither.detectors.abstract_detector import DetectorClassification, AbstractDetector
-from slither.slithir.operations import SLoad, SStore, MLoad, MStore
-from slither.core import Variable
+from slither.slithir.operations import Operation
 
 class StorageCacheDetector(AbstractDetector):
     """
@@ -16,22 +15,26 @@ class StorageCacheDetector(AbstractDetector):
     WIKI_TITLE = "Caching Storage Variables in Memory To Save Gas"
     WIKI_DESCRIPTION = "Anytime you are reading from storage more than once, it is cheaper in gas cost to cache the variable in memory: a SLOAD cost 100gas, while MLOAD and MSTORE cost 3 gas. Gas savings: at least 97 gas."
 
-    def _analyze(self):
+    def _detect(self):
         """
         Checks if storage variables are being cached in memory or being read directly from storage.
         """
-        for variable in self.contract.variables:
-            if isinstance(variable.type, (Variable,)):
-                continue  # skip structs for now
-
-            # check for SLOAD and SSTORE operations on the variable
-            sload_operations = variable.slithir.filter(SLoad, read_from_storage=True)
-            sstore_operations = variable.slithir.filter(SStore, write_to_storage=True)
-
-            # check for MLOAD and MSTORE operations on the variable
-            mload_operations = variable.slithir.filter(MLoad)
-            mstore_operations = variable.slithir.filter(MStore)
-
-            # check if the variable is being cached in memory or being read from storage
-            if sload_operations and not (mload_operations or mstore_operations or sstore_operations):
-                self.warn(f"{variable.name} is being read directly from storage. Consider caching it in memory to save gas.")
+        cache = {} # To keep track of cached variables
+        issues = {} # To store the results
+        for function in self.contract.functions:
+            # Collect all the operations in the function
+            ops = function.slithir.filter(lambda op: isinstance(op, Operation))
+            for op in ops:
+                # check if the operation is loading a variable from storage
+                if op.read_from_storage and not op.write_to_storage:
+                    # check if the variable is already cached
+                    if op.variable.name in cache:
+                        continue
+                    else:
+                        # cache the variable in memory
+                        cache[op.variable.name] = True
+                        issues[op.variable.name] = {
+                            "description": f"{op.variable.name} is being read directly from storage. Consider caching it in memory to save gas.",
+                            "severity": "warning"
+                        }
+        return issues

@@ -1,12 +1,6 @@
-"""
-Gas: Consider using a clone when deploying a factory contract.
-
-"""
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.solidity_types import FunctionType
-from slither.solc_parsing import SolcParsing
-from slither.core.solidity_types import ContractType
-
+from slither import solc_parsing
 
 class GasCloneApplicabilityCheck(AbstractDetector):
     """
@@ -29,13 +23,13 @@ class GasCloneApplicabilityCheck(AbstractDetector):
                 factory_functions.append(function)
         return factory_functions
 
-    def analyze(self):
+    def _detect(self):
         # Get all the contracts in the analyzed project
-        all_contracts = SolcParsing.get_contracts(self.slither.crytic_project.all_source_codes)
-
+        all_contracts = solc_parsing.get_contracts(self.slither.crytic_project.all_source_codes)
         # Check each contract for factory functions
         for contract in all_contracts:
-            if isinstance(contract, ContractType) and self._get_factory_functions(contract):
+            functions = contract.functions
+            if all(isinstance(f.type, FunctionType) for f in functions) and any(f.type.is_public and f.type.name == "create" for f in functions):
                 self._issues.append({
                     "contract": contract.name,
                     "title": self.WIKI_TITLE,
@@ -44,4 +38,5 @@ class GasCloneApplicabilityCheck(AbstractDetector):
                     "severity": self.IMPACT,
                     "confidence": self.CONFIDENCE,
                     "locations": [{"node": contract.node}]
+                    
                 })

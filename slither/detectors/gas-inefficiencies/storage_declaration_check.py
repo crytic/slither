@@ -1,10 +1,5 @@
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification, Issue
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.analyses.data_dependency.data_dependency import DataDependency
-from slither.slithir.operations import MemberAccess, ArrayAccess
-from slither.core.declarations import ContractVariable
-from slither.slithir.operations import For, While
-
 
 class GasStorageDeclarationCheck(AbstractDetector):
     """
@@ -20,28 +15,21 @@ class GasStorageDeclarationCheck(AbstractDetector):
     WIKI_TITLE = "Help the Optimizer by Saving a Storage Variable’s Reference"
     WIKI_DESCRIPTION = "To help the optimizer, declare a storage type variable and use it instead of repeatedly fetching the reference in a map or an array. The effect can be quite significant." 
 
-    def _evaluate(self):
+    def _detect(self):
         # Get all user-defined types
         user_defined_types = [x for x in self.contract.variables if isinstance(x.type, UserDefinedType)]
 
+        results = []
         # Loop through each user-defined type
         for udt in user_defined_types:
-            # Get all MemberAccess and ArrayAccess nodes that reference this user-defined type
-            data_dependency = DataDependency(self.contract)
-            dependent_nodes = data_dependency.get_dependent_nodes(udt.name)
-
-            # Check if any of the dependent nodes are inside a loop
-            for node in dependent_nodes:
-                parent_node = node.parent
-                while parent_node:
-                    if isinstance(parent_node, (For, While)):
-                        self._issues.append(
-                            Issue(
-                                node,
-                                "Consider using a storage variable instead of repeatedly fetching the reference in a map or an array.",
-                                self,
-                                confidence=DetectorClassification.MEDIUM,
-                            )
-                        )
+            # Check if any function contains an assignment to a member of the user-defined type
+            for function in self.contract.functions:
+                for instruction in function.instructions:
+                    if instruction.lvalue and instruction.lvalue.type == udt:
+                        results.append({
+                            'variable': str(instruction.lvalue),
+                            'description': 'Consider using a storage variable instead of repeatedly fetching the reference in a map or an array.',
+                            'severity': 'medium'
+                        })
                         break
-                    parent_node = parent_node.parent
+        return {'GasStorageDeclarationCheck': results}

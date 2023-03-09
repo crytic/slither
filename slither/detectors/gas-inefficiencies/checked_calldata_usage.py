@@ -2,16 +2,11 @@
 Gas: Using calldata instead of memory for read-only external function parameters will reduce gas fees as well as contract deployment time cost.
 
 """
-from collections import defaultdict
+
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Call, CallValue, ExternalFunctionCall
+from slither.slithir.operations import Operation
 from slither.core.solidity_types import ElementaryType
-from slither.core.declarations import Contract, FunctionVisibility
-
-
-from slither.core.solidity_types import ElementaryType
-from slither.core.declarations import Contract, FunctionVisibility
 
 
 class GasCalldataParameterCheck(AbstractDetector):
@@ -31,19 +26,19 @@ class GasCalldataParameterCheck(AbstractDetector):
 
     def pre_process(self):
         # keep track of the functions we've already checked
-        self.checked_functions = set()
+        self.detect = set()
 
-    def check_function(self, function):
+    def _detect(self, function):
         # skip functions we've already checked
-        if function in self.checked_functions:
-            return
-
-        # skip non-external functions
-        if function.visibility != FunctionVisibility.EXTERNAL:
+        if function in self.detect:
             return
 
         # skip functions without arguments
         if not function.arguments:
+            return
+
+        # skip functions that are not marked as external
+        if not any(opcode in [Operation.EXTERNAL_FUNCTION_CALL, Operation.EXTERNAL_FUNCTION_CALL_CREATE] for opcode in function.slither.opcodes):
             return
 
         # check if all arguments are read-only
@@ -63,7 +58,7 @@ class GasCalldataParameterCheck(AbstractDetector):
             ))
 
         # mark function as checked
-        self.checked_functions.add(function)
+        self.detect.add(function)
 
     def analyze(self):
         # check each contract function
@@ -73,8 +68,7 @@ class GasCalldataParameterCheck(AbstractDetector):
 
         # check external function calls
         for call in self.slither.slt_runtime.calls:
-            if isinstance(call, ExternalFunctionCall):
+            if call.type == Operation.EXTERNAL_FUNCTION_CALL:
                 self.check_function(call.target_function)
-
-
-                  # we can run the script using slither contract.sol --detect calldata-check
+            elif call.type == Operation.EXTERNAL_FUNCTION_CALL_CREATE:
+                self.check_function(call.constructor)

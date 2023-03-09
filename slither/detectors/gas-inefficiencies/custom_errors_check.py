@@ -1,11 +1,7 @@
-"""
-Gas: Detecting Revert Strings
-
-"""
 from collections import defaultdict
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.solidity_types import String
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 class RevertStringDetector(AbstractDetector):
     """
@@ -21,7 +17,7 @@ class RevertStringDetector(AbstractDetector):
     WIKI_TITLE = "Use Custom Errors Instead of Revert Strings To Save Gas"
     WIKI_DESCRIPTION = "Custom errors from Solidity 0.8.4 are cheaper than revert strings (cheaper deployment cost and runtime cost when the revert condition is met)."
 
-    def _detect_revert_strings(self, contract):
+    def _detect(self, contract):
         """
         Checks if any revert string is being used
 
@@ -36,7 +32,7 @@ class RevertStringDetector(AbstractDetector):
 
             # Check if the function has a string parameter with name "reason"
             for arg in function.arguments:
-                if isinstance(arg.type, String) and arg.name == "reason":
+                if isinstance(arg.type, ElementaryType) and arg.type.name == "string" and arg.name == "reason":
 
                     # Report the issue
                     issues[RevertStringDetector.ARGUMENT].append(

@@ -19,7 +19,7 @@ class GasInefficientLoopCheck(AbstractDetector):
     WIKI_TITLE = "The increment in the for loops post condition can be made unchecked"
     WIKI_DESCRIPTION = "Overflow checks are made by the compiler and you can use unchecked within the for loop to save gas" 
   
-    def _check_for_loop(self, node):
+    def _detect(self, node):
         if not node.for_type:
             return False
 

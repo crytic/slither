@@ -1,9 +1,3 @@
-"""
-Gas: Detecting explicit initialization of variables with default values
-
-"""
-from collections import defaultdict
-
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 class DefaultVariableInitialization(AbstractDetector):
@@ -20,7 +14,7 @@ class DefaultVariableInitialization(AbstractDetector):
     WIKI_TITLE = "No need to explicitly initialize variables with default values"
     WIKI_DESCRIPTION = "If a variable is not set/initialized, it is assumed to have the default value (0 for uint, false for bool, address(0) for address, etc.). Explicitly initializing it with its default value is an anti-pattern and wastes gas."
 
-    def _get_variable_declarations(self):
+    def _detect(self):
         """
         Returns a list of all variable declarations in the contract.
         """
@@ -35,10 +29,12 @@ class DefaultVariableInitialization(AbstractDetector):
         Analyzes the contract to detect explicit initialization of variables with default values.
         """
         variable_declarations = self._get_variable_declarations()
+        results = []
         for variable_declaration in variable_declarations:
             if variable_declaration.initial_value is not None and variable_declaration.initial_value.value == variable_declaration.typ.default_value:
-                self.issue({
+                results.append({
                     "variable_declaration": variable_declaration.name,
                     "line_number": variable_declaration.node.lineno,
                     "col_offset": variable_declaration.node.col_offset
                 })
+        return results
