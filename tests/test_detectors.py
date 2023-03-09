@@ -1327,6 +1327,11 @@ ALL_TEST_OBJECTS = [
         "0.7.6",
     ),
     Test(
+        all_detectors.ShiftParameterMixup,
+        "shift_parameter_mixup_benign.sol",
+        "0.7.6",
+    ),
+    Test(
         all_detectors.MissingInheritance,
         "unimplemented_interface.sol",
         "0.4.25",
