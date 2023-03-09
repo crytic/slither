@@ -1,4 +1,5 @@
 from typing import List
+from slither.core.cfg.node import NodeType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
@@ -49,10 +50,11 @@ The shift statement will right-shift the constant 8 by `a` bits"""
                     BinaryType.RIGHT_SHIFT,
                 ]:
                     if isinstance(ir.variable_left, Constant):
-                        info = [f, " contains an incorrect shift operation: ", node, "\n"]
-                        json = self.generate_result(info)
+                        if node.fathers[0].type == NodeType.ASSEMBLY:
+                            info = [f, " contains an incorrect shift operation: ", node, "\n"]
+                            json = self.generate_result(info)
 
-                        results.append(json)
+                            results.append(json)
         return results
 
     def _detect(self) -> List[Output]:
