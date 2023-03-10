@@ -31,7 +31,7 @@ setup(
             "openai",
             "pdoc",
         ],
-        "slither-read-storage": ["solc-select>=v1.0.0b1", "web3>=6.0.0b"],
+        "read-storage": ["solc-select>=v1.0.0b1", "web3>=6.0.0b"],
     },
     license="AGPL-3.0",
     long_description=long_description,
