@@ -203,6 +203,7 @@ def test_using_for_global_collision() -> None:
     sl = Slither(compilation)
     _run_all_detectors(sl)
 
+
 # pylint: disable=too-many-branches
 def test_user_defined_operators() -> None:
     solc_select.switch_global_version("0.8.19", always_install=True)
