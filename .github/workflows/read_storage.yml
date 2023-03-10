@@ -39,7 +39,7 @@ jobs:
 
       - name: Install python dependencies
         run: |
-          pip install ".[read-storage]"
+          pip install ".[dev]"
           solc-select install 0.8.1
           solc-select install 0.8.10
           solc-select use 0.8.1

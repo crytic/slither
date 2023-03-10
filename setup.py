@@ -27,7 +27,7 @@ setup(
             "pytest-xdist",
             "deepdiff",
             "numpy",
-            "solc-select>=v1.0.0b1",
+            "slither-analyzer[read-storage]",
             "openai",
             "pdoc",
         ],

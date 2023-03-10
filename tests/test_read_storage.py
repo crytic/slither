@@ -1,7 +1,6 @@
-import re
-import os
-import sys
 import json
+import os
+import re
 import shutil
 import subprocess
 from time import sleep
@@ -9,13 +8,11 @@ from typing import Generator
 
 import pytest
 from deepdiff import DeepDiff
-from slither import Slither
-from slither.tools.read_storage import SlitherReadStorage
-
-
 from web3 import Web3
 from web3.contract import Contract
 
+from slither import Slither
+from slither.tools.read_storage import SlitherReadStorage
 
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STORAGE_TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "storage-layout")
