@@ -197,7 +197,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
 
-    def deregister_printer(self, printer_class: Type[AbstractPrinter]) -> None:
+    def unregister_printer(self, printer_class: Type[AbstractPrinter]) -> None:
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
