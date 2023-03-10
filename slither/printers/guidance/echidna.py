@@ -12,6 +12,7 @@ from slither.core.declarations.solidity_variables import (
 )
 from slither.core.expressions import NewContract
 from slither.core.slither_core import SlitherCore
+from slither.core.solidity_types import TypeAlias
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
@@ -28,11 +29,10 @@ from slither.slithir.operations import (
     InternalCall,
     TypeConversion,
 )
-from slither.core.solidity_types import TypeAlias, Type
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
-from slither.visitors.expression.constants_folding import ConstantFolding
 from slither.utils.output import Output
+from slither.visitors.expression.constants_folding import ConstantFolding
 
 
 def _get_name(f: Union[Function, Variable]) -> str:
