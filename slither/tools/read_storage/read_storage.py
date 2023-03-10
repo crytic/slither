@@ -3,20 +3,17 @@ import sys
 from math import floor
 from typing import Callable, Optional, Tuple, Union, List, Dict, Any
 
-try:
-    from web3 import Web3
-    from eth_typing.evm import ChecksumAddress
-    from eth_abi import decode_single, encode_abi
-    from eth_utils import keccak
-    from .utils import (
-        get_offset_value,
-        get_storage_data,
-        coerce_type,
-    )
-except ImportError:
-    print("ERROR: in order to use slither-read-storage, you need to install web3")
-    print("$ pip3 install web3 --user\n")
-    sys.exit(-1)
+
+from web3 import Web3
+from eth_typing.evm import ChecksumAddress
+from eth_abi import decode, encode
+from eth_utils import keccak
+from .utils import (
+    get_offset_value,
+    get_storage_data,
+    coerce_type,
+)
+
 
 import dataclasses
 from slither.utils.myprettytable import MyPrettyTable
@@ -92,7 +89,7 @@ class SlitherReadStorage:
         if not self.storage_address:
             raise ValueError
         if not self._checksum_address:
-            self._checksum_address = self.web3.toChecksumAddress(self.storage_address)
+            self._checksum_address = self.web3.to_checksum_address(self.storage_address)
         return self._checksum_address
 
     @property
@@ -449,7 +446,7 @@ class SlitherReadStorage:
         if "int" in key_type:  # without this eth_utils encoding fails
             key = int(key)
         key = coerce_type(key_type, key)
-        slot = keccak(encode_abi([key_type, "uint256"], [key, decode_single("uint256", slot)]))
+        slot = keccak(encode([key_type, "uint256"], [key, decode("uint256", slot)]))
 
         if isinstance(target_variable_type.type_to, UserDefinedType) and isinstance(
             target_variable_type.type_to.type, Structure
@@ -471,7 +468,7 @@ class SlitherReadStorage:
                 deep_key = int(deep_key)
 
             # If deep map, will be keccak256(abi.encode(key1, keccak256(abi.encode(key0, uint(slot)))))
-            slot = keccak(encode_abi([key_type, "bytes32"], [deep_key, slot]))
+            slot = keccak(encode([key_type, "bytes32"], [deep_key, slot]))
 
             # mapping(elem => mapping(elem => elem))
             target_variable_type_type_to_type_to = target_variable_type.type_to.type_to
