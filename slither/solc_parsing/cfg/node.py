@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Union, Optional, Dict, TYPE_CHECKING
 
 from slither.core.cfg.node import Node
 from slither.core.cfg.node import NodeType
@@ -12,9 +12,13 @@ from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
 
+if TYPE_CHECKING:
+    from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.declarations.modifier import ModifierSolc
+
 
 class NodeSolc:
-    def __init__(self, node: Node):
+    def __init__(self, node: Node) -> None:
         self._unparsed_expression: Optional[Dict] = None
         self._node = node
 
@@ -22,11 +26,11 @@ class NodeSolc:
     def underlying_node(self) -> Node:
         return self._node
 
-    def add_unparsed_expression(self, expression: Dict):
+    def add_unparsed_expression(self, expression: Dict) -> None:
         assert self._unparsed_expression is None
         self._unparsed_expression = expression
 
-    def analyze_expressions(self, caller_context):
+    def analyze_expressions(self, caller_context: Union["FunctionSolc", "ModifierSolc"]) -> None:
         if self._node.type == NodeType.VARIABLE and not self._node.expression:
             self._node.add_expression(self._node.variable_declaration.expression)
         if self._unparsed_expression:

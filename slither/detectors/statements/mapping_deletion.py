@@ -1,11 +1,16 @@
 """
 Detect deletion on structure containing a mapping
 """
+from typing import List, Tuple
 
+from slither.core.cfg.node import Node
 from slither.core.declarations import Structure
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types import MappingType, UserDefinedType
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import Delete
+from slither.utils.output import Output
 
 
 class MappingDeletionDetection(AbstractDetector):
@@ -45,13 +50,15 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
     )
 
     @staticmethod
-    def detect_mapping_deletion(contract):
+    def detect_mapping_deletion(
+        contract: Contract,
+    ) -> List[Tuple[FunctionContract, Structure, Node]]:
         """Detect deletion on structure containing a mapping
 
         Returns:
             list (function, structure, node)
         """
-        ret = []
+        ret: List[Tuple[FunctionContract, Structure, Node]] = []
         # pylint: disable=too-many-nested-blocks
         for f in contract.functions:
             for node in f.nodes:
@@ -66,7 +73,7 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
                                 ret.append((f, st, node))
         return ret
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect mapping deletion
 
         Returns:

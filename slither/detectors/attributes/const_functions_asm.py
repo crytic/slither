@@ -2,12 +2,14 @@
 Module detecting constant functions
 Recursively check the called functions
 """
+from typing import List
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     ALL_SOLC_VERSIONS_04,
 )
 from slither.formatters.attributes.const_functions import custom_format
+from slither.utils.output import Output
 
 
 class ConstantFunctionsAsm(AbstractDetector):
@@ -55,7 +57,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
 
     VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect the constant function using assembly code
 
         Recursively visit the calls

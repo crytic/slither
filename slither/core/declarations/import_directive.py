@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class Import(SourceMapping):
-    def __init__(self, filename: Path, scope: "FileScope"):
+    def __init__(self, filename: Path, scope: "FileScope") -> None:
         super().__init__()
         self._filename: Path = filename
         self._alias: Optional[str] = None

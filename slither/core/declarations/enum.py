@@ -4,7 +4,7 @@ from slither.core.source_mapping.source_mapping import SourceMapping
 
 
 class Enum(SourceMapping):
-    def __init__(self, name: str, canonical_name: str, values: List[str]):
+    def __init__(self, name: str, canonical_name: str, values: List[str]) -> None:
         super().__init__()
         self._name = name
         self._canonical_name = canonical_name
@@ -33,5 +33,5 @@ class Enum(SourceMapping):
     def max(self) -> int:
         return self._max
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name

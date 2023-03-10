@@ -5,9 +5,9 @@ from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
-from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
+from slither.utils.colors import green, yellow, red
 from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output, SupportedOutput
 
@@ -81,7 +81,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
-    ):
+    ) -> None:
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
         self.contracts: List[Contract] = compilation_unit.contracts
         self.slither: "Slither" = slither

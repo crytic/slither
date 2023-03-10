@@ -15,7 +15,7 @@ class TopLevelVariableSolc(VariableDeclarationSolc, CallerContextExpression):
         variable: TopLevelVariable,
         variable_data: Dict,
         slither_parser: "SlitherCompilationUnitSolc",
-    ):
+    ) -> None:
         super().__init__(variable, variable_data)
         self._slither_parser = slither_parser
 

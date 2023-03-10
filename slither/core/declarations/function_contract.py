@@ -1,17 +1,20 @@
 """
     Function module
 """
-from typing import TYPE_CHECKING, List, Tuple
+from typing import Dict, TYPE_CHECKING, List, Tuple
 
 from slither.core.children.child_contract import ChildContract
 from slither.core.children.child_inheritance import ChildInheritance
 from slither.core.declarations import Function
+from slither.utils.code_complexity import compute_cyclomatic_complexity
+
 
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract
     from slither.core.scope.scope import FileScope
+    from slither.slithir.variables.state_variable import StateIRVariable
 
 
 class FunctionContract(Function, ChildContract, ChildInheritance):
@@ -71,7 +74,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
 
     def get_summary(
         self,
-    ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str]]:
+    ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str], int]:
         """
             Return the function summary
         Returns:
@@ -87,6 +90,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
             [str(x) for x in self.state_variables_written],
             [str(x) for x in self.internal_calls],
             [str(x) for x in self.external_calls_as_expressions],
+            compute_cyclomatic_complexity(self),
         )
 
     # endregion
@@ -96,7 +100,9 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
     ###################################################################################
     ###################################################################################
 
-    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
+    def generate_slithir_ssa(
+        self, all_ssa_state_variables_instances: Dict[str, "StateIRVariable"]
+    ) -> None:
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (
             compute_dominance_frontier,
