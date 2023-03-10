@@ -15,8 +15,8 @@ setup(
         "packaging",
         "prettytable>=0.7.2",
         "pycryptodome>=3.4.6",
-        "crytic-compile>=0.3.0",
-        # "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
+        # "crytic-compile>=0.3.0",
+        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
     ],
     extras_require={
         "dev": [
@@ -29,6 +29,7 @@ setup(
             "numpy",
             "solc-select>=v1.0.0b1",
             "openai",
+            "pdoc",
         ]
     },
     license="AGPL-3.0",

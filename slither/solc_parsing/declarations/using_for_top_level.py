@@ -49,7 +49,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         type_name = parse_type(self._type_name, self)
         self._using_for.using_for[type_name] = []
 
-        if self._library_name is not None:
+        if self._library_name:
             library_name = parse_type(self._library_name, self)
             self._using_for.using_for[type_name].append(library_name)
             self._propagate_global(type_name)
@@ -97,8 +97,13 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
     def _analyze_top_level_function(
         self, function_name: str, type_name: Union[TypeAliasTopLevel, UserDefinedType]
     ) -> None:
-        for tl_function in self.compilation_unit.functions_top_level:
-            if tl_function.name == function_name:
+        for tl_function in self._using_for.file_scope.functions:
+            # The library function is bound to the first parameter's type
+            if (
+                tl_function.name == function_name
+                and tl_function.parameters
+                and type_name == tl_function.parameters[0].type
+            ):
                 self._using_for.using_for[type_name].append(tl_function)
                 self._propagate_global(type_name)
                 break
@@ -123,7 +128,12 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
                 break
             if c.name == library_name:
                 for cf in c.functions:
-                    if cf.name == function_name:
+                    # The library function is bound to the first parameter's type
+                    if (
+                        cf.name == function_name
+                        and cf.parameters
+                        and type_name == cf.parameters[0].type
+                    ):
                         self._using_for.using_for[type_name].append(cf)
                         self._propagate_global(type_name)
                         found = True
