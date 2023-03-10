@@ -444,6 +444,7 @@ ALL_TESTS = [
     Test("yul-top-level-0.8.0.sol", ["0.8.0"]),
     Test("complex_imports/import_aliases_issue_1319/test.sol", ["0.5.12"]),
     Test("yul-state-constant-access.sol", ["0.8.16"]),
+    Test("user_defined_operators-0.8.19.sol", ["0.8.19"]),
 ]
 # create the output folder if needed
 try:

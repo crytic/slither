@@ -160,3 +160,54 @@ def test_arithmetic_usage() -> None:
     assert {
         f.source_mapping.content_hash for f in unchecked_arithemtic_usage(slither.contracts[0])
     } == {"2b4bc73cf59d486dd9043e840b5028b679354dd9", "e4ecd4d0fda7e762d29aceb8425f2c5d4d0bf962"}
+
+
+def test_user_defined_operators() -> None:
+    solc_select.switch_global_version("0.8.19", always_install=True)
+    slither = Slither("./tests/ast-parsing/user_defined_operators-0.8.19.sol")
+    contract_t = slither.get_contract_from_name("T")[0]
+    add_function_call = contract_t.get_function_from_full_name("add_function_call(Int,Int)")
+    ok = False
+    for ir in add_function_call.all_slithir_operations():
+        if isinstance(ir, InternalCall) and ir.function_name == "add":
+            ok = True
+    if not ok:
+        assert False
+
+    add_op = contract_t.get_function_from_full_name("add_op(Int,Int)")
+    ok = False
+    for ir in add_op.all_slithir_operations():
+        if isinstance(ir, InternalCall) and ir.function_name == "add":
+            ok = True
+    if not ok:
+        assert False
+
+    lib_call = contract_t.get_function_from_full_name("lib_call(Int)")
+    ok = False
+    for ir in lib_call.all_slithir_operations():
+        if isinstance(ir, LibraryCall) and ir.destination == "Lib" and ir.function_name == "f":
+            ok = True
+    if not ok:
+        assert False
+
+    neg_usertype = contract_t.get_function_from_full_name("neg_usertype(Int)")
+    ok = False
+    for ir in neg_usertype.all_slithir_operations():
+        if isinstance(ir, InternalCall) and ir.function_name == "neg":
+            ok = True
+    if not ok:
+        assert False
+
+    neg_int = contract_t.get_function_from_full_name("neg_int(int256)")
+    ok = True
+    for ir in neg_int.all_slithir_operations():
+        if isinstance(ir, InternalCall):
+            ok = False
+    if not ok:
+        assert False
+
+    eq_op = contract_t.get_function_from_full_name("eq_op(Int,Int)")
+    for ir in eq_op.all_slithir_operations():
+        if isinstance(ir, InternalCall) and ir.function_name == "eq":
+            return
+    assert False
