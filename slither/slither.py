@@ -203,7 +203,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         """
 
         for obj in self._printers:
-            if type(obj) == printer_class:  # pylint: disable=unidiomatic-typecheck
+            if isinstance(obj, printer_class):
                 self._printers.remove(obj)
                 return
 
