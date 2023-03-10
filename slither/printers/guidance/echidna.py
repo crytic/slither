@@ -4,7 +4,7 @@ from typing import Dict, List, Set, Tuple, NamedTuple, Union
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
-from slither.core.declarations import Function
+from slither.core.declarations import Enum, Function
 from slither.core.declarations.solidity_variables import (
     SolidityVariableComposed,
     SolidityFunction,
@@ -12,6 +12,7 @@ from slither.core.declarations.solidity_variables import (
 )
 from slither.core.expressions import NewContract
 from slither.core.slither_core import SlitherCore
+from slither.core.solidity_types import TypeAlias
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
@@ -30,8 +31,8 @@ from slither.slithir.operations import (
 )
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
-from slither.visitors.expression.constants_folding import ConstantFolding
 from slither.utils.output import Output
+from slither.visitors.expression.constants_folding import ConstantFolding
 
 
 def _get_name(f: Union[Function, Variable]) -> str:
@@ -184,8 +185,23 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
                     all_cst_used.append(ConstantValue(str(cst.value), str(type_)))
         if isinstance(ir, TypeConversion):
             if isinstance(ir.variable, Constant):
-                all_cst_used.append(ConstantValue(str(ir.variable.value), str(ir.type)))
+                if isinstance(ir.type, TypeAlias):
+                    value_type = ir.type.type
+                else:
+                    value_type = ir.type
+                all_cst_used.append(ConstantValue(str(ir.variable.value), str(value_type)))
                 continue
+        if (
+            isinstance(ir, Member)
+            and isinstance(ir.variable_left, Enum)
+            and isinstance(ir.variable_right, Constant)
+        ):
+            # enums are constant values
+            try:
+                internal_num = ir.variable_left.values.index(ir.variable_right.value)
+                all_cst_used.append(ConstantValue(str(internal_num), "uint256"))
+            except ValueError:  # index could fail; should never happen in working solidity code
+                pass
         for r in ir.read:
             # Do not report struct_name in a.struct_name
             if isinstance(ir, Member):

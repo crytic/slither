@@ -76,9 +76,6 @@ def process_single(
     ast = "--ast-compact-json"
     if args.legacy_ast:
         ast = "--ast-json"
-    if args.checklist:
-        args.show_ignored_findings = True
-
     slither = Slither(target, ast_format=ast, **vars(args))
 
     return _process(slither, detector_classes, printer_classes)
@@ -742,7 +739,7 @@ def main_impl(
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
     # output.
-    if outputting_json or output_to_sarif:
+    if outputting_json or outputting_sarif:
         StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
 
     printer_classes = choose_printers(args, all_printer_classes)
@@ -844,7 +841,9 @@ def main_impl(
 
         # Output our results to markdown if we wish to compile a checklist.
         if args.checklist:
-            output_results_to_markdown(results_detectors, args.checklist_limit)
+            output_results_to_markdown(
+                results_detectors, args.checklist_limit, args.show_ignored_findings
+            )
 
         # Don't print the number of result for printers
         if number_contracts == 0:

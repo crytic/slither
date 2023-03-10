@@ -4,6 +4,137 @@
             "elements": [
                 {
                     "type": "variable",
+                    "name": "state",
+                    "source_mapping": {
+                        "start": 541,
+                        "length": 10,
+                        "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            30
+                        ],
+                        "starting_column": 52,
+                        "ending_column": 62
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowedState",
+                            "source_mapping": {
+                                "start": 494,
+                                "length": 88,
+                                "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    30,
+                                    31,
+                                    32
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "LocalReturnVariables",
+                                    "source_mapping": {
+                                        "start": 442,
+                                        "length": 344,
+                                        "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowedState()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "state",
+                    "source_mapping": {
+                        "start": 478,
+                        "length": 10,
+                        "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            29
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 15
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "LocalReturnVariables",
+                            "source_mapping": {
+                                "start": 442,
+                                "length": 344,
+                                "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "LocalReturnVariables.shadowedState().state (tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#30) shadows:\n\t- LocalReturnVariables.state (tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#29) (state variable)\n",
+            "markdown": "[LocalReturnVariables.shadowedState().state](tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#L30) shadows:\n\t- [LocalReturnVariables.state](tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#L29) (state variable)\n",
+            "first_markdown_element": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#L30",
+            "id": "1b0030affabcff703e57e4f388b86dbda0f412e51ba8d15248bcae9e4748a012",
+            "check": "shadowing-local",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
                     "name": "y",
                     "source_mapping": {
                         "start": 406,
@@ -482,6 +613,161 @@
             "markdown": "[FurtherExtendedContract.shadowingParent(uint256).__x](tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#L25) shadows:\n\t- [FurtherExtendedContract.__x](tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#L17) (state variable)\n",
             "first_markdown_element": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#L25",
             "id": "cd61765f88a1447471f5c75c7a488af44534d81be3998f5d01a6b5fa8f693327",
+            "check": "shadowing-local",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "local_scope_0",
+                    "source_mapping": {
+                        "start": 658,
+                        "length": 14,
+                        "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            34
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 23
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowedReturn",
+                            "source_mapping": {
+                                "start": 588,
+                                "length": 113,
+                                "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    33,
+                                    34,
+                                    35,
+                                    36
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "LocalReturnVariables",
+                                    "source_mapping": {
+                                        "start": 442,
+                                        "length": 344,
+                                        "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowedReturn()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "local",
+                    "source_mapping": {
+                        "start": 636,
+                        "length": 10,
+                        "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            33
+                        ],
+                        "starting_column": 53,
+                        "ending_column": 63
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowedReturn",
+                            "source_mapping": {
+                                "start": 588,
+                                "length": 113,
+                                "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    33,
+                                    34,
+                                    35,
+                                    36
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "LocalReturnVariables",
+                                    "source_mapping": {
+                                        "start": 442,
+                                        "length": 344,
+                                        "filename_relative": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowedReturn()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "LocalReturnVariables.shadowedReturn().local_scope_0 (tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#34) shadows:\n\t- LocalReturnVariables.shadowedReturn().local (tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#33) (return variable)\n",
+            "markdown": "[LocalReturnVariables.shadowedReturn().local_scope_0](tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#L34) shadows:\n\t- [LocalReturnVariables.shadowedReturn().local](tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#L33) (return variable)\n",
+            "first_markdown_element": "tests/detectors/shadowing-local/0.6.11/shadowing_local_variable.sol#L34",
+            "id": "cd63bdf3f6420e4e109d20ec44b52fcbcbde1c5b6a0701fc6994b35960ab1e85",
             "check": "shadowing-local",
             "impact": "Low",
             "confidence": "High"
