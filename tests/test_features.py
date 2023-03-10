@@ -95,6 +95,15 @@ def test_contract_comments() -> None:
 
     assert contract.comments == comments
 
+    # Test with legacy AST
+    comments = "@title Test Contract\n@dev Test comment"
+    solc_select.switch_global_version("0.5.16", always_install=True)
+    slither = Slither("./tests/custom_comments/contract_comment.sol", solc_force_legacy_json=True)
+    compilation_unit = slither.compilation_units[0]
+    contract = compilation_unit.get_contract_from_name("A")[0]
+
+    assert contract.comments == comments
+
 
 def test_using_for_top_level_same_name() -> None:
     solc_select.switch_global_version("0.8.15", always_install=True)
