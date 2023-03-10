@@ -2,7 +2,7 @@ from slither.core.variables.variable import Variable
 
 
 class SlithIRVariable(Variable):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._index = 0
 

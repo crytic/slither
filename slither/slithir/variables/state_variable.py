@@ -5,7 +5,7 @@ from slither.slithir.variables.variable import SlithIRVariable
 class StateIRVariable(
     StateVariable, SlithIRVariable
 ):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, state_variable):
+    def __init__(self, state_variable: StateVariable) -> None:
         assert isinstance(state_variable, StateVariable)
 
         super().__init__()
@@ -38,7 +38,7 @@ class StateIRVariable(
         self._index = idx
 
     @property
-    def non_ssa_version(self):
+    def non_ssa_version(self) -> StateVariable:
         return self._non_ssa_version
 
     @property

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-instance-attributes
 class Variable(SourceMapping):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._name: Optional[str] = None
         self._initial_expression: Optional["Expression"] = None

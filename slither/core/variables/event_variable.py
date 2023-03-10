@@ -3,7 +3,7 @@ from slither.core.children.child_event import ChildEvent
 
 
 class EventVariable(ChildEvent, Variable):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._indexed = False
 

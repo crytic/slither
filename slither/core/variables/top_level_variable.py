@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class TopLevelVariable(TopLevel, Variable):
-    def __init__(self, scope: "FileScope"):
+    def __init__(self, scope: "FileScope") -> None:
         super().__init__()
         self._node_initialization: Optional["Node"] = None
         self.file_scope = scope

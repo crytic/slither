@@ -7,11 +7,11 @@ if TYPE_CHECKING:
 
 
 class ChildNode:
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._node = None
 
-    def set_node(self, node: "Node"):
+    def set_node(self, node: "Node") -> None:
         self._node = node
 
     @property

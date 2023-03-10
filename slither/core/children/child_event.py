@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 
 class ChildEvent:
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._event = None
 

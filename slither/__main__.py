@@ -25,7 +25,13 @@ from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils import codex
-from slither.utils.output import output_to_json, output_to_zip, output_to_sarif, ZIP_TYPES_ACCEPTED
+from slither.utils.output import (
+    output_to_json,
+    output_to_zip,
+    output_to_sarif,
+    ZIP_TYPES_ACCEPTED,
+    Output,
+)
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
@@ -109,7 +115,7 @@ def _process(
     slither: Slither,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Dict], int]:
+) -> Tuple[Slither, List[Dict], List[Output], int]:
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
 
@@ -122,9 +128,9 @@ def _process(
     results_printers = []
 
     if not printer_classes:
-        detector_results = slither.run_detectors()
-        detector_results = [x for x in detector_results if x]  # remove empty results
-        detector_results = [item for sublist in detector_results for item in sublist]  # flatten
+        detector_resultss = slither.run_detectors()
+        detector_resultss = [x for x in detector_resultss if x]  # remove empty results
+        detector_results = [item for sublist in detector_resultss for item in sublist]  # flatten
         results_detectors.extend(detector_results)
 
     else:
@@ -751,7 +757,7 @@ def main_impl(
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
     # output.
-    if outputting_json or output_to_sarif:
+    if outputting_json or outputting_sarif:
         StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
 
     printer_classes = choose_printers(args, all_printer_classes)

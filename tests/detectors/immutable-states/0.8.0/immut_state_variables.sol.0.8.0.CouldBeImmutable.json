@@ -24,7 +24,7 @@
                             "name": "Bad",
                             "source_mapping": {
                                 "start": 718,
-                                "length": 493,
+                                "length": 577,
                                 "filename_relative": "tests/detectors/immutable-states/0.8.0/immut_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/immutable-states/0.8.0/immut_state_variables.sol",
@@ -49,7 +49,9 @@
                                     53,
                                     54,
                                     55,
-                                    56
+                                    56,
+                                    57,
+                                    58
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -90,7 +92,7 @@
                             "name": "Bad",
                             "source_mapping": {
                                 "start": 718,
-                                "length": 493,
+                                "length": 577,
                                 "filename_relative": "tests/detectors/immutable-states/0.8.0/immut_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/immutable-states/0.8.0/immut_state_variables.sol",
@@ -115,7 +117,9 @@
                                     53,
                                     54,
                                     55,
-                                    56
+                                    56,
+                                    57,
+                                    58
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -156,7 +160,7 @@
                             "name": "Bad",
                             "source_mapping": {
                                 "start": 718,
-                                "length": 493,
+                                "length": 577,
                                 "filename_relative": "tests/detectors/immutable-states/0.8.0/immut_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/immutable-states/0.8.0/immut_state_variables.sol",
@@ -181,7 +185,9 @@
                                     53,
                                     54,
                                     55,
-                                    56
+                                    56,
+                                    57,
+                                    58
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2
@@ -222,7 +228,7 @@
                             "name": "Bad",
                             "source_mapping": {
                                 "start": 718,
-                                "length": 493,
+                                "length": 577,
                                 "filename_relative": "tests/detectors/immutable-states/0.8.0/immut_state_variables.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/detectors/immutable-states/0.8.0/immut_state_variables.sol",
@@ -247,7 +253,9 @@
                                     53,
                                     54,
                                     55,
-                                    56
+                                    56,
+                                    57,
+                                    58
                                 ],
                                 "starting_column": 1,
                                 "ending_column": 2

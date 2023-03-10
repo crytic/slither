@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-few-public-methods
 class Scope:
-    def __init__(self, is_checked: bool, is_yul: bool, scope: Union["Scope", "Function"]):
+    def __init__(self, is_checked: bool, is_yul: bool, scope: Union["Scope", "Function"]) -> None:
         self.nodes: List["Node"] = []
         self.is_checked = is_checked
         self.is_yul = is_yul

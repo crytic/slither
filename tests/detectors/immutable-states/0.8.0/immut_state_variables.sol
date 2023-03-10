@@ -44,9 +44,11 @@ contract Bad {
     uint should_be_immutable_2 = getNumber();
     uint should_be_immutable_3 = 10 + block.number;
     uint should_be_immutable_5;
+    string cannote_be_immutable;
     
-	constructor(uint b) {
+	constructor(uint b, string memory c) {
 		should_be_immutable_5 = b;
+        cannote_be_immutable = c;
 	}
 
     function getNumber() public returns(uint){
