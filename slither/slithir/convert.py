@@ -525,9 +525,7 @@ def _convert_type_contract(ir: Member) -> Assignment:
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
-def propagate_types(
-    ir: slither.slithir.operations.operation.Operation, node: "Node"
-):  # pylint: disable=too-many-locals
+def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
     using_for = (
