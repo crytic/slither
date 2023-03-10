@@ -103,9 +103,11 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
         for contract in self.compilation_unit.contracts:
             for function in contract.functions:
                 if function.is_implemented and function.entry_point:
+                    locals_except_params = set(function.variables) - set(function.parameters)
                     uninitialized_storage_variables = [
-                        v for v in function.local_variables if v.is_storage and v.uninitialized
+                        v for v in locals_except_params if v.is_storage and v.uninitialized
                     ]
+
                     function.entry_point.context[self.key] = uninitialized_storage_variables
                     self._detect_uninitialized(function, function.entry_point, [])
 

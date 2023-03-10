@@ -371,6 +371,11 @@ ALL_TEST_OBJECTS = [
         "uninitialized_storage_pointer.sol",
         "0.4.25",
     ),
+    Test(
+        all_detectors.UninitializedStorageVars,
+        "uninitialized_storage_pointer.sol",
+        "0.8.19",
+    ),
     Test(all_detectors.TxOrigin, "tx_origin.sol", "0.4.25"),
     Test(all_detectors.TxOrigin, "tx_origin.sol", "0.5.16"),
     Test(all_detectors.TxOrigin, "tx_origin.sol", "0.6.11"),
