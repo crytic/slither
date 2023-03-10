@@ -760,7 +760,7 @@ def main_impl(
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
     # output.
-    if outputting_json or output_to_sarif:
+    if outputting_json or outputting_sarif:
         StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
 
     printer_classes = choose_printers(args, all_printer_classes)
