@@ -1,4 +1,5 @@
 import inspect
+from pathlib import Path
 
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
@@ -162,6 +163,11 @@ def test_arithmetic_usage() -> None:
     } == {"2b4bc73cf59d486dd9043e840b5028b679354dd9", "e4ecd4d0fda7e762d29aceb8425f2c5d4d0bf962"}
 
 
-def test_using_for_global_collision(slither_from_dir) -> None:
-    with slither_from_dir("./tests/using-for-global-collision") as sl:
-        _run_all_detectors(sl)
+def test_using_for_global_collision() -> None:
+    solc_select.switch_global_version("0.8.18", always_install=True)
+    standard_json = SolcStandardJson()
+    for source_file in Path("./tests/using-for-global-collision").rglob("*.sol"):
+        standard_json.add_source_file(Path(source_file).as_posix())
+    compilation = CryticCompile(standard_json)
+    sl = Slither(compilation)
+    _run_all_detectors(sl)
