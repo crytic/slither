@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class CustomError(SourceMapping):
-    def __init__(self, compilation_unit: "SlitherCompilationUnit"):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
         super().__init__()
         self._name: str = ""
         self._parameters: List[LocalVariable] = []
@@ -30,7 +30,7 @@ class CustomError(SourceMapping):
     def parameters(self) -> List[LocalVariable]:
         return self._parameters
 
-    def add_parameters(self, p: "LocalVariable"):
+    def add_parameters(self, p: "LocalVariable") -> None:
         self._parameters.append(p)
 
     @property
@@ -42,7 +42,7 @@ class CustomError(SourceMapping):
     ###################################################################################
 
     @staticmethod
-    def _convert_type_for_solidity_signature(t: Optional[Union[Type, List[Type]]]):
+    def _convert_type_for_solidity_signature(t: Optional[Union[Type, List[Type]]]) -> str:
         # pylint: disable=import-outside-toplevel
         from slither.core.declarations import Contract
 
@@ -92,5 +92,5 @@ class CustomError(SourceMapping):
     ###################################################################################
     ###################################################################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "revert " + self.solidity_signature

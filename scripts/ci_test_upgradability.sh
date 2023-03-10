@@ -155,6 +155,32 @@ then
     exit 255
 fi
 
+slither-check-upgradeability "$DIR_TESTS/contractV1_struct.sol" ContractV1 --new-contract-filename "$DIR_TESTS/contractV2_struct.sol" --new-contract-name ContractV2   > test_12.txt 2>&1
+DIFF=$(diff test_12.txt "$DIR_TESTS/test_12.txt")
+if [  "$DIFF" != "" ]
+then
+    echo "slither-check-upgradeability 12 failed"
+    cat test_12.txt
+    echo ""
+    cat "$DIR_TESTS/test_12.txt"
+    echo ""
+    echo "$DIFF"
+    exit 255
+fi
+
+slither-check-upgradeability "$DIR_TESTS/contractV1_struct.sol" ContractV1 --new-contract-filename "$DIR_TESTS/contractV2_struct_bug.sol" --new-contract-name ContractV2   > test_13.txt 2>&1
+DIFF=$(diff test_13.txt "$DIR_TESTS/test_13.txt")
+if [  "$DIFF" != "" ]
+then
+    echo "slither-check-upgradeability 13 failed"
+    cat test_13.txt
+    echo ""
+    cat "$DIR_TESTS/test_13.txt"
+    echo ""
+    echo "$DIFF"
+    exit 255
+fi
+
 rm test_1.txt
 rm test_2.txt
 rm test_3.txt
@@ -166,3 +192,5 @@ rm test_8.txt
 rm test_9.txt
 rm test_10.txt
 rm test_11.txt
+rm test_12.txt
+rm test_13.txt

@@ -1,0 +1,90 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "ret",
+                    "source_mapping": {
+                        "start": 100,
+                        "length": 14,
+                        "filename_relative": "tests/detectors/uninitialized-storage/0.8.19/uninitialized_storage_pointer.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/uninitialized-storage/0.8.19/uninitialized_storage_pointer.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 38,
+                        "ending_column": 52
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad",
+                            "source_mapping": {
+                                "start": 67,
+                                "length": 95,
+                                "filename_relative": "tests/detectors/uninitialized-storage/0.8.19/uninitialized_storage_pointer.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/uninitialized-storage/0.8.19/uninitialized_storage_pointer.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    7,
+                                    8,
+                                    9,
+                                    10
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "Uninitialized",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 262,
+                                        "filename_relative": "tests/detectors/uninitialized-storage/0.8.19/uninitialized_storage_pointer.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/uninitialized-storage/0.8.19/uninitialized_storage_pointer.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "Uninitialized.bad().ret (tests/detectors/uninitialized-storage/0.8.19/uninitialized_storage_pointer.sol#7) is a storage variable never initialized\n",
+            "markdown": "[Uninitialized.bad().ret](tests/detectors/uninitialized-storage/0.8.19/uninitialized_storage_pointer.sol#L7) is a storage variable never initialized\n",
+            "first_markdown_element": "tests/detectors/uninitialized-storage/0.8.19/uninitialized_storage_pointer.sol#L7",
+            "id": "979d28e501693ed7ece0d429e7c30266f8e9d6a2e2eedc87006c4bad63e78706",
+            "check": "uninitialized-storage",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]

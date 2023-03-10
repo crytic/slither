@@ -5,11 +5,11 @@ if TYPE_CHECKING:
 
 
 class ChildStructure:
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._structure = None
 
-    def set_structure(self, structure: "Structure"):
+    def set_structure(self, structure: "Structure") -> None:
         self._structure = structure
 
     @property

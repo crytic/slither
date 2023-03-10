@@ -1,9 +1,15 @@
-from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.solidity_types.type import Type
+from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.slithir.variables.temporary import TemporaryVariable
 
 
 class TmpNewArray(OperationWithLValue):
-    def __init__(self, depth, array_type, lvalue):
+    def __init__(
+        self,
+        depth: int,
+        array_type: Type,
+        lvalue: TemporaryVariable,
+    ) -> None:
         super().__init__()
         assert isinstance(array_type, Type)
         self._depth = depth
@@ -11,7 +17,7 @@ class TmpNewArray(OperationWithLValue):
         self._lvalue = lvalue
 
     @property
-    def array_type(self):
+    def array_type(self) -> Type:
         return self._array_type
 
     @property
@@ -19,7 +25,7 @@ class TmpNewArray(OperationWithLValue):
         return []
 
     @property
-    def depth(self):
+    def depth(self) -> int:
         return self._depth
 
     def __str__(self):

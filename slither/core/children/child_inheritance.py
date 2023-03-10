@@ -5,11 +5,11 @@ if TYPE_CHECKING:
 
 
 class ChildInheritance:
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._contract_declarer = None
 
-    def set_contract_declarer(self, contract: "Contract"):
+    def set_contract_declarer(self, contract: "Contract") -> None:
         self._contract_declarer = contract
 
     @property

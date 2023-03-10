@@ -1,7 +1,7 @@
 # Slither, the Solidity source analyzer
 <img src="./logo.png" alt="Logo" width="500"/>
 
-[![Build Status](https://img.shields.io/github/workflow/status/crytic/slither/CI/master)](https://github.com/crytic/slither/actions?query=workflow%3ACI)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/crytic/slither/ci.yml?branch=master)](https://github.com/crytic/slither/actions?query=workflow%3ACI)
 [![Slack Status](https://empireslacking.herokuapp.com/badge.svg)](https://empireslacking.herokuapp.com)
 [![PyPI version](https://badge.fury.io/py/slither-analyzer.svg)](https://badge.fury.io/py/slither-analyzer)
 
@@ -10,10 +10,10 @@ Slither is a Solidity static analysis framework written in Python3. It runs a su
 - [Features](#features)
 - [Usage](#usage)
 - [How to Install](#how-to-install)
-- [API Documentation](#api-documentation)
 - [Detectors](#detectors)
 - [Printers](#printers)
 - [Tools](#tools)
+- [API Documentation](#api-documentation)
 - [Getting Help](#getting-help)
 - [FAQ](#faq)
 - [Publications](#publications)
@@ -44,16 +44,10 @@ However, you can run Slither on a single file that does not import dependencies:
 slither tests/uninitialized.sol
 ```
 
-
-### Integration
-- For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
-- To generate a Markdown report, use `slither [target] --checklist`.
-- To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
-
-
 ## How to install
 
-Slither requires Python 3.8+ and [solc](https://github.com/ethereum/solidity/), the Solidity compiler. We recommend using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions, but it is not required. For additional configuration, see the [usage](https://github.com/trailofbits/slither/wiki/Usage) documentation.
+Slither requires Python 3.8+.
+If you're **not** going to use one of the [supported compilation frameworks](https://github.com/crytic/crytic-compile), you need [solc](https://github.com/ethereum/solidity/), the Solidity compiler; we recommend using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions.
 
 ### Using Pip
 
@@ -84,10 +78,10 @@ To share a directory in the container:
 docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
 ```
 
-
-## API Documentation
-Documentation on Slither's internals is available [here](https://crytic.github.io/slither/slither.html).
-
+### Integration
+- For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
+- To generate a Markdown report, use `slither [target] --checklist`.
+- To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
 
 ## Detectors
 
@@ -214,6 +208,8 @@ See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documen
 
 [Contact us](https://www.trailofbits.com/contact/) to get help on building custom tools.
 
+## API Documentation
+Documentation on Slither's internals is available [here](https://crytic.github.io/slither/slither.html).
 
 ## Getting Help
 

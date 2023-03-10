@@ -1,9 +1,11 @@
 """
     Check that the same pragma is used in all the files
 """
+from typing import List
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.formatters.attributes.constant_pragma import custom_format
+from slither.utils.output import Output
 
 
 class ConstantPragma(AbstractDetector):
@@ -22,7 +24,7 @@ class ConstantPragma(AbstractDetector):
     WIKI_DESCRIPTION = "Detect whether different Solidity versions are used."
     WIKI_RECOMMENDATION = "Use one Solidity version."
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
         pragma = self.compilation_unit.pragma_directives
         versions = [p.version for p in pragma if p.is_solidity_version]

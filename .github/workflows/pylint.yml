@@ -1,5 +1,5 @@
 ---
-name: Lint Code Base
+name: Run pylint
 
 defaults:
   run:
@@ -9,9 +9,10 @@ defaults:
 on:
   pull_request:
     branches: [master, dev]
-  schedule:
-    # run CI every day even if no PRs/merges occur
-    - cron: '0 12 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -20,7 +21,10 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v3
@@ -36,9 +40,11 @@ jobs:
         uses: github/super-linter/slim@v4.9.2
         if: always()
         env:
-          # run linter on everything to catch preexisting problems
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: master
+          # Run linters only on new files for pylint to speed up the CI
+          VALIDATE_ALL_CODEBASE: false
+          # Compare against the base branch
+          # This is only accessible on PR
+          DEFAULT_BRANCH: ${{ github.base_ref }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Run only pylint
           VALIDATE_PYTHON: true

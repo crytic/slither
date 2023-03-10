@@ -80,11 +80,7 @@ class Flattening:
 
     def _get_source_code_top_level(self, elems: Sequence[TopLevel]) -> None:
         for elem in elems:
-            src_mapping = elem.source_mapping
-            content = self._compilation_unit.core.source_code[src_mapping.filename.absolute]
-            start = src_mapping.start
-            end = src_mapping.start + src_mapping.length
-            self._source_codes_top_level[elem] = content[start:end]
+            self._source_codes_top_level[elem] = elem.source_mapping.content
 
     def _check_abi_encoder_v2(self):
         """

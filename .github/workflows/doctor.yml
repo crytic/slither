@@ -1,5 +1,5 @@
 ---
-name: CI
+name: Doctor
 
 defaults:
   run:
@@ -11,6 +11,10 @@ on:
     paths:
       - 'slither/tools/doctor/**'
       - '.github/workflows/doctor.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   slither-doctor:

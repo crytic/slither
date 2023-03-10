@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class Event(ChildContract, SourceMapping):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._name = None
         self._elems: List[EventVariable] = []
@@ -59,5 +59,5 @@ class Event(ChildContract, SourceMapping):
         """
         return self.contract == contract
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name

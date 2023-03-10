@@ -9,6 +9,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.detectors import all_detectors
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.slithir.operations import LibraryCall, InternalCall
+from slither.utils.arithmetic import unchecked_arithemtic_usage
 
 
 def _run_all_detectors(slither: Slither) -> None:
@@ -150,3 +151,12 @@ def test_private_variable() -> None:
     var_read = f.variables_read[0]
     assert isinstance(var_read, StateVariable)
     assert str(var_read.contract) == "B"
+
+
+def test_arithmetic_usage() -> None:
+    solc_select.switch_global_version("0.8.15", always_install=True)
+    slither = Slither("./tests/arithmetic_usage/test.sol")
+
+    assert {
+        f.source_mapping.content_hash for f in unchecked_arithemtic_usage(slither.contracts[0])
+    } == {"2b4bc73cf59d486dd9043e840b5028b679354dd9", "e4ecd4d0fda7e762d29aceb8425f2c5d4d0bf962"}

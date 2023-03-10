@@ -39,4 +39,14 @@ contract C {
     function g(address one) public {
         (, uint x) = Test(one).testTuple();
     }
+    
+    uint[] myIntegers;
+    function _h(uint c) internal returns(uint) {
+        return c;
+    }
+    function h(bool cond, uint a, uint b) public {
+        uint d = _h(
+            myIntegers[cond ? a : b]
+        );
+    }
 }
