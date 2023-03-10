@@ -208,6 +208,129 @@
             "elements": [
                 {
                     "type": "variable",
+                    "name": "state",
+                    "source_mapping": {
+                        "start": 533,
+                        "length": 10,
+                        "filename_relative": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            30
+                        ],
+                        "starting_column": 52,
+                        "ending_column": 62
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "shadowedState",
+                            "source_mapping": {
+                                "start": 486,
+                                "length": 88,
+                                "filename_relative": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    30,
+                                    31,
+                                    32
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "LocalReturnVariables",
+                                    "source_mapping": {
+                                        "start": 434,
+                                        "length": 225,
+                                        "filename_relative": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "shadowedState()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "state",
+                    "source_mapping": {
+                        "start": 470,
+                        "length": 10,
+                        "filename_relative": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            29
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 15
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "LocalReturnVariables",
+                            "source_mapping": {
+                                "start": 434,
+                                "length": 225,
+                                "filename_relative": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "LocalReturnVariables.shadowedState().state (tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol#30) shadows:\n\t- LocalReturnVariables.state (tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol#29) (state variable)\n",
+            "markdown": "[LocalReturnVariables.shadowedState().state](tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol#L30) shadows:\n\t- [LocalReturnVariables.state](tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol#L29) (state variable)\n",
+            "first_markdown_element": "tests/detectors/shadowing-local/0.4.25/shadowing_local_variable.sol#L30",
+            "id": "1b0030affabcff703e57e4f388b86dbda0f412e51ba8d15248bcae9e4748a012",
+            "check": "shadowing-local",
+            "impact": "Low",
+            "confidence": "High"
+        },
+        {
+            "elements": [
+                {
+                    "type": "variable",
                     "name": "y",
                     "source_mapping": {
                         "start": 398,
