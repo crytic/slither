@@ -7,7 +7,7 @@ from slither.slithir.variables.tuple import TupleVariable
 
 
 class TupleVariableSSA(TupleVariable):  # pylint: disable=too-few-public-methods
-    def __init__(self, t):
+    def __init__(self, t: TupleVariable) -> None:
         super().__init__(t.node, t.index)
 
         self._non_ssa_version = t

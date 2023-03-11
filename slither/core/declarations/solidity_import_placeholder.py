@@ -1,7 +1,11 @@
 """
 Special variable to model import with renaming
 """
+from typing import Union
+
 from slither.core.declarations import Import
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.core.solidity_types import ElementaryType
 from slither.core.variables.variable import Variable
 
@@ -13,7 +17,7 @@ class SolidityImportPlaceHolder(Variable):
     In the long term we should remove this and better integrate import aliases
     """
 
-    def __init__(self, import_directive: Import):
+    def __init__(self, import_directive: Import) -> None:
         super().__init__()
         assert import_directive.alias
         self._import_directive = import_directive
@@ -27,7 +31,7 @@ class SolidityImportPlaceHolder(Variable):
     def type(self) -> ElementaryType:
         return ElementaryType("string")
 
-    def __eq__(self, other):
+    def __eq__(self, other: Union[Contract, SolidityVariable]) -> bool:
         return (
             self.__class__ == other.__class__
             and self._import_directive.filename == self._import_directive.filename

@@ -10,7 +10,7 @@ class ArgumentType(Enum):
 
 
 class Argument(Operation):
-    def __init__(self, argument):
+    def __init__(self, argument) -> None:
         super().__init__()
         self._argument = argument
         self._type = ArgumentType.CALL
@@ -32,11 +32,11 @@ class Argument(Operation):
     def read(self):
         return [self.argument]
 
-    def set_type(self, t):
+    def set_type(self, t: ArgumentType) -> None:
         assert isinstance(t, ArgumentType)
         self._type = t
 
-    def get_type(self):
+    def get_type(self) -> ArgumentType:
         return self._type
 
     def __str__(self):

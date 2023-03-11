@@ -111,7 +111,7 @@ class VariableDeclarationSolc(Generic[T]):
         if init:
             self._variable.initialized = True
 
-    def analyze(self, caller_context: CallerContextExpression):
+    def analyze(self, caller_context: CallerContextExpression) -> None:
         # Can be re-analyzed due to inheritance
         if self._was_analyzed:
             return

@@ -216,13 +216,13 @@ class ElementaryType(Type):
             return MaxValues[self.name]
         raise SlitherException(f"{self.name} does not have a max value")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._type
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, ElementaryType):
             return False
         return self.type == other.type
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))

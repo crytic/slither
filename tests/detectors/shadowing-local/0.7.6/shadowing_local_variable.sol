@@ -24,3 +24,17 @@ contract FurtherExtendedContract is ExtendedContract {
 
     function shadowingParent(uint __x) public pure { int y; uint z; uint w; uint v; }
 }
+
+contract LocalReturnVariables {
+    uint state;
+    function shadowedState() external view returns(uint state) {
+        return state;
+    } 
+    function shadowedReturn() external view returns(uint local) {
+        uint local = 1;
+        return local;
+    } 
+    function good() external view returns(uint val1) {
+        return val1;
+    }
+}

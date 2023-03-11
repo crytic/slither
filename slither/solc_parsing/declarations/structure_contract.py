@@ -24,7 +24,7 @@ class StructureContractSolc:  # pylint: disable=too-few-public-methods
         st: Structure,
         struct_def: StructDefinition,
         contract_parser: "ContractSolc",
-    ):
+    ) -> None:
 
         self._structure = st
         st.name = struct_def.name
@@ -36,7 +36,7 @@ class StructureContractSolc:  # pylint: disable=too-few-public-methods
 
         self._elemsNotParsed: List[VariableDeclaration] = struct_def.members
 
-    def analyze(self):
+    def analyze(self) -> None:
         for elem_to_parse in self._elemsNotParsed:
             elem = StructureVariable()
             elem.set_structure(self._structure)

@@ -37,7 +37,7 @@ class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few
 
         self._elemsNotParsed = struct_def.members
 
-    def analyze(self):
+    def analyze(self) -> None:
         for elem_to_parse in self._elemsNotParsed:
             elem = StructureVariable()
             elem.set_structure(self._structure)

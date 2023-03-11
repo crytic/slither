@@ -28,7 +28,7 @@ class EventSolc:
         self._event.name = event_data.name
         self._elemsNotParsed: List[VariableDeclaration] = event_data.params.params
 
-    def analyze(self, contract: "ContractSolc"):
+    def analyze(self, contract: "ContractSolc") -> None:
         for elem_to_parse in self._elemsNotParsed:
             elem = EventVariable()
             if elem_to_parse.src:

@@ -13,14 +13,6 @@ from slither.core.declarations.solidity_variables import (
     SolidityVariable,
     SolidityVariableComposed,
 )
-from slither.core.expressions.assignment_operation import (
-    AssignmentOperation,
-    AssignmentOperationType,
-)
-from slither.core.expressions.binary_operation import (
-    BinaryOperation,
-    BinaryOperationType,
-)
 from slither.core.expressions import (
     CallExpression,
     ConditionalExpression,
@@ -38,6 +30,14 @@ from slither.core.expressions import (
     TypeConversion,
     UnaryOperation,
     UnaryOperationType,
+)
+from slither.core.expressions.assignment_operation import (
+    AssignmentOperation,
+    AssignmentOperationType,
+)
+from slither.core.expressions.binary_operation import (
+    BinaryOperation,
+    BinaryOperationType,
 )
 from slither.core.solidity_types import (
     ArrayType,
@@ -73,8 +73,12 @@ from slither.solc_parsing.ast.types import (
 )
 from .find_variable import find_variable
 
+
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
+    from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
 logger = logging.getLogger("ExpressionParsing")
 

@@ -34,7 +34,7 @@ class ModifierSolc(FunctionSolc):
     def underlying_function(self) -> Modifier:
         return self._modifier
 
-    def analyze_params(self):
+    def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
             return
@@ -46,7 +46,7 @@ class ModifierSolc(FunctionSolc):
         if self._functionNotParsed.params:
             self._parse_params(self._functionNotParsed.params)
 
-    def analyze_content(self):
+    def analyze_content(self) -> None:
         if self._content_was_analyzed:
             return
 

@@ -23,14 +23,14 @@ class CustomErrorSolc(CallerContextExpression):
         custom_error: CustomError,
         custom_error_def: ErrorDefinition,
         slither_parser: "SlitherCompilationUnitSolc",
-    ):
+    ) -> None:
         self._slither_parser: "SlitherCompilationUnitSolc" = slither_parser
         self._custom_error = custom_error
         custom_error.name = custom_error_def.name
         self._params_was_analyzed = False
         self._custom_error_def = custom_error_def
 
-    def analyze_params(self):
+    def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
             return

@@ -17,7 +17,7 @@ class TypeAlias(Type):
         self.underlying_type = underlying_type
 
     @property
-    def type(self) -> Type:
+    def type(self) -> ElementaryType:
         """
         Return the underlying type. Alias for underlying_type
 
@@ -32,7 +32,7 @@ class TypeAlias(Type):
     def storage_size(self) -> Tuple[int, bool]:
         return self.underlying_type.storage_size
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))
 
     @property
@@ -45,7 +45,7 @@ class TypeAliasTopLevel(TypeAlias, TopLevel):
         super().__init__(underlying_type, name)
         self.file_scope: "FileScope" = scope
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -54,5 +54,5 @@ class TypeAliasContract(TypeAlias, ChildContract):
         super().__init__(underlying_type, name)
         self._contract: "Contract" = contract
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.contract.name + "." + self.name

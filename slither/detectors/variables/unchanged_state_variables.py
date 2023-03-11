@@ -69,7 +69,7 @@ class UnchangedStateVariables:
     Find state variables that could be declared as constant or immutable (not written after deployment).
     """
 
-    def __init__(self, compilation_unit: SlitherCompilationUnit):
+    def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
         self.compilation_unit = compilation_unit
         self._constant_candidates: List[StateVariable] = []
         self._immutable_candidates: List[StateVariable] = []
@@ -84,7 +84,7 @@ class UnchangedStateVariables:
         """Return the constant candidates"""
         return self._constant_candidates
 
-    def detect(self):
+    def detect(self) -> None:
         """Detect state variables that could be constant or immutable"""
         for c in self.compilation_unit.contracts_derived:
             variables = []
@@ -118,8 +118,9 @@ class UnchangedStateVariables:
                         self.constant_candidates.append(v)
 
                     elif (
-                        v in constructor_variables_written or v in variables_initialized
-                    ) and version.parse(self.compilation_unit.solc_version) >= version.parse(
-                        "0.6.5"
+                        not v.type.is_dynamic
+                        and version.parse(self.compilation_unit.solc_version)
+                        >= version.parse("0.6.5")
+                        and (v in constructor_variables_written or v in variables_initialized)
                     ):
                         self.immutable_candidates.append(v)

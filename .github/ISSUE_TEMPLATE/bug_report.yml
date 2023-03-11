@@ -4,6 +4,8 @@ body:
     attributes: 
       value: |
           Please check the issues tab to avoid duplicates.
+          If you are having difficulty installing slither,
+          please head over to the "Discussions" page.
           Thanks for taking the time to fill out this bug report!
     type: markdown
   - 

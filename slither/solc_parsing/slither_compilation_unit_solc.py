@@ -19,6 +19,7 @@ from slither.core.scope.scope import FileScope
 from slither.core.solidity_types import ElementaryType, TypeAliasTopLevel
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.exceptions import SlitherException
+from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.declarations.contract import ContractSolc
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
@@ -81,7 +82,7 @@ def _handle_import_aliases(
 
 class SlitherCompilationUnitSolc(CallerContextExpression):
     # pylint: disable=no-self-use,too-many-instance-attributes
-    def __init__(self, compilation_unit: SlitherCompilationUnit):
+    def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
         super().__init__()
 
         self._contracts_by_id: Dict[int, ContractSolc] = {}
@@ -110,7 +111,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def all_functions_and_modifiers_parser(self) -> List[FunctionSolc]:
         return self._all_functions_and_modifier_parser
 
-    def add_function_or_modifier_parser(self, f: FunctionSolc):
+    def add_function_or_modifier_parser(self, f: FunctionSolc) -> None:
         self._all_functions_and_modifier_parser.append(f)
 
     @property
@@ -323,7 +324,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def analyzed(self) -> bool:
         return self._analyzed
 
-    def parse_contracts(self):  # pylint: disable=too-many-statements,too-many-branches
+    def parse_contracts(self) -> None:  # pylint: disable=too-many-statements,too-many-branches
         if not self._underlying_contract_to_parser:
             logger.info(
                 f"No contract were found in {self._compilation_unit.core.filename}, check the correct compilation"
@@ -454,7 +455,7 @@ Please rename it, this name is reserved for Slither's internals"""
 
         self._parsed = True
 
-    def analyze_contracts(self):  # pylint: disable=too-many-statements,too-many-branches
+    def analyze_contracts(self) -> None:  # pylint: disable=too-many-statements,too-many-branches
         if not self._parsed:
             raise SlitherException("Parse the contract before running analyses")
         self._convert_to_slithir()
@@ -463,7 +464,7 @@ Please rename it, this name is reserved for Slither's internals"""
         self._compilation_unit.compute_storage_layout()
         self._analyzed = True
 
-    def _analyze_all_enums(self, contracts_to_be_analyzed: List[ContractSolc]):
+    def _analyze_all_enums(self, contracts_to_be_analyzed: List[ContractSolc]) -> None:
         while contracts_to_be_analyzed:
             contract = contracts_to_be_analyzed[0]
 
@@ -482,7 +483,7 @@ Please rename it, this name is reserved for Slither's internals"""
         self,
         contracts_to_be_analyzed: List[ContractSolc],
         libraries: List[ContractSolc],
-    ):
+    ) -> None:
         for lib in libraries:
             self._parse_struct_var_modifiers_functions(lib)
 
@@ -509,7 +510,7 @@ Please rename it, this name is reserved for Slither's internals"""
         self,
         contracts_to_be_analyzed: List[ContractSolc],
         libraries: List[ContractSolc],
-    ):
+    ) -> None:
         for lib in libraries:
             self._analyze_struct_events(lib)
 
@@ -539,7 +540,7 @@ Please rename it, this name is reserved for Slither's internals"""
         self,
         contracts_to_be_analyzed: List[ContractSolc],
         libraries: List[ContractSolc],
-    ):
+    ) -> None:
         for lib in libraries:
             self._analyze_variables_modifiers_functions(lib)
 
@@ -564,7 +565,7 @@ Please rename it, this name is reserved for Slither's internals"""
 
     def _analyze_using_for(
         self, contracts_to_be_analyzed: List[ContractSolc], libraries: List[ContractSolc]
-    ):
+    ) -> None:
         self._analyze_top_level_using_for()
 
         for lib in libraries:
@@ -585,12 +586,12 @@ Please rename it, this name is reserved for Slither's internals"""
             else:
                 contracts_to_be_analyzed += [contract]
 
-    def _analyze_enums(self, contract: ContractSolc):
+    def _analyze_enums(self, contract: ContractSolc) -> None:
         # Enum must be analyzed first
         contract.analyze_enums()
         contract.set_is_analyzed(True)
 
-    def _parse_struct_var_modifiers_functions(self, contract: ContractSolc):
+    def _parse_struct_var_modifiers_functions(self, contract: ContractSolc) -> None:
         contract.parse_structs()  # struct can refer another struct
         contract.parse_state_variables()
         contract.parse_modifiers()
@@ -598,7 +599,7 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.parse_custom_errors()
         contract.set_is_analyzed(True)
 
-    def _analyze_struct_events(self, contract: ContractSolc):
+    def _analyze_struct_events(self, contract: ContractSolc) -> None:
 
         contract.analyze_constant_state_variables()
 
@@ -611,41 +612,41 @@ Please rename it, this name is reserved for Slither's internals"""
 
         contract.set_is_analyzed(True)
 
-    def _analyze_top_level_structures(self):
+    def _analyze_top_level_structures(self) -> None:
         try:
             for struct in self._structures_top_level_parser:
                 struct.analyze()
         except (VariableNotFound, KeyError) as e:
             raise SlitherException(f"Missing struct {e} during top level structure analyze") from e
 
-    def _analyze_top_level_variables(self):
+    def _analyze_top_level_variables(self) -> None:
         try:
             for var in self._variables_top_level_parser:
                 var.analyze(var)
         except (VariableNotFound, KeyError) as e:
             raise SlitherException(f"Missing {e} during variable analyze") from e
 
-    def _analyze_params_top_level_function(self):
+    def _analyze_params_top_level_function(self) -> None:
         for func_parser in self._functions_top_level_parser:
             func_parser.analyze_params()
             self._compilation_unit.add_function(func_parser.underlying_function)
 
-    def _analyze_top_level_using_for(self):
+    def _analyze_top_level_using_for(self) -> None:
         for using_for in self._using_for_top_level_parser:
             using_for.analyze()
 
-    def _analyze_params_custom_error(self):
+    def _analyze_params_custom_error(self) -> None:
         for custom_error_parser in self._custom_error_parser:
             custom_error_parser.analyze_params()
 
-    def _analyze_content_top_level_function(self):
+    def _analyze_content_top_level_function(self) -> None:
         try:
             for func_parser in self._functions_top_level_parser:
                 func_parser.analyze_content()
         except (VariableNotFound, KeyError) as e:
             raise SlitherException(f"Missing {e} during top level function analyze") from e
 
-    def _analyze_variables_modifiers_functions(self, contract: ContractSolc):
+    def _analyze_variables_modifiers_functions(self, contract: ContractSolc) -> None:
         # State variables, modifiers and functions can refer to anything
 
         contract.analyze_params_modifiers()
@@ -661,7 +662,7 @@ Please rename it, this name is reserved for Slither's internals"""
 
         contract.set_is_analyzed(True)
 
-    def _convert_to_slithir(self):
+    def _convert_to_slithir(self) -> None:
 
         for contract in self._compilation_unit.contracts:
             contract.add_constructor_variables()

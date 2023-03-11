@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Optional, Tuple, List
 
 from slither import Slither
 from slither.core.declarations import (
@@ -60,7 +61,7 @@ slither_logger = logging.getLogger("Slither")
 slither_logger.setLevel(logging.CRITICAL)
 
 
-def parse_target(target):
+def parse_target(target: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
     if target is None:
         return None, None
 
@@ -68,9 +69,9 @@ def parse_target(target):
     if len(parts) == 1:
         return None, parts[0]
     if len(parts) == 2:
-        return parts
+        return parts[0], parts[1]
     simil_logger.error("Invalid target. It should be 'function' or 'Contract.function'")
-    return None
+    return None, None
 
 
 def load_and_encode(infile: str, vmodel, ext=None, nsamples=None, **kwargs):
@@ -88,7 +89,9 @@ def load_and_encode(infile: str, vmodel, ext=None, nsamples=None, **kwargs):
     return r
 
 
-def load_contracts(dirname, ext=None, nsamples=None):
+def load_contracts(
+    dirname: str, ext: Optional[str] = None, nsamples: Optional[int] = None
+) -> List[str]:
     r = []
     walk = list(os.walk(dirname))
     for x, y, files in walk:

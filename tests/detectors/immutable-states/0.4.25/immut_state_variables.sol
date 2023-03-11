@@ -45,9 +45,11 @@ contract MyConc{
     uint not_constant_2 = getNumber();
     uint not_constant_3 = 10 + block.number;
     uint not_constant_5;
+    string cannote_be_immutable;
     
-	constructor(uint b) public {
+	constructor(uint b, string memory c) public {
 		not_constant_5 = b;
+        cannote_be_immutable = c;
 	}
 
     function getNumber() public returns(uint){
