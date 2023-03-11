@@ -20,7 +20,6 @@ def compare(v1: Contract, v2: Contract) -> dict:
         "modified-functions": list[Function],
         "tainted-functions": list[Function]
     }
-
     """
 
     order_vars1 = [v for v in v1.state_variables if not v.is_constant and not v.is_immutable]
