@@ -118,8 +118,8 @@ def is_function_modified(f1: Function, f2: Function) -> bool:
         f1: Original version of the function
         f2: New version of the function
 
-    Returns: True if the functions differ, otherwise False
-
+    Returns:
+        True if the functions differ, otherwise False
     """
     # If the function content hashes are the same, no need to investigate the function further
     if f1.source_mapping.content_hash == f2.source_mapping.content_hash:
@@ -134,10 +134,14 @@ def is_function_modified(f1: Function, f2: Function) -> bool:
 
 
 def get_proxy_implementation_slot(proxy: Contract) -> Optional[SlotInfo]:
-    available_functions = proxy.available_functions_as_dict()
+    """
+    Gets information about the storage slot where a proxy's implementation address is stored.
+    Args:
+        proxy: A Contract object (proxy.is_upgradeable_proxy should be true).
 
-    if not proxy.is_upgradeable_proxy or not available_functions["fallback()"]:
-        return None
+    Returns:
+        (`SlotInfo`) | None : A dictionary of the slot information.
+    """
 
     delegate: Optional[Variable] = find_delegate_in_fallback(proxy)
 
@@ -160,6 +164,15 @@ def get_proxy_implementation_slot(proxy: Contract) -> Optional[SlotInfo]:
 
 
 def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
+    """
+    Searches a proxy's fallback function for a delegatecall, then extracts the Variable being passed in as the target.
+    Should typically be called by get_proxy_implementation_var(proxy).
+    Args:
+        proxy: A Contract object (should have a fallback function).
+
+    Returns:
+        (`Variable`) | None : The variable being passed as the destination argument in a delegatecall in the fallback.
+    """
     delegate: Optional[Variable] = None
     fallback = proxy.available_functions_as_dict()["fallback()"]
     for node in fallback.all_nodes():
@@ -190,6 +203,17 @@ def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
 
 
 def extract_delegate_from_asm(contract: Contract, node: Node) -> Optional[Variable]:
+    """
+    Finds a Variable with a name matching the argument passed into a delegatecall, when all we have is an Assembly node
+    with a block of code as one long string. Usually only the case for solc versions < 0.6.0.
+    Should typically be called by find_delegate_in_fallback(proxy).
+    Args:
+        contract: The parent Contract.
+        node: The Assembly Node (i.e., node.type == NodeType.ASSEMBLY)
+
+    Returns:
+        (`Variable`) | None : The variable being passed as the destination argument in a delegatecall in the fallback.
+    """
     asm_split = str(node.inline_asm).split("\n")
     asm = next(line for line in asm_split if "delegatecall" in line)
     params = asm.split("call(")[1].split(", ")
@@ -215,6 +239,17 @@ def extract_delegate_from_asm(contract: Contract, node: Node) -> Optional[Variab
 def find_delegate_from_name(
     contract: Contract, dest: str, parent_func: Function
 ) -> Optional[Variable]:
+    """
+    Searches for a variable with a given name, starting with StateVariables declared in the contract, followed by
+    LocalVariables in the parent function, either declared in the function body or as parameters in the signature.
+    Args:
+        contract: The Contract object to search.
+        dest: The variable name to search for.
+        parent_func: The Function object to search.
+
+    Returns:
+        (`Variable`) | None : The variable with the matching name, if found
+    """
     for sv in contract.state_variables:
         if sv.name == dest:
             return sv
