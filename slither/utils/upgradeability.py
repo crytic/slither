@@ -143,11 +143,7 @@ def get_proxy_implementation_slot(proxy: Contract) -> Optional[SlotInfo]:
         (`SlotInfo`) | None : A dictionary of the slot information.
     """
 
-    delegate: Optional[Variable] = find_delegate_in_fallback(proxy)
-
-    if isinstance(delegate, LocalVariable):
-        dependencies = get_dependencies(delegate, proxy)
-        delegate = next(var for var in dependencies if isinstance(var, StateVariable))
+    delegate = get_proxy_implementation_var(proxy)
     if isinstance(delegate, StateVariable):
         if not delegate.is_constant and not delegate.is_immutable:
             srs = SlitherReadStorage([proxy], 20)
@@ -161,6 +157,30 @@ def get_proxy_implementation_slot(proxy: Contract) -> Optional[SlotInfo]:
                 offset=0,
             )
     return None
+
+
+def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
+    """
+    Gets the Variable that stores a proxy's implementation address. Uses data dependency to trace any LocalVariable
+    that is passed into a delegatecall as the target address back to its data source, ideally a StateVariable.
+    Args:
+        proxy: A Contract object (proxy.is_upgradeable_proxy should be true).
+
+    Returns:
+        (`Variable`) | None : The variable, ideally a StateVariable, which stores the proxy's implementation address.
+    """
+    available_functions = proxy.available_functions_as_dict()
+    if not proxy.is_upgradeable_proxy or not available_functions["fallback()"]:
+        return None
+
+    delegate = find_delegate_in_fallback(proxy)
+    if isinstance(delegate, LocalVariable):
+        dependencies = get_dependencies(delegate, proxy)
+        try:
+            delegate = next(var for var in dependencies if isinstance(var, StateVariable))
+        except:
+            return delegate
+    return delegate
 
 
 def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
