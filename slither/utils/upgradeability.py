@@ -1,5 +1,16 @@
+from typing import Optional
+from slither.analyses.data_dependency.data_dependency import get_dependencies
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
+from slither.core.variables.variable import Variable
+from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.expressions.identifier import Identifier
+from slither.core.expressions.call_expression import CallExpression
+from slither.core.expressions.assignment_operation import AssignmentOperation
+from slither.core.cfg.node import Node, NodeType
+from slither.slithir.operations import LowLevelCall
+from slither.tools.read_storage.read_storage import SlotInfo, SlitherReadStorage
 
 
 # pylint: disable=too-many-locals
@@ -120,3 +131,97 @@ def is_function_modified(f1: Function, f2: Function) -> bool:
             if ir != f1.nodes[i].irs[j]:
                 return True
     return False
+
+
+def get_proxy_implementation_slot(proxy: Contract) -> Optional[SlotInfo]:
+    available_functions = proxy.available_functions_as_dict()
+
+    if not proxy.is_upgradeable_proxy or not available_functions["fallback()"]:
+        return None
+
+    delegate: Optional[Variable] = find_delegate_in_fallback(proxy)
+
+    if isinstance(delegate, LocalVariable):
+        dependencies = get_dependencies(delegate, proxy)
+        delegate = next(var for var in dependencies if isinstance(var, StateVariable))
+    if isinstance(delegate, StateVariable):
+        if not delegate.is_constant and not delegate.is_immutable:
+            srs = SlitherReadStorage([proxy], 20)
+            return srs.get_storage_slot(delegate, proxy)
+        if delegate.is_constant and delegate.type.name == "bytes32":
+            return SlotInfo(
+                name=delegate.name,
+                type_string="address",
+                slot=int(delegate.expression.value, 16),
+                size=160,
+                offset=0,
+            )
+    return None
+
+
+def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
+    delegate: Optional[Variable] = None
+    fallback = proxy.available_functions_as_dict()["fallback()"]
+    for node in fallback.all_nodes():
+        for ir in node.irs:
+            if isinstance(ir, LowLevelCall) and ir.function_name == "delegatecall":
+                delegate = ir.destination
+        if delegate is not None:
+            break
+        if (
+            node.type == NodeType.ASSEMBLY
+            and isinstance(node.inline_asm, str)
+            and "delegatecall" in node.inline_asm
+        ):
+            delegate = extract_delegate_from_asm(proxy, node)
+        elif node.type == NodeType.EXPRESSION:
+            expression = node.expression
+            if isinstance(expression, AssignmentOperation):
+                expression = expression.expression_right
+            if (
+                isinstance(expression, CallExpression)
+                and "delegatecall" in str(expression.called)
+                and len(expression.arguments) > 1
+            ):
+                dest = expression.arguments[1]
+                if isinstance(dest, Identifier):
+                    delegate = dest.value
+    return delegate
+
+
+def extract_delegate_from_asm(contract: Contract, node: Node) -> Optional[Variable]:
+    asm_split = str(node.inline_asm).split("\n")
+    asm = next(line for line in asm_split if "delegatecall" in line)
+    params = asm.split("call(")[1].split(", ")
+    dest = params[1]
+    if dest.endswith(")"):
+        dest = params[2]
+    if dest.startswith("sload("):
+        dest = dest.replace(")", "(").split("(")[1]
+        for v in node.function.variables_read_or_written:
+            if v.name == dest:
+                if isinstance(v, LocalVariable) and v.expression is not None:
+                    e = v.expression
+                    if isinstance(e, Identifier) and isinstance(e.value, StateVariable):
+                        v = e.value
+                        # Fall through, return constant storage slot
+                if isinstance(v, StateVariable) and v.is_constant:
+                    return v
+    if "_fallback_asm" in dest or "_slot" in dest:
+        dest = dest.split("_")[0]
+    return find_delegate_from_name(contract, dest, node.function)
+
+
+def find_delegate_from_name(
+    contract: Contract, dest: str, parent_func: Function
+) -> Optional[Variable]:
+    for sv in contract.state_variables:
+        if sv.name == dest:
+            return sv
+    for lv in parent_func.local_variables:
+        if lv.name == dest:
+            return lv
+    for pv in parent_func.parameters:
+        if pv.name == dest:
+            return pv
+    return None
