@@ -34,7 +34,11 @@ def _extract_decl_props(raw: Dict) -> Dict:
     documentation = None
     if "documentation" in raw and raw["documentation"]:
         if "text" in raw["documentation"]:
-            documentation = raw["documentation"]["text"]
+            documentation = (
+                raw["documentation"]
+                if isinstance(raw["documentation"], str)
+                else raw["documentation"]["text"]
+            )
         else:
             documentation = raw["documentation"]
         assert isinstance(documentation, str)
@@ -604,7 +608,7 @@ def parse_return(raw: Dict) -> Return:
     functionReturnParameters (int)
     """
     expr_parsed = None
-    if "expression" in raw:
+    if "expression" in raw and raw["expression"]:
         expr_parsed = parse(raw["expression"])
 
     return Return(expression=expr_parsed, **_extract_base_props(raw))
