@@ -1,3 +1,4 @@
+from solc_select import solc_select
 from slither import Slither
 from slither.core.cfg.node import NodeType
 from slither.slithir.operations import Assignment
