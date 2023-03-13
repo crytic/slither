@@ -147,9 +147,11 @@ def main() -> None:
         # Use a lambda func to only return variables that have same name as target.
         # x is a tuple (`Contract`, `StateVariable`).
         srs.get_all_storage_variables(lambda x: bool(x[1].name == args.variable_name))
+        srs.get_constant_storage_slots(lambda x: bool(x[1].name == args.variable_name))
         srs.get_target_variables(**vars(args))
     else:
         srs.get_all_storage_variables()
+        srs.get_constant_storage_slots()
         srs.get_storage_layout()
 
     # To retrieve slot values an rpc url is required.
