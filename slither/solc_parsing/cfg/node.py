@@ -26,7 +26,7 @@ class NodeSolc:
     def underlying_node(self) -> Node:
         return self._node
 
-    def add_unparsed_expression(self, expression: Dict) -> None:
+    def add_unparsed_expression(self, expression: "Expression"):
         assert self._unparsed_expression is None
         self._unparsed_expression = expression
 

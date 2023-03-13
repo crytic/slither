@@ -1,27 +1,24 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.solc_parsing.variables.variable_declaration import VariableDeclarationSolc
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
+from slither.solc_parsing.ast.types import VariableDeclaration, VariableDeclarationStatement
 
 if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.compilation_unit import SlitherCompilationUnit
 
 
-class TopLevelVariableSolc(VariableDeclarationSolc, CallerContextExpression):
+class TopLevelVariableSolc(VariableDeclarationSolc[TopLevelVariable], CallerContextExpression):
     def __init__(
         self,
         variable: TopLevelVariable,
-        variable_data: Dict,
+        variable_decl: Union[VariableDeclaration, VariableDeclarationStatement],
         slither_parser: "SlitherCompilationUnitSolc",
-    ) -> None:
-        super().__init__(variable, variable_data)
+    ):
+        super().__init__(variable, variable_decl)
         self._slither_parser = slither_parser
-
-    @property
-    def is_compact_ast(self) -> bool:
-        return self._slither_parser.is_compact_ast
 
     @property
     def compilation_unit(self) -> "SlitherCompilationUnit":

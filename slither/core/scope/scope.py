@@ -54,7 +54,7 @@ class FileScope:
         # Name -> type alias
         self.user_defined_types: Dict[str, TypeAlias] = {}
 
-    def add_accesible_scopes(self) -> bool:
+    def add_accessible_scopes(self) -> bool:
         """
         Add information from accessible scopes. Return true if new information was obtained
 

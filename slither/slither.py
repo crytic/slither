@@ -42,7 +42,7 @@ def _update_file_scopes(candidates: ValuesView[FileScope]):
     learned_something = False
     while True:
         for candidate in candidates:
-            learned_something |= candidate.add_accesible_scopes()
+            learned_something |= candidate.add_accessible_scopes()
         if not learned_something:
             break
         learned_something = False

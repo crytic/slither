@@ -17,16 +17,7 @@ class CallerContextExpression(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def is_compact_ast(self) -> bool:
-        pass
-
-    @property
-    @abc.abstractmethod
     def compilation_unit(self) -> "SlitherCompilationUnit":
-        pass
-
-    @abc.abstractmethod
-    def get_key(self) -> str:
         pass
 
     @property

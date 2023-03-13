@@ -15,6 +15,7 @@ from slither.core.solidity_types import TypeAliasTopLevel
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
+from slither.solc_parsing.ast.types import UsingForDirective
 
 if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
@@ -30,16 +31,16 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
     def __init__(
         self,
         uftl: UsingForTopLevel,
-        top_level_data: Dict,
+        using_for: UsingForDirective,
         slither_parser: "SlitherCompilationUnitSolc",
     ) -> None:
-        self._type_name = top_level_data["typeName"]
-        self._global = top_level_data["global"]
+        self._type_name = using_for.typename
+        self._global = using_for.is_global
 
-        if "libraryName" in top_level_data:
-            self._library_name = top_level_data["libraryName"]
+        if using_for.library:
+            self._library_name = using_for.library
         else:
-            self._functions = top_level_data["functionList"]
+            self._functions = using_for.function_list
             self._library_name = None
 
         self._using_for = uftl
@@ -55,7 +56,8 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
             self._propagate_global(type_name)
         else:
             for f in self._functions:
-                full_name_split = f["function"]["name"].split(".")
+                full_name_split = f.name.split(".")
+                print(full_name_split)
                 if len(full_name_split) == 1:
                     # Top level function
                     function_name: str = full_name_split[0]
@@ -160,15 +162,8 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
             )
 
     @property
-    def is_compact_ast(self) -> bool:
-        return self._slither_parser.is_compact_ast
-
-    @property
     def compilation_unit(self) -> SlitherCompilationUnit:
         return self._slither_parser.compilation_unit
-
-    def get_key(self) -> str:
-        return self._slither_parser.get_key()
 
     @property
     def slither_parser(self) -> "SlitherCompilationUnitSolc":

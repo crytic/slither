@@ -10,7 +10,8 @@ if TYPE_CHECKING:
 
 
 class TypeAlias(Type):
-    def __init__(self, underlying_type: ElementaryType, name: str) -> None:
+    def __init__(self, underlying_type: ElementaryType, name: str):
+        assert isinstance(underlying_type, ElementaryType)
         super().__init__()
         self.name = name
         self.underlying_type = underlying_type
@@ -40,7 +41,7 @@ class TypeAlias(Type):
 
 
 class TypeAliasTopLevel(TypeAlias, TopLevel):
-    def __init__(self, underlying_type: Type, name: str, scope: "FileScope") -> None:
+    def __init__(self, underlying_type: ElementaryType, name: str, scope: "FileScope"):
         super().__init__(underlying_type, name)
         self.file_scope: "FileScope" = scope
 
@@ -49,7 +50,7 @@ class TypeAliasTopLevel(TypeAlias, TopLevel):
 
 
 class TypeAliasContract(TypeAlias, ChildContract):
-    def __init__(self, underlying_type: Type, name: str, contract: "Contract") -> None:
+    def __init__(self, underlying_type: ElementaryType, name: str, contract: "Contract"):
         super().__init__(underlying_type, name)
         self._contract: "Contract" = contract
 

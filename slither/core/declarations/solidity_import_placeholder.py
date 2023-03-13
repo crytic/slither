@@ -19,7 +19,7 @@ class SolidityImportPlaceHolder(Variable):
 
     def __init__(self, import_directive: Import) -> None:
         super().__init__()
-        assert import_directive.alias is not None
+        assert import_directive.alias
         self._import_directive = import_directive
         self._name = import_directive.alias
         self._type = ElementaryType("string")
