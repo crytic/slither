@@ -125,7 +125,24 @@ class SlitherReadStorage:
                 elif isinstance(type_, ArrayType):
                     elems = self._all_array_slots(var, contract, type_, info.slot)
                     tmp[var.name].elems = elems
-
+        for contract, var in self.constant_slots:
+            var_name = var.name
+            try:
+                slot = coerce_type("int", str(var.expression))
+                offset = 0
+                type_string, size = self.find_constant_slot_storage_type(var)
+                if type_string:
+                    tmp[var.name] = SlotInfo(
+                        name=var_name, type_string=type_string, slot=slot, size=size, offset=offset
+                    )
+                    self.log += (
+                        f"\nSlot Name: {var_name}\nType: bytes32"
+                        f"\nStorage Type: {type_string}\nSlot: {str(var.expression)}\n"
+                    )
+                    logger.info(self.log)
+                    self.log = ""
+            except TypeError:
+                continue
         self._slot_info = tmp
 
     # TODO: remove this pylint exception (montyly)
