@@ -6,6 +6,7 @@ from slither.core.expressions import AssignmentOperation, TupleExpression
 # pylint: disable=too-many-nested-blocks
 def test_ternary_conversions() -> None:
     """This tests that true and false sons define the same number of variables that the father node declares"""
+    solc_select.switch_global_version("0.8.0", always_install=True)
     slither = Slither("./tests/slithir/ternary_expressions.sol")
     for contract in slither.contracts:
         for function in contract.functions:
