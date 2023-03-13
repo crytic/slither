@@ -222,6 +222,45 @@ class SlitherReadStorage:
             if slot_info:
                 self._slot_info[f"{contract.name}.{var.name}"] = slot_info
 
+    def find_constant_slot_storage_type(
+        self, var: StateVariable
+    ) -> Tuple[Optional[str], Optional[int]]:
+        """
+        Given a constant bytes32 StateVariable, tries to determine which variable type is stored there, using the
+        heuristic that if a function reads from the slot and returns a value, it probably stores that type of value.
+        Also uses the StorageSlot library as a heuristic when a function has no return but uses the library's getters.
+        Args:
+            var (StateVariable): The constant bytes32 storage slot.
+
+        Returns:
+            type (str): The type of value stored in the slot.
+            size (int): The type's size in bits.
+        """
+        if not (var.is_constant and str(var.type) == "bytes32"):
+            return None
+        storage_type = None
+        size = None
+        funcs = [f for f in var.contract.functions if var in f.state_variables_read]
+        if len(funcs) == 0:
+            for c in self.contracts:
+                funcs.extend([f for f in c.functions if var in f.state_variables_read])
+        for func in funcs:
+            if func.return_type is not None:
+                ret = func.return_type[0]
+                size, _ = ret.storage_size
+                return str(ret), size * 8
+            for node in func.all_nodes():
+                exp = str(node.expression)
+                if f"getAddressSlot({var.name})" in exp:
+                    return "address", 160
+                if f"getBooleanSlot({var.name})" in exp:
+                    return "bool", 1
+                if f"getBytes32Slot({var.name})" in exp:
+                    return "bytes32", 256
+                if f"getUint256Slot({var.name})" in exp:
+                    return "uint256", 256
+        return storage_type, size
+
     def walk_slot_info(self, func: Callable) -> None:
         stack = list(self.slot_info.values())
         while stack:
