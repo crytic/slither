@@ -193,6 +193,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def comments(self, comments: str):
         self._comments = comments
 
+    @property
     def is_fully_implemented(self) -> bool:
         return self._is_fully_implemented
 

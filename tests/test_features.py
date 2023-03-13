@@ -210,7 +210,7 @@ def test_abstract_contract() -> None:
     assert not slither.contracts[0].is_fully_implemented
 
     solc_select.switch_global_version("0.5.0", always_install=True)
-    slither = Slither("./tests/function_features/abstract.sol")
+    slither = Slither("./tests/function_features/implicit_abstract.sol")
     assert not slither.contracts[0].is_fully_implemented
 
     slither = Slither(
