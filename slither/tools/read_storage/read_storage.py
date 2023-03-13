@@ -333,7 +333,7 @@ class SlitherReadStorage:
                         (contract, var)
                         for var in contract.state_variables_ordered
                         if var.is_constant and str(var.type) == "bytes32"
-                    ]
+                    ],
                 )
             )
 
