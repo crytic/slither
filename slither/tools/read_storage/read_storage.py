@@ -59,6 +59,7 @@ class SlitherReadStorage:
         self._max_depth: int = max_depth
         self._slot_info: Dict[str, SlotInfo] = {}
         self._target_variables: List[Tuple[Contract, StateVariable]] = []
+        self._constant_storage_slots: List[Tuple[Contract, StateVariable]] = []
         self._web3: Optional[Web3] = None
         self.block: Union[str, int] = "latest"
         self.rpc: Optional[str] = None
@@ -99,6 +100,11 @@ class SlitherReadStorage:
     def target_variables(self) -> List[Tuple[Contract, StateVariable]]:
         """Storage variables (not constant or immutable) and their associated contract."""
         return self._target_variables
+
+    @property
+    def constant_slots(self) -> List[Tuple[Contract, StateVariable]]:
+        """Constant bytes32 variables and their associated contract."""
+        return self._constant_storage_slots
 
     @property
     def slot_info(self) -> Dict[str, SlotInfo]:
@@ -256,6 +262,22 @@ class SlitherReadStorage:
                         for var in contract.state_variables_ordered
                         if not var.is_constant and not var.is_immutable
                     ],
+                )
+            )
+
+    def get_constant_storage_slots(self, func: Callable = None) -> None:
+        """
+        Retrieves all constant bytes32 variables from a list of contracts.
+        """
+        for contract in self.contracts:
+            self._constant_storage_slots.extend(
+                filter(
+                    func,
+                    [
+                        (contract, var)
+                        for var in contract.state_variables_ordered
+                        if var.is_constant and str(var.type) == "bytes32"
+                    ]
                 )
             )
 
