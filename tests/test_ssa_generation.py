@@ -585,7 +585,6 @@ def test_storage_refers_to():
         assert phinodes[1].lvalue in entryphi[0].rvalues or entryphi[1].rvalues
 
 
-@pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
 @pytest.mark.skipif(
     not valid_version("0.4.0"), reason="Solidity version 0.4.0 not available on this platform"
 )
