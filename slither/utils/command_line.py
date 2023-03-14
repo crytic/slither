@@ -169,7 +169,9 @@ def convert_result_to_markdown(txt: str) -> str:
     return "".join(ret)
 
 
-def output_results_to_markdown(all_results: List[Dict], checklistlimit: str) -> None:
+def output_results_to_markdown(
+    all_results: List[Dict], checklistlimit: str, show_ignored_findings: bool
+) -> None:
     checks = defaultdict(list)
     info: Dict = defaultdict(dict)
     for results_ in all_results:
@@ -178,6 +180,11 @@ def output_results_to_markdown(all_results: List[Dict], checklistlimit: str) -> 
             "impact": results_["impact"],
             "confidence": results_["confidence"],
         }
+
+    if not show_ignored_findings:
+        print(
+            "**THIS CHECKLIST IS NOT COMPLETE**. Use `--show-ignored-findings` to show all the results."
+        )
 
     print("Summary")
     for check_ in checks:

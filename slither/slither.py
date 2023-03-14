@@ -188,6 +188,16 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
             instance = detector_class(compilation_unit, self, logger_detector)
             self._detectors.append(instance)
 
+    def unregister_detector(self, detector_class: Type[AbstractDetector]) -> None:
+        """
+        :param detector_class: Class inheriting from `AbstractDetector`.
+        """
+
+        for obj in self._detectors:
+            if isinstance(obj, detector_class):
+                self._detectors.remove(obj)
+                return
+
     def register_printer(self, printer_class: Type[AbstractPrinter]) -> None:
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
@@ -196,6 +206,16 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
+
+    def unregister_printer(self, printer_class: Type[AbstractPrinter]) -> None:
+        """
+        :param printer_class: Class inheriting from `AbstractPrinter`.
+        """
+
+        for obj in self._printers:
+            if isinstance(obj, printer_class):
+                self._printers.remove(obj)
+                return
 
     def run_detectors(self) -> List[Dict]:
         """
