@@ -525,9 +525,7 @@ def _convert_type_contract(ir: Member) -> Assignment:
     raise SlithIRError(f"type({contract.name}).{ir.variable_right} is unknown")
 
 
-def propagate_types(
-    ir: slither.slithir.operations.operation.Operation, node: "Node"
-):  # pylint: disable=too-many-locals
+def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
     using_for = (
@@ -577,9 +575,9 @@ def propagate_types(
                 if (isinstance(t, ElementaryType) and t.name == "address") or (
                     isinstance(t, TypeAlias) and t.underlying_type.name == "address"
                 ):
-                    # Cannot be a top level function with this.
-                    assert isinstance(node_function, FunctionContract)
                     if ir.destination.name == "this":
+                        # Cannot be a top level function with this.
+                        assert isinstance(node_function, FunctionContract)
                         # the target contract is the contract itself
                         return convert_type_of_high_and_internal_level_call(
                             ir, node_function.contract
