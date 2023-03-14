@@ -178,7 +178,7 @@ def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
         dependencies = get_dependencies(delegate, proxy)
         try:
             delegate = next(var for var in dependencies if isinstance(var, StateVariable))
-        except:
+        except StopIteration:
             return delegate
     return delegate
 
