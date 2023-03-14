@@ -5,9 +5,11 @@ from slither.core.declarations.function import Function
 from slither.core.variables.variable import Variable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.local_variable import LocalVariable
+from slither.core.expressions.literal import Literal
 from slither.core.expressions.identifier import Identifier
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.assignment_operation import AssignmentOperation
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.cfg.node import Node, NodeType
 from slither.slithir.operations import LowLevelCall
 from slither.tools.read_storage.read_storage import SlotInfo, SlitherReadStorage
@@ -226,8 +228,18 @@ def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
                 and len(expression.arguments) > 1
             ):
                 dest = expression.arguments[1]
+                if isinstance(dest, CallExpression) and "sload" in str(dest.called):
+                    dest = dest.arguments[0]
                 if isinstance(dest, Identifier):
                     delegate = dest.value
+                    break
+                if isinstance(dest, Literal) and len(dest.value) == 66:
+                    delegate = StateVariable()
+                    delegate.is_constant = True
+                    delegate.expression = dest
+                    delegate.name = dest.value
+                    delegate.type = ElementaryType("bytes32")
+                    break
     return delegate
 
 
