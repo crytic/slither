@@ -21,7 +21,6 @@ from slither.core.expressions import (
     UnaryOperation,
 )
 from slither.core.solidity_types.type import Type
-from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
@@ -211,7 +210,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._signature: Optional[Tuple[str, List[str], List[str]]] = None
         self._solidity_signature: Optional[str] = None
         self._signature_str: Optional[str] = None
-        self._interface_signature_str: Optional[str] = None
         self._canonical_name: Optional[str] = None
         self._is_protected: Optional[bool] = None
 
