@@ -1,0 +1,517 @@
+# serializer version: 1
+# name: test_detector[IncorrectERC20InterfaceDetection-0.6.11-incorrect_erc20_interface.sol]
+  list([
+    list([
+      dict({
+        'check': 'erc20-interface',
+        'confidence': 'High',
+        'description': '''
+          Token (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.approve(address,uint256) (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#5)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'Token',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 412,
+              'lines': list([
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+              ]),
+              'start': 29,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'approve',
+            'source_mapping': dict({
+              'ending_column': 68,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 63,
+              'lines': list([
+                5,
+              ]),
+              'start': 122,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Token',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'is_dependency': False,
+                  'length': 412,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                  ]),
+                  'start': 29,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'approve(address,uint256)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10',
+        'id': '0fced3029cf59cf348a6b79c58dbb032d837fdd5a5f355600edebda1878e9e2e',
+        'impact': 'Medium',
+        'markdown': '''
+          [Token](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.approve(address,uint256)](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L5)
+  
+        ''',
+      }),
+      dict({
+        'check': 'erc20-interface',
+        'confidence': 'High',
+        'description': '''
+          Token (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.allowance(address,address) (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#9)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'Token',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 412,
+              'lines': list([
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+              ]),
+              'start': 29,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'allowance',
+            'source_mapping': dict({
+              'ending_column': 73,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 68,
+              'lines': list([
+                9,
+              ]),
+              'start': 371,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Token',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'is_dependency': False,
+                  'length': 412,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                  ]),
+                  'start': 29,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'allowance(address,address)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10',
+        'id': '1286abfe21b09e21e1cec8b991f73664e104fa39f7f4190690ece3af45bc0c7a',
+        'impact': 'Medium',
+        'markdown': '''
+          [Token](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.allowance(address,address)](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L9)
+  
+        ''',
+      }),
+      dict({
+        'check': 'erc20-interface',
+        'confidence': 'High',
+        'description': '''
+          Token (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.balanceOf(address) (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#8)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'Token',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 412,
+              'lines': list([
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+              ]),
+              'start': 29,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'balanceOf',
+            'source_mapping': dict({
+              'ending_column': 54,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 49,
+              'lines': list([
+                8,
+              ]),
+              'start': 317,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Token',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'is_dependency': False,
+                  'length': 412,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                  ]),
+                  'start': 29,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'balanceOf(address)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10',
+        'id': '758ca2456030a36dbd6115f2ccb1a43f53f1dabd66ed079806df0f6b7b4d21ef',
+        'impact': 'Medium',
+        'markdown': '''
+          [Token](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.balanceOf(address)](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L8)
+  
+        ''',
+      }),
+      dict({
+        'check': 'erc20-interface',
+        'confidence': 'High',
+        'description': '''
+          Token (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.transferFrom(address,address,uint256) (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#6)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'Token',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 412,
+              'lines': list([
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+              ]),
+              'start': 29,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'transferFrom',
+            'source_mapping': dict({
+              'ending_column': 82,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 77,
+              'lines': list([
+                6,
+              ]),
+              'start': 190,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Token',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'is_dependency': False,
+                  'length': 412,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                  ]),
+                  'start': 29,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'transferFrom(address,address,uint256)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10',
+        'id': 'ba13a1588595032984a3fad39610a2414bb8fcb522d1e632d52fa947ff207d73',
+        'impact': 'Medium',
+        'markdown': '''
+          [Token](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.transferFrom(address,address,uint256)](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L6)
+  
+        ''',
+      }),
+      dict({
+        'check': 'erc20-interface',
+        'confidence': 'High',
+        'description': '''
+          Token (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.totalSupply() (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#7)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'Token',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 412,
+              'lines': list([
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+              ]),
+              'start': 29,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'totalSupply',
+            'source_mapping': dict({
+              'ending_column': 45,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 40,
+              'lines': list([
+                7,
+              ]),
+              'start': 272,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Token',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'is_dependency': False,
+                  'length': 412,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                  ]),
+                  'start': 29,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'totalSupply()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10',
+        'id': 'c951e429e546af28ac08e241d391e874c1c9c70b0732ccfb63f3bbfb3eaac16e',
+        'impact': 'Medium',
+        'markdown': '''
+          [Token](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.totalSupply()](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L7)
+  
+        ''',
+      }),
+      dict({
+        'check': 'erc20-interface',
+        'confidence': 'High',
+        'description': '''
+          Token (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.transfer(address,uint256) (tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#4)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'Token',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 412,
+              'lines': list([
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+              ]),
+              'start': 29,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'transfer',
+            'source_mapping': dict({
+              'ending_column': 64,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+              'is_dependency': False,
+              'length': 59,
+              'lines': list([
+                4,
+              ]),
+              'start': 58,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Token',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'filename_short': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol',
+                  'is_dependency': False,
+                  'length': 412,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                  ]),
+                  'start': 29,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'transfer(address,uint256)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10',
+        'id': 'd3df2e48ae6e8a1b05b275de574b480853a0839c272ce889e8a1664ae432698e',
+        'impact': 'Medium',
+        'markdown': '''
+          [Token](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L3-L10) has incorrect ERC20 function interface:[Token.transfer(address,uint256)](tests/detectors/erc20-interface/0.6.11/incorrect_erc20_interface.sol#L4)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

@@ -1,0 +1,189 @@
+# serializer version: 1
+# name: test_detector[DeprecatedStandards-0.4.25-deprecated_calls.sol]
+  list([
+    list([
+      dict({
+        'check': 'deprecated-standards',
+        'confidence': 'High',
+        'description': '''
+          Deprecated standard detected THROW (tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#7):
+          	- Usage of "throw" should be replaced with "revert()"
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': '',
+            'source_mapping': dict({
+              'ending_column': 18,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+              'filename_short': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+              'is_dependency': False,
+              'length': 5,
+              'lines': list([
+                7,
+              ]),
+              'start': 228,
+              'starting_column': 13,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'functionWithDeprecatedThrow',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+                  'filename_short': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+                  'is_dependency': False,
+                  'length': 229,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                  ]),
+                  'start': 21,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'Test',
+                    'source_mapping': dict({
+                      'ending_column': 0,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+                      'filename_short': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+                      'is_dependency': False,
+                      'length': 252,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'functionWithDeprecatedThrow()',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#L7',
+        'id': '5fbf4a42467953d0fd8d0661cbb4eeb81d4b40f69ae3820196bf10c4be53044e',
+        'impact': 'Informational',
+        'markdown': '''
+          Deprecated standard detected [THROW](tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#L7):
+          	- Usage of "throw" should be replaced with "revert()"
+  
+        ''',
+      }),
+      dict({
+        'check': 'deprecated-standards',
+        'confidence': 'High',
+        'description': '''
+          Deprecated standard detected msg.gas == msg.value (tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#5):
+          	- Usage of "msg.gas" should be replaced with "gasleft()"
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'msg.gas == msg.value',
+            'source_mapping': dict({
+              'ending_column': 32,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+              'filename_short': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+              'is_dependency': False,
+              'length': 20,
+              'lines': list([
+                5,
+              ]),
+              'start': 140,
+              'starting_column': 12,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'functionWithDeprecatedThrow',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+                  'filename_short': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+                  'is_dependency': False,
+                  'length': 229,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                  ]),
+                  'start': 21,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'Test',
+                    'source_mapping': dict({
+                      'ending_column': 0,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+                      'filename_short': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol',
+                      'is_dependency': False,
+                      'length': 252,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'functionWithDeprecatedThrow()',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#L5',
+        'id': 'e779713eabc28919356310f06b9413a8a3b7e9e713026d6cfae2d9f6839c1e57',
+        'impact': 'Informational',
+        'markdown': '''
+          Deprecated standard detected [msg.gas == msg.value](tests/detectors/deprecated-standards/0.4.25/deprecated_calls.sol#L5):
+          	- Usage of "msg.gas" should be replaced with "gasleft()"
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

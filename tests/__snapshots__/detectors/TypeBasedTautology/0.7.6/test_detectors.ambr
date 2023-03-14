@@ -1,0 +1,293 @@
+# serializer version: 1
+# name: test_detector[TypeBasedTautology-0.7.6-type_based_tautology.sol]
+  list([
+    list([
+      dict({
+        'check': 'tautology',
+        'confidence': 'High',
+        'description': '''
+          A.g(uint8) (tests/detectors/tautology/0.7.6/type_based_tautology.sol#9-11) contains a tautology or contradiction:
+          	- (y < 512) (tests/detectors/tautology/0.7.6/type_based_tautology.sol#10)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'g',
+            'source_mapping': dict({
+              'ending_column': 3,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+              'filename_short': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+              'is_dependency': False,
+              'length': 80,
+              'lines': list([
+                9,
+                10,
+                11,
+              ]),
+              'start': 150,
+              'starting_column': 2,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                  'filename_short': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                  'is_dependency': False,
+                  'length': 232,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'g(uint8)',
+            }),
+          }),
+          dict({
+            'name': '(y < 512)',
+            'source_mapping': dict({
+              'ending_column': 25,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+              'filename_short': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+              'is_dependency': False,
+              'length': 16,
+              'lines': list([
+                10,
+              ]),
+              'start': 202,
+              'starting_column': 9,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'g',
+                'source_mapping': dict({
+                  'ending_column': 3,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                  'filename_short': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                  'is_dependency': False,
+                  'length': 80,
+                  'lines': list([
+                    9,
+                    10,
+                    11,
+                  ]),
+                  'start': 150,
+                  'starting_column': 2,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'A',
+                    'source_mapping': dict({
+                      'ending_column': 0,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                      'filename_short': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                      'is_dependency': False,
+                      'length': 232,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'g(uint8)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol#L9-L11',
+        'id': '036b1ecab6ee0dcb07806dbd8ffb05abf29941bbbcbb161da0013b31be51b3de',
+        'impact': 'Medium',
+        'markdown': '''
+          [A.g(uint8)](tests/detectors/tautology/0.7.6/type_based_tautology.sol#L9-L11) contains a tautology or contradiction:
+          	- [(y < 512)](tests/detectors/tautology/0.7.6/type_based_tautology.sol#L10)
+  
+        ''',
+      }),
+      dict({
+        'check': 'tautology',
+        'confidence': 'High',
+        'description': '''
+          A.f(uint256) (tests/detectors/tautology/0.7.6/type_based_tautology.sol#2-7) contains a tautology or contradiction:
+          	- x >= 0 (tests/detectors/tautology/0.7.6/type_based_tautology.sol#3)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'f',
+            'source_mapping': dict({
+              'ending_column': 3,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+              'filename_short': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+              'is_dependency': False,
+              'length': 133,
+              'lines': list([
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+              ]),
+              'start': 14,
+              'starting_column': 2,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                  'filename_short': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                  'is_dependency': False,
+                  'length': 232,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'f(uint256)',
+            }),
+          }),
+          dict({
+            'name': 'x >= 0',
+            'source_mapping': dict({
+              'ending_column': 19,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+              'filename_short': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+              'is_dependency': False,
+              'length': 6,
+              'lines': list([
+                3,
+              ]),
+              'start': 69,
+              'starting_column': 13,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'f',
+                'source_mapping': dict({
+                  'ending_column': 3,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                  'filename_short': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                  'is_dependency': False,
+                  'length': 133,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                  ]),
+                  'start': 14,
+                  'starting_column': 2,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'A',
+                    'source_mapping': dict({
+                      'ending_column': 0,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                      'filename_short': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol',
+                      'is_dependency': False,
+                      'length': 232,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'f(uint256)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/tautology/0.7.6/type_based_tautology.sol#L2-L7',
+        'id': 'e444c1c7287bff97cae3505472d10d8ef5e01aa1f2e7660c81a3beb11eeaea0e',
+        'impact': 'Medium',
+        'markdown': '''
+          [A.f(uint256)](tests/detectors/tautology/0.7.6/type_based_tautology.sol#L2-L7) contains a tautology or contradiction:
+          	- [x >= 0](tests/detectors/tautology/0.7.6/type_based_tautology.sol#L3)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

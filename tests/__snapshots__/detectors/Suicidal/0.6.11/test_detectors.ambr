@@ -1,0 +1,69 @@
+# serializer version: 1
+# name: test_detector[Suicidal-0.6.11-suicidal.sol]
+  list([
+    list([
+      dict({
+        'check': 'suicidal',
+        'confidence': 'High',
+        'description': '''
+          C.i_am_a_backdoor() (tests/detectors/suicidal/0.6.11/suicidal.sol#4-6) allows anyone to destruct the contract
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'i_am_a_backdoor',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/suicidal/0.6.11/suicidal.sol',
+              'filename_short': 'tests/detectors/suicidal/0.6.11/suicidal.sol',
+              'is_dependency': False,
+              'length': 74,
+              'lines': list([
+                4,
+                5,
+                6,
+              ]),
+              'start': 18,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'C',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/suicidal/0.6.11/suicidal.sol',
+                  'filename_short': 'tests/detectors/suicidal/0.6.11/suicidal.sol',
+                  'is_dependency': False,
+                  'length': 94,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                  ]),
+                  'start': 1,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'i_am_a_backdoor()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/suicidal/0.6.11/suicidal.sol#L4-L6',
+        'id': 'bb1e4596537b6e2c29f4221e733692fd6dac8555095181718e440ca525016eb7',
+        'impact': 'High',
+        'markdown': '''
+          [C.i_am_a_backdoor()](tests/detectors/suicidal/0.6.11/suicidal.sol#L4-L6) allows anyone to destruct the contract
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

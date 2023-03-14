@@ -1,0 +1,111 @@
+# serializer version: 1
+# name: test_detector[CyclomaticComplexity-0.8.16-HighCyclomaticComplexity.sol]
+  list([
+    list([
+      dict({
+        'check': 'cyclomatic-complexity',
+        'confidence': 'High',
+        'description': '''
+          HighCyclomaticComplexity.highCC() (tests/detectors/cyclomatic-complexity/0.8.16/HighCyclomaticComplexity.sol#17-31) has a high cyclomatic complexity (12).
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'highCC',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/cyclomatic-complexity/0.8.16/HighCyclomaticComplexity.sol',
+              'filename_short': 'tests/detectors/cyclomatic-complexity/0.8.16/HighCyclomaticComplexity.sol',
+              'is_dependency': False,
+              'length': 536,
+              'lines': list([
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+              ]),
+              'start': 244,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'HighCyclomaticComplexity',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/cyclomatic-complexity/0.8.16/HighCyclomaticComplexity.sol',
+                  'filename_short': 'tests/detectors/cyclomatic-complexity/0.8.16/HighCyclomaticComplexity.sol',
+                  'is_dependency': False,
+                  'length': 757,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                  ]),
+                  'start': 25,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'highCC()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/cyclomatic-complexity/0.8.16/HighCyclomaticComplexity.sol#L17-L31',
+        'id': '405b9e7f5697539c75171d728f0a10b6ebb7fe08441c445b0e63c33982c98e2d',
+        'impact': 'Informational',
+        'markdown': '''
+          [HighCyclomaticComplexity.highCC()](tests/detectors/cyclomatic-complexity/0.8.16/HighCyclomaticComplexity.sol#L17-L31) has a high cyclomatic complexity (12).
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---
+# name: test_detector[CyclomaticComplexity-0.8.16-LowCyclomaticComplexity.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---

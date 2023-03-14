@@ -1,0 +1,65 @@
+# serializer version: 1
+# name: test_detector[IncorrectSolc-0.6.10-static.sol]
+  list([
+    list([
+      dict({
+        'check': 'solc-version',
+        'confidence': 'High',
+        'description': '''
+          solc-0.6.10 is not recommended for deployment
+  
+        ''',
+        'elements': list([
+        ]),
+        'first_markdown_element': '',
+        'id': 'b2c2f26d29a163098673e6dcb2342e00d94996a84040bac62f7dbb2f20fa8f28',
+        'impact': 'Informational',
+        'markdown': '''
+          solc-0.6.10 is not recommended for deployment
+  
+        ''',
+      }),
+      dict({
+        'check': 'solc-version',
+        'confidence': 'High',
+        'description': '''
+          Pragma version0.6.10 (tests/detectors/solc-version/0.6.10/static.sol#1) allows old versions
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': '0.6.10',
+            'source_mapping': dict({
+              'ending_column': 24,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/solc-version/0.6.10/static.sol',
+              'filename_short': 'tests/detectors/solc-version/0.6.10/static.sol',
+              'is_dependency': False,
+              'length': 23,
+              'lines': list([
+                1,
+              ]),
+              'start': 0,
+              'starting_column': 1,
+            }),
+            'type': 'pragma',
+            'type_specific_fields': dict({
+              'directive': list([
+                'solidity',
+                '0.6',
+                '.10',
+              ]),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/solc-version/0.6.10/static.sol#L1',
+        'id': 'f8fa962b3064cc35b3504cfbd7bd2067f90239895c1c23a55ce6666803131780',
+        'impact': 'Informational',
+        'markdown': '''
+          Pragma version[0.6.10](tests/detectors/solc-version/0.6.10/static.sol#L1) allows old versions
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

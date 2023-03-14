@@ -1,0 +1,477 @@
+# serializer version: 1
+# name: test_detector[Timestamp-0.5.16-timestamp.sol]
+  list([
+    list([
+      dict({
+        'check': 'timestamp',
+        'confidence': 'Medium',
+        'description': '''
+          Timestamp.bad1() (tests/detectors/timestamp/0.5.16/timestamp.sol#8-11) uses timestamp for comparisons
+          	Dangerous comparisons:
+          	- require(bool)(time == 0) (tests/detectors/timestamp/0.5.16/timestamp.sol#10)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'bad1',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'is_dependency': False,
+              'length': 96,
+              'lines': list([
+                8,
+                9,
+                10,
+                11,
+              ]),
+              'start': 126,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Timestamp',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'is_dependency': False,
+                  'length': 402,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'bad1()',
+            }),
+          }),
+          dict({
+            'name': 'require(bool)(time == 0)',
+            'source_mapping': dict({
+              'ending_column': 27,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'is_dependency': False,
+              'length': 18,
+              'lines': list([
+                10,
+              ]),
+              'start': 197,
+              'starting_column': 9,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'bad1',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'is_dependency': False,
+                  'length': 96,
+                  'lines': list([
+                    8,
+                    9,
+                    10,
+                    11,
+                  ]),
+                  'start': 126,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'Timestamp',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                      'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                      'is_dependency': False,
+                      'length': 402,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'bad1()',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/timestamp/0.5.16/timestamp.sol#L8-L11',
+        'id': '95b42362b948094ddfa2507b20840e67789d4c5d92e8e3ddac30f5b6577dc1cb',
+        'impact': 'Low',
+        'markdown': '''
+          [Timestamp.bad1()](tests/detectors/timestamp/0.5.16/timestamp.sol#L8-L11) uses timestamp for comparisons
+          	Dangerous comparisons:
+          	- [require(bool)(time == 0)](tests/detectors/timestamp/0.5.16/timestamp.sol#L10)
+  
+        ''',
+      }),
+      dict({
+        'check': 'timestamp',
+        'confidence': 'Medium',
+        'description': '''
+          Timestamp.bad0() (tests/detectors/timestamp/0.5.16/timestamp.sol#4-6) uses timestamp for comparisons
+          	Dangerous comparisons:
+          	- require(bool)(block.timestamp == 0) (tests/detectors/timestamp/0.5.16/timestamp.sol#5)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'bad0',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'is_dependency': False,
+              'length': 70,
+              'lines': list([
+                4,
+                5,
+                6,
+              ]),
+              'start': 47,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Timestamp',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'is_dependency': False,
+                  'length': 402,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'bad0()',
+            }),
+          }),
+          dict({
+            'name': 'require(bool)(block.timestamp == 0)',
+            'source_mapping': dict({
+              'ending_column': 38,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'is_dependency': False,
+              'length': 29,
+              'lines': list([
+                5,
+              ]),
+              'start': 81,
+              'starting_column': 9,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'bad0',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'is_dependency': False,
+                  'length': 70,
+                  'lines': list([
+                    4,
+                    5,
+                    6,
+                  ]),
+                  'start': 47,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'Timestamp',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                      'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                      'is_dependency': False,
+                      'length': 402,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'bad0()',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/timestamp/0.5.16/timestamp.sol#L4-L6',
+        'id': 'ae9cf69893e0e1a3487dc6ce8a8ae0f5ea9628607d77d32b3dfcb0202617d6e3',
+        'impact': 'Low',
+        'markdown': '''
+          [Timestamp.bad0()](tests/detectors/timestamp/0.5.16/timestamp.sol#L4-L6) uses timestamp for comparisons
+          	Dangerous comparisons:
+          	- [require(bool)(block.timestamp == 0)](tests/detectors/timestamp/0.5.16/timestamp.sol#L5)
+  
+        ''',
+      }),
+      dict({
+        'check': 'timestamp',
+        'confidence': 'Medium',
+        'description': '''
+          Timestamp.bad2() (tests/detectors/timestamp/0.5.16/timestamp.sol#13-15) uses timestamp for comparisons
+          	Dangerous comparisons:
+          	- block.timestamp > 0 (tests/detectors/timestamp/0.5.16/timestamp.sol#14)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'bad2',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'is_dependency': False,
+              'length': 79,
+              'lines': list([
+                13,
+                14,
+                15,
+              ]),
+              'start': 231,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Timestamp',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'is_dependency': False,
+                  'length': 402,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'bad2()',
+            }),
+          }),
+          dict({
+            'name': 'block.timestamp > 0',
+            'source_mapping': dict({
+              'ending_column': 33,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+              'is_dependency': False,
+              'length': 24,
+              'lines': list([
+                14,
+              ]),
+              'start': 279,
+              'starting_column': 9,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'bad2',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                  'is_dependency': False,
+                  'length': 79,
+                  'lines': list([
+                    13,
+                    14,
+                    15,
+                  ]),
+                  'start': 231,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'Timestamp',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                      'filename_short': 'tests/detectors/timestamp/0.5.16/timestamp.sol',
+                      'is_dependency': False,
+                      'length': 402,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'bad2()',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/timestamp/0.5.16/timestamp.sol#L13-L15',
+        'id': 'd4fe55a5e15b7b87f60c4156128807b333a4a630b25b18eb3a495b3613f764db',
+        'impact': 'Low',
+        'markdown': '''
+          [Timestamp.bad2()](tests/detectors/timestamp/0.5.16/timestamp.sol#L13-L15) uses timestamp for comparisons
+          	Dangerous comparisons:
+          	- [block.timestamp > 0](tests/detectors/timestamp/0.5.16/timestamp.sol#L14)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

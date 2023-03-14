@@ -1662,7 +1662,10 @@ def create_versioned_fixture(test_item: Test):
         def dirname(cls, *, test_location: PyTestLocation) -> str:
             return str(
                 pathlib.Path(test_location.filepath).parent.joinpath(
-                    "__snapshots__", f"{test_item.detector.__name__}", f"{test_item.solc_ver}"
+                    "__snapshots__",
+                    "detectors",
+                    f"{test_item.detector.__name__}",
+                    f"{test_item.solc_ver}",
                 )
             )
 

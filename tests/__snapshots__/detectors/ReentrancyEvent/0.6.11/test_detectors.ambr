@@ -1,0 +1,235 @@
+# serializer version: 1
+# name: test_detector[ReentrancyEvent-0.6.11-reentrancy-events.sol]
+  list([
+    list([
+      dict({
+        'check': 'reentrancy-events',
+        'confidence': 'Medium',
+        'description': '''
+          Reentrancy in Test.bug(C) (tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol#14-17):
+          	External calls:
+          	- c.f() (tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol#15)
+          	Event emitted after the call(s):
+          	- E() (tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol#16)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'bug',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+              'filename_short': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+              'is_dependency': False,
+              'length': 68,
+              'lines': list([
+                14,
+                15,
+                16,
+                17,
+              ]),
+              'start': 86,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+                  'filename_short': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+                  'is_dependency': False,
+                  'length': 193,
+                  'lines': list([
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                  ]),
+                  'start': 51,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'bug(C)',
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'external_calls',
+            }),
+            'name': 'c.f()',
+            'source_mapping': dict({
+              'ending_column': 14,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+              'filename_short': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+              'is_dependency': False,
+              'length': 5,
+              'lines': list([
+                15,
+              ]),
+              'start': 120,
+              'starting_column': 9,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'bug',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+                  'filename_short': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+                  'is_dependency': False,
+                  'length': 68,
+                  'lines': list([
+                    14,
+                    15,
+                    16,
+                    17,
+                  ]),
+                  'start': 86,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'Test',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+                      'filename_short': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+                      'is_dependency': False,
+                      'length': 193,
+                      'lines': list([
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                      ]),
+                      'start': 51,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'bug(C)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'event',
+            }),
+            'name': 'E()',
+            'source_mapping': dict({
+              'ending_column': 17,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+              'filename_short': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+              'is_dependency': False,
+              'length': 8,
+              'lines': list([
+                16,
+              ]),
+              'start': 135,
+              'starting_column': 9,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'bug',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+                  'filename_short': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+                  'is_dependency': False,
+                  'length': 68,
+                  'lines': list([
+                    14,
+                    15,
+                    16,
+                    17,
+                  ]),
+                  'start': 86,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'Test',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+                      'filename_short': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol',
+                      'is_dependency': False,
+                      'length': 193,
+                      'lines': list([
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                      ]),
+                      'start': 51,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'bug(C)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol#L14-L17',
+        'id': '1f754abe7a9cadfa9e0ea549a49219ba95c55bb5eaf79698de27f0fa460eb0f2',
+        'impact': 'Low',
+        'markdown': '''
+          Reentrancy in [Test.bug(C)](tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol#L14-L17):
+          	External calls:
+          	- [c.f()](tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol#L15)
+          	Event emitted after the call(s):
+          	- [E()](tests/detectors/reentrancy-events/0.6.11/reentrancy-events.sol#L16)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

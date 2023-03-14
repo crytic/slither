@@ -1,0 +1,80 @@
+# serializer version: 1
+# name: test_detector[ConstantPragma-0.6.11-pragma.0.6.11.sol]
+  list([
+    list([
+      dict({
+        'check': 'pragma',
+        'confidence': 'High',
+        'description': '''
+          Different versions of Solidity are used:
+          	- Version used: ['^0.6.10', '^0.6.11']
+          	- ^0.6.10 (tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#1)
+          	- ^0.6.11 (tests/detectors/pragma/0.6.11/pragma.0.6.11.sol#1)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': '^0.6.10',
+            'source_mapping': dict({
+              'ending_column': 25,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/pragma/0.6.11/pragma.0.6.10.sol',
+              'filename_short': 'tests/detectors/pragma/0.6.11/pragma.0.6.10.sol',
+              'is_dependency': False,
+              'length': 24,
+              'lines': list([
+                1,
+              ]),
+              'start': 0,
+              'starting_column': 1,
+            }),
+            'type': 'pragma',
+            'type_specific_fields': dict({
+              'directive': list([
+                'solidity',
+                '^',
+                '0.6',
+                '.10',
+              ]),
+            }),
+          }),
+          dict({
+            'name': '^0.6.11',
+            'source_mapping': dict({
+              'ending_column': 25,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/pragma/0.6.11/pragma.0.6.11.sol',
+              'filename_short': 'tests/detectors/pragma/0.6.11/pragma.0.6.11.sol',
+              'is_dependency': False,
+              'length': 24,
+              'lines': list([
+                1,
+              ]),
+              'start': 0,
+              'starting_column': 1,
+            }),
+            'type': 'pragma',
+            'type_specific_fields': dict({
+              'directive': list([
+                'solidity',
+                '^',
+                '0.6',
+                '.11',
+              ]),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#L1',
+        'id': '05ad5ab9a596fc401c485ede8f164ebd0df3052e307bb036f70a64d47cbc2933',
+        'impact': 'Informational',
+        'markdown': '''
+          Different versions of Solidity are used:
+          	- Version used: ['^0.6.10', '^0.6.11']
+          	- [^0.6.10](tests/detectors/pragma/0.6.11/pragma.0.6.10.sol#L1)
+          	- [^0.6.11](tests/detectors/pragma/0.6.11/pragma.0.6.11.sol#L1)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

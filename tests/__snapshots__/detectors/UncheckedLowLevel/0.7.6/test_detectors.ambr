@@ -1,0 +1,141 @@
+# serializer version: 1
+# name: test_detector[UncheckedLowLevel-0.7.6-unchecked_lowlevel.sol]
+  list([
+    list([
+      dict({
+        'check': 'unchecked-lowlevel',
+        'confidence': 'Medium',
+        'description': '''
+          MyConc.bad(address) (tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol#2-4) ignores return value by dst.call{value: msg.value}() (tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol#3)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'bad',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol',
+              'filename_short': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol',
+              'is_dependency': False,
+              'length': 96,
+              'lines': list([
+                2,
+                3,
+                4,
+              ]),
+              'start': 21,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'MyConc',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol',
+                  'filename_short': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol',
+                  'is_dependency': False,
+                  'length': 274,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'bad(address)',
+            }),
+          }),
+          dict({
+            'name': 'dst.call{value: msg.value}()',
+            'source_mapping': dict({
+              'ending_column': 38,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol',
+              'filename_short': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol',
+              'is_dependency': False,
+              'length': 29,
+              'lines': list([
+                3,
+              ]),
+              'start': 81,
+              'starting_column': 9,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'bad',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol',
+                  'filename_short': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol',
+                  'is_dependency': False,
+                  'length': 96,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                  ]),
+                  'start': 21,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'MyConc',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol',
+                      'filename_short': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol',
+                      'is_dependency': False,
+                      'length': 274,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'bad(address)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol#L2-L4',
+        'id': '55182dfa175ac27adc4625cf672f25b6b759d8f4645fed76e35bbeace0733169',
+        'impact': 'Medium',
+        'markdown': '''
+          [MyConc.bad(address)](tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol#L2-L4) ignores return value by [dst.call{value: msg.value}()](tests/detectors/unchecked-lowlevel/0.7.6/unchecked_lowlevel.sol#L3)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

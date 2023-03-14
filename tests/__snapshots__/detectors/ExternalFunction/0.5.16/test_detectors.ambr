@@ -1,0 +1,331 @@
+# serializer version: 1
+# name: test_detector[ExternalFunction-0.5.16-external_function.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---
+# name: test_detector[ExternalFunction-0.5.16-external_function_2.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---
+# name: test_detector[ExternalFunction-0.5.16-external_function_3.sol]
+  list([
+    list([
+      dict({
+        'check': 'external-function',
+        'confidence': 'High',
+        'description': '''
+          bad4(string) should be declared external:
+          	- Test.bad4(string) (tests/detectors/external-function/0.5.16/external_function_3.sol#18)
+          Moreover, the following function parameters should change its data location:
+          x location should be calldata
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'bad4',
+            'source_mapping': dict({
+              'ending_column': 45,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+              'filename_short': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+              'is_dependency': False,
+              'length': 40,
+              'lines': list([
+                18,
+              ]),
+              'start': 524,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+                  'filename_short': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+                  'is_dependency': False,
+                  'length': 532,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                  ]),
+                  'start': 35,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'bad4(string)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/external-function/0.5.16/external_function_3.sol#L18',
+        'id': '1b6de528ed7f8ecf61a543879c8bcbee1bce7e08bdef89c6f8f663937d5a7209',
+        'impact': 'Optimization',
+        'markdown': '''
+          bad4(string) should be declared external:
+          	- [Test.bad4(string)](tests/detectors/external-function/0.5.16/external_function_3.sol#L18)
+          Moreover, the following function parameters should change its data location:
+          x location should be calldata
+  
+        ''',
+      }),
+      dict({
+        'check': 'external-function',
+        'confidence': 'High',
+        'description': '''
+          bad3(Test.testStruct) should be declared external:
+          	- Test.bad3(Test.testStruct) (tests/detectors/external-function/0.5.16/external_function_3.sol#17)
+          Moreover, the following function parameters should change its data location:
+          x location should be calldata
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'bad3',
+            'source_mapping': dict({
+              'ending_column': 49,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+              'filename_short': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+              'is_dependency': False,
+              'length': 44,
+              'lines': list([
+                17,
+              ]),
+              'start': 475,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+                  'filename_short': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+                  'is_dependency': False,
+                  'length': 532,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                  ]),
+                  'start': 35,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'bad3(Test.testStruct)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/external-function/0.5.16/external_function_3.sol#L17',
+        'id': 'a60742b3998c52eee654f61cfb5b39834d63a1b13212511a01811206ac445dd5',
+        'impact': 'Optimization',
+        'markdown': '''
+          bad3(Test.testStruct) should be declared external:
+          	- [Test.bad3(Test.testStruct)](tests/detectors/external-function/0.5.16/external_function_3.sol#L17)
+          Moreover, the following function parameters should change its data location:
+          x location should be calldata
+  
+        ''',
+      }),
+      dict({
+        'check': 'external-function',
+        'confidence': 'High',
+        'description': '''
+          bad2(uint256[]) should be declared external:
+          	- Test.bad2(uint256[]) (tests/detectors/external-function/0.5.16/external_function_3.sol#16)
+          Moreover, the following function parameters should change its data location:
+          x location should be calldata
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'bad2',
+            'source_mapping': dict({
+              'ending_column': 48,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+              'filename_short': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+              'is_dependency': False,
+              'length': 43,
+              'lines': list([
+                16,
+              ]),
+              'start': 427,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+                  'filename_short': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+                  'is_dependency': False,
+                  'length': 532,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                  ]),
+                  'start': 35,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'bad2(uint256[])',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/external-function/0.5.16/external_function_3.sol#L16',
+        'id': 'aa4b0cae64f1a6f9f11d3f9981255fd04f37f558c960195ee46413ca4b142822',
+        'impact': 'Optimization',
+        'markdown': '''
+          bad2(uint256[]) should be declared external:
+          	- [Test.bad2(uint256[])](tests/detectors/external-function/0.5.16/external_function_3.sol#L16)
+          Moreover, the following function parameters should change its data location:
+          x location should be calldata
+  
+        ''',
+      }),
+      dict({
+        'check': 'external-function',
+        'confidence': 'High',
+        'description': '''
+          bad(bytes) should be declared external:
+          	- Test.bad(bytes) (tests/detectors/external-function/0.5.16/external_function_3.sol#15)
+          Moreover, the following function parameters should change its data location:
+          x location should be calldata
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'bad',
+            'source_mapping': dict({
+              'ending_column': 43,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+              'filename_short': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+              'is_dependency': False,
+              'length': 38,
+              'lines': list([
+                15,
+              ]),
+              'start': 384,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+                  'filename_short': 'tests/detectors/external-function/0.5.16/external_function_3.sol',
+                  'is_dependency': False,
+                  'length': 532,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                  ]),
+                  'start': 35,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'bad(bytes)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/external-function/0.5.16/external_function_3.sol#L15',
+        'id': 'df1688f3d1120f9600f61accff294ba821689c45dc261f1a9b94f23e6a402367',
+        'impact': 'Optimization',
+        'markdown': '''
+          bad(bytes) should be declared external:
+          	- [Test.bad(bytes)](tests/detectors/external-function/0.5.16/external_function_3.sol#L15)
+          Moreover, the following function parameters should change its data location:
+          x location should be calldata
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

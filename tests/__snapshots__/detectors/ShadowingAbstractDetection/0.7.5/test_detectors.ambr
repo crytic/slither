@@ -1,0 +1,108 @@
+# serializer version: 1
+# name: test_detector[ShadowingAbstractDetection-0.7.5-public_gap_variable.sol]
+  list([
+    list([
+      dict({
+        'check': 'shadowing-abstract',
+        'confidence': 'High',
+        'description': '''
+          DerivedContract.__gap (tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol#7) shadows:
+          	- BaseContract.__gap (tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol#3)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': '__gap',
+            'source_mapping': dict({
+              'ending_column': 29,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol',
+              'is_dependency': False,
+              'length': 24,
+              'lines': list([
+                7,
+              ]),
+              'start': 127,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'DerivedContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol',
+                  'is_dependency': False,
+                  'length': 73,
+                  'lines': list([
+                    6,
+                    7,
+                    8,
+                  ]),
+                  'start': 81,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': '__gap',
+            'source_mapping': dict({
+              'ending_column': 30,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol',
+              'is_dependency': False,
+              'length': 25,
+              'lines': list([
+                3,
+              ]),
+              'start': 51,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'BaseContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol',
+                  'is_dependency': False,
+                  'length': 55,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                  ]),
+                  'start': 24,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol#L7',
+        'id': '8f81b2b4b3285fe96f0b580cdd2144cc6cf6808d970ba68878b9901744069c4c',
+        'impact': 'Medium',
+        'markdown': '''
+          [DerivedContract.__gap](tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol#L7) shadows:
+          	- [BaseContract.__gap](tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol#L3)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---
+# name: test_detector[ShadowingAbstractDetection-0.7.5-shadowing_state_variable.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---

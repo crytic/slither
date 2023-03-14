@@ -1,0 +1,19 @@
+# serializer version: 1
+# name: test_detector[ExternalFunction-0.6.11-external_function.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---
+# name: test_detector[ExternalFunction-0.6.11-external_function_2.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---
+# name: test_detector[ExternalFunction-0.6.11-external_function_3.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---

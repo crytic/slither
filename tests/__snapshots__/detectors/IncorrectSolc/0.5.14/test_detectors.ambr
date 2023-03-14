@@ -1,0 +1,59 @@
+# serializer version: 1
+# name: test_detector[IncorrectSolc-0.5.14-static.sol]
+  list([
+    list([
+      dict({
+        'check': 'solc-version',
+        'confidence': 'High',
+        'description': '''
+          Pragma version0.5.14 (tests/detectors/solc-version/0.5.14/static.sol#1) is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': '0.5.14',
+            'source_mapping': dict({
+              'ending_column': 24,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/solc-version/0.5.14/static.sol',
+              'filename_short': 'tests/detectors/solc-version/0.5.14/static.sol',
+              'is_dependency': False,
+              'length': 23,
+              'lines': list([
+                1,
+              ]),
+              'start': 0,
+              'starting_column': 1,
+            }),
+            'type': 'pragma',
+            'type_specific_fields': dict({
+              'directive': list([
+                'solidity',
+                '0.5',
+                '.14',
+              ]),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/solc-version/0.5.14/static.sol#L1',
+        'id': 'cf9412fdac7f959dea885dbcebb2f9cfb0f3b0ca55f8fc84ebdc51e09eaf6957',
+        'impact': 'Informational',
+        'markdown': '''
+          Pragma version[0.5.14](tests/detectors/solc-version/0.5.14/static.sol#L1) is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+  
+        ''',
+      }),
+      dict({
+        'check': 'solc-version',
+        'confidence': 'High',
+        'description': 'solc-0.5.14 is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)',
+        'elements': list([
+        ]),
+        'first_markdown_element': '',
+        'id': 'd29c07fc4fd9f7602b9f99b17646c6ce1a1c10740d60888a7a706f2537f6e59d',
+        'impact': 'Informational',
+        'markdown': 'solc-0.5.14 is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)',
+      }),
+    ]),
+  ])
+# ---

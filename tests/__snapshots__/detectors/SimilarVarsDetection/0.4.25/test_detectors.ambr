@@ -1,0 +1,158 @@
+# serializer version: 1
+# name: test_detector[SimilarVarsDetection-0.4.25-similar_variables.sol]
+  list([
+    list([
+      dict({
+        'check': 'similar-names',
+        'confidence': 'Medium',
+        'description': '''
+          Variable Similar.f().testVariable (tests/detectors/similar-names/0.4.25/similar_variables.sol#3) is too similar to Similar.f().textVariable (tests/detectors/similar-names/0.4.25/similar_variables.sol#4)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'testVariable',
+            'source_mapping': dict({
+              'ending_column': 30,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+              'filename_short': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+              'is_dependency': False,
+              'length': 21,
+              'lines': list([
+                3,
+              ]),
+              'start': 69,
+              'starting_column': 9,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'f',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+                  'filename_short': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+                  'is_dependency': False,
+                  'length': 149,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                  ]),
+                  'start': 23,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'Similar',
+                    'source_mapping': dict({
+                      'ending_column': 0,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+                      'filename_short': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+                      'is_dependency': False,
+                      'length': 174,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'f()',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'name': 'textVariable',
+            'source_mapping': dict({
+              'ending_column': 30,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+              'filename_short': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+              'is_dependency': False,
+              'length': 21,
+              'lines': list([
+                4,
+              ]),
+              'start': 100,
+              'starting_column': 9,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'f',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+                  'filename_short': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+                  'is_dependency': False,
+                  'length': 149,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                  ]),
+                  'start': 23,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'Similar',
+                    'source_mapping': dict({
+                      'ending_column': 0,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+                      'filename_short': 'tests/detectors/similar-names/0.4.25/similar_variables.sol',
+                      'is_dependency': False,
+                      'length': 174,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'f()',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/similar-names/0.4.25/similar_variables.sol#L3',
+        'id': '2f767a2bb6f48a8435ce456e2d3ad859bdeccf66507735a14e20515e914038d5',
+        'impact': 'Informational',
+        'markdown': '''
+          Variable [Similar.f().testVariable](tests/detectors/similar-names/0.4.25/similar_variables.sol#L3) is too similar to [Similar.f().textVariable](tests/detectors/similar-names/0.4.25/similar_variables.sol#L4)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

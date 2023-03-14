@@ -1,0 +1,133 @@
+# serializer version: 1
+# name: test_detector[DivideBeforeMultiply-0.6.11-divide_before_multiply.sol]
+  list([
+    list([
+      dict({
+        'check': 'divide-before-multiply',
+        'confidence': 'Medium',
+        'description': '''
+          A.f(uint256,uint256,uint256) (tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#2-4) performs a multiplication on the result of a division:
+          	- (a / b) * c (tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#3)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'f',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol',
+              'filename_short': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol',
+              'is_dependency': False,
+              'length': 92,
+              'lines': list([
+                2,
+                3,
+                4,
+              ]),
+              'start': 14,
+              'starting_column': 2,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol',
+                  'filename_short': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol',
+                  'is_dependency': False,
+                  'length': 108,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'f(uint256,uint256,uint256)',
+            }),
+          }),
+          dict({
+            'name': '(a / b) * c',
+            'source_mapping': dict({
+              'ending_column': 27,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol',
+              'filename_short': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol',
+              'is_dependency': False,
+              'length': 18,
+              'lines': list([
+                3,
+              ]),
+              'start': 81,
+              'starting_column': 9,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'f',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol',
+                  'filename_short': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol',
+                  'is_dependency': False,
+                  'length': 92,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                  ]),
+                  'start': 14,
+                  'starting_column': 2,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'A',
+                    'source_mapping': dict({
+                      'ending_column': 0,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol',
+                      'filename_short': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol',
+                      'is_dependency': False,
+                      'length': 108,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'f(uint256,uint256,uint256)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#L2-L4',
+        'id': 'c84a7841250790acbb447d31715ca8f7818170927909d599cbc08f49ce8a665d',
+        'impact': 'Medium',
+        'markdown': '''
+          [A.f(uint256,uint256,uint256)](tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#L2-L4) performs a multiplication on the result of a division:
+          	- [(a / b) * c](tests/detectors/divide-before-multiply/0.6.11/divide_before_multiply.sol#L3)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

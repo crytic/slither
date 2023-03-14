@@ -1,0 +1,104 @@
+# serializer version: 1
+# name: test_detector[ShadowingAbstractDetection-0.5.16-shadowing_abstract.sol]
+  list([
+    list([
+      dict({
+        'check': 'shadowing-abstract',
+        'confidence': 'High',
+        'description': '''
+          DerivedContract.owner (tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol#7) shadows:
+          	- BaseContract.owner (tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol#2)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'owner',
+            'source_mapping': dict({
+              'ending_column': 18,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol',
+              'filename_short': 'tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol',
+              'is_dependency': False,
+              'length': 13,
+              'lines': list([
+                7,
+              ]),
+              'start': 92,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'DerivedContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol',
+                  'filename_short': 'tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol',
+                  'is_dependency': False,
+                  'length': 63,
+                  'lines': list([
+                    6,
+                    7,
+                    8,
+                    9,
+                  ]),
+                  'start': 46,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'owner',
+            'source_mapping': dict({
+              'ending_column': 18,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol',
+              'filename_short': 'tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol',
+              'is_dependency': False,
+              'length': 13,
+              'lines': list([
+                2,
+              ]),
+              'start': 27,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'BaseContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol',
+                  'filename_short': 'tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol',
+                  'is_dependency': False,
+                  'length': 44,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol#L7',
+        'id': '9c5c3fc5091b9ecd6ec271fdbb3036d9d3426cdf9a09d6cc293fd7de9240e4ab',
+        'impact': 'Medium',
+        'markdown': '''
+          [DerivedContract.owner](tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol#L7) shadows:
+          	- [BaseContract.owner](tests/detectors/shadowing-abstract/0.5.16/shadowing_abstract.sol#L2)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

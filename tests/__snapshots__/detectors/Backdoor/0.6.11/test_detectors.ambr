@@ -1,0 +1,69 @@
+# serializer version: 1
+# name: test_detector[Backdoor-0.6.11-backdoor.sol]
+  list([
+    list([
+      dict({
+        'check': 'backdoor',
+        'confidence': 'High',
+        'description': '''
+          Backdoor function found in C.i_am_a_backdoor() (tests/detectors/backdoor/0.6.11/backdoor.sol#4-6)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'i_am_a_backdoor',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/backdoor/0.6.11/backdoor.sol',
+              'filename_short': 'tests/detectors/backdoor/0.6.11/backdoor.sol',
+              'is_dependency': False,
+              'length': 74,
+              'lines': list([
+                4,
+                5,
+                6,
+              ]),
+              'start': 18,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'C',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/backdoor/0.6.11/backdoor.sol',
+                  'filename_short': 'tests/detectors/backdoor/0.6.11/backdoor.sol',
+                  'is_dependency': False,
+                  'length': 94,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                  ]),
+                  'start': 1,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'i_am_a_backdoor()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/backdoor/0.6.11/backdoor.sol#L4-L6',
+        'id': '8a9008f2f5cd23b34feb0235dcc30ecb8d09a10eff151b522939caead117ef7a',
+        'impact': 'High',
+        'markdown': '''
+          Backdoor function found in [C.i_am_a_backdoor()](tests/detectors/backdoor/0.6.11/backdoor.sol#L4-L6)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

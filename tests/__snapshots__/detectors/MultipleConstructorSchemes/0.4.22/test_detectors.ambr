@@ -1,0 +1,162 @@
+# serializer version: 1
+# name: test_detector[MultipleConstructorSchemes-0.4.22-multiple_constructor_schemes.sol]
+  list([
+    list([
+      dict({
+        'check': 'multiple-constructors',
+        'confidence': 'High',
+        'description': '''
+          A (tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#1-14) contains multiple constructors in the same contract:
+          	- A.constructor() (tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#3-5)
+          	- A.A() (tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#6-8)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'A',
+            'source_mapping': dict({
+              'ending_column': 0,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol',
+              'filename_short': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol',
+              'is_dependency': False,
+              'length': 193,
+              'lines': list([
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+              ]),
+              'start': 0,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'constructor',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol',
+              'filename_short': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol',
+              'is_dependency': False,
+              'length': 43,
+              'lines': list([
+                3,
+                4,
+                5,
+              ]),
+              'start': 29,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol',
+                  'filename_short': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol',
+                  'is_dependency': False,
+                  'length': 193,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'constructor()',
+            }),
+          }),
+          dict({
+            'name': 'A',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol',
+              'filename_short': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol',
+              'is_dependency': False,
+              'length': 42,
+              'lines': list([
+                6,
+                7,
+                8,
+              ]),
+              'start': 77,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol',
+                  'filename_short': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol',
+                  'is_dependency': False,
+                  'length': 193,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'A()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#L1-L14',
+        'id': '704cdb1c05e919913c22befaf077b9585bc75e31b5033fa46c930ad82dc6852e',
+        'impact': 'High',
+        'markdown': '''
+          [A](tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#L1-L14) contains multiple constructors in the same contract:
+          	- [A.constructor()](tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#L3-L5)
+          	- [A.A()](tests/detectors/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#L6-L8)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

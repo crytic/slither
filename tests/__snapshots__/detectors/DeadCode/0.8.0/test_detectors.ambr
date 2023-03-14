@@ -1,0 +1,188 @@
+# serializer version: 1
+# name: test_detector[DeadCode-0.8.0-dead-code.sol]
+  list([
+    list([
+      dict({
+        'check': 'dead-code',
+        'confidence': 'Medium',
+        'description': '''
+          Test4.unused_but_shadowed() (tests/detectors/dead-code/0.8.0/dead-code.sol#26-28) is never used and should be removed
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'unused_but_shadowed',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+              'filename_short': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+              'is_dependency': False,
+              'length': 56,
+              'lines': list([
+                26,
+                27,
+                28,
+              ]),
+              'start': 319,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test4',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+                  'filename_short': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+                  'is_dependency': False,
+                  'length': 87,
+                  'lines': list([
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                  ]),
+                  'start': 290,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'unused_but_shadowed()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/dead-code/0.8.0/dead-code.sol#L26-L28',
+        'id': '74ea8421cf7fa9e04d243014b61f3eee7a9c7648df98316c3881dd4f1f2ab3f7',
+        'impact': 'Informational',
+        'markdown': '''
+          [Test4.unused_but_shadowed()](tests/detectors/dead-code/0.8.0/dead-code.sol#L26-L28) is never used and should be removed
+  
+        ''',
+      }),
+      dict({
+        'check': 'dead-code',
+        'confidence': 'Medium',
+        'description': '''
+          Test.unused() (tests/detectors/dead-code/0.8.0/dead-code.sol#2-4) is never used and should be removed
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'unused',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+              'filename_short': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+              'is_dependency': False,
+              'length': 34,
+              'lines': list([
+                2,
+                3,
+                4,
+              ]),
+              'start': 19,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+                  'filename_short': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+                  'is_dependency': False,
+                  'length': 55,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'unused()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/dead-code/0.8.0/dead-code.sol#L2-L4',
+        'id': 'a7c13823116566bbbbb68e8a7efa78fe64785fcb8582069373eda7f27c523cb3',
+        'impact': 'Informational',
+        'markdown': '''
+          [Test.unused()](tests/detectors/dead-code/0.8.0/dead-code.sol#L2-L4) is never used and should be removed
+  
+        ''',
+      }),
+      dict({
+        'check': 'dead-code',
+        'confidence': 'Medium',
+        'description': '''
+          Test2.unused_but_shadowed() (tests/detectors/dead-code/0.8.0/dead-code.sol#10-12) is never used and should be removed
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'unused_but_shadowed',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+              'filename_short': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+              'is_dependency': False,
+              'length': 55,
+              'lines': list([
+                10,
+                11,
+                12,
+              ]),
+              'start': 79,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test2',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+                  'filename_short': 'tests/detectors/dead-code/0.8.0/dead-code.sol',
+                  'is_dependency': False,
+                  'length': 78,
+                  'lines': list([
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                  ]),
+                  'start': 58,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'unused_but_shadowed()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/dead-code/0.8.0/dead-code.sol#L10-L12',
+        'id': 'aaba496684b73955e90b555de174e1cd03f0fee337849c4d58c10ef76ff93582',
+        'impact': 'Informational',
+        'markdown': '''
+          [Test2.unused_but_shadowed()](tests/detectors/dead-code/0.8.0/dead-code.sol#L10-L12) is never used and should be removed
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

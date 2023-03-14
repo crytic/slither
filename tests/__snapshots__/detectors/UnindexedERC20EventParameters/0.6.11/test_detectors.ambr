@@ -1,0 +1,271 @@
+# serializer version: 1
+# name: test_detector[UnindexedERC20EventParameters-0.6.11-erc20_indexed.sol]
+  list([
+    list([
+      dict({
+        'check': 'erc20-indexed',
+        'confidence': 'High',
+        'description': '''
+          ERC20 event IERC20BadTransfer(address,address,uint256) (tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#19)does not index parameter to
+  
+        ''',
+        'elements': list([
+          dict({
+            'additional_fields': dict({
+              'parameter_name': 'to',
+            }),
+            'name': 'Transfer',
+            'source_mapping': dict({
+              'ending_column': 58,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+              'filename_short': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+              'is_dependency': False,
+              'length': 53,
+              'lines': list([
+                19,
+              ]),
+              'start': 1204,
+              'starting_column': 5,
+            }),
+            'type': 'event',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'IERC20Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+                  'filename_short': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+                  'is_dependency': False,
+                  'length': 644,
+                  'lines': list([
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                  ]),
+                  'start': 679,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'Transfer(address,address,uint256)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#L19',
+        'id': '29c46eb3a4695004959847ae09377729cdf3aa583de95560090b9bd49977c49b',
+        'impact': 'Informational',
+        'markdown': '''
+          ERC20 event [IERC20BadTransfer(address,address,uint256)](tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#L19)does not index parameter to
+  
+        ''',
+      }),
+      dict({
+        'check': 'erc20-indexed',
+        'confidence': 'High',
+        'description': '''
+          ERC20 event IERC20BadApproval(address,address,uint256) (tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#20)does not index parameter owner
+  
+        ''',
+        'elements': list([
+          dict({
+            'additional_fields': dict({
+              'parameter_name': 'owner',
+            }),
+            'name': 'Approval',
+            'source_mapping': dict({
+              'ending_column': 64,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+              'filename_short': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+              'is_dependency': False,
+              'length': 59,
+              'lines': list([
+                20,
+              ]),
+              'start': 1262,
+              'starting_column': 5,
+            }),
+            'type': 'event',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'IERC20Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+                  'filename_short': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+                  'is_dependency': False,
+                  'length': 644,
+                  'lines': list([
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                  ]),
+                  'start': 679,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'Approval(address,address,uint256)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#L20',
+        'id': '7d72b56a71ca96db304878f25484c496af1d283a9b777dc788f1473974057025',
+        'impact': 'Informational',
+        'markdown': '''
+          ERC20 event [IERC20BadApproval(address,address,uint256)](tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#L20)does not index parameter owner
+  
+        ''',
+      }),
+      dict({
+        'check': 'erc20-indexed',
+        'confidence': 'High',
+        'description': '''
+          ERC20 event IERC20BadTransfer(address,address,uint256) (tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#19)does not index parameter from
+  
+        ''',
+        'elements': list([
+          dict({
+            'additional_fields': dict({
+              'parameter_name': 'from',
+            }),
+            'name': 'Transfer',
+            'source_mapping': dict({
+              'ending_column': 58,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+              'filename_short': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+              'is_dependency': False,
+              'length': 53,
+              'lines': list([
+                19,
+              ]),
+              'start': 1204,
+              'starting_column': 5,
+            }),
+            'type': 'event',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'IERC20Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+                  'filename_short': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+                  'is_dependency': False,
+                  'length': 644,
+                  'lines': list([
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                  ]),
+                  'start': 679,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'Transfer(address,address,uint256)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#L19',
+        'id': 'a86c7a54115f270548e82d71570dc4d2900b622b0f82c6fce137f3a35314af53',
+        'impact': 'Informational',
+        'markdown': '''
+          ERC20 event [IERC20BadTransfer(address,address,uint256)](tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#L19)does not index parameter from
+  
+        ''',
+      }),
+      dict({
+        'check': 'erc20-indexed',
+        'confidence': 'High',
+        'description': '''
+          ERC20 event IERC20BadApproval(address,address,uint256) (tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#20)does not index parameter spender
+  
+        ''',
+        'elements': list([
+          dict({
+            'additional_fields': dict({
+              'parameter_name': 'spender',
+            }),
+            'name': 'Approval',
+            'source_mapping': dict({
+              'ending_column': 64,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+              'filename_short': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+              'is_dependency': False,
+              'length': 59,
+              'lines': list([
+                20,
+              ]),
+              'start': 1262,
+              'starting_column': 5,
+            }),
+            'type': 'event',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'IERC20Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+                  'filename_short': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol',
+                  'is_dependency': False,
+                  'length': 644,
+                  'lines': list([
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                  ]),
+                  'start': 679,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'Approval(address,address,uint256)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#L20',
+        'id': 'df4d927d202bdca1fc411d6960d3f62ed2784f5eca7435cb0503f4154f2e3bc6',
+        'impact': 'Informational',
+        'markdown': '''
+          ERC20 event [IERC20BadApproval(address,address,uint256)](tests/detectors/erc20-indexed/0.6.11/erc20_indexed.sol#L20)does not index parameter spender
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

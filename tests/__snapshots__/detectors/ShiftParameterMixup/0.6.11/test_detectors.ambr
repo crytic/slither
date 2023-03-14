@@ -1,0 +1,139 @@
+# serializer version: 1
+# name: test_detector[ShiftParameterMixup-0.6.11-shift_parameter_mixup.sol]
+  list([
+    list([
+      dict({
+        'check': 'incorrect-shift',
+        'confidence': 'High',
+        'description': '''
+          C.f() (tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol#3-7) contains an incorrect shift operation: a = 8 >> a (tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol#5)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'f',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol',
+              'filename_short': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol',
+              'is_dependency': False,
+              'length': 106,
+              'lines': list([
+                3,
+                4,
+                5,
+                6,
+                7,
+              ]),
+              'start': 19,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'C',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol',
+                  'filename_short': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol',
+                  'is_dependency': False,
+                  'length': 128,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'f()',
+            }),
+          }),
+          dict({
+            'name': 'a = 8 >> a',
+            'source_mapping': dict({
+              'ending_column': 27,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol',
+              'filename_short': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol',
+              'is_dependency': False,
+              'length': 14,
+              'lines': list([
+                5,
+              ]),
+              'start': 93,
+              'starting_column': 13,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'f',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol',
+                  'filename_short': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol',
+                  'is_dependency': False,
+                  'length': 106,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                  ]),
+                  'start': 19,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'C',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol',
+                      'filename_short': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol',
+                      'is_dependency': False,
+                      'length': 128,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'f()',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol#L3-L7',
+        'id': 'eefda017d078fd6c0cdb19b471ac8d0a96b2b3dba9bac04ac194270820a77301',
+        'impact': 'High',
+        'markdown': '''
+          [C.f()](tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol#L3-L7) contains an incorrect shift operation: [a = 8 >> a](tests/detectors/incorrect-shift/0.6.11/shift_parameter_mixup.sol#L5)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

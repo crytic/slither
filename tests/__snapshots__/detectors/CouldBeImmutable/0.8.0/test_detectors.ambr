@@ -1,0 +1,303 @@
+# serializer version: 1
+# name: test_detector[CouldBeImmutable-0.8.0-immut_state_variables.sol]
+  list([
+    list([
+      dict({
+        'check': 'immutable-states',
+        'confidence': 'High',
+        'description': '''
+          Bad.should_be_immutable_5 (tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#46) should be immutable 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'should_be_immutable_5',
+            'source_mapping': dict({
+              'ending_column': 31,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+              'filename_short': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+              'is_dependency': False,
+              'length': 26,
+              'lines': list([
+                46,
+              ]),
+              'start': 1038,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+                  'filename_short': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 577,
+                  'lines': list([
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                  ]),
+                  'start': 718,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#L46',
+        'id': '42d50245236163ceca90dea732165e65c2155934b149a5a1a5c51bddc0b5b02a',
+        'impact': 'Optimization',
+        'markdown': '''
+          [Bad.should_be_immutable_5](tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#L46) should be immutable 
+  
+        ''',
+      }),
+      dict({
+        'check': 'immutable-states',
+        'confidence': 'High',
+        'description': '''
+          Bad.should_be_immutable_2 (tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#44) should be immutable 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'should_be_immutable_2',
+            'source_mapping': dict({
+              'ending_column': 45,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+              'filename_short': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+              'is_dependency': False,
+              'length': 40,
+              'lines': list([
+                44,
+              ]),
+              'start': 940,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+                  'filename_short': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 577,
+                  'lines': list([
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                  ]),
+                  'start': 718,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#L44',
+        'id': '70d57aa51dda92c28444a466db8567fa783c85d484259aa5eee2ebc63f97a200',
+        'impact': 'Optimization',
+        'markdown': '''
+          [Bad.should_be_immutable_2](tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#L44) should be immutable 
+  
+        ''',
+      }),
+      dict({
+        'check': 'immutable-states',
+        'confidence': 'High',
+        'description': '''
+          Bad.should_be_immutable (tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#43) should be immutable 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'should_be_immutable',
+            'source_mapping': dict({
+              'ending_column': 45,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+              'filename_short': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+              'is_dependency': False,
+              'length': 40,
+              'lines': list([
+                43,
+              ]),
+              'start': 894,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+                  'filename_short': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 577,
+                  'lines': list([
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                  ]),
+                  'start': 718,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#L43',
+        'id': 'b163d277f544f7f05ed4bcddda61e444be893e65ba0469688abd7b401a1db222',
+        'impact': 'Optimization',
+        'markdown': '''
+          [Bad.should_be_immutable](tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#L43) should be immutable 
+  
+        ''',
+      }),
+      dict({
+        'check': 'immutable-states',
+        'confidence': 'High',
+        'description': '''
+          Bad.should_be_immutable_3 (tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#45) should be immutable 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'should_be_immutable_3',
+            'source_mapping': dict({
+              'ending_column': 51,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+              'filename_short': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+              'is_dependency': False,
+              'length': 46,
+              'lines': list([
+                45,
+              ]),
+              'start': 986,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+                  'filename_short': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 577,
+                  'lines': list([
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                  ]),
+                  'start': 718,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#L45',
+        'id': 'f19f7a22a6f17ffd8b5c29021226388aab7548f996b686a8e0b2bc861f72d447',
+        'impact': 'Optimization',
+        'markdown': '''
+          [Bad.should_be_immutable_3](tests/detectors/immutable-states/0.8.0/immut_state_variables.sol#L45) should be immutable 
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

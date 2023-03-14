@@ -1,0 +1,331 @@
+# serializer version: 1
+# name: test_detector[UnusedStateVars-0.4.25-unused_state.sol]
+  list([
+    list([
+      dict({
+        'check': 'unused-state',
+        'confidence': 'High',
+        'description': '''
+          A.unused (tests/detectors/unused-state/0.4.25/unused_state.sol#4) is never used in B (tests/detectors/unused-state/0.4.25/unused_state.sol#11-16)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'unused',
+            'source_mapping': dict({
+              'ending_column': 19,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'is_dependency': False,
+              'length': 14,
+              'lines': list([
+                4,
+              ]),
+              'start': 44,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+                  'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+                  'is_dependency': False,
+                  'length': 114,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                  ]),
+                  'start': 28,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'B',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'is_dependency': False,
+              'length': 78,
+              'lines': list([
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+              ]),
+              'start': 144,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/unused-state/0.4.25/unused_state.sol#L4',
+        'id': '195279490862ae355bac3d27d0cdb1aa18200a5daed8f3dbd84dc5b120e29482',
+        'impact': 'Informational',
+        'markdown': '''
+          [A.unused](tests/detectors/unused-state/0.4.25/unused_state.sol#L4) is never used in [B](tests/detectors/unused-state/0.4.25/unused_state.sol#L11-L16)
+  
+        ''',
+      }),
+      dict({
+        'check': 'unused-state',
+        'confidence': 'High',
+        'description': '''
+          A.unused4 (tests/detectors/unused-state/0.4.25/unused_state.sol#7) is never used in B (tests/detectors/unused-state/0.4.25/unused_state.sol#11-16)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'unused4',
+            'source_mapping': dict({
+              'ending_column': 20,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'is_dependency': False,
+              'length': 15,
+              'lines': list([
+                7,
+              ]),
+              'start': 106,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+                  'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+                  'is_dependency': False,
+                  'length': 114,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                  ]),
+                  'start': 28,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'B',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'is_dependency': False,
+              'length': 78,
+              'lines': list([
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+              ]),
+              'start': 144,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/unused-state/0.4.25/unused_state.sol#L7',
+        'id': '562d3e6a04f6f6068c3e4f0c074ecdbcff87929e43ec6fbeb6c088e715f63cf2',
+        'impact': 'Informational',
+        'markdown': '''
+          [A.unused4](tests/detectors/unused-state/0.4.25/unused_state.sol#L7) is never used in [B](tests/detectors/unused-state/0.4.25/unused_state.sol#L11-L16)
+  
+        ''',
+      }),
+      dict({
+        'check': 'unused-state',
+        'confidence': 'High',
+        'description': '''
+          A.unused2 (tests/detectors/unused-state/0.4.25/unused_state.sol#5) is never used in B (tests/detectors/unused-state/0.4.25/unused_state.sol#11-16)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'unused2',
+            'source_mapping': dict({
+              'ending_column': 20,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'is_dependency': False,
+              'length': 15,
+              'lines': list([
+                5,
+              ]),
+              'start': 64,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+                  'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+                  'is_dependency': False,
+                  'length': 114,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                  ]),
+                  'start': 28,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'B',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'is_dependency': False,
+              'length': 78,
+              'lines': list([
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+              ]),
+              'start': 144,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/unused-state/0.4.25/unused_state.sol#L5',
+        'id': '886250d01813743573f3d311b742e0f818e0012ccbf8ad97738c029fd129d870',
+        'impact': 'Informational',
+        'markdown': '''
+          [A.unused2](tests/detectors/unused-state/0.4.25/unused_state.sol#L5) is never used in [B](tests/detectors/unused-state/0.4.25/unused_state.sol#L11-L16)
+  
+        ''',
+      }),
+      dict({
+        'check': 'unused-state',
+        'confidence': 'High',
+        'description': '''
+          A.unused3 (tests/detectors/unused-state/0.4.25/unused_state.sol#6) is never used in B (tests/detectors/unused-state/0.4.25/unused_state.sol#11-16)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'unused3',
+            'source_mapping': dict({
+              'ending_column': 20,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'is_dependency': False,
+              'length': 15,
+              'lines': list([
+                6,
+              ]),
+              'start': 85,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+                  'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+                  'is_dependency': False,
+                  'length': 114,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                  ]),
+                  'start': 28,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'B',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'filename_short': 'tests/detectors/unused-state/0.4.25/unused_state.sol',
+              'is_dependency': False,
+              'length': 78,
+              'lines': list([
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+              ]),
+              'start': 144,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/unused-state/0.4.25/unused_state.sol#L6',
+        'id': 'e2ac51590509d97ff791ce50d9a711fc5ad01c20d23eacf6fb31939bd91b9f48',
+        'impact': 'Informational',
+        'markdown': '''
+          [A.unused3](tests/detectors/unused-state/0.4.25/unused_state.sol#L6) is never used in [B](tests/detectors/unused-state/0.4.25/unused_state.sol#L11-L16)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

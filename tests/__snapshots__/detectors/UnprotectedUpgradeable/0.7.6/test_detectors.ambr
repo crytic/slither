@@ -1,0 +1,163 @@
+# serializer version: 1
+# name: test_detector[UnprotectedUpgradeable-0.7.6-Buggy.sol]
+  list([
+    list([
+      dict({
+        'check': 'unprotected-upgrade',
+        'confidence': 'High',
+        'description': 'Buggy (tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol#3-15) is an upgradeable contract that does not protect its initialize functions: Buggy.initialize() (tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol#6-9). Anyone can delete the contract with: Buggy.kill() (tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol#10-13)',
+        'elements': list([
+          dict({
+            'name': 'Buggy',
+            'source_mapping': dict({
+              'ending_column': 0,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol',
+              'filename_short': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol',
+              'is_dependency': False,
+              'length': 285,
+              'lines': list([
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+              ]),
+              'start': 31,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'initialize',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol',
+              'filename_short': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol',
+              'is_dependency': False,
+              'length': 115,
+              'lines': list([
+                6,
+                7,
+                8,
+                9,
+              ]),
+              'start': 96,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Buggy',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol',
+                  'filename_short': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol',
+                  'is_dependency': False,
+                  'length': 285,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                  ]),
+                  'start': 31,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'initialize()',
+            }),
+          }),
+          dict({
+            'name': 'kill',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol',
+              'filename_short': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol',
+              'is_dependency': False,
+              'length': 98,
+              'lines': list([
+                10,
+                11,
+                12,
+                13,
+              ]),
+              'start': 216,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Buggy',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol',
+                  'filename_short': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol',
+                  'is_dependency': False,
+                  'length': 285,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                  ]),
+                  'start': 31,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'kill()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol#L3-L15',
+        'id': 'd85b90230632a30f7ffb5140a791d4a9ae8b0be045c5b27175f3c477e189c08c',
+        'impact': 'High',
+        'markdown': '[Buggy](tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol#L3-L15) is an upgradeable contract that does not protect its initialize functions: [Buggy.initialize()](tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol#L6-L9). Anyone can delete the contract with: [Buggy.kill()](tests/detectors/unprotected-upgrade/0.7.6/Buggy.sol#L10-L13)',
+      }),
+    ]),
+  ])
+# ---
+# name: test_detector[UnprotectedUpgradeable-0.7.6-Fixed.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---
+# name: test_detector[UnprotectedUpgradeable-0.7.6-whitelisted.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---

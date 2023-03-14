@@ -1,0 +1,1309 @@
+# serializer version: 1
+# name: test_detector[ReentrancyEth-0.8.10-reentrancy_filtered_comments.sol]
+  list([
+    list([
+      dict({
+        'check': 'reentrancy-eth',
+        'confidence': 'Medium',
+        'description': '''
+          Reentrancy in TestWithBug.withdraw(uint256) (tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#8-12):
+          	External calls:
+          	- Receiver(msg.sender).send_funds{value: amount}() (tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#10)
+          	State variables written after the call(s):
+          	- balances[msg.sender] -= amount (tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#11)
+          	TestWithBug.balances (tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#6) can be used in cross function reentrancies:
+          	- TestWithBug.withdraw(uint256) (tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#8-12)
+          	- TestWithBug.withdrawFiltered(uint256) (tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#15-19)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'withdraw',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+              'is_dependency': False,
+              'length': 194,
+              'lines': list([
+                8,
+                9,
+                10,
+                11,
+                12,
+              ]),
+              'start': 133,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'TestWithBug',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+                  'is_dependency': False,
+                  'length': 534,
+                  'lines': list([
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                  ]),
+                  'start': 67,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'withdraw(uint256)',
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'external_calls',
+            }),
+            'name': 'Receiver(msg.sender).send_funds{value: amount}()',
+            'source_mapping': dict({
+              'ending_column': 58,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+              'is_dependency': False,
+              'length': 48,
+              'lines': list([
+                10,
+              ]),
+              'start': 231,
+              'starting_column': 10,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'withdraw',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+                  'is_dependency': False,
+                  'length': 194,
+                  'lines': list([
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                  ]),
+                  'start': 133,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'TestWithBug',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+                      'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+                      'is_dependency': False,
+                      'length': 534,
+                      'lines': list([
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                      ]),
+                      'start': 67,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'withdraw(uint256)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'variables_written',
+              'variable_name': 'balances',
+            }),
+            'name': 'balances[msg.sender] -= amount',
+            'source_mapping': dict({
+              'ending_column': 40,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+              'is_dependency': False,
+              'length': 30,
+              'lines': list([
+                11,
+              ]),
+              'start': 290,
+              'starting_column': 10,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'withdraw',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+                  'is_dependency': False,
+                  'length': 194,
+                  'lines': list([
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                  ]),
+                  'start': 133,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'TestWithBug',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+                      'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol',
+                      'is_dependency': False,
+                      'length': 534,
+                      'lines': list([
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                      ]),
+                      'start': 67,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'withdraw(uint256)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#L8-L12',
+        'id': '176d2b5b09c260c72fd638ff8b5db4709df3ff3eb253daa1cfde254c8299fb94',
+        'impact': 'High',
+        'markdown': '''
+          Reentrancy in [TestWithBug.withdraw(uint256)](tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#L8-L12):
+          	External calls:
+          	- [Receiver(msg.sender).send_funds{value: amount}()](tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#L10)
+          	State variables written after the call(s):
+          	- [balances[msg.sender] -= amount](tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#L11)
+          	[TestWithBug.balances](tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#L6) can be used in cross function reentrancies:
+          	- [TestWithBug.withdraw(uint256)](tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#L8-L12)
+          	- [TestWithBug.withdrawFiltered(uint256)](tests/detectors/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#L15-L19)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---
+# name: test_detector[ReentrancyEth-0.8.10-reentrancy_with_non_reentrant.sol]
+  list([
+    list([
+      dict({
+        'check': 'reentrancy-eth',
+        'confidence': 'Medium',
+        'description': '''
+          Reentrancy in TestWithBugNonReentrantRead.withdraw(uint256) (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#138-142):
+          	External calls:
+          	- Receiver(msg.sender).send_funds{value: amount}() (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#140)
+          	State variables written after the call(s):
+          	- balances[msg.sender] -= amount (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#141)
+          	TestWithBugNonReentrantRead.balances (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#132) can be used in cross function reentrancies:
+          	- TestWithBugNonReentrantRead.read() (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#146-149)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'withdraw',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 207,
+              'lines': list([
+                138,
+                139,
+                140,
+                141,
+                142,
+              ]),
+              'start': 3089,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'TestWithBugNonReentrantRead',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 629,
+                  'lines': list([
+                    130,
+                    131,
+                    132,
+                    133,
+                    134,
+                    135,
+                    136,
+                    137,
+                    138,
+                    139,
+                    140,
+                    141,
+                    142,
+                    143,
+                    144,
+                    145,
+                    146,
+                    147,
+                    148,
+                    149,
+                    150,
+                    151,
+                  ]),
+                  'start': 2959,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'withdraw(uint256)',
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'external_calls',
+            }),
+            'name': 'Receiver(msg.sender).send_funds{value: amount}()',
+            'source_mapping': dict({
+              'ending_column': 58,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 48,
+              'lines': list([
+                140,
+              ]),
+              'start': 3200,
+              'starting_column': 10,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'withdraw',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 207,
+                  'lines': list([
+                    138,
+                    139,
+                    140,
+                    141,
+                    142,
+                  ]),
+                  'start': 3089,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'TestWithBugNonReentrantRead',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'is_dependency': False,
+                      'length': 629,
+                      'lines': list([
+                        130,
+                        131,
+                        132,
+                        133,
+                        134,
+                        135,
+                        136,
+                        137,
+                        138,
+                        139,
+                        140,
+                        141,
+                        142,
+                        143,
+                        144,
+                        145,
+                        146,
+                        147,
+                        148,
+                        149,
+                        150,
+                        151,
+                      ]),
+                      'start': 2959,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'withdraw(uint256)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'variables_written',
+              'variable_name': 'balances',
+            }),
+            'name': 'balances[msg.sender] -= amount',
+            'source_mapping': dict({
+              'ending_column': 40,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 30,
+              'lines': list([
+                141,
+              ]),
+              'start': 3259,
+              'starting_column': 10,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'withdraw',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 207,
+                  'lines': list([
+                    138,
+                    139,
+                    140,
+                    141,
+                    142,
+                  ]),
+                  'start': 3089,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'TestWithBugNonReentrantRead',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'is_dependency': False,
+                      'length': 629,
+                      'lines': list([
+                        130,
+                        131,
+                        132,
+                        133,
+                        134,
+                        135,
+                        136,
+                        137,
+                        138,
+                        139,
+                        140,
+                        141,
+                        142,
+                        143,
+                        144,
+                        145,
+                        146,
+                        147,
+                        148,
+                        149,
+                        150,
+                        151,
+                      ]),
+                      'start': 2959,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'withdraw(uint256)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L138-L142',
+        'id': '0b2149d8ea8554c24092bad5ce3061d661d4f0447d5d96716893538474bca40f',
+        'impact': 'High',
+        'markdown': '''
+          Reentrancy in [TestWithBugNonReentrantRead.withdraw(uint256)](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L138-L142):
+          	External calls:
+          	- [Receiver(msg.sender).send_funds{value: amount}()](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L140)
+          	State variables written after the call(s):
+          	- [balances[msg.sender] -= amount](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L141)
+          	[TestWithBugNonReentrantRead.balances](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L132) can be used in cross function reentrancies:
+          	- [TestWithBugNonReentrantRead.read()](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L146-L149)
+  
+        ''',
+      }),
+      dict({
+        'check': 'reentrancy-eth',
+        'confidence': 'Medium',
+        'description': '''
+          Reentrancy in TestWithBugInternal.withdraw_internal(uint256) (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#62-66):
+          	External calls:
+          	- Receiver(msg.sender).send_funds{value: amount}() (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#64)
+          	State variables written after the call(s):
+          	- balances[msg.sender] -= amount (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#65)
+          	TestWithBugInternal.balances (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#52) can be used in cross function reentrancies:
+          	- TestWithBugInternal.withdraw_all_internal() (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#72-76)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'withdraw_internal',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 205,
+              'lines': list([
+                62,
+                63,
+                64,
+                65,
+                66,
+              ]),
+              'start': 1320,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'TestWithBugInternal',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 698,
+                  'lines': list([
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                    59,
+                    60,
+                    61,
+                    62,
+                    63,
+                    64,
+                    65,
+                    66,
+                    67,
+                    68,
+                    69,
+                    70,
+                    71,
+                    72,
+                    73,
+                    74,
+                    75,
+                    76,
+                    77,
+                    78,
+                  ]),
+                  'start': 1100,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'withdraw_internal(uint256)',
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'external_calls',
+            }),
+            'name': 'Receiver(msg.sender).send_funds{value: amount}()',
+            'source_mapping': dict({
+              'ending_column': 58,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 48,
+              'lines': list([
+                64,
+              ]),
+              'start': 1429,
+              'starting_column': 10,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'withdraw_internal',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 205,
+                  'lines': list([
+                    62,
+                    63,
+                    64,
+                    65,
+                    66,
+                  ]),
+                  'start': 1320,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'TestWithBugInternal',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'is_dependency': False,
+                      'length': 698,
+                      'lines': list([
+                        50,
+                        51,
+                        52,
+                        53,
+                        54,
+                        55,
+                        56,
+                        57,
+                        58,
+                        59,
+                        60,
+                        61,
+                        62,
+                        63,
+                        64,
+                        65,
+                        66,
+                        67,
+                        68,
+                        69,
+                        70,
+                        71,
+                        72,
+                        73,
+                        74,
+                        75,
+                        76,
+                        77,
+                        78,
+                      ]),
+                      'start': 1100,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'withdraw_internal(uint256)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'variables_written',
+              'variable_name': 'balances',
+            }),
+            'name': 'balances[msg.sender] -= amount',
+            'source_mapping': dict({
+              'ending_column': 40,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 30,
+              'lines': list([
+                65,
+              ]),
+              'start': 1488,
+              'starting_column': 10,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'withdraw_internal',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 205,
+                  'lines': list([
+                    62,
+                    63,
+                    64,
+                    65,
+                    66,
+                  ]),
+                  'start': 1320,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'TestWithBugInternal',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'is_dependency': False,
+                      'length': 698,
+                      'lines': list([
+                        50,
+                        51,
+                        52,
+                        53,
+                        54,
+                        55,
+                        56,
+                        57,
+                        58,
+                        59,
+                        60,
+                        61,
+                        62,
+                        63,
+                        64,
+                        65,
+                        66,
+                        67,
+                        68,
+                        69,
+                        70,
+                        71,
+                        72,
+                        73,
+                        74,
+                        75,
+                        76,
+                        77,
+                        78,
+                      ]),
+                      'start': 1100,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'withdraw_internal(uint256)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L62-L66',
+        'id': '7d618f027540d61d9af79a3a9475677476d1c4d7ad1be68ff8026f6c0d4cdc82',
+        'impact': 'High',
+        'markdown': '''
+          Reentrancy in [TestWithBugInternal.withdraw_internal(uint256)](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L62-L66):
+          	External calls:
+          	- [Receiver(msg.sender).send_funds{value: amount}()](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L64)
+          	State variables written after the call(s):
+          	- [balances[msg.sender] -= amount](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L65)
+          	[TestWithBugInternal.balances](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L52) can be used in cross function reentrancies:
+          	- [TestWithBugInternal.withdraw_all_internal()](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L72-L76)
+  
+        ''',
+      }),
+      dict({
+        'check': 'reentrancy-eth',
+        'confidence': 'Medium',
+        'description': '''
+          Reentrancy in TestBugWithPublicVariable.withdraw_internal(uint256) (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#122-126):
+          	External calls:
+          	- Receiver(msg.sender).send_funds{value: amount}() (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#124)
+          	State variables written after the call(s):
+          	- balances[msg.sender] -= amount (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#125)
+          	TestBugWithPublicVariable.balances (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#112) can be used in cross function reentrancies:
+          	- TestBugWithPublicVariable.balances (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#112)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'withdraw_internal',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 205,
+              'lines': list([
+                122,
+                123,
+                124,
+                125,
+                126,
+              ]),
+              'start': 2749,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'TestBugWithPublicVariable',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 441,
+                  'lines': list([
+                    110,
+                    111,
+                    112,
+                    113,
+                    114,
+                    115,
+                    116,
+                    117,
+                    118,
+                    119,
+                    120,
+                    121,
+                    122,
+                    123,
+                    124,
+                    125,
+                    126,
+                    127,
+                    128,
+                  ]),
+                  'start': 2516,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'withdraw_internal(uint256)',
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'external_calls',
+            }),
+            'name': 'Receiver(msg.sender).send_funds{value: amount}()',
+            'source_mapping': dict({
+              'ending_column': 58,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 48,
+              'lines': list([
+                124,
+              ]),
+              'start': 2858,
+              'starting_column': 10,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'withdraw_internal',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 205,
+                  'lines': list([
+                    122,
+                    123,
+                    124,
+                    125,
+                    126,
+                  ]),
+                  'start': 2749,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'TestBugWithPublicVariable',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'is_dependency': False,
+                      'length': 441,
+                      'lines': list([
+                        110,
+                        111,
+                        112,
+                        113,
+                        114,
+                        115,
+                        116,
+                        117,
+                        118,
+                        119,
+                        120,
+                        121,
+                        122,
+                        123,
+                        124,
+                        125,
+                        126,
+                        127,
+                        128,
+                      ]),
+                      'start': 2516,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'withdraw_internal(uint256)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'variables_written',
+              'variable_name': 'balances',
+            }),
+            'name': 'balances[msg.sender] -= amount',
+            'source_mapping': dict({
+              'ending_column': 40,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 30,
+              'lines': list([
+                125,
+              ]),
+              'start': 2917,
+              'starting_column': 10,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'withdraw_internal',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 205,
+                  'lines': list([
+                    122,
+                    123,
+                    124,
+                    125,
+                    126,
+                  ]),
+                  'start': 2749,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'TestBugWithPublicVariable',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'is_dependency': False,
+                      'length': 441,
+                      'lines': list([
+                        110,
+                        111,
+                        112,
+                        113,
+                        114,
+                        115,
+                        116,
+                        117,
+                        118,
+                        119,
+                        120,
+                        121,
+                        122,
+                        123,
+                        124,
+                        125,
+                        126,
+                        127,
+                        128,
+                      ]),
+                      'start': 2516,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'withdraw_internal(uint256)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L122-L126',
+        'id': 'a3e52c882aa9fb88119aa3507f4158436bfe3f1abee0828665afa41213587097',
+        'impact': 'High',
+        'markdown': '''
+          Reentrancy in [TestBugWithPublicVariable.withdraw_internal(uint256)](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L122-L126):
+          	External calls:
+          	- [Receiver(msg.sender).send_funds{value: amount}()](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L124)
+          	State variables written after the call(s):
+          	- [balances[msg.sender] -= amount](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L125)
+          	[TestBugWithPublicVariable.balances](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L112) can be used in cross function reentrancies:
+          	- [TestBugWithPublicVariable.balances](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L112)
+  
+        ''',
+      }),
+      dict({
+        'check': 'reentrancy-eth',
+        'confidence': 'Medium',
+        'description': '''
+          Reentrancy in TestWithBug.withdraw(uint256) (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#13-17):
+          	External calls:
+          	- Receiver(msg.sender).send_funds{value: amount}() (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#15)
+          	State variables written after the call(s):
+          	- balances[msg.sender] -= amount (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#16)
+          	TestWithBug.balances (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#7) can be used in cross function reentrancies:
+          	- TestWithBug.withdraw_all() (tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#19-23)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'withdraw',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 207,
+              'lines': list([
+                13,
+                14,
+                15,
+                16,
+                17,
+              ]),
+              'start': 181,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'TestWithBug',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 506,
+                  'lines': list([
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                  ]),
+                  'start': 67,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'withdraw(uint256)',
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'external_calls',
+            }),
+            'name': 'Receiver(msg.sender).send_funds{value: amount}()',
+            'source_mapping': dict({
+              'ending_column': 58,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 48,
+              'lines': list([
+                15,
+              ]),
+              'start': 292,
+              'starting_column': 10,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'withdraw',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 207,
+                  'lines': list([
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                  ]),
+                  'start': 181,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'TestWithBug',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'is_dependency': False,
+                      'length': 506,
+                      'lines': list([
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                      ]),
+                      'start': 67,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'withdraw(uint256)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'additional_fields': dict({
+              'underlying_type': 'variables_written',
+              'variable_name': 'balances',
+            }),
+            'name': 'balances[msg.sender] -= amount',
+            'source_mapping': dict({
+              'ending_column': 40,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+              'is_dependency': False,
+              'length': 30,
+              'lines': list([
+                16,
+              ]),
+              'start': 351,
+              'starting_column': 10,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'withdraw',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                  'is_dependency': False,
+                  'length': 207,
+                  'lines': list([
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                  ]),
+                  'start': 181,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'TestWithBug',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'filename_short': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol',
+                      'is_dependency': False,
+                      'length': 506,
+                      'lines': list([
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                      ]),
+                      'start': 67,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'withdraw(uint256)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L13-L17',
+        'id': 'bcfa65e776908d618f202fa48f03dde3fbf8397b752d2e8cc3c8e46019e9e174',
+        'impact': 'High',
+        'markdown': '''
+          Reentrancy in [TestWithBug.withdraw(uint256)](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L13-L17):
+          	External calls:
+          	- [Receiver(msg.sender).send_funds{value: amount}()](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L15)
+          	State variables written after the call(s):
+          	- [balances[msg.sender] -= amount](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L16)
+          	[TestWithBug.balances](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L7) can be used in cross function reentrancies:
+          	- [TestWithBug.withdraw_all()](tests/detectors/reentrancy-eth/0.8.10/reentrancy_with_non_reentrant.sol#L19-L23)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

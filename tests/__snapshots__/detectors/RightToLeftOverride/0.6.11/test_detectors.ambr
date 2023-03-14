@@ -1,0 +1,43 @@
+# serializer version: 1
+# name: test_detector[RightToLeftOverride-0.6.11-right_to_left_override.sol]
+  list([
+    list([
+      dict({
+        'check': 'rtlo',
+        'confidence': 'High',
+        'description': '''
+          tests/detectors/rtlo/0.6.11/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:
+          	- b'        test1(/*A\xe2\x80\xae/*B*/2 , 1/*\xe2\x80\xad'
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'rtlo-character',
+            'source_mapping': dict({
+              'ending_column': 21,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/rtlo/0.6.11/right_to_left_override.sol',
+              'filename_short': 'tests/detectors/rtlo/0.6.11/right_to_left_override.sol',
+              'is_dependency': False,
+              'length': 3,
+              'lines': list([
+                7,
+              ]),
+              'start': 96,
+              'starting_column': 18,
+            }),
+            'type': 'other',
+          }),
+        ]),
+        'first_markdown_element': '',
+        'id': '2cc2fa8e55fae035ed2ebc4798c488d64e92c7c9875fe6699e39103c0b95c264',
+        'impact': 'High',
+        'markdown': '''
+          tests/detectors/rtlo/0.6.11/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:
+          	- b'        test1(/*A\xe2\x80\xae/*B*/2 , 1/*\xe2\x80\xad'
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

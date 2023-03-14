@@ -1,0 +1,491 @@
+# serializer version: 1
+# name: test_detector[UninitializedStateVarsDetection-0.7.6-uninitialized.sol]
+  list([
+    list([
+      dict({
+        'check': 'uninitialized-state',
+        'confidence': 'High',
+        'description': '''
+          Test2.st (tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#45) is never initialized. It is used in:
+          	- Test2.use() (tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#53-56)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'st',
+            'source_mapping': dict({
+              'ending_column': 20,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'is_dependency': False,
+              'length': 15,
+              'lines': list([
+                45,
+              ]),
+              'start': 729,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test2',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'is_dependency': False,
+                  'length': 373,
+                  'lines': list([
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                  ]),
+                  'start': 675,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'use',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'is_dependency': False,
+              'length': 129,
+              'lines': list([
+                53,
+                54,
+                55,
+                56,
+              ]),
+              'start': 916,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test2',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'is_dependency': False,
+                  'length': 373,
+                  'lines': list([
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                  ]),
+                  'start': 675,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'use()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L45',
+        'id': '427f100397f455d8000eff7b1d2463763ca8e452d5d98f7b7de693fd5e625a32',
+        'impact': 'High',
+        'markdown': '''
+          [Test2.st](tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L45) is never initialized. It is used in:
+          	- [Test2.use()](tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L53-L56)
+  
+        ''',
+      }),
+      dict({
+        'check': 'uninitialized-state',
+        'confidence': 'High',
+        'description': '''
+          Test.balances (tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#15) is never initialized. It is used in:
+          	- Test.use() (tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#23-26)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'balances',
+            'source_mapping': dict({
+              'ending_column': 39,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'is_dependency': False,
+              'length': 34,
+              'lines': list([
+                15,
+              ]),
+              'start': 199,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'is_dependency': False,
+                  'length': 349,
+                  'lines': list([
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                  ]),
+                  'start': 179,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'use',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'is_dependency': False,
+              'length': 154,
+              'lines': list([
+                23,
+                24,
+                25,
+                26,
+              ]),
+              'start': 372,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'is_dependency': False,
+                  'length': 349,
+                  'lines': list([
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                  ]),
+                  'start': 179,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'use()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L15',
+        'id': 'a2750d175b02d51aeb47a4576f74725ba991d3c8cf828a33ee78ccc34cf9e7d7',
+        'impact': 'High',
+        'markdown': '''
+          [Test.balances](tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L15) is never initialized. It is used in:
+          	- [Test.use()](tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L23-L26)
+  
+        ''',
+      }),
+      dict({
+        'check': 'uninitialized-state',
+        'confidence': 'High',
+        'description': '''
+          Test2.v (tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#47) is never initialized. It is used in:
+          	- Test2.init() (tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#49-51)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'v',
+            'source_mapping': dict({
+              'ending_column': 11,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'is_dependency': False,
+              'length': 6,
+              'lines': list([
+                47,
+              ]),
+              'start': 782,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test2',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'is_dependency': False,
+                  'length': 373,
+                  'lines': list([
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                  ]),
+                  'start': 675,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'init',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'is_dependency': False,
+              'length': 59,
+              'lines': list([
+                49,
+                50,
+                51,
+              ]),
+              'start': 851,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Test2',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'is_dependency': False,
+                  'length': 373,
+                  'lines': list([
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58,
+                  ]),
+                  'start': 675,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'init()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L47',
+        'id': 'bf96eee949943a12926cf1407a2df2b07e99b30a6fc2e78aebf088cdefcf77a7',
+        'impact': 'High',
+        'markdown': '''
+          [Test2.v](tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L47) is never initialized. It is used in:
+          	- [Test2.init()](tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L49-L51)
+  
+        ''',
+      }),
+      dict({
+        'check': 'uninitialized-state',
+        'confidence': 'High',
+        'description': '''
+          Uninitialized.destination (tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#5) is never initialized. It is used in:
+          	- Uninitialized.transfer() (tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#7-9)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'destination',
+            'source_mapping': dict({
+              'ending_column': 32,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'is_dependency': False,
+              'length': 27,
+              'lines': list([
+                5,
+              ]),
+              'start': 57,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Uninitialized',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'is_dependency': False,
+                  'length': 148,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                  ]),
+                  'start': 28,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'transfer',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+              'is_dependency': False,
+              'length': 82,
+              'lines': list([
+                7,
+                8,
+                9,
+              ]),
+              'start': 91,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Uninitialized',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'filename_short': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol',
+                  'is_dependency': False,
+                  'length': 148,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                  ]),
+                  'start': 28,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'transfer()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L5',
+        'id': 'e4711aebbd53922a9fe1e728917bf8e98eac065305e20d766b6b552debe79e44',
+        'impact': 'High',
+        'markdown': '''
+          [Uninitialized.destination](tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L5) is never initialized. It is used in:
+          	- [Uninitialized.transfer()](tests/detectors/uninitialized-state/0.7.6/uninitialized.sol#L7-L9)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

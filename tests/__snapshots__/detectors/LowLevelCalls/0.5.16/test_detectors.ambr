@@ -1,0 +1,131 @@
+# serializer version: 1
+# name: test_detector[LowLevelCalls-0.5.16-low_level_calls.sol]
+  list([
+    list([
+      dict({
+        'check': 'low-level-calls',
+        'confidence': 'High',
+        'description': '''
+          Low level call in Sender.send(address) (tests/detectors/low-level-calls/0.5.16/low_level_calls.sol#5-7):
+          	- _receiver.call.value(msg.value).gas(7777)() (tests/detectors/low-level-calls/0.5.16/low_level_calls.sol#6)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'send',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol',
+              'filename_short': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol',
+              'is_dependency': False,
+              'length': 112,
+              'lines': list([
+                5,
+                6,
+                7,
+              ]),
+              'start': 51,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Sender',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol',
+                  'filename_short': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol',
+                  'is_dependency': False,
+                  'length': 136,
+                  'lines': list([
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                  ]),
+                  'start': 29,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'send(address)',
+            }),
+          }),
+          dict({
+            'name': '_receiver.call.value(msg.value).gas(7777)()',
+            'source_mapping': dict({
+              'ending_column': 54,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol',
+              'filename_short': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol',
+              'is_dependency': False,
+              'length': 45,
+              'lines': list([
+                6,
+              ]),
+              'start': 111,
+              'starting_column': 9,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'send',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol',
+                  'filename_short': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol',
+                  'is_dependency': False,
+                  'length': 112,
+                  'lines': list([
+                    5,
+                    6,
+                    7,
+                  ]),
+                  'start': 51,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'Sender',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol',
+                      'filename_short': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol',
+                      'is_dependency': False,
+                      'length': 136,
+                      'lines': list([
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                      ]),
+                      'start': 29,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'send(address)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/low-level-calls/0.5.16/low_level_calls.sol#L5-L7',
+        'id': '63c001820deebca3c0e65f71e6d2c6ada9534d4aefd1a317e2332af26533f42e',
+        'impact': 'Informational',
+        'markdown': '''
+          Low level call in [Sender.send(address)](tests/detectors/low-level-calls/0.5.16/low_level_calls.sol#L5-L7):
+          	- [_receiver.call.value(msg.value).gas(7777)()](tests/detectors/low-level-calls/0.5.16/low_level_calls.sol#L6)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

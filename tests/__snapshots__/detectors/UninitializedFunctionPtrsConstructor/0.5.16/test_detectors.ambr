@@ -1,0 +1,7 @@
+# serializer version: 1
+# name: test_detector[UninitializedFunctionPtrsConstructor-0.5.16-uninitialized_function_ptr_constructor.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---

@@ -1,0 +1,1040 @@
+# serializer version: 1
+# name: test_detector[LocalShadowing-0.5.16-shadowing_local_variable.sol]
+  list([
+    list([
+      dict({
+        'check': 'shadowing-local',
+        'confidence': 'High',
+        'description': '''
+          FurtherExtendedContract.shadowingParent(uint256).x (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#25) shadows:
+          	- FurtherExtendedContract.x (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#17) (state variable)
+          	- ExtendedContract.x (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#9) (state variable)
+          	- BaseContract.x (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#4) (state variable)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'x',
+            'source_mapping': dict({
+              'ending_column': 36,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 6,
+              'lines': list([
+                25,
+              ]),
+              'start': 379,
+              'starting_column': 30,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'shadowingParent',
+                'source_mapping': dict({
+                  'ending_column': 84,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 79,
+                  'lines': list([
+                    25,
+                  ]),
+                  'start': 354,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'FurtherExtendedContract',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'is_dependency': False,
+                      'length': 235,
+                      'lines': list([
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                      ]),
+                      'start': 200,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'shadowingParent(uint256)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'name': 'x',
+            'source_mapping': dict({
+              'ending_column': 15,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 10,
+              'lines': list([
+                17,
+              ]),
+              'start': 259,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'FurtherExtendedContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 235,
+                  'lines': list([
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                  ]),
+                  'start': 200,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'x',
+            'source_mapping': dict({
+              'ending_column': 15,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 10,
+              'lines': list([
+                9,
+              ]),
+              'start': 136,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'ExtendedContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 110,
+                  'lines': list([
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                  ]),
+                  'start': 88,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+          dict({
+            'name': 'x',
+            'source_mapping': dict({
+              'ending_column': 15,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 10,
+              'lines': list([
+                4,
+              ]),
+              'start': 57,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'BaseContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 57,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                  ]),
+                  'start': 29,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L25',
+        'id': '0991435c12aa2d6f15e8da2a00a18e9c58ef65dcf31137cdb561655317353247',
+        'impact': 'Low',
+        'markdown': '''
+          [FurtherExtendedContract.shadowingParent(uint256).x](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L25) shadows:
+          	- [FurtherExtendedContract.x](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L17) (state variable)
+          	- [ExtendedContract.x](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L9) (state variable)
+          	- [BaseContract.x](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L4) (state variable)
+  
+        ''',
+      }),
+      dict({
+        'check': 'shadowing-local',
+        'confidence': 'High',
+        'description': '''
+          LocalReturnVariables.shadowedState().state (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#30) shadows:
+          	- LocalReturnVariables.state (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#29) (state variable)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'state',
+            'source_mapping': dict({
+              'ending_column': 62,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 10,
+              'lines': list([
+                30,
+              ]),
+              'start': 536,
+              'starting_column': 52,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'shadowedState',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 88,
+                  'lines': list([
+                    30,
+                    31,
+                    32,
+                  ]),
+                  'start': 489,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'LocalReturnVariables',
+                    'source_mapping': dict({
+                      'ending_column': 0,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'is_dependency': False,
+                      'length': 344,
+                      'lines': list([
+                        28,
+                        29,
+                        30,
+                        31,
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40,
+                        41,
+                      ]),
+                      'start': 437,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'shadowedState()',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'name': 'state',
+            'source_mapping': dict({
+              'ending_column': 15,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 10,
+              'lines': list([
+                29,
+              ]),
+              'start': 473,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'LocalReturnVariables',
+                'source_mapping': dict({
+                  'ending_column': 0,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 344,
+                  'lines': list([
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                  ]),
+                  'start': 437,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L30',
+        'id': '1b0030affabcff703e57e4f388b86dbda0f412e51ba8d15248bcae9e4748a012',
+        'impact': 'Low',
+        'markdown': '''
+          [LocalReturnVariables.shadowedState().state](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L30) shadows:
+          	- [LocalReturnVariables.state](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L29) (state variable)
+  
+        ''',
+      }),
+      dict({
+        'check': 'shadowing-local',
+        'confidence': 'High',
+        'description': '''
+          FurtherExtendedContract.shadowingParent(uint256).y (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#25) shadows:
+          	- BaseContract.y (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#5) (state variable)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'y',
+            'source_mapping': dict({
+              'ending_column': 57,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 5,
+              'lines': list([
+                25,
+              ]),
+              'start': 401,
+              'starting_column': 52,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'shadowingParent',
+                'source_mapping': dict({
+                  'ending_column': 84,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 79,
+                  'lines': list([
+                    25,
+                  ]),
+                  'start': 354,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'FurtherExtendedContract',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'is_dependency': False,
+                      'length': 235,
+                      'lines': list([
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                      ]),
+                      'start': 200,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'shadowingParent(uint256)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'name': 'y',
+            'source_mapping': dict({
+              'ending_column': 15,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 10,
+              'lines': list([
+                5,
+              ]),
+              'start': 73,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'BaseContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 57,
+                  'lines': list([
+                    3,
+                    4,
+                    5,
+                    6,
+                  ]),
+                  'start': 29,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L25',
+        'id': '465bd81cbb09a3d2cc84ea6102fb059296f1970e85e2d86a171f8219f1a34508',
+        'impact': 'Low',
+        'markdown': '''
+          [FurtherExtendedContract.shadowingParent(uint256).y](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L25) shadows:
+          	- [BaseContract.y](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L5) (state variable)
+  
+        ''',
+      }),
+      dict({
+        'check': 'shadowing-local',
+        'confidence': 'High',
+        'description': '''
+          FurtherExtendedContract.shadowingParent(uint256).v (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#25) shadows:
+          	- ExtendedContractv() (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#13) (event)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'v',
+            'source_mapping': dict({
+              'ending_column': 81,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 6,
+              'lines': list([
+                25,
+              ]),
+              'start': 424,
+              'starting_column': 75,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'shadowingParent',
+                'source_mapping': dict({
+                  'ending_column': 84,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 79,
+                  'lines': list([
+                    25,
+                  ]),
+                  'start': 354,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'FurtherExtendedContract',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'is_dependency': False,
+                      'length': 235,
+                      'lines': list([
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                      ]),
+                      'start': 200,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'shadowingParent(uint256)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'name': 'v',
+            'source_mapping': dict({
+              'ending_column': 15,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 10,
+              'lines': list([
+                13,
+              ]),
+              'start': 186,
+              'starting_column': 5,
+            }),
+            'type': 'event',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'ExtendedContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 110,
+                  'lines': list([
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                  ]),
+                  'start': 88,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'v()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L25',
+        'id': '973e31cc30dc7a3e1f089dfa5848234075f237f78fa492c772b1083e12c79054',
+        'impact': 'Low',
+        'markdown': '''
+          [FurtherExtendedContract.shadowingParent(uint256).v](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L25) shadows:
+          	- [ExtendedContractv()](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L13) (event)
+  
+        ''',
+      }),
+      dict({
+        'check': 'shadowing-local',
+        'confidence': 'High',
+        'description': '''
+          FurtherExtendedContract.shadowingParent(uint256).w (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#25) shadows:
+          	- FurtherExtendedContract.w() (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#20-23) (modifier)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'w',
+            'source_mapping': dict({
+              'ending_column': 73,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 6,
+              'lines': list([
+                25,
+              ]),
+              'start': 416,
+              'starting_column': 67,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'shadowingParent',
+                'source_mapping': dict({
+                  'ending_column': 84,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 79,
+                  'lines': list([
+                    25,
+                  ]),
+                  'start': 354,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'FurtherExtendedContract',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'is_dependency': False,
+                      'length': 235,
+                      'lines': list([
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                      ]),
+                      'start': 200,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'shadowingParent(uint256)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'name': 'w',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 71,
+              'lines': list([
+                20,
+                21,
+                22,
+                23,
+              ]),
+              'start': 277,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'FurtherExtendedContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 235,
+                  'lines': list([
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                  ]),
+                  'start': 200,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'w()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L25',
+        'id': 'a94a2b9331482c75582868e6d3cc5c9b01487e7505f219abcf36a20d76e0b089',
+        'impact': 'Low',
+        'markdown': '''
+          [FurtherExtendedContract.shadowingParent(uint256).w](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L25) shadows:
+          	- [FurtherExtendedContract.w()](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L20-L23) (modifier)
+  
+        ''',
+      }),
+      dict({
+        'check': 'shadowing-local',
+        'confidence': 'High',
+        'description': '''
+          LocalReturnVariables.shadowedReturn().local_scope_0 (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#34) shadows:
+          	- LocalReturnVariables.shadowedReturn().local (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#33) (return variable)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'local_scope_0',
+            'source_mapping': dict({
+              'ending_column': 23,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 14,
+              'lines': list([
+                34,
+              ]),
+              'start': 653,
+              'starting_column': 9,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'shadowedReturn',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 113,
+                  'lines': list([
+                    33,
+                    34,
+                    35,
+                    36,
+                  ]),
+                  'start': 583,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'LocalReturnVariables',
+                    'source_mapping': dict({
+                      'ending_column': 0,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'is_dependency': False,
+                      'length': 344,
+                      'lines': list([
+                        28,
+                        29,
+                        30,
+                        31,
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40,
+                        41,
+                      ]),
+                      'start': 437,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'shadowedReturn()',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'name': 'local',
+            'source_mapping': dict({
+              'ending_column': 63,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 10,
+              'lines': list([
+                33,
+              ]),
+              'start': 631,
+              'starting_column': 53,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'shadowedReturn',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 113,
+                  'lines': list([
+                    33,
+                    34,
+                    35,
+                    36,
+                  ]),
+                  'start': 583,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'LocalReturnVariables',
+                    'source_mapping': dict({
+                      'ending_column': 0,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'is_dependency': False,
+                      'length': 344,
+                      'lines': list([
+                        28,
+                        29,
+                        30,
+                        31,
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40,
+                        41,
+                      ]),
+                      'start': 437,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'shadowedReturn()',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L34',
+        'id': 'cd63bdf3f6420e4e109d20ec44b52fcbcbde1c5b6a0701fc6994b35960ab1e85',
+        'impact': 'Low',
+        'markdown': '''
+          [LocalReturnVariables.shadowedReturn().local_scope_0](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L34) shadows:
+          	- [LocalReturnVariables.shadowedReturn().local](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L33) (return variable)
+  
+        ''',
+      }),
+      dict({
+        'check': 'shadowing-local',
+        'confidence': 'High',
+        'description': '''
+          FurtherExtendedContract.shadowingParent(uint256).z (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#25) shadows:
+          	- ExtendedContract.z() (tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#11) (function)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'z',
+            'source_mapping': dict({
+              'ending_column': 65,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 6,
+              'lines': list([
+                25,
+              ]),
+              'start': 408,
+              'starting_column': 59,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'shadowingParent',
+                'source_mapping': dict({
+                  'ending_column': 84,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 79,
+                  'lines': list([
+                    25,
+                  ]),
+                  'start': 354,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'FurtherExtendedContract',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                      'is_dependency': False,
+                      'length': 235,
+                      'lines': list([
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                      ]),
+                      'start': 200,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'shadowingParent(uint256)',
+                }),
+              }),
+            }),
+          }),
+          dict({
+            'name': 'z',
+            'source_mapping': dict({
+              'ending_column': 32,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+              'is_dependency': False,
+              'length': 27,
+              'lines': list([
+                11,
+              ]),
+              'start': 153,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'ExtendedContract',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'filename_short': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol',
+                  'is_dependency': False,
+                  'length': 110,
+                  'lines': list([
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                  ]),
+                  'start': 88,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'z()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L25',
+        'id': 'e3d2948e9c1252fe84e0d7e58f6682af7af84ef209f6e71f039faccabf07b0bd',
+        'impact': 'Low',
+        'markdown': '''
+          [FurtherExtendedContract.shadowingParent(uint256).z](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L25) shadows:
+          	- [ExtendedContract.z()](tests/detectors/shadowing-local/0.5.16/shadowing_local_variable.sol#L11) (function)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

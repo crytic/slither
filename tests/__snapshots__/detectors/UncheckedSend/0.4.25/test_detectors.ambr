@@ -1,0 +1,155 @@
+# serializer version: 1
+# name: test_detector[UncheckedSend-0.4.25-unchecked_send.sol]
+  list([
+    list([
+      dict({
+        'check': 'unchecked-send',
+        'confidence': 'Medium',
+        'description': '''
+          MyConc.bad(address) (tests/detectors/unchecked-send/0.4.25/unchecked_send.sol#2-4) ignores return value by dst.send(msg.value) (tests/detectors/unchecked-send/0.4.25/unchecked_send.sol#3)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'bad',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol',
+              'filename_short': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol',
+              'is_dependency': False,
+              'length': 78,
+              'lines': list([
+                2,
+                3,
+                4,
+              ]),
+              'start': 21,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'MyConc',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol',
+                  'filename_short': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol',
+                  'is_dependency': False,
+                  'length': 395,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'bad(address)',
+            }),
+          }),
+          dict({
+            'name': 'dst.send(msg.value)',
+            'source_mapping': dict({
+              'ending_column': 28,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol',
+              'filename_short': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol',
+              'is_dependency': False,
+              'length': 19,
+              'lines': list([
+                3,
+              ]),
+              'start': 73,
+              'starting_column': 9,
+            }),
+            'type': 'node',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'bad',
+                'source_mapping': dict({
+                  'ending_column': 6,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol',
+                  'filename_short': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol',
+                  'is_dependency': False,
+                  'length': 78,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                  ]),
+                  'start': 21,
+                  'starting_column': 5,
+                }),
+                'type': 'function',
+                'type_specific_fields': dict({
+                  'parent': dict({
+                    'name': 'MyConc',
+                    'source_mapping': dict({
+                      'ending_column': 2,
+                      'filename_absolute': '/GENERIC_PATH',
+                      'filename_relative': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol',
+                      'filename_short': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol',
+                      'is_dependency': False,
+                      'length': 395,
+                      'lines': list([
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                      ]),
+                      'start': 0,
+                      'starting_column': 1,
+                    }),
+                    'type': 'contract',
+                  }),
+                  'signature': 'bad(address)',
+                }),
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/unchecked-send/0.4.25/unchecked_send.sol#L2-L4',
+        'id': 'b94e1c9425182d05c61d316caea5bc02b4b68478b0640db50f80f3a8af690cf8',
+        'impact': 'Medium',
+        'markdown': '''
+          [MyConc.bad(address)](tests/detectors/unchecked-send/0.4.25/unchecked_send.sol#L2-L4) ignores return value by [dst.send(msg.value)](tests/detectors/unchecked-send/0.4.25/unchecked_send.sol#L3)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

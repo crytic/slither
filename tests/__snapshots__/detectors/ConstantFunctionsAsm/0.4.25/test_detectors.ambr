@@ -1,0 +1,90 @@
+# serializer version: 1
+# name: test_detector[ConstantFunctionsAsm-0.4.25-constant.sol]
+  list([
+    list([
+      dict({
+        'additional_fields': dict({
+          'contains_assembly': True,
+        }),
+        'check': 'constant-function-asm',
+        'confidence': 'Medium',
+        'description': '''
+          Constant.test_assembly_bug() (tests/detectors/constant-function-asm/0.4.25/constant.sol#22-24) is declared view but contains assembly code
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'test_assembly_bug',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/constant-function-asm/0.4.25/constant.sol',
+              'filename_short': 'tests/detectors/constant-function-asm/0.4.25/constant.sol',
+              'is_dependency': False,
+              'length': 66,
+              'lines': list([
+                22,
+                23,
+                24,
+              ]),
+              'start': 324,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Constant',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/constant-function-asm/0.4.25/constant.sol',
+                  'filename_short': 'tests/detectors/constant-function-asm/0.4.25/constant.sol',
+                  'is_dependency': False,
+                  'length': 392,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'test_assembly_bug()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/constant-function-asm/0.4.25/constant.sol#L22-L24',
+        'id': '1f892cae08b89096bdc4d6ecdf55a3adc4b4314390e054fe2547d9c8e9f76e23',
+        'impact': 'Medium',
+        'markdown': '''
+          [Constant.test_assembly_bug()](tests/detectors/constant-function-asm/0.4.25/constant.sol#L22-L24) is declared view but contains assembly code
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

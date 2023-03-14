@@ -1,0 +1,92 @@
+# serializer version: 1
+# name: test_detector[LockedEther-0.6.11-locked_ether.sol]
+  list([
+    list([
+      dict({
+        'check': 'locked-ether',
+        'confidence': 'High',
+        'description': '''
+          Contract locking ether found:
+          	Contract OnlyLocked (tests/detectors/locked-ether/0.6.11/locked_ether.sol#26) has payable functions:
+          	 - Locked.receive_eth() (tests/detectors/locked-ether/0.6.11/locked_ether.sol#4-6)
+          	But does not have a function to withdraw the ether
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'OnlyLocked',
+            'source_mapping': dict({
+              'ending_column': 33,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/locked-ether/0.6.11/locked_ether.sol',
+              'filename_short': 'tests/detectors/locked-ether/0.6.11/locked_ether.sol',
+              'is_dependency': False,
+              'length': 32,
+              'lines': list([
+                26,
+              ]),
+              'start': 401,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'receive_eth',
+            'source_mapping': dict({
+              'ending_column': 6,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/locked-ether/0.6.11/locked_ether.sol',
+              'filename_short': 'tests/detectors/locked-ether/0.6.11/locked_ether.sol',
+              'is_dependency': False,
+              'length': 76,
+              'lines': list([
+                4,
+                5,
+                6,
+              ]),
+              'start': 49,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Locked',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/locked-ether/0.6.11/locked_ether.sol',
+                  'filename_short': 'tests/detectors/locked-ether/0.6.11/locked_ether.sol',
+                  'is_dependency': False,
+                  'length': 101,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                  ]),
+                  'start': 27,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'receive_eth()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/locked-ether/0.6.11/locked_ether.sol#L26',
+        'id': '1818e759217cfcf6787001194bba24ad45470b123962a72d39062edb19447022',
+        'impact': 'Medium',
+        'markdown': '''
+          Contract locking ether found:
+          	Contract [OnlyLocked](tests/detectors/locked-ether/0.6.11/locked_ether.sol#L26) has payable functions:
+          	 - [Locked.receive_eth()](tests/detectors/locked-ether/0.6.11/locked_ether.sol#L4-L6)
+          	But does not have a function to withdraw the ether
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

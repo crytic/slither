@@ -1,0 +1,298 @@
+# serializer version: 1
+# name: test_detector[UnimplementedFunctionDetection-0.7.6-unimplemented.sol]
+  list([
+    list([
+      dict({
+        'check': 'unimplemented-functions',
+        'confidence': 'High',
+        'description': '''
+          DerivedContract_bad2 (tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#27-33) does not implement functions:
+          	- BaseInterface3.get(uint256) (tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#24)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'DerivedContract_bad2',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'is_dependency': False,
+              'length': 344,
+              'lines': list([
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+              ]),
+              'start': 593,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'get',
+            'source_mapping': dict({
+              'ending_column': 55,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'is_dependency': False,
+              'length': 50,
+              'lines': list([
+                24,
+              ]),
+              'start': 539,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'BaseInterface3',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+                  'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+                  'is_dependency': False,
+                  'length': 91,
+                  'lines': list([
+                    23,
+                    24,
+                    25,
+                  ]),
+                  'start': 500,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'get(uint256)',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#L27-L33',
+        'id': '31915d2f480e24ddd054de973440a02abdac0ccd6332c47cd4eb8d836d3fddda',
+        'impact': 'Informational',
+        'markdown': '''
+          [DerivedContract_bad2](tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#L27-L33) does not implement functions:
+          	- [BaseInterface3.get(uint256)](tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#L24)
+  
+        ''',
+      }),
+      dict({
+        'check': 'unimplemented-functions',
+        'confidence': 'High',
+        'description': '''
+          DerivedContract_bad0 (tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#10-14) does not implement functions:
+          	- BaseInterface.f2() (tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#3)
+          	- BaseInterface2.f3() (tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#7)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'DerivedContract_bad0',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'is_dependency': False,
+              'length': 151,
+              'lines': list([
+                10,
+                11,
+                12,
+                13,
+                14,
+              ]),
+              'start': 185,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'f2',
+            'source_mapping': dict({
+              'ending_column': 42,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'is_dependency': False,
+              'length': 37,
+              'lines': list([
+                3,
+              ]),
+              'start': 72,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'BaseInterface',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+                  'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+                  'is_dependency': False,
+                  'length': 111,
+                  'lines': list([
+                    1,
+                    2,
+                    3,
+                    4,
+                  ]),
+                  'start': 0,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'f2()',
+            }),
+          }),
+          dict({
+            'name': 'f3',
+            'source_mapping': dict({
+              'ending_column': 42,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'is_dependency': False,
+              'length': 37,
+              'lines': list([
+                7,
+              ]),
+              'start': 144,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'BaseInterface2',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+                  'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+                  'is_dependency': False,
+                  'length': 70,
+                  'lines': list([
+                    6,
+                    7,
+                    8,
+                  ]),
+                  'start': 113,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'f3()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#L10-L14',
+        'id': '8614d351f7aac0c05e8df6ef7c89c6b46a2b8acf6295c9d5a886ff6489c74a41',
+        'impact': 'Informational',
+        'markdown': '''
+          [DerivedContract_bad0](tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#L10-L14) does not implement functions:
+          	- [BaseInterface.f2()](tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#L3)
+          	- [BaseInterface2.f3()](tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#L7)
+  
+        ''',
+      }),
+      dict({
+        'check': 'unimplemented-functions',
+        'confidence': 'High',
+        'description': '''
+          AbstractContract_bad1 (tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#16-21) does not implement functions:
+          	- AbstractContract_bad1.f1() (tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#17)
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'AbstractContract_bad1',
+            'source_mapping': dict({
+              'ending_column': 2,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'is_dependency': False,
+              'length': 160,
+              'lines': list([
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+              ]),
+              'start': 338,
+              'starting_column': 1,
+            }),
+            'type': 'contract',
+          }),
+          dict({
+            'name': 'f1',
+            'source_mapping': dict({
+              'ending_column': 50,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+              'is_dependency': False,
+              'length': 45,
+              'lines': list([
+                17,
+              ]),
+              'start': 384,
+              'starting_column': 5,
+            }),
+            'type': 'function',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'AbstractContract_bad1',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+                  'filename_short': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol',
+                  'is_dependency': False,
+                  'length': 160,
+                  'lines': list([
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                  ]),
+                  'start': 338,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+              'signature': 'f1()',
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#L16-L21',
+        'id': 'adc202df4717efc4e19b549c0e623a79fac759a36bffb5d5e4aac401e33375d7',
+        'impact': 'Informational',
+        'markdown': '''
+          [AbstractContract_bad1](tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#L16-L21) does not implement functions:
+          	- [AbstractContract_bad1.f1()](tests/detectors/unimplemented-functions/0.7.6/unimplemented.sol#L17)
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---
+# name: test_detector[UnimplementedFunctionDetection-0.7.6-unimplemented_interfaces.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---

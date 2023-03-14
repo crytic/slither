@@ -1,0 +1,502 @@
+# serializer version: 1
+# name: test_detector[CouldBeConstant-0.6.11-const_state_variables.sol]
+  list([
+    list([
+      dict({
+        'check': 'constable-states',
+        'confidence': 'High',
+        'description': '''
+          A.text2 (tests/detectors/constable-states/0.6.11/const_state_variables.sol#12) should be constant 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'text2',
+            'source_mapping': dict({
+              'ending_column': 25,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'is_dependency': False,
+              'length': 20,
+              'lines': list([
+                12,
+              ]),
+              'start': 305,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 441,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                  ]),
+                  'start': 1,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol#L12',
+        'id': '2f06e04545cea7e7a8998c65d5419f335bf2579a6ce6a832eac9c87392fd5c1a',
+        'impact': 'Optimization',
+        'markdown': '''
+          [A.text2](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L12) should be constant 
+  
+        ''',
+      }),
+      dict({
+        'check': 'constable-states',
+        'confidence': 'High',
+        'description': '''
+          Bad.should_be_constant_2 (tests/detectors/constable-states/0.6.11/const_state_variables.sol#41) should be constant 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'should_be_constant_2',
+            'source_mapping': dict({
+              'ending_column': 38,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'is_dependency': False,
+              'length': 33,
+              'lines': list([
+                41,
+              ]),
+              'start': 811,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 539,
+                  'lines': list([
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                  ]),
+                  'start': 718,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol#L41',
+        'id': '3a8b682f7960750cd8228d6cd3d0bb5d7d6f9faaf1a044de2fa7069d8e475af2',
+        'impact': 'Optimization',
+        'markdown': '''
+          [Bad.should_be_constant_2](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L41) should be constant 
+  
+        ''',
+      }),
+      dict({
+        'check': 'constable-states',
+        'confidence': 'High',
+        'description': '''
+          B.mySistersAddress (tests/detectors/constable-states/0.6.11/const_state_variables.sol#24) should be constant 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'mySistersAddress',
+            'source_mapping': dict({
+              'ending_column': 81,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'is_dependency': False,
+              'length': 76,
+              'lines': list([
+                24,
+              ]),
+              'start': 468,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'B',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 271,
+                  'lines': list([
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30,
+                    31,
+                    32,
+                    33,
+                    34,
+                    35,
+                  ]),
+                  'start': 445,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol#L24',
+        'id': '3b5bff93954a48a79387e7981e8c45d78edc575a0988a10f1c7f439b9f930539',
+        'impact': 'Optimization',
+        'markdown': '''
+          [B.mySistersAddress](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L24) should be constant 
+  
+        ''',
+      }),
+      dict({
+        'check': 'constable-states',
+        'confidence': 'High',
+        'description': '''
+          A.myFriendsAddress (tests/detectors/constable-states/0.6.11/const_state_variables.sol#5) should be constant 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'myFriendsAddress',
+            'source_mapping': dict({
+              'ending_column': 81,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'is_dependency': False,
+              'length': 76,
+              'lines': list([
+                5,
+              ]),
+              'start': 104,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 441,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                  ]),
+                  'start': 1,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol#L5',
+        'id': '52fd72f6870c4b504d1bcf9fb44249658e2077474d66208a33a47d2668b8db49',
+        'impact': 'Optimization',
+        'markdown': '''
+          [A.myFriendsAddress](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L5) should be constant 
+  
+        ''',
+      }),
+      dict({
+        'check': 'constable-states',
+        'confidence': 'High',
+        'description': '''
+          Bad.should_be_constant (tests/detectors/constable-states/0.6.11/const_state_variables.sol#40) should be constant 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'should_be_constant',
+            'source_mapping': dict({
+              'ending_column': 47,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'is_dependency': False,
+              'length': 42,
+              'lines': list([
+                40,
+              ]),
+              'start': 763,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 539,
+                  'lines': list([
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                  ]),
+                  'start': 718,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol#L40',
+        'id': '87097c03d57b72ad7c15336eb44e5a30054c50f8daff32e08bc4fbd97852961c',
+        'impact': 'Optimization',
+        'markdown': '''
+          [Bad.should_be_constant](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L40) should be constant 
+  
+        ''',
+      }),
+      dict({
+        'check': 'constable-states',
+        'confidence': 'High',
+        'description': '''
+          Bad.should_be_constant_3 (tests/detectors/constable-states/0.6.11/const_state_variables.sol#42) should be constant 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'should_be_constant_3',
+            'source_mapping': dict({
+              'ending_column': 43,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'is_dependency': False,
+              'length': 38,
+              'lines': list([
+                42,
+              ]),
+              'start': 850,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'Bad',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 539,
+                  'lines': list([
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                  ]),
+                  'start': 718,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol#L42',
+        'id': '8e991c1370b1adb10f01f2d7e48f341dee92a98b91b56ccb291d9149d2da97d0',
+        'impact': 'Optimization',
+        'markdown': '''
+          [Bad.should_be_constant_3](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L42) should be constant 
+  
+        ''',
+      }),
+      dict({
+        'check': 'constable-states',
+        'confidence': 'High',
+        'description': '''
+          A.test (tests/detectors/constable-states/0.6.11/const_state_variables.sol#8) should be constant 
+  
+        ''',
+        'elements': list([
+          dict({
+            'name': 'test',
+            'source_mapping': dict({
+              'ending_column': 25,
+              'filename_absolute': '/GENERIC_PATH',
+              'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+              'is_dependency': False,
+              'length': 20,
+              'lines': list([
+                8,
+              ]),
+              'start': 209,
+              'starting_column': 5,
+            }),
+            'type': 'variable',
+            'type_specific_fields': dict({
+              'parent': dict({
+                'name': 'A',
+                'source_mapping': dict({
+                  'ending_column': 2,
+                  'filename_absolute': '/GENERIC_PATH',
+                  'filename_relative': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'filename_short': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol',
+                  'is_dependency': False,
+                  'length': 441,
+                  'lines': list([
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                  ]),
+                  'start': 1,
+                  'starting_column': 1,
+                }),
+                'type': 'contract',
+              }),
+            }),
+          }),
+        ]),
+        'first_markdown_element': 'tests/detectors/constable-states/0.6.11/const_state_variables.sol#L8',
+        'id': 'e407a1b57b4d25949ef7c4e6d97197605857099a94774a9c7a848d7dd3463668',
+        'impact': 'Optimization',
+        'markdown': '''
+          [A.test](tests/detectors/constable-states/0.6.11/const_state_variables.sol#L8) should be constant 
+  
+        ''',
+      }),
+    ]),
+  ])
+# ---

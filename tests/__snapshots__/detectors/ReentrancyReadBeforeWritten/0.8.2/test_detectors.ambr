@@ -1,0 +1,7 @@
+# serializer version: 1
+# name: test_detector[ReentrancyReadBeforeWritten-0.8.2-comment.sol]
+  list([
+    list([
+    ]),
+  ])
+# ---
