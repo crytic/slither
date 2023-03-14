@@ -1004,41 +1004,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             )
         return self._signature_str
 
-    @property
-    def interface_signature_str(self) -> Optional[str]:
-        """
-        str: func_name(type1,type2) external {payable/view/pure} returns (type3)
-        Return the function interface as a str (contains the return values)
-        Returns None if the function is private or internal, or is a constructor/fallback/receive
-        """
-        from slither.core.declarations.contract import Contract
-
-        if self._interface_signature_str is None:
-            name, parameters, return_vars = self.signature
-            visibility = self.visibility
-            if (
-                visibility in ["private", "internal"]
-                or self.is_constructor
-                or self.is_fallback
-                or self.is_receive
-            ):
-                return None
-            view = " view" if self.view else ""
-            pure = " pure" if self.pure else ""
-            payable = " payable" if self.payable else ""
-            returns = [
-                "address"
-                if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, Contract)
-                else str(ret.type)
-                for ret in self.returns
-            ]
-            self._interface_signature_str = (
-                name + "(" + ",".join(parameters) + ") external" + payable + pure + view
-            )
-            if len(return_vars) > 0:
-                self._interface_signature_str += " returns (" + ",".join(returns) + ")"
-        return self._interface_signature_str
-
     # endregion
     ###################################################################################
     ###################################################################################

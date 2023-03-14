@@ -49,11 +49,5 @@ class Structure(SourceMapping):
             ret.append(self._elems[e])
         return ret
 
-    def interface_def_str(self) -> str:
-        definition = f"    struct {self.name} {{\n"
-        for elem in self.elems_ordered:
-            definition += f"        {elem.type} {elem.name};\n"
-        definition += "    }\n"
-
     def __str__(self) -> str:
         return self.name
