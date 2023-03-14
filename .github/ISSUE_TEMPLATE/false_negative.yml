@@ -16,7 +16,7 @@ body:
   - 
     attributes:
       label: Frequency
-      description: How often do you run across this false positive?
+      description: How often do you run across this false negative?
       options:
         - Very Frequently
         - Occasionally 
