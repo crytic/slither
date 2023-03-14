@@ -955,6 +955,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def generate_interface(self) -> str:
         interface = f"interface I{self.name} {{\n"
+        for event in self.events:
+            name, args = event.signature
+            interface += f"    event {name}({','.join(args)});\n"
         for struct in self.structures:
             if isinstance(struct.interface_def_str(), str):
                 interface += struct.interface_def_str()
