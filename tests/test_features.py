@@ -25,7 +25,7 @@ def _run_all_detectors(slither: Slither) -> None:
     slither.run_detectors()
 
 
-hardhat_available = shutil.which("hardhat") is not None
+hardhat_available = Path("./tests/test_node_modules/node_modules/hardhat").exists()
 
 
 @pytest.mark.skipif(not hardhat_available, reason="requires Hardhat and project setup")
