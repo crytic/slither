@@ -10,6 +10,10 @@ from deepdiff import DeepDiff  # pip install deepdiff
 
 from solc_select.solc_select import install_artifacts as install_solc_versions
 from solc_select.solc_select import installed_versions as get_installed_solc_versions
+from solc_select.solc_select import switch_global_version
+
+from syrupy.extensions.amber import AmberSnapshotExtension
+from syrupy.location import PyTestLocation
 
 from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
@@ -44,11 +48,7 @@ class Test:  # pylint: disable=too-few-public-methods
 
 
 def set_solc(test_item: Test):  # pylint: disable=too-many-lines
-    # hacky hack hack to pick the solc version we want
-    env = dict(os.environ)
-    env["SOLC_VERSION"] = test_item.solc_ver
-    os.environ.clear()
-    os.environ.update(env)
+    switch_global_version(test_item.solc_ver, always_install=True)
 
 
 def id_test(test_item: Test):
@@ -1656,24 +1656,18 @@ ALL_TESTS = get_all_tests()
 GENERIC_PATH = "/GENERIC_PATH"
 
 
-from syrupy.extensions.amber import AmberSnapshotExtension
-from syrupy.location import PyTestLocation
-
-from pathlib import Path
-
-
 def create_versioned_fixture(test_item: Test):
     class VersionedJSONExtension(AmberSnapshotExtension):
         @classmethod
-        def dirname(cls, *, test_location: "PyTestLocation") -> str:
+        def dirname(cls, *, test_location: PyTestLocation) -> str:
             return str(
-                Path(test_location.filepath).parent.joinpath(
+                pathlib.Path(test_location.filepath).parent.joinpath(
                     "__snapshots__", f"{test_item.detector.__name__}", f"{test_item.solc_ver}"
                 )
             )
 
-
     return VersionedJSONExtension
+
 
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
 def test_detector(test_item: Test, snapshot):
