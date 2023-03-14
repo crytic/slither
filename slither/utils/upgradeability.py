@@ -11,6 +11,7 @@ from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.cfg.node import Node, NodeType
 from slither.slithir.operations import LowLevelCall
 from slither.tools.read_storage.read_storage import SlotInfo, SlitherReadStorage
+from slither.tools.similarity.encode import encode_ir
 
 
 # pylint: disable=too-many-locals
@@ -126,9 +127,17 @@ def is_function_modified(f1: Function, f2: Function) -> bool:
         return False
     # If the hashes differ, it is possible a change in a name or in a comment could be the only difference
     # So we need to resort to walking through the CFG and comparing the IR operations
-    for i, node in enumerate(f2.nodes):
-        for j, ir in enumerate(node.irs):
-            if ir != f1.nodes[i].irs[j]:
+    queue_f1 = [f1.entry_point]
+    queue_f2 = [f2.entry_point]
+    visited = []
+    while len(queue_f1) > 0 and len(queue_f2) > 0:
+        node_f1 = queue_f1.pop(0)
+        node_f2 = queue_f2.pop(0)
+        visited.extend([node_f1, node_f2])
+        queue_f1.extend(son for son in node_f1.sons if son not in visited)
+        queue_f2.extend(son for son in node_f2.sons if son not in visited)
+        for i, ir in enumerate(node_f1.irs):
+            if encode_ir(ir) != encode_ir(node_f2.irs[i]):
                 return True
     return False
 
