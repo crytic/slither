@@ -1,5 +1,7 @@
 import inspect
+import shutil
 from pathlib import Path
+import pytest
 
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
@@ -23,6 +25,11 @@ def _run_all_detectors(slither: Slither) -> None:
     slither.run_detectors()
 
 
+hardhat_available = shutil.which("hardhat") is not None
+
+@pytest.mark.skipif(
+    not hardhat_available, reason="requires Hardhat and project setup"
+)
 def test_node() -> None:
     # hardhat must have been installed in tests/test_node_modules
     # For the CI its done through the github action config
