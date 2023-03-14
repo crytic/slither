@@ -1011,8 +1011,10 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         Return the function interface as a str (contains the return values)
         Returns None if the function is private or internal, or is a constructor/fallback/receive
         """
+        from slither.core.declarations.contract import Contract
+
         if self._interface_signature_str is None:
-            name, parameters, returnVars = self.signature
+            name, parameters, return_vars = self.signature
             visibility = self.visibility
             if (
                 visibility in ["private", "internal"]
@@ -1033,7 +1035,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             self._interface_signature_str = (
                 name + "(" + ",".join(parameters) + ") external" + payable + pure + view
             )
-            if len(returnVars) > 0:
+            if len(return_vars) > 0:
                 self._interface_signature_str += " returns (" + ",".join(returns) + ")"
         return self._interface_signature_str
 
