@@ -101,8 +101,27 @@ contract UnstructuredStorageLayout {
         address _impl = address(0x0054006763154c764da4af42a8c3cfc25ea29765d5);
         assembly {
             sstore(impl_slot, _impl)
+            sstore(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7, _impl)
         }
 
         _set_rollback(true);
+    }
+
+    // Code position in storage is keccak256("PROXIABLE") = "0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7"
+    fallback() external {
+        assembly { // solium-disable-line
+            let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)
+            calldatacopy(0x0, 0x0, calldatasize())
+            let success := delegatecall(gas(), contractLogic, 0x0, calldatasize(), 0, 0)
+            let retSz := returndatasize()
+            returndatacopy(0, 0, retSz)
+            switch success
+            case 0 {
+                revert(0, retSz)
+            }
+            default {
+                return(0, retSz)
+            }
+        }
     }
 }

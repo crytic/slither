@@ -24,7 +24,7 @@ from slither.core.cfg.node import NodeType
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types import ArrayType, ElementaryType, UserDefinedType, MappingType
 from slither.core.declarations import Contract, Structure
-from slither.core.expressions import AssignmentOperation, CallExpression, Literal
+from slither.core.expressions import AssignmentOperation, CallExpression, Literal, Identifier
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
 
@@ -270,22 +270,32 @@ class SlitherReadStorage:
         funcs = [f for f in var.contract.functions if var in f.state_variables_read]
         if len(funcs) == 0:
             for c in self.contracts:
-                funcs.extend([f for f in c.functions if var in f.state_variables_read])
+                funcs.extend([f for f in c.functions if var in f.state_variables_read or f.is_fallback])
         for func in funcs:
             if func.return_type is not None:
                 ret = func.return_type[0]
                 size, _ = ret.storage_size
                 return str(ret), size * 8
             for node in func.all_nodes():
-                exp = str(node.expression)
-                if f"getAddressSlot({var.name})" in exp:
+                exp = node.expression
+                if f"getAddressSlot({var.name})" in str(exp):
                     return "address", 160
-                if f"getBooleanSlot({var.name})" in exp:
+                if f"getBooleanSlot({var.name})" in str(exp):
                     return "bool", 1
-                if f"getBytes32Slot({var.name})" in exp:
+                if f"getBytes32Slot({var.name})" in str(exp):
                     return "bytes32", 256
-                if f"getUint256Slot({var.name})" in exp:
+                if f"getUint256Slot({var.name})" in str(exp):
                     return "uint256", 256
+                if isinstance(exp, AssignmentOperation):
+                    left = exp.expression_left
+                    right = exp.expression_right
+                    if (
+                        isinstance(left, Identifier) and
+                        isinstance(right, CallExpression) and
+                        "sload" in str(right.called) and
+                        right.arguments[0] == var.expression
+                    ):
+                        return "address", 160
         return storage_type, size
 
     def walk_slot_info(self, func: Callable) -> None:
@@ -365,6 +375,7 @@ class SlitherReadStorage:
                         sv.expression = exp
                         sv.is_constant = True
                         sv.type = exp.type
+                        sv.set_contract(contract)
                         return sv
             elif node.type == NodeType.EXPRESSION:
                 exp = node.expression
@@ -375,13 +386,14 @@ class SlitherReadStorage:
                 if (
                     isinstance(exp, Literal)
                     and isinstance(exp.type, ElementaryType)
-                    and exp.type.name == "bytes32"
+                    and exp.type.name in ["bytes32", "uint256"]
                 ):
                     sv = StateVariable()
                     sv.name = "fallback_sload_hardcoded"
                     sv.expression = exp
                     sv.is_constant = True
-                    sv.type = exp.type
+                    sv.type = ElementaryType("bytes32")
+                    sv.set_contract(contract)
                     return sv
         return None
 

@@ -25,5 +25,14 @@
         "offset": 0,
         "value": true,
         "elems": {}
+    },
+    "fallback_sload_hardcoded": {
+        "name": "fallback_sload_hardcoded",
+        "type_string": "address",
+        "slot": 89532207833283453166981358064394884954800891875771469636219037672473505217783,
+        "size": 160,
+        "offset": 0,
+        "value": "0x54006763154c764da4AF42a8c3cfc25Ea29765D5",
+        "elems": {}
     }
 }
