@@ -270,7 +270,9 @@ class SlitherReadStorage:
         funcs = [f for f in var.contract.functions if var in f.state_variables_read]
         if len(funcs) == 0:
             for c in self.contracts:
-                funcs.extend([f for f in c.functions if var in f.state_variables_read or f.is_fallback])
+                funcs.extend(
+                    [f for f in c.functions if var in f.state_variables_read or f.is_fallback]
+                )
         for func in funcs:
             if func.return_type is not None:
                 ret = func.return_type[0]
@@ -290,10 +292,10 @@ class SlitherReadStorage:
                     left = exp.expression_left
                     right = exp.expression_right
                     if (
-                        isinstance(left, Identifier) and
-                        isinstance(right, CallExpression) and
-                        "sload" in str(right.called) and
-                        right.arguments[0] == var.expression
+                        isinstance(left, Identifier)
+                        and isinstance(right, CallExpression)
+                        and "sload" in str(right.called)
+                        and right.arguments[0] == var.expression
                     ):
                         return "address", 160
         return storage_type, size
