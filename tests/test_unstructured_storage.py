@@ -6,13 +6,7 @@ import pytest
 from deepdiff import DeepDiff
 from slither import Slither
 from slither.tools.read_storage import SlitherReadStorage
-from tests.test_read_storage import (
-    GanacheInstance,
-    fixture_ganache,
-    fixture_web3,
-    get_source_file,
-    deploy_contract,
-)
+from tests.test_read_storage import get_source_file, deploy_contract
 
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STORAGE_TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "storage-layout")
