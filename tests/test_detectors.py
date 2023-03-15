@@ -52,7 +52,7 @@ def set_solc(test_item: Test):  # pylint: disable=too-many-lines
 
 
 def id_test(test_item: Test):
-    return f"{test_item.detector}: {test_item.solc_ver}/{test_item.test_file}"
+    return f"{test_item.detector.__name__}-{test_item.solc_ver}-{test_item.test_file}"
 
 
 ALL_TEST_OBJECTS = [
@@ -371,6 +371,11 @@ ALL_TEST_OBJECTS = [
         "uninitialized_storage_pointer.sol",
         "0.4.25",
     ),
+    Test(
+        all_detectors.UninitializedStorageVars,
+        "uninitialized_storage_pointer.sol",
+        "0.8.19",
+    ),
     Test(all_detectors.TxOrigin, "tx_origin.sol", "0.4.25"),
     Test(all_detectors.TxOrigin, "tx_origin.sol", "0.5.16"),
     Test(all_detectors.TxOrigin, "tx_origin.sol", "0.6.11"),
@@ -480,28 +485,53 @@ ALL_TEST_OBJECTS = [
         "0.7.6",
     ),
     Test(
-        all_detectors.ConstCandidateStateVars,
+        all_detectors.CouldBeConstant,
         "const_state_variables.sol",
         "0.4.25",
     ),
     Test(
-        all_detectors.ConstCandidateStateVars,
+        all_detectors.CouldBeConstant,
         "const_state_variables.sol",
         "0.5.16",
     ),
     Test(
-        all_detectors.ConstCandidateStateVars,
+        all_detectors.CouldBeConstant,
         "const_state_variables.sol",
         "0.6.11",
     ),
     Test(
-        all_detectors.ConstCandidateStateVars,
+        all_detectors.CouldBeConstant,
         "const_state_variables.sol",
         "0.7.6",
     ),
     Test(
-        all_detectors.ConstCandidateStateVars,
-        "immutable.sol",
+        all_detectors.CouldBeConstant,
+        "const_state_variables.sol",
+        "0.8.0",
+    ),
+    Test(
+        all_detectors.CouldBeImmutable,
+        "immut_state_variables.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.CouldBeImmutable,
+        "immut_state_variables.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.CouldBeImmutable,
+        "immut_state_variables.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.CouldBeImmutable,
+        "immut_state_variables.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.CouldBeImmutable,
+        "immut_state_variables.sol",
         "0.8.0",
     ),
     Test(
@@ -582,6 +612,26 @@ ALL_TEST_OBJECTS = [
     Test(
         all_detectors.NamingConvention,
         "naming_convention.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.NamingConvention,
+        "no_warning_for_public_constants.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.NamingConvention,
+        "no_warning_for_public_constants.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.NamingConvention,
+        "no_warning_for_public_constants.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.NamingConvention,
+        "no_warning_for_public_constants.sol",
         "0.7.6",
     ),
     Test(
@@ -1556,6 +1606,37 @@ ALL_TEST_OBJECTS = [
         all_detectors.DomainSeparatorCollision,
         "permit_domain_state_var_collision.sol",
         "0.8.0",
+    ),
+    Test(
+        all_detectors.VarReadUsingThis,
+        "var_read_using_this.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.VarReadUsingThis,
+        "var_read_using_this.sol",
+        "0.5.16",
+    ),
+    Test(all_detectors.VarReadUsingThis, "var_read_using_this.sol", "0.6.11"),
+    Test(
+        all_detectors.VarReadUsingThis,
+        "var_read_using_this.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.VarReadUsingThis,
+        "var_read_using_this.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.CyclomaticComplexity,
+        "HighCyclomaticComplexity.sol",
+        "0.8.16",
+    ),
+    Test(
+        all_detectors.CyclomaticComplexity,
+        "LowCyclomaticComplexity.sol",
+        "0.8.16",
     ),
 ]
 

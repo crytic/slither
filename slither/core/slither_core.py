@@ -8,7 +8,7 @@ import pathlib
 import posixpath
 import re
 from collections import defaultdict
-from typing import Optional, Dict, List, Set, Union
+from typing import Optional, Dict, List, Set, Union, Tuple
 
 from crytic_compile import CryticCompile
 from crytic_compile.utils.naming import Filename
@@ -40,7 +40,7 @@ class SlitherCore(Context):
     Slither static analyzer
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._filename: Optional[str] = None
@@ -73,8 +73,8 @@ class SlitherCore(Context):
 
         # Maps from file to detector name to the start/end ranges for that detector.
         # Infinity is used to signal a detector has no end range.
-        self._ignore_ranges: defaultdict[str, defaultdict[str, List[(int, int)]]] = defaultdict(
-            lambda: defaultdict(lambda: [])
+        self._ignore_ranges: Dict[str, Dict[str, List[Tuple[int, ...]]]] = defaultdict(
+            lambda: defaultdict(lambda: [(-1, -1)])
         )
 
         self._compilation_units: List[SlitherCompilationUnit] = []
@@ -91,6 +91,10 @@ class SlitherCore(Context):
         # By default we generate file.sol#1
         # But we allow to alter this (ex: file.sol:1) for vscode integration
         self.line_prefix: str = "#"
+
+        # Use by the echidna printer
+        # If true, partial analysis is allowed
+        self.no_fail = False
 
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
@@ -439,7 +443,7 @@ class SlitherCore(Context):
 
         return True
 
-    def load_previous_results(self):
+    def load_previous_results(self) -> None:
         filename = self._previous_results_filename
         try:
             if os.path.isfile(filename):
@@ -452,7 +456,7 @@ class SlitherCore(Context):
         except json.decoder.JSONDecodeError:
             logger.error(red(f"Impossible to decode {filename}. Consider removing the file"))
 
-    def write_results_to_hide(self):
+    def write_results_to_hide(self) -> None:
         if not self._results_to_hide:
             return
         filename = self._previous_results_filename
@@ -460,7 +464,7 @@ class SlitherCore(Context):
             results = self._results_to_hide + self._previous_results
             json.dump(results, f)
 
-    def save_results_to_hide(self, results: List[Dict]):
+    def save_results_to_hide(self, results: List[Dict]) -> None:
         self._results_to_hide += results
 
     def add_path_to_filter(self, path: str):

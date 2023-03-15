@@ -328,6 +328,7 @@ ALL_TESTS = [
         ALL_VERSIONS,
     ),
     Test("custom_error-0.8.4.sol", make_version(8, 4, 15)),
+    Test("custom-error-selector.sol", make_version(8, 4, 15)),
     Test(
         "top-level-0.4.0.sol",
         VERSIONS_04 + VERSIONS_05 + VERSIONS_06 + ["0.7.0"],
@@ -418,13 +419,31 @@ ALL_TESTS = [
     Test("user_defined_value_type/constant-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("user_defined_value_type/erc20-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("user_defined_value_type/in_parenthesis-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/top-level-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/using-for-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("bytes_call.sol", ["0.8.12"]),
     Test("modifier_identifier_path.sol", VERSIONS_08),
     Test("free_functions/libraries_from_free.sol", ["0.8.12"]),
     Test("free_functions/new_operator.sol", ["0.8.12"]),
     Test("free_functions/library_constant_function_collision.sol", ["0.8.12"]),
     Test("ternary-with-max.sol", ["0.8.15"]),
+    Test("using-for-1-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-2-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-3-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-4-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-in-library-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-alias-contract-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-alias-top-level-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-functions-list-1-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-functions-list-2-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-functions-list-3-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-functions-list-4-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-global-0.8.0.sol", ["0.8.15"]),
     Test("library_event-0.8.16.sol", ["0.8.16"]),
+    Test("top-level-struct-0.8.0.sol", ["0.8.0"]),
+    Test("yul-top-level-0.8.0.sol", ["0.8.0"]),
+    Test("complex_imports/import_aliases_issue_1319/test.sol", ["0.5.12"]),
+    Test("yul-state-constant-access.sol", ["0.8.16"]),
 ]
 # create the output folder if needed
 try:
@@ -433,20 +452,21 @@ except OSError:
     pass
 
 
-@pytest.mark.parametrize("test_item", ALL_TESTS, ids=lambda x: x.test_file)
-def test_parsing(test_item: Test):
-    flavors = ["compact"]
-    if not test_item.disable_legacy:
-        flavors += ["legacy"]
-    for version, flavor in test_item.versions_with_flavors:
-        test_file = os.path.join(
-            TEST_ROOT, "compile", f"{test_item.test_file}-{version}-{flavor}.zip"
-        )
-        expected_file = os.path.join(
-            TEST_ROOT, "expected", f"{test_item.test_file}-{version}-{flavor}.json"
-        )
+def pytest_generate_tests(metafunc):
+    test_cases = []
+    for test_item in ALL_TESTS:
+        for version, flavor in test_item.versions_with_flavors:
+            test_cases.append((test_item.test_file, version, flavor))
+    metafunc.parametrize("test_file, version, flavor", test_cases)
 
-        cc = load_from_zip(test_file)[0]
+
+class TestASTParsing:
+    # pylint: disable=no-self-use
+    def test_parsing(self, test_file, version, flavor):
+        actual = os.path.join(TEST_ROOT, "compile", f"{test_file}-{version}-{flavor}.zip")
+        expected = os.path.join(TEST_ROOT, "expected", f"{test_file}-{version}-{flavor}.json")
+
+        cc = load_from_zip(actual)[0]
 
         sl = Slither(
             cc,
@@ -458,26 +478,25 @@ def test_parsing(test_item: Test):
         actual = generate_output(sl)
 
         try:
-            with open(expected_file, "r", encoding="utf8") as f:
+            with open(expected, "r", encoding="utf8") as f:
                 expected = json.load(f)
         except OSError:
             pytest.xfail("the file for this test was not generated")
             raise
 
         diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
-
         if diff:
             for change in diff.get("values_changed", []):
                 path_list = re.findall(r"\['(.*?)'\]", change.path())
                 path = "_".join(path_list)
                 with open(
-                    f"test_artifacts/{test_item.test_file}_{path}_expected.dot",
+                    f"test_artifacts/{test_file}_{path}_expected.dot",
                     "w",
                     encoding="utf8",
                 ) as f:
                     f.write(change.t1)
                 with open(
-                    f"test_artifacts/{test_item.test_file}_{version}_{flavor}_{path}_actual.dot",
+                    f"test_artifacts/{test_file}_{version}_{flavor}_{path}_actual.dot",
                     "w",
                     encoding="utf8",
                 ) as f:

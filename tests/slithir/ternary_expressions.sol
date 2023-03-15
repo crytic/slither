@@ -1,3 +1,7 @@
+interface Test {
+    function test() external payable returns (uint);
+    function testTuple() external payable returns (uint, uint);
+}
 contract C {
     // TODO
     // 1) support variable declarations
@@ -20,5 +24,29 @@ contract C {
 
     function d(bool cond, bytes calldata x) external {
         bytes1 a = x[cond ? 1 : 2];
+    }
+
+    function e(address one, address two) public {
+        uint x = Test(one).test{value: msg.sender == two ? 1 : 2, gas: true ? 2 : gasleft()}();
+    }
+
+    // Parenthetical expression
+    function f(address one, address two) public {
+        uint x = Test(one).test{value: msg.sender == two ? 1 : 2, gas: true ? (1 == 1 ? 1 : 2) : gasleft()}();
+    }
+
+    // Unused tuple variable
+    function g(address one) public {
+        (, uint x) = Test(one).testTuple();
+    }
+    
+    uint[] myIntegers;
+    function _h(uint c) internal returns(uint) {
+        return c;
+    }
+    function h(bool cond, uint a, uint b) public {
+        uint d = _h(
+            myIntegers[cond ? a : b]
+        );
     }
 }

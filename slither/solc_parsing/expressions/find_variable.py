@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 # CallerContext =Union["ContractSolc", "FunctionSolc", "CustomErrorSolc", "StructureTopLevelSolc"]
 
 
-def _get_pointer_name(variable: Variable):
+def _get_pointer_name(variable: Variable) -> Optional[str]:
     curr_type = variable.type
     while isinstance(curr_type, (ArrayType, MappingType)):
         if isinstance(curr_type, ArrayType):

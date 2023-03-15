@@ -11,11 +11,11 @@ from slither.core.declarations.structure import Structure
 
 
 class LocalVariable(ChildFunction, Variable):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._location: Optional[str] = None
 
-    def set_location(self, loc: str):
+    def set_location(self, loc: str) -> None:
         self._location = loc
 
     @property
