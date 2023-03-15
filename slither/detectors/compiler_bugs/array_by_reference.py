@@ -139,10 +139,12 @@ As a result, Bob's usage of the contract is incorrect."""
                                 continue
 
                             # If it is a state variable OR a local variable referencing storage, we add it to the list.
-                            if (isinstance(arg, StateVariable) or (
-                                isinstance(arg, LocalVariable) and arg.location == "storage"
-                            )) and (
-                                isinstance(param.type, ArrayType) and param.location != "storage" ):
+                            if (
+                                isinstance(arg, StateVariable)
+                                or (isinstance(arg, LocalVariable) and arg.location == "storage")
+                            ) and (
+                                isinstance(param.type, ArrayType) and param.location != "storage"
+                            ):
                                 results.append((node, arg, ir.function))
         return results
 
