@@ -15,8 +15,9 @@ function fill(uint num) returns(bytes32) {
 
 function setNumber(uint256 newNumber) returns(bytes32) {
         bytes32 u = fill(newNumber);
-        return keccak256(abi.encode(u));
         bool v = Hello.test();
+        return keccak256(abi.encode(u));
+
     }
 
 function attempt(uint x) returns(bytes32) {
@@ -46,6 +47,7 @@ contract TestTopLevels is TestTopLevelInherit{
         bytes32 y = setNumber(4);
         k = attempt(7);
         increment();
+        uint z = number;
         hi();
         bool tru = this.beExternal();
     }

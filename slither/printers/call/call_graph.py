@@ -184,6 +184,7 @@ def _process_function(
     )
 
     for internal_call in function.internal_calls:
+
         _process_internal_call(
             contract,
             function,
@@ -194,6 +195,7 @@ def _process_function(
             top_level_dict,
         )
     for external_call in function.high_level_calls:
+
         _process_external_call(
             function,
             external_call,
@@ -237,15 +239,14 @@ def _create_dummy_declarers(top_level_functions):
 def _process_functions(functions, top_level_dict):
     contract_functions = defaultdict(set)  # contract -> contract functions nodes
     contract_calls = defaultdict(set)  # contract -> contract calls edges
-
     solidity_functions = set()  # solidity function nodes
     solidity_calls = set()  # solidity calls edges
     external_calls = set()  # external calls edges
-
     all_contracts = set()
     for function in functions:
+        print(function.name)
         all_contracts.add(function.contract_declarer)
-
+        print(function.contract_declarer.name)
     for function in functions:
         _process_function(
             function.contract_declarer,
@@ -273,7 +274,6 @@ def _process_functions(functions, top_level_dict):
                 all_contracts,
                 top_level_dict,
             )
-
     render_internal_nodes = ""
     render_internal_edges = ""
     for contract in all_contracts:
@@ -285,7 +285,11 @@ def _process_functions(functions, top_level_dict):
     render_external_calls = _render_external_calls(external_calls)
 
     render_solidity_edges = _render_solidity_edges(solidity_calls)
-
+    print(render_internal_nodes
+        + render_solidity_nodes
+        + render_external_calls
+        + render_internal_edges
+        + render_solidity_edges)
     return (
         render_internal_nodes
         + render_solidity_nodes
@@ -323,32 +327,11 @@ class PrinterCallGraph(AbstractPrinter):
         results = []
         with open(all_contracts_filename, "w", encoding="utf8") as f:
             info += f"Call Graph: {all_contracts_filename}\n"
-
-            # Avoid duplicate functions due to different compilation unit
-            all_functionss = [
-                compilation_unit.functions for compilation_unit in self.slither.compilation_units
-            ]
-            all_functions = [item for sublist in all_functionss for item in sublist]
-            top_levels = [
-                compilation_unit.functions_top_level
-                for compilation_unit in self.slither.compilation_units
-            ]
-            top_levels_flat = [item for sublist in top_levels for item in sublist]
-            top_level_dict = _create_dummy_declarers(top_levels_flat)
-
-            if top_level_dict is not None:
-                all_functions_as_dict = {
-                    function.canonical_name: function
-                    for function in all_functions
-                    if function not in top_level_dict
-                }
-            else:
-                all_functions_as_dict = {
-                    function.canonical_name: function for function in all_functions
-                }
+            compilation_units = self.slither.compilation_units
+            functions_to_investigate, top_level_dict = setup_functions(compilation_units)
             content = "\n".join(
                 ["strict digraph {"]
-                + [_process_functions(all_functions_as_dict.values(), top_level_dict)]
+                + [_process_functions(functions_to_investigate, top_level_dict)]
                 + ["}"]
             )
             f.write(content)
@@ -373,3 +356,24 @@ class PrinterCallGraph(AbstractPrinter):
             res.add_file(filename_result, content)
 
         return res
+
+
+def setup_functions(slither_compilation_units):
+    """Generates functions/top level functions from compilation unit"""
+    # Avoid duplicate functions due to different compilation unit
+    all_functionss = [compilation_unit.functions for compilation_unit in slither_compilation_units]
+    all_functions = [item for sublist in all_functionss for item in sublist]
+    top_levels = [
+        compilation_unit.functions_top_level for compilation_unit in slither_compilation_units
+    ]
+    top_levels_flat = [item for sublist in top_levels for item in sublist]
+    top_level_dict = _create_dummy_declarers(top_levels_flat)
+    if top_level_dict is not None:
+        all_functions_as_dict = {
+            function.canonical_name: function
+            for function in all_functions
+            if function not in top_level_dict
+        }
+    else:
+        all_functions_as_dict = {function.canonical_name: function for function in all_functions}
+    return (all_functions_as_dict.values(), top_level_dict)
