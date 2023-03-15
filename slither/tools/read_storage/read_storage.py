@@ -20,9 +20,11 @@ except ImportError:
 
 import dataclasses
 from slither.utils.myprettytable import MyPrettyTable
+from slither.core.cfg.node import NodeType
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types import ArrayType, ElementaryType, UserDefinedType, MappingType
 from slither.core.declarations import Contract, Structure
+from slither.core.expressions import AssignmentOperation, CallExpression, Literal
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
 
@@ -338,6 +340,50 @@ class SlitherReadStorage:
                     ],
                 )
             )
+            hardcoded_slot = self.find_hardcoded_slot_in_fallback(contract)
+            if hardcoded_slot is not None:
+                self._constant_storage_slots.append((contract, hardcoded_slot))
+
+    @staticmethod
+    def find_hardcoded_slot_in_fallback(contract: Contract) -> Optional[StateVariable]:
+        fallback = None
+        for func in contract.functions_entry_points:
+            if func.is_fallback:
+                fallback = func
+                break
+        if fallback is None:
+            return None
+        for node in fallback.all_nodes():
+            if node.type == NodeType.ASSEMBLY and isinstance(node.inline_asm, str):
+                asm_split = node.inline_asm.split("\n")
+                for asm in asm_split:
+                    if "sload(" in asm:
+                        arg = asm.split("sload(")[1].split(")")[0]
+                        exp = Literal(arg, ElementaryType("bytes32"))
+                        sv = StateVariable()
+                        sv.name = "fallback_sload_hardcoded"
+                        sv.expression = exp
+                        sv.is_constant = True
+                        sv.type = exp.type
+                        return sv
+            elif node.type == NodeType.EXPRESSION:
+                exp = node.expression
+                if isinstance(exp, AssignmentOperation):
+                    exp = exp.expression_right
+                if isinstance(exp, CallExpression) and "sload" in str(exp.called):
+                    exp = exp.arguments[0]
+                if (
+                    isinstance(exp, Literal)
+                    and isinstance(exp.type, ElementaryType)
+                    and exp.type.name == "bytes32"
+                ):
+                    sv = StateVariable()
+                    sv.name = "fallback_sload_hardcoded"
+                    sv.expression = exp
+                    sv.is_constant = True
+                    sv.type = exp.type
+                    return sv
+        return None
 
     def convert_slot_info_to_rows(self, slot_info: SlotInfo) -> None:
         """Convert and append slot info to table. Create table if it
