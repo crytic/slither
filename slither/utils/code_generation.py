@@ -1,8 +1,11 @@
 # Functions for generating Solidity code
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Optional
+
+from slither.core.declarations.contract import Contract
+from slither.core.solidity_types.user_defined_type import UserDefinedType
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Function, Contract, Structure
+    from slither.core.declarations import Function, Structure
 
 
 def generate_interface(contract: "Contract") -> str:
@@ -22,9 +25,7 @@ def generate_interface(contract: "Contract") -> str:
     for struct in contract.structures:
         interface += generate_struct_interface_str(struct)
     for var in contract.state_variables_entry_points:
-        interface += (
-            f"    function {var.signature_str.replace('returns', 'external returns ')};\n"
-        )
+        interface += f"    function {var.signature_str.replace('returns', 'external returns ')};\n"
     for func in contract.functions_entry_points:
         if func.is_constructor or func.is_fallback or func.is_receive:
             continue
@@ -45,7 +46,6 @@ def generate_interface_function_signature(func: "Function") -> Optional[str]:
         The function interface as a str (contains the return values).
         Returns None if the function is private or internal, or is a constructor/fallback/receive.
     """
-    from slither.core.declarations.contract import Contract
 
     name, parameters, return_vars = func.signature
     visibility = func.visibility
