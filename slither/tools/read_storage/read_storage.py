@@ -270,10 +270,9 @@ class SlitherReadStorage:
             return None
         storage_type = None
         size = None
-        funcs = var.contract.get_functions_reading_from_variable(var)
-        if len(funcs) == 0:
-            for c in self.contracts:
-                funcs.extend(c.get_functions_reading_from_variable(var))
+        funcs = []
+        for c in self.contracts:
+            funcs.extend(c.get_functions_reading_from_variable(var))
         fallback = [f for f in var.contract.functions if f.is_fallback]
         funcs += fallback
         for func in funcs:
@@ -295,16 +294,14 @@ class SlitherReadStorage:
                 if f"getUint256Slot({var.name})" in str(exp):
                     return "uint256", 256
                 # Look for variable assignment in assembly loaded from a hardcoded slot
-                if isinstance(exp, AssignmentOperation):
-                    left = exp.expression_left
-                    right = exp.expression_right
-                    if (
-                        isinstance(left, Identifier)
-                        and isinstance(right, CallExpression)
-                        and "sload" in str(right.called)
-                        and right.arguments[0] == var.expression
-                    ):
-                        return "address", 160
+                if (
+                    isinstance(exp, AssignmentOperation)
+                    and isinstance(exp.expression_left, Identifier)
+                    and isinstance(exp.expression_right, CallExpression)
+                    and "sload" in str(exp.expression_right.called)
+                    and exp.expression_right.arguments[0] == var.expression
+                ):
+                    return "address", 160
         return storage_type, size
 
     def walk_slot_info(self, func: Callable) -> None:
