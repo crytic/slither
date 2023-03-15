@@ -22,6 +22,8 @@ def generate_interface(contract: "Contract") -> str:
     for event in contract.events:
         name, args = event.signature
         interface += f"    event {name}({','.join(args)});\n"
+    for error in contract.custom_errors:
+        interface += f"    error {error.solidity_signature};\n"
     for struct in contract.structures:
         interface += generate_struct_interface_str(struct)
     for var in contract.state_variables_entry_points:
