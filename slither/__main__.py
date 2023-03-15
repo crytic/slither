@@ -514,7 +514,7 @@ def parse_args(
 
     group_misc.add_argument(
         "--filter-paths",
-        help="Comma-separated list of paths for which results will be excluded",
+        help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/)",
         action="store",
         dest="filter_paths",
         default=defaults_flag_in_config["filter_paths"],
