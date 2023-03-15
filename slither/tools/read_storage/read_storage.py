@@ -274,6 +274,8 @@ class SlitherReadStorage:
         if len(funcs) == 0:
             for c in self.contracts:
                 funcs.extend(c.get_functions_reading_from_variable(var))
+        fallback = [f for f in var.contract.functions if f.is_fallback]
+        funcs += fallback
         for func in funcs:
             if func.return_type is not None:
                 rets = func.return_type
