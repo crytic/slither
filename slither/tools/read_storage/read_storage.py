@@ -92,7 +92,7 @@ class SlitherReadStorage:
         if not self.storage_address:
             raise ValueError
         if not self._checksum_address:
-            self._checksum_address = self.web3.toChecksumAddress(self.storage_address)
+            self._checksum_address = self.web3.to_checksum_address(self.storage_address)
         return self._checksum_address
 
     @property
