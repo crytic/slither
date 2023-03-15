@@ -330,26 +330,12 @@ class SlitherReadStorage:
             func (Callable, optional): A criteria to filter functions e.g. name.
         """
         for contract in self.contracts:
-            self._target_variables.extend(
-                filter(
-                    func,
-                    [
-                        (contract, var)
-                        for var in contract.state_variables_ordered
-                        if not var.is_constant and not var.is_immutable
-                    ],
-                )
-            )
-            self._constant_storage_slots.extend(
-                filter(
-                    func,
-                    [
-                        (contract, var)
-                        for var in contract.state_variables_ordered
-                        if var.is_constant and str(var.type) == "bytes32"
-                    ],
-                )
-            )
+            for var in contract.state_variables_ordered:
+                if func is None or (func is not None and func(var)):
+                    if not var.is_constant and not var.is_immutable:
+                        self._target_variables.append((contract, var))
+                    elif var.is_constant and var.type == ElementaryType("bytes32"):
+                        self._constant_storage_slots.append((contract, var))
             hardcoded_slot = self.find_hardcoded_slot_in_fallback(contract)
             if hardcoded_slot is not None:
                 self._constant_storage_slots.append((contract, hardcoded_slot))
