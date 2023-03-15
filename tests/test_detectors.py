@@ -674,6 +674,21 @@ ALL_TEST_OBJECTS = [
         "uninitialized_local_variable.sol",
         "0.7.6",
     ),
+    Test(
+        all_detectors.UninitializedLocalVars,
+        "local_variables_initialised_in_tuple.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.UninitializedLocalVars,
+        "local_variables_initialised_in_tuple.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.UninitializedLocalVars,
+        "local_variables_initialised_in_tuple.sol",
+        "0.7.6",
+    ),
     Test(all_detectors.ConstantFunctionsAsm, "constant.sol", "0.4.25"),
     Test(
         all_detectors.ConstantFunctionsState,

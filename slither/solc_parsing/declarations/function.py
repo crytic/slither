@@ -894,7 +894,14 @@ class FunctionSolc(CallerContextExpression):
         local_var_parser = LocalVariableInitFromTupleSolc(local_var, statement, index)
 
         self._add_local_variable(local_var_parser)
+
+        # the following instruction is necessary, because normally, when slither encounters vars with the same name in
+        # different scopes, it renames them, but while handling expressions like `(type1 a, type2 b) = f()`, an
+        # additional expression is created in `_parse_variable_definition` - it is initialised with a statement
+        # `"name": v["name"],`, so it uses the original name instead of using the newly created name for a variable
+        # see https://github.com/crytic/slither/pull/1533 for more information
         statement["declarations"][0]["name"] = local_var.name
+
         new_node = self._new_node(NodeType.VARIABLE, statement["src"], node.underlying_node.scope)
         new_node.underlying_node.add_variable_declaration(local_var)
         link_underlying_nodes(node, new_node)
