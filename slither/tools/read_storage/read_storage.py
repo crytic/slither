@@ -1,14 +1,6 @@
-import importlib.util
 import logging
-import sys
 from math import floor
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
-
-if importlib.util.find_spec("web3").loader is None:
-    print(
-        "Please install slither with `pip install slither-analyzer[read-storage]` to use slither-read-storage."
-    )
-    sys.exit(-1)
 
 import dataclasses
 
@@ -18,8 +10,7 @@ from eth_utils import keccak
 from web3 import Web3
 
 from slither.core.declarations import Contract, Structure
-from slither.core.solidity_types import (ArrayType, ElementaryType,
-                                         MappingType, UserDefinedType)
+from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
