@@ -328,12 +328,6 @@ class SlitherReadStorage:
                     ],
                 )
             )
-
-    def get_constant_storage_slots(self, func: Callable = None) -> None:
-        """
-        Retrieves all constant bytes32 variables from a list of contracts.
-        """
-        for contract in self.contracts:
             self._constant_storage_slots.extend(
                 filter(
                     func,

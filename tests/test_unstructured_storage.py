@@ -114,7 +114,6 @@ def test_read_storage(web3, ganache) -> None:
     srs.rpc = ganache.provider
     srs.storage_address = address
     srs.get_all_storage_variables()
-    srs.get_constant_storage_slots()
     srs.get_storage_layout()
     srs.walk_slot_info(srs.get_slot_values)
     with open("unstructured_storage.json", "w", encoding="utf-8") as file:
