@@ -267,19 +267,20 @@ class SlitherReadStorage:
             return None
         storage_type = None
         size = None
-        funcs = [f for f in var.contract.functions if var in f.state_variables_read]
+        funcs = var.contract.get_functions_reading_from_variable(var)
         if len(funcs) == 0:
             for c in self.contracts:
-                funcs.extend(
-                    [f for f in c.functions if var in f.state_variables_read or f.is_fallback]
-                )
+                funcs.extend(c.get_functions_reading_from_variable(var))
         for func in funcs:
             if func.return_type is not None:
-                ret = func.return_type[0]
-                size, _ = ret.storage_size
-                return str(ret), size * 8
+                rets = func.return_type
+                for ret in rets:
+                    size, _ = ret.storage_size
+                    if size <= 32:
+                        return str(ret), size * 8
             for node in func.all_nodes():
                 exp = node.expression
+                # Look for use of the common OpenZeppelin StorageSlot library
                 if f"getAddressSlot({var.name})" in str(exp):
                     return "address", 160
                 if f"getBooleanSlot({var.name})" in str(exp):
@@ -288,6 +289,7 @@ class SlitherReadStorage:
                     return "bytes32", 256
                 if f"getUint256Slot({var.name})" in str(exp):
                     return "uint256", 256
+                # Look for variable assignment in assembly loaded from a hardcoded slot
                 if isinstance(exp, AssignmentOperation):
                     left = exp.expression_left
                     right = exp.expression_right
