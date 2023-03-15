@@ -128,7 +128,15 @@ class SlitherReadStorage:
         for contract, var in self.constant_slots:
             var_name = var.name
             try:
-                slot = coerce_type("int", str(var.expression))
+                exp = var.expression
+                if str(exp).startswith("0x"):
+                    slot = coerce_type("int", str(exp))
+                elif str(exp).startswith("keccak256(bytes)"):
+                    slot_str = str(exp).split("(")[2].replace(")", "")
+                    slot_hash = keccak(text=slot_str)
+                    slot = coerce_type("int", slot_hash)
+                else:
+                    continue
                 offset = 0
                 type_string, size = self.find_constant_slot_storage_type(var)
                 if type_string:
@@ -137,7 +145,7 @@ class SlitherReadStorage:
                     )
                     self.log += (
                         f"\nSlot Name: {var_name}\nType: bytes32"
-                        f"\nStorage Type: {type_string}\nSlot: {str(var.expression)}\n"
+                        f"\nStorage Type: {type_string}\nSlot: {str(exp)}\n"
                     )
                     logger.info(self.log)
                     self.log = ""
