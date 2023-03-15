@@ -131,12 +131,15 @@ class SlitherReadStorage:
             var_name = var.name
             try:
                 exp = var.expression
-                if str(exp).startswith("0x"):
-                    slot = coerce_type("int", str(exp))
-                elif str(exp).startswith("keccak256(bytes)"):
-                    slot_str = str(exp).split("(")[2].replace(")", "")
-                    slot_hash = keccak(text=slot_str)
-                    slot = coerce_type("int", slot_hash)
+                if isinstance(exp, CallExpression) and str(exp.called) == "keccak256(bytes)":
+                    exp = exp.arguments[0]
+                if isinstance(exp, Literal):
+                    if exp.value.startswith("0x"):
+                        slot = coerce_type("int", exp.value)
+                    else:
+                        slot_str = exp.value
+                        slot_hash = keccak(text=slot_str)
+                        slot = coerce_type("int", slot_hash)
                 else:
                     continue
                 offset = 0
