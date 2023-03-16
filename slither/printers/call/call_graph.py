@@ -151,6 +151,7 @@ def _process_external_call(
                 external_function.name,
             )
         )
+    # Todo: probably unreachable since top level functions are internal
     if isinstance(external_function, (FunctionTopLevel)):
         external_calls.add(
             _edge(
@@ -208,7 +209,7 @@ def _process_function(
 
 def _create_dummy_declarers(top_level_functions):
     if top_level_functions == []:
-        return
+        return None
 
     my_filenames = []
     sorted_by_filename = sorted(top_level_functions, key=lambda x: x.source_mapping.filename)
@@ -236,6 +237,7 @@ def _create_dummy_declarers(top_level_functions):
     return function_to_contract
 
 
+# pylint: disable=too-many-locals
 def _process_functions(functions, top_level_dict):
     contract_functions = defaultdict(set)  # contract -> contract functions nodes
     contract_calls = defaultdict(set)  # contract -> contract calls edges
@@ -243,10 +245,10 @@ def _process_functions(functions, top_level_dict):
     solidity_calls = set()  # solidity calls edges
     external_calls = set()  # external calls edges
     all_contracts = set()
+    # We have to loop twice, because external functions require all_contracts to be fully populated
     for function in functions:
-        print(function.name)
         all_contracts.add(function.contract_declarer)
-        print(function.contract_declarer.name)
+
     for function in functions:
         _process_function(
             function.contract_declarer,
@@ -260,6 +262,7 @@ def _process_functions(functions, top_level_dict):
             top_level_dict,
         )
     if top_level_dict is not None:
+        # todo: since top level functions are internal, we might be able to just loop once here
         for top_level in top_level_dict.keys():
             all_contracts.add(top_level_dict[top_level])
         for top_level in top_level_dict.keys():
@@ -285,11 +288,7 @@ def _process_functions(functions, top_level_dict):
     render_external_calls = _render_external_calls(external_calls)
 
     render_solidity_edges = _render_solidity_edges(solidity_calls)
-    print(render_internal_nodes
-        + render_solidity_nodes
-        + render_external_calls
-        + render_internal_edges
-        + render_solidity_edges)
+
     return (
         render_internal_nodes
         + render_solidity_nodes
@@ -328,7 +327,7 @@ class PrinterCallGraph(AbstractPrinter):
         with open(all_contracts_filename, "w", encoding="utf8") as f:
             info += f"Call Graph: {all_contracts_filename}\n"
             compilation_units = self.slither.compilation_units
-            functions_to_investigate, top_level_dict = setup_functions(compilation_units)
+            functions_to_investigate, top_level_dict = _setup_functions(compilation_units)
             content = "\n".join(
                 ["strict digraph {"]
                 + [_process_functions(functions_to_investigate, top_level_dict)]
@@ -358,8 +357,7 @@ class PrinterCallGraph(AbstractPrinter):
         return res
 
 
-def setup_functions(slither_compilation_units):
-    """Generates functions/top level functions from compilation unit"""
+def _setup_functions(slither_compilation_units):
     # Avoid duplicate functions due to different compilation unit
     all_functionss = [compilation_unit.functions for compilation_unit in slither_compilation_units]
     all_functions = [item for sublist in all_functionss for item in sublist]
