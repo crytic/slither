@@ -32,10 +32,12 @@ jobs:
       - name: Install ganache
         run: npm install --global ganache
 
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: |
+            3.9
+            pypy3.9
 
       - name: Install python dependencies
         run: |

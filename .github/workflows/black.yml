@@ -31,10 +31,12 @@ jobs:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: |
+            3.9
+            pypy3.9
 
       - name: Install dependencies
         run: |
