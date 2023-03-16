@@ -51,7 +51,7 @@ def compare(v1: Contract, v2: Contract) -> dict:
     }
 
     # Since this is not a detector, include any missing variables in the v2 contract
-    if len(order_vars2) <= len(order_vars1):
+    if len(order_vars2) < len(order_vars1):
         for variable in order_vars1:
             if variable.name not in [v.name for v in order_vars2]:
                 results["missing-vars-in-v2"].append(variable)
@@ -99,11 +99,11 @@ def compare(v1: Contract, v2: Contract) -> dict:
         if len(modified_calls) > 0 or len(tainted_vars) > 0:
             results["tainted-functions"].append(function)
 
-    # Find all new or tainted variables, i.e., variables that are read or written by a new/modified function
-    for idx, var in enumerate(order_vars2):
+    # Find all new or tainted variables, i.e., variables that are read or written by a new/modified/tainted function
+    for _, var in enumerate(order_vars2):
         read_by = v2.get_functions_reading_from_variable(var)
         written_by = v2.get_functions_writing_to_variable(var)
-        if len(order_vars1) <= idx:
+        if v1.get_state_variable_from_name(var.name) is None:
             results["new-variables"].append(var)
         elif any(func in read_by or func in written_by for func in new_modified_functions):
             results["tainted-variables"].append(var)
