@@ -21,8 +21,8 @@ def test_upgrades_compare() -> None:
     sl = Slither(os.path.join(UPGRADE_TEST_ROOT, "TestUpgrades.sol"))
     v1 = sl.get_contract_from_name("ContractV1")[0]
     v2 = sl.get_contract_from_name("ContractV2")[0]
-    diff = compare(v1, v2)
-    for key, lst in diff.items():
+    diff_dict = compare(v1, v2)
+    for key, lst in diff_dict.items():
         if len(lst) > 0:
             print(f'      * {str(key).replace("-", " ")}:')
             for obj in lst:
@@ -31,7 +31,7 @@ def test_upgrades_compare() -> None:
                 elif isinstance(obj, Function):
                     print(f"          * {obj.signature_str}")
     with open("upgrade_diff.json", "w", encoding="utf-8") as file:
-        json_str = diff_to_json_str(diff)
+        json_str = diff_to_json_str(diff_dict)
         diff_json = json.loads(json_str)
         json.dump(diff_json, file, indent=4)
 
