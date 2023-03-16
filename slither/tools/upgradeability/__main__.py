@@ -14,7 +14,10 @@ from slither.exceptions import SlitherException
 from slither.utils.colors import red
 from slither.utils.output import output_to_json
 from slither.tools.upgradeability.checks import all_checks
-from slither.tools.upgradeability.checks.abstract_checks import AbstractCheck
+from slither.tools.upgradeability.checks.abstract_checks import (
+    AbstractCheck,
+    CheckClassification,
+)
 from slither.tools.upgradeability.utils.command_line import (
     output_detectors_json,
     output_wiki,
@@ -27,11 +30,13 @@ logger: logging.Logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(check_classes: List[Type[AbstractCheck]]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Slither Upgradeability Checks. For usage information see https://github.com/crytic/slither/wiki/Upgradeability-Checks.",
         usage="slither-check-upgradeability contract.sol ContractName",
     )
+
+    group_checks = parser.add_argument_group("Checks")
 
     parser.add_argument("contract.sol", help="Codebase to analyze")
     parser.add_argument("ContractName", help="Contract name (logic contract)")
@@ -51,11 +56,56 @@ def parse_args() -> argparse.Namespace:
         default=False,
     )
 
-    parser.add_argument(
+    group_checks.add_argument(
+        "--detect",
+        help="Comma-separated list of detectors, defaults to all, "
+        f"available detectors: {', '.join(d.ARGUMENT for d in check_classes)}",
+        action="store",
+        dest="detectors_to_run",
+        default="all",
+    )
+
+    group_checks.add_argument(
         "--list-detectors",
         help="List available detectors",
         action=ListDetectors,
         nargs=0,
+        default=False,
+    )
+
+    group_checks.add_argument(
+        "--exclude",
+        help="Comma-separated list of detectors that should be excluded",
+        action="store",
+        dest="detectors_to_exclude",
+        default=None,
+    )
+
+    group_checks.add_argument(
+        "--exclude-informational",
+        help="Exclude informational impact analyses",
+        action="store_true",
+        default=False,
+    )
+
+    group_checks.add_argument(
+        "--exclude-low",
+        help="Exclude low impact analyses",
+        action="store_true",
+        default=False,
+    )
+
+    group_checks.add_argument(
+        "--exclude-medium",
+        help="Exclude medium impact analyses",
+        action="store_true",
+        default=False,
+    )
+
+    group_checks.add_argument(
+        "--exclude-high",
+        help="Exclude high impact analyses",
+        action="store_true",
         default=False,
     )
 
@@ -102,6 +152,43 @@ def _get_checks() -> List[Type[AbstractCheck]]:
         c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractCheck)
     ]
     return detectors
+
+
+def choose_checks(
+    args: argparse.Namespace, all_check_classes: List[Type[AbstractCheck]]
+) -> List[Type[AbstractCheck]]:
+    detectors_to_run = []
+    detectors = {d.ARGUMENT: d for d in all_check_classes}
+
+    if args.detectors_to_run == "all":
+        detectors_to_run = all_check_classes
+        if args.detectors_to_exclude:
+            detectors_excluded = args.detectors_to_exclude.split(",")
+            for detector in detectors:
+                if detector in detectors_excluded:
+                    detectors_to_run.remove(detectors[detector])
+    else:
+        for detector in args.detectors_to_run.split(","):
+            if detector in detectors:
+                detectors_to_run.append(detectors[detector])
+            else:
+                raise Exception(f"Error: {detector} is not a detector")
+        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+        return detectors_to_run
+
+    if args.exclude_informational:
+        detectors_to_run = [
+            d for d in detectors_to_run if d.IMPACT != CheckClassification.INFORMATIONAL
+        ]
+    if args.exclude_low:
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.LOW]
+    if args.exclude_medium:
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.MEDIUM]
+    if args.exclude_high:
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.HIGH]
+
+    # detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+    return detectors_to_run
 
 
 class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -200,11 +287,11 @@ def main() -> None:
         "detectors": [],
     }
 
-    args = parse_args()
-
+    detectors = _get_checks()
+    args = parse_args(detectors)
+    detectors_to_run = choose_checks(args, detectors)
     v1_filename = vars(args)["contract.sol"]
     number_detectors_run = 0
-    detectors = _get_checks()
     try:
         variable1 = Slither(v1_filename, **vars(args))
 
@@ -219,7 +306,7 @@ def main() -> None:
             return
         v1_contract = v1_contracts[0]
 
-        detectors_results, number_detectors = _checks_on_contract(detectors, v1_contract)
+        detectors_results, number_detectors = _checks_on_contract(detectors_to_run, v1_contract)
         json_results["detectors"] += detectors_results
         number_detectors_run += number_detectors
 
@@ -242,7 +329,7 @@ def main() -> None:
             json_results["proxy-present"] = True
 
             detectors_results, number_detectors = _checks_on_contract_and_proxy(
-                detectors, v1_contract, proxy_contract
+                detectors_to_run, v1_contract, proxy_contract
             )
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
@@ -267,19 +354,19 @@ def main() -> None:
 
             if proxy_contract:
                 detectors_results, _ = _checks_on_contract_and_proxy(
-                    detectors, v2_contract, proxy_contract
+                    detectors_to_run, v2_contract, proxy_contract
                 )
 
                 json_results["detectors"] += detectors_results
 
             detectors_results, number_detectors = _checks_on_contract_update(
-                detectors, v1_contract, v2_contract
+                detectors_to_run, v1_contract, v2_contract
             )
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 
             # If there is a V2, we run the contract-only check on the V2
-            detectors_results, number_detectors = _checks_on_contract(detectors, v2_contract)
+            detectors_results, number_detectors = _checks_on_contract(detectors_to_run, v2_contract)
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 

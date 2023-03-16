@@ -1,4 +1,6 @@
 import logging
+from typing import List
+
 from enum import Enum
 
 from slither.core.declarations import Function
@@ -7,33 +9,36 @@ from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither.slithir.variables import ReferenceVariable
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.variable import Variable
+
 
 logger = logging.getLogger("BinaryOperationIR")
 
 
 class BinaryType(Enum):
-    POWER = 0  # **
-    MULTIPLICATION = 1  # *
-    DIVISION = 2  # /
-    MODULO = 3  # %
-    ADDITION = 4  # +
-    SUBTRACTION = 5  # -
-    LEFT_SHIFT = 6  # <<
-    RIGHT_SHIFT = 7  # >>
-    AND = 8  # &
-    CARET = 9  # ^
-    OR = 10  # |
-    LESS = 11  # <
-    GREATER = 12  # >
-    LESS_EQUAL = 13  # <=
-    GREATER_EQUAL = 14  # >=
-    EQUAL = 15  # ==
-    NOT_EQUAL = 16  # !=
-    ANDAND = 17  # &&
-    OROR = 18  # ||
+    POWER = "**"
+    MULTIPLICATION = "*"
+    DIVISION = "/"
+    MODULO = "%"
+    ADDITION = "+"
+    SUBTRACTION = "-"
+    LEFT_SHIFT = "<<"
+    RIGHT_SHIFT = ">>"
+    AND = "&"
+    CARET = "^"
+    OR = "|"
+    LESS = "<"
+    GREATER = ">"
+    LESS_EQUAL = "<="
+    GREATER_EQUAL = ">="
+    EQUAL = "=="
+    NOT_EQUAL = "!="
+    ANDAND = "&&"
+    OROR = "||"
 
     @staticmethod
-    def return_bool(operation_type):
+    def return_bool(operation_type: "BinaryType") -> bool:
         return operation_type in [
             BinaryType.OROR,
             BinaryType.ANDAND,
@@ -98,50 +103,15 @@ class BinaryType(Enum):
             BinaryType.DIVISION,
         ]
 
-    def __str__(self):  # pylint: disable=too-many-branches
-        if self == BinaryType.POWER:
-            return "**"
-        if self == BinaryType.MULTIPLICATION:
-            return "*"
-        if self == BinaryType.DIVISION:
-            return "/"
-        if self == BinaryType.MODULO:
-            return "%"
-        if self == BinaryType.ADDITION:
-            return "+"
-        if self == BinaryType.SUBTRACTION:
-            return "-"
-        if self == BinaryType.LEFT_SHIFT:
-            return "<<"
-        if self == BinaryType.RIGHT_SHIFT:
-            return ">>"
-        if self == BinaryType.AND:
-            return "&"
-        if self == BinaryType.CARET:
-            return "^"
-        if self == BinaryType.OR:
-            return "|"
-        if self == BinaryType.LESS:
-            return "<"
-        if self == BinaryType.GREATER:
-            return ">"
-        if self == BinaryType.LESS_EQUAL:
-            return "<="
-        if self == BinaryType.GREATER_EQUAL:
-            return ">="
-        if self == BinaryType.EQUAL:
-            return "=="
-        if self == BinaryType.NOT_EQUAL:
-            return "!="
-        if self == BinaryType.ANDAND:
-            return "&&"
-        if self == BinaryType.OROR:
-            return "||"
-        raise SlithIRError(f"str: Unknown operation type {self} {type(self)})")
-
 
 class Binary(OperationWithLValue):
-    def __init__(self, result, left_variable, right_variable, operation_type: BinaryType):
+    def __init__(
+        self,
+        result: Variable,
+        left_variable: SourceMapping,
+        right_variable: Variable,
+        operation_type: BinaryType,
+    ) -> None:
         assert is_valid_rvalue(left_variable) or isinstance(left_variable, Function)
         assert is_valid_rvalue(right_variable) or isinstance(right_variable, Function)
         assert is_valid_lvalue(result)
@@ -156,7 +126,7 @@ class Binary(OperationWithLValue):
             result.set_type(left_variable.type)
 
     @property
-    def read(self):
+    def read(self) -> List[SourceMapping]:
         return [self.variable_left, self.variable_right]
 
     @property
@@ -164,22 +134,22 @@ class Binary(OperationWithLValue):
         return self._variables
 
     @property
-    def variable_left(self):
+    def variable_left(self) -> SourceMapping:
         return self._variables[0]
 
     @property
-    def variable_right(self):
+    def variable_right(self) -> Variable:
         return self._variables[1]
 
     @property
-    def type(self):
+    def type(self) -> BinaryType:
         return self._type
 
     @property
     def type_str(self):
         if self.node.scope.is_checked and self._type.can_be_checked_for_overflow():
-            return "(c)" + str(self._type)
-        return str(self._type)
+            return "(c)" + self._type.value
+        return self._type.value
 
     def __str__(self):
         if isinstance(self.lvalue, ReferenceVariable):

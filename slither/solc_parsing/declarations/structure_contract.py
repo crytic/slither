@@ -23,7 +23,7 @@ class StructureContractSolc:  # pylint: disable=too-few-public-methods
         st: Structure,
         struct: Dict,
         contract_parser: "ContractSolc",
-    ):
+    ) -> None:
 
         if contract_parser.is_compact_ast:
             name = struct["name"]
@@ -45,7 +45,7 @@ class StructureContractSolc:  # pylint: disable=too-few-public-methods
 
         self._elemsNotParsed = children
 
-    def analyze(self):
+    def analyze(self) -> None:
         for elem_to_parse in self._elemsNotParsed:
             elem = StructureVariable()
             elem.set_structure(self._structure)

@@ -5,7 +5,7 @@ from slither.core.variables.state_variable import StateVariable
 
 
 class StateVariableSolc(VariableDeclarationSolc):
-    def __init__(self, variable: StateVariable, variable_data: Dict):
+    def __init__(self, variable: StateVariable, variable_data: Dict) -> None:
         super().__init__(variable, variable_data)
 
     @property

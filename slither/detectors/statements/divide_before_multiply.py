@@ -2,12 +2,18 @@
 Module detecting possible loss of precision due to divide before multiple
 """
 from collections import defaultdict
+from typing import Any, DefaultDict, List, Set, Tuple
+
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Binary, Assignment, BinaryType, LibraryCall
+from slither.slithir.operations import Binary, Assignment, BinaryType, LibraryCall, Operation
 from slither.slithir.variables import Constant
+from slither.utils.output import Output
 
 
-def is_division(ir):
+def is_division(ir: Operation) -> bool:
     if isinstance(ir, Binary):
         if ir.type == BinaryType.DIVISION:
             return True
@@ -23,7 +29,7 @@ def is_division(ir):
     return False
 
 
-def is_multiplication(ir):
+def is_multiplication(ir: Operation) -> bool:
     if isinstance(ir, Binary):
         if ir.type == BinaryType.MULTIPLICATION:
             return True
@@ -39,7 +45,7 @@ def is_multiplication(ir):
     return False
 
 
-def is_assert(node):
+def is_assert(node: Node) -> bool:
     if node.contains_require_or_assert():
         return True
     # Old Solidity code where using an internal 'assert(bool)' function
@@ -50,7 +56,10 @@ def is_assert(node):
     return False
 
 
-def _explore(to_explore, f_results, divisions):  # pylint: disable=too-many-branches
+# pylint: disable=too-many-branches
+def _explore(
+    to_explore: Set[Node], f_results: List[Node], divisions: DefaultDict[Any, Any]
+) -> None:
     explored = set()
     while to_explore:  # pylint: disable=too-many-nested-blocks
         node = to_explore.pop()
@@ -64,8 +73,7 @@ def _explore(to_explore, f_results, divisions):  # pylint: disable=too-many-bran
         node_results = []
 
         for ir in node.irs:
-            # check for Constant, has its not hashable (TODO: make Constant hashable)
-            if isinstance(ir, Assignment) and not isinstance(ir.rvalue, Constant):
+            if isinstance(ir, Assignment):
                 if ir.rvalue in divisions:
                     # Avoid dupplicate. We dont use set so we keep the order of the nodes
                     if node not in divisions[ir.rvalue]:
@@ -104,7 +112,9 @@ def _explore(to_explore, f_results, divisions):  # pylint: disable=too-many-bran
             to_explore.add(son)
 
 
-def detect_divide_before_multiply(contract):
+def detect_divide_before_multiply(
+    contract: Contract,
+) -> List[Tuple[FunctionContract, List[Node]]]:
     """
     Detects and returns all nodes with multiplications of division results.
     :param contract: Contract to detect assignment within.
@@ -170,7 +180,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
 
     WIKI_RECOMMENDATION = """Consider ordering multiplication before division."""
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect divisions before multiplications
         """

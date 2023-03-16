@@ -1,10 +1,17 @@
+from typing import Optional, Any, List, Union
 from slither.slithir.operations import Call, OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
+from slither.core.declarations.contract import Contract
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
+from slither.core.declarations.function_contract import FunctionContract
 
 
 class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, contract_name, lvalue):
+    def __init__(
+        self, contract_name: Constant, lvalue: Union[TemporaryVariableSSA, TemporaryVariable]
+    ) -> None:
         assert isinstance(contract_name, Constant)
         assert is_valid_lvalue(lvalue)
         super().__init__()
@@ -40,15 +47,15 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
         self._call_salt = s
 
     @property
-    def contract_name(self):
+    def contract_name(self) -> Constant:
         return self._contract_name
 
     @property
-    def read(self):
+    def read(self) -> List[Any]:
         return self._unroll(self.arguments)
 
     @property
-    def contract_created(self):
+    def contract_created(self) -> Contract:
         contract_name = self.contract_name
         contract_instance = self.node.file_scope.get_contract_from_name(contract_name)
         return contract_instance
@@ -59,7 +66,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
     ###################################################################################
     ###################################################################################
 
-    def can_reenter(self, callstack=None):
+    def can_reenter(self, callstack: Optional[List[FunctionContract]] = None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view
@@ -76,7 +83,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
         callstack = callstack + [constructor]
         return constructor.can_reenter(callstack)
 
-    def can_send_eth(self):
+    def can_send_eth(self) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool

@@ -8,6 +8,10 @@ on:
     branches: [ dev, master ]
   schedule: [ cron: "0 7 * * 2" ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -26,7 +30,7 @@ jobs:
           python -m venv /tmp/pip-audit-env
           source /tmp/pip-audit-env/bin/activate
 
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           python -m pip install .
 
       - name: Run pip-audit

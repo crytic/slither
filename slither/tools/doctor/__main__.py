@@ -1,4 +1,6 @@
 import argparse
+import logging
+import sys
 
 from crytic_compile import cryticparser
 
@@ -24,7 +26,10 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
+    # log on stdout to keep output in order
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True)
+
     args = parse_args()
     kwargs = vars(args)
 

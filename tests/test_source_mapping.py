@@ -81,3 +81,53 @@ def test_source_mapping():
         (x.start, x.end)
         for x in slither.offset_to_implementations("tests/src_mapping/inheritance.sol", 93)
     } == {(17, 53), (193, 230), (129, 166)}
+
+
+def _sort_references_lines(refs: list) -> list:
+    return sorted([ref.lines[0] for ref in refs])
+
+
+def _test_references_user_defined_aliases():
+    """
+    Tests if references are filled correctly for user defined aliases (declared using "type [...] is [...]" statement).
+    """
+    solc_select.switch_global_version("0.8.16", always_install=True)
+    slither = Slither("tests/src_mapping/ReferencesUserDefinedAliases.sol")
+
+    alias_top_level = slither.compilation_units[0].user_defined_value_types["aliasTopLevel"]
+    assert len(alias_top_level.references) == 2
+    lines = _sort_references_lines(alias_top_level.references)
+    assert lines == [12, 16]
+
+    alias_contract_level = (
+        slither.compilation_units[0]
+        .contracts[0]
+        .file_scope.user_defined_types["C.aliasContractLevel"]
+    )
+    assert len(alias_contract_level.references) == 2
+    lines = _sort_references_lines(alias_contract_level.references)
+    assert lines == [13, 16]
+
+
+def _test_references_user_defined_types_when_casting():
+    """
+    Tests if references are filled correctly for user defined types in case of casting.
+    """
+    solc_select.switch_global_version("0.8.16", always_install=True)
+    slither = Slither("tests/src_mapping/ReferencesUserDefinedTypesCasting.sol")
+
+    contracts = slither.compilation_units[0].contracts
+    a = contracts[0] if contracts[0].is_interface else contracts[1]
+    assert len(a.references) == 2
+    lines = _sort_references_lines(a.references)
+    assert lines == [12, 18]
+
+
+def test_references():
+    """
+    Tests if references list is filled correctly in the following cases:
+    - user defined aliases (declared using "type [...] is [...]" statement)
+    - user defined types in case of casting (TypeConversion expressions)
+    """
+    _test_references_user_defined_aliases()
+    _test_references_user_defined_types_when_casting()

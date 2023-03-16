@@ -8,9 +8,10 @@ from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.tuple import TupleVariable
+from slither.core.source_mapping.source_mapping import SourceMapping
 
 
-def is_valid_rvalue(v):
+def is_valid_rvalue(v: SourceMapping) -> bool:
     return isinstance(
         v,
         (
@@ -25,7 +26,7 @@ def is_valid_rvalue(v):
     )
 
 
-def is_valid_lvalue(v):
+def is_valid_lvalue(v) -> bool:
     return isinstance(
         v,
         (

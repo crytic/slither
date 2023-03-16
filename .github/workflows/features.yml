@@ -13,6 +13,10 @@ on:
     # run CI every day even if no PRs/merges occur
     - cron: '0 12 * * *'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Features tests
@@ -24,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v3
@@ -35,8 +39,7 @@ jobs:
         run: |
           pip install ".[dev]"
 
-          solc-select install all
-          solc-select use 0.8.0
+          solc-select use 0.8.0 --always-install
 
           cd tests/test_node_modules/
           npm install hardhat

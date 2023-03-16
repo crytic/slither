@@ -1,9 +1,16 @@
+from typing import List, Union
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
 from slither.core.declarations.solidity_variables import SolidityVariable
 
 from slither.slithir.variables.constant import Constant
+from slither.core.variables.local_variable import LocalVariable
+from slither.slithir.variables.local_variable import LocalIRVariable
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
+from slither.slithir.variables.tuple import TupleVariable
+from slither.slithir.variables.tuple_ssa import TupleVariableSSA
 
 
 class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
@@ -11,7 +18,14 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
     High level message call
     """
 
-    def __init__(self, destination, function_name, nbr_arguments, result, type_call):
+    def __init__(
+        self,
+        destination: Union[LocalVariable, LocalIRVariable, TemporaryVariableSSA, TemporaryVariable],
+        function_name: Constant,
+        nbr_arguments: int,
+        result: Union[TupleVariable, TupleVariableSSA],
+        type_call: str,
+    ) -> None:
         # pylint: disable=too-many-arguments
         assert isinstance(destination, (Variable, SolidityVariable))
         assert isinstance(function_name, Constant)
@@ -51,12 +65,16 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         self._call_gas = v
 
     @property
-    def read(self):
+    def read(
+        self,
+    ) -> List[
+        Union[LocalIRVariable, Constant, LocalVariable, TemporaryVariableSSA, TemporaryVariable]
+    ]:
         all_read = [self.destination, self.call_gas, self.call_value] + self.arguments
         # remove None
         return self._unroll([x for x in all_read if x])
 
-    def can_reenter(self, _callstack=None):
+    def can_reenter(self, _callstack: None = None) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool
@@ -65,7 +83,7 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
             return False
         return True
 
-    def can_send_eth(self):
+    def can_send_eth(self) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool
@@ -73,19 +91,21 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         return self._call_value is not None
 
     @property
-    def destination(self):
+    def destination(
+        self,
+    ) -> Union[LocalVariable, LocalIRVariable, TemporaryVariableSSA, TemporaryVariable]:
         return self._destination
 
     @property
-    def function_name(self):
+    def function_name(self) -> Constant:
         return self._function_name
 
     @property
-    def nbr_arguments(self):
+    def nbr_arguments(self) -> int:
         return self._nbr_arguments
 
     @property
-    def type_call(self):
+    def type_call(self) -> str:
         return self._type_call
 
     def __str__(self):

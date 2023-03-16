@@ -44,7 +44,12 @@ contract MyConc{
     address not_constant = msg.sender;
     uint not_constant_2 = getNumber();
     uint not_constant_3 = 10 + block.number;
+    uint not_constant_5;
     
+	constructor(uint b) public {
+		not_constant_5 = b;
+	}
+
     function getNumber() public returns(uint){
         return block.number;
     }

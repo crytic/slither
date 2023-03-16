@@ -12,5 +12,9 @@ from .solidity_variables import (
 )
 from .structure import Structure
 from .enum_contract import EnumContract
+from .enum_top_level import EnumTopLevel
 from .structure_contract import StructureContract
+from .structure_top_level import StructureTopLevel
 from .function_contract import FunctionContract
+from .function_top_level import FunctionTopLevel
+from .custom_error_contract import CustomErrorContract
