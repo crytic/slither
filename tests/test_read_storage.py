@@ -4,7 +4,6 @@ import json
 
 import pytest
 from deepdiff import DeepDiff
-from web3 import Web3
 from web3.contract import Contract
 
 from slither import Slither
