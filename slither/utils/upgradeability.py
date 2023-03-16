@@ -105,7 +105,10 @@ def compare(v1: Contract, v2: Contract) -> dict:
         written_by = v2.get_functions_writing_to_variable(var)
         if v1.get_state_variable_from_name(var.name) is None:
             results["new-variables"].append(var)
-        elif any(func in read_by or func in written_by for func in new_modified_functions):
+        elif any(
+            func in read_by or func in written_by
+            for func in new_modified_functions + results["tainted-functions"]
+        ):
             results["tainted-variables"].append(var)
 
     return results
