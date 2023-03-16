@@ -15,7 +15,7 @@ STORAGE_TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "storage-layout")
 # pylint: disable=too-many-locals
 @pytest.mark.usefixtures("web3", "ganache")
 def test_read_storage(web3, ganache) -> None:
-    assert web3.isConnected()
+    assert web3.is_connected()
     bin_path = os.path.join(STORAGE_TEST_ROOT, "UnstructuredStorageLayout.bin")
     abi_path = os.path.join(STORAGE_TEST_ROOT, "UnstructuredStorageLayout.abi")
     bytecode = get_source_file(bin_path)
