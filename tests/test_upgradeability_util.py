@@ -1,5 +1,6 @@
 import os
 import json
+import re
 
 from solc_select import solc_select
 from deepdiff import DeepDiff
@@ -13,6 +14,7 @@ SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UPGRADE_TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "upgradeability-util")
 
 
+# pylint: disable=too-many-locals
 def test_upgrades_compare() -> None:
     solc_select.switch_global_version("0.8.2", always_install=True)
 
@@ -20,10 +22,10 @@ def test_upgrades_compare() -> None:
     v1 = sl.get_contract_from_name("ContractV1")[0]
     v2 = sl.get_contract_from_name("ContractV2")[0]
     diff = compare(v1, v2)
-    for key in diff.keys():
-        if len(diff[key]) > 0:
+    for key, lst in diff.items():
+        if len(lst) > 0:
             print(f'      * {str(key).replace("-", " ")}:')
-            for obj in diff[key]:
+            for obj in lst:
                 if isinstance(obj, StateVariable):
                     print(f"          * {obj.full_name}")
                 elif isinstance(obj, Function):
@@ -64,7 +66,3 @@ def diff_to_json_str(diff: dict) -> str:
             elif isinstance(obj, Function):
                 out[key].append(obj.signature_str)
     return str(out).replace("'", '"')
-
-
-def __main__():
-    test_upgradeability_util()
