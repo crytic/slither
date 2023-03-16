@@ -27,10 +27,10 @@ setup(
             "pytest-xdist",
             "deepdiff",
             "numpy",
-            "solc-select>=v1.0.0b1",
             "openai",
             "pdoc",
-        ]
+            "web3>=6.0.0",
+        ],
     },
     license="AGPL-3.0",
     long_description=long_description,
