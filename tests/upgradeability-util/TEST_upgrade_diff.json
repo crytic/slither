@@ -1,0 +1,20 @@
+{
+    "missing-vars-in-v2": [],
+    "new-variables": [
+        "ContractV2.stateC"
+    ],
+    "tainted-variables": [
+        "ContractV2.stateB",
+        "ContractV2.bug"
+    ],
+    "new-functions": [
+        "i() returns()"
+    ],
+    "modified-functions": [
+        "checkB() returns(bool)"
+    ],
+    "tainted-functions": [
+        "g(uint256) returns()",
+        "h() returns()"
+    ]
+}
