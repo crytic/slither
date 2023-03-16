@@ -90,7 +90,8 @@ def _process_internal_call(
 
 
 def _render_external_calls(external_calls):
-    return "\n".join(external_calls)
+    external_calls_sorted = sorted(external_calls)
+    return "\n".join(external_calls_sorted)
 
 
 def _render_internal_nodes(contract, contract_functions):
@@ -98,8 +99,8 @@ def _render_internal_nodes(contract, contract_functions):
 
     lines.append(f"subgraph {_contract_subgraph(contract)} {{")
     lines.append(f'label = "{contract.name}"')
-
-    lines.extend(contract_functions[contract])
+    contract_functions_sorted = sorted(contract_functions[contract])
+    lines.extend(contract_functions_sorted)
 
     lines.append("}")
 
@@ -108,7 +109,8 @@ def _render_internal_nodes(contract, contract_functions):
 
 def _render_internal_edges(contract, contract_calls):
     lines = []
-    lines.extend(contract_calls[contract])
+    contract_calls_sorted = sorted(contract_calls[contract])
+    lines.extend(contract_calls_sorted)
     return "\n".join(lines)
 
 
@@ -116,8 +118,8 @@ def _render_solidity_nodes(solidity_functions):
     lines = []
     lines.append("subgraph cluster_solidity {")
     lines.append('label = "[Solidity]"')
-
-    lines.extend(solidity_functions)
+    solidity_functions_sorted = sorted(solidity_functions)
+    lines.extend(solidity_functions_sorted)
 
     lines.append("}")
 
@@ -126,7 +128,8 @@ def _render_solidity_nodes(solidity_functions):
 
 def _render_solidity_edges(solidity_calls):
     lines = []
-    lines.extend(solidity_calls)
+    solidity_calls_sorted = sorted(solidity_calls)
+    lines.extend(solidity_calls_sorted)
     return "\n".join(lines)
 
 
@@ -279,7 +282,8 @@ def _process_functions(functions, top_level_dict):
             )
     render_internal_nodes = ""
     render_internal_edges = ""
-    for contract in all_contracts:
+    all_contracts_sorted = sorted(all_contracts, key=lambda x:x.name)
+    for contract in all_contracts_sorted:
         render_internal_nodes += _render_internal_nodes(contract, contract_functions)
         render_internal_edges += _render_internal_edges(contract, contract_calls)
 

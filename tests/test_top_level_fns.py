@@ -9,7 +9,9 @@ from slither.printers.call.call_graph import (
     _edge,
     _function_node,
     _solidity_function_node,
+    PrinterCallGraph
 )
+from deepdiff import DeepDiff
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.function import Function
 from slither.core.declarations.solidity_variables import SolidityFunction
@@ -22,7 +24,7 @@ SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST_FILE_PATH = os.path.join(SLITHER_ROOT, "tests", "printers/")
 
 
-@pytest.fixture
+
 def setup():
     solc_standard_json = SolcStandardJson()
     solc_standard_json.add_source_file(os.path.join(TEST_FILE_PATH, "TestTopLevels.sol"))
@@ -41,8 +43,6 @@ def setup():
         assert isinstance(fn_top, (FunctionTopLevel))  # sanity check
     return (regular_function_dict, top_level_dict)
 
-
-@pytest.fixture
 def get_contract_and_fn_names():
     contracts = [
         "TestTopLevels",
@@ -89,7 +89,6 @@ def get_contract_and_fn_names():
     )
 
 
-@pytest.fixture
 def get_edges():
     edges = [
         '"175_x3" -> "175_beExternal"',
@@ -137,10 +136,10 @@ def stringify(target):
     return "".join("".join(target))
 
 
-def test_internal_call(setup, get_contract_and_fn_names, get_edges):
-    function_dict, top_level_dict = setup
-    _, _, total_contracts, sol_calls, internal_calls, _, _, _ = get_contract_and_fn_names
-    edges = get_edges
+def test_internal_call():
+    function_dict, top_level_dict = setup()
+    _, _, total_contracts, sol_calls, internal_calls, _, _, _ = get_contract_and_fn_names()
+    edges = get_edges()
     solidity_functions = set()
     solidity_calls = set()
     contract_calls = defaultdict(set)
@@ -193,10 +192,10 @@ def test_internal_call(setup, get_contract_and_fn_names, get_edges):
                 )  # edges are correctly formed for internal/toplevels
 
 
-def test_external_calls(setup, get_contract_and_fn_names, get_edges):
-    function_dict, top_level_dict = setup
-    _, _, total_contracts, _, _, external_calls, _, _ = get_contract_and_fn_names
-    edges = get_edges
+def test_external_calls():
+    function_dict, top_level_dict = setup()
+    _, _, total_contracts, _, _, external_calls, _, _ = get_contract_and_fn_names()
+    edges = get_edges()
     external_calls_list = set()  # external calls edges
     contract_calls = defaultdict(set)  # contract -> contract calls
     all_contracts = set()
@@ -227,5 +226,22 @@ def test_external_calls(setup, get_contract_and_fn_names, get_edges):
             assert edge in external_calls_list
 
 
-# "175_x3" -> "175_beExternal""175_beExternal" -> "12_test""TopLevelFunctions_TestTopLevels_setNumber" -> "12_test""290_increment" -> "175_beExternal""362_canTry" -> "TopLevelFunctions_TopLevelUsingFor_getBit""362_canDoThing" -> "TopLevelFunctions_TopLevelUsingFor_getBit""175_increment" -> "TopLevelFunctions_TopLevelImported_cry""175_x3" -> "TopLevelFunctions_TestTopLevels_setNumber""175_increment" -> "TopLevelFunctions_TestTopLevels_attempt""175_increment" -> "175_x3""175_increment" -> "362_canDoThing""175_x3" -> "95_hi""175_x3" -> "TopLevelFunctions_TestTopLevels_attempt""175_x3" -> "175_increment""175_x3" -> "TopLevelFunctions_TestTopLevels_fill""TopLevelFunctions_TestTopLevels_attempt" -> "TopLevelFunctions_TestTopLevels_setNumber""TopLevelFunctions_TestTopLevels_setNumber" -> "TopLevelFunctions_TestTopLevels_fill""TopLevelFunctions_TestTopLevels_fill" -> "TopLevelFunctions_TopLevelImported_cry""TopLevelFunctions_TopLevelImported_setNumber" -> "TopLevelFunctions_TopLevelImported_fill""TopLevelFunctions_TopLevelImported_cry" -> "TopLevelFunctions_TopLevelImported_setNumber""290_increment" -> "TopLevelFunctions_TopLevelImported_setNumber""290_x2" -> "TopLevelFunctions_TopLevelImported_cry""290_increment" -> "290_x2""290_a3" -> "TopLevelFunctions_TopLevelImported_cry""290_a3" -> "TopLevelFunctions_TopLevelImported_fill""290_a3" -> "290_increment""95_hi" -> "362_canDoThing""95_hi" -> "TopLevelFunctions_TopLevelUsingFor_getBit""95_hi" -> "TopLevelFunctions_TestTopLevels_setNumber""TopLevelFunctions_TopLevelImported_fill" -> "abi.encode()""290_a3" -> "abi.encode()""290_a3" -> "ecrecover(bytes32,uint8,bytes32,bytes32)""TopLevelFunctions_TestTopLevels_setNumber" -> "keccak256(bytes)""TopLevelFunctions_TopLevelImported_setNumber" -> "keccak256(bytes)""290_a3" -> "keccak256(bytes)""TopLevelFunctions_TestTopLevels_setNumber" -> "abi.encode()"
-# "366_canDoThing" -> "TopLevelFunctions_TopLevelUsingFor_getBit"
+def test_generate_dot():
+    solc_standard_json = SolcStandardJson()
+    solc_standard_json.add_source_file(os.path.join(TEST_FILE_PATH, "TestTopLevels.sol"))
+    solc_standard_json.add_source_file(os.path.join(TEST_FILE_PATH, "TopLevelImported.sol"))
+    solc_standard_json.add_source_file(os.path.join(TEST_FILE_PATH, "TopLevelUsingFor.sol"))
+    cc = CryticCompile(solc_standard_json)
+    zip_file = os.path.join(SLITHER_ROOT, "tests/printers/TestTopLevelASTJSON.zip")
+    save_to_zip([cc], zip_file)
+    crytic_compile_units = load_from_zip(zip_file)[0]
+    sl = Slither(crytic_compile_units)
+    printer = PrinterCallGraph(sl,logger=None)
+    printer.output(os.path.join(TEST_FILE_PATH,"AllContractsTestGeneration"))
+    with open(os.path.join(TEST_FILE_PATH,"TestTopLevels.sol.all_contracts.call-graph.dot"),"rb") as f:
+        expected = f.read()
+        f.close()
+    with open(os.path.join(TEST_FILE_PATH,"AllContractsTestGeneration.all_contracts.call-graph.dot"),"rb") as g:
+        actual = g.read()
+        g.close()
+    assert(DeepDiff(expected,actual) == {})
