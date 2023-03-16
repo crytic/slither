@@ -9,7 +9,7 @@ from slither.printers.call.call_graph import (
     _edge,
     _function_node,
     _solidity_function_node,
-    PrinterCallGraph
+    PrinterCallGraph,
 )
 from deepdiff import DeepDiff
 from slither.core.declarations.function_top_level import FunctionTopLevel
@@ -22,7 +22,6 @@ import pytest
 
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST_FILE_PATH = os.path.join(SLITHER_ROOT, "tests", "printers/")
-
 
 
 def setup():
@@ -42,6 +41,7 @@ def setup():
     for fn_top in top_level_dict:
         assert isinstance(fn_top, (FunctionTopLevel))  # sanity check
     return (regular_function_dict, top_level_dict)
+
 
 def get_contract_and_fn_names():
     contracts = [
@@ -236,12 +236,17 @@ def test_generate_dot():
     save_to_zip([cc], zip_file)
     crytic_compile_units = load_from_zip(zip_file)[0]
     sl = Slither(crytic_compile_units)
-    printer = PrinterCallGraph(sl,logger=None)
-    printer.output(os.path.join(TEST_FILE_PATH,"AllContractsTestGeneration"))
-    with open(os.path.join(TEST_FILE_PATH,"TestTopLevels.sol.all_contracts.call-graph.dot"),"rb") as f:
+    printer = PrinterCallGraph(sl, logger=None)
+    printer.output(os.path.join(TEST_FILE_PATH, "AllContractsTestGeneration"))
+    with open(
+        os.path.join(TEST_FILE_PATH, "TestTopLevels.sol.all_contracts.call-graph.dot"), "rb"
+    ) as f:
         expected = f.read()
         f.close()
-    with open(os.path.join(TEST_FILE_PATH,"AllContractsTestGeneration.all_contracts.call-graph.dot"),"rb") as g:
+    with open(
+        os.path.join(TEST_FILE_PATH, "AllContractsTestGeneration.all_contracts.call-graph.dot"),
+        "rb",
+    ) as g:
         actual = g.read()
         g.close()
-    assert(DeepDiff(expected,actual) == {})
+    assert DeepDiff(expected, actual) == {}

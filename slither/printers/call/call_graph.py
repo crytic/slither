@@ -282,7 +282,7 @@ def _process_functions(functions, top_level_dict):
             )
     render_internal_nodes = ""
     render_internal_edges = ""
-    all_contracts_sorted = sorted(all_contracts, key=lambda x:x.name)
+    all_contracts_sorted = sorted(all_contracts, key=lambda x: x.name)
     for contract in all_contracts_sorted:
         render_internal_nodes += _render_internal_nodes(contract, contract_functions)
         render_internal_edges += _render_internal_edges(contract, contract_calls)
