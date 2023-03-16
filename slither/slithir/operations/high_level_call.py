@@ -76,7 +76,7 @@ class HighLevelCall(Call, OperationWithLValue):
     def read(self) -> List[SourceMapping]:
         all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(self.arguments)
         # remove None
-        return [x for x in all_read if x] + [self.destination]
+        return [x for x in all_read if x]
 
     @property
     def destination(self) -> SourceMapping:
