@@ -66,7 +66,7 @@ Consider using the latest version of Solidity for testing."""
     # Indicates the allowed versions. Must be formatted in increasing order.
     ALLOWED_VERSIONS = ["0.8.18"]
 
-    TOO_RECENT_VERSION_TXT = f"necessitates a version too recent to be trusted. Consider deploying with {'/'.join(ALLOWED_VERSIONS)} "
+    TOO_RECENT_VERSION_TXT = f"necessitates a version too recent to be trusted. Consider deploying with {'/'.join(ALLOWED_VERSIONS)}."
 
     # Indicates the versions that should not be used.
     BUGGY_VERSIONS = [
