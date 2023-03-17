@@ -344,6 +344,7 @@ def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
     """
     Gets the Variable that stores a proxy's implementation address. Uses data dependency to trace any LocalVariable
     that is passed into a delegatecall as the target address back to its data source, ideally a StateVariable.
+    Can return a newly created StateVariable if an `sload` from a hardcoded storage slot is found in assembly.
     Args:
         proxy: A Contract object (proxy.is_upgradeable_proxy should be true).
 
@@ -366,6 +367,7 @@ def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
 def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
     """
     Searches a proxy's fallback function for a delegatecall, then extracts the Variable being passed in as the target.
+    Can return a newly created StateVariable if an `sload` from a hardcoded storage slot is found in assembly.
     Should typically be called by get_proxy_implementation_var(proxy).
     Args:
         proxy: A Contract object (should have a fallback function).
@@ -416,6 +418,7 @@ def extract_delegate_from_asm(contract: Contract, node: Node) -> Optional[Variab
     """
     Finds a Variable with a name matching the argument passed into a delegatecall, when all we have is an Assembly node
     with a block of code as one long string. Usually only the case for solc versions < 0.6.0.
+    Can return a newly created StateVariable if an `sload` from a hardcoded storage slot is found in assembly.
     Should typically be called by find_delegate_in_fallback(proxy).
     Args:
         contract: The parent Contract.
