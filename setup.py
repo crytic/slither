@@ -17,6 +17,7 @@ setup(
         "pycryptodome>=3.4.6",
         # "crytic-compile>=0.3.0",
         "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
+        "web3>=6.0.0",
     ],
     extras_require={
         "dev": [
@@ -29,7 +30,6 @@ setup(
             "numpy",
             "openai",
             "pdoc",
-            "web3>=6.0.0",
         ],
     },
     license="AGPL-3.0",
