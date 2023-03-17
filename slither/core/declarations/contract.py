@@ -85,6 +85,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._kind: Optional[str] = None
         self._is_interface: bool = False
         self._is_library: bool = False
+        self._is_fully_implemented: bool = False
 
         self._signatures: Optional[List[str]] = None
         self._signatures_declared: Optional[List[str]] = None
@@ -191,6 +192,14 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @comments.setter
     def comments(self, comments: str):
         self._comments = comments
+
+    @property
+    def is_fully_implemented(self) -> bool:
+        return self._is_fully_implemented
+
+    @is_fully_implemented.setter
+    def is_fully_implemented(self, is_fully_implemented: bool):
+        self._is_fully_implemented = is_fully_implemented
 
     # endregion
     ###################################################################################
