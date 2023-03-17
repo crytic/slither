@@ -58,6 +58,7 @@ def test_upgrades_implementation_var() -> None:
     eip_1822_proxy = sl.get_contract_from_name("EIP1822Proxy")[0]
     # zos_proxy = sl.get_contract_from_name("ZosProxy")[0]
     master_copy_proxy = sl.get_contract_from_name("MasterCopyProxy")[0]
+    synth_proxy = sl.get_contract_from_name("SynthProxy")[0]
 
     target = get_proxy_implementation_var(eip_1822_proxy)
     slot = get_proxy_implementation_slot(eip_1822_proxy)
@@ -77,3 +78,7 @@ def test_upgrades_implementation_var() -> None:
     slot = get_proxy_implementation_slot(master_copy_proxy)
     assert target == master_copy_proxy.get_state_variable_from_name("masterCopy")
     assert slot.slot == 0
+    target = get_proxy_implementation_var(synth_proxy)
+    slot = get_proxy_implementation_slot(synth_proxy)
+    assert target == synth_proxy.get_state_variable_from_name("target")
+    assert slot.slot == 1
