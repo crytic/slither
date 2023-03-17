@@ -16,7 +16,7 @@ def generate_interface(contract: "Contract") -> str:
 
     Returns:
         A string with the code for an interface, with function stubs for all public or external functions and
-        state variables, as well as any events or structs declared in the contract.
+        state variables, as well as any events, custom errors and/or structs declared in the contract.
     """
     interface = f"interface I{contract.name} {{\n"
     for event in contract.events:
