@@ -107,6 +107,7 @@ GENERIC_TAINT = {
     SolidityVariableComposed("msg.value"),
     SolidityVariableComposed("msg.data"),
     SolidityVariableComposed("tx.origin"),
+    SolidityVariableComposed("tx.gasprice"),
 }
 
 
