@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 from slither.core.declarations import (
     Contract,
     Structure,
@@ -102,9 +102,7 @@ def compare(
 
     # Since this is not a detector, include any missing variables in the v2 contract
     if len(order_vars2) < len(order_vars1):
-        for variable in order_vars1:
-            if variable.name not in [v.name for v in order_vars2]:
-                results["missing-vars-in-v2"].append(variable)
+        results["missing-vars-in-v2"].extend(get_missing_vars(v1, v2))
 
     # Find all new and modified functions in the v2 contract
     new_modified_functions = []
@@ -169,6 +167,30 @@ def compare(
         results["modified-functions"],
         results["tainted-functions"],
     )
+
+
+def get_missing_vars(v1: Contract, v2: Contract) -> List[StateVariable]:
+    """
+    Gets all non-constant/immutable StateVariables that appear in v1 but not v2
+    Args:
+        v1: Contract version 1
+        v2: Contract version 2
+
+    Returns:
+        List of StateVariables from v1 missing in v2
+    """
+    results = []
+    order_vars1 = [
+        v for v in v1.state_variables_ordered if not v.is_constant and not v.is_immutable
+    ]
+    order_vars2 = [
+        v for v in v2.state_variables_ordered if not v.is_constant and not v.is_immutable
+    ]
+    if len(order_vars2) < len(order_vars1):
+        for variable in order_vars1:
+            if variable.name not in [v.name for v in order_vars2]:
+                results.append(variable)
+    return results
 
 
 def is_function_modified(f1: Function, f2: Function) -> bool:
