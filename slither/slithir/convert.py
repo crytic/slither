@@ -789,7 +789,13 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                                 if v:
                                     ir.lvalue.set_type(v.type)
             elif isinstance(ir, NewArray):
-                ir.lvalue.set_type(ir.array_type)
+                # Reconstruct the array type from base type and depth
+                # Note that the length of the array type is lost since NewArray expression does not store it.
+                # So, here we over-approximately set the length to None (dynamic array).
+                typ = ir.array_type
+                for _ in range(ir.depth):
+                    typ = ArrayType(typ, None)
+                ir.lvalue.set_type(typ)
             elif isinstance(ir, NewContract):
                 contract = node.file_scope.get_contract_from_name(ir.contract_name)
                 ir.lvalue.set_type(UserDefinedType(contract))
