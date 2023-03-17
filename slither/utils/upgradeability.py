@@ -428,10 +428,17 @@ def extract_delegate_from_asm(contract: Contract, node: Node) -> Optional[Variab
     asm = next(line for line in asm_split if "delegatecall" in line)
     params = asm.split("call(")[1].split(", ")
     dest = params[1]
-    if dest.endswith(")"):
+    if dest.endswith(")") and not dest.startswith("sload("):
         dest = params[2]
     if dest.startswith("sload("):
         dest = dest.replace(")", "(").split("(")[1]
+        if len(dest) == 66 and dest.startswith("0x"):
+            v = StateVariable()
+            v.is_constant = True
+            v.expression = Literal(dest, ElementaryType("bytes32"))
+            v.name = dest
+            v.type = ElementaryType("bytes32")
+            return v
         for v in node.function.variables_read_or_written:
             if v.name == dest:
                 if isinstance(v, LocalVariable) and v.expression is not None:
