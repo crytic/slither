@@ -1,7 +1,6 @@
-import re
-import os
-import sys
 import json
+import os
+import re
 import shutil
 import subprocess
 from time import sleep
@@ -9,16 +8,11 @@ from typing import Generator
 
 import pytest
 from deepdiff import DeepDiff
+from web3 import Web3
+from web3.contract import Contract
+
 from slither import Slither
 from slither.tools.read_storage import SlitherReadStorage
-
-try:
-    from web3 import Web3
-    from web3.contract import Contract
-except ImportError:
-    print("ERROR: in order to use slither-read-storage, you need to install web3")
-    print("$ pip3 install web3 --user\n")
-    sys.exit(-1)
 
 SLITHER_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STORAGE_TEST_ROOT = os.path.join(SLITHER_ROOT, "tests", "storage-layout")
@@ -98,7 +92,7 @@ def deploy_contract(w3, ganache, contract_bin, contract_abi) -> Contract:
 # pylint: disable=too-many-locals
 @pytest.mark.usefixtures("web3", "ganache")
 def test_read_storage(web3, ganache) -> None:
-    assert web3.isConnected()
+    assert web3.is_connected()
     bin_path = os.path.join(STORAGE_TEST_ROOT, "StorageLayout.bin")
     abi_path = os.path.join(STORAGE_TEST_ROOT, "StorageLayout.abi")
     bytecode = get_source_file(bin_path)

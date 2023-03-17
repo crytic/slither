@@ -110,6 +110,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             Dict["StateVariable", Set[Union["StateVariable", "Function"]]]
         ] = None
 
+        self._comments: Optional[str] = None
+
     ###################################################################################
     ###################################################################################
     # region General's properties
@@ -164,6 +166,31 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @is_library.setter
     def is_library(self, is_library: bool):
         self._is_library = is_library
+
+    @property
+    def comments(self) -> Optional[str]:
+        """
+        Return the comments associated with the contract.
+
+        When using comments, avoid strict text matching, as the solc behavior might change.
+        For example, for old solc version, the first space after the * is not kept, i.e:
+
+          * @title Test Contract
+          * @dev Test comment
+
+        Returns
+        - " @title Test Contract\n @dev Test comment" for newest versions
+        - "@title Test Contract\n@dev Test comment" for older versions
+
+
+        Returns:
+            the comment as a string
+        """
+        return self._comments
+
+    @comments.setter
+    def comments(self, comments: str):
+        self._comments = comments
 
     # endregion
     ###################################################################################
