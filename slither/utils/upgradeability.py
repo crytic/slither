@@ -407,11 +407,7 @@ def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
                 if isinstance(dest, Literal) and len(dest.value) == 66:  # 32 bytes = 64 chars + "0x" = 66 chars
                     # Storage slot is not declared as a constant, but rather is hardcoded in the assembly,
                     # so create a new StateVariable to represent it.
-                    delegate = StateVariable()
-                    delegate.is_constant = True
-                    delegate.expression = dest
-                    delegate.name = dest.value
-                    delegate.type = ElementaryType("bytes32")
+                    delegate = create_state_variable_from_slot(dest.value)
                     break
     return delegate
 
@@ -437,14 +433,8 @@ def extract_delegate_from_asm(contract: Contract, node: Node) -> Optional[Variab
         dest = params[2]
     if dest.startswith("sload("):
         dest = dest.replace(")", "(").split("(")[1]
-        if len(dest) == 66 and dest.startswith("0x"):   # 32 bytes = 64 chars + "0x" = 66 chars
-            # Storage slot is not declared as a constant, but rather is hardcoded in the assembly,
-            # so create a new StateVariable to represent it.
-            v = StateVariable()
-            v.is_constant = True
-            v.expression = Literal(dest, ElementaryType("bytes32"))
-            v.name = dest
-            v.type = ElementaryType("bytes32")
+        v = create_state_variable_from_slot(dest)
+        if v is not None:
             return v
         for v in node.function.variables_read_or_written:
             if v.name == dest:
@@ -466,6 +456,7 @@ def find_delegate_from_name(
     """
     Searches for a variable with a given name, starting with StateVariables declared in the contract, followed by
     LocalVariables in the parent function, either declared in the function body or as parameters in the signature.
+    Can return a newly created StateVariable if an `sload` from a hardcoded storage slot is found in assembly.
     Args:
         contract: The Contract object to search.
         dest: The variable name to search for.
@@ -483,4 +474,39 @@ def find_delegate_from_name(
     for pv in parent_func.parameters + parent_func.returns:
         if pv.name == dest:
             return pv
+    if parent_func.contains_assembly:
+        for node in parent_func.all_nodes():
+            if node.type == NodeType.ASSEMBLY and isinstance(node.inline_asm, str):
+                asm = next((s for s in node.inline_asm.split("\n") if f"{dest}:=sload(" in s.replace(" ", "")), None)
+                if asm:
+                    slot = asm.split("sload(")[1].split(")")[0]
+                    return create_state_variable_from_slot(slot, name=dest)
     return None
+
+
+def create_state_variable_from_slot(slot: str, name: str = None) -> Optional[StateVariable]:
+    """
+    Creates a new StateVariable object to wrap a hardcoded storage slot found in assembly.
+    Args:
+        slot: The storage slot hex string.
+        name: Optional name for the variable. The slot string is used if name is not provided.
+
+    Returns:
+        A newly created constant StateVariable of type bytes32, with the slot as the variable's expression and name,
+        if slot matches the length and prefix of a bytes32. Otherwise, returns None.
+    """
+    if len(slot) == 66 and slot.startswith("0x"):  # 32 bytes = 64 chars + "0x" = 66 chars
+        # Storage slot is not declared as a constant, but rather is hardcoded in the assembly,
+        # so create a new StateVariable to represent it.
+        v = StateVariable()
+        v.is_constant = True
+        v.expression = Literal(slot, ElementaryType("bytes32"))
+        if name is not None:
+            v.name = name
+        else:
+            v.name = slot
+        v.type = ElementaryType("bytes32")
+        return v
+    else:
+        # This should probably also handle hashed strings, but for now return None
+        return None
