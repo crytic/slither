@@ -21,48 +21,16 @@ def test_upgrades_compare() -> None:
     sl = Slither(os.path.join(UPGRADE_TEST_ROOT, "TestUpgrades.sol"))
     v1 = sl.get_contract_from_name("ContractV1")[0]
     v2 = sl.get_contract_from_name("ContractV2")[0]
-    diff_dict = compare(v1, v2)
-    for key, lst in diff_dict.items():
-        if len(lst) > 0:
-            print(f'      * {str(key).replace("-", " ")}:')
-            for obj in lst:
-                if isinstance(obj, StateVariable):
-                    print(f"          * {obj.full_name}")
-                elif isinstance(obj, Function):
-                    print(f"          * {obj.signature_str}")
-    with open("upgrade_diff.json", "w", encoding="utf-8") as file:
-        json_str = diff_to_json_str(diff_dict)
-        diff_json = json.loads(json_str)
-        json.dump(diff_json, file, indent=4)
-
-    expected_file = os.path.join(UPGRADE_TEST_ROOT, "TEST_upgrade_diff.json")
-    actual_file = os.path.join(SLITHER_ROOT, "upgrade_diff.json")
-
-    with open(expected_file, "r", encoding="utf8") as f:
-        expected = json.load(f)
-    with open(actual_file, "r", encoding="utf8") as f:
-        actual = json.load(f)
-
-    diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
-    if diff:
-        for change in diff.get("values_changed", []):
-            path_list = re.findall(r"\['(.*?)'\]", change.path())
-            path = "_".join(path_list)
-            with open(f"{path}_expected.txt", "w", encoding="utf8") as f:
-                f.write(str(change.t1))
-            with open(f"{path}_actual.txt", "w", encoding="utf8") as f:
-                f.write(str(change.t2))
-
-    assert not diff
-
-
-def diff_to_json_str(diff: dict) -> str:
-    out: dict = {}
-    for key in diff.keys():
-        out[key] = []
-        for obj in diff[key]:
-            if isinstance(obj, StateVariable):
-                out[key].append(obj.canonical_name)
-            elif isinstance(obj, Function):
-                out[key].append(obj.signature_str)
-    return str(out).replace("'", '"')
+    missing_vars, new_vars, tainted_vars, new_funcs, modified_funcs, tainted_funcs = compare(v1, v2)
+    assert len(missing_vars) == 0
+    assert new_vars == [v2.get_state_variable_from_name("stateC")]
+    assert tainted_vars == [
+        v2.get_state_variable_from_name("stateB"),
+        v2.get_state_variable_from_name("bug")
+    ]
+    assert new_funcs == [v2.get_function_from_signature("i()")]
+    assert modified_funcs == [v2.get_function_from_signature("checkB()")]
+    assert tainted_funcs == [
+        v2.get_function_from_signature("g(uint256)"),
+        v2.get_function_from_signature("h()")
+    ]
