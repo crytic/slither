@@ -461,9 +461,18 @@ def extract_delegate_from_asm(contract: Contract, node: Node) -> Optional[Variab
         dest = params[2]
     if dest.startswith("sload("):
         dest = dest.replace(")", "(").split("(")[1]
-        v = create_state_variable_from_slot(dest)
-        if v is not None:
-            return v
+        if dest.startswith("0x"):
+            return create_state_variable_from_slot(dest)
+        if dest.isnumeric():
+            slot_idx = int(dest)
+            return next(
+                (
+                    v
+                    for v in contract.state_variables_ordered
+                    if SlitherReadStorage.get_variable_info(contract, v)[0] == slot_idx
+                ),
+                None,
+            )
         for v in node.function.variables_read_or_written:
             if v.name == dest:
                 if isinstance(v, LocalVariable) and v.expression is not None:
