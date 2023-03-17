@@ -404,7 +404,9 @@ def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
                 if isinstance(dest, Identifier):
                     delegate = dest.value
                     break
-                if isinstance(dest, Literal) and len(dest.value) == 66:
+                if isinstance(dest, Literal) and len(dest.value) == 66:  # 32 bytes = 64 chars + "0x" = 66 chars
+                    # Storage slot is not declared as a constant, but rather is hardcoded in the assembly,
+                    # so create a new StateVariable to represent it.
                     delegate = StateVariable()
                     delegate.is_constant = True
                     delegate.expression = dest
@@ -435,7 +437,9 @@ def extract_delegate_from_asm(contract: Contract, node: Node) -> Optional[Variab
         dest = params[2]
     if dest.startswith("sload("):
         dest = dest.replace(")", "(").split("(")[1]
-        if len(dest) == 66 and dest.startswith("0x"):
+        if len(dest) == 66 and dest.startswith("0x"):   # 32 bytes = 64 chars + "0x" = 66 chars
+            # Storage slot is not declared as a constant, but rather is hardcoded in the assembly,
+            # so create a new StateVariable to represent it.
             v = StateVariable()
             v.is_constant = True
             v.expression = Literal(dest, ElementaryType("bytes32"))
