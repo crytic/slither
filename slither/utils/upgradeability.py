@@ -82,8 +82,12 @@ def compare(
         tainted-functions: list[Function]
     """
 
-    order_vars1 = [v for v in v1.state_variables_ordered if not v.is_constant and not v.is_immutable]
-    order_vars2 = [v for v in v2.state_variables_ordered if not v.is_constant and not v.is_immutable]
+    order_vars1 = [
+        v for v in v1.state_variables_ordered if not v.is_constant and not v.is_immutable
+    ]
+    order_vars2 = [
+        v for v in v2.state_variables_ordered if not v.is_constant and not v.is_immutable
+    ]
     func_sigs1 = [function.solidity_signature for function in v1.functions]
     func_sigs2 = [function.solidity_signature for function in v2.functions]
 
@@ -404,7 +408,9 @@ def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
                 if isinstance(dest, Identifier):
                     delegate = dest.value
                     break
-                if isinstance(dest, Literal) and len(dest.value) == 66:  # 32 bytes = 64 chars + "0x" = 66 chars
+                if (
+                    isinstance(dest, Literal) and len(dest.value) == 66
+                ):  # 32 bytes = 64 chars + "0x" = 66 chars
                     # Storage slot is not declared as a constant, but rather is hardcoded in the assembly,
                     # so create a new StateVariable to represent it.
                     delegate = create_state_variable_from_slot(dest.value)
@@ -477,10 +483,30 @@ def find_delegate_from_name(
     if parent_func.contains_assembly:
         for node in parent_func.all_nodes():
             if node.type == NodeType.ASSEMBLY and isinstance(node.inline_asm, str):
-                asm = next((s for s in node.inline_asm.split("\n") if f"{dest}:=sload(" in s.replace(" ", "")), None)
+                asm = next(
+                    (
+                        s
+                        for s in node.inline_asm.split("\n")
+                        if f"{dest}:=sload(" in s.replace(" ", "")
+                    ),
+                    None,
+                )
                 if asm:
                     slot = asm.split("sload(")[1].split(")")[0]
-                    return create_state_variable_from_slot(slot, name=dest)
+                    if slot.startswith("0x"):
+                        return create_state_variable_from_slot(slot, name=dest)
+                    try:
+                        slot_idx = int(slot)
+                        return next(
+                            (
+                                v
+                                for v in contract.state_variables_ordered
+                                if SlitherReadStorage.get_variable_info(contract, v)[0] == slot_idx
+                            ),
+                            None,
+                        )
+                    except TypeError:
+                        continue
     return None
 
 
@@ -507,6 +533,5 @@ def create_state_variable_from_slot(slot: str, name: str = None) -> Optional[Sta
             v.name = slot
         v.type = ElementaryType("bytes32")
         return v
-    else:
-        # This should probably also handle hashed strings, but for now return None
-        return None
+    # This should probably also handle hashed strings, but for now return None
+    return None
