@@ -63,7 +63,7 @@ from slither.tools.read_storage.read_storage import SlotInfo, SlitherReadStorage
 def compare(
     v1: Contract, v2: Contract
 ) -> Tuple[
-    list[Variable], list[Variable], list[Variable], list[Function], list[Function], list[Function]
+    List[Variable], List[Variable], List[Variable], List[Function], List[Function], List[Function]
 ]:
     """
     Compares two versions of a contract. Most useful for upgradeable (logic) contracts,
