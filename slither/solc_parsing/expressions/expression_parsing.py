@@ -560,6 +560,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         if type_name[caller_context.get_key()] == "ArrayTypeName":
             depth = 0
+            array_type = parse_type(type_name, caller_context)
             while type_name[caller_context.get_key()] == "ArrayTypeName":
                 # Note: dont conserve the size of the array if provided
                 # We compute it directly
@@ -567,29 +568,11 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                     type_name = type_name["baseType"]
                 else:
                     type_name = type_name["children"][0]
+                if depth > 0:
+                    # nested array
+                    array_type = ArrayType(parse_type(type_name, caller_context), array_type.length)
                 depth += 1
-            if type_name[caller_context.get_key()] == "ElementaryTypeName":
-                if is_compact_ast:
-                    array_type = ElementaryType(type_name["name"])
-                else:
-                    array_type = ElementaryType(type_name["attributes"]["name"])
-            elif type_name[caller_context.get_key()] == "UserDefinedTypeName":
-                if is_compact_ast:
-                    if "name" not in type_name:
-                        name_type = type_name["pathNode"]["name"]
-                    else:
-                        name_type = type_name["name"]
-
-                    array_type = parse_type(UnknownType(name_type), caller_context)
-                else:
-                    array_type = parse_type(
-                        UnknownType(type_name["attributes"]["name"]), caller_context
-                    )
-            elif type_name[caller_context.get_key()] == "FunctionTypeName":
-                array_type = parse_type(type_name, caller_context)
-            else:
-                raise ParsingError(f"Incorrect type array {type_name}")
-            array = NewArray(depth, array_type)
+            array = NewArray(array_type)
             array.set_offset(src, caller_context.compilation_unit)
             return array
 

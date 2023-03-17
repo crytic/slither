@@ -789,10 +789,9 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
         return Member(variable_left, variable_right, lvalue)
     if isinstance(ir, NewArray):
-        depth = ir.depth
         array_type = ir.array_type
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        new_ir = NewArray(depth, array_type, lvalue)
+        new_ir = NewArray(array_type, lvalue)
         new_ir.arguments = get_rec_values(ir, lambda x: x.arguments, *instances)
         return new_ir
     if isinstance(ir, NewElementaryType):
