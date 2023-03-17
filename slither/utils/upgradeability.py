@@ -350,8 +350,7 @@ def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
     Returns:
         (`Variable`) | None : The variable, ideally a StateVariable, which stores the proxy's implementation address.
     """
-    available_functions = proxy.available_functions_as_dict()
-    if not proxy.is_upgradeable_proxy or not available_functions["fallback()"]:
+    if not proxy.is_upgradeable_proxy or not proxy.fallback_function:
         return None
 
     delegate = find_delegate_in_fallback(proxy)
@@ -375,7 +374,7 @@ def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
         (`Variable`) | None : The variable being passed as the destination argument in a delegatecall in the fallback.
     """
     delegate: Optional[Variable] = None
-    fallback = proxy.available_functions_as_dict()["fallback()"]
+    fallback = proxy.fallback_function
     for node in fallback.all_nodes():
         for ir in node.irs:
             if isinstance(ir, LowLevelCall) and ir.function_name == "delegatecall":
