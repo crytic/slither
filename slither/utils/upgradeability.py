@@ -82,8 +82,8 @@ def compare(
         tainted-functions: list[Function]
     """
 
-    order_vars1 = [v for v in v1.state_variables if not v.is_constant and not v.is_immutable]
-    order_vars2 = [v for v in v2.state_variables if not v.is_constant and not v.is_immutable]
+    order_vars1 = [v for v in v1.state_variables_ordered if not v.is_constant and not v.is_immutable]
+    order_vars2 = [v for v in v2.state_variables_ordered if not v.is_constant and not v.is_immutable]
     func_sigs1 = [function.solidity_signature for function in v1.functions]
     func_sigs2 = [function.solidity_signature for function in v2.functions]
 
@@ -114,7 +114,7 @@ def compare(
             new_modified_function_vars += (
                 function.state_variables_read + function.state_variables_written
             )
-        elif not function.name.startswith("slither") and is_function_modified(
+        elif not function.is_constructor_variables and is_function_modified(
             orig_function, function
         ):
             new_modified_functions.append(function)
