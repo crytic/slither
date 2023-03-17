@@ -5,7 +5,7 @@ from slither.core.declarations.contract import Contract
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Function, Structure
+    from slither.core.declarations import FunctionContract, Structure
 
 
 def generate_interface(contract: "Contract") -> str:
@@ -36,13 +36,13 @@ def generate_interface(contract: "Contract") -> str:
     return interface
 
 
-def generate_interface_function_signature(func: "Function") -> Optional[str]:
+def generate_interface_function_signature(func: "FunctionContract") -> Optional[str]:
     """
     Generates a string of the form:
         func_name(type1,type2) external {payable/view/pure} returns (type3)
 
     Args:
-        func: A Function object
+        func: A FunctionContract object
 
     Returns:
         The function interface as a str (contains the return values).
@@ -50,9 +50,8 @@ def generate_interface_function_signature(func: "Function") -> Optional[str]:
     """
 
     name, parameters, return_vars = func.signature
-    visibility = func.visibility
     if (
-        visibility in ["private", "internal"]
+        func not in func.contract.functions_entry_points
         or func.is_constructor
         or func.is_fallback
         or func.is_receive
