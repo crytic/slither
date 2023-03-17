@@ -2,6 +2,7 @@ from slither.tools.upgradeability.checks.abstract_checks import (
     CheckClassification,
     AbstractCheck,
 )
+from slither.utils.upgradeability import get_missing_vars
 
 
 class MissingVariable(AbstractCheck):
@@ -48,24 +49,13 @@ Do not change the order of the state variables in the updated contract.
     def _check(self):
         contract1 = self.contract
         contract2 = self.contract_v2
-        order1 = [
-            variable
-            for variable in contract1.state_variables_ordered
-            if not (variable.is_constant or variable.is_immutable)
-        ]
-        order2 = [
-            variable
-            for variable in contract2.state_variables_ordered
-            if not (variable.is_constant or variable.is_immutable)
-        ]
+        missing = get_missing_vars(contract1, contract2)
 
         results = []
-        for idx, _ in enumerate(order1):
-            variable1 = order1[idx]
-            if len(order2) <= idx:
-                info = ["Variable missing in ", contract2, ": ", variable1, "\n"]
-                json = self.generate_result(info)
-                results.append(json)
+        for variable1 in missing:
+            info = ["Variable missing in ", contract2, ": ", variable1, "\n"]
+            json = self.generate_result(info)
+            results.append(json)
 
         return results
 
