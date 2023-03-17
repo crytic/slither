@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 from slither.core.declarations import (
     Contract,
     Structure,
@@ -60,7 +60,11 @@ from slither.tools.read_storage.read_storage import SlotInfo, SlitherReadStorage
 
 
 # pylint: disable=too-many-locals
-def compare(v1: Contract, v2: Contract) -> dict:
+def compare(
+    v1: Contract, v2: Contract
+) -> Tuple[
+    list[Variable], list[Variable], list[Variable], list[Function], list[Function], list[Function]
+]:
     """
     Compares two versions of a contract. Most useful for upgradeable (logic) contracts,
     but does not require that Contract.is_upgradeable returns true for either contract.
@@ -69,14 +73,13 @@ def compare(v1: Contract, v2: Contract) -> dict:
         v1: Original version of (upgradeable) contract
         v2: Updated version of (upgradeable) contract
 
-    Returns: dict {
-        "missing-vars-in-v2": list[Variable],
-        "new-variables": list[Variable],
-        "tainted-variables": list[Variable],
-        "new-functions": list[Function],
-        "modified-functions": list[Function],
-        "tainted-functions": list[Function]
-    }
+    Returns:
+        missing-vars-in-v2: list[Variable],
+        new-variables: list[Variable],
+        tainted-variables: list[Variable],
+        new-functions: list[Function],
+        modified-functions: list[Function],
+        tainted-functions: list[Function]
     """
 
     order_vars1 = [v for v in v1.state_variables if not v.is_constant and not v.is_immutable]
@@ -143,7 +146,7 @@ def compare(v1: Contract, v2: Contract) -> dict:
             results["tainted-functions"].append(function)
 
     # Find all new or tainted variables, i.e., variables that are read or written by a new/modified/tainted function
-    for _, var in enumerate(order_vars2):
+    for var in order_vars2:
         read_by = v2.get_functions_reading_from_variable(var)
         written_by = v2.get_functions_writing_to_variable(var)
         if v1.get_state_variable_from_name(var.name) is None:
@@ -154,7 +157,14 @@ def compare(v1: Contract, v2: Contract) -> dict:
         ):
             results["tainted-variables"].append(var)
 
-    return results
+    return (
+        results["missing-vars-in-v2"],
+        results["new-variables"],
+        results["tainted-variables"],
+        results["new-functions"],
+        results["modified-functions"],
+        results["tainted-functions"],
+    )
 
 
 def is_function_modified(f1: Function, f2: Function) -> bool:
