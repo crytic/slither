@@ -9,11 +9,12 @@
 
     TODO: dont report if the value is tainted by msg.value
 """
-from typing import List
+from typing import Any, Tuple, Union, List
 
+from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, Contract
-from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.solidity_variables import (
     SolidityFunction,
     SolidityVariableComposed,
@@ -28,12 +29,11 @@ from slither.slithir.operations import (
     Transfer,
 )
 
-
 # pylint: disable=too-many-nested-blocks,too-many-branches
 from slither.utils.output import Output
 
 
-def arbitrary_send(func: Function):
+def arbitrary_send(func: Function) -> Union[bool, List[Node]]:
     if func.is_protected():
         return []
 
@@ -74,7 +74,9 @@ def arbitrary_send(func: Function):
     return ret
 
 
-def detect_arbitrary_send(contract: Contract):
+def detect_arbitrary_send(
+    contract: Contract,
+) -> List[Union[Tuple[FunctionContract, List[Node]], Any]]:
     """
         Detect arbitrary send
     Args:

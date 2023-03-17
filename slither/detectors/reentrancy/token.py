@@ -6,6 +6,7 @@ from slither.core.cfg.node import Node
 from slither.core.declarations import Function, Contract, SolidityVariableComposed
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import LowLevelCall, HighLevelCall
+from slither.utils.output import Output
 
 
 def _detect_token_reentrant(contract: Contract) -> Dict[Function, List[Node]]:
@@ -82,7 +83,7 @@ contract MyDefi{
 If you do, ensure your users are aware of the potential issues."""
     # endregion wiki_recommendation
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
         for contract in self.compilation_unit.contracts_derived:
             vulns = _detect_token_reentrant(contract)

@@ -1,8 +1,16 @@
 """
 Module detecting local variable shadowing
 """
+from typing import List, Tuple, Union
 
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.event import Event
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.modifier import Modifier
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils.output import Output
 
 
 class LocalShadowing(AbstractDetector):
@@ -49,14 +57,32 @@ contract Bug {
     OVERSHADOWED_MODIFIER = "modifier"
     OVERSHADOWED_STATE_VARIABLE = "state variable"
     OVERSHADOWED_EVENT = "event"
+    OVERSHADOWED_RETURN_VARIABLE = "return variable"
 
-    def detect_shadowing_definitions(self, contract):  # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches
+    def detect_shadowing_definitions(
+        self, contract: Contract
+    ) -> List[
+        Union[
+            Tuple[LocalVariable, List[Tuple[str, StateVariable]]],
+            Tuple[LocalVariable, List[Tuple[str, FunctionContract]]],
+            Tuple[LocalVariable, List[Tuple[str, Modifier]]],
+            Tuple[LocalVariable, List[Tuple[str, Event]]],
+        ]
+    ]:
         """Detects if functions, access modifiers, events, state variables, and local variables are named after
         reserved keywords. Any such definitions are returned in a list.
 
         Returns:
             list of tuple: (type, contract name, definition)"""
-        result = []
+        result: List[
+            Union[
+                Tuple[LocalVariable, List[Tuple[str, StateVariable]]],
+                Tuple[LocalVariable, List[Tuple[str, FunctionContract]]],
+                Tuple[LocalVariable, List[Tuple[str, Modifier]]],
+                Tuple[LocalVariable, List[Tuple[str, Event]]],
+            ]
+        ] = []
 
         # Loop through all functions + modifiers in this contract.
         for function in contract.functions + contract.modifiers:
@@ -86,6 +112,15 @@ contract Bug {
                             overshadowed.append(
                                 (self.OVERSHADOWED_STATE_VARIABLE, scope_state_variable)
                             )
+                    # Check named return variables
+                    for named_return in function.returns:
+                        # Shadowed local delcarations in the same function will have "_scope_" in their name.
+                        # See `FunctionSolc._add_local_variable`
+                        if (
+                            "_scope_" in variable.name
+                            and variable.name.split("_scope_")[0] == named_return.name
+                        ):
+                            overshadowed.append((self.OVERSHADOWED_RETURN_VARIABLE, named_return))
 
                 # If we have found any overshadowed objects, we'll want to add it to our result list.
                 if overshadowed:
@@ -93,7 +128,7 @@ contract Bug {
 
         return result
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect shadowing local variables
 
         Recursively visit the calls

@@ -2,8 +2,8 @@ import re
 from abc import ABCMeta
 from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional
 
+from Crypto.Hash import SHA1
 from crytic_compile.utils.naming import Filename
-
 from slither.core.context.context import Context
 
 if TYPE_CHECKING:
@@ -56,21 +56,42 @@ class Source:
         filename_short: str = self.filename.short if self.filename.short else ""
         return f"{filename_short}{lines} ({self.starting_column} - {self.ending_column})"
 
-    def span(self) -> str:
-        with open (self.filename.absolute, "r") as f:
-            return f.readlines()[self.start:self.end]
+    def _get_lines_str(self, line_descr: str = "") -> str:
 
-    def _get_lines_str(self, line_descr=""):
         line_prefix = self.compilation_unit.core.line_prefix
 
         lines = self.lines
         if not lines:
-            lines = ""
-        elif len(lines) == 1:
-            lines = f"{line_prefix}{line_descr}{lines[0]}"
-        else:
-            lines = f"{line_prefix}{line_descr}{lines[0]}-{line_descr}{lines[-1]}"
-        return lines
+            return ""
+        if len(lines) == 1:
+            return f"{line_prefix}{line_descr}{lines[0]}"
+
+        return f"{line_prefix}{line_descr}{lines[0]}-{line_descr}{lines[-1]}"
+
+    @property
+    def content(self) -> str:
+        """
+        Return the txt content of the Source
+
+        Returns:
+
+        """
+        # If the compilation unit was not initialized, it means that the set_offset was never called
+        # on the corresponding object, which should not happen
+        assert self.compilation_unit
+        return self.compilation_unit.core.source_code[self.filename.absolute][self.start : self.end]
+
+    @property
+    def content_hash(self) -> str:
+        """
+        Return sha1(self.content)
+
+        Returns:
+
+        """
+        h = SHA1.new()
+        h.update(self.content.encode("utf8"))
+        return h.hexdigest()
 
     def __str__(self) -> str:
         lines = self._get_lines_str()

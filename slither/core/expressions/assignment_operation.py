@@ -85,7 +85,7 @@ class AssignmentOperation(ExpressionTyped):
         right_expression: Expression,
         expression_type: AssignmentOperationType,
         expression_return_type: Optional["Type"],
-    ):
+    ) -> None:
         assert isinstance(left_expression, Expression)
         assert isinstance(right_expression, Expression)
         super().__init__()

@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Dict
+from typing import Dict, Optional
 
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
@@ -30,9 +30,8 @@ class MultipleVariablesDeclaration(Exception):
 
 
 class VariableDeclarationSolc:
-    def __init__(
-        self, variable: Variable, variable_data: Dict
-    ):  # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches
+    def __init__(self, variable: Variable, variable_data: Dict) -> None:
         """
         A variable can be declared through a statement, or directly.
         If it is through a statement, the following children may contain
@@ -104,7 +103,7 @@ class VariableDeclarationSolc:
         """
         return self._reference_id
 
-    def _handle_comment(self, attributes: Dict):
+    def _handle_comment(self, attributes: Dict) -> None:
         if "documentation" in attributes and "text" in attributes["documentation"]:
 
             candidates = attributes["documentation"]["text"].split(",")
@@ -121,13 +120,15 @@ class VariableDeclarationSolc:
                         self._variable.write_protection = []
                     self._variable.write_protection.append(write_protection.group(1))
 
-    def _analyze_variable_attributes(self, attributes: Dict):
+    def _analyze_variable_attributes(self, attributes: Dict) -> None:
         if "visibility" in attributes:
             self._variable.visibility = attributes["visibility"]
         else:
             self._variable.visibility = "internal"
 
-    def _init_from_declaration(self, var: Dict, init: bool):  # pylint: disable=too-many-branches
+    def _init_from_declaration(
+        self, var: Dict, init: Optional[bool]
+    ) -> None:  # pylint: disable=too-many-branches
         if self._is_compact_ast:
             attributes = var
             self._typeName = attributes["typeDescriptions"]["typeString"]
@@ -200,7 +201,7 @@ class VariableDeclarationSolc:
                 self._variable.initialized = True
                 self._initializedNotParsed = var["children"][1]
 
-    def analyze(self, caller_context: CallerContextExpression):
+    def analyze(self, caller_context: CallerContextExpression) -> None:
         # Can be re-analyzed due to inheritance
         if self._was_analyzed:
             return
