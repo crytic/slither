@@ -2,7 +2,7 @@ from slither.tools.upgradeability.checks.abstract_checks import (
     CheckClassification,
     AbstractCheck,
 )
-
+from slither.core.solidity_types import ArrayType
 
 class MissingVariable(AbstractCheck):
     ARGUMENT = "missing-variables"
@@ -129,6 +129,8 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
         ]
 
         results = []
+
+        variables_added = len(order2) - len(order1)
         for idx, _ in enumerate(order1):
             if len(order2) <= idx:
                 # Handle by MissingVariable
@@ -136,7 +138,23 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
 
             variable1 = order1[idx]
             variable2 = order2[idx]
-            if (variable1.name != variable2.name) or (variable1.type != variable2.type):
+
+            # TODO check that array is fixed length, not dynamic
+            is_gap_pattern = False
+            # If the original contract has a storage gap, 
+            # verify that for each variable added, the gap is reduced by 1
+            if variable1.name == "__gap" and isinstance(variable1.type, ArrayType):
+                new_gap_offset = int(str(variable1.type.length_value)) - variables_added
+                # Check that the new gap is the expected one
+                for i in range(variables_added + 1):
+                    next_variable = order2[idx + i]
+                    if next_variable.name == "__gap" and isinstance(next_variable.type, ArrayType):
+                        if int(str(next_variable.type.length_value)) == new_gap_offset:
+                            is_gap_pattern = True
+            
+            name_changed = (variable1.name != variable2.name)
+            type_changed = (variable1.type != variable2.type)
+            if (name_changed or type_changed) and not is_gap_pattern:
                 info = [
                     "Different variables between ",
                     contract1,
