@@ -480,7 +480,7 @@ def find_delegate_from_name(
     for lv in parent_func.local_variables:
         if lv.name == dest:
             return lv
-    for pv in parent_func.parameters:
+    for pv in parent_func.parameters + parent_func.returns:
         if pv.name == dest:
             return pv
     return None
