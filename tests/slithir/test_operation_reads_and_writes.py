@@ -90,7 +90,7 @@ def test_operation_read_and_writes(op_test) -> None:
     Every slithir operation has its own contract and reads all local and state variables in readAllLocalVariables and readAllStateVariables, respectively.
     """
     solc_select.switch_global_version("0.8.0", always_install=True)
-    slither = Slither("./tests/slithir/operation_reads.sol")
+    slither = Slither("./tests/slithir/operation_reads_and_writes.sol")
 
     available_to_read = slither.get_contract_from_name(op_test.read_contract_name)
     assert len(available_to_read) == 1
