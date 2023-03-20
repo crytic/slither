@@ -1,0 +1,50 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "pragma",
+                    "name": "^0.5.15",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 24,
+                        "filename_relative": "tests/e2e/detectors/test_data/solc-version/0.5.16/dynamic_1.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/solc-version/0.5.16/dynamic_1.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 25
+                    },
+                    "type_specific_fields": {
+                        "directive": [
+                            "solidity",
+                            "^",
+                            "0.5",
+                            ".15"
+                        ]
+                    }
+                }
+            ],
+            "description": "Pragma version^0.5.15 (tests/e2e/detectors/test_data/solc-version/0.5.16/dynamic_1.sol#1) allows old versions\n",
+            "markdown": "Pragma version[^0.5.15](tests/e2e/detectors/test_data/solc-version/0.5.16/dynamic_1.sol#L1) allows old versions\n",
+            "first_markdown_element": "tests/e2e/detectors/test_data/solc-version/0.5.16/dynamic_1.sol#L1",
+            "id": "91d2ad5b0149c3b4c4625cb637af4532cf9598a5a2b067ebd2c8e9b6bb5fc079",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "solc-0.5.15 is not recommended for deployment\n",
+            "markdown": "solc-0.5.15 is not recommended for deployment\n",
+            "first_markdown_element": "",
+            "id": "f968b391557275cb3d691dfc65ba75d1e189238446ae8e37060e0a9af12a48c8",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]
