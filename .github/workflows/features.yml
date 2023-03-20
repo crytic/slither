@@ -39,7 +39,6 @@ jobs:
         run: |
           pip install ".[dev]"
 
-          solc-select use 0.8.0 --always-install
 
           cd tests/test_node_modules/
           npm install hardhat
@@ -47,10 +46,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/test_features.py
-          pytest tests/test_constant_folding.py
-          pytest tests/slithir/test_ternary_expressions.py
-          pytest tests/slithir/test_operation_reads.py
-          pytest tests/test_functions_ids.py
-          pytest tests/test_function.py
-          pytest tests/test_source_mapping.py
+          pytest tests/unit/

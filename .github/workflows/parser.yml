@@ -46,4 +46,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/test_ast_parsing.py -n auto
+          pytest tests/e2e/solc_parsing/test_ast_parsing.py -n auto

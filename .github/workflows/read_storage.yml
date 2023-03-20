@@ -46,8 +46,4 @@ jobs:
 
       - name: Run slither-read-storage
         run: |
-          pytest tests/test_read_storage.py
-
-      - name: Run storage layout tests
-        run: |
-          pytest tests/test_storage_layout.py
+          pytest tests/tools

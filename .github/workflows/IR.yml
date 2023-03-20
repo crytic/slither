@@ -48,4 +48,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/test_ssa_generation.py
+          pytest tests/slithir/
