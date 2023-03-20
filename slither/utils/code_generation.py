@@ -1,7 +1,6 @@
 # Functions for generating Solidity code
 from typing import TYPE_CHECKING, Optional
 
-from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.utils.type import convert_type_for_solidity_signature_to_string
 
 if TYPE_CHECKING:
@@ -23,8 +22,12 @@ def generate_interface(contract: "Contract") -> str:
         name, args = event.signature
         interface += f"    event {name}({', '.join(args)});\n"
     for error in contract.custom_errors:
-        args = [convert_type_for_solidity_signature_to_string(arg.type).replace("(", "").replace(")", "")
-                for arg in error.parameters]
+        args = [
+            convert_type_for_solidity_signature_to_string(arg.type)
+            .replace("(", "")
+            .replace(")", "")
+            for arg in error.parameters
+        ]
         interface += f"    error {error.name}({', '.join(args)});\n"
     for enum in contract.enums:
         interface += f"    enum {enum.name} {{ {', '.join(enum.values)} }}\n"
