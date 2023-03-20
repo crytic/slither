@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations.contract import Contract
 from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.utils.type import convert_type_for_solidity_signature_to_string
 
 if TYPE_CHECKING:
     from slither.core.declarations import FunctionContract, Structure
@@ -23,7 +24,11 @@ def generate_interface(contract: "Contract") -> str:
         name, args = event.signature
         interface += f"    event {name}({','.join(args)});\n"
     for error in contract.custom_errors:
-        interface += f"    error {error.solidity_signature};\n"
+        args = [convert_type_for_solidity_signature_to_string(arg.type).replace("(", "").replace(")", "")
+                for arg in error.parameters]
+        interface += f"    error {error.name}({', '.join(args)});\n"
+    for enum in contract.enums:
+        interface += f"    enum {enum.name} {{ {', '.join(enum.values)} }}\n"
     for struct in contract.structures:
         interface += generate_struct_interface_str(struct)
     for var in contract.state_variables_entry_points:
@@ -61,9 +66,7 @@ def generate_interface_function_signature(func: "FunctionContract") -> Optional[
     pure = " pure" if func.pure else ""
     payable = " payable" if func.payable else ""
     returns = [
-        "address"
-        if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, Contract)
-        else str(ret.type)
+        convert_type_for_solidity_signature_to_string(ret.type)
         for ret in func.returns
     ]
     _interface_signature_str = (
