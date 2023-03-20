@@ -829,13 +829,16 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                 if var and self._is_valid_slithir_var(var):
                     self._slithir_vars.add(var)
 
-            if not isinstance(ir, (Phi, Index, Member)):
+            if not isinstance(ir, (Phi, Member)):
                 self._vars_read += [v for v in ir.read if self._is_non_slithir_var(v)]
                 for var in ir.read:
                     if isinstance(var, ReferenceVariable):
-                        self._vars_read.append(var.points_to_origin)
-            elif isinstance(ir, (Member, Index)):
-                var = ir.variable_left if isinstance(ir, Member) else ir.variable_right
+                        origin = var.points_to_origin
+                        if self._is_non_slithir_var(origin):
+                            self._vars_read.append(origin)
+
+            elif isinstance(ir, Member):
+                var = ir.variable_left 
                 if self._is_non_slithir_var(var):
                     self._vars_read.append(var)
                 if isinstance(var, ReferenceVariable):
