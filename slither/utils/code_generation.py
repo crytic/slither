@@ -65,17 +65,18 @@ def generate_interface_function_signature(func: "FunctionContract") -> Optional[
     pure = " pure" if func.pure else ""
     payable = " payable" if func.payable else ""
     returns = [
-        convert_type_for_solidity_signature_to_string(ret.type)
+        convert_type_for_solidity_signature_to_string(ret.type).replace("(", "").replace(")", "")
         for ret in func.returns
     ]
     parameters = [
-        param.replace(f"{func.contract.name}.", "") for param in parameters
+        convert_type_for_solidity_signature_to_string(param.type).replace("(", "").replace(")", "")
+        for param in func.parameters
     ]
     _interface_signature_str = (
         name + "(" + ",".join(parameters) + ") external" + payable + pure + view
     )
     if len(return_vars) > 0:
-        _interface_signature_str += " returns (" + ",".join(returns).replace("(", "").replace(")", "") + ")"
+        _interface_signature_str += " returns (" + ",".join(returns) + ")"
     return _interface_signature_str
 
 
