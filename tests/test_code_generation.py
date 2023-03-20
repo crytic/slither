@@ -19,7 +19,12 @@ def test_interface_generation() -> None:
 
     sl = Slither(os.path.join(CODE_TEST_ROOT, "CodeGeneration.sol"))
 
-    with open("actual_generated_code.sol", "w", encoding="utf-8") as file:
-        file.write(generate_interface(sl.get_contract_from_name("TestContract")[0]))
+    actual = generate_interface(sl.get_contract_from_name("TestContract")[0])
+    expected_path = os.path.join(CODE_TEST_ROOT, "TEST_generated_code.sol")
+
+    with open(expected_path, "r", encoding="utf-8") as file:
+        expected = file.read()
+
+    assert actual == expected
 
 
