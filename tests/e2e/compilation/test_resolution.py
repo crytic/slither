@@ -20,7 +20,7 @@ def test_node_modules() -> None:
     # hardhat must have been installed in tests/test_node_modules
     # For the CI its done through the github action config
 
-    slither = Slither(TEST_DATA_DIR, "test_node_modules")
+    slither = Slither(Path(TEST_DATA_DIR, "test_node_modules").as_posix())
     _run_all_detectors(slither)
 
 
