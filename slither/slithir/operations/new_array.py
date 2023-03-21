@@ -1,10 +1,10 @@
 from typing import List, Union, TYPE_CHECKING
-from slither.slithir.operations.lvalue import OperationWithLValue
+
+from slither.core.solidity_types.array_type import ArrayType
 from slither.slithir.operations.call import Call
-from slither.core.solidity_types.type import Type
+from slither.slithir.operations.lvalue import OperationWithLValue
 
 if TYPE_CHECKING:
-    from slither.core.solidity_types.type_alias import ArrayType
     from slither.slithir.variables.constant import Constant
     from slither.slithir.variables.temporary import TemporaryVariable
     from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
@@ -17,8 +17,6 @@ class NewArray(Call, OperationWithLValue):
         lvalue: Union["TemporaryVariableSSA", "TemporaryVariable"],
     ) -> None:
         super().__init__()
-        from slither.core.solidity_types.array_type import ArrayType
-
         assert isinstance(array_type, ArrayType)
         self._array_type = array_type
 

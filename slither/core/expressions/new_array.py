@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 class NewArray(Expression):
     def __init__(self, array_type: "ArrayType") -> None:
         super().__init__()
+        # pylint: disable=import-outside-toplevel
         from slither.core.solidity_types.array_type import ArrayType
 
         assert isinstance(array_type, ArrayType)
