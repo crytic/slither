@@ -559,19 +559,8 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             type_name = children[0]
 
         if type_name[caller_context.get_key()] == "ArrayTypeName":
-            depth = 0
             array_type = parse_type(type_name, caller_context)
-            while type_name[caller_context.get_key()] == "ArrayTypeName":
-                # Note: dont conserve the size of the array if provided
-                # We compute it directly
-                if is_compact_ast:
-                    type_name = type_name["baseType"]
-                else:
-                    type_name = type_name["children"][0]
-                if depth > 0:
-                    # nested array
-                    array_type = ArrayType(parse_type(type_name, caller_context), array_type.length)
-                depth += 1
+            assert isinstance(array_type, ArrayType)
             array = NewArray(array_type)
             array.set_offset(src, caller_context.compilation_unit)
             return array

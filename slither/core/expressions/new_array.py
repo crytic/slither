@@ -1,5 +1,4 @@
-from typing import Union, TYPE_CHECKING
-
+from typing import TYPE_CHECKING
 
 from slither.core.expressions.expression import Expression
 
