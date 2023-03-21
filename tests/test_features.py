@@ -1,5 +1,4 @@
 import inspect
-import shutil
 from pathlib import Path
 import pytest
 
