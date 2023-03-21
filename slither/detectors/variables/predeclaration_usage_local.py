@@ -7,7 +7,11 @@ from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
 from slither.core.variables.local_variable import LocalVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    ALL_SOLC_VERSIONS_04,
+)
 from slither.utils.output import Output
 
 
@@ -53,6 +57,8 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Move all variable declarations prior to any usage of the variable, and ensure that reaching a variable declaration does not depend on some conditional if it is used unconditionally."
+
+    VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04
 
     def detect_predeclared_local_usage(
         self,

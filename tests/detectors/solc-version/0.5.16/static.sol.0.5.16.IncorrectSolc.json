@@ -1,3 +1,49 @@
 [
-    []
+    [
+        {
+            "elements": [
+                {
+                    "type": "pragma",
+                    "name": "0.5.16",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 23,
+                        "filename_relative": "tests/detectors/solc-version/0.5.16/static.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/solc-version/0.5.16/static.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 24
+                    },
+                    "type_specific_fields": {
+                        "directive": [
+                            "solidity",
+                            "0.5",
+                            ".16"
+                        ]
+                    }
+                }
+            ],
+            "description": "Pragma version0.5.16 (tests/detectors/solc-version/0.5.16/static.sol#1) allows old versions\n",
+            "markdown": "Pragma version[0.5.16](tests/detectors/solc-version/0.5.16/static.sol#L1) allows old versions\n",
+            "first_markdown_element": "tests/detectors/solc-version/0.5.16/static.sol#L1",
+            "id": "2407d991de90e57d2f6b6bdbc61bb939845a5c0bb2d82910ed4c49abff2ab6e3",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "solc-0.5.16 is not recommended for deployment\n",
+            "markdown": "solc-0.5.16 is not recommended for deployment\n",
+            "first_markdown_element": "",
+            "id": "94ddf430efb860e471a768a108c851848fa998e8a2c489c6fb23ed71d3ef4b09",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
 ]

@@ -17,12 +17,5 @@ if [ "$GITHUB_ETHERSCAN" = "" ]; then
     sleep $(( ( RANDOM % 5 )  + 1 ))s
 fi
 
-echo "::group::Etherscan rinkeby"
-if ! slither rinkeby:0xFe05820C5A92D9bc906D4A46F662dbeba794d3b7 --etherscan-apikey "$GITHUB_ETHERSCAN" --no-fail-pedantic; then
-    echo "Etherscan rinkeby test failed"
-    exit 1
-fi
-echo "::endgroup::"
-
 exit 0
 

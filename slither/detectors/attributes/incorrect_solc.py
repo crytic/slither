@@ -43,10 +43,7 @@ We also recommend avoiding complex `pragma` statement."""
     # region wiki_recommendation
     WIKI_RECOMMENDATION = """
 Deploy with any of the following Solidity versions:
-- 0.5.16 - 0.5.17
-- 0.6.11 - 0.6.12
-- 0.7.5 - 0.7.6
-- 0.8.16
+- 0.8.18
 
 The recommendations take into account:
 - Risks related to recent releases
@@ -62,13 +59,14 @@ Consider using the latest version of Solidity for testing."""
     OLD_VERSION_TXT = "allows old versions"
     LESS_THAN_TXT = "uses lesser than"
 
-    TOO_RECENT_VERSION_TXT = "necessitates a version too recent to be trusted. Consider deploying with 0.6.12/0.7.6/0.8.16"
     BUGGY_VERSION_TXT = (
         "is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
     )
 
     # Indicates the allowed versions. Must be formatted in increasing order.
-    ALLOWED_VERSIONS = ["0.5.16", "0.5.17", "0.6.11", "0.6.12", "0.7.5", "0.7.6", "0.8.16"]
+    ALLOWED_VERSIONS = ["0.8.18"]
+
+    TOO_RECENT_VERSION_TXT = f"necessitates a version too recent to be trusted. Consider deploying with {'/'.join(ALLOWED_VERSIONS)}."
 
     # Indicates the versions that should not be used.
     BUGGY_VERSIONS = [
