@@ -1056,7 +1056,7 @@ def test_issue_1776():
     source = """
     contract Contract {
         function foo() public returns (uint) {
-            uint[] memory arr = new uint[](2);
+            uint[5][10][] memory arr = new uint[5][10][](2);
             return 0;
         }
     }
@@ -1065,5 +1065,13 @@ def test_issue_1776():
         c = slither.get_contract_from_name("Contract")[0]
         f = c.functions[0]
         operations = f.slithir_operations
-        assign_op = operations[0]
-        assert isinstance(assign_op.lvalue.type, ArrayType)
+        new_op = operations[0]
+        lvalue = new_op.lvalue
+        lvalue_type = lvalue.type
+        assert isinstance(lvalue_type, ArrayType)
+        lvalue_type1 = lvalue_type.type
+        assert isinstance(lvalue_type1, ArrayType)
+        assert lvalue_type1.length_value.value == "10"
+        lvalue_type2 = lvalue_type1.type
+        assert isinstance(lvalue_type2, ArrayType)
+        assert lvalue_type2.length_value.value == "5"
