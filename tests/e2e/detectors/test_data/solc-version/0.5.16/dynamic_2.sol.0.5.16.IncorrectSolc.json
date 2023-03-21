@@ -41,10 +41,10 @@
         },
         {
             "elements": [],
-            "description": "solc-0.5.0 is not recommended for deployment\n",
-            "markdown": "solc-0.5.0 is not recommended for deployment\n",
+            "description": "solc-0.5.16 is not recommended for deployment\n",
+            "markdown": "solc-0.5.16 is not recommended for deployment\n",
             "first_markdown_element": "",
-            "id": "21539c75e015cde5bdae3a77b39cf5d17be24d0b87a05da1d6b5d5020b7aef22",
+            "id": "94ddf430efb860e471a768a108c851848fa998e8a2c489c6fb23ed71d3ef4b09",
             "check": "solc-version",
             "impact": "Informational",
             "confidence": "High"

@@ -1,16 +1,6 @@
 [
     [
         {
-            "elements": [],
-            "description": "solc-0.6.0 is not recommended for deployment\n",
-            "markdown": "solc-0.6.0 is not recommended for deployment\n",
-            "first_markdown_element": "",
-            "id": "7740810b9fcfaf3efb5f0190072038a7d60dee014bb62485850611033bd7a5f0",
-            "check": "solc-version",
-            "impact": "Informational",
-            "confidence": "High"
-        },
-        {
             "elements": [
                 {
                     "type": "pragma",
@@ -45,6 +35,16 @@
             "markdown": "Pragma version[>=0.6.0<0.7.0](tests/e2e/detectors/test_data/solc-version/0.6.11/dynamic_2.sol#L1) allows old versions\n",
             "first_markdown_element": "tests/e2e/detectors/test_data/solc-version/0.6.11/dynamic_2.sol#L1",
             "id": "a25609bb9ae5982429e846e71d245a10687e54dd89db1e026ce8abc372a6b10a",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "solc-0.6.11 is not recommended for deployment\n",
+            "markdown": "solc-0.6.11 is not recommended for deployment\n",
+            "first_markdown_element": "",
+            "id": "bafd522d637977886f038e619ad47c1987efedc6c4c24515e6e27b23585535bd",
             "check": "solc-version",
             "impact": "Informational",
             "confidence": "High"

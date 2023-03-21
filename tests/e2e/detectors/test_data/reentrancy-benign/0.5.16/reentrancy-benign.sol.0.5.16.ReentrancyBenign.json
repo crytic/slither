@@ -4,532 +4,6 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad0",
-                    "source_mapping": {
-                        "start": 335,
-                        "length": 155,
-                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            16,
-                            17,
-                            18,
-                            19,
-                            20,
-                            21,
-                            22
-                        ],
-                        "starting_column": 5,
-                        "ending_column": 6
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "contract",
-                            "name": "ReentrancyBenign",
-                            "source_mapping": {
-                                "start": 28,
-                                "length": 1569,
-                                "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12,
-                                    13,
-                                    14,
-                                    15,
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22,
-                                    23,
-                                    24,
-                                    25,
-                                    26,
-                                    27,
-                                    28,
-                                    29,
-                                    30,
-                                    31,
-                                    32,
-                                    33,
-                                    34,
-                                    35,
-                                    36,
-                                    37,
-                                    38,
-                                    39,
-                                    40,
-                                    41,
-                                    42,
-                                    43,
-                                    44,
-                                    45,
-                                    46,
-                                    47,
-                                    48,
-                                    49,
-                                    50,
-                                    51,
-                                    52,
-                                    53,
-                                    54,
-                                    55,
-                                    56,
-                                    57,
-                                    58,
-                                    59,
-                                    60,
-                                    61,
-                                    62,
-                                    63,
-                                    64,
-                                    65,
-                                    66,
-                                    67,
-                                    68,
-                                    69,
-                                    70,
-                                    71,
-                                    72
-                                ],
-                                "starting_column": 1,
-                                "ending_column": 0
-                            }
-                        },
-                        "signature": "bad0()"
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "success = msg.sender.call()",
-                    "source_mapping": {
-                        "start": 368,
-                        "length": 37,
-                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            17
-                        ],
-                        "starting_column": 9,
-                        "ending_column": 46
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "bad0",
-                            "source_mapping": {
-                                "start": 335,
-                                "length": 155,
-                                "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "ReentrancyBenign",
-                                    "source_mapping": {
-                                        "start": 28,
-                                        "length": 1569,
-                                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19,
-                                            20,
-                                            21,
-                                            22,
-                                            23,
-                                            24,
-                                            25,
-                                            26,
-                                            27,
-                                            28,
-                                            29,
-                                            30,
-                                            31,
-                                            32,
-                                            33,
-                                            34,
-                                            35,
-                                            36,
-                                            37,
-                                            38,
-                                            39,
-                                            40,
-                                            41,
-                                            42,
-                                            43,
-                                            44,
-                                            45,
-                                            46,
-                                            47,
-                                            48,
-                                            49,
-                                            50,
-                                            51,
-                                            52,
-                                            53,
-                                            54,
-                                            55,
-                                            56,
-                                            57,
-                                            58,
-                                            59,
-                                            60,
-                                            61,
-                                            62,
-                                            63,
-                                            64,
-                                            65,
-                                            66,
-                                            67,
-                                            68,
-                                            69,
-                                            70,
-                                            71,
-                                            72
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 0
-                                    }
-                                },
-                                "signature": "bad0()"
-                            }
-                        }
-                    },
-                    "additional_fields": {
-                        "underlying_type": "external_calls"
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "success = msg.sender.call()",
-                    "source_mapping": {
-                        "start": 368,
-                        "length": 37,
-                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            17
-                        ],
-                        "starting_column": 9,
-                        "ending_column": 46
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "bad0",
-                            "source_mapping": {
-                                "start": 335,
-                                "length": 155,
-                                "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "ReentrancyBenign",
-                                    "source_mapping": {
-                                        "start": 28,
-                                        "length": 1569,
-                                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19,
-                                            20,
-                                            21,
-                                            22,
-                                            23,
-                                            24,
-                                            25,
-                                            26,
-                                            27,
-                                            28,
-                                            29,
-                                            30,
-                                            31,
-                                            32,
-                                            33,
-                                            34,
-                                            35,
-                                            36,
-                                            37,
-                                            38,
-                                            39,
-                                            40,
-                                            41,
-                                            42,
-                                            43,
-                                            44,
-                                            45,
-                                            46,
-                                            47,
-                                            48,
-                                            49,
-                                            50,
-                                            51,
-                                            52,
-                                            53,
-                                            54,
-                                            55,
-                                            56,
-                                            57,
-                                            58,
-                                            59,
-                                            60,
-                                            61,
-                                            62,
-                                            63,
-                                            64,
-                                            65,
-                                            66,
-                                            67,
-                                            68,
-                                            69,
-                                            70,
-                                            71,
-                                            72
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 0
-                                    }
-                                },
-                                "signature": "bad0()"
-                            }
-                        }
-                    },
-                    "additional_fields": {
-                        "underlying_type": "external_calls_sending_eth"
-                    }
-                },
-                {
-                    "type": "node",
-                    "name": "counter += 1",
-                    "source_mapping": {
-                        "start": 471,
-                        "length": 12,
-                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                        "filename_absolute": "/GENERIC_PATH",
-                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                        "is_dependency": false,
-                        "lines": [
-                            21
-                        ],
-                        "starting_column": 9,
-                        "ending_column": 21
-                    },
-                    "type_specific_fields": {
-                        "parent": {
-                            "type": "function",
-                            "name": "bad0",
-                            "source_mapping": {
-                                "start": 335,
-                                "length": 155,
-                                "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                "filename_absolute": "/GENERIC_PATH",
-                                "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                "is_dependency": false,
-                                "lines": [
-                                    16,
-                                    17,
-                                    18,
-                                    19,
-                                    20,
-                                    21,
-                                    22
-                                ],
-                                "starting_column": 5,
-                                "ending_column": 6
-                            },
-                            "type_specific_fields": {
-                                "parent": {
-                                    "type": "contract",
-                                    "name": "ReentrancyBenign",
-                                    "source_mapping": {
-                                        "start": 28,
-                                        "length": 1569,
-                                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                        "filename_absolute": "/GENERIC_PATH",
-                                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
-                                        "is_dependency": false,
-                                        "lines": [
-                                            3,
-                                            4,
-                                            5,
-                                            6,
-                                            7,
-                                            8,
-                                            9,
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19,
-                                            20,
-                                            21,
-                                            22,
-                                            23,
-                                            24,
-                                            25,
-                                            26,
-                                            27,
-                                            28,
-                                            29,
-                                            30,
-                                            31,
-                                            32,
-                                            33,
-                                            34,
-                                            35,
-                                            36,
-                                            37,
-                                            38,
-                                            39,
-                                            40,
-                                            41,
-                                            42,
-                                            43,
-                                            44,
-                                            45,
-                                            46,
-                                            47,
-                                            48,
-                                            49,
-                                            50,
-                                            51,
-                                            52,
-                                            53,
-                                            54,
-                                            55,
-                                            56,
-                                            57,
-                                            58,
-                                            59,
-                                            60,
-                                            61,
-                                            62,
-                                            63,
-                                            64,
-                                            65,
-                                            66,
-                                            67,
-                                            68,
-                                            69,
-                                            70,
-                                            71,
-                                            72
-                                        ],
-                                        "starting_column": 1,
-                                        "ending_column": 0
-                                    }
-                                },
-                                "signature": "bad0()"
-                            }
-                        }
-                    },
-                    "additional_fields": {
-                        "underlying_type": "variables_written",
-                        "variable_name": "counter"
-                    }
-                }
-            ],
-            "description": "Reentrancy in ReentrancyBenign.bad0() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#16-22):\n\tExternal calls:\n\t- success = msg.sender.call() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#17)\n\tState variables written after the call(s):\n\t- counter += 1 (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#21)\n",
-            "markdown": "Reentrancy in [ReentrancyBenign.bad0()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L16-L22):\n\tExternal calls:\n\t- [success = msg.sender.call()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L17)\n\tState variables written after the call(s):\n\t- [counter += 1](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L21)\n",
-            "first_markdown_element": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L16-L22",
-            "id": "01bde163c3436f90414f580ead28b7b0d652f74fdc84312f64c4fdf9f425628f",
-            "check": "reentrancy-benign",
-            "impact": "Low",
-            "confidence": "Medium"
-        },
-        {
-            "elements": [
-                {
-                    "type": "function",
                     "name": "bad3",
                     "source_mapping": {
                         "start": 886,
@@ -1439,20 +913,22 @@
             "elements": [
                 {
                     "type": "function",
-                    "name": "bad1",
+                    "name": "bad0",
                     "source_mapping": {
-                        "start": 496,
-                        "length": 135,
+                        "start": 335,
+                        "length": 155,
                         "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                         "is_dependency": false,
                         "lines": [
-                            24,
-                            25,
-                            26,
-                            27,
-                            28
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22
                         ],
                         "starting_column": 5,
                         "ending_column": 6
@@ -1544,42 +1020,44 @@
                                 "ending_column": 0
                             }
                         },
-                        "signature": "bad1(address)"
+                        "signature": "bad0()"
                     }
                 },
                 {
                     "type": "node",
-                    "name": "success = target.call()",
+                    "name": "(success) = msg.sender.call()",
                     "source_mapping": {
-                        "start": 543,
-                        "length": 33,
+                        "start": 368,
+                        "length": 37,
                         "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                         "is_dependency": false,
                         "lines": [
-                            25
+                            17
                         ],
                         "starting_column": 9,
-                        "ending_column": 42
+                        "ending_column": 46
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad1",
+                            "name": "bad0",
                             "source_mapping": {
-                                "start": 496,
-                                "length": 135,
+                                "start": 335,
+                                "length": 155,
                                 "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    24,
-                                    25,
-                                    26,
-                                    27,
-                                    28
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -1671,7 +1149,7 @@
                                         "ending_column": 0
                                     }
                                 },
-                                "signature": "bad1(address)"
+                                "signature": "bad0()"
                             }
                         }
                     },
@@ -1681,37 +1159,39 @@
                 },
                 {
                     "type": "node",
-                    "name": "success = target.call()",
+                    "name": "(success) = msg.sender.call()",
                     "source_mapping": {
-                        "start": 543,
-                        "length": 33,
+                        "start": 368,
+                        "length": 37,
                         "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                         "is_dependency": false,
                         "lines": [
-                            25
+                            17
                         ],
                         "starting_column": 9,
-                        "ending_column": 42
+                        "ending_column": 46
                     },
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad1",
+                            "name": "bad0",
                             "source_mapping": {
-                                "start": 496,
-                                "length": 135,
+                                "start": 335,
+                                "length": 155,
                                 "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    24,
-                                    25,
-                                    26,
-                                    27,
-                                    28
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -1803,7 +1283,7 @@
                                         "ending_column": 0
                                     }
                                 },
-                                "signature": "bad1(address)"
+                                "signature": "bad0()"
                             }
                         }
                     },
@@ -1815,14 +1295,14 @@
                     "type": "node",
                     "name": "counter += 1",
                     "source_mapping": {
-                        "start": 612,
+                        "start": 471,
                         "length": 12,
                         "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                         "filename_absolute": "/GENERIC_PATH",
                         "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                         "is_dependency": false,
                         "lines": [
-                            27
+                            21
                         ],
                         "starting_column": 9,
                         "ending_column": 21
@@ -1830,20 +1310,22 @@
                     "type_specific_fields": {
                         "parent": {
                             "type": "function",
-                            "name": "bad1",
+                            "name": "bad0",
                             "source_mapping": {
-                                "start": 496,
-                                "length": 135,
+                                "start": 335,
+                                "length": 155,
                                 "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                                 "filename_absolute": "/GENERIC_PATH",
                                 "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
                                 "is_dependency": false,
                                 "lines": [
-                                    24,
-                                    25,
-                                    26,
-                                    27,
-                                    28
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22
                                 ],
                                 "starting_column": 5,
                                 "ending_column": 6
@@ -1935,7 +1417,7 @@
                                         "ending_column": 0
                                     }
                                 },
-                                "signature": "bad1(address)"
+                                "signature": "bad0()"
                             }
                         }
                     },
@@ -1945,10 +1427,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in ReentrancyBenign.bad1(address) (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#24-28):\n\tExternal calls:\n\t- success = target.call() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#25)\n\tState variables written after the call(s):\n\t- counter += 1 (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#27)\n",
-            "markdown": "Reentrancy in [ReentrancyBenign.bad1(address)](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L24-L28):\n\tExternal calls:\n\t- [success = target.call()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L25)\n\tState variables written after the call(s):\n\t- [counter += 1](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L27)\n",
-            "first_markdown_element": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L24-L28",
-            "id": "5bc9d24aecf09e047b2ce2b3f7702daec3f28194eeb19cf372aebd60e4b83cb9",
+            "description": "Reentrancy in ReentrancyBenign.bad0() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#16-22):\n\tExternal calls:\n\t- (success) = msg.sender.call() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#17)\n\tState variables written after the call(s):\n\t- counter += 1 (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#21)\n",
+            "markdown": "Reentrancy in [ReentrancyBenign.bad0()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L16-L22):\n\tExternal calls:\n\t- [(success) = msg.sender.call()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L17)\n\tState variables written after the call(s):\n\t- [counter += 1](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L21)\n",
+            "first_markdown_element": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L16-L22",
+            "id": "244b43e33a9621616a0f97aece5e591ba53563a2178624d90cb056422988824d",
             "check": "reentrancy-benign",
             "impact": "Low",
             "confidence": "Medium"
@@ -4043,6 +3525,524 @@
             "elements": [
                 {
                     "type": "function",
+                    "name": "bad1",
+                    "source_mapping": {
+                        "start": 496,
+                        "length": 135,
+                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "ReentrancyBenign",
+                            "source_mapping": {
+                                "start": 28,
+                                "length": 1569,
+                                "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14,
+                                    15,
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    53,
+                                    54,
+                                    55,
+                                    56,
+                                    57,
+                                    58,
+                                    59,
+                                    60,
+                                    61,
+                                    62,
+                                    63,
+                                    64,
+                                    65,
+                                    66,
+                                    67,
+                                    68,
+                                    69,
+                                    70,
+                                    71,
+                                    72
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 0
+                            }
+                        },
+                        "signature": "bad1(address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "(success) = target.call()",
+                    "source_mapping": {
+                        "start": 543,
+                        "length": 33,
+                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            25
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 42
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad1",
+                            "source_mapping": {
+                                "start": 496,
+                                "length": 135,
+                                "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ReentrancyBenign",
+                                    "source_mapping": {
+                                        "start": 28,
+                                        "length": 1569,
+                                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64,
+                                            65,
+                                            66,
+                                            67,
+                                            68,
+                                            69,
+                                            70,
+                                            71,
+                                            72
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "bad1(address)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "external_calls"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "(success) = target.call()",
+                    "source_mapping": {
+                        "start": 543,
+                        "length": 33,
+                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            25
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 42
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad1",
+                            "source_mapping": {
+                                "start": 496,
+                                "length": 135,
+                                "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ReentrancyBenign",
+                                    "source_mapping": {
+                                        "start": 28,
+                                        "length": 1569,
+                                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64,
+                                            65,
+                                            66,
+                                            67,
+                                            68,
+                                            69,
+                                            70,
+                                            71,
+                                            72
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "bad1(address)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "external_calls_sending_eth"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "counter += 1",
+                    "source_mapping": {
+                        "start": 612,
+                        "length": 12,
+                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            27
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 21
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad1",
+                            "source_mapping": {
+                                "start": 496,
+                                "length": 135,
+                                "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "ReentrancyBenign",
+                                    "source_mapping": {
+                                        "start": 28,
+                                        "length": 1569,
+                                        "filename_relative": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14,
+                                            15,
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49,
+                                            50,
+                                            51,
+                                            52,
+                                            53,
+                                            54,
+                                            55,
+                                            56,
+                                            57,
+                                            58,
+                                            59,
+                                            60,
+                                            61,
+                                            62,
+                                            63,
+                                            64,
+                                            65,
+                                            66,
+                                            67,
+                                            68,
+                                            69,
+                                            70,
+                                            71,
+                                            72
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 0
+                                    }
+                                },
+                                "signature": "bad1(address)"
+                            }
+                        }
+                    },
+                    "additional_fields": {
+                        "underlying_type": "variables_written",
+                        "variable_name": "counter"
+                    }
+                }
+            ],
+            "description": "Reentrancy in ReentrancyBenign.bad1(address) (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#24-28):\n\tExternal calls:\n\t- (success) = target.call() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#25)\n\tState variables written after the call(s):\n\t- counter += 1 (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#27)\n",
+            "markdown": "Reentrancy in [ReentrancyBenign.bad1(address)](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L24-L28):\n\tExternal calls:\n\t- [(success) = target.call()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L25)\n\tState variables written after the call(s):\n\t- [counter += 1](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L27)\n",
+            "first_markdown_element": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L24-L28",
+            "id": "e7250d07da93991bb8f92df7697c008c36ec785214f7836c4f1c65b37e175309",
+            "check": "reentrancy-benign",
+            "impact": "Low",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
                     "name": "bad2",
                     "source_mapping": {
                         "start": 637,
@@ -4158,7 +4158,7 @@
                 },
                 {
                     "type": "node",
-                    "name": "success = target.call()",
+                    "name": "(success) = target.call()",
                     "source_mapping": {
                         "start": 684,
                         "length": 33,
@@ -4432,7 +4432,7 @@
                 },
                 {
                     "type": "node",
-                    "name": "success = target.call()",
+                    "name": "(success) = target.call()",
                     "source_mapping": {
                         "start": 684,
                         "length": 33,
@@ -4843,10 +4843,10 @@
                     }
                 }
             ],
-            "description": "Reentrancy in ReentrancyBenign.bad2(address) (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#30-39):\n\tExternal calls:\n\t- success = target.call() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#31)\n\t- address(target).call.value(1000)() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#33)\n\tExternal calls sending eth:\n\t- address(target).call.value(1000)() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#33)\n\tState variables written after the call(s):\n\t- counter += 1 (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#34)\n",
-            "markdown": "Reentrancy in [ReentrancyBenign.bad2(address)](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L30-L39):\n\tExternal calls:\n\t- [success = target.call()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L31)\n\t- [address(target).call.value(1000)()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L33)\n\tExternal calls sending eth:\n\t- [address(target).call.value(1000)()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L33)\n\tState variables written after the call(s):\n\t- [counter += 1](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L34)\n",
+            "description": "Reentrancy in ReentrancyBenign.bad2(address) (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#30-39):\n\tExternal calls:\n\t- (success) = target.call() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#31)\n\t- address(target).call.value(1000)() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#33)\n\tExternal calls sending eth:\n\t- address(target).call.value(1000)() (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#33)\n\tState variables written after the call(s):\n\t- counter += 1 (tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#34)\n",
+            "markdown": "Reentrancy in [ReentrancyBenign.bad2(address)](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L30-L39):\n\tExternal calls:\n\t- [(success) = target.call()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L31)\n\t- [address(target).call.value(1000)()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L33)\n\tExternal calls sending eth:\n\t- [address(target).call.value(1000)()](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L33)\n\tState variables written after the call(s):\n\t- [counter += 1](tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L34)\n",
             "first_markdown_element": "tests/e2e/detectors/test_data/reentrancy-benign/0.5.16/reentrancy-benign.sol#L30-L39",
-            "id": "f8646c83125ca7b793d7373531a89a1a2729354823bef56e778fd17c328440ff",
+            "id": "efb5fc52ea69459d644e5074daf0207502967de06e5b3cf876ae71a564d72d98",
             "check": "reentrancy-benign",
             "impact": "Low",
             "confidence": "Medium"
