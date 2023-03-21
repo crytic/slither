@@ -1,5 +1,5 @@
 ---
-name: Features tests
+name: Compilation tests
 
 defaults:
   run:
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   build:
-    name: Features tests
+    name: Compilation tests
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -39,6 +39,10 @@ jobs:
         run: |
           pip install ".[dev]"
 
+          pushd tests/e2e/compilation/test_data/test_node_modules/
+          npm install hardhat
+          popd
+
       - name: Test with pytest
         run: |
-          pytest tests/unit/
+          pytest tests/e2e/compilation/
