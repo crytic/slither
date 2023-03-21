@@ -792,6 +792,11 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
                 contract = node.file_scope.get_contract_from_name(ir.contract_name)
+                if contract is None:
+                    for imp in node.file_scope.imports:
+                        if str(ir.contract_name) in imp.renaming.keys():
+                            contract = node.file_scope.get_contract_from_name(imp.renaming[str(ir.contract_name)])
+                            break
                 ir.lvalue.set_type(UserDefinedType(contract))
             elif isinstance(ir, NewElementaryType):
                 ir.lvalue.set_type(ir.type)
