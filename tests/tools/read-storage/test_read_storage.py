@@ -4,6 +4,7 @@ import re
 import shutil
 import subprocess
 from time import sleep
+from pathlib import Path
 from typing import Generator
 
 import pytest
@@ -14,8 +15,7 @@ from web3.contract import Contract
 from slither import Slither
 from slither.tools.read_storage import SlitherReadStorage
 
-TOOLS_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STORAGE_TEST_ROOT = os.path.join(TOOLS_ROOT, "storage-layout")
+TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 # pylint: disable=too-few-public-methods
 class GanacheInstance:
@@ -93,15 +93,15 @@ def deploy_contract(w3, ganache, contract_bin, contract_abi) -> Contract:
 @pytest.mark.usefixtures("web3", "ganache")
 def test_read_storage(web3, ganache) -> None:
     assert web3.is_connected()
-    bin_path = os.path.join(STORAGE_TEST_ROOT, "StorageLayout.bin")
-    abi_path = os.path.join(STORAGE_TEST_ROOT, "StorageLayout.abi")
+    bin_path = Path(TEST_DATA_DIR, "StorageLayout.bin").as_posix()
+    abi_path = Path(TEST_DATA_DIR, "StorageLayout.abi").as_posix()
     bytecode = get_source_file(bin_path)
     abi = get_source_file(abi_path)
     contract = deploy_contract(web3, ganache, bytecode, abi)
     contract.functions.store().transact({"from": ganache.eth_address})
     address = contract.address
 
-    sl = Slither(os.path.join(STORAGE_TEST_ROOT, "storage_layout-0.8.10.sol"))
+    sl = Slither(Path(TEST_DATA_DIR, "storage_layout-0.8.10.sol").as_posix())
     contracts = sl.contracts
 
     srs = SlitherReadStorage(contracts, 100)
@@ -110,12 +110,12 @@ def test_read_storage(web3, ganache) -> None:
     srs.get_all_storage_variables()
     srs.get_storage_layout()
     srs.walk_slot_info(srs.get_slot_values)
-    with open("storage_layout.json", "w", encoding="utf-8") as file:
+    actual_file = Path(TEST_DATA_DIR, "storage_layout.json").as_posix()
+    with open(actual_file, "w", encoding="utf-8") as file:
         slot_infos_json = srs.to_json()
         json.dump(slot_infos_json, file, indent=4)
 
-    expected_file = os.path.join(STORAGE_TEST_ROOT, "TEST_storage_layout.json")
-    actual_file = os.path.join(SLITHER_ROOT, "storage_layout.json")
+    expected_file = Path(TEST_DATA_DIR, "TEST_storage_layout.json").as_posix()
 
     with open(expected_file, "r", encoding="utf8") as f:
         expected = json.load(f)

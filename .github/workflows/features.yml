@@ -41,4 +41,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/unit/
+          pytest tests/unit/core/
