@@ -54,7 +54,9 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
 
     @property
     def read(self) -> List[Any]:
-        return self._unroll(self.arguments)
+        all_read = [self.call_salt, self.call_value] + self._unroll(self.arguments)
+        # remove None
+        return [x for x in all_read if x]
 
     @property
     def contract_created(self) -> Contract:

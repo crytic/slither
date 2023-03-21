@@ -170,6 +170,7 @@ class ContractSolc(CallerContextExpression):
             elif attributes["contractKind"] == "library":
                 self._contract.is_library = True
             self._contract.contract_kind = attributes["contractKind"]
+            self._contract.is_fully_implemented = attributes["fullyImplemented"]
 
         self._linearized_base_contracts = attributes["linearizedBaseContracts"]
         # self._contract.fullyImplemented = attributes["fullyImplemented"]
@@ -782,12 +783,35 @@ class ContractSolc(CallerContextExpression):
         self._customErrorParsed = []
 
     def _handle_comment(self, attributes: Dict) -> None:
+        """
+        Save the contract comment in self.comments
+        And handle custom slither comments
+
+        Args:
+            attributes:
+
+        Returns:
+
+        """
+        # Old solc versions store the comment in attributes["documentation"]
+        # More recent ones store it in attributes["documentation"]["text"]
         if (
             "documentation" in attributes
             and attributes["documentation"] is not None
-            and "text" in attributes["documentation"]
+            and (
+                "text" in attributes["documentation"]
+                or isinstance(attributes["documentation"], str)
+            )
         ):
-            candidates = attributes["documentation"]["text"].replace("\n", ",").split(",")
+            text = (
+                attributes["documentation"]
+                if isinstance(attributes["documentation"], str)
+                else attributes["documentation"]["text"]
+            )
+            self._contract.comments = text
+
+            # Look for custom comments
+            candidates = text.replace("\n", ",").split(",")
 
             for candidate in candidates:
                 if "@custom:security isDelegatecallProxy" in candidate:

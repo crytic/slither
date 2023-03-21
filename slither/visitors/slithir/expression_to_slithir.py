@@ -226,7 +226,13 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 operation.set_expression(expression)
                 self._result.append(operation)
                 set_val(expression, left)
-            elif expression.type and expression.expression_return_type:
+            elif isinstance(left.type, ArrayType):
+                # Special case for init of array, when the right has only one element
+                operation = InitArray([right], left)
+                operation.set_expression(expression)
+                self._result.append(operation)
+                set_val(expression, left)
+            else:
                 operation = convert_assignment(
                     left, right, expression.type, expression.expression_return_type
                 )

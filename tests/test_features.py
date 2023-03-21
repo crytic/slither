@@ -32,7 +32,7 @@ def test_node() -> None:
 
 
 def test_collision() -> None:
-
+    solc_select.switch_global_version("0.8.0", always_install=True)
     standard_json = SolcStandardJson()
     standard_json.add_source_file("./tests/collisions/a.sol")
     standard_json.add_source_file("./tests/collisions/b.sol")
@@ -44,6 +44,7 @@ def test_collision() -> None:
 
 
 def test_cycle() -> None:
+    solc_select.switch_global_version("0.8.0", always_install=True)
     slither = Slither("./tests/test_cyclic_import/a.sol")
     _run_all_detectors(slither)
 
@@ -73,6 +74,36 @@ def test_upgradeable_comments() -> None:
     v1 = compilation_unit.get_contract_from_name("V1")[0]
     assert v0.is_upgradeable
     assert v1.upgradeable_version == "version_1"
+
+
+def test_contract_comments() -> None:
+    comments = " @title Test Contract\n @dev Test comment"
+
+    solc_select.switch_global_version("0.8.10", always_install=True)
+    slither = Slither("./tests/custom_comments/contract_comment.sol")
+    compilation_unit = slither.compilation_units[0]
+    contract = compilation_unit.get_contract_from_name("A")[0]
+
+    assert contract.comments == comments
+
+    # Old solc versions have a different parsing of comments
+    # the initial space (after *) is also not kept on every line
+    comments = "@title Test Contract\n@dev Test comment"
+    solc_select.switch_global_version("0.5.16", always_install=True)
+    slither = Slither("./tests/custom_comments/contract_comment.sol")
+    compilation_unit = slither.compilation_units[0]
+    contract = compilation_unit.get_contract_from_name("A")[0]
+
+    assert contract.comments == comments
+
+    # Test with legacy AST
+    comments = "@title Test Contract\n@dev Test comment"
+    solc_select.switch_global_version("0.5.16", always_install=True)
+    slither = Slither("./tests/custom_comments/contract_comment.sol", solc_force_legacy_json=True)
+    compilation_unit = slither.compilation_units[0]
+    contract = compilation_unit.get_contract_from_name("A")[0]
+
+    assert contract.comments == comments
 
 
 def test_using_for_top_level_same_name() -> None:
@@ -171,3 +202,18 @@ def test_using_for_global_collision() -> None:
     compilation = CryticCompile(standard_json)
     sl = Slither(compilation)
     _run_all_detectors(sl)
+
+
+def test_abstract_contract() -> None:
+    solc_select.switch_global_version("0.8.0", always_install=True)
+    slither = Slither("./tests/function_features/abstract.sol")
+    assert not slither.contracts[0].is_fully_implemented
+
+    solc_select.switch_global_version("0.5.0", always_install=True)
+    slither = Slither("./tests/function_features/implicit_abstract.sol")
+    assert not slither.contracts[0].is_fully_implemented
+
+    slither = Slither(
+        "./tests/function_features/implicit_abstract.sol", solc_force_legacy_json=True
+    )
+    assert not slither.contracts[0].is_fully_implemented

@@ -28,6 +28,7 @@ from slither.slithir.operations import (
     BinaryType,
     InternalCall,
     Index,
+    InitArray,
 )
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import (
@@ -817,20 +818,20 @@ def test_memory_array():
             uint val1;
             uint val2;
         }
-        
+
         function test_array() internal {
             A[] memory a= new A[](4);
             // Create REF_0 -> a_1[2]
             accept_array_entry(a[2]);
-            
+
             // Create REF_1 -> a_1[3]
             accept_array_entry(a[3]);
-            
+
             A memory alocal;
             accept_array_entry(alocal);
-            
+
         }
-        
+
         // val_1 = ϕ(val_0, REF_0, REF_1, alocal_1)
         // val_0 is an unknown external value
         function accept_array_entry(A memory val) public returns (uint) {
@@ -839,9 +840,9 @@ def test_memory_array():
             // Create REF_2 -> val_1.val1
             return b(val.val1);
         }
-        
+
         function b(uint arg) public returns (uint){
-            // arg_1 = ϕ(arg_0, zero_1, REF_2) 
+            // arg_1 = ϕ(arg_0, zero_1, REF_2)
             return arg + 1;
         }
     }"""
@@ -883,12 +884,12 @@ def test_storage_array():
             uint val1;
             uint val2;
         }
-        
+
         // NOTE(hbrodin): a is never written, should only become a_0. Same for astorage (astorage_0). Phi-nodes at entry
-        // should only add new versions of a state variable if it is actually written. 
+        // should only add new versions of a state variable if it is actually written.
         A[] a;
         A astorage;
-        
+
         function test_array() internal {
             accept_array_entry(a[2]);
             accept_array_entry(a[3]);
@@ -898,7 +899,7 @@ def test_storage_array():
         function accept_array_entry(A storage val) internal returns (uint) {
             // val is either a[2], a[3] or astorage_0. Ideally this could be identified.
             uint five = 5;
-            
+
             // NOTE(hbrodin): If the following line is enabled, there would ideally be a phi-node representing writes
             // to either a or astorage.
             //val.val2 = 4;
@@ -1080,3 +1081,20 @@ def test_issue_473():
         # return is for second phi
         assert len(return_value.values) == 1
         assert second_phi.lvalue in return_value.values
+
+
+def test_issue_1748():
+    source = """
+    contract Contract {
+        uint[] arr;
+        function foo(uint i) public {
+            arr = [1];
+        }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+        f = c.functions[0]
+        operations = f.slithir_operations
+        assign_op = operations[0]
+        assert isinstance(assign_op, InitArray)

@@ -38,6 +38,16 @@
             "check": "solc-version",
             "impact": "Informational",
             "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "solc-0.7.6 is not recommended for deployment\n",
+            "markdown": "solc-0.7.6 is not recommended for deployment\n",
+            "first_markdown_element": "",
+            "id": "ddb8ee36d9dd69b14eab702506268f8f9ef3283777d042e197277e29407b386e",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
         }
     ]
 ]
