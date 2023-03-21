@@ -192,10 +192,10 @@ def _fits_under_integer(val: int, can_be_int: bool, can_be_uint: bool) -> List[s
     assert can_be_int | can_be_uint
     while n <= 256:
         if can_be_uint:
-            if val <= 2**n - 1:
+            if val <= 2 ** n - 1:
                 ret.append(f"uint{n}")
         if can_be_int:
-            if val <= (2**n) / 2 - 1:
+            if val <= (2 ** n) / 2 - 1:
                 ret.append(f"int{n}")
         n = n + 8
     return ret
@@ -795,7 +795,9 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                 if contract is None:
                     for imp in node.file_scope.imports:
                         if str(ir.contract_name) in imp.renaming.keys():
-                            contract = node.file_scope.get_contract_from_name(imp.renaming[str(ir.contract_name)])
+                            contract = node.file_scope.get_contract_from_name(
+                                imp.renaming[str(ir.contract_name)]
+                            )
                             break
                 ir.lvalue.set_type(UserDefinedType(contract))
             elif isinstance(ir, NewElementaryType):
