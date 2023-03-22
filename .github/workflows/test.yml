@@ -38,7 +38,7 @@ jobs:
 
       - name: Test detectors
         run: |
-          pytest --cov=slither tests/test_detectors.py
+          pytest --cov=slither --cov-append tests/test_detectors.py
           python -m coverage report
 
       - name: Test features
@@ -46,31 +46,31 @@ jobs:
           cd tests/test_node_modules/
           npm install hardhat
           cd ../..
-          pytest --cov=slither tests/test_features.py
-          pytest --cov=slither tests/test_constant_folding.py
-          pytest --cov=slither tests/slithir/test_ternary_expressions.py
-          pytest --cov=slither tests/slithir/test_operation_reads.py
-          pytest --cov=slither tests/test_functions_ids.py
-          pytest --cov=slither tests/test_function.py
-          pytest --cov=slither tests/test_source_mapping.py
-          pytest --cov=slither tests/test_storage_layout.py
+          pytest --cov=slither --cov-append tests/test_features.py
+          pytest --cov=slither --cov-append tests/test_constant_folding.py
+          pytest --cov=slither --cov-append tests/slithir/test_ternary_expressions.py
+          pytest --cov=slither --cov-append tests/slithir/test_operation_reads.py
+          pytest --cov=slither --cov-append tests/test_functions_ids.py
+          pytest --cov=slither --cov-append tests/test_function.py
+          pytest --cov=slither --cov-append tests/test_source_mapping.py
+          pytest --cov=slither --cov-append tests/test_storage_layout.py
           python -m coverage report
 
 
       - name: IR tests
         run: |
-          pytest --cov=slither tests/test_ssa_generation.py
+          pytest --cov=slither --cov-append tests/test_ssa_generation.py
           python -m coverage report
 
       - name: Test ast parsing
         run: |
-          pytest --cov=slither tests/test_ast_parsing.py -n auto
+          pytest --cov=slither --cov-append tests/test_ast_parsing.py -n auto
           python -m coverage report
 
       - name: Test storage
         run: |
           npm install --global ganache
-          pytest --cov=slither tests/test_read_storage.py
+          pytest --cov=slither --cov-append tests/test_read_storage.py
           python -m coverage report
 
       - uses: ./.github/actions/upload-coverage
