@@ -1,5 +1,5 @@
 ---
-name: CI
+name: Pytest
 
 defaults:
   run:
