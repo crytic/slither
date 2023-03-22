@@ -263,7 +263,7 @@ class SlitherReadStorage:
         storage_type = None
         size = None
         funcs = []
-        for c in self.contracts:
+        for c in self.contracts_derived:
             funcs.extend(c.get_functions_reading_from_variable(var))
         fallback = [f for f in var.contract.functions if f.is_fallback]
         funcs += fallback
