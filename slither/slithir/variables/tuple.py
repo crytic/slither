@@ -1,13 +1,12 @@
 from typing import Optional, TYPE_CHECKING
 
-from slither.core.children.child_node import ChildNode
 from slither.slithir.variables.variable import SlithIRVariable
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 
-class TupleVariable(ChildNode, SlithIRVariable):
+class TupleVariable(SlithIRVariable):
     def __init__(self, node: "Node", index: Optional[int] = None) -> None:
         super().__init__()
         if index is None:
@@ -17,6 +16,10 @@ class TupleVariable(ChildNode, SlithIRVariable):
             self._index = index
 
         self._node = node
+
+    @property
+    def node(self) -> "Node":
+        return self._node
 
     @property
     def index(self):

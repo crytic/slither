@@ -6,6 +6,7 @@ from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     make_solc_versions,
+    DETECTOR_INFO,
 )
 from slither.slithir.operations import InternalDynamicCall, OperationWithLValue
 from slither.slithir.variables import ReferenceVariable
@@ -115,10 +116,10 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
         results = []
 
         for contract in self.compilation_unit.contracts:
-            contract_info = ["Contract ", contract, " \n"]
+            contract_info: DETECTOR_INFO = ["Contract ", contract, " \n"]
             nodes = self._detect_uninitialized_function_ptr_in_constructor(contract)
             for node in nodes:
-                node_info = [
+                node_info: DETECTOR_INFO = [
                     "\t ",
                     node,
                     " is an unintialized function pointer call in a constructor\n",

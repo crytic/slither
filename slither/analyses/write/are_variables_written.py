@@ -2,10 +2,10 @@
     Detect if all the given variables are written in all the paths of the function
 """
 from collections import defaultdict
-from typing import Dict, Set, List
+from typing import Dict, Set, List, Any, Optional
 
 from slither.core.cfg.node import NodeType, Node
-from slither.core.declarations import SolidityFunction
+from slither.core.declarations import SolidityFunction, Function
 from slither.core.variables.variable import Variable
 from slither.slithir.operations import (
     Index,
@@ -18,7 +18,7 @@ from slither.slithir.variables import ReferenceVariable, TemporaryVariable
 
 
 class State:  # pylint: disable=too-few-public-methods
-    def __init__(self):
+    def __init__(self) -> None:
         # Map node -> list of variables set
         # Were each variables set represents a configuration of a path
         # If two paths lead to the exact same set of variables written, we dont need to explore both
@@ -34,11 +34,11 @@ class State:  # pylint: disable=too-few-public-methods
 
 # pylint: disable=too-many-branches
 def _visit(
-    node: Node,
+    node: Optional[Node],
     state: State,
     variables_written: Set[Variable],
     variables_to_write: List[Variable],
-):
+) -> List[Variable]:
     """
     Explore all the nodes to look for values not written when the node's function return
     Fixpoint reaches if no new written variables are found
@@ -51,6 +51,8 @@ def _visit(
 
     refs = {}
     variables_written = set(variables_written)
+    if not node:
+        return []
     for ir in node.irs:
         if isinstance(ir, SolidityCall):
             # TODO convert the revert to a THROW node
@@ -70,17 +72,20 @@ def _visit(
         if ir.lvalue and not isinstance(ir.lvalue, (TemporaryVariable, ReferenceVariable)):
             variables_written.add(ir.lvalue)
 
-        lvalue = ir.lvalue
+        lvalue: Any = ir.lvalue
         while isinstance(lvalue, ReferenceVariable):
             if lvalue not in refs:
                 break
-            if refs[lvalue] and not isinstance(
-                refs[lvalue], (TemporaryVariable, ReferenceVariable)
+            refs_lvalues = refs[lvalue]
+            if (
+                refs_lvalues
+                and isinstance(refs_lvalues, Variable)
+                and not isinstance(refs_lvalues, (TemporaryVariable, ReferenceVariable))
             ):
-                variables_written.add(refs[lvalue])
-            lvalue = refs[lvalue]
+                variables_written.add(refs_lvalues)
+            lvalue = refs_lvalues
 
-    ret = []
+    ret: List[Variable] = []
     if not node.sons and node.type not in [NodeType.THROW, NodeType.RETURN]:
         ret += [v for v in variables_to_write if v not in variables_written]
 
@@ -96,7 +101,7 @@ def _visit(
     return ret
 
 
-def are_variables_written(function, variables_to_write):
+def are_variables_written(function: Function, variables_to_write: List[Variable]) -> List[Variable]:
     """
         Return the list of variable that are not written at the end of the function
 

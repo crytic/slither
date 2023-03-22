@@ -61,12 +61,12 @@ class ArbitrarySendErc20:
                         is_dependent(
                             ir.arguments[0],
                             SolidityVariableComposed("msg.sender"),
-                            node.function.contract,
+                            node,
                         )
                         or is_dependent(
                             ir.arguments[0],
                             SolidityVariable("this"),
-                            node.function.contract,
+                            node,
                         )
                     )
                 ):
@@ -79,12 +79,12 @@ class ArbitrarySendErc20:
                         is_dependent(
                             ir.arguments[1],
                             SolidityVariableComposed("msg.sender"),
-                            node.function.contract,
+                            node,
                         )
                         or is_dependent(
                             ir.arguments[1],
                             SolidityVariable("this"),
-                            node.function.contract,
+                            node,
                         )
                     )
                 ):

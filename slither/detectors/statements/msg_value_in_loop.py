@@ -1,6 +1,10 @@
 from typing import List, Optional
 from slither.core.cfg.node import NodeType, Node
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import InternalCall
 from slither.core.declarations import SolidityVariableComposed, Contract
 from slither.utils.output import Output
@@ -86,7 +90,7 @@ Track msg.value through a local variable and decrease its amount on every iterat
             for node in values:
                 func = node.function
 
-                info = [func, " use msg.value in a loop: ", node, "\n"]
+                info: DETECTOR_INFO = [func, " use msg.value in a loop: ", node, "\n"]
                 res = self.generate_result(info)
                 results.append(res)
 

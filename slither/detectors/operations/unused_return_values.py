@@ -7,7 +7,11 @@ from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.state_variable import StateVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import HighLevelCall
 from slither.slithir.operations.operation import Operation
 from slither.utils.output import Output
@@ -91,7 +95,7 @@ contract MyConc{
                 if unused_return:
 
                     for node in unused_return:
-                        info = [f, " ignores return value by ", node, "\n"]
+                        info: DETECTOR_INFO = [f, " ignores return value by ", node, "\n"]
 
                         res = self.generate_result(info)
 

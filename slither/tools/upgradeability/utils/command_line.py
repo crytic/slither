@@ -63,7 +63,7 @@ def output_detectors(detector_classes: List[Type[AbstractCheck]]) -> None:
 
 
 def output_to_markdown(detector_classes: List[Type[AbstractCheck]], _filter_wiki: str) -> None:
-    def extract_help(cls: AbstractCheck) -> str:
+    def extract_help(cls: Type[AbstractCheck]) -> str:
         if cls.WIKI == "":
             return cls.HELP
         return f"[{cls.HELP}]({cls.WIKI})"

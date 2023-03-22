@@ -1,5 +1,6 @@
-from typing import Any, Union, List
+from typing import Any, Union, List, Optional
 
+from slither.core.expressions import NewElementaryType
 from slither.core.expressions.expression import Expression
 from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.expressions.assignment_operation import AssignmentOperation
@@ -32,6 +33,10 @@ def set_val(expression: Expression, val: List[Union[Any, CallExpression]]) -> No
 
 
 class FindCalls(ExpressionVisitor):
+    def __init__(self, expression: Expression) -> None:
+        self._result: Optional[List[Expression]] = None
+        super().__init__(expression)
+
     def result(self) -> List[Expression]:
         if self._result is None:
             self._result = list(set(get(self.expression)))
@@ -51,8 +56,8 @@ class FindCalls(ExpressionVisitor):
 
     def _post_call_expression(self, expression: CallExpression) -> None:
         called = get(expression.called)
-        args = [get(a) for a in expression.arguments if a]
-        args = [item for sublist in args for item in sublist]
+        argss = [get(a) for a in expression.arguments if a]
+        args = [item for sublist in argss for item in sublist]
         val = called + args
         val += [expression]
         set_val(expression, val)
@@ -93,7 +98,7 @@ class FindCalls(ExpressionVisitor):
     def _post_new_contract(self, expression: NewContract) -> None:
         set_val(expression, [])
 
-    def _post_new_elementary_type(self, expression):
+    def _post_new_elementary_type(self, expression: NewElementaryType) -> None:
         set_val(expression, [])
 
     def _post_tuple_expression(self, expression: TupleExpression) -> None:

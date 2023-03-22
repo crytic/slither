@@ -6,7 +6,11 @@ A suicidal contract is an unprotected function that calls selfdestruct
 from typing import List
 
 from slither.core.declarations import Function, Contract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -58,7 +62,7 @@ contract Buggy{
                         self.logger.error(f"{function_sig} not found")
                         continue
                     if function_protection not in function.all_internal_calls():
-                        info = [
+                        info: DETECTOR_INFO = [
                             function,
                             " should have ",
                             function_protection,

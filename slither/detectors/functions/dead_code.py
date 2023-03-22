@@ -4,7 +4,11 @@ Module detecting dead code
 from typing import List, Tuple
 
 from slither.core.declarations import Function, FunctionContract, Contract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -72,7 +76,7 @@ contract Contract{
             # Continue if the functon is not implemented because it means the contract is abstract
             if not function.is_implemented:
                 continue
-            info = [function, " is never used and should be removed\n"]
+            info: DETECTOR_INFO = [function, " is never used and should be removed\n"]
             res = self.generate_result(info)
             results.append(res)
 

@@ -1,5 +1,5 @@
 import itertools
-from typing import Tuple
+from typing import Tuple, Optional, Any
 
 from slither.core.solidity_types.type import Type
 
@@ -176,7 +176,7 @@ class ElementaryType(Type):
         return self.type
 
     @property
-    def size(self) -> int:
+    def size(self) -> Optional[int]:
         """
             Return the size in bits
             Return None if the size is not known
@@ -219,7 +219,7 @@ class ElementaryType(Type):
     def __str__(self) -> str:
         return self._type
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ElementaryType):
             return False
         return self.type == other.type

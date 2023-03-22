@@ -6,7 +6,11 @@ from typing import Union, List
 from slither.core.declarations import Function
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.state_variable import StateVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.function import get_function_id
 from slither.utils.output import Output
 
@@ -63,7 +67,7 @@ contract Contract{
                             assert isinstance(func_or_var, StateVariable)
                             incorrect_return_type = func_or_var.type != ElementaryType("bytes32")
                     if hash_collision or incorrect_return_type:
-                        info = [
+                        info: DETECTOR_INFO = [
                             "The function signature of ",
                             func_or_var,
                             " collides with DOMAIN_SEPARATOR and should be renamed or removed.\n",
