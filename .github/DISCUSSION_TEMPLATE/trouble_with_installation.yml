@@ -48,8 +48,6 @@ body:
       label: "Output of running `slither-doctor .`:"
     id: logs
     type: textarea
-description: "Get help troubleshooting slither installation"
 labels: 
   - installation-help
-name: "Trouble with Installing Slither"
 title: "[Installation-Help]: "
