@@ -7,7 +7,9 @@ defaults:
 
 on:
   push:
-    branches: [master, dev]
+    branches:
+      - master
+      - dev
   pull_request:
   schedule:
     # run CI every day even if no PRs/merges occur
@@ -24,23 +26,23 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
-#        type: ["cli",
-#               "dapp",
-#               "data_dependency",
-#               "path_filtering",
-#               # "embark",
-#               "erc",
-#               # "etherlime",
-#               "etherscan",
-#               "find_paths",
-#               "flat",
-#               "kspec",
-#               "printers",
-#               # "prop"
-#               "simil",
-#               "slither_config",
-#               "truffle",
-#               "upgradability"]
+        type: ["cli",
+               "dapp",
+               "data_dependency",
+               "path_filtering",
+               # "embark",
+               "erc",
+               # "etherlime",
+               "etherscan",
+               "find_paths",
+               "flat",
+               "kspec",
+               "printers",
+               # "prop"
+               "simil",
+               "slither_config",
+               "truffle",
+               "upgradability"]
         exclude:
           # Requires nix
           - os: windows-2022
@@ -57,8 +59,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ".[dev]"
-          solc-select install all
-          solc-select use 0.8.0
+          solc-select use 0.4.25 --always-install
+          solc-select use 0.8.0 --always-install
+          solc-select use 0.5.1 --always-install
+
       - name: Set up nix
         if: matrix.type == 'dapp'
         uses: cachix/install-nix-action@v20
@@ -69,75 +73,10 @@ jobs:
         with:
           name: dapp
 
-#      - name: Run Bash script tests
-#        env:
-#          PYTHONUTF8: 1
-#          TEST_TYPE: ${{ matrix.type }}
-#          GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
-#        run: |
-#          bash "scripts/ci_test_${TEST_TYPE}.sh"
-
-      - name: Test detectors
+      - name: Run Tests
+        env:
+          PYTHONUTF8: 1
+          TEST_TYPE: ${{ matrix.type }}
+          GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
         run: |
-          pytest --cov=slither tests/test_detectors.py
-          python -m coverage report
-
-      - name: Test features
-        run: |
-          cd tests/test_node_modules/
-          npm install hardhat
-          cd ../..
-          pytest --cov=slither tests/test_features.py
-          pytest --cov=slither tests/test_constant_folding.py
-          pytest --cov=slither tests/slithir/test_ternary_expressions.py
-          pytest --cov=slither tests/slithir/test_operation_reads.py
-          pytest --cov=slither tests/test_functions_ids.py
-          pytest --cov=slither tests/test_function.py
-          pytest --cov=slither tests/test_source_mapping.py
-          pytest --cov=slither tests/test_storage_layout.py
-          python -m coverage report
-
-
-      - name: IR tests
-        run: |
-          pytest --cov=slither tests/test_ssa_generation.py
-          python -m coverage report
-
-      - name: Test ast parsing
-        run: |
-          pytest --cov=slither tests/test_ast_parsing.py -n auto
-          python -m coverage report
-
-      - name: Test storage
-        run: |
-          npm install --global ganache
-          pytest --cov=slither tests/test_read_storage.py
-          python -m coverage report
-
-  coverage:
-    needs:
-      - tests
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.8
-
-      - run: pip install coverage[toml]
-
-      - name: download coverage data
-        uses: actions/download-artifact@v3.0.2
-        with:
-          name: coverage-data
-
-      - name: combine coverage data
-        id: combinecoverage
-        run: |
-          set +e
-          python -m coverage combine
-          echo "## python coverage" >> $GITHUB_STEP_SUMMARY
-          python -m coverage report -m --format=markdown >> $GITHUB_STEP_SUMMARY
+          bash "scripts/ci_test_${TEST_TYPE}.sh"
