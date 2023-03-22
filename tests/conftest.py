@@ -3,9 +3,9 @@ import sys
 import shutil
 import subprocess
 from time import sleep
-from web3 import Web3
 from typing import Generator
 
+from web3 import Web3
 import pytest
 
 
