@@ -351,7 +351,7 @@ class SlitherReadStorage:
             if node.type == NodeType.ASSEMBLY and isinstance(node.inline_asm, str):
                 asm_split = node.inline_asm.split("\n")
                 for asm in asm_split:
-                    if "sload(" in asm:
+                    if "sload(0x" in asm:   # Only handle literals
                         arg = asm.split("sload(")[1].split(")")[0]
                         exp = Literal(arg, ElementaryType("bytes32"))
                         sv = StateVariable()
@@ -365,8 +365,11 @@ class SlitherReadStorage:
                 exp = node.expression
                 if isinstance(exp, AssignmentOperation):
                     exp = exp.expression_right
-                if isinstance(exp, CallExpression) and "sload" in str(exp.called):
+                while isinstance(exp, CallExpression):
+                    called = exp.called
                     exp = exp.arguments[0]
+                    if "sload" in str(called):
+                        break
                 if (
                     isinstance(exp, Literal)
                     and isinstance(exp.type, ElementaryType)
