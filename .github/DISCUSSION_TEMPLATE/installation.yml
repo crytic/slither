@@ -2,12 +2,6 @@
 body: 
   - 
     attributes: 
-      value: |
-          Please check the issues tab to avoid duplicates.
-          Thanks for taking the time to fill out this bug report!
-    type: markdown
-  - 
-    attributes: 
       label: "What operating system are you using?"
     id: os
     type: textarea
@@ -31,14 +25,6 @@ body:
         - "Yes"
         - "No"
         - "Not sure"
-  - type: dropdown
-    id: solc
-    attributes:
-      label: Do you have solc-select installed?
-      multiple: true
-      options:
-        - "Yes"
-        - "No"
   - 
     attributes: 
       description: |
@@ -47,7 +33,6 @@ body:
       render: shell
       label: "Output of running `slither-doctor .`:"
     id: logs
-    type: textarea
 labels: 
   - installation-help
 title: "[Installation-Help]: "
