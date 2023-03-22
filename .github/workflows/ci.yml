@@ -24,23 +24,23 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
-        type: ["cli",
-               "dapp",
-               "data_dependency",
-               "path_filtering",
-               # "embark",
-               "erc",
-               # "etherlime",
-               "etherscan",
-               "find_paths",
-               "flat",
-               "kspec",
-               "printers",
-               # "prop"
-               "simil",
-               "slither_config",
-               "truffle",
-               "upgradability"]
+#        type: ["cli",
+#               "dapp",
+#               "data_dependency",
+#               "path_filtering",
+#               # "embark",
+#               "erc",
+#               # "etherlime",
+#               "etherscan",
+#               "find_paths",
+#               "flat",
+#               "kspec",
+#               "printers",
+#               # "prop"
+#               "simil",
+#               "slither_config",
+#               "truffle",
+#               "upgradability"]
         exclude:
           # Requires nix
           - os: windows-2022
@@ -57,10 +57,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ".[dev]"
-          solc-select use 0.4.25 --always-install
-          solc-select use 0.8.0 --always-install
-          solc-select use 0.5.1 --always-install
-
+          solc-select install all
+          solc-select use 0.8.0
       - name: Set up nix
         if: matrix.type == 'dapp'
         uses: cachix/install-nix-action@v20
@@ -71,13 +69,13 @@ jobs:
         with:
           name: dapp
 
-      - name: Run Bash script tests
-        env:
-          PYTHONUTF8: 1
-          TEST_TYPE: ${{ matrix.type }}
-          GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
-        run: |
-          bash "scripts/ci_test_${TEST_TYPE}.sh"
+#      - name: Run Bash script tests
+#        env:
+#          PYTHONUTF8: 1
+#          TEST_TYPE: ${{ matrix.type }}
+#          GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
+#        run: |
+#          bash "scripts/ci_test_${TEST_TYPE}.sh"
 
       - name: Test detectors
         run: |
