@@ -1,0 +1,107 @@
+---
+name: Pytest
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+  schedule:
+    # run CI every day even if no PRs/merges occur
+    - cron: '0 12 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-2022"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          pip install ".[dev]"
+          solc-select install all
+          solc-select use 0.8.0
+
+      - name: Test detectors
+        run: |
+          pytest --cov=slither --cov-append tests/test_detectors.py
+          python -m coverage report
+
+      - name: Test features
+        run: |
+          cd tests/test_node_modules/
+          npm install hardhat
+          cd ../..
+          pytest --cov=slither --cov-append tests/test_features.py
+          pytest --cov=slither --cov-append tests/test_constant_folding.py
+          pytest --cov=slither --cov-append tests/slithir/test_ternary_expressions.py
+          pytest --cov=slither --cov-append tests/slithir/test_operation_reads.py
+          pytest --cov=slither --cov-append tests/test_functions_ids.py
+          pytest --cov=slither --cov-append tests/test_function.py
+          pytest --cov=slither --cov-append tests/test_source_mapping.py
+          pytest --cov=slither --cov-append tests/test_storage_layout.py
+          python -m coverage report
+
+
+      - name: IR tests
+        run: |
+          pytest --cov=slither --cov-append tests/test_ssa_generation.py
+          python -m coverage report
+
+      - name: Test ast parsing
+        run: |
+          pytest --cov=slither --cov-append tests/test_ast_parsing.py -n auto
+          python -m coverage report
+
+      - name: Test storage
+        run: |
+          npm install --global ganache
+          pytest --cov=slither --cov-append tests/test_read_storage.py
+          python -m coverage report
+
+      - uses: ./.github/actions/upload-coverage
+        # only aggregate test coverage over linux-based tests to avoid any OS-specific filesystem information stored in
+        # coverage metadata.
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+
+  coverage:
+    needs:
+      - tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+
+      - run: pip install coverage[toml]
+
+      - name: download coverage data
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: coverage-data
+
+      - name: combine coverage data
+        id: combinecoverage
+        run: |
+          set +e
+          python -m coverage combine
+          echo "## python coverage" >> $GITHUB_STEP_SUMMARY
+          python -m coverage report -m --format=markdown >> $GITHUB_STEP_SUMMARY
