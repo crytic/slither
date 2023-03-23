@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   build:
-    name: Pylint
+    name: Superlinter
     runs-on: ubuntu-latest
 
     steps:

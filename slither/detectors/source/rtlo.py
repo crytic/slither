@@ -1,7 +1,11 @@
 import re
 from typing import List
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -78,7 +82,7 @@ contract Token
                 idx = start_index + result_index
 
                 relative = self.slither.crytic_compile.filename_lookup(filename).relative
-                info = f"{relative} contains a unicode right-to-left-override character at byte offset {idx}:\n"
+                info: DETECTOR_INFO = f"{relative} contains a unicode right-to-left-override character at byte offset {idx}:\n"
 
                 # We have a patch, so pattern.find will return at least one result
 

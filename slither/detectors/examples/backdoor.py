@@ -1,6 +1,10 @@
 from typing import List
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -28,7 +32,7 @@ class Backdoor(AbstractDetector):
             for f in contract.functions:
                 if "backdoor" in f.name:
                     # Info to be printed
-                    info = ["Backdoor function found in ", f, "\n"]
+                    info: DETECTOR_INFO = ["Backdoor function found in ", f, "\n"]
 
                     # Add the result in result
                     res = self.generate_result(info)

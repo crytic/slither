@@ -34,6 +34,8 @@ classification_txt = {
     CheckClassification.HIGH: "High",
 }
 
+CHECK_INFO = List[Union[str, SupportedOutput]]
+
 
 class AbstractCheck(metaclass=abc.ABCMeta):
     ARGUMENT = ""
@@ -140,7 +142,7 @@ class AbstractCheck(metaclass=abc.ABCMeta):
 
     def generate_result(
         self,
-        info: Union[str, List[Union[str, SupportedOutput]]],
+        info: CHECK_INFO,
         additional_fields: Optional[Dict] = None,
     ) -> Output:
         output = Output(

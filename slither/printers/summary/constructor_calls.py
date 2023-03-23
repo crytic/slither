@@ -5,6 +5,7 @@ from slither.core.declarations import Function
 from slither.core.source_mapping.source_mapping import Source
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils import output
+from slither.utils.output import Output
 
 
 def _get_source_code(cst: Function) -> str:
@@ -17,7 +18,7 @@ class ConstructorPrinter(AbstractPrinter):
     ARGUMENT = "constructor-calls"
     HELP = "Print the constructors executed"
 
-    def output(self, _filename):
+    def output(self, _filename: str) -> Output:
         info = ""
         for contract in self.slither.contracts_derived:
             stack_name = []

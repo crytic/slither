@@ -151,26 +151,27 @@ Num | Detector | What it Detects | Impact | Confidence
 61 | `assembly` | [Assembly usage](https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage) | Informational | High
 62 | `assert-state-change` | [Assert state change](https://github.com/crytic/slither/wiki/Detector-Documentation#assert-state-change) | Informational | High
 63 | `boolean-equal` | [Comparison to boolean constant](https://github.com/crytic/slither/wiki/Detector-Documentation#boolean-equality) | Informational | High
-64 | `deprecated-standards` | [Deprecated Solidity Standards](https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards) | Informational | High
-65 | `erc20-indexed` | [Un-indexed ERC20 event parameters](https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-erc20-event-parameters) | Informational | High
-66 | `function-init-state` | [Function initializing state variables](https://github.com/crytic/slither/wiki/Detector-Documentation#function-initializing-state) | Informational | High
-67 | `low-level-calls` | [Low level calls](https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls) | Informational | High
-68 | `missing-inheritance` | [Missing inheritance](https://github.com/crytic/slither/wiki/Detector-Documentation#missing-inheritance) | Informational | High
-69 | `naming-convention` | [Conformity to Solidity naming conventions](https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions) | Informational | High
-70 | `pragma` | [If different pragma directives are used](https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used) | Informational | High
-71 | `redundant-statements` | [Redundant statements](https://github.com/crytic/slither/wiki/Detector-Documentation#redundant-statements) | Informational | High
-72 | `solc-version` | [Incorrect Solidity version](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity) | Informational | High
-73 | `unimplemented-functions` | [Unimplemented functions](https://github.com/crytic/slither/wiki/Detector-Documentation#unimplemented-functions) | Informational | High
-74 | `unused-state` | [Unused state variables](https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variable) | Informational | High
-75 | `costly-loop` | [Costly operations in a loop](https://github.com/crytic/slither/wiki/Detector-Documentation#costly-operations-inside-a-loop) | Informational | Medium
-76 | `dead-code` | [Functions that are not used](https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code) | Informational | Medium
-77 | `reentrancy-unlimited-gas` | [Reentrancy vulnerabilities through send and transfer](https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4) | Informational | Medium
-78 | `similar-names` | [Variable names are too similar](https://github.com/crytic/slither/wiki/Detector-Documentation#variable-names-too-similar) | Informational | Medium
-79 | `too-many-digits` | [Conformance to numeric notation best practices](https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits) | Informational | Medium
-80 | `constable-states` | [State variables that could be declared constant](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant) | Optimization | High
-81 | `external-function` | [Public function that could be declared external](https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external) | Optimization | High
-82 | `immutable-states` | [State variables that could be declared immutable](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-immutable) | Optimization | High
-83 | `var-read-using-this` | [Contract reads its own variable using `this`](https://github.com/crytic/slither/wiki/Vulnerabilities-Description#public-variable-read-in-external-context) | Optimization | High
+64 | `cyclomatic-complexity` | [Detects functions with high (> 11) cyclomatic complexity](https://github.com/crytic/slither/wiki/Detector-Documentation#cyclomatic-complexity) | Informational | High
+65 | `deprecated-standards` | [Deprecated Solidity Standards](https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards) | Informational | High
+66 | `erc20-indexed` | [Un-indexed ERC20 event parameters](https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-erc20-event-parameters) | Informational | High
+67 | `function-init-state` | [Function initializing state variables](https://github.com/crytic/slither/wiki/Detector-Documentation#function-initializing-state) | Informational | High
+68 | `low-level-calls` | [Low level calls](https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls) | Informational | High
+69 | `missing-inheritance` | [Missing inheritance](https://github.com/crytic/slither/wiki/Detector-Documentation#missing-inheritance) | Informational | High
+70 | `naming-convention` | [Conformity to Solidity naming conventions](https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions) | Informational | High
+71 | `pragma` | [If different pragma directives are used](https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used) | Informational | High
+72 | `redundant-statements` | [Redundant statements](https://github.com/crytic/slither/wiki/Detector-Documentation#redundant-statements) | Informational | High
+73 | `solc-version` | [Incorrect Solidity version](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity) | Informational | High
+74 | `unimplemented-functions` | [Unimplemented functions](https://github.com/crytic/slither/wiki/Detector-Documentation#unimplemented-functions) | Informational | High
+75 | `unused-state` | [Unused state variables](https://github.com/crytic/slither/wiki/Detector-Documentation#unused-state-variable) | Informational | High
+76 | `costly-loop` | [Costly operations in a loop](https://github.com/crytic/slither/wiki/Detector-Documentation#costly-operations-inside-a-loop) | Informational | Medium
+77 | `dead-code` | [Functions that are not used](https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code) | Informational | Medium
+78 | `reentrancy-unlimited-gas` | [Reentrancy vulnerabilities through send and transfer](https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4) | Informational | Medium
+79 | `similar-names` | [Variable names are too similar](https://github.com/crytic/slither/wiki/Detector-Documentation#variable-names-too-similar) | Informational | Medium
+80 | `too-many-digits` | [Conformance to numeric notation best practices](https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits) | Informational | Medium
+81 | `constable-states` | [State variables that could be declared constant](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant) | Optimization | High
+82 | `external-function` | [Public function that could be declared external](https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external) | Optimization | High
+83 | `immutable-states` | [State variables that could be declared immutable](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-immutable) | Optimization | High
+84 | `var-read-using-this` | [Contract reads its own variable using `this`](https://github.com/crytic/slither/wiki/Vulnerabilities-Description#public-variable-read-in-external-context) | Optimization | High
 
 For more information, see
 - The [Detector Documentation](https://github.com/crytic/slither/wiki/Detector-Documentation) for details on each detector
@@ -246,17 +247,19 @@ Slither is licensed and distributed under the AGPLv3 license. [Contact us](mailt
 - [Slither: A Static Analysis Framework For Smart Contracts](https://arxiv.org/abs/1908.09878), Josselin Feist, Gustavo Grieco, Alex Groce - WETSEB '19
 
 ### External publications
-Title | Usage | Authors | Venue
---- | --- | --- | ---
+Title | Usage | Authors | Venue | Code
+--- | --- | --- | --- | ---
 [ReJection: A AST-Based Reentrancy Vulnerability Detection Method](https://www.researchgate.net/publication/339354823_ReJection_A_AST-Based_Reentrancy_Vulnerability_Detection_Method) | AST-based analysis built on top of Slither | Rui Ma, Zefeng Jian, Guangyuan Chen, Ke Ma, Yujia Chen | CTCIS 19
-[MPro: Combining Static and Symbolic Analysis forScalable Testing of Smart Contract](https://arxiv.org/pdf/1911.00570.pdf) | Leverage data dependency through Slither | William Zhang, Sebastian Banescu, Leodardo Pasos, Steven Stewart, Vijay Ganesh | ISSRE 2019
+[MPro: Combining Static and Symbolic Analysis forScalable Testing of Smart Contract](https://arxiv.org/pdf/1911.00570.pdf) | Leverage data dependency through Slither | William Zhang, Sebastian Banescu, Leodardo Pasos, Steven Stewart, Vijay Ganesh | ISSRE 2019 | [MPro](https://github.com/QuanZhang-William/M-Pro)
 [ETHPLOIT: From Fuzzing to Efficient Exploit Generation against Smart Contracts](https://wcventure.github.io/FuzzingPaper/Paper/SANER20_ETHPLOIT.pdf) | Leverage data dependency through Slither | Qingzhao Zhang, Yizhuo Wang, Juanru Li, Siqi Ma | SANER 20
 [Verification of Ethereum Smart Contracts: A Model Checking Approach](http://www.ijmlc.org/vol10/977-AM0059.pdf) | Symbolic execution built on top of Slither’s CFG | Tam Bang, Hoang H Nguyen, Dung Nguyen, Toan Trieu, Tho Quan | IJMLC 20
-[Smart Contract Repair](https://arxiv.org/pdf/1912.05823.pdf) | Rely on Slither’s vulnerabilities detectors | Xiao Liang Yu, Omar Al-Bataineh, David Lo, Abhik Roychoudhury | TOSEM 20
+[Smart Contract Repair](https://arxiv.org/pdf/1912.05823.pdf) | Rely on Slither’s vulnerabilities detectors | Xiao Liang Yu, Omar Al-Bataineh, David Lo, Abhik Roychoudhury | TOSEM 20 | [SCRepair](https://github.com/xiaoly8/SCRepair/)
 [Demystifying Loops in Smart Contracts](https://www.microsoft.com/en-us/research/uploads/prod/2020/08/loops_solidity__camera_ready-5f3fec3f15c69.pdf) | Leverage data dependency through Slither | Ben Mariano, Yanju Chen, Yu Feng, Shuvendu Lahiri, Isil Dillig | ASE 20
 [Trace-Based Dynamic Gas Estimation of Loops in Smart Contracts](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9268144) | Use Slither’s CFG to detect loops | Chunmiao Li, Shijie Nie, Yang Cao, Yijun Yu, Zhenjiang Hu | IEEE Open J. Comput. Soc. 1 (2020)
-[SAILFISH: Vetting Smart Contract State-Inconsistency Bugs in Seconds](https://arxiv.org/pdf/2104.08638.pdf) | Rely on SlithIR to build a *storage dependency graph* | Priyanka Bose, Dipanjan Das, Yanju Chen, Yu Feng, Christopher Kruegel, and Giovanni Vigna | S&P 22
+[SAILFISH: Vetting Smart Contract State-Inconsistency Bugs in Seconds](https://arxiv.org/pdf/2104.08638.pdf) | Rely on SlithIR to build a *storage dependency graph* | Priyanka Bose, Dipanjan Das, Yanju Chen, Yu Feng, Christopher Kruegel, and Giovanni Vigna | S&P 22 | [Sailfish](https://github.com/ucsb-seclab/sailfish)
 [SolType: Refinement Types for Arithmetic Overflow in Solidity](https://arxiv.org/abs/2110.00677) | Use Slither as frontend to build refinement type system | Bryan Tan, Benjamin Mariano, Shuvendu K. Lahiri, Isil Dillig, Yu Feng | POPL 22
 [Do Not Rug on Me: Leveraging Machine Learning Techniques for Automated Scam Detection](https://www.mdpi.com/2227-7390/10/6/949) | Use Slither to extract tokens' features (mintable, pausable, ..) | Mazorra, Bruno, Victor Adan, and Vanesa Daza | Mathematics 10.6 (2022)
+[MANDO: Multi-Level Heterogeneous Graph Embeddings for Fine-Grained Detection of Smart Contract Vulnerabilities](https://arxiv.org/abs/2208.13252) | Use Slither to extract the CFG and call graph | Hoang Nguyen, Nhat-Minh Nguyen, Chunyao Xie, Zahra Ahmadi, Daniel Kudendo, Thanh-Nam Doan and Lingxiao Jiang| IEEE 9th International Conference on Data Science and Advanced Analytics (DSAA, 2022) | [ge-sc](https://github.com/MANDO-Project/ge-sc)
+[Automated Auditing of Price Gouging TOD Vulnerabilities in Smart Contracts](https://www.cs.toronto.edu/~fanl/papers/price-icbc22.pdf) | Use Slither to extract the CFG and data dependencies| Sidi Mohamed Beillahi, Eric Keilty, Keerthi Nelaturu, Andreas Veneris, and Fan Long | 2022 IEEE International Conference on Blockchain and Cryptocurrency (ICBC) | [Smart-Contract-Repair](https://github.com/Veneris-Group/TOD-Location-Rectification)
 
 If you are using Slither on an academic work, consider applying to the [Crytic $10k Research Prize](https://blog.trailofbits.com/2019/11/13/announcing-the-crytic-10k-research-prize/).

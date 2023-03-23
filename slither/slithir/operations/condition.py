@@ -1,13 +1,7 @@
-from typing import List, Union
-from slither.slithir.operations.operation import Operation
+from typing import List
 
-from slither.slithir.utils.utils import is_valid_rvalue
-from slither.core.variables.local_variable import LocalVariable
-from slither.slithir.variables.constant import Constant
-from slither.slithir.variables.local_variable import LocalIRVariable
-from slither.slithir.variables.temporary import TemporaryVariable
-from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
-from slither.core.variables.variable import Variable
+from slither.slithir.operations.operation import Operation
+from slither.slithir.utils.utils import is_valid_rvalue, RVALUE
 
 
 class Condition(Operation):
@@ -18,9 +12,7 @@ class Condition(Operation):
 
     def __init__(
         self,
-        value: Union[
-            LocalVariable, TemporaryVariableSSA, TemporaryVariable, Constant, LocalIRVariable
-        ],
+        value: RVALUE,
     ) -> None:
         assert is_valid_rvalue(value)
         super().__init__()
@@ -29,14 +21,12 @@ class Condition(Operation):
     @property
     def read(
         self,
-    ) -> List[
-        Union[LocalIRVariable, Constant, LocalVariable, TemporaryVariableSSA, TemporaryVariable]
-    ]:
+    ) -> List[RVALUE]:
         return [self.value]
 
     @property
-    def value(self) -> Variable:
+    def value(self) -> RVALUE:
         return self._value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"CONDITION {self.value}"

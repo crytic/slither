@@ -6,6 +6,7 @@ from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     ALL_SOLC_VERSIONS_04,
+    DETECTOR_INFO,
 )
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
@@ -151,7 +152,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
                     continue
 
                 # Generate data to output.
-                info = [
+                info: DETECTOR_INFO = [
                     contract,
                     " gives base constructor ",
                     base_constructor,

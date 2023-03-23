@@ -11,7 +11,11 @@ from slither.core.declarations.solidity_variables import (
 )
 from slither.core.expressions.expression import Expression
 from slither.core.variables import StateVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import LowLevelCall
 from slither.utils.output import Output
 from slither.visitors.expression.export_values import ExportValues
@@ -186,7 +190,7 @@ contract ContractWithDeprecatedReferences {
                 for deprecated_reference in deprecated_references:
                     source_object = deprecated_reference[0]
                     deprecated_entries = deprecated_reference[1]
-                    info = ["Deprecated standard detected ", source_object, ":\n"]
+                    info: DETECTOR_INFO = ["Deprecated standard detected ", source_object, ":\n"]
 
                     for (_dep_id, original_desc, recommended_disc) in deprecated_entries:
                         info += [

@@ -1,8 +1,13 @@
+from typing import List
+
+from slither.core.declarations import Contract
 from slither.tools.upgradeability.checks.abstract_checks import (
     CheckClassification,
     AbstractCheck,
+    CHECK_INFO,
 )
 from slither.utils.upgradeability import get_missing_vars
+from slither.utils.output import Output
 
 
 class MissingVariable(AbstractCheck):
@@ -46,14 +51,16 @@ Do not change the order of the state variables in the updated contract.
     REQUIRE_CONTRACT = True
     REQUIRE_CONTRACT_V2 = True
 
-    def _check(self):
+    def _check(self) -> List[Output]:
         contract1 = self.contract
         contract2 = self.contract_v2
+
+        assert contract2
         missing = get_missing_vars(contract1, contract2)
 
         results = []
         for variable1 in missing:
-            info = ["Variable missing in ", contract2, ": ", variable1, "\n"]
+            info: CHECK_INFO = ["Variable missing in ", contract2, ": ", variable1, "\n"]
             json = self.generate_result(info)
             results.append(json)
 
@@ -98,13 +105,14 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
     REQUIRE_CONTRACT = True
     REQUIRE_PROXY = True
 
-    def _contract1(self):
+    def _contract1(self) -> Contract:
         return self.contract
 
-    def _contract2(self):
+    def _contract2(self) -> Contract:
+        assert self.proxy
         return self.proxy
 
-    def _check(self):
+    def _check(self) -> List[Output]:
         contract1 = self._contract1()
         contract2 = self._contract2()
         order1 = [
@@ -118,7 +126,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
             if not (variable.is_constant or variable.is_immutable)
         ]
 
-        results = []
+        results: List[Output] = []
         for idx, _ in enumerate(order1):
             if len(order2) <= idx:
                 # Handle by MissingVariable
@@ -127,7 +135,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
             variable1 = order1[idx]
             variable2 = order2[idx]
             if (variable1.name != variable2.name) or (variable1.type != variable2.type):
-                info = [
+                info: CHECK_INFO = [
                     "Different variables between ",
                     contract1,
                     " and ",
@@ -180,7 +188,8 @@ Respect the variable order of the original contract in the updated contract.
     REQUIRE_PROXY = False
     REQUIRE_CONTRACT_V2 = True
 
-    def _contract2(self):
+    def _contract2(self) -> Contract:
+        assert self.contract_v2
         return self.contract_v2
 
 
@@ -225,13 +234,14 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
     REQUIRE_CONTRACT = True
     REQUIRE_PROXY = True
 
-    def _contract1(self):
+    def _contract1(self) -> Contract:
         return self.contract
 
-    def _contract2(self):
+    def _contract2(self) -> Contract:
+        assert self.proxy
         return self.proxy
 
-    def _check(self):
+    def _check(self) -> List[Output]:
         contract1 = self._contract1()
         contract2 = self._contract2()
         order1 = [
@@ -254,7 +264,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
 
         while idx < len(order2):
             variable2 = order2[idx]
-            info = ["Extra variables in ", contract2, ": ", variable2, "\n"]
+            info: CHECK_INFO = ["Extra variables in ", contract2, ": ", variable2, "\n"]
             json = self.generate_result(info)
             results.append(json)
             idx = idx + 1
@@ -289,5 +299,6 @@ Ensure that all the new variables are expected.
     REQUIRE_PROXY = False
     REQUIRE_CONTRACT_V2 = True
 
-    def _contract2(self):
+    def _contract2(self) -> Contract:
+        assert self.contract_v2
         return self.contract_v2

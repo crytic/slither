@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Tuple
 
-from slither.core.children.child_contract import ChildContract
 from slither.core.declarations.top_level import TopLevel
+from slither.core.declarations.contract_level import ContractLevel
 from slither.core.solidity_types import Type, ElementaryType
 
 if TYPE_CHECKING:
@@ -40,7 +40,7 @@ class TypeAlias(Type):
 
 
 class TypeAliasTopLevel(TypeAlias, TopLevel):
-    def __init__(self, underlying_type: Type, name: str, scope: "FileScope") -> None:
+    def __init__(self, underlying_type: ElementaryType, name: str, scope: "FileScope") -> None:
         super().__init__(underlying_type, name)
         self.file_scope: "FileScope" = scope
 
@@ -48,8 +48,8 @@ class TypeAliasTopLevel(TypeAlias, TopLevel):
         return self.name
 
 
-class TypeAliasContract(TypeAlias, ChildContract):
-    def __init__(self, underlying_type: Type, name: str, contract: "Contract") -> None:
+class TypeAliasContract(TypeAlias, ContractLevel):
+    def __init__(self, underlying_type: ElementaryType, name: str, contract: "Contract") -> None:
         super().__init__(underlying_type, name)
         self._contract: "Contract" = contract
 

@@ -1,4 +1,5 @@
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils.output import Output
 
 
 class Dominator(AbstractPrinter):
@@ -8,7 +9,7 @@ class Dominator(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#dominator"
 
-    def output(self, filename):
+    def output(self, filename: str) -> Output:
         """
         _filename is not used
         Args:

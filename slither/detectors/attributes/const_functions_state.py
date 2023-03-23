@@ -2,11 +2,14 @@
 Module detecting constant functions
 Recursively check the called functions
 """
-from typing import List
+from typing import List, Dict
+
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     ALL_SOLC_VERSIONS_04,
+    DETECTOR_INFO,
 )
 from slither.formatters.attributes.const_functions import custom_format
 from slither.utils.output import Output
@@ -74,7 +77,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
                     if variables_written:
                         attr = "view" if f.view else "pure"
 
-                        info = [
+                        info: DETECTOR_INFO = [
                             f,
                             f" is declared {attr} but changes state variables:\n",
                         ]
@@ -89,5 +92,5 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
         return results
 
     @staticmethod
-    def _format(slither, result):
+    def _format(slither: SlitherCompilationUnit, result: Dict) -> None:
         custom_format(slither, result)

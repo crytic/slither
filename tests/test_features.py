@@ -202,3 +202,18 @@ def test_using_for_global_collision() -> None:
     compilation = CryticCompile(standard_json)
     sl = Slither(compilation)
     _run_all_detectors(sl)
+
+
+def test_abstract_contract() -> None:
+    solc_select.switch_global_version("0.8.0", always_install=True)
+    slither = Slither("./tests/function_features/abstract.sol")
+    assert not slither.contracts[0].is_fully_implemented
+
+    solc_select.switch_global_version("0.5.0", always_install=True)
+    slither = Slither("./tests/function_features/implicit_abstract.sol")
+    assert not slither.contracts[0].is_fully_implemented
+
+    slither = Slither(
+        "./tests/function_features/implicit_abstract.sol", solc_force_legacy_json=True
+    )
+    assert not slither.contracts[0].is_fully_implemented

@@ -1,5 +1,6 @@
 from typing import List, Optional, Union
 
+from slither.core.declarations import Contract
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
@@ -32,7 +33,8 @@ class HighLevelCall(Call, OperationWithLValue):
         assert is_valid_lvalue(result) or result is None
         self._check_destination(destination)
         super().__init__()
-        self._destination = destination
+        # Contract is only possible for library call, which inherits from highlevelcall
+        self._destination: Union[Variable, SolidityVariable, Contract] = destination  # type: ignore
         self._function_name = function_name
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
@@ -44,8 +46,9 @@ class HighLevelCall(Call, OperationWithLValue):
         self._call_gas = None
 
     # Development function, to be removed once the code is stable
-    # It is ovveride by LbraryCall
-    def _check_destination(self, destination: SourceMapping) -> None:  # pylint: disable=no-self-use
+    # It is overridden by LibraryCall
+    # pylint: disable=no-self-use
+    def _check_destination(self, destination: Union[Variable, SolidityVariable, Contract]) -> None:
         assert isinstance(destination, (Variable, SolidityVariable))
 
     @property
@@ -76,10 +79,17 @@ class HighLevelCall(Call, OperationWithLValue):
     def read(self) -> List[SourceMapping]:
         all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(self.arguments)
         # remove None
-        return [x for x in all_read if x] + [self.destination]
+        return [x for x in all_read if x]
 
     @property
-    def destination(self) -> SourceMapping:
+    def destination(self) -> Union[Variable, SolidityVariable, Contract]:
+        """
+        Return a variable or a solidityVariable
+        Contract is only possible for LibraryCall
+
+        Returns:
+
+        """
         return self._destination
 
     @property
@@ -116,7 +126,7 @@ class HighLevelCall(Call, OperationWithLValue):
                 return True
         return False
 
-    def can_reenter(self, callstack: None = None) -> bool:
+    def can_reenter(self, callstack: Optional[List[Union[Function, Variable]]] = None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view

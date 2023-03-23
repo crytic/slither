@@ -7,7 +7,11 @@ from typing import List
 
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -78,7 +82,7 @@ Bob calls `kill` and destructs the contract."""
             functions = self.detect_suicidal(c)
             for func in functions:
 
-                info = [func, " allows anyone to destruct the contract\n"]
+                info: DETECTOR_INFO = [func, " allows anyone to destruct the contract\n"]
 
                 res = self.generate_result(info)
 

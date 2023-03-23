@@ -1,4 +1,5 @@
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils.output import Output
 
 
 class CFG(AbstractPrinter):
@@ -8,7 +9,7 @@ class CFG(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#cfg"
 
-    def output(self, filename):
+    def output(self, filename: str) -> Output:
         """
         _filename is not used
         Args:
@@ -17,10 +18,10 @@ class CFG(AbstractPrinter):
 
         info = ""
         all_files = []
-        for contract in self.contracts:
+        for contract in self.contracts:  # type: ignore
             if contract.is_top_level:
                 continue
-            for function in contract.functions + contract.modifiers:
+            for function in contract.functions + list(contract.modifiers):
                 if filename:
                     new_filename = f"{filename}-{contract.name}-{function.full_name}.dot"
                 else:

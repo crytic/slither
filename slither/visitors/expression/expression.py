@@ -1,5 +1,4 @@
 import logging
-from typing import Optional, Any
 
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
@@ -22,15 +21,13 @@ from slither.exceptions import SlitherError
 logger = logging.getLogger("ExpressionVisitor")
 
 
+# pylint: disable=too-few-public-methods
 class ExpressionVisitor:
     def __init__(self, expression: Expression) -> None:
-        # Inherited class must declared their variables prior calling super().__init__
+        super().__init__()
+        # Inherited class must declare their variables prior calling super().__init__
         self._expression = expression
-        self._result: Any = None
         self._visit_expression(self.expression)
-
-    def result(self) -> Optional[bool]:
-        return self._result
 
     @property
     def expression(self) -> Expression:
@@ -146,7 +143,7 @@ class ExpressionVisitor:
     def _visit_new_contract(self, expression: NewContract) -> None:
         pass
 
-    def _visit_new_elementary_type(self, expression):
+    def _visit_new_elementary_type(self, expression: NewElementaryType) -> None:
         pass
 
     def _visit_tuple_expression(self, expression: TupleExpression) -> None:
@@ -162,7 +159,7 @@ class ExpressionVisitor:
 
     # pre visit
 
-    def _pre_visit(self, expression) -> None:  # pylint: disable=too-many-branches
+    def _pre_visit(self, expression: Expression) -> None:  # pylint: disable=too-many-branches
         if isinstance(expression, AssignmentOperation):
             self._pre_assignement_operation(expression)
 
@@ -251,7 +248,7 @@ class ExpressionVisitor:
     def _pre_new_contract(self, expression: NewContract) -> None:
         pass
 
-    def _pre_new_elementary_type(self, expression):
+    def _pre_new_elementary_type(self, expression: NewElementaryType) -> None:
         pass
 
     def _pre_tuple_expression(self, expression: TupleExpression) -> None:
@@ -265,7 +262,7 @@ class ExpressionVisitor:
 
     # post visit
 
-    def _post_visit(self, expression) -> None:  # pylint: disable=too-many-branches
+    def _post_visit(self, expression: Expression) -> None:  # pylint: disable=too-many-branches
         if isinstance(expression, AssignmentOperation):
             self._post_assignement_operation(expression)
 
@@ -328,7 +325,7 @@ class ExpressionVisitor:
     def _post_call_expression(self, expression: CallExpression) -> None:
         pass
 
-    def _post_conditional_expression(self, expression):
+    def _post_conditional_expression(self, expression: ConditionalExpression) -> None:
         pass
 
     def _post_elementary_type_name_expression(
@@ -354,7 +351,7 @@ class ExpressionVisitor:
     def _post_new_contract(self, expression: NewContract) -> None:
         pass
 
-    def _post_new_elementary_type(self, expression):
+    def _post_new_elementary_type(self, expression: NewElementaryType) -> None:
         pass
 
     def _post_tuple_expression(self, expression: TupleExpression) -> None:

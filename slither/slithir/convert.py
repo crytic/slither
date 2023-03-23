@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Any, List, TYPE_CHECKING, Union, Optional
+from typing import Any, List, TYPE_CHECKING, Union, Optional, Dict
 
 # pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
 from slither.core.declarations import (
@@ -13,12 +13,14 @@ from slither.core.declarations import (
     SolidityVariableComposed,
     Structure,
 )
+from slither.core.declarations.contract import USING_FOR_KEY, USING_FOR_ITEM
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.declarations.solidity_variables import SolidityCustomRevert
 from slither.core.expressions import Identifier, Literal
+from slither.core.expressions.expression import Expression
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
@@ -83,28 +85,6 @@ from slither.slithir.variables import TupleVariable
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
-import slither.core.declarations.contract
-import slither.core.declarations.function
-import slither.core.solidity_types.elementary_type
-import slither.core.solidity_types.function_type
-import slither.core.solidity_types.user_defined_type
-import slither.slithir.operations.assignment
-import slither.slithir.operations.binary
-import slither.slithir.operations.call
-import slither.slithir.operations.high_level_call
-import slither.slithir.operations.index
-import slither.slithir.operations.init_array
-import slither.slithir.operations.internal_call
-import slither.slithir.operations.length
-import slither.slithir.operations.library_call
-import slither.slithir.operations.low_level_call
-import slither.slithir.operations.member
-import slither.slithir.operations.operation
-import slither.slithir.operations.send
-import slither.slithir.operations.solidity_call
-import slither.slithir.operations.transfer
-import slither.slithir.variables.temporary
-from slither.core.expressions.expression import Expression
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
@@ -112,7 +92,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger("ConvertToIR")
 
 
-def convert_expression(expression: Expression, node: "Node") -> List[Any]:
+def convert_expression(expression: Expression, node: "Node") -> List[Operation]:
     # handle standlone expression
     # such as return true;
     from slither.core.cfg.node import NodeType
@@ -122,8 +102,7 @@ def convert_expression(expression: Expression, node: "Node") -> List[Any]:
         cond = Condition(cst)
         cond.set_expression(expression)
         cond.set_node(node)
-        result = [cond]
-        return result
+        return [cond]
     if isinstance(expression, Identifier) and node.type in [
         NodeType.IF,
         NodeType.IFLOOP,
@@ -131,8 +110,7 @@ def convert_expression(expression: Expression, node: "Node") -> List[Any]:
         cond = Condition(expression.value)
         cond.set_expression(expression)
         cond.set_node(node)
-        result = [cond]
-        return result
+        return [cond]
 
     visitor = ExpressionToSlithIR(expression, node)
     result = visitor.result()
@@ -141,15 +119,17 @@ def convert_expression(expression: Expression, node: "Node") -> List[Any]:
 
     if result:
         if node.type in [NodeType.IF, NodeType.IFLOOP]:
-            assert isinstance(result[-1], (OperationWithLValue))
-            cond = Condition(result[-1].lvalue)
+            prev = result[-1]
+            assert isinstance(prev, (OperationWithLValue)) and prev.lvalue
+            cond = Condition(prev.lvalue)
             cond.set_expression(expression)
             cond.set_node(node)
             result.append(cond)
         elif node.type == NodeType.RETURN:
             # May return None
-            if isinstance(result[-1], (OperationWithLValue)):
-                r = Return(result[-1].lvalue)
+            prev = result[-1]
+            if isinstance(prev, (OperationWithLValue)):
+                r = Return(prev.lvalue)
                 r.set_expression(expression)
                 r.set_node(node)
                 result.append(r)
@@ -273,7 +253,7 @@ def _find_function_from_parameter(
                     type_args += ["string"]
 
         not_found = True
-        candidates_kept = []
+        candidates_kept: List[Function] = []
         for type_arg in type_args:
             if not not_found:
                 break
@@ -336,7 +316,7 @@ def integrate_value_gas(result: List[Operation]) -> List[Operation]:
         # Find all the assignments
         assigments = {}
         for i in result:
-            if isinstance(i, OperationWithLValue):
+            if isinstance(i, OperationWithLValue) and i.lvalue:
                 assigments[i.lvalue.name] = i
             if isinstance(i, TmpCall):
                 if isinstance(i.called, Variable) and i.called.name in assigments:
@@ -350,20 +330,25 @@ def integrate_value_gas(result: List[Operation]) -> List[Operation]:
         for idx, ins in enumerate(result):
             # value can be shadowed, so we check that the prev ins
             # is an Argument
-            if is_value(ins) and isinstance(result[idx - 1], Argument):
+            if idx == 0:
+                continue
+            prev_ins = result[idx - 1]
+            if is_value(ins) and isinstance(prev_ins, Argument):
                 was_changed = True
-                result[idx - 1].set_type(ArgumentType.VALUE)
-                result[idx - 1].call_id = ins.ori.variable_left.name
-                calls.append(ins.ori.variable_left)
+                prev_ins.set_type(ArgumentType.VALUE)
+                # Types checked by is_value
+                prev_ins.call_id = ins.ori.variable_left.name  # type: ignore
+                calls.append(ins.ori.variable_left)  # type: ignore
                 to_remove.append(ins)
-                variable_to_replace[ins.lvalue.name] = ins.ori.variable_left
-            elif is_gas(ins) and isinstance(result[idx - 1], Argument):
+                variable_to_replace[ins.lvalue.name] = ins.ori.variable_left  # type: ignore
+            elif is_gas(ins) and isinstance(prev_ins, Argument):
                 was_changed = True
-                result[idx - 1].set_type(ArgumentType.GAS)
-                result[idx - 1].call_id = ins.ori.variable_left.name
-                calls.append(ins.ori.variable_left)
+                prev_ins.set_type(ArgumentType.GAS)
+                # Types checked by is_gas
+                prev_ins.call_id = ins.ori.variable_left.name  # type: ignore
+                calls.append(ins.ori.variable_left)  # type: ignore
                 to_remove.append(ins)
-                variable_to_replace[ins.lvalue.name] = ins.ori.variable_left
+                variable_to_replace[ins.lvalue.name] = ins.ori.variable_left  # type: ignore
 
         # Remove the call to value/gas instruction
         result = [i for i in result if not i in to_remove]
@@ -446,7 +431,7 @@ def propagate_type_and_convert_call(result: List[Operation], node: "Node") -> Li
         if isinstance(ins, (HighLevelCall, NewContract, InternalDynamicCall)):
             if ins.call_id in calls_value:
                 ins.call_value = calls_value[ins.call_id]
-            if ins.call_id in calls_gas:
+            if ins.call_id in calls_gas and isinstance(ins, (HighLevelCall, InternalDynamicCall)):
                 ins.call_gas = calls_gas[ins.call_id]
 
         if isinstance(ins, (Call, NewContract, NewStructure)):
@@ -528,12 +513,12 @@ def _convert_type_contract(ir: Member) -> Assignment:
 def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
-    using_for = (
+    using_for: Dict[USING_FOR_KEY, USING_FOR_ITEM] = (
         node_function.contract.using_for_complete
         if isinstance(node_function, FunctionContract)
         else {}
     )
-    if isinstance(ir, OperationWithLValue):
+    if isinstance(ir, OperationWithLValue) and ir.lvalue:
         # Force assignment in case of missing previous correct type
         if not ir.lvalue.type:
             if isinstance(ir, Assignment):
@@ -644,11 +629,12 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                     and not isinstance(ir.variable_left, Contract)
                     and isinstance(ir.variable_left.type, (ElementaryType, ArrayType))
                 ):
-                    length = Length(ir.variable_left, ir.lvalue)
-                    length.set_expression(ir.expression)
-                    length.lvalue.points_to = ir.variable_left
-                    length.set_node(ir.node)
-                    return length
+                    new_length = Length(ir.variable_left, ir.lvalue)
+                    assert ir.expression
+                    new_length.set_expression(ir.expression)
+                    new_length.lvalue.points_to = ir.variable_left
+                    new_length.set_node(ir.node)
+                    return new_length
                 # This only happen for .balance/code/codehash access on a variable for which we dont know at
                 # early parsing time the type
                 # Like
@@ -729,7 +715,7 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                     return _convert_type_contract(ir)
                 left = ir.variable_left
                 t = None
-                ir_func = ir.function
+                ir_func = ir.node.function
                 # Handling of this.function_name usage
                 if (
                     left == SolidityVariable("this")
@@ -792,6 +778,7 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
                 contract = node.file_scope.get_contract_from_name(ir.contract_name)
+                assert contract
                 ir.lvalue.set_type(UserDefinedType(contract))
             elif isinstance(ir, NewElementaryType):
                 ir.lvalue.set_type(ir.type)
@@ -835,9 +822,7 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
 
 
 # pylint: disable=too-many-locals
-def extract_tmp_call(
-    ins: TmpCall, contract: Optional[Contract]
-) -> slither.slithir.operations.call.Call:
+def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, Nop]:
     assert isinstance(ins, TmpCall)
     if isinstance(ins.called, Variable) and isinstance(ins.called.type, FunctionType):
         # If the call is made to a variable member, where the member is this
@@ -1297,7 +1282,7 @@ def convert_to_push_set_val(
 
     element_to_add = ReferenceVariable(node)
     element_to_add.set_type(new_type)
-    ir_assign_element_to_add = Index(element_to_add, arr, length_val, ElementaryType("uint256"))
+    ir_assign_element_to_add = Index(element_to_add, arr, length_val)
     ir_assign_element_to_add.set_expression(ir.expression)
     ir_assign_element_to_add.set_node(ir.node)
     ret.append(ir_assign_element_to_add)
@@ -1326,16 +1311,8 @@ def convert_to_push_set_val(
 
 
 def convert_to_push(
-    ir: slither.slithir.operations.high_level_call.HighLevelCall, node: "Node"
-) -> List[
-    Union[
-        slither.slithir.operations.length.Length,
-        slither.slithir.operations.assignment.Assignment,
-        slither.slithir.operations.binary.Binary,
-        slither.slithir.operations.index.Index,
-        slither.slithir.operations.init_array.InitArray,
-    ]
-]:
+    ir: HighLevelCall, node: "Node"
+) -> List[Union[Length, Assignment, Binary, Index, InitArray,]]:
     """
     Convert a call to a series of operations to push a new value onto the array
 
@@ -1355,22 +1332,23 @@ def convert_to_push(
     return ret
 
 
-def convert_to_pop(ir, node):
+def convert_to_pop(ir: HighLevelCall, node: "Node") -> List[Operation]:
     """
     Convert pop operators
     Return a list of 6 operations
     """
 
-    ret = []
+    ret: List[Operation] = []
 
     arr = ir.destination
     length = ReferenceVariable(node)
     length.set_type(ElementaryType("uint256"))
 
     ir_length = Length(arr, length)
+    assert ir.expression
     ir_length.set_expression(ir.expression)
     ir_length.set_node(ir.node)
-    ir_length.lvalue.points_to = arr
+    length.points_to = arr
     ret.append(ir_length)
 
     val = TemporaryVariable(node)
@@ -1381,7 +1359,9 @@ def convert_to_pop(ir, node):
     ret.append(ir_sub_1)
 
     element_to_delete = ReferenceVariable(node)
-    ir_assign_element_to_delete = Index(element_to_delete, arr, val, ElementaryType("uint256"))
+    ir_assign_element_to_delete = Index(element_to_delete, arr, val)
+    # TODO the following is equivalent to length.points_to = arr
+    # Should it be removed?
     ir_length.lvalue.points_to = arr
     element_to_delete.set_type(ElementaryType("uint256"))
     ir_assign_element_to_delete.set_expression(ir.expression)
@@ -1397,7 +1377,7 @@ def convert_to_pop(ir, node):
     length_to_assign.set_type(ElementaryType("uint256"))
     ir_length = Length(arr, length_to_assign)
     ir_length.set_expression(ir.expression)
-    ir_length.lvalue.points_to = arr
+    length_to_assign.points_to = arr
     ir_length.set_node(ir.node)
     ret.append(ir_length)
 

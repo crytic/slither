@@ -6,7 +6,11 @@ from typing import List, Tuple
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -80,7 +84,7 @@ Bob is the owner of `TxOrigin`. Bob calls Eve's contract. Eve's contract calls `
             for func, nodes in values:
 
                 for node in nodes:
-                    info = [func, " uses tx.origin for authorization: ", node, "\n"]
+                    info: DETECTOR_INFO = [func, " uses tx.origin for authorization: ", node, "\n"]
                     res = self.generate_result(info)
                     results.append(res)
 
