@@ -7,7 +7,8 @@ from typing import Type, Optional, List
 
 import pytest
 from deepdiff import DeepDiff  # pip install deepdiff
-from crytic_compile import CryticCompile, save_to_zip, load_from_zip
+from crytic_compile import CryticCompile, save_to_zip
+from crytic_compile.utils.zip import load_from_zip
 
 
 from solc_select.solc_select import install_artifacts as install_solc_versions
@@ -1670,8 +1671,10 @@ def test_detector(test_item: Test):
         test_item.solc_ver,
     )
     test_file_path = pathlib.Path(test_dir_path, test_item.test_file).as_posix()
-    expected_result_path = pathlib.Path(test_dir_path, test_item.expected_result).absolute().as_posix()
-    
+    expected_result_path = (
+        pathlib.Path(test_dir_path, test_item.expected_result).absolute().as_posix()
+    )
+
     cc = load_from_zip(f"{test_file_path}-{test_item.solc_ver}.zip")[0]
     sl = Slither(cc)
     sl.register_detector(test_item.detector)
@@ -1717,7 +1720,9 @@ def _generate_test(test_item: Test, skip_existing=False):
         test_item.solc_ver,
     )
     test_file_path = pathlib.Path(test_dir_path, test_item.test_file).as_posix()
-    expected_result_path = pathlib.Path(test_dir_path, test_item.expected_result).absolute().as_posix()
+    expected_result_path = (
+        pathlib.Path(test_dir_path, test_item.expected_result).absolute().as_posix()
+    )
 
     if skip_existing:
         if os.path.isfile(expected_result_path):
@@ -1741,6 +1746,7 @@ def _generate_test(test_item: Test, skip_existing=False):
     with open(expected_result_path, "w", encoding="utf8") as f:
         f.write(json.dumps(results, indent=4))
 
+
 def _generate_compile(test_item: Test, skip_existing=False):
     test_dir_path = pathlib.Path(
         pathlib.Path().absolute(),
@@ -1761,6 +1767,7 @@ def _generate_compile(test_item: Test, skip_existing=False):
     set_solc(test_item)
     cc = CryticCompile(test_file)
     save_to_zip([cc], zip_artifact_path)
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
