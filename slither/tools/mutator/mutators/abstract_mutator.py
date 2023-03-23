@@ -3,7 +3,7 @@ import logging
 from enum import Enum
 from typing import Optional, Dict
 
-from slither import Slither
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
 
 logger = logging.getLogger("Slither")
@@ -34,8 +34,11 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
     FAULTCLASS = FaultClass.Undefined
     FAULTNATURE = FaultNature.Undefined
 
-    def __init__(self, slither: Slither, rate: int = 10, seed: Optional[int] = None):
-        self.slither = slither
+    def __init__(
+        self, compilation_unit: SlitherCompilationUnit, rate: int = 10, seed: Optional[int] = None
+    ):
+        self.compilation_unit = compilation_unit
+        self.slither = compilation_unit.core
         self.seed = seed
         self.rate = rate
 
@@ -87,7 +90,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
                 continue
             for patch in patches:
                 patched_txt, offset = apply_patch(patched_txt, patch, offset)
-            diff = create_diff(self.slither, original_txt, patched_txt, file)
+            diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
             if not diff:
                 logger.info(f"Impossible to generate patch; empty {patches}")
             print(diff)

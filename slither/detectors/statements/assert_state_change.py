@@ -6,7 +6,11 @@ from typing import List, Tuple
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations.internal_call import InternalCall
 from slither.utils.output import Output
 
@@ -25,7 +29,7 @@ def detect_assert_state_change(
     results = []
 
     # Loop for each function and modifier.
-    for function in contract.functions_declared + contract.modifiers_declared:
+    for function in contract.functions_declared + list(contract.modifiers_declared):
         for node in function.nodes:
             # Detect assert() calls
             if any(c.name == "assert(bool)" for c in node.internal_calls) and (
@@ -36,7 +40,9 @@ def detect_assert_state_change(
                 any(
                     ir
                     for ir in node.irs
-                    if isinstance(ir, InternalCall) and ir.function.state_variables_written
+                    if isinstance(ir, InternalCall)
+                    and ir.function
+                    and ir.function.state_variables_written
                 )
             ):
                 results.append((function, node))
@@ -85,7 +91,10 @@ The assert in `bad()` increments the state variable `s_a` while checking for the
         for contract in self.contracts:
             assert_state_change = detect_assert_state_change(contract)
             for (func, node) in assert_state_change:
-                info = [func, " has an assert() call which possibly changes state.\n"]
+                info: DETECTOR_INFO = [
+                    func,
+                    " has an assert() call which possibly changes state.\n",
+                ]
                 info += ["\t-", node, "\n"]
                 info += [
                     "Consider using require() or change the invariant to not modify the state.\n"

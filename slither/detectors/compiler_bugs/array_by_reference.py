@@ -2,7 +2,14 @@
 Detects the passing of arrays located in memory to functions which expect to modify arrays via storage reference.
 """
 from typing import List, Set, Tuple, Union
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+
+from slither.core.declarations import Function
+from slither.core.variables import Variable
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.local_variable import LocalVariable
@@ -89,12 +96,7 @@ As a result, Bob's usage of the contract is incorrect."""
     @staticmethod
     def detect_calls_passing_ref_to_function(
         contracts: List[Contract], array_modifying_funcs: Set[FunctionContract]
-    ) -> List[
-        Union[
-            Tuple[Node, StateVariable, FunctionContract],
-            Tuple[Node, LocalVariable, FunctionContract],
-        ]
-    ]:
+    ) -> List[Tuple[Node, Variable, Union[Function, Variable]]]:
         """
         Obtains all calls passing storage arrays by value to a function which cannot write to them successfully.
         :param contracts: The collection of contracts to check for problematic calls in.
@@ -105,7 +107,7 @@ As a result, Bob's usage of the contract is incorrect."""
         write to the array unsuccessfully.
         """
         # Define our resulting array.
-        results = []
+        results: List[Tuple[Node, Variable, Union[Function, Variable]]] = []
 
         # Verify we have functions in our list to check for.
         if not array_modifying_funcs:
@@ -159,7 +161,7 @@ As a result, Bob's usage of the contract is incorrect."""
 
         if problematic_calls:
             for calling_node, affected_argument, invoked_function in problematic_calls:
-                info = [
+                info: DETECTOR_INFO = [
                     calling_node.function,
                     " passes array ",
                     affected_argument,

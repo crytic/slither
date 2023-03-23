@@ -3,7 +3,11 @@ from typing import List
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.cfg.node import Node
 from slither.core.declarations.function_contract import FunctionContract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import LowLevelCall
 from slither.utils.output import Output
 
@@ -58,13 +62,13 @@ Bob calls `delegate` and delegates the execution to his malicious contract. As a
                     continue
                 nodes = controlled_delegatecall(f)
                 if nodes:
-                    func_info = [
+                    func_info: DETECTOR_INFO = [
                         f,
                         " uses delegatecall to a input-controlled function id\n",
                     ]
 
                     for node in nodes:
-                        node_info = func_info + ["\t- ", node, "\n"]
+                        node_info: DETECTOR_INFO = func_info + ["\t- ", node, "\n"]
                         res = self.generate_result(node_info)
                         results.append(res)
 

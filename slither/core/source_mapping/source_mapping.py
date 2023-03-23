@@ -1,6 +1,6 @@
 import re
 from abc import ABCMeta
-from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional
+from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional, Any
 
 from Crypto.Hash import SHA1
 from crytic_compile.utils.naming import Filename
@@ -98,10 +98,10 @@ class Source:
         filename_short: str = self.filename.short if self.filename.short else ""
         return f"{filename_short}{lines}"
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented
         return (

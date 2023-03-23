@@ -29,5 +29,5 @@ class CodeSize(OperationWithLValue):
     def value(self) -> LocalVariable:
         return self._value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.lvalue} -> CODESIZE {self.value}"

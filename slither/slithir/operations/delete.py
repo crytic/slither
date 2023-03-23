@@ -36,5 +36,5 @@ class Delete(OperationWithLValue):
     ) -> Union[StateIRVariable, StateVariable, ReferenceVariable, ReferenceVariableSSA]:
         return self._variable
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.lvalue} = delete {self.variable} "

@@ -5,7 +5,11 @@
 import re
 from typing import List, Optional, Tuple
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.formatters.attributes.incorrect_solc import custom_format
 from slither.utils.output import Output
 
@@ -141,7 +145,7 @@ Consider using the latest version of Solidity for testing."""
         # If we found any disallowed pragmas, we output our findings.
         if disallowed_pragmas:
             for (reason, p) in disallowed_pragmas:
-                info = ["Pragma version", p, f" {reason}\n"]
+                info: DETECTOR_INFO = ["Pragma version", p, f" {reason}\n"]
 
                 json = self.generate_result(info)
 

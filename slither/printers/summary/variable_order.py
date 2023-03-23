@@ -4,6 +4,7 @@
 
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.myprettytable import MyPrettyTable
+from slither.utils.output import Output
 
 
 class VariableOrder(AbstractPrinter):
@@ -13,7 +14,7 @@ class VariableOrder(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#variable-order"
 
-    def output(self, _filename):
+    def output(self, _filename: str) -> Output:
         """
         _filename is not used
         Args:

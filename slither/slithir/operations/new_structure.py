@@ -14,7 +14,9 @@ from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
 class NewStructure(Call, OperationWithLValue):
     def __init__(
-        self, structure: StructureContract, lvalue: Union[TemporaryVariableSSA, TemporaryVariable]
+        self,
+        structure: StructureContract,
+        lvalue: Union[TemporaryVariableSSA, TemporaryVariable],
     ) -> None:
         super().__init__()
         assert isinstance(structure, Structure)

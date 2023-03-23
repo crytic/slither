@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, Optional, Type, Union
+from typing import List, TYPE_CHECKING, Optional, Type
 
 from slither.core.solidity_types import UserDefinedType
 from slither.core.source_mapping.source_mapping import SourceMapping
@@ -42,7 +42,7 @@ class CustomError(SourceMapping):
     ###################################################################################
 
     @staticmethod
-    def _convert_type_for_solidity_signature(t: Optional[Union[Type, List[Type]]]) -> str:
+    def _convert_type_for_solidity_signature(t: Optional[Type]) -> str:
         # pylint: disable=import-outside-toplevel
         from slither.core.declarations import Contract
 
@@ -51,7 +51,7 @@ class CustomError(SourceMapping):
         return str(t)
 
     @property
-    def solidity_signature(self) -> Optional[str]:
+    def solidity_signature(self) -> str:
         """
         Return a signature following the Solidity Standard
         Contract and converted into address
@@ -63,7 +63,7 @@ class CustomError(SourceMapping):
         # (set_solidity_sig was not called before find_variable)
         if self._solidity_signature is None:
             raise ValueError("Custom Error not yet built")
-        return self._solidity_signature
+        return self._solidity_signature  # type: ignore
 
     def set_solidity_sig(self) -> None:
         """
@@ -72,7 +72,7 @@ class CustomError(SourceMapping):
         Returns:
 
         """
-        parameters = [x.type for x in self.parameters]
+        parameters = [x.type for x in self.parameters if x.type]
         self._full_name = self.name + "(" + ",".join(map(str, parameters)) + ")"
         solidity_parameters = map(self._convert_type_for_solidity_signature, parameters)
         self._solidity_signature = self.name + "(" + ",".join(solidity_parameters) + ")"
