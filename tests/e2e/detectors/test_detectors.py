@@ -1670,8 +1670,8 @@ def test_detector(test_item: Test):
         test_item.detector.ARGUMENT,
         test_item.solc_ver,
     )
-    test_file_path = pathlib.Path(test_dir_path, test_item.test_file).as_posix()
-    expected_result_path = pathlib.Path(test_dir_path, test_item.expected_result).absolute().as_posix()
+    test_file_path = str(pathlib.Path(test_dir_path, test_item.test_file))
+    expected_result_path = str(pathlib.Path(test_dir_path, test_item.expected_result).absolute())
     
 
     cc = load_from_zip(f"{test_file_path}-{test_item.solc_ver}.zip")[0]
@@ -1685,7 +1685,7 @@ def test_detector(test_item: Test):
     results_as_string = json.dumps(results)
 
     for additional_file in test_item.additional_files:
-        additional_path = pathlib.Path(test_dir_path, additional_file).absolute().as_posix()
+        additional_path = str(pathlib.Path(test_dir_path, additional_file).absolute())
         additional_path = additional_path.replace("\\", "\\\\")
         results_as_string = results_as_string.replace(additional_path, GENERIC_PATH)
     test_file_path = test_file_path.replace("\\", "\\\\")
