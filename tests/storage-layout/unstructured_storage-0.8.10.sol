@@ -66,6 +66,8 @@ contract UnstructuredStorageLayout {
     bytes32 internal constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
     // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1
     bytes32 private constant ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
+    bytes32 constant BEACON_SLOT = bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1);
+
 
     function _admin() internal view returns (address admin) {
         bytes32 slot = ADMIN_SLOT;
@@ -87,6 +89,13 @@ contract UnstructuredStorageLayout {
         StorageSlot.getBooleanSlot(ROLLBACK_SLOT).value = _rollback;
     }
 
+    function _set_beacon(address _beacon) internal {
+        bytes32 slot = bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1);
+        assembly {
+            sstore(slot, _beacon)
+        }
+    }
+
     function store() external {
         address admin = _admin();
         require(admin == address(0));
@@ -105,11 +114,13 @@ contract UnstructuredStorageLayout {
         }
 
         _set_rollback(true);
+        _set_beacon(address(this));
     }
 
     // Code position in storage is keccak256("PROXIABLE") = "0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7"
     fallback() external {
         assembly { // solium-disable-line
+            let nonsense := sload(add(1,1))
             let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)
             calldatacopy(0x0, 0x0, calldatasize())
             let success := delegatecall(gas(), contractLogic, 0x0, calldatasize(), 0, 0)
