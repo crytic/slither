@@ -1718,10 +1718,8 @@ def _generate_test(test_item: Test, skip_existing=False):
         test_item.detector.ARGUMENT,
         test_item.solc_ver,
     )
-    test_file_path = pathlib.Path(test_dir_path, test_item.test_file).as_posix()
-    expected_result_path = (
-        pathlib.Path(test_dir_path, test_item.expected_result).absolute().as_posix()
-    )
+    test_file_path = str(pathlib.Path(test_dir_path, test_item.test_file))
+    expected_result_path = str(pathlib.Path(test_dir_path, test_item.expected_result).absolute())
 
     if skip_existing:
         if os.path.isfile(expected_result_path):
