@@ -322,14 +322,14 @@ class SlitherReadStorage:
         )
         logger.info(f"\nValue: {slot_info.value}\n")
 
-    def get_all_storage_variables(self, func: Callable = None) -> None:
+    def get_all_storage_variables(self, func: Callable = lambda x: x) -> None:
         """Fetches all storage variables from a list of contracts.
         kwargs:
             func (Callable, optional): A criteria to filter functions e.g. name.
         """
         for contract in self.contracts:
             for var in contract.state_variables_ordered:
-                if func is None or (func is not None and func(var)):
+                if func(var):
                     if not var.is_constant and not var.is_immutable:
                         self._target_variables.append((contract, var))
                     elif var.is_constant and var.type == ElementaryType("bytes32"):
