@@ -347,7 +347,10 @@ class SlitherReadStorage:
                 break
         if fallback is None:
             return None
-        for node in fallback.all_nodes():
+        queue = [fallback.entry_point]
+        while len(queue) > 0:
+            node = queue.pop(0)
+            queue.extend(node.sons)
             if node.type == NodeType.ASSEMBLY and isinstance(node.inline_asm, str):
                 asm_split = node.inline_asm.split("\n")
                 for asm in asm_split:
@@ -365,7 +368,7 @@ class SlitherReadStorage:
                 exp = node.expression
                 if isinstance(exp, AssignmentOperation):
                     exp = exp.expression_right
-                while isinstance(exp, CallExpression):
+                while isinstance(exp, CallExpression) and len(exp.arguments) > 0:
                     called = exp.called
                     exp = exp.arguments[0]
                     if "sload" in str(called):
@@ -374,6 +377,7 @@ class SlitherReadStorage:
                     isinstance(exp, Literal)
                     and isinstance(exp.type, ElementaryType)
                     and exp.type.name in ["bytes32", "uint256"]
+                    and exp.value.startswith("0x")
                 ):
                     sv = StateVariable()
                     sv.name = "fallback_sload_hardcoded"
