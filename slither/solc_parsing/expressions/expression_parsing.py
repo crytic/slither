@@ -433,6 +433,8 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 type_candidate = ElementaryType("uint256")
             else:
                 type_candidate = ElementaryType("string")
+        elif type_candidate.startswith("rational_const "):
+            type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("int_const "):
             type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("bool"):

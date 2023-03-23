@@ -178,11 +178,10 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
                     all_cst_used_in_binary[str(ir.type)].append(
                         ConstantValue(str(r.value), str(r.type))
                     )
-            if isinstance(ir.variable_left, Constant) and isinstance(ir.variable_right, Constant):
-                if ir.lvalue:
-                    type_ = ir.lvalue.type
-                    cst = ConstantFolding(ir.expression, type_).result()
-                    all_cst_used.append(ConstantValue(str(cst.value), str(type_)))
+            if ir.lvalue:
+                type_ = ir.lvalue.type
+                cst = ConstantFolding(ir.expression, type_).result()
+                all_cst_used.append(ConstantValue(str(cst.value), str(type_)))
         if isinstance(ir, TypeConversion):
             if isinstance(ir.variable, Constant):
                 if isinstance(ir.type, TypeAlias):
