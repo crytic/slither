@@ -12,7 +12,7 @@ from slither.core.expressions import (
     UnaryOperation,
     TupleExpression,
     TypeConversion,
-    CallExpression
+    CallExpression,
 )
 from slither.core.variables import Variable
 from slither.utils.integer_conversion import convert_string_to_fraction, convert_string_to_int
@@ -72,18 +72,22 @@ class ConstantFolding(ExpressionVisitor):
 
     def _post_identifier(self, expression: Identifier) -> None:
         from slither.core.declarations.solidity_variables import SolidityFunction
+
         if isinstance(expression.value, Variable):
             if expression.value.is_constant:
                 expr = expression.value.expression
                 # assumption that we won't have infinite loop
                 # Everything outside of literal
                 if isinstance(
-                    expr, (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion)
+                    expr,
+                    (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
                 ):
                     cf = ConstantFolding(expr, self._type)
                     expr = cf.result()
                 assert isinstance(expr, Literal)
                 set_val(expression, convert_string_to_int(expr.converted_value))
+            else:
+                raise NotConstant
         elif isinstance(expression.value, SolidityFunction):
             set_val(expression, expression.value)
         else:
@@ -103,7 +107,8 @@ class ConstantFolding(ExpressionVisitor):
             (Literal, BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
         ):
             raise NotConstant
-
+        print(expression_left)
+        print(expression_right)
         left = get_val(expression_left)
         right = get_val(expression_right)
 
@@ -264,7 +269,15 @@ class ConstantFolding(ExpressionVisitor):
         expr = expression.expression
         if not isinstance(
             expr,
-            (Literal, BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion, CallExpression),
+            (
+                Literal,
+                BinaryOperation,
+                UnaryOperation,
+                Identifier,
+                TupleExpression,
+                TypeConversion,
+                CallExpression,
+            ),
         ):
             raise NotConstant
         cf = ConstantFolding(expr, self._type)
