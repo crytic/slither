@@ -86,6 +86,7 @@ from .statements.write_after_write import WriteAfterWrite
 from .statements.msg_value_in_loop import MsgValueInLoop
 from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
+from .variables.optimize_variable_order import OptimizeVariableOrder
 from .functions.permit_domain_signature_collision import DomainSeparatorCollision
 from .functions.codex import Codex
 from .functions.cyclomatic_complexity import CyclomaticComplexity

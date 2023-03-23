@@ -1533,6 +1533,31 @@ ALL_TEST_OBJECTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.OptimizeVariableOrder,
+        "find_optimized_var_order.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.OptimizeVariableOrder,
+        "find_optimized_var_order.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.OptimizeVariableOrder,
+        "find_optimized_var_order.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.OptimizeVariableOrder,
+        "find_optimized_var_order.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.OptimizeVariableOrder,
+        "find_optimized_var_order.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.DomainSeparatorCollision,
         "permit_domain_collision.sol",
         "0.4.25",
