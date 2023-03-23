@@ -1755,7 +1755,7 @@ def _generate_compile(test_item: Test, skip_existing=False):
         test_item.solc_ver,
     )
     test_file = pathlib.Path(test_dir_path, test_item.test_file).as_posix()
-    zip_artifact_path = f"{zip_artifact_path}-{test_item.solc_ver}.zip"
+    zip_artifact_path = f"{test_file}-{test_item.solc_ver}.zip"
 
     if skip_existing:
         if os.path.isfile(zip_artifact_path):
@@ -1777,4 +1777,4 @@ if __name__ == "__main__":
             _generate_test(next_test)
     elif sys.argv[1] == "--compile":
         for next_test in ALL_TESTS:
-            _generate_compile(next_test, skip_existing=True)
+            _generate_compile(next_test, skip_existing=False)
