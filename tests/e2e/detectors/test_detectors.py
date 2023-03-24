@@ -1773,4 +1773,4 @@ if __name__ == "__main__":
             _generate_test(next_test)
     elif sys.argv[1] == "--compile":
         for next_test in ALL_TESTS:
-            _generate_compile(next_test, skip_existing=False)
+            _generate_compile(next_test, skip_existing=True)

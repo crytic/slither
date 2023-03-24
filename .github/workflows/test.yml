@@ -43,7 +43,7 @@ jobs:
 
       - name: e2e / ast parsing
         run: |
-          pytest --cov=slither --cov-append pytest tests/e2e/solc_parsing/test_ast_parsing.py -n auto
+          pytest --cov=slither --cov-append tests/e2e/solc_parsing/test_ast_parsing.py -n auto
           python -m coverage report
 
       - name: e2e / compilation
