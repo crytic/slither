@@ -340,6 +340,16 @@ class SlitherReadStorage:
 
     @staticmethod
     def find_hardcoded_slot_in_fallback(contract: Contract) -> Optional[StateVariable]:
+        """
+        Searches the contract's fallback function for a sload from a literal storage slot, i.e.,
+        `let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)`.
+
+        Args:
+            contract: a Contract object, which should have a fallback function.
+
+        Returns:
+            A newly created StateVariable representing the Literal bytes32 slot, if one is found, otherwise None.
+        """
         fallback = None
         for func in contract.functions_entry_points:
             if func.is_fallback:
@@ -348,22 +358,13 @@ class SlitherReadStorage:
         if fallback is None:
             return None
         queue = [fallback.entry_point]
+        visited = []
         while len(queue) > 0:
             node = queue.pop(0)
-            queue.extend(node.sons)
+            visited.append(node)
+            queue.extend(son for son in node.sons if son not in visited)
             if node.type == NodeType.ASSEMBLY and isinstance(node.inline_asm, str):
-                asm_split = node.inline_asm.split("\n")
-                for asm in asm_split:
-                    if "sload(0x" in asm:  # Only handle literals
-                        arg = asm.split("sload(")[1].split(")")[0]
-                        exp = Literal(arg, ElementaryType("bytes32"))
-                        sv = StateVariable()
-                        sv.name = "fallback_sload_hardcoded"
-                        sv.expression = exp
-                        sv.is_constant = True
-                        sv.type = exp.type
-                        sv.set_contract(contract)
-                        return sv
+                return SlitherReadStorage.find_hardcoded_slot_in_asm_str(node.inline_asm)
             elif node.type == NodeType.EXPRESSION:
                 exp = node.expression
                 if isinstance(exp, AssignmentOperation):
@@ -384,6 +385,34 @@ class SlitherReadStorage:
                     sv.expression = exp
                     sv.is_constant = True
                     sv.type = ElementaryType("bytes32")
+                    sv.set_contract(contract)
+                    return sv
+        return None
+
+    @staticmethod
+    def find_hardcoded_slot_in_asm_str(inline_asm: str) -> Optional[StateVariable]:
+        """
+        Searches a block of assembly code (given as a string) for a sload from a literal storage slot.
+        Does not work if the argument passed to sload does not start with "0x", i.e., `sload(add(1,1))`
+        or `and(sload(0), 0xffffffffffffffffffffffffffffffffffffffff)`.
+
+        Args:
+            inline_asm: a string containing all the code in an assembly node (node.inline_asm for solc < 0.6.0).
+
+        Returns:
+            A newly created StateVariable representing the Literal bytes32 slot, if one is found, otherwise None.
+        """
+        asm_split = inline_asm.split("\n")
+        for asm in asm_split:
+            if "sload(" in asm:  # Only handle literals
+                arg = asm.split("sload(")[1].split(")")[0]
+                if arg.startswith("0x"):
+                    exp = Literal(arg, ElementaryType("bytes32"))
+                    sv = StateVariable()
+                    sv.name = "fallback_sload_hardcoded"
+                    sv.expression = exp
+                    sv.is_constant = True
+                    sv.type = exp.type
                     sv.set_contract(contract)
                     return sv
         return None
