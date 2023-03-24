@@ -276,16 +276,20 @@ class SlitherReadStorage:
         size = None
         funcs = []
         for c in self.contracts:
-            funcs.extend(c.get_functions_reading_from_variable(var))
+            c_funcs = c.get_functions_reading_from_variable(var)
+            c_funcs.extend(f for f in c.functions
+                           if any(str(v.expression) == str(var.expression)
+                                  for v in f.variables))
+            c_funcs = list(set(c_funcs))
+            funcs.extend(c_funcs)
         fallback = [f for f in var.contract.functions if f.is_fallback]
         funcs += fallback
         for func in funcs:
-            if func.return_type is not None:
-                rets = func.return_type
-                for ret in rets:
-                    size, _ = ret.storage_size
-                    if size <= 32:
-                        return str(ret), size * 8
+            rets = func.return_type if func.return_type is not None else []
+            for ret in rets:
+                size, _ = ret.storage_size
+                if size <= 32:
+                    return str(ret), size * 8
             for node in func.all_nodes():
                 exp = node.expression
                 # Look for use of the common OpenZeppelin StorageSlot library
@@ -306,6 +310,16 @@ class SlitherReadStorage:
                     and exp.expression_right.arguments[0] == var.expression
                 ):
                     return "address", 160
+                if (
+                    isinstance(exp, CallExpression)
+                    and "sstore" in str(exp.called)
+                    and isinstance(exp.arguments[0], Identifier)
+                    and isinstance(exp.arguments[1], Identifier)
+                    and str(exp.arguments[0].value.expression) == str(var.expression)
+                ):
+                    type_str = exp.arguments[1].value.type.name
+                    type_size, _ = exp.arguments[1].value.type.storage_size
+                    return type_str, type_size * 8
         return storage_type, size
 
     def walk_slot_info(self, func: Callable) -> None:
