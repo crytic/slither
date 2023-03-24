@@ -278,15 +278,17 @@ class SlitherReadStorage:
             size (int): The type's size in bits.
         """
         if not (var.is_constant and var.type == ElementaryType("bytes32")):
-            return None
+            return None, None
         storage_type = None
         size = None
         funcs = []
         for c in self.contracts:
             c_funcs = c.get_functions_reading_from_variable(var)
-            c_funcs.extend(f for f in c.functions
-                           if any(str(v.expression) == str(var.expression)
-                                  for v in f.variables))
+            c_funcs.extend(
+                f
+                for f in c.functions
+                if any(str(v.expression) == str(var.expression) for v in f.variables)
+            )
             c_funcs = list(set(c_funcs))
             funcs.extend(c_funcs)
         fallback = [f for f in var.contract.functions if f.is_fallback]
