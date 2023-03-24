@@ -15,8 +15,18 @@ from slither.core.solidity_types.type import Type
 from slither.core.cfg.node import NodeType
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
-from slither.core.expressions import AssignmentOperation, CallExpression, Literal, Identifier
+from slither.core.expressions import (
+    AssignmentOperation,
+    Literal,
+    Identifier,
+    BinaryOperation,
+    UnaryOperation,
+    TupleExpression,
+    TypeConversion,
+    CallExpression,
+)
 from slither.utils.myprettytable import MyPrettyTable
+from slither.visitors.expression.constants_folding import ConstantFolding
 
 from .utils import coerce_type, get_offset_value, get_storage_data
 
@@ -44,7 +54,7 @@ class SlitherReadStorageException(Exception):
     pass
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherReadStorage:
     def __init__(self, contracts: List[Contract], max_depth: int) -> None:
         self._checksum_address: Optional[ChecksumAddress] = None
@@ -338,8 +348,7 @@ class SlitherReadStorage:
             if hardcoded_slot is not None:
                 self._constant_storage_slots.append((contract, hardcoded_slot))
 
-    @staticmethod
-    def find_hardcoded_slot_in_fallback(contract: Contract) -> Optional[StateVariable]:
+    def find_hardcoded_slot_in_fallback(self, contract: Contract) -> Optional[StateVariable]:
         """
         Searches the contract's fallback function for a sload from a literal storage slot, i.e.,
         `let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)`.
@@ -364,33 +373,17 @@ class SlitherReadStorage:
             visited.append(node)
             queue.extend(son for son in node.sons if son not in visited)
             if node.type == NodeType.ASSEMBLY and isinstance(node.inline_asm, str):
-                return SlitherReadStorage.find_hardcoded_slot_in_asm_str(node.inline_asm)
-            elif node.type == NodeType.EXPRESSION:
-                exp = node.expression
-                if isinstance(exp, AssignmentOperation):
-                    exp = exp.expression_right
-                while isinstance(exp, CallExpression) and len(exp.arguments) > 0:
-                    called = exp.called
-                    exp = exp.arguments[0]
-                    if "sload" in str(called):
-                        break
-                if (
-                    isinstance(exp, Literal)
-                    and isinstance(exp.type, ElementaryType)
-                    and exp.type.name in ["bytes32", "uint256"]
-                    and exp.value.startswith("0x")
-                ):
-                    sv = StateVariable()
-                    sv.name = "fallback_sload_hardcoded"
-                    sv.expression = exp
-                    sv.is_constant = True
-                    sv.type = ElementaryType("bytes32")
-                    sv.set_contract(contract)
+                return SlitherReadStorage.find_hardcoded_slot_in_asm_str(node.inline_asm, contract)
+            if node.type == NodeType.EXPRESSION:
+                sv = self.find_hardcoded_slot_in_exp(node.expression, contract)
+                if sv is not None:
                     return sv
         return None
 
     @staticmethod
-    def find_hardcoded_slot_in_asm_str(inline_asm: str) -> Optional[StateVariable]:
+    def find_hardcoded_slot_in_asm_str(
+        inline_asm: str, contract: Contract
+    ) -> Optional[StateVariable]:
         """
         Searches a block of assembly code (given as a string) for a sload from a literal storage slot.
         Does not work if the argument passed to sload does not start with "0x", i.e., `sload(add(1,1))`
@@ -415,6 +408,55 @@ class SlitherReadStorage:
                     sv.type = exp.type
                     sv.set_contract(contract)
                     return sv
+        return None
+
+    def find_hardcoded_slot_in_exp(
+        self, exp: "Expression", contract: Contract
+    ) -> Optional[StateVariable]:
+        if isinstance(exp, AssignmentOperation):
+            exp = exp.expression_right
+        while isinstance(exp, BinaryOperation):
+            exp = next(
+                (e for e in exp.expressions if isinstance(e, (CallExpression, BinaryOperation))),
+                exp.expression_left,
+            )
+        while isinstance(exp, CallExpression) and len(exp.arguments) > 0:
+            called = exp.called
+            exp = exp.arguments[0]
+            if "sload" in str(called):
+                break
+        if not isinstance(exp, Literal) and isinstance(
+            exp,
+            (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
+        ):
+            exp = ConstantFolding(exp, "bytes32").result()
+        if (
+            isinstance(exp, Literal)
+            and isinstance(exp.type, ElementaryType)
+            and exp.type.name in ["bytes32", "uint256"]
+            # and (str(exp.value).startswith("0x") or isinstance(exp.value, bytes))
+        ):
+            sv = StateVariable()
+            sv.name = "fallback_sload_hardcoded"
+            value = exp.value
+            str_value = str(value)
+            if str_value.isdecimal():
+                value = int(value)
+            if isinstance(value, (int, bytes)):
+                str_value = str(value).replace("b'", "0x").replace("\\x", "").replace("'", "")
+                exp = Literal(str_value, ElementaryType("bytes32"))
+                int_value = int(str_value, 16)
+                state_var_slots = [
+                    self.get_variable_info(contract, var)[0]
+                    for contract, var in self.target_variables
+                ]
+                if int_value in state_var_slots:
+                    return None
+            sv.expression = exp
+            sv.is_constant = True
+            sv.type = ElementaryType("bytes32")
+            sv.set_contract(contract)
+            return sv
         return None
 
     def convert_slot_info_to_rows(self, slot_info: SlotInfo) -> None:
