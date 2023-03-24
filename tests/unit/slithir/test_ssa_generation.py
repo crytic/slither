@@ -251,7 +251,6 @@ def select_solc_version(version: Optional[str]) -> None:
     yield version
 
 
-
 @contextmanager
 def slither_from_source(source_code: str, solc_version: Optional[str] = None):
     """Yields a Slither instance using source_code string and solc_version

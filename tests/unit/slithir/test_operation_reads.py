@@ -1,8 +1,8 @@
 from pathlib import Path
 from collections import namedtuple
+from solc_select import solc_select
 from slither import Slither
 from slither.slithir.operations import Operation, NewContract
-from solc_select import solc_select
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 

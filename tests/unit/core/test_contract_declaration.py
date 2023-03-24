@@ -1,17 +1,9 @@
-import inspect
 from pathlib import Path
-import pytest
 
-from crytic_compile import CryticCompile
-from crytic_compile.platform.solc_standard_json import SolcStandardJson
 from solc_select import solc_select
 
 from slither import Slither
 from slither.core.variables.state_variable import StateVariable
-from slither.detectors import all_detectors
-from slither.detectors.abstract_detector import AbstractDetector
-from slither.slithir.operations import InternalCall, LibraryCall
-from slither.utils.arithmetic import unchecked_arithemtic_usage
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 CONTRACT_DECL_TEST_ROOT = Path(TEST_DATA_DIR, "contract_declaration")

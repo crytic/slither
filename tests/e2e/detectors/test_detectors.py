@@ -11,9 +11,6 @@ from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
 
-from solc_select.solc_select import install_artifacts as install_solc_versions
-from solc_select.solc_select import installed_versions as get_installed_solc_versions
-
 from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.detectors import all_detectors
@@ -1661,6 +1658,7 @@ GENERIC_PATH = "/GENERIC_PATH"
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
+# pylint: disable=too-many-arguments
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
 def test_detector(test_item: Test):
     test_dir_path = Path(
