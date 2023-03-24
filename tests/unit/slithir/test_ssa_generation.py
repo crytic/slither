@@ -1,5 +1,4 @@
 # pylint: disable=too-many-lines
-import os
 import pathlib
 from argparse import ArgumentTypeError
 from collections import defaultdict
