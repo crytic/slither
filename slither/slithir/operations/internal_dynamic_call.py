@@ -24,7 +24,7 @@ class InternalDynamicCall(
         assert isinstance(function, Variable)
         assert is_valid_lvalue(lvalue) or lvalue is None
         super().__init__()
-        self._function = function
+        self._function: Variable = function
         self._function_type = function_type
         self._lvalue = lvalue
 
@@ -37,7 +37,7 @@ class InternalDynamicCall(
         return self._unroll(self.arguments) + [self.function]
 
     @property
-    def function(self) -> Union[LocalVariable, LocalIRVariable]:
+    def function(self) -> Variable:
         return self._function
 
     @property

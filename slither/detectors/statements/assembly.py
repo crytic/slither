@@ -6,7 +6,11 @@ from typing import List, Tuple
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -52,7 +56,7 @@ class Assembly(AbstractDetector):
         for c in self.contracts:
             values = self.detect_assembly(c)
             for func, nodes in values:
-                info = [func, " uses assembly\n"]
+                info: DETECTOR_INFO = [func, " uses assembly\n"]
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)

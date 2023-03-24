@@ -6,7 +6,11 @@ from typing import List, Tuple
 
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -109,7 +113,7 @@ contract Token{
             functions = IncorrectERC20InterfaceDetection.detect_incorrect_erc20_interface(c)
             if functions:
                 for function in functions:
-                    info = [
+                    info: DETECTOR_INFO = [
                         c,
                         " has incorrect ERC20 function interface:",
                         function,

@@ -242,7 +242,7 @@ class FunctionSolc(CallerContextExpression):
         if "payable" in attributes:
             self._function.payable = attributes["payable"]
 
-    def analyze_params(self):
+    def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
             return
@@ -272,7 +272,7 @@ class FunctionSolc(CallerContextExpression):
         if returns:
             self._parse_returns(returns)
 
-    def analyze_content(self):
+    def analyze_content(self) -> None:
         if self._content_was_analyzed:
             return
 
@@ -308,8 +308,8 @@ class FunctionSolc(CallerContextExpression):
         for node_parser in self._node_to_nodesolc.values():
             node_parser.analyze_expressions(self)
 
-        for node_parser in self._node_to_yulobject.values():
-            node_parser.analyze_expressions()
+        for yul_parser in self._node_to_yulobject.values():
+            yul_parser.analyze_expressions()
 
         self._rewrite_ternary_as_if_else()
 
@@ -1297,7 +1297,7 @@ class FunctionSolc(CallerContextExpression):
                     son.remove_father(node)
                 node.set_sons(new_sons)
 
-    def _remove_alone_endif(self):
+    def _remove_alone_endif(self) -> None:
         """
         Can occur on:
         if(..){

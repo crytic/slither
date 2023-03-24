@@ -1,6 +1,5 @@
 from typing import Optional, TYPE_CHECKING
 
-from slither.core.children.child_node import ChildNode
 from slither.core.declarations import Contract, Enum, SolidityVariable, Function
 from slither.core.variables.variable import Variable
 
@@ -8,7 +7,7 @@ if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 
-class ReferenceVariable(ChildNode, Variable):
+class ReferenceVariable(Variable):
     def __init__(self, node: "Node", index: Optional[int] = None) -> None:
         super().__init__()
         if index is None:
@@ -18,6 +17,10 @@ class ReferenceVariable(ChildNode, Variable):
             self._index = index
         self._points_to = None
         self._node = node
+
+    @property
+    def node(self) -> "Node":
+        return self._node
 
     @property
     def index(self):

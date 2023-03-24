@@ -9,7 +9,11 @@ from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.modifier import Modifier
 from slither.core.variables import Variable
 from slither.core.variables.local_variable import LocalVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -194,7 +198,7 @@ contract Bug {
                     shadow_type = shadow[0]
                     shadow_object = shadow[1]
 
-                    info = [
+                    info: DETECTOR_INFO = [
                         shadow_object,
                         f' ({shadow_type}) shadows built-in symbol"\n',
                     ]

@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from prettytable import PrettyTable
 
@@ -8,7 +8,7 @@ class MyPrettyTable:
         self._field_names = field_names
         self._rows: List = []
 
-    def add_row(self, row: List[str]) -> None:
+    def add_row(self, row: List[Union[str, List[str]]]) -> None:
         self._rows.append(row)
 
     def to_pretty_table(self) -> PrettyTable:

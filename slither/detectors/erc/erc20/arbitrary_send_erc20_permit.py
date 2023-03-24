@@ -1,5 +1,9 @@
 from typing import List
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 from .arbitrary_send_erc20 import ArbitrarySendErc20
 
@@ -41,7 +45,7 @@ Ensure that the underlying ERC20 token correctly implements a permit function.
         arbitrary_sends.detect()
         for node in arbitrary_sends.permit_results:
             func = node.function
-            info = [
+            info: DETECTOR_INFO = [
                 func,
                 " uses arbitrary from in transferFrom in combination with permit: ",
                 node,

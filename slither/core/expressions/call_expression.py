@@ -22,7 +22,7 @@ class CallExpression(Expression):  # pylint: disable=too-many-instance-attribute
         return self._value
 
     @call_value.setter
-    def call_value(self, v):
+    def call_value(self, v: Optional[Expression]) -> None:
         self._value = v
 
     @property
@@ -30,15 +30,15 @@ class CallExpression(Expression):  # pylint: disable=too-many-instance-attribute
         return self._gas
 
     @call_gas.setter
-    def call_gas(self, gas):
+    def call_gas(self, gas: Optional[Expression]) -> None:
         self._gas = gas
 
     @property
-    def call_salt(self):
+    def call_salt(self) -> Optional[Expression]:
         return self._salt
 
     @call_salt.setter
-    def call_salt(self, salt):
+    def call_salt(self, salt: Optional[Expression]) -> None:
         self._salt = salt
 
     @property

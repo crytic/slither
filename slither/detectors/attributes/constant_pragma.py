@@ -1,9 +1,14 @@
 """
     Check that the same pragma is used in all the files
 """
-from typing import List
+from typing import List, Dict
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.formatters.attributes.constant_pragma import custom_format
 from slither.utils.output import Output
 
@@ -31,7 +36,7 @@ class ConstantPragma(AbstractDetector):
         versions = sorted(list(set(versions)))
 
         if len(versions) > 1:
-            info = ["Different versions of Solidity are used:\n"]
+            info: DETECTOR_INFO = ["Different versions of Solidity are used:\n"]
             info += [f"\t- Version used: {[str(v) for v in versions]}\n"]
 
             for p in sorted(pragma, key=lambda x: x.version):
@@ -44,5 +49,5 @@ class ConstantPragma(AbstractDetector):
         return results
 
     @staticmethod
-    def _format(slither, result):
+    def _format(slither: SlitherCompilationUnit, result: Dict) -> None:
         custom_format(slither, result)

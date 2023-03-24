@@ -1,4 +1,4 @@
-from typing import Union, TYPE_CHECKING, Tuple
+from typing import Union, TYPE_CHECKING, Tuple, Any
 
 from slither.core.solidity_types import ElementaryType
 from slither.core.solidity_types.type import Type
@@ -40,10 +40,10 @@ class TypeInformation(Type):
     def is_dynamic(self) -> bool:
         raise NotImplementedError
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"type({self.type.name})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, TypeInformation):
             return False
         return self.type == other.type
