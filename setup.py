@@ -30,6 +30,7 @@ setup(
             "numpy",
             "openai",
             "pdoc",
+            "coverage[toml]",
         ],
     },
     license="AGPL-3.0",
