@@ -319,7 +319,7 @@ class SlitherReadStorage:
                     and str(exp.expression_right.arguments[0]) == str(var.expression)
                 ):
                     return "address", 160
-                # Look for
+                # Look for variable storage in assembly stored to a hardcoded slot
                 if (
                     isinstance(exp, CallExpression)
                     and "sstore" in str(exp.called)
@@ -439,6 +439,16 @@ class SlitherReadStorage:
     def find_hardcoded_slot_in_exp(
         self, exp: "Expression", contract: Contract
     ) -> Optional[StateVariable]:
+        """
+        Parses an expression to see if it contains a sload from a literal storage slot,
+        unrolling nested expressions if necessary to determine which slot it loads from.
+        Args:
+            exp: an Expression object to search.
+            contract: the Contract containing exp.
+
+        Returns:
+            A newly created StateVariable representing the Literal bytes32 slot, if one is found, otherwise None.
+        """
         if isinstance(exp, AssignmentOperation):
             exp = exp.expression_right
         while isinstance(exp, BinaryOperation):
