@@ -316,9 +316,10 @@ class SlitherReadStorage:
                     and isinstance(exp.expression_left, Identifier)
                     and isinstance(exp.expression_right, CallExpression)
                     and "sload" in str(exp.expression_right.called)
-                    and exp.expression_right.arguments[0] == var.expression
+                    and str(exp.expression_right.arguments[0]) == str(var.expression)
                 ):
                     return "address", 160
+                # Look for
                 if (
                     isinstance(exp, CallExpression)
                     and "sstore" in str(exp.called)
@@ -326,9 +327,9 @@ class SlitherReadStorage:
                     and isinstance(exp.arguments[1], Identifier)
                     and str(exp.arguments[0].value.expression) == str(var.expression)
                 ):
-                    type_str = exp.arguments[1].value.type.name
-                    type_size, _ = exp.arguments[1].value.type.storage_size
-                    return type_str, type_size * 8
+                    storage_type = exp.arguments[1].value.type.name
+                    size, _ = exp.arguments[1].value.type.storage_size
+                    return storage_type, size * 8
         return storage_type, size
 
     def walk_slot_info(self, func: Callable) -> None:
