@@ -13,7 +13,7 @@ from slither.core.declarations import Contract, Structure
 from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.cfg.node import NodeType
-from slither.core.variables.state_variable import StateVariable, Variable
+from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
 from slither.core.expressions import (
     AssignmentOperation,
@@ -129,13 +129,20 @@ class SlitherReadStorage:
                 elif isinstance(type_, ArrayType):
                     elems = self._all_array_slots(var, contract, type_, info.slot)
                     tmp[var.name].elems = elems
-        for contract, var in self.constant_slots:
+        tmp = self.get_unstructured_layout(tmp)
+        self._slot_info = tmp
+
+    def get_unstructured_layout(self, tmp: dict) -> dict:
+        for _, var in self.constant_slots:
             var_name = var.name
             try:
                 exp = var.expression
                 if isinstance(exp, CallExpression) and str(exp.called) == "keccak256(bytes)":
                     exp = exp.arguments[0]
-                if isinstance(exp, (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion)):
+                if isinstance(
+                    exp,
+                    (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
+                ):
                     exp = ConstantFolding(exp, "bytes32").result()
                 if isinstance(exp, Literal):
                     if str(exp.value).startswith("0x") or isinstance(exp.value, bytes):
@@ -160,7 +167,7 @@ class SlitherReadStorage:
                     self.log = ""
             except TypeError:
                 continue
-        self._slot_info = tmp
+        return tmp
 
     # TODO: remove this pylint exception (montyly)
     # pylint: disable=too-many-locals
