@@ -1,4 +1,13 @@
 {
+    "masterCopy": {
+        "name": "masterCopy",
+        "type_string": "address",
+        "slot": 0,
+        "size": 160,
+        "offset": 0,
+        "value": "0x0000000000000000000000000000000000000000",
+        "elems": {}
+    },
     "ADMIN_SLOT": {
         "name": "ADMIN_SLOT",
         "type_string": "address",

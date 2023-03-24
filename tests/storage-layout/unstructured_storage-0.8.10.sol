@@ -68,6 +68,7 @@ contract UnstructuredStorageLayout {
     bytes32 private constant ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
     bytes32 constant BEACON_SLOT = bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1);
 
+    address internal masterCopy;
 
     function _admin() internal view returns (address admin) {
         bytes32 slot = ADMIN_SLOT;
@@ -120,7 +121,8 @@ contract UnstructuredStorageLayout {
     // Code position in storage is keccak256("PROXIABLE") = "0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7"
     fallback() external {
         assembly { // solium-disable-line
-            let nonsense := sload(add(1,1))
+            let nonsense := sload(sub(1,1))
+            let _masterCopy := and(sload(0), 0xffffffffffffffffffffffffffffffffffffffff)
             let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)
             calldatacopy(0x0, 0x0, calldatasize())
             let success := delegatecall(gas(), contractLogic, 0x0, calldatasize(), 0, 0)
