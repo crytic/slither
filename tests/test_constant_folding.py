@@ -63,35 +63,35 @@ def test_constant_folding_binary_expressions():
 
     variable_d = contract.get_state_variable_from_name("d")
     assert str(variable_d.type) == "bool"
-    assert ConstantFolding(variable_d.expression, "bool").result().value == False
+    assert ConstantFolding(variable_d.expression, "bool").result().value is False
 
     variable_e = contract.get_state_variable_from_name("e")
     assert str(variable_e.type) == "bool"
-    assert ConstantFolding(variable_e.expression, "bool").result().value == False
+    assert ConstantFolding(variable_e.expression, "bool").result().value is False
 
     variable_f = contract.get_state_variable_from_name("f")
     assert str(variable_f.type) == "bool"
-    assert ConstantFolding(variable_f.expression, "bool").result().value == True
+    assert ConstantFolding(variable_f.expression, "bool").result().value is True
 
     variable_g = contract.get_state_variable_from_name("g")
     assert str(variable_g.type) == "bool"
-    assert ConstantFolding(variable_g.expression, "bool").result().value == False
+    assert ConstantFolding(variable_g.expression, "bool").result().value is False
 
     variable_h = contract.get_state_variable_from_name("h")
     assert str(variable_h.type) == "bool"
-    assert ConstantFolding(variable_h.expression, "bool").result().value == False
+    assert ConstantFolding(variable_h.expression, "bool").result().value is False
 
     variable_i = contract.get_state_variable_from_name("i")
     assert str(variable_i.type) == "bool"
-    assert ConstantFolding(variable_i.expression, "bool").result().value == True
+    assert ConstantFolding(variable_i.expression, "bool").result().value is True
 
     variable_j = contract.get_state_variable_from_name("j")
     assert str(variable_j.type) == "bool"
-    assert ConstantFolding(variable_j.expression, "bool").result().value == False
+    assert ConstantFolding(variable_j.expression, "bool").result().value is False
 
     variable_k = contract.get_state_variable_from_name("k")
     assert str(variable_k.type) == "bool"
-    assert ConstantFolding(variable_k.expression, "bool").result().value == True
+    assert ConstantFolding(variable_k.expression, "bool").result().value is True
 
     variable_l = contract.get_state_variable_from_name("l")
     assert str(variable_l.type) == "uint256"
@@ -103,6 +103,9 @@ def test_constant_folding_binary_expressions():
     IMPLEMENTATION_SLOT = contract.get_state_variable_from_name("IMPLEMENTATION_SLOT")
     assert str(IMPLEMENTATION_SLOT.type) == "bytes32"
     assert (
-        int.from_bytes(ConstantFolding(IMPLEMENTATION_SLOT.expression, "bytes32").result().value, byteorder="big")
+        int.from_bytes(
+            ConstantFolding(IMPLEMENTATION_SLOT.expression, "bytes32").result().value,
+            byteorder="big",
+        )
         == 24440054405305269366569402256811496959409073762505157381672968839269610695612
     )
