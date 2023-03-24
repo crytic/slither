@@ -263,9 +263,7 @@ def ntype(_type: Union[Type, str]) -> str:
 
 
 # pylint: disable=too-many-branches
-def encode_ir_for_compare(
-    ir: Union[Operation, Variable]
-) -> str:
+def encode_ir_for_compare(ir: Union[Operation, Variable]) -> str:
     # operations
     if isinstance(ir, Assignment):
         return f"({encode_ir_for_compare(ir.lvalue)}):=({encode_ir_for_compare(ir.rvalue)})"
