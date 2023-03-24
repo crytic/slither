@@ -226,7 +226,8 @@ def is_function_modified(f1: Function, f2: Function) -> bool:
     return False
 
 
-def ntype(_type: Union[Type, str]) -> str:  # pylint: disable=too-many-branches
+# pylint: disable=too-many-branches
+def ntype(_type: Union[Type, str]) -> str:
     if isinstance(_type, ElementaryType):
         _type = str(_type)
     elif isinstance(_type, ArrayType):
@@ -261,9 +262,10 @@ def ntype(_type: Union[Type, str]) -> str:  # pylint: disable=too-many-branches
     return _type.replace(" ", "_")
 
 
+# pylint: disable=too-many-branches
 def encode_ir_for_compare(
     ir: Union[Operation, Variable]
-) -> str:  # pylint: disable=too-many-branches
+) -> str:
     # operations
     if isinstance(ir, Assignment):
         return f"({encode_ir_for_compare(ir.lvalue)}):=({encode_ir_for_compare(ir.rvalue)})"
