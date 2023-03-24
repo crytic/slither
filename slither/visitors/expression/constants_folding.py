@@ -18,6 +18,7 @@ from slither.core.variables import Variable
 from slither.utils.integer_conversion import convert_string_to_fraction, convert_string_to_int
 from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.declarations.solidity_variables import SolidityFunction
 
 
 class NotConstant(Exception):
@@ -63,7 +64,7 @@ class ConstantFolding(ExpressionVisitor):
             value = int(value)
             # emulate 256-bit wrapping
             if str(self._type).startswith("uint"):
-                value = value & (2**256 - 1)
+                value = value & (2 ** 256 - 1)
         if str(self._type).startswith("byte"):
             print(value)
             print(type(value))
@@ -71,8 +72,6 @@ class ConstantFolding(ExpressionVisitor):
         return Literal(value, self._type)
 
     def _post_identifier(self, expression: Identifier) -> None:
-        from slither.core.declarations.solidity_variables import SolidityFunction
-
         if isinstance(expression.value, Variable):
             if expression.value.is_constant:
                 expr = expression.value.expression
@@ -93,7 +92,7 @@ class ConstantFolding(ExpressionVisitor):
         else:
             raise NotConstant
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches,too-many-statements
     def _post_binary_operation(self, expression: BinaryOperation) -> None:
         expression_left = expression.expression_left
         expression_right = expression.expression_right
@@ -117,7 +116,7 @@ class ConstantFolding(ExpressionVisitor):
             and isinstance(left, (int, Fraction))
             and isinstance(right, (int, Fraction))
         ):
-            set_val(expression, left**right)  # type: ignore
+            set_val(expression, left ** right)  # type: ignore
         elif (
             expression.type == BinaryOperationType.MULTIPLICATION
             and isinstance(left, (int, Fraction))
