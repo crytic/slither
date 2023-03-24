@@ -63,7 +63,7 @@ class ConstantFolding(ExpressionVisitor):
             value = int(value)
             # emulate 256-bit wrapping
             if str(self._type).startswith("uint"):
-                value = value & (2 ** 256 - 1)
+                value = value & (2**256 - 1)
         if str(self._type).startswith("byte"):
             print(value)
             print(type(value))
@@ -118,7 +118,7 @@ class ConstantFolding(ExpressionVisitor):
             and isinstance(left, (int, Fraction))
             and isinstance(right, (int, Fraction))
         ):
-            set_val(expression, left ** right)  # type: ignore
+            set_val(expression, left**right)  # type: ignore
         elif (
             expression.type == BinaryOperationType.MULTIPLICATION
             and isinstance(left, (int, Fraction))
