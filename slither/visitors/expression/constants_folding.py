@@ -18,7 +18,6 @@ from slither.core.variables import Variable
 from slither.utils.integer_conversion import convert_string_to_fraction, convert_string_to_int
 from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.solidity_types.elementary_type import ElementaryType
-from slither.core.declarations.solidity_variables import SolidityFunction
 
 
 class NotConstant(Exception):
@@ -71,7 +70,10 @@ class ConstantFolding(ExpressionVisitor):
             value = int.to_bytes(int(value), 32, "big")
         return Literal(value, self._type)
 
+    # pylint: disable=import-outside-toplevel
     def _post_identifier(self, expression: Identifier) -> None:
+        from slither.core.declarations.solidity_variables import SolidityFunction
+
         if isinstance(expression.value, Variable):
             if expression.value.is_constant:
                 expr = expression.value.expression
