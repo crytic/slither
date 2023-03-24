@@ -1,6 +1,6 @@
 import json
 import os
-import pathlib
+from pathlib import Path
 import sys
 from pprint import pprint
 from typing import Type, Optional, List
@@ -1658,24 +1658,25 @@ ALL_TESTS = get_all_tests()
 
 GENERIC_PATH = "/GENERIC_PATH"
 
+TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
+
 
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
 def test_detector(test_item: Test):
-    test_dir_path = pathlib.Path(
-        pathlib.Path().absolute(),
-        "tests",
-        "e2e",
-        "detectors",
-        "test_data",
+    test_dir_path = Path(
+        TEST_DATA_DIR,
         test_item.detector.ARGUMENT,
         test_item.solc_ver,
-    )
-    test_file_path = str(pathlib.Path(test_dir_path, test_item.test_file))
-    expected_result_path = str(pathlib.Path(test_dir_path, test_item.expected_result).absolute())
-    
+    ).as_posix()
+    test_file_path = Path(test_dir_path, test_item.test_file).as_posix()
+    expected_result_path = Path(test_dir_path, test_item.expected_result).absolute().as_posix()
 
-    cc = load_from_zip(f"{test_file_path}-{test_item.solc_ver}.zip")[0]
-    sl = Slither(cc)
+    zip_artifact_path = Path(f"{test_file_path}-{test_item.solc_ver}.zip").as_posix()
+    crytic_compile = load_from_zip(zip_artifact_path)[0]
+    # The absolute paths saved in the zip file must be replaced by the generic path
+    artifact_filenames = crytic_compile.filenames
+
+    sl = Slither(crytic_compile)
     sl.register_detector(test_item.detector)
     results = sl.run_detectors()
 
@@ -1685,11 +1686,14 @@ def test_detector(test_item: Test):
     results_as_string = json.dumps(results)
 
     for additional_file in test_item.additional_files:
-        additional_path = str(pathlib.Path(test_dir_path, additional_file).absolute())
+        additional_path = Path(test_dir_path, additional_file).absolute().as_posix()
         additional_path = additional_path.replace("\\", "\\\\")
-        results_as_string = results_as_string.replace(additional_path, GENERIC_PATH)
+        for artifact_filename in artifact_filenames:
+            results_as_string = results_as_string.replace(artifact_filename.absolute, GENERIC_PATH)
+
     test_file_path = test_file_path.replace("\\", "\\\\")
-    results_as_string = results_as_string.replace(test_file_path, GENERIC_PATH)
+    for artifact_filename in artifact_filenames:
+        results_as_string = results_as_string.replace(artifact_filename.absolute, GENERIC_PATH)
     results = json.loads(results_as_string)
 
     diff = DeepDiff(results, expected_result, ignore_order=True, verbose_level=2)
@@ -1709,17 +1713,13 @@ def test_detector(test_item: Test):
 
 
 def _generate_test(test_item: Test, skip_existing=False):
-    test_dir_path = pathlib.Path(
-        pathlib.Path().absolute(),
-        "tests",
-        "e2e",
-        "detectors",
-        "test_data",
+    test_dir_path = Path(
+        TEST_DATA_DIR,
         test_item.detector.ARGUMENT,
         test_item.solc_ver,
-    )
-    test_file_path = str(pathlib.Path(test_dir_path, test_item.test_file))
-    expected_result_path = str(pathlib.Path(test_dir_path, test_item.expected_result).absolute())
+    ).as_posix()
+    test_file_path = Path(test_dir_path, test_item.test_file).as_posix()
+    expected_result_path = Path(test_dir_path, test_item.expected_result).absolute().as_posix()
 
     if skip_existing:
         if os.path.isfile(expected_result_path):
@@ -1735,7 +1735,7 @@ def _generate_test(test_item: Test, skip_existing=False):
     results_as_string = results_as_string.replace(test_file_path, GENERIC_PATH)
 
     for additional_file in test_item.additional_files:
-        additional_path = str(pathlib.Path(test_dir_path, additional_file).absolute())
+        additional_path = Path(test_dir_path, additional_file).absolute().as_posix()
         additional_path = additional_path.replace("\\", "\\\\")
         results_as_string = results_as_string.replace(additional_path, GENERIC_PATH)
 
@@ -1745,25 +1745,21 @@ def _generate_test(test_item: Test, skip_existing=False):
 
 
 def _generate_compile(test_item: Test, skip_existing=False):
-    test_dir_path = pathlib.Path(
-        pathlib.Path().absolute(),
-        "tests",
-        "e2e",
-        "detectors",
-        "test_data",
+    test_dir_path = Path(
+        TEST_DATA_DIR,
         test_item.detector.ARGUMENT,
         test_item.solc_ver,
-    )
-    test_file = pathlib.Path(test_dir_path, test_item.test_file).as_posix()
-    zip_artifact_path = f"{test_file}-{test_item.solc_ver}.zip"
+    ).as_posix()
+    test_file_path = Path(test_dir_path, test_item.test_file).as_posix()
+    zip_artifact_path = Path(f"{test_file_path}-{test_item.solc_ver}.zip").as_posix()
 
     if skip_existing:
         if os.path.isfile(zip_artifact_path):
             return
 
     set_solc(test_item)
-    cc = CryticCompile(test_file)
-    save_to_zip([cc], zip_artifact_path)
+    crytic_compile = CryticCompile(test_file_path)
+    save_to_zip([crytic_compile], zip_artifact_path)
 
 
 if __name__ == "__main__":
