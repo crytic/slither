@@ -65,8 +65,6 @@ class ConstantFolding(ExpressionVisitor):
             if str(self._type).startswith("uint"):
                 value = value & (2**256 - 1)
         if str(self._type).startswith("byte"):
-            print(value)
-            print(type(value))
             value = int.to_bytes(int(value), 32, "big")
         return Literal(value, self._type)
 
@@ -108,8 +106,6 @@ class ConstantFolding(ExpressionVisitor):
             (Literal, BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
         ):
             raise NotConstant
-        print(expression_left)
-        print(expression_right)
         left = get_val(expression_left)
         right = get_val(expression_right)
 
