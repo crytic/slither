@@ -247,17 +247,9 @@ def select_solc_version(version: Optional[str]) -> None:
         )
         ver = list(vers)[-1]
         version = ".".join(map(str, ver))
-    solc_select.install_artifacts([version])
-    env = dict(os.environ)
-    env_restore = dict(env)
-    env["SOLC_VERSION"] = version
-    os.environ.clear()
-    os.environ.update(env)
-
+    solc_select.switch_global_version(version, always_install=True)
     yield version
 
-    os.environ.clear()
-    os.environ.update(env_restore)
 
 
 @contextmanager

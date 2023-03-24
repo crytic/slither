@@ -56,8 +56,7 @@ jobs:
 
       - name: unit / core, slithir, utils 
         run: |
-          # TODO add back once solc-select issues figured out
-          pytest --cov=slither --cov-append tests/unit/core
+          pytest --cov=slither --cov-append tests/unit/
           python -m coverage report
 
       - name: tools / slither-read-storage
