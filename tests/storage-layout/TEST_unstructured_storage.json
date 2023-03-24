@@ -35,6 +35,15 @@
         "value": true,
         "elems": {}
     },
+    "BEACON_SLOT": {
+        "name": "BEACON_SLOT",
+        "type_string": "address",
+        "slot": 74152234768234802001998023604048924213078445070507226371336425913862612794704,
+        "size": 160,
+        "offset": 0,
+        "value": "0x54006763154c764da4AF42a8c3cfc25Ea29765D5",
+        "elems": {}
+    },
     "fallback_sload_hardcoded": {
         "name": "fallback_sload_hardcoded",
         "type_string": "address",

@@ -115,7 +115,7 @@ contract UnstructuredStorageLayout {
         }
 
         _set_rollback(true);
-        _set_beacon(address(this));
+        _set_beacon(address(0x0054006763154c764da4af42a8c3cfc25ea29765d5));
     }
 
     // Code position in storage is keccak256("PROXIABLE") = "0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7"
