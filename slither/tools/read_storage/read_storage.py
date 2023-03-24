@@ -13,7 +13,7 @@ from slither.core.declarations import Contract, Structure
 from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
 from slither.core.solidity_types.type import Type
 from slither.core.cfg.node import NodeType
-from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.state_variable import StateVariable, Variable
 from slither.core.variables.structure_variable import StructureVariable
 from slither.core.expressions import (
     AssignmentOperation,
@@ -135,8 +135,10 @@ class SlitherReadStorage:
                 exp = var.expression
                 if isinstance(exp, CallExpression) and str(exp.called) == "keccak256(bytes)":
                     exp = exp.arguments[0]
+                if isinstance(exp, (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion)):
+                    exp = ConstantFolding(exp, "bytes32").result()
                 if isinstance(exp, Literal):
-                    if exp.value.startswith("0x"):
+                    if str(exp.value).startswith("0x") or isinstance(exp.value, bytes):
                         slot = coerce_type("int", exp.value)
                     else:
                         slot_str = exp.value
