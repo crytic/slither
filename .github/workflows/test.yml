@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ".[dev]"
+          pip install ".[test]"
           solc-select install 0.8.0
           solc-select use 0.8.0
 
