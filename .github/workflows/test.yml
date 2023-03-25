@@ -47,7 +47,7 @@ jobs:
           elif [ ${{ matrix.os }} = "windows-2022" ]; then
             TEST_ARGS=""
           fi
-          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" TEST_ARGS
+          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" $TEST_ARGS
 
 
       - uses: ./.github/actions/upload-coverage
