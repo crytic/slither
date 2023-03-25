@@ -5,4 +5,7 @@ popd
 
 # used to pass --cov=$path and --cov-append to pytest
 pytest $1 tests/e2e/ -n auto
-python -m coverage report
+if [ "$1" != "" ]; then
+    python -m coverage report
+fi
+
