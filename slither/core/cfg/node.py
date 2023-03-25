@@ -95,7 +95,10 @@ class NodeType(Enum):
     PLACEHOLDER = "_"
 
     TRY = "TRY"
-    CATCH = "CATCH"
+    # Fall through control flow
+    CATCH_NORMAL = "CATCH_NORMAL"
+    # Exceptional control flow
+    CATCH_ERROR = "CATCH_ERROR"
 
     # Node not related to the CFG
     # Use for state variable declaration

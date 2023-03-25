@@ -673,18 +673,28 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(node, new_node)
         node = new_node
 
-        for clause in statement.get("clauses", []):
-            self._parse_catch(clause, node)
+        clauses = statement.get("clauses", None)
+        if clauses is not None:
+            # Normal destination: Control resumes at the first clause if the call succeeds and return data is well-formed.
+            self._parse_catch(clauses[0], node, NodeType.CATCH_NORMAL)
+            # Error destination(s): Control resumes at the second clause if the call reverts.
+            # There can be multiple error destinations:
+            # - Error: require, custom error
+            # - Panic: assert, division by zero, array out of bounds, etc.
+            # - Catch-all: includes the rest of the above if not caught by a more specific error destination
+            for clause in clauses[1:]:
+                self._parse_catch(clause, node, NodeType.CATCH_ERROR)
+
         return node
 
-    def _parse_catch(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_catch(self, statement: Dict, node: NodeSolc, node_type) -> NodeSolc:
         block = statement.get("block", None)
 
         if block is None:
             raise ParsingError(f"Catch not correctly parsed by Slither {statement}")
         try_scope = Scope(node.underlying_node.scope.is_checked, False, node.underlying_node.scope)
 
-        try_node = self._new_node(NodeType.CATCH, statement["src"], try_scope)
+        try_node = self._new_node(node_type, statement["src"], try_scope)
         link_underlying_nodes(node, try_node)
 
         if self.is_compact_ast:
@@ -1145,20 +1155,20 @@ class FunctionSolc(CallerContextExpression):
         node.set_sons([start_node])
         start_node.add_father(node)
 
-    def _fix_try(self, node: Node) -> None:
-        end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
-        if end_node:
-            for son in node.sons:
-                if son.type == NodeType.CATCH:
-                    self._fix_catch(son, end_node)
+    # def _fix_try(self, node: Node) -> None:
+    #     end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
+    #     if end_node:
+    #         for son in node.sons:
+    #             if son.type == NodeType.CATCH:
+    #                 self._fix_catch(son, end_node)
 
-    def _fix_catch(self, node: Node, end_node: Node) -> None:
-        if not node.sons:
-            link_nodes(node, end_node)
-        else:
-            for son in node.sons:
-                if son != end_node:
-                    self._fix_catch(son, end_node)
+    # def _fix_catch(self, node: Node, end_node: Node) -> None:
+    #     if not node.sons:
+    #         link_nodes(node, end_node)
+    #     else:
+    #         for son in node.sons:
+    #             if son != end_node:
+    #                 self._fix_catch(son, end_node)
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
 
@@ -1274,8 +1284,8 @@ class FunctionSolc(CallerContextExpression):
                 self._fix_break_node(node)
             if node.type in [NodeType.CONTINUE]:
                 self._fix_continue_node(node)
-            if node.type in [NodeType.TRY]:
-                self._fix_try(node)
+            # if node.type in [NodeType.TRY]:
+            #     self._fix_try(node)
 
         # this step needs to happen after all of the break statements are fixed
         # really, we should be passing some sort of context down so the break statement doesn't
