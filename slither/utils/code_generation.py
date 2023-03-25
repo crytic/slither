@@ -79,7 +79,8 @@ def generate_interface_function_signature(
         convert_type_for_solidity_signature_to_string(param.type).replace("(", "").replace(")", "")
         if unroll_structs
         else f"{str(param.type.type)} memory"
-        if isinstance(param.type, UserDefinedType) and isinstance(param.type.type, (Structure, Enum))
+        if isinstance(param.type, UserDefinedType)
+        and isinstance(param.type.type, (Structure, Enum))
         else str(param.type)
         for param in func.parameters
     ]
@@ -112,11 +113,11 @@ def generate_struct_interface_str(struct: "Structure") -> str:
     return definition
 
 
-def generate_custom_error_interface(error: "CustomErrorContract", unroll_structs: bool = True) -> str:
+def generate_custom_error_interface(
+    error: "CustomErrorContract", unroll_structs: bool = True
+) -> str:
     args = [
-        convert_type_for_solidity_signature_to_string(arg.type)
-        .replace("(", "")
-        .replace(")", "")
+        convert_type_for_solidity_signature_to_string(arg.type).replace("(", "").replace(")", "")
         if unroll_structs
         else str(arg.type.type)
         if isinstance(arg.type, UserDefinedType) and isinstance(arg.type.type, (Structure, Enum))
