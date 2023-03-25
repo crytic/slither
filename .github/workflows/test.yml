@@ -40,6 +40,25 @@ jobs:
           solc-select install 0.8.0
           solc-select use 0.8.0
 
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install ganache
+        run: |
+          if [ ${{ matrix.type }} = "tool" ]; then
+            # Setup Ganache for slither-read-storage tests.
+            npm install --global ganache
+          elif [ ${{ matrix.type }} = "integration" ]; then
+            # Setup Hardhat for compilation tests.
+            pushd tests/e2e/compilation/test_data/test_node_modules/ || exit
+            npm install hardhat
+            popd || exit
+          fi
+
       - name: ${{ matrix.type }}
         env:
           TEST_TYPE: ${{ matrix.type }}
