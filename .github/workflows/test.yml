@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.8
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
           cache: "pip"
@@ -47,7 +47,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      - name: Install ganache
+      - name: Install test dependencies
         run: |
           if [ ${{ matrix.type }} = "tool" ]; then
             # Setup Ganache for slither-read-storage tests.
@@ -59,7 +59,7 @@ jobs:
             popd || exit
           fi
 
-      - name: ${{ matrix.type }}
+      - name: Run ${{ matrix.type }} tests
         env:
           TEST_TYPE: ${{ matrix.type }}
         # Only run coverage on ubuntu-latest.
@@ -72,7 +72,8 @@ jobs:
           bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" $TEST_ARGS
 
 
-      - uses: ./.github/actions/upload-coverage
+      - name: Upload coverage
+        uses: ./.github/actions/upload-coverage
         # only aggregate test coverage over linux-based tests to avoid any OS-specific filesystem information stored in
         # coverage metadata.
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -86,7 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.8
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
