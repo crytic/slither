@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # setup hardhat for compilation tests
 pushd tests/e2e/compilation/test_data/test_node_modules/
 npm install hardhat
