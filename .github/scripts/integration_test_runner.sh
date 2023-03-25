@@ -6,8 +6,13 @@ npm install hardhat
 popd || exit
 
 # used to pass --cov=$path and --cov-append to pytest
-pytest "$1" tests/e2e/ -n auto
 if [ "$1" != "" ]; then
+    pytest "$1" tests/e2e/ -n auto
+    status_code=$?
     python -m coverage report
+else
+    pytest tests/e2e/ -n auto
+    status_code=$?
 fi
 
+exit "$status_code"
