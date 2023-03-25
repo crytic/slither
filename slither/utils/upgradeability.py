@@ -221,7 +221,18 @@ def is_function_modified(f1: Function, f2: Function) -> bool:
         queue_f1.extend(son for son in node_f1.sons if son not in visited)
         queue_f2.extend(son for son in node_f2.sons if son not in visited)
         for i, ir in enumerate(node_f1.irs):
-            if encode_ir_for_compare(ir) != encode_ir_for_compare(node_f2.irs[i]):
+            ir2 = node_f2.irs[i]
+            encoded1 = (
+                encode_var_for_compare(ir)
+                if isinstance(ir, Variable)
+                else encode_ir_for_compare(ir)
+            )
+            encoded2 = (
+                encode_var_for_compare(ir2)
+                if isinstance(ir2, Variable)
+                else encode_ir_for_compare(ir2)
+            )
+            if encoded1 != encoded2:
                 return True
     return False
 
@@ -263,7 +274,7 @@ def ntype(_type: Union[Type, str]) -> str:
 
 
 # pylint: disable=too-many-branches
-def encode_ir_for_compare(ir: Union[Operation, Variable]) -> str:
+def encode_ir_for_compare(ir: Operation) -> str:
     # operations
     if isinstance(ir, Assignment):
         return f"({encode_ir_for_compare(ir.lvalue)}):=({encode_ir_for_compare(ir.rvalue)})"
@@ -315,27 +326,32 @@ def encode_ir_for_compare(ir: Union[Operation, Variable]) -> str:
         return "unpack"
     if isinstance(ir, InitArray):  # TODO: improve
         return "init_array"
-    if isinstance(ir, Function):  # TODO: investigate this
-        return "function_solc"
+
+    # default
+    return ""
+
+
+# pylint: disable=too-many-branches
+def encode_var_for_compare(var: Variable) -> str:
 
     # variables
-    if isinstance(ir, Constant):
-        return f"constant({ntype(ir.type)})"
-    if isinstance(ir, SolidityVariableComposed):
-        return f"solidity_variable_composed({ir.name})"
-    if isinstance(ir, SolidityVariable):
-        return f"solidity_variable{ir.name}"
-    if isinstance(ir, TemporaryVariable):
+    if isinstance(var, Constant):
+        return f"constant({ntype(var.type)})"
+    if isinstance(var, SolidityVariableComposed):
+        return f"solidity_variable_composed({var.name})"
+    if isinstance(var, SolidityVariable):
+        return f"solidity_variable{var.name}"
+    if isinstance(var, TemporaryVariable):
         return "temporary_variable"
-    if isinstance(ir, ReferenceVariable):
-        return f"reference({ntype(ir.type)})"
-    if isinstance(ir, LocalVariable):
-        return f"local_solc_variable({ir.location})"
-    if isinstance(ir, StateVariable):
-        return f"state_solc_variable({ntype(ir.type)})"
-    if isinstance(ir, LocalVariableInitFromTuple):
+    if isinstance(var, ReferenceVariable):
+        return f"reference({ntype(var.type)})"
+    if isinstance(var, LocalVariable):
+        return f"local_solc_variable({var.location})"
+    if isinstance(var, StateVariable):
+        return f"state_solc_variable({ntype(var.type)})"
+    if isinstance(var, LocalVariableInitFromTuple):
         return "local_variable_init_tuple"
-    if isinstance(ir, TupleVariable):
+    if isinstance(var, TupleVariable):
         return "tuple_variable"
 
     # default
