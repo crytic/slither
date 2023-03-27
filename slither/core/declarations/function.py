@@ -975,7 +975,10 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._solidity_signature is None:
             parameters = [
-                convert_type_for_solidity_signature_to_string(x.type) for x in self.parameters
+                convert_type_for_solidity_signature_to_string(x.type) + f" {x.location}"
+                if x.type.is_dynamic and x.location not in [None, "default"]
+                else convert_type_for_solidity_signature_to_string(x.type)
+                for x in self.parameters
             ]
             self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
         return self._solidity_signature
@@ -989,8 +992,18 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         if self._signature is None:
             signature = (
                 self.name,
-                [str(x.type) for x in self.parameters],
-                [str(x.type) for x in self.returns],
+                [
+                    f"{str(x.type)} {str(x.location)}"
+                    if x.type.is_dynamic and x.location not in [None, "default"]
+                    else str(x.type)
+                    for x in self.parameters
+                ],
+                [
+                    f"{str(x.type)} {str(x.location)}"
+                    if x.type.is_dynamic and x.location not in [None, "default"]
+                    else str(x.type)
+                    for x in self.returns
+                ],
             )
             self._signature = signature
         return self._signature
