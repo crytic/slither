@@ -40,15 +40,15 @@ def generate_interface(
             interface += f"    event {name}({', '.join(args)});\n"
     if not skip_errors:
         for error in contract.custom_errors:
-            interface += generate_custom_error_interface(error, unroll_structs)
+            interface += f"    error {generate_custom_error_interface(error, unroll_structs)};\n"
     if not skip_enums:
         for enum in contract.enums:
             interface += f"    enum {enum.name} {{ {', '.join(enum.values)} }}\n"
     if not skip_structs:
         for struct in contract.structures:
-            interface += generate_struct_interface_str(struct)
+            interface += generate_struct_interface_str(struct, indent=4)
     for var in contract.state_variables_entry_points:
-        interface += generate_interface_variable_signature(var, unroll_structs)
+        interface += f"    function {generate_interface_variable_signature(var, unroll_structs)};\n"
     for func in contract.functions_entry_points:
         if func.is_constructor or func.is_fallback or func.is_receive:
             continue
@@ -85,7 +85,7 @@ def generate_interface_variable_signature(
         elif isinstance(_type, Contract):
             ret = "address"
         returns.append(ret)
-    return f"    function {var.name}({','.join(params)}) external returns ({', '.join(returns)});\n"
+    return f"{var.name}({','.join(params)}) external returns ({', '.join(returns)})"
 
 
 def generate_interface_function_signature(
@@ -155,7 +155,7 @@ def generate_interface_function_signature(
     return _interface_signature_str
 
 
-def generate_struct_interface_str(struct: "Structure") -> str:
+def generate_struct_interface_str(struct: "Structure", indent: int = 0) -> str:
     """
     Generates code for a structure declaration in an interface of the form:
         struct struct_name {
@@ -164,21 +164,25 @@ def generate_struct_interface_str(struct: "Structure") -> str:
             ...        ...
         }
     Args:
-        struct: A Structure object
+        struct: A Structure object.
+        indent: Number of spaces to indent the code block with.
 
     Returns:
         The structure declaration code as a string.
     """
-    definition = f"    struct {struct.name} {{\n"
+    spaces = ""
+    for _ in range(0, indent):
+        spaces += " "
+    definition = f"{spaces}struct {struct.name} {{\n"
     for elem in struct.elems_ordered:
         if isinstance(elem.type, UserDefinedType):
             if isinstance(elem.type.type, (Structure, Enum)):
-                definition += f"        {elem.type.type} {elem.name};\n"
+                definition += f"{spaces}    {elem.type.type} {elem.name};\n"
             elif isinstance(elem.type.type, Contract):
-                definition += f"        address {elem.name};\n"
+                definition += f"{spaces}    address {elem.name};\n"
         else:
-            definition += f"        {elem.type} {elem.name};\n"
-    definition += "    }\n"
+            definition += f"{spaces}    {elem.type} {elem.name};\n"
+    definition += f"{spaces}\n"
     return definition
 
 
@@ -193,4 +197,4 @@ def generate_custom_error_interface(
         else str(arg.type)
         for arg in error.parameters
     ]
-    return f"    error {error.name}({', '.join(args)});\n"
+    return f"{error.name}({', '.join(args)})"
