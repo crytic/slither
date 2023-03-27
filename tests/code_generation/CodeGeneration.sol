@@ -8,7 +8,9 @@ contract TestContract is I {
     uint public stateA;
     uint private stateB;
     address public immutable owner = msg.sender;
-    mapping(address => mapping(uint => St)) public structs;
+    mapping(address => mapping(uint => St)) public structsMap;
+    St[] public structsArray;
+    I public otherI;
 
     event NoParams();
     event Anonymous() anonymous;
@@ -44,13 +46,16 @@ contract TestContract is I {
     function newSt(uint x) public returns (St memory) {
         St memory st;
         st.v = x;
-        structs[msg.sender][x] = st;
+        structsMap[msg.sender][x] = st;
         return st;
     }
     function getSt(uint x) public view returns (St memory) {
-        return structs[msg.sender][x];
+        return structsMap[msg.sender][x];
     }
     function removeSt(St memory st) public {
-        delete structs[msg.sender][st.v];
+        delete structsMap[msg.sender][st.v];
+    }
+    function setOtherI(I _i) public {
+        otherI = _i;
     }
 }

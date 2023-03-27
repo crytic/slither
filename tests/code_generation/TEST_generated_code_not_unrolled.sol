@@ -13,12 +13,15 @@ interface ITestContract {
     }
     function stateA() external returns (uint256);
     function owner() external returns (address);
-    function structs(address,uint256) external returns (uint256);
+    function structsMap(address,uint256) external returns (St memory);
+    function structsArray(uint256) external returns (St memory);
+    function otherI() external returns (address);
     function err0() external;
     function err1() external;
     function err2(uint256,uint256) external;
     function newSt(uint256) external returns (St memory);
     function getSt(uint256) external view returns (St memory);
     function removeSt(St memory) external;
+    function setOtherI(address) external;
 }
 
