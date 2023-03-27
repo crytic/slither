@@ -6,7 +6,7 @@ from slither.utils.type import (
     export_nested_types_from_variable,
     export_return_type_from_variable,
 )
-from slither.core.solidity_types import UserDefinedType, MappingType, ArrayType
+from slither.core.solidity_types import UserDefinedType, MappingType, ArrayType, ElementaryType
 from slither.core.declarations import Structure, Enum, Contract
 
 if TYPE_CHECKING:
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from slither.core.variables import StateVariable
 
 
+# pylint: disable=too-many-arguments
 def generate_interface(
     contract: "Contract",
     unroll_structs: bool = True,
@@ -116,7 +117,12 @@ def generate_interface_function_signature(
     returns = [
         convert_type_for_solidity_signature_to_string(ret.type).replace("(", "").replace(")", "")
         if unroll_structs
-        or (isinstance(ret.type, ArrayType) and isinstance(ret.type.type, UserDefinedType))
+        else convert_type_for_solidity_signature_to_string(ret.type)
+        .replace("(", "")
+        .replace(")", "")
+        + f" {ret.location}"
+        if isinstance(ret.type, ArrayType)
+        and isinstance(ret.type.type, (UserDefinedType, ElementaryType))
         else f"{str(ret.type.type)} memory"
         if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, (Structure, Enum))
         else "address"
@@ -127,7 +133,12 @@ def generate_interface_function_signature(
     parameters = [
         convert_type_for_solidity_signature_to_string(param.type).replace("(", "").replace(")", "")
         if unroll_structs
-        or (isinstance(param.type, ArrayType) and isinstance(param.type.type, UserDefinedType))
+        else convert_type_for_solidity_signature_to_string(param.type)
+        .replace("(", "")
+        .replace(")", "")
+        + f" {param.location}"
+        if isinstance(param.type, ArrayType)
+        and isinstance(param.type.type, (UserDefinedType, ElementaryType))
         else f"{str(param.type.type)} memory"
         if isinstance(param.type, UserDefinedType)
         and isinstance(param.type.type, (Structure, Enum))
