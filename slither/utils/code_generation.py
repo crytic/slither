@@ -14,7 +14,14 @@ if TYPE_CHECKING:
     from slither.core.variables import StateVariable
 
 
-def generate_interface(contract: "Contract", unroll_structs: bool = True) -> str:
+def generate_interface(
+        contract: "Contract",
+        unroll_structs: bool = True,
+        skip_events: bool = False,
+        skip_errors: bool = False,
+        skip_enums: bool = False,
+        skip_structs: bool = False
+) -> str:
     """
     Generates code for a Solidity interface to the contract.
     Args:
@@ -26,15 +33,19 @@ def generate_interface(contract: "Contract", unroll_structs: bool = True) -> str
         state variables, as well as any events, custom errors and/or structs declared in the contract.
     """
     interface = f"interface I{contract.name} {{\n"
-    for event in contract.events:
-        name, args = event.signature
-        interface += f"    event {name}({', '.join(args)});\n"
-    for error in contract.custom_errors:
-        interface += generate_custom_error_interface(error, unroll_structs)
-    for enum in contract.enums:
-        interface += f"    enum {enum.name} {{ {', '.join(enum.values)} }}\n"
-    for struct in contract.structures:
-        interface += generate_struct_interface_str(struct)
+    if not skip_events:
+        for event in contract.events:
+            name, args = event.signature
+            interface += f"    event {name}({', '.join(args)});\n"
+    if not skip_errors:
+        for error in contract.custom_errors:
+            interface += generate_custom_error_interface(error, unroll_structs)
+    if not skip_enums:
+        for enum in contract.enums:
+            interface += f"    enum {enum.name} {{ {', '.join(enum.values)} }}\n"
+    if not skip_structs:
+        for struct in contract.structures:
+            interface += generate_struct_interface_str(struct)
     for var in contract.state_variables_entry_points:
         interface += generate_interface_variable_signature(var, unroll_structs)
     for func in contract.functions_entry_points:
