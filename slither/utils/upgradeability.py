@@ -221,18 +221,7 @@ def is_function_modified(f1: Function, f2: Function) -> bool:
         queue_f1.extend(son for son in node_f1.sons if son not in visited)
         queue_f2.extend(son for son in node_f2.sons if son not in visited)
         for i, ir in enumerate(node_f1.irs):
-            ir2 = node_f2.irs[i]
-            encoded1 = (
-                encode_var_for_compare(ir)
-                if isinstance(ir, Variable)
-                else encode_ir_for_compare(ir)
-            )
-            encoded2 = (
-                encode_var_for_compare(ir2)
-                if isinstance(ir2, Variable)
-                else encode_ir_for_compare(ir2)
-            )
-            if encoded1 != encoded2:
+            if encode_ir_for_compare(ir) != encode_ir_for_compare(node_f2.irs[i]):
                 return True
     return False
 
@@ -253,7 +242,12 @@ def ntype(_type: Union[Type, str]) -> str:
     elif isinstance(_type, MappingType):
         _type = str(_type)
     elif isinstance(_type, UserDefinedType):
-        _type = "user_defined_type"  # TODO: this could be Contract, Enum or Struct
+        if isinstance(_type.type, Contract):
+            _type = f"contract({_type.type.name})"
+        elif isinstance(_type.type, Structure):
+            _type = f"struct({_type.type.name})"
+        elif isinstance(_type.type, Enum):
+            _type = f"enum({_type.type.name})"
     else:
         _type = str(_type)
 
@@ -277,7 +271,7 @@ def ntype(_type: Union[Type, str]) -> str:
 def encode_ir_for_compare(ir: Operation) -> str:
     # operations
     if isinstance(ir, Assignment):
-        return f"({encode_ir_for_compare(ir.lvalue)}):=({encode_ir_for_compare(ir.rvalue)})"
+        return f"({encode_var_for_compare(ir.lvalue)}):=({encode_var_for_compare(ir.rvalue)})"
     if isinstance(ir, Index):
         return f"index({ntype(ir.index_type)})"
     if isinstance(ir, Member):
@@ -289,7 +283,7 @@ def encode_ir_for_compare(ir: Operation) -> str:
     if isinstance(ir, Unary):
         return f"unary({str(ir.type)})"
     if isinstance(ir, Condition):
-        return f"condition({encode_ir_for_compare(ir.value)})"
+        return f"condition({encode_var_for_compare(ir.value)})"
     if isinstance(ir, NewStructure):
         return "new_structure"
     if isinstance(ir, NewContract):
@@ -299,7 +293,7 @@ def encode_ir_for_compare(ir: Operation) -> str:
     if isinstance(ir, NewElementaryType):
         return f"new_elementary({ntype(ir.type)})"
     if isinstance(ir, Delete):
-        return f"delete({encode_ir_for_compare(ir.lvalue)},{encode_ir_for_compare(ir.variable)})"
+        return f"delete({encode_var_for_compare(ir.lvalue)},{encode_var_for_compare(ir.variable)})"
     if isinstance(ir, SolidityCall):
         return f"solidity_call({ir.function.full_name})"
     if isinstance(ir, InternalCall):
@@ -319,9 +313,9 @@ def encode_ir_for_compare(ir: Operation) -> str:
     if isinstance(ir, Return):  # this can be improved using values
         return "return"  # .format(ntype(ir.type))
     if isinstance(ir, Transfer):
-        return f"transfer({encode_ir_for_compare(ir.call_value)})"
+        return f"transfer({encode_var_for_compare(ir.call_value)})"
     if isinstance(ir, Send):
-        return f"send({encode_ir_for_compare(ir.call_value)})"
+        return f"send({encode_var_for_compare(ir.call_value)})"
     if isinstance(ir, Unpack):  # TODO: improve
         return "unpack"
     if isinstance(ir, InitArray):  # TODO: improve
