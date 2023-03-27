@@ -15,12 +15,12 @@ if TYPE_CHECKING:
 
 
 def generate_interface(
-        contract: "Contract",
-        unroll_structs: bool = True,
-        skip_events: bool = False,
-        skip_errors: bool = False,
-        skip_enums: bool = False,
-        skip_structs: bool = False
+    contract: "Contract",
+    unroll_structs: bool = True,
+    skip_events: bool = False,
+    skip_errors: bool = False,
+    skip_enums: bool = False,
+    skip_structs: bool = False,
 ) -> str:
     """
     Generates code for a Solidity interface to the contract.
@@ -116,6 +116,7 @@ def generate_interface_function_signature(
     returns = [
         convert_type_for_solidity_signature_to_string(ret.type).replace("(", "").replace(")", "")
         if unroll_structs
+        or (isinstance(ret.type, ArrayType) and isinstance(ret.type.type, UserDefinedType))
         else f"{str(ret.type.type)} memory"
         if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, (Structure, Enum))
         else "address"
@@ -126,6 +127,7 @@ def generate_interface_function_signature(
     parameters = [
         convert_type_for_solidity_signature_to_string(param.type).replace("(", "").replace(")", "")
         if unroll_structs
+        or (isinstance(param.type, ArrayType) and isinstance(param.type.type, UserDefinedType))
         else f"{str(param.type.type)} memory"
         if isinstance(param.type, UserDefinedType)
         and isinstance(param.type.type, (Structure, Enum))
