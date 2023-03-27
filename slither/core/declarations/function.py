@@ -975,10 +975,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._solidity_signature is None:
             parameters = [
-                convert_type_for_solidity_signature_to_string(x.type) + f" {x.location}"
-                if x.type.is_dynamic and x.location not in [None, "default"]
-                else convert_type_for_solidity_signature_to_string(x.type)
-                for x in self.parameters
+                convert_type_for_solidity_signature_to_string(x.type) for x in self.parameters
             ]
             self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
         return self._solidity_signature
