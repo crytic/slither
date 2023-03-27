@@ -147,7 +147,13 @@ def generate_struct_interface_str(struct: "Structure") -> str:
     """
     definition = f"    struct {struct.name} {{\n"
     for elem in struct.elems_ordered:
-        definition += f"        {elem.type} {elem.name};\n"
+        if isinstance(elem.type, UserDefinedType):
+            if isinstance(elem.type.type, (Structure, Enum)):
+                definition += f"        {elem.type.type} {elem.name};\n"
+            elif isinstance(elem.type.type, Contract):
+                definition += f"        address {elem.name};\n"
+        else:
+            definition += f"        {elem.type} {elem.name};\n"
     definition += "    }\n"
     return definition
 

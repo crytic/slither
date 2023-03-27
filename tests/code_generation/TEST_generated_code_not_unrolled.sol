@@ -11,6 +11,9 @@ interface ITestContract {
     struct St {
         uint256 v;
     }
+    struct Nested {
+        St st;
+    }
     function stateA() external returns (uint256);
     function owner() external returns (address);
     function structsMap(address,uint256) external returns (St memory);

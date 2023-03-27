@@ -25,6 +25,10 @@ contract TestContract is I {
         uint v;
     }
 
+    struct Nested{
+        St st;
+    }
+
     function err0() public {
         revert ErrorSimple();
     }
