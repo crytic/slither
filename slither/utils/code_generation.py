@@ -6,7 +6,7 @@ from slither.utils.type import (
     export_nested_types_from_variable,
     export_return_type_from_variable,
 )
-from slither.core.solidity_types import UserDefinedType, MappingType, ArrayType, ElementaryType
+from slither.core.solidity_types import Type, UserDefinedType, MappingType, ArrayType, ElementaryType
 from slither.core.declarations import Structure, Enum, Contract
 
 if TYPE_CHECKING:
@@ -73,6 +73,7 @@ def generate_interface_variable_signature(
         ]
     else:
         _, params, _ = var.signature
+        params = [p + " memory" if p in ["bytes", "string"] else p for p in params]
         returns = []
         _type = var.type
         while isinstance(_type, MappingType):
@@ -80,7 +81,7 @@ def generate_interface_variable_signature(
         while isinstance(_type, (ArrayType, UserDefinedType)):
             _type = _type.type
         ret = str(_type)
-        if isinstance(_type, Structure):
+        if isinstance(_type, Structure) or (isinstance(_type, Type) and _type.is_dynamic):
             ret += " memory"
         elif isinstance(_type, Contract):
             ret = "address"
@@ -127,6 +128,8 @@ def generate_interface_function_signature(
         if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, (Structure, Enum))
         else "address"
         if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, Contract)
+        else f"{ret.type} {ret.location}"
+        if ret.type.is_dynamic
         else str(ret.type)
         for ret in func.returns
     ]
@@ -144,6 +147,8 @@ def generate_interface_function_signature(
         and isinstance(param.type.type, (Structure, Enum))
         else "address"
         if isinstance(param.type, UserDefinedType) and isinstance(param.type.type, Contract)
+        else f"{param.type} {param.location}"
+        if param.type.is_dynamic
         else str(param.type)
         for param in func.parameters
     ]
@@ -182,7 +187,7 @@ def generate_struct_interface_str(struct: "Structure", indent: int = 0) -> str:
                 definition += f"{spaces}    address {elem.name};\n"
         else:
             definition += f"{spaces}    {elem.type} {elem.name};\n"
-    definition += f"{spaces}\n"
+    definition += f"{spaces}}}\n"
     return definition
 
 
