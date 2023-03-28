@@ -1,0 +1,32 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "other",
+                    "name": "rtlo-character",
+                    "source_mapping": {
+                        "start": 96,
+                        "length": 3,
+                        "filename_relative": "tests/e2e/detectors/test_data/rtlo/0.6.11/right_to_left_override.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/rtlo/0.6.11/right_to_left_override.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 18,
+                        "ending_column": 21
+                    }
+                }
+            ],
+            "description": "tests/e2e/detectors/test_data/rtlo/0.6.11/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:\n\t- b'        test1(/*A\\xe2\\x80\\xae/*B*/2 , 1/*\\xe2\\x80\\xad'\n",
+            "markdown": "tests/e2e/detectors/test_data/rtlo/0.6.11/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:\n\t- b'        test1(/*A\\xe2\\x80\\xae/*B*/2 , 1/*\\xe2\\x80\\xad'\n",
+            "first_markdown_element": "",
+            "id": "47d896764ded59ddc17f6ded902e9826d1688fd3af59985d184d30fa6b5e6976",
+            "check": "rtlo",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]
