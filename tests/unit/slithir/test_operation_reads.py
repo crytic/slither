@@ -28,12 +28,12 @@ OperationTest = namedtuple("OperationTest", "contract_name slithir_op")
 OPERATION_TEST = [OperationTest("NewContract", NewContract)]
 
 
-def test_operation_reads() -> None:
+def test_operation_reads(use_solc_version) -> None:
     """
     Every slithir operation has its own contract and reads all local and state variables in readAllLocalVariables and readAllStateVariables, respectively.
     """
-    solc_select.switch_global_version("0.8.15", always_install=True)
-    slither = Slither(Path(TEST_DATA_DIR, "operation_reads.sol").as_posix())
+    solc_path = next(use_solc_version("0.8.15"))
+    slither = Slither(Path(TEST_DATA_DIR, "operation_reads.sol").as_posix(), solc=solc_path)
 
     for op_test in OPERATION_TEST:
         print(op_test)

@@ -8,14 +8,14 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 STORAGE_TEST_ROOT = Path(TEST_DATA_DIR, "storage_layout")
 
 
-def test_storage_layout():
+def test_storage_layout(use_solc_version):
     # the storage layout has not yet changed between solidity versions so we will test with one version of the compiler
-    solc_select.switch_global_version("0.8.10", always_install=True)
+    solc_path = next(use_solc_version("0.8.10"))
     test_item = Path(STORAGE_TEST_ROOT, "storage_layout-0.8.10.sol").as_posix()
 
-    sl = Slither(test_item, solc_force_legacy_json=False, disallow_partial=True)
+    sl = Slither(test_item, disallow_partial=True, solc=solc_path)
 
-    with Popen(["solc", test_item, "--storage-layout"], stdout=PIPE) as process:
+    with Popen([solc_path, test_item, "--storage-layout"], stdout=PIPE) as process:
         for line in process.stdout:  # parse solc output
             if '{"storage":[{' in line.decode("utf-8"):  # find the storage layout
                 layout = iter(json.loads(line)["storage"])
@@ -34,3 +34,5 @@ def test_storage_layout():
                         break
                     except KeyError as e:
                         print(f"not found {e} ")
+        process.communicate()
+        assert process.returncode == 0

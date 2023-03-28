@@ -41,10 +41,10 @@ signatures = {
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
-def test_functions_ids() -> None:
-    solc_select.switch_global_version("0.7.0", always_install=True)
+def test_functions_ids(use_solc_version) -> None:
+    solc_path = next(use_solc_version("0.7.0"))
     file = Path(TEST_DATA_DIR, "functions_ids.sol").as_posix()
-    sl = Slither(file)
+    sl = Slither(file, solc=solc_path)
     contracts_c = sl.get_contract_from_name("C")
     assert len(contracts_c) == 1
     contract_c = contracts_c[0]

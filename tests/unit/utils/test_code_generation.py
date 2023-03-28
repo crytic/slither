@@ -9,10 +9,10 @@ from slither.utils.code_generation import (
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data" / "code_generation"
 
 
-def test_interface_generation() -> None:
-    solc_select.switch_global_version("0.8.4", always_install=True)
+def test_interface_generation(use_solc_version) -> None:
+    solc_path = next(use_solc_version("0.8.4"))
 
-    sl = Slither(Path(TEST_DATA_DIR, "CodeGeneration.sol").as_posix())
+    sl = Slither(Path(TEST_DATA_DIR, "CodeGeneration.sol").as_posix(), solc=solc_path)
 
     actual = generate_interface(sl.get_contract_from_name("TestContract")[0])
     expected_path = Path(TEST_DATA_DIR, "TEST_generated_code.sol").as_posix()

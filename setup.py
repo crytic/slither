@@ -18,6 +18,7 @@ setup(
         # "crytic-compile>=0.3.0",
         "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
         "web3>=6.0.0",
+        "solc-select@git+https://github.com/crytic/solc-select.git@query-artifact-path#egg=solc-select",
     ],
     extras_require={
         "lint": [
@@ -31,6 +32,7 @@ setup(
             "deepdiff",
             "numpy",
             "coverage[toml]",
+            "filelock",
         ],
         "doc": [
             "pdoc",
