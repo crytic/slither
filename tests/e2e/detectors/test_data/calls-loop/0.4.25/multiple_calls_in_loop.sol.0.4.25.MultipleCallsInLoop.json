@@ -1,0 +1,678 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad",
+                    "source_mapping": {
+                        "start": 530,
+                        "length": 135,
+                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "CallInLoop",
+                            "source_mapping": {
+                                "start": 327,
+                                "length": 831,
+                                "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "destinations[i].transfer(i)",
+                    "source_mapping": {
+                        "start": 621,
+                        "length": 27,
+                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            26
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 40
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad",
+                            "source_mapping": {
+                                "start": 530,
+                                "length": 135,
+                                "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "CallInLoop",
+                                    "source_mapping": {
+                                        "start": 327,
+                                        "length": 831,
+                                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "CallInLoop.bad() (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#24-28) has external calls inside a loop: destinations[i].transfer(i) (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#26)\n",
+            "markdown": "[CallInLoop.bad()](tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L24-L28) has external calls inside a loop: [destinations[i].transfer(i)](tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L26)\n",
+            "first_markdown_element": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L24-L28",
+            "id": "1197eb6c89b4a380337811e1230958b352d5ad960cc4aca0d2be23ec1ad1d25b",
+            "check": "calls-loop",
+            "impact": "Low",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad2",
+                    "source_mapping": {
+                        "start": 671,
+                        "length": 245,
+                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            30,
+                            31,
+                            32,
+                            33,
+                            34,
+                            35,
+                            36,
+                            37
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "CallInLoop",
+                            "source_mapping": {
+                                "start": 327,
+                                "length": 831,
+                                "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad2()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "destinations[i].transfer(i)",
+                    "source_mapping": {
+                        "start": 872,
+                        "length": 27,
+                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            35
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 40
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad2",
+                            "source_mapping": {
+                                "start": 671,
+                                "length": 245,
+                                "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "CallInLoop",
+                                    "source_mapping": {
+                                        "start": 327,
+                                        "length": 831,
+                                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad2()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "CallInLoop.bad2() (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#30-37) has external calls inside a loop: destinations[i].transfer(i) (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#35)\n",
+            "markdown": "[CallInLoop.bad2()](tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L30-L37) has external calls inside a loop: [destinations[i].transfer(i)](tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L35)\n",
+            "first_markdown_element": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L30-L37",
+            "id": "6d5acd9c0dade132f780c57e2c61ea603daf15bb0ef1615b903c760d14abe073",
+            "check": "calls-loop",
+            "impact": "Low",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad3_internal",
+                    "source_mapping": {
+                        "start": 1074,
+                        "length": 81,
+                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            45,
+                            46,
+                            47
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "CallInLoop",
+                            "source_mapping": {
+                                "start": 327,
+                                "length": 831,
+                                "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    16,
+                                    17,
+                                    18,
+                                    19,
+                                    20,
+                                    21,
+                                    22,
+                                    23,
+                                    24,
+                                    25,
+                                    26,
+                                    27,
+                                    28,
+                                    29,
+                                    30,
+                                    31,
+                                    32,
+                                    33,
+                                    34,
+                                    35,
+                                    36,
+                                    37,
+                                    38,
+                                    39,
+                                    40,
+                                    41,
+                                    42,
+                                    43,
+                                    44,
+                                    45,
+                                    46,
+                                    47,
+                                    48,
+                                    49
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad3_internal(address,uint256)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "a.transfer(i)",
+                    "source_mapping": {
+                        "start": 1135,
+                        "length": 13,
+                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            46
+                        ],
+                        "starting_column": 9,
+                        "ending_column": 22
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad3_internal",
+                            "source_mapping": {
+                                "start": 1074,
+                                "length": 81,
+                                "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    45,
+                                    46,
+                                    47
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "CallInLoop",
+                                    "source_mapping": {
+                                        "start": 327,
+                                        "length": 831,
+                                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            16,
+                                            17,
+                                            18,
+                                            19,
+                                            20,
+                                            21,
+                                            22,
+                                            23,
+                                            24,
+                                            25,
+                                            26,
+                                            27,
+                                            28,
+                                            29,
+                                            30,
+                                            31,
+                                            32,
+                                            33,
+                                            34,
+                                            35,
+                                            36,
+                                            37,
+                                            38,
+                                            39,
+                                            40,
+                                            41,
+                                            42,
+                                            43,
+                                            44,
+                                            45,
+                                            46,
+                                            47,
+                                            48,
+                                            49
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad3_internal(address,uint256)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "CallInLoop.bad3_internal(address,uint256) (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#45-47) has external calls inside a loop: a.transfer(i) (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#46)\n",
+            "markdown": "[CallInLoop.bad3_internal(address,uint256)](tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L45-L47) has external calls inside a loop: [a.transfer(i)](tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L46)\n",
+            "first_markdown_element": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L45-L47",
+            "id": "a922522f13366eaeef7e9ae009527e6436193ee6c1cea040f3dc3021ece8c103",
+            "check": "calls-loop",
+            "impact": "Low",
+            "confidence": "Medium"
+        },
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad_base",
+                    "source_mapping": {
+                        "start": 173,
+                        "length": 150,
+                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            9,
+                            10,
+                            11,
+                            12,
+                            13
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "CallInLoopBase",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 325,
+                                "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad_base()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "destinations_base[i].transfer(i)",
+                    "source_mapping": {
+                        "start": 274,
+                        "length": 32,
+                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 45
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad_base",
+                            "source_mapping": {
+                                "start": 173,
+                                "length": 150,
+                                "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "CallInLoopBase",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 325,
+                                        "filename_relative": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad_base()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "CallInLoopBase.bad_base() (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#9-13) has external calls inside a loop: destinations_base[i].transfer(i) (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#11)\n",
+            "markdown": "[CallInLoopBase.bad_base()](tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L9-L13) has external calls inside a loop: [destinations_base[i].transfer(i)](tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L11)\n",
+            "first_markdown_element": "tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#L9-L13",
+            "id": "b24075894bde55b95eadde9cb759a84d2378e5191ca36b49daf3efd570906af5",
+            "check": "calls-loop",
+            "impact": "Low",
+            "confidence": "Medium"
+        }
+    ]
+]
