@@ -1,0 +1,49 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "pragma",
+                    "name": "0.6.11",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 23,
+                        "filename_relative": "tests/detectors/solc-version/0.6.11/static.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/solc-version/0.6.11/static.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 24
+                    },
+                    "type_specific_fields": {
+                        "directive": [
+                            "solidity",
+                            "0.6",
+                            ".11"
+                        ]
+                    }
+                }
+            ],
+            "description": "Pragma version0.6.11 (tests/detectors/solc-version/0.6.11/static.sol#1) allows old versions\n",
+            "markdown": "Pragma version[0.6.11](tests/detectors/solc-version/0.6.11/static.sol#L1) allows old versions\n",
+            "first_markdown_element": "tests/detectors/solc-version/0.6.11/static.sol#L1",
+            "id": "ad7b24eed22ac098a57ae02ade0ccffb4cb094e851effe93cad1d0a65b489816",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "solc-0.6.11 is not recommended for deployment\n",
+            "markdown": "solc-0.6.11 is not recommended for deployment\n",
+            "first_markdown_element": "",
+            "id": "bafd522d637977886f038e619ad47c1987efedc6c4c24515e6e27b23585535bd",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

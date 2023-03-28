@@ -23,7 +23,7 @@ jobs:
   # Single deploy job since we're just deploying
   build:
     environment:
-      name: Slither Documentation
+      name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
@@ -34,13 +34,13 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-      - run: pip install -e ".[doc]"
-      - run: pdoc -o html/ slither '!slither.tools' #TODO fix import errors on pdoc run
+      - run: pip install -e ".[dev]"
+      - run: pdoc -o docs/ slither '!slither.tools' #TODO fix import errors on pdoc run
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload the doc
-          path: './html/'
+          path: 'docs/'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1

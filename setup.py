@@ -20,24 +20,16 @@ setup(
         "web3>=6.0.0",
     ],
     extras_require={
-        "lint": [
+        "dev": [
             "black==22.3.0",
             "pylint==2.13.4",
-        ],
-        "test": [
             "pytest",
             "pytest-cov",
             "pytest-xdist",
             "deepdiff",
             "numpy",
-            "coverage[toml]",
-        ],
-        "doc": [
-            "pdoc",
-        ],
-        "dev": [
-            "slither-analyzer[lint,test,doc]",
             "openai",
+            "pdoc",
         ],
     },
     license="AGPL-3.0",

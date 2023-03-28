@@ -1,0 +1,126 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "bad",
+                    "source_mapping": {
+                        "start": 196,
+                        "length": 88,
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            11,
+                            12,
+                            13
+                        ],
+                        "starting_column": 2,
+                        "ending_column": 3
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "T",
+                            "source_mapping": {
+                                "start": 138,
+                                "length": 149,
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12,
+                                    13,
+                                    14
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "bad(address)"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "erc20.safeTransferFrom(from,address(0x1),90)",
+                    "source_mapping": {
+                        "start": 234,
+                        "length": 46,
+                        "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            12
+                        ],
+                        "starting_column": 3,
+                        "ending_column": 49
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "bad",
+                            "source_mapping": {
+                                "start": 196,
+                                "length": 88,
+                                "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    11,
+                                    12,
+                                    13
+                                ],
+                                "starting_column": 2,
+                                "ending_column": 3
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "T",
+                                    "source_mapping": {
+                                        "start": 138,
+                                        "length": 149,
+                                        "filename_relative": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            7,
+                                            8,
+                                            9,
+                                            10,
+                                            11,
+                                            12,
+                                            13,
+                                            14
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "bad(address)"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "T.bad(address) (tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol#11-13) uses arbitrary from in transferFrom: erc20.safeTransferFrom(from,address(0x1),90) (tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol#12)\n",
+            "markdown": "[T.bad(address)](tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol#L11-L13) uses arbitrary from in transferFrom: [erc20.safeTransferFrom(from,address(0x1),90)](tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol#L12)\n",
+            "first_markdown_element": "tests/detectors/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol#L11-L13",
+            "id": "51845f69be45c4d9b97ff3e01cbc5bf55d1c1cddcc4776f39e22dd803a241e46",
+            "check": "arbitrary-send-erc20",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]

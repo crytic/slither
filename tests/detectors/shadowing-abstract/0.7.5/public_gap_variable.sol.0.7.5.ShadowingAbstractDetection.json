@@ -1,0 +1,91 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "variable",
+                    "name": "__gap",
+                    "source_mapping": {
+                        "start": 127,
+                        "length": 24,
+                        "filename_relative": "tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 29
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "DerivedContract",
+                            "source_mapping": {
+                                "start": 81,
+                                "length": 73,
+                                "filename_relative": "tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "variable",
+                    "name": "__gap",
+                    "source_mapping": {
+                        "start": 51,
+                        "length": 25,
+                        "filename_relative": "tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 30
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "BaseContract",
+                            "source_mapping": {
+                                "start": 24,
+                                "length": 55,
+                                "filename_relative": "tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "DerivedContract.__gap (tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol#7) shadows:\n\t- BaseContract.__gap (tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol#3)\n",
+            "markdown": "[DerivedContract.__gap](tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol#L7) shadows:\n\t- [BaseContract.__gap](tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol#L3)\n",
+            "first_markdown_element": "tests/detectors/shadowing-abstract/0.7.5/public_gap_variable.sol#L7",
+            "id": "8f81b2b4b3285fe96f0b580cdd2144cc6cf6808d970ba68878b9901744069c4c",
+            "check": "shadowing-abstract",
+            "impact": "Medium",
+            "confidence": "High"
+        }
+    ]
+]

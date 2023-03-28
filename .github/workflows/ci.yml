@@ -58,10 +58,12 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
-          pip install ".[test]"
+          pip install ".[dev]"
           solc-select use 0.4.25 --always-install
           solc-select use 0.8.0 --always-install
           solc-select use 0.5.1 --always-install
+          pip install typing_extensions==4.1.1
+          pip install importlib_metadata==4.8.3
 
       - name: Set up nix
         if: matrix.type == 'dapp'
