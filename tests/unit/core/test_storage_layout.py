@@ -1,16 +1,15 @@
 import json
 from pathlib import Path
 from subprocess import PIPE, Popen
-from solc_select import solc_select
 from slither import Slither
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 STORAGE_TEST_ROOT = Path(TEST_DATA_DIR, "storage_layout")
 
 
-def test_storage_layout(use_solc_version):
+def test_storage_layout(solc_binary_path):
     # the storage layout has not yet changed between solidity versions so we will test with one version of the compiler
-    solc_path = next(use_solc_version("0.8.10"))
+    solc_path = solc_binary_path("0.8.10")
     test_item = Path(STORAGE_TEST_ROOT, "storage_layout-0.8.10.sol").as_posix()
 
     sl = Slither(test_item, disallow_partial=True, solc=solc_path)

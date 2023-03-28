@@ -8,9 +8,9 @@ from slither.core.expressions import AssignmentOperation, TupleExpression
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 # pylint: disable=too-many-nested-blocks
-def test_ternary_conversions(use_solc_version) -> None:
+def test_ternary_conversions(solc_binary_path) -> None:
     """This tests that true and false sons define the same number of variables that the father node declares"""
-    solc_path = next(use_solc_version("0.8.0"))
+    solc_path = solc_binary_path("0.8.0")
     slither = Slither(Path(TEST_DATA_DIR, "ternary_expressions.sol").as_posix(), solc=solc_path)
     for contract in slither.contracts:
         for function in contract.functions:

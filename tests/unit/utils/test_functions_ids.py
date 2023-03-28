@@ -1,5 +1,4 @@
 from pathlib import Path
-from solc_select import solc_select
 from slither import Slither
 
 # % solc functions_ids.sol --hashes
@@ -41,8 +40,8 @@ signatures = {
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
-def test_functions_ids(use_solc_version) -> None:
-    solc_path = next(use_solc_version("0.7.0"))
+def test_functions_ids(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.7.0")
     file = Path(TEST_DATA_DIR, "functions_ids.sol").as_posix()
     sl = Slither(file, solc=solc_path)
     contracts_c = sl.get_contract_from_name("C")

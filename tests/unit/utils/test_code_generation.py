@@ -1,5 +1,4 @@
 from pathlib import Path
-from solc_select import solc_select
 
 from slither import Slither
 from slither.utils.code_generation import (
@@ -9,8 +8,8 @@ from slither.utils.code_generation import (
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data" / "code_generation"
 
 
-def test_interface_generation(use_solc_version) -> None:
-    solc_path = next(use_solc_version("0.8.4"))
+def test_interface_generation(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.4")
 
     sl = Slither(Path(TEST_DATA_DIR, "CodeGeneration.sol").as_posix(), solc=solc_path)
 

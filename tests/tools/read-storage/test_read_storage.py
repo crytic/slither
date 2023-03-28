@@ -90,8 +90,8 @@ def deploy_contract(w3, ganache, contract_bin, contract_abi) -> Contract:
 
 # pylint: disable=too-many-locals
 @pytest.mark.usefixtures("web3", "ganache")
-def test_read_storage(web3, ganache, use_solc_version) -> None:
-    solc_path = next(use_solc_version(version="0.8.10"))
+def test_read_storage(web3, ganache, solc_binary_path) -> None:
+    solc_path = solc_binary_path(version="0.8.10")
 
     assert web3.is_connected()
     bin_path = Path(TEST_DATA_DIR, "StorageLayout.bin").as_posix()

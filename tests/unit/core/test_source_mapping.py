@@ -8,8 +8,8 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 SRC_MAPPING_TEST_ROOT = Path(TEST_DATA_DIR, "src_mapping")
 
 
-def test_source_mapping(use_solc_version):
-    solc_path = next(use_solc_version("0.6.12"))
+def test_source_mapping(solc_binary_path):
+    solc_path = solc_binary_path("0.6.12")
     file = Path(SRC_MAPPING_TEST_ROOT, "inheritance.sol").as_posix()
     slither = Slither(file, solc=solc_path)
 
@@ -78,11 +78,11 @@ def _sort_references_lines(refs: list) -> list:
     return sorted([ref.lines[0] for ref in refs])
 
 
-def test_references_user_defined_aliases(use_solc_version):
+def test_references_user_defined_aliases(solc_binary_path):
     """
     Tests if references are filled correctly for user defined aliases (declared using "type [...] is [...]" statement).
     """
-    solc_path = next(use_solc_version("0.8.16"))
+    solc_path = solc_binary_path("0.8.16")
     file = Path(SRC_MAPPING_TEST_ROOT, "ReferencesUserDefinedAliases.sol").as_posix()
     slither = Slither(file, solc=solc_path)
 
@@ -101,11 +101,11 @@ def test_references_user_defined_aliases(use_solc_version):
     assert lines == [13, 16]
 
 
-def test_references_user_defined_types_when_casting(use_solc_version):
+def test_references_user_defined_types_when_casting(solc_binary_path):
     """
     Tests if references are filled correctly for user defined types in case of casting.
     """
-    solc_path = next(use_solc_version("0.8.16"))
+    solc_path = solc_binary_path("0.8.16")
     file = Path(SRC_MAPPING_TEST_ROOT, "ReferencesUserDefinedTypesCasting.sol").as_posix()
     slither = Slither(file, solc=solc_path)
 

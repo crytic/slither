@@ -230,9 +230,8 @@
 #                         assert have_phi_for_var(df, ssa_lvalue)
 
 
-
 # @contextmanager
-# def slither_from_source(source_code: str, use_solc_version, solc_version: str = "latest"):
+# def slither_from_source(source_code: str, solc_binary_path, solc_version: str = "latest"):
 #     """Yields a Slither instance using source_code string and solc_version
 
 #     Creates a temporary file and changes the solc-version temporary to solc_version.
@@ -243,7 +242,7 @@
 #         with NamedTemporaryFile(dir=SCRIPT_DIR, mode="w", suffix=".sol", delete=False) as f:
 #             fname = f.name
 #             f.write(source_code)
-#         solc_path = use_solc_version(solc_version)
+#         solc_path = solc_binary_path(solc_version)
 #         yield Slither(fname, solc=solc_path)
 #     finally:
 #         pathlib.Path(fname).unlink()

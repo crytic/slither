@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 
 PY_MODULE := slither
+TEST_MODULE := tests
 
 ALL_PY_SRCS := $(shell find $(PY_MODULE) -name '*.py') \
 	$(shell find test -name '*.py')
@@ -33,7 +34,7 @@ ifneq ($(TESTS),)
 	COV_ARGS :=
 else
 	TEST_ARGS := -n auto
-	COV_ARGS := --cov-append # --fail-under 100
+	COV_ARGS := # --fail-under 100
 endif
 
 .PHONY: all
@@ -56,15 +57,15 @@ $(VENV)/pyvenv.cfg: pyproject.toml
 .PHONY: lint
 lint: $(VENV)/pyvenv.cfg
 	. $(VENV_BIN)/activate && \
-		black --check $(ALL_PY_SRCS) && \
-		pylint $(ALL_PY_SRCS)
+		black --check . && \
+		pylint $(PY_MODULE) $(TEST_MODULE) 
 		# ruff $(ALL_PY_SRCS) && \
 		# mypy $(PY_MODULE) && 
 
 .PHONY: reformat
 reformat:
 	. $(VENV_BIN)/activate && \
-		black $(PY_MODULE) 
+		black .
 
 .PHONY: test tests
 test tests: $(VENV)/pyvenv.cfg
