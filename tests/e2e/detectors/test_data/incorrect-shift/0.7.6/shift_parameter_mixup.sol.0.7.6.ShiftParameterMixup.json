@@ -1,0 +1,130 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "function",
+                    "name": "f",
+                    "source_mapping": {
+                        "start": 19,
+                        "length": 106,
+                        "filename_relative": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            3,
+                            4,
+                            5,
+                            6,
+                            7
+                        ],
+                        "starting_column": 5,
+                        "ending_column": 6
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "contract",
+                            "name": "C",
+                            "source_mapping": {
+                                "start": 0,
+                                "length": 128,
+                                "filename_relative": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8
+                                ],
+                                "starting_column": 1,
+                                "ending_column": 2
+                            }
+                        },
+                        "signature": "f()"
+                    }
+                },
+                {
+                    "type": "node",
+                    "name": "a = 8 >> a",
+                    "source_mapping": {
+                        "start": 93,
+                        "length": 14,
+                        "filename_relative": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            5
+                        ],
+                        "starting_column": 13,
+                        "ending_column": 27
+                    },
+                    "type_specific_fields": {
+                        "parent": {
+                            "type": "function",
+                            "name": "f",
+                            "source_mapping": {
+                                "start": 19,
+                                "length": 106,
+                                "filename_relative": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
+                                "filename_absolute": "/GENERIC_PATH",
+                                "filename_short": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
+                                "is_dependency": false,
+                                "lines": [
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7
+                                ],
+                                "starting_column": 5,
+                                "ending_column": 6
+                            },
+                            "type_specific_fields": {
+                                "parent": {
+                                    "type": "contract",
+                                    "name": "C",
+                                    "source_mapping": {
+                                        "start": 0,
+                                        "length": 128,
+                                        "filename_relative": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
+                                        "filename_absolute": "/GENERIC_PATH",
+                                        "filename_short": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol",
+                                        "is_dependency": false,
+                                        "lines": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5,
+                                            6,
+                                            7,
+                                            8
+                                        ],
+                                        "starting_column": 1,
+                                        "ending_column": 2
+                                    }
+                                },
+                                "signature": "f()"
+                            }
+                        }
+                    }
+                }
+            ],
+            "description": "C.f() (tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol#3-7) contains an incorrect shift operation: a = 8 >> a (tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol#5)\n",
+            "markdown": "[C.f()](tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol#L3-L7) contains an incorrect shift operation: [a = 8 >> a](tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol#L5)\n",
+            "first_markdown_element": "tests/e2e/detectors/test_data/incorrect-shift/0.7.6/shift_parameter_mixup.sol#L3-L7",
+            "id": "1e0b56cf3193f6a593cb39fce7f93feb1d57c319bcd090e9a1cd3d96606409cb",
+            "check": "incorrect-shift",
+            "impact": "High",
+            "confidence": "High"
+        }
+    ]
+]
