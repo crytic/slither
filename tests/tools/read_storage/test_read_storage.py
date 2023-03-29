@@ -1,9 +1,8 @@
 import re
-import os
 import json
+from pathlib import Path
 
 import pytest
-from pathlib import Path
 from deepdiff import DeepDiff
 from web3.contract import Contract
 
