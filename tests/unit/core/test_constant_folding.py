@@ -55,9 +55,9 @@ def test_constant_folding_rational(solc_binary_path):
 
 
 def test_constant_folding_binary_expressions(solc_binary_path):
-    solc_path = solc_binary_path("0.8.0")
     sl = Slither(
-        Path(CONSTANT_FOLDING_TEST_ROOT, "constant_folding_binop.sol").as_posix(), solc=solc_path
+        Path(CONSTANT_FOLDING_TEST_ROOT, "constant_folding_binop.sol").as_posix(),
+        solc=solc_binary_path("0.8.0"),
     )
     contract = sl.get_contract_from_name("BinOp")[0]
 

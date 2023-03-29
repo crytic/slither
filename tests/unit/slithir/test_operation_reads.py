@@ -47,7 +47,3 @@ def test_operation_reads(solc_binary_path) -> None:
         local_function = target.get_function_from_signature("readAllLocalVariables()")
         num_local_vars = len(local_function.local_variables)
         check_num_local_vars_read(local_function, op_test.slithir_op, num_local_vars)
-
-
-if __name__ == "__main__":
-    test_operation_reads()

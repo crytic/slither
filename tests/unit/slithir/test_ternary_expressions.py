@@ -1,5 +1,4 @@
 from pathlib import Path
-from solc_select import solc_select
 from slither import Slither
 from slither.core.cfg.node import NodeType
 from slither.slithir.operations import Assignment
@@ -37,7 +36,3 @@ def test_ternary_conversions(solc_binary_path) -> None:
                                 vars_assigned += 1
 
             assert vars_declared == vars_assigned
-
-
-if __name__ == "__main__":
-    test_ternary_conversions()
