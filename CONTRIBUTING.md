@@ -1,15 +1,19 @@
 # Contributing to Slither
+
 First, thanks for your interest in contributing to Slither! We welcome and appreciate all contributions, including bug reports, feature suggestions, tutorials/blog posts, and code improvements.
 
 If you're unsure where to start, we recommend our [`good first issue`](https://github.com/crytic/slither/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and [`help wanted`](https://github.com/crytic/slither/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) issue labels.
 
 ## Bug reports and feature suggestions
+
 Bug reports and feature suggestions can be submitted to our issue tracker. For bug reports, attaching the contract that caused the bug will help us in debugging and resolving the issue quickly. If you find a security vulnerability, do not open an issue; email opensource@trailofbits.com instead.
 
 ## Questions
+
 Questions can be submitted to the "Discussions" page, and you may also join our [chat room](https://empireslacking.herokuapp.com/) (in the #ethereum channel).
 
 ## Code
+
 Slither uses the pull request contribution model. Please make an account on Github, fork this repo, and submit code contributions via pull request. For more documentation, look [here](https://guides.github.com/activities/forking/).
 
 Some pull request guidelines:
@@ -23,6 +27,7 @@ Some pull request guidelines:
 ## Directory Structure
 
 Below is a rough outline of slither's design:
+
 ```text
 .
 ├── analyses # Provides additional info such as data dependency 
@@ -39,6 +44,7 @@ Below is a rough outline of slither's design:
 A code walkthrough is available [here](https://www.youtube.com/watch?v=EUl3UlYSluU).
 
 ## Development Environment
+
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
 To run the unit tests, you need to clone this repository and run `make test`. Run a specific test with `make test TESTS=$test_name`.
@@ -66,22 +72,23 @@ Slither's test suite is divided into three categories end-to-end (`tests/e2e`), 
 How do I know what kind of test(s) to write?
 
 - End-to-end: functionality that requires invoking `Slither` and inspecting some output such as printers and detectors.
-- Unit: additions and modifications to objects should be accompanied by a unit test that defines the expected behavior. Aim to write functions in as pure a way as possible such that they are easier to test. 
-- Tools: tools built on top of Slither (`slither/tools) but not apart of its core functionality 
+- Unit: additions and modifications to objects should be accompanied by a unit test that defines the expected behavior. Aim to write functions in as pure a way as possible such that they are easier to test.
+- Tools: tools built on top of Slither (`slither/tools) but not apart of its core functionality
 
 #### Adding detector tests
 
 For each new detector, at least one regression tests must be present.
 
 1. Create a test in `tests/e2e/detectors`
-2.  Update `ALL_TEST` in `tests/e2e/detectors/test_detectors.py`
+2. Update `ALL_TEST` in `tests/e2e/detectors/test_detectors.py`
 3. Run `python tests/e2e/detectors/test_detectors.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git. If updating an existing detector, identify the respective json artifacts and then delete them, or run `python ./tests/test_detectors.py --overwrite` instead.
 4. Run `pytest tests/e2e/detectors/test_detectors.py` and check that everything worked.
 
 > ##### Helpful commands
->  - To see the tests coverage, run `pytest tests/e2e/detectors/test_detectors.py  --cov=slither/detectors --cov-branch --cov-report html`.
->  - To run tests for a specific detector, run `pytest tests/e2e/detectors/test_detectors.py -k ReentrancyReadBeforeWritten`(the detector's class name is the argument).
->  - To run tests for a specific version, run `pytest tests/e2e/detectors/test_detectors.py -k 0.7.6`.
+>
+> - To see the tests coverage, run `pytest tests/e2e/detectors/test_detectors.py  --cov=slither/detectors --cov-branch --cov-report html`.
+> - To run tests for a specific detector, run `pytest tests/e2e/detectors/test_detectors.py -k ReentrancyReadBeforeWritten`(the detector's class name is the argument).
+> - To run tests for a specific version, run `pytest tests/e2e/detectors/test_detectors.py -k 0.7.6`.
 > - The IDs of tests can be inspected using `pytest tests/e2e/detectors/test_detectors.py --collect-only`.
 
 #### Adding parsing tests
@@ -92,6 +99,7 @@ For each new detector, at least one regression tests must be present.
 4. Run `pytest tests/e2e/solc_parsing/test_ast_parsing.py` and check that everything worked.
 
 > ##### Helpful commands
+>
 > - To see the tests coverage, run `pytest  tests/e2e/solc_parsing/test_ast_parsing.py  --cov=slither/solc_parsing --cov-branch --cov-report html`
 > - To run tests for a specific test case, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k user_defined_value_type`  (the filename is the argument).
 > - To run tests for a specific version, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k 0.8.12`.
@@ -99,7 +107,9 @@ For each new detector, at least one regression tests must be present.
 > - The IDs of tests can be inspected using ``pytest tests/e2e/solc_parsing/test_ast_parsing.py --collect-only`.
 
 ### Synchronization with crytic-compile
+
 By default, `slither` follows either the latest version of crytic-compile in pip, or `crytic-compile@master` (look for dependencies in [`setup.py`](./setup.py). If crytic-compile development comes with breaking changes, the process to update `slither` is:
+
 - Update `slither/setup.py` to point to the related crytic-compile's branch
 - Create a PR in `slither` and ensure it passes the CI
 - Once the development branch is merged in `crytic-compile@master`, ensure `slither` follows the `master` branch
