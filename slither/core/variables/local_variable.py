@@ -53,6 +53,8 @@ class LocalVariable(Variable):
         """
         if self.location == "memory":
             return False
+        if self.location == "calldata":
+            return False
         # Use by slithIR SSA
         if self.location == "reference_to_storage":
             return False
