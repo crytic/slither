@@ -93,6 +93,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._signatures: Optional[List[str]] = None
         self._signatures_declared: Optional[List[str]] = None
 
+        self._fallback_function: Optional["FunctionContract"] = None
+        self._receive_function: Optional["FunctionContract"] = None
+
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
         self._upgradeable_version: Optional[str] = None
@@ -662,6 +665,24 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         list(Function|Modifier): List of the functions and modifiers defined within the contract (not inherited)
         """
         return self.functions_declared + self.modifiers_declared  # type: ignore
+
+    @property
+    def fallback_function(self) -> Optional["FunctionContract"]:
+        if self._fallback_function is None:
+            for f in self.functions:
+                if f.is_fallback:
+                    self._fallback_function = f
+                    break
+        return self._fallback_function
+
+    @property
+    def receive_function(self) -> Optional["FunctionContract"]:
+        if self._receive_function is None:
+            for f in self.functions:
+                if f.is_receive:
+                    self._receive_function = f
+                    break
+        return self._receive_function
 
     def available_elements_from_inheritances(
         self,
