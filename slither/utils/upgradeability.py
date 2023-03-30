@@ -204,6 +204,7 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
         )
     """
     tainted_contracts = {}
+    tainted_list = []
 
     for func in funcs:
         for contract, target in func.all_high_level_calls():
@@ -227,12 +228,10 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
                 and not (target.is_constant or target.is_immutable)
             ):
                 tainted_contracts[contract.name]["variables"].append(target)
-    tainted_contracts = {
-        item
-        for item in tainted_contracts.items()
-        if len(item[1]["variables"]) > 0 and len(item[1]["functions"]) > 0
-    }
     for c in tainted_contracts.items():
+        if len(c[1]["functions"]) == 0 and len(c[1]["variables"]) == 0:
+            continue
+        tainted_list.append(c[1])
         contract = c[1]["contract"]
         variables = c[1]["variables"]
         for var in variables:
@@ -245,7 +244,34 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
                     f.is_constructor or f.is_fallback or f.is_receive
                 ):
                     tainted_contracts[contract.name]["functions"].append(f)
-    return list(tainted_contracts.values())
+    return tainted_list
+
+
+def tainted_inheriting_contracts(
+    tainted_contracts: List[TaintedExternalContract],
+    contracts: List[Contract] = None
+) -> List[TaintedExternalContract]:
+    for tainted in tainted_contracts:
+        contract = tainted['contract']
+        if contracts is None:
+            contracts = contract.compilation_unit.contracts
+        for c in contracts:
+            inheritance = [i.name for i in c.inheritance]
+            if contract.name in inheritance and c.name not in tainted_contracts:
+                new_taint = TaintedExternalContract(
+                    contract=c, functions=[], variables=[]
+                )
+                for f in c.functions_declared:
+                    internal_calls = f.all_internal_calls()
+                    if (
+                        any(str(call) == str(t) for t in tainted['functions'] for call in internal_calls)
+                        or any(str(var) == str(t) for t in tainted['variables']
+                               for var in f.all_state_variables_read() + f.all_state_variables_written())
+                    ):
+                        new_taint['functions'].append(f)
+                if len(new_taint['functions']) > 0:
+                    tainted_contracts.append(new_taint)
+    return tainted_contracts
 
 
 def get_missing_vars(v1: Contract, v2: Contract) -> List[StateVariable]:
