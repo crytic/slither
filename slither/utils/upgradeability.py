@@ -248,8 +248,7 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
 
 
 def tainted_inheriting_contracts(
-    tainted_contracts: List[TaintedExternalContract],
-    contracts: List[Contract] = None
+    tainted_contracts: List[TaintedExternalContract], contracts: List[Contract] = None
 ) -> List[TaintedExternalContract]:
     """
     Takes a list of TaintedExternalContract obtained from tainted_external_contracts, and finds any contracts which
@@ -264,24 +263,24 @@ def tainted_inheriting_contracts(
         An updated list of TaintedExternalContract, including all from the input list.
     """
     for tainted in tainted_contracts:
-        contract = tainted['contract']
+        contract = tainted["contract"]
         if contracts is None:
             contracts = contract.compilation_unit.contracts
         for c in contracts:
             inheritance = [i.name for i in c.inheritance]
             if contract.name in inheritance and c.name not in tainted_contracts:
-                new_taint = TaintedExternalContract(
-                    contract=c, functions=[], variables=[]
-                )
+                new_taint = TaintedExternalContract(contract=c, functions=[], variables=[])
                 for f in c.functions_declared:
                     internal_calls = f.all_internal_calls()
-                    if (
-                        any(str(call) == str(t) for t in tainted['functions'] for call in internal_calls)
-                        or any(str(var) == str(t) for t in tainted['variables']
-                               for var in f.all_state_variables_read() + f.all_state_variables_written())
+                    if any(
+                        str(call) == str(t) for t in tainted["functions"] for call in internal_calls
+                    ) or any(
+                        str(var) == str(t)
+                        for t in tainted["variables"]
+                        for var in f.all_state_variables_read() + f.all_state_variables_written()
                     ):
-                        new_taint['functions'].append(f)
-                if len(new_taint['functions']) > 0:
+                        new_taint["functions"].append(f)
+                if len(new_taint["functions"]) > 0:
                     tainted_contracts.append(new_taint)
     return tainted_contracts
 
