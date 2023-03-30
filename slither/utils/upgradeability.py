@@ -251,6 +251,18 @@ def tainted_inheriting_contracts(
     tainted_contracts: List[TaintedExternalContract],
     contracts: List[Contract] = None
 ) -> List[TaintedExternalContract]:
+    """
+    Takes a list of TaintedExternalContract obtained from tainted_external_contracts, and finds any contracts which
+    inherit a tainted contract, as well as any functions that call tainted functions or read tainted variables in
+    the inherited contract.
+    Args:
+        tainted_contracts: the list obtained from `tainted_external_contracts` or `compare`.
+        contracts: (optional) the list of contracts to check for inheritance. If not provided, defaults to
+                    `contract.compilation_unit.contracts` for each contract in tainted_contracts.
+
+    Returns:
+        An updated list of TaintedExternalContract, including all from the input list.
+    """
     for tainted in tainted_contracts:
         contract = tainted['contract']
         if contracts is None:
