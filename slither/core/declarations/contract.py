@@ -97,8 +97,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._is_upgradeable_proxy: Optional[bool] = None
         self._upgradeable_version: Optional[str] = None
 
-        self.is_top_level = False  # heavily used, so no @property
-
         self._initial_state_variables: List["StateVariable"] = []  # ssa
 
         self._is_incorrectly_parsed: bool = False

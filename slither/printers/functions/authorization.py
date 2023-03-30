@@ -47,8 +47,6 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
         txt = ""
         all_tables = []
         for contract in self.contracts:  # type: ignore
-            if contract.is_top_level:
-                continue
             txt += f"\nContract {contract.name}\n"
             table = MyPrettyTable(
                 ["Function", "State variables written", "Conditions on msg.sender"]
