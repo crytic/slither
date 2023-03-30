@@ -84,7 +84,7 @@ For each new detector, at least one regression tests must be present.
 3. Run `python tests/e2e/detectors/test_detectors.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git. If updating an existing detector, identify the respective json artifacts and then delete them, or run `python ./tests/test_detectors.py --overwrite` instead.
 4. Run `pytest tests/e2e/detectors/test_detectors.py` and check that everything worked.
 
-> ##### Helpful commands
+> ##### Helpful commands for detector tests
 >
 > - To see the tests coverage, run `pytest tests/e2e/detectors/test_detectors.py  --cov=slither/detectors --cov-branch --cov-report html`.
 > - To run tests for a specific detector, run `pytest tests/e2e/detectors/test_detectors.py -k ReentrancyReadBeforeWritten`(the detector's class name is the argument).
@@ -98,7 +98,7 @@ For each new detector, at least one regression tests must be present.
 3. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/e2e/solc_parsing/expected_json`. Add the generated files to git.
 4. Run `pytest tests/e2e/solc_parsing/test_ast_parsing.py` and check that everything worked.
 
-> ##### Helpful commands
+> ##### Helpful commands for parsing tests
 >
 > - To see the tests coverage, run `pytest  tests/e2e/solc_parsing/test_ast_parsing.py  --cov=slither/solc_parsing --cov-branch --cov-report html`
 > - To run tests for a specific test case, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k user_defined_value_type`  (the filename is the argument).
