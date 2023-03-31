@@ -49,4 +49,8 @@ contract C {
             myIntegers[cond ? a : b]
         );
     }
+    
+    function i(bool cond) public {
+        bytes memory a = new bytes(cond ? 1 : 2);
+    }
 }
