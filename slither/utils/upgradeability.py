@@ -79,7 +79,6 @@ def compare(
     List[Function],
     List[Function],
     List[Function],
-    List[TaintedExternalContract],
 ]:
     """
     Compares two versions of a contract. Most useful for upgradeable (logic) contracts,
@@ -173,11 +172,6 @@ def compare(
         ):
             tainted_variables.append(var)
 
-    # Find all external contracts and functions called by new/modified/tainted functions
-    tainted_contracts = tainted_external_contracts(
-        new_functions + modified_functions + tainted_functions
-    )
-
     return (
         missing_vars_in_v2,
         new_variables,
@@ -185,67 +179,7 @@ def compare(
         new_functions,
         modified_functions,
         tainted_functions,
-        tainted_contracts,
     )
-
-
-def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalContract]:
-    """
-    Takes a list of functions from one contract, finds any calls in these to functions in external contracts,
-    and determines which variables and functions in the external contracts are tainted by these external calls.
-    Args:
-        funcs: a list of Function objects to search for external calls.
-
-    Returns:
-        TaintedExternalContract(TypedDict) (
-            contract: Contract,
-            functions: List[Function],
-            variables: List[Variable]
-        )
-    """
-    tainted_contracts = {}
-
-    for func in funcs:
-        for contract, target in func.all_high_level_calls():
-            if contract.name not in tainted_contracts:
-                tainted_contracts[contract.name] = TaintedExternalContract(
-                    contract=contract, functions=[], variables=[]
-                )
-            if (
-                isinstance(target, Function)
-                and target not in funcs
-                and target not in tainted_contracts[contract.name]["functions"]
-                and not (target.is_constructor or target.is_fallback or target.is_receive)
-            ):
-                tainted_contracts[contract.name]["functions"].append(target)
-                for var in target.all_state_variables_written():
-                    if var not in tainted_contracts[contract.name]["variables"]:
-                        tainted_contracts[contract.name]["variables"].append(var)
-            elif (
-                isinstance(target, Variable)
-                and target not in tainted_contracts[contract.name]["variables"]
-                and not (target.is_constant or target.is_immutable)
-            ):
-                tainted_contracts[contract.name]["variables"].append(target)
-    tainted_contracts = {
-        item
-        for item in tainted_contracts.items()
-        if len(item[1]["variables"]) > 0 and len(item[1]["functions"]) > 0
-    }
-    for c in tainted_contracts.items():
-        contract = c[1]["contract"]
-        variables = c[1]["variables"]
-        for var in variables:
-            read_write = set(
-                contract.get_functions_reading_from_variable(var)
-                + contract.get_functions_writing_to_variable(var)
-            )
-            for f in read_write:
-                if f not in tainted_contracts[contract.name]["functions"] and not (
-                    f.is_constructor or f.is_fallback or f.is_receive
-                ):
-                    tainted_contracts[contract.name]["functions"].append(f)
-    return list(tainted_contracts.values())
 
 
 def get_missing_vars(v1: Contract, v2: Contract) -> List[StateVariable]:
