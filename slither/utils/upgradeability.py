@@ -17,6 +17,7 @@ from slither.core.solidity_types import (
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.core.variables.state_variable import StateVariable
+from slither.slithir.variables import TemporaryVariable
 from slither.analyses.data_dependency.data_dependency import get_dependencies
 from slither.core.variables.variable import Variable
 from slither.core.expressions import (
@@ -208,6 +209,8 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
 
     for func in funcs:
         for contract, target in func.all_high_level_calls():
+            if contract.is_library:
+                continue
             if contract.name not in tainted_contracts:
                 tainted_contracts[contract.name] = TaintedExternalContract(
                     contract=contract, functions=[], variables=[]
@@ -406,7 +409,7 @@ def encode_ir_for_compare(ir: Operation) -> str:
     if isinstance(ir, Assignment):
         return f"({encode_var_for_compare(ir.lvalue)}):=({encode_var_for_compare(ir.rvalue)})"
     if isinstance(ir, Index):
-        return f"index({ntype(ir.index_type)})"
+        return f"index({ntype(ir.variable_right.type)})"
     if isinstance(ir, Member):
         return "member"  # .format(ntype(ir._type))
     if isinstance(ir, Length):
@@ -531,6 +534,7 @@ def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
         try:
             delegate = next(var for var in dependencies if isinstance(var, StateVariable))
         except StopIteration:
+            # TODO: Handle cases where get_dependencies doesn't return any state variables.
             return delegate
     return delegate
 
