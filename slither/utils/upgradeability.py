@@ -280,7 +280,20 @@ def tainted_inheriting_contracts(
                         for var in f.all_state_variables_read() + f.all_state_variables_written()
                     ):
                         new_taint["functions"].append(f)
+                        for var in f.all_state_variables_read() + f.all_state_variables_written():
+                            if not (var in tainted["variables"] or var in new_taint["variables"]):
+                                new_taint["variables"].append(var)
                 if len(new_taint["functions"]) > 0:
+                    for var in new_taint["variables"]:
+                        read_write = set(
+                            contract.get_functions_reading_from_variable(var)
+                            + contract.get_functions_writing_to_variable(var)
+                        )
+                        for f in read_write:
+                            if f not in tainted["functions"] + new_taint["functions"] and not (
+                                f.is_constructor or f.is_fallback or f.is_receive
+                            ):
+                                new_taint["functions"].append(f)
                     tainted_contracts.append(new_taint)
     return tainted_contracts
 
