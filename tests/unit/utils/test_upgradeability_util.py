@@ -22,7 +22,7 @@ def test_upgrades_compare() -> None:
     sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.8.2.sol"))
     v1 = sl.get_contract_from_name("ContractV1")[0]
     v2 = sl.get_contract_from_name("ContractV2")[0]
-    missing_vars, new_vars, tainted_vars, new_funcs, modified_funcs, tainted_funcs = compare(v1, v2)
+    missing_vars, new_vars, tainted_vars, new_funcs, modified_funcs, tainted_funcs, tainted_contracts = compare(v1, v2)
     assert len(missing_vars) == 0
     assert new_vars == [v2.get_state_variable_from_name("stateC")]
     assert tainted_vars == [
