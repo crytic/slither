@@ -264,6 +264,13 @@ class Node(SourceMapping, ChildFunction):  # pylint: disable=too-many-public-met
                     return True
         return False
 
+    def set_function(self, function: "Function") -> None:
+        self._function = function
+
+    @property
+    def function(self) -> Optional["Function"]:
+        return self._function
+
     # endregion
     ###################################################################################
     ###################################################################################

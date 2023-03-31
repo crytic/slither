@@ -4,8 +4,8 @@ from slither.solc_parsing.variables.variable_declaration import VariableDeclarat
 from slither.core.variables.local_variable import LocalVariable
 
 
-class LocalVariableSolc(VariableDeclarationSolc):
-    def __init__(self, variable: LocalVariable, variable_data: Dict):
+class LocalVariableSolc(VariableDeclarationSolc[LocalVariable]):
+    def __init__(self, variable: LocalVariable, variable_data: Dict) -> None:
         super().__init__(variable, variable_data)
 
     @property

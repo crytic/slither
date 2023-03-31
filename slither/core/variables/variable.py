@@ -119,11 +119,11 @@ class Variable(SourceMapping):
     def visibility(self, v: str) -> None:
         self._visibility = v
 
-    def set_type(self, t: Optional[Union[List, Type, str]]) -> None:
+    def set_type(self, t: Optional[Union[List[Type], Type, str]]) -> None:
         if isinstance(t, str):
             self._type = ElementaryType(t)
             return
-        assert isinstance(t, (Type, list)) or t is None
+        assert isinstance(t, (Type, List[Type])) or t is None
         self._type = t
 
     @property
