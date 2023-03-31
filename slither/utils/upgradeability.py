@@ -203,8 +203,8 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
             variables: List[Variable]
         )
     """
-    tainted_contracts = {}
-    tainted_list = []
+    tainted_contracts: dict[str, TaintedExternalContract] = {}
+    tainted_list: list[TaintedExternalContract] = []
 
     for func in funcs:
         for contract, target in func.all_high_level_calls():
