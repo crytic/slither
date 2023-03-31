@@ -1,10 +1,10 @@
-from typing import Optional, List
+from typing import Any, Optional, List
 
 from slither.core.expressions.expression import Expression
 
 
 class CallExpression(Expression):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, called, arguments, type_call):
+    def __init__(self, called: Expression, arguments: List[Any], type_call: str) -> None:
         assert isinstance(called, Expression)
         super().__init__()
         self._called: Expression = called
@@ -22,7 +22,7 @@ class CallExpression(Expression):  # pylint: disable=too-many-instance-attribute
         return self._value
 
     @call_value.setter
-    def call_value(self, v):
+    def call_value(self, v: Optional[Expression]) -> None:
         self._value = v
 
     @property
@@ -30,15 +30,15 @@ class CallExpression(Expression):  # pylint: disable=too-many-instance-attribute
         return self._gas
 
     @call_gas.setter
-    def call_gas(self, gas):
+    def call_gas(self, gas: Optional[Expression]) -> None:
         self._gas = gas
 
     @property
-    def call_salt(self):
+    def call_salt(self) -> Optional[Expression]:
         return self._salt
 
     @call_salt.setter
-    def call_salt(self, salt):
+    def call_salt(self, salt: Optional[Expression]) -> None:
         self._salt = salt
 
     @property
@@ -53,7 +53,7 @@ class CallExpression(Expression):  # pylint: disable=too-many-instance-attribute
     def type_call(self) -> str:
         return self._type_call
 
-    def __str__(self):
+    def __str__(self) -> str:
         txt = str(self._called)
         if self.call_gas or self.call_value:
             gas = f"gas: {self.call_gas}" if self.call_gas else ""

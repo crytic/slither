@@ -16,10 +16,10 @@ from slither.core.declarations import (
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
-from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
-from slither.core.solidity_types.type_alias import TypeAliasTopLevel
+from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.scope.scope import FileScope
+from slither.core.solidity_types.type_alias import TypeAliasTopLevel
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.slithir.operations import InternalCall
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCompilationUnit(Context):
-    def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit):
+    def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit) -> None:
         super().__init__()
 
         self._core = core
@@ -88,7 +88,8 @@ class SlitherCompilationUnit(Context):
 
     @property
     def solc_version(self) -> str:
-        return self._crytic_compile_compilation_unit.compiler_version.version
+        # TODO: make version a non optional argument of compiler version in cc
+        return self._crytic_compile_compilation_unit.compiler_version.version  # type:ignore
 
     @property
     def crytic_compile_compilation_unit(self) -> CompilationUnit:
@@ -150,25 +151,26 @@ class SlitherCompilationUnit(Context):
     def functions(self) -> List[Function]:
         return list(self._all_functions)
 
-    def add_function(self, func: Function):
+    def add_function(self, func: Function) -> None:
         self._all_functions.add(func)
 
     @property
     def modifiers(self) -> List[Modifier]:
         return list(self._all_modifiers)
 
-    def add_modifier(self, modif: Modifier):
+    def add_modifier(self, modif: Modifier) -> None:
         self._all_modifiers.add(modif)
 
     @property
-    def functions_and_modifiers(self) -> List[Function | Modifier]:
+    def functions_and_modifiers(self) -> List[Union[Function, Modifier]]:
         return self.functions + self.modifiers
 
-    def propagate_function_calls(self):
+    def propagate_function_calls(self) -> None:
         for f in self.functions_and_modifiers:
             for node in f.nodes:
                 for ir in node.irs_ssa:
                     if isinstance(ir, InternalCall):
+                        assert ir.function
                         ir.function.add_reachable_from_node(node, ir)
 
     # endregion
@@ -181,8 +183,8 @@ class SlitherCompilationUnit(Context):
     @property
     def state_variables(self) -> List[StateVariable]:
         if self._all_state_variables is None:
-            state_variables = [c.state_variables for c in self.contracts]
-            state_variables = [item for sublist in state_variables for item in sublist]
+            state_variabless = [c.state_variables for c in self.contracts]
+            state_variables = [item for sublist in state_variabless for item in sublist]
             self._all_state_variables = set(state_variables)
         return list(self._all_state_variables)
 
@@ -229,7 +231,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     @property
-    def contracts_with_missing_inheritance(self) -> Set:
+    def contracts_with_missing_inheritance(self) -> Set[Contract]:
         return self._contract_with_missing_inheritance
 
     # endregion
@@ -256,8 +258,8 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
     ###################################################################################
 
-    def compute_storage_layout(self):
-        for contract in self.contracts:
+    def compute_storage_layout(self) -> None:
+        for contract in self.contracts_derived:
             self._storage_layouts[contract.name] = {}
 
             slot = 0
@@ -266,6 +268,7 @@ class SlitherCompilationUnit(Context):
                 if var.is_constant or var.is_immutable:
                     continue
 
+                assert var.type
                 size, new_slot = var.type.storage_size
 
                 if new_slot:
@@ -285,7 +288,7 @@ class SlitherCompilationUnit(Context):
                 else:
                     offset += size
 
-    def storage_layout_of(self, contract, var) -> Tuple[int, int]:
+    def storage_layout_of(self, contract: Contract, var: StateVariable) -> Tuple[int, int]:
         return self._storage_layouts[contract.name][var.canonical_name]
 
     # endregion

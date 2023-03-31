@@ -72,16 +72,17 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 ###################################################################################
 
 
-def main():
+def main() -> None:
 
     args = parse_args()
 
     print(args.codebase)
     sl = Slither(args.codebase, **vars(args))
 
-    for M in _get_mutators():
-        m = M(sl)
-        m.mutate()
+    for compilation_unit in sl.compilation_units:
+        for M in _get_mutators():
+            m = M(compilation_unit)
+            m.mutate()
 
 
 # endregion

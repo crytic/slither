@@ -1,8 +1,14 @@
 from typing import List
+
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, SolidityVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations.high_level_call import HighLevelCall
+from slither.utils.output import Output
 
 
 class VarReadUsingThis(AbstractDetector):
@@ -28,12 +34,12 @@ contract C {
 
     WIKI_RECOMMENDATION = "Read the variable directly from storage instead of calling the contract."
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
         for c in self.contracts:
             for func in c.functions:
                 for node in self._detect_var_read_using_this(func):
-                    info = [
+                    info: DETECTOR_INFO = [
                         "The function ",
                         func,
                         " reads ",

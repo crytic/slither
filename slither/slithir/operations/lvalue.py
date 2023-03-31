@@ -4,12 +4,14 @@ from slither.core.variables import Variable
 from slither.slithir.operations.operation import Operation
 
 VariableT = TypeVar("VariableT", bound=Variable)
+
+
 class OperationWithLValue(Operation):
     """
     Operation with a lvalue
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._lvalue: VariableT
@@ -27,5 +29,9 @@ class OperationWithLValue(Operation):
         return self.read + [self.lvalue]
 
     @lvalue.setter
-    def lvalue(self, lvalue):
+    def lvalue(self, lvalue: Variable) -> None:
         self._lvalue = lvalue
+
+    @property
+    def used(self) -> List[Optional[Any]]:
+        return self.read + [self.lvalue]

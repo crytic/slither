@@ -14,7 +14,7 @@ class LocalVariableSolc(VariableDeclarationSolc[LocalVariable]):
         assert isinstance(self._variable, LocalVariable)
         return self._variable
 
-    def _analyze_variable_attributes(self, attributes: Dict):
+    def _analyze_variable_attributes(self, attributes: Dict) -> None:
         """'
         Variable Location
         Can be storage/memory or default

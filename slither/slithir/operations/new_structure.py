@@ -1,13 +1,23 @@
+from typing import List, Union
+
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 
 from slither.slithir.utils.utils import is_valid_lvalue
 
 from slither.core.declarations.structure import Structure
+from slither.core.declarations.structure_contract import StructureContract
+from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
 
 class NewStructure(Call, OperationWithLValue):
-    def __init__(self, structure, lvalue):
+    def __init__(
+        self,
+        structure: StructureContract,
+        lvalue: Union[TemporaryVariableSSA, TemporaryVariable],
+    ) -> None:
         super().__init__()
         assert isinstance(structure, Structure)
         assert is_valid_lvalue(lvalue)
@@ -16,11 +26,11 @@ class NewStructure(Call, OperationWithLValue):
         self._lvalue = lvalue
 
     @property
-    def read(self):
+    def read(self) -> List[Union[TemporaryVariableSSA, TemporaryVariable, Constant]]:
         return self._unroll(self.arguments)
 
     @property
-    def structure(self):
+    def structure(self) -> StructureContract:
         return self._structure
 
     @property

@@ -2,11 +2,21 @@
 Module detecting missing events for critical contract parameters set by owners and used in arithmetic
 
 """
+from typing import List, Tuple
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.analyses.data_dependency.data_dependency import is_tainted
-from slither.slithir.operations.event_call import EventCall
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types.elementary_type import ElementaryType, Int, Uint
+from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.slithir.operations.event_call import EventCall
+from slither.utils.output import Output
 
 
 class MissingEventsArithmetic(AbstractDetector):
@@ -49,7 +59,9 @@ contract C {
     WIKI_RECOMMENDATION = "Emit an event for critical parameter changes."
 
     @staticmethod
-    def _detect_unprotected_use(contract, sv):
+    def _detect_unprotected_use(
+        contract: Contract, sv: StateVariable
+    ) -> List[Tuple[Node, FunctionContract]]:
         unprotected_functions = [
             function for function in contract.functions_declared if not function.is_protected()
         ]
@@ -60,7 +72,9 @@ contract C {
             if sv in node.state_variables_read
         ]
 
-    def _detect_missing_events(self, contract):
+    def _detect_missing_events(
+        self, contract: Contract
+    ) -> List[Tuple[FunctionContract, List[Tuple[Node, List[Tuple[Node, FunctionContract]]]]]]:
         """
         Detects if critical contract parameters set by owners and used in arithmetic are missing events
         :param contract: The contract to check
@@ -101,7 +115,7 @@ contract C {
                 results.append((function, nodes))
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect missing events for critical contract parameters set by owners and used in arithmetic
         Returns:
             list: {'(function, node)'}
@@ -112,7 +126,7 @@ contract C {
         for contract in self.compilation_unit.contracts_derived:
             missing_events = self._detect_missing_events(contract)
             for (function, nodes) in missing_events:
-                info = [function, " should emit an event for: \n"]
+                info: DETECTOR_INFO = [function, " should emit an event for: \n"]
                 for (node, _) in nodes:
                     info += ["\t- ", node, " \n"]
                 res = self.generate_result(info)

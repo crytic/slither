@@ -25,7 +25,7 @@ class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few
         st: StructureTopLevel,
         struct: Dict,
         slither_parser: "SlitherCompilationUnitSolc",
-    ):
+    ) -> None:
 
         if slither_parser.is_compact_ast:
             name = struct["name"]
@@ -47,7 +47,7 @@ class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few
 
         self._elemsNotParsed = children
 
-    def analyze(self):
+    def analyze(self) -> None:
         for elem_to_parse in self._elemsNotParsed:
             elem = StructureVariable()
             elem.set_structure(self._structure)

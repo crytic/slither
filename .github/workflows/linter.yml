@@ -9,18 +9,28 @@ defaults:
 on:
   pull_request:
     branches: [master, dev]
+    paths:
+      - "**/*.py"
+    
   schedule:
     # run CI every day even if no PRs/merges occur
     - cron: '0 12 * * *'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    name: Lint Code Base
+    name: Superlinter
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
 
       - name: Set up Python 3.8
         uses: actions/setup-python@v3
@@ -54,5 +64,7 @@ jobs:
           VALIDATE_EDITORCONFIG: false
           VALIDATE_JSCPD: false
           VALIDATE_PYTHON_MYPY: false
+          # Until we upgrade the super linter for actionlintÒ
+          VALIDATE_GITHUB_ACTIONS: false
           SHELLCHECK_OPTS: "-e SC1090"
           FILTER_REGEX_EXCLUDE: .*tests/.*.(json|zip|sol)

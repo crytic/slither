@@ -14,7 +14,7 @@ class EventVariableSolc(VariableDeclarationSolc[EventVariable]):
         assert isinstance(self._variable, EventVariable)
         return self._variable
 
-    def _analyze_variable_attributes(self, attributes: Dict):
+    def _analyze_variable_attributes(self, attributes: Dict) -> None:
         """
         Analyze event variable attributes
         :param attributes: The event variable attributes to parse.

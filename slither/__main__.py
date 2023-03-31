@@ -25,7 +25,13 @@ from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils import codex
-from slither.utils.output import output_to_json, output_to_zip, output_to_sarif, ZIP_TYPES_ACCEPTED
+from slither.utils.output import (
+    output_to_json,
+    output_to_zip,
+    output_to_sarif,
+    ZIP_TYPES_ACCEPTED,
+    Output,
+)
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
@@ -60,7 +66,7 @@ def process_single(
     args: argparse.Namespace,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Dict], int]:
+) -> Tuple[Slither, List[Dict], List[Output], int]:
     """
     The core high-level code for running Slither static analysis.
 
@@ -70,9 +76,6 @@ def process_single(
     ast = "--ast-compact-json"
     if args.legacy_ast:
         ast = "--ast-json"
-    if args.checklist:
-        args.show_ignored_findings = True
-
     slither = Slither(target, ast_format=ast, **vars(args))
 
     return _process(slither, detector_classes, printer_classes)
@@ -83,7 +86,7 @@ def process_all(
     args: argparse.Namespace,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[List[Slither], List[Dict], List[Dict], int]:
+) -> Tuple[List[Slither], List[Dict], List[Output], int]:
     compilations = compile_all(target, **vars(args))
     slither_instances = []
     results_detectors = []
@@ -112,7 +115,7 @@ def _process(
     slither: Slither,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Dict], int]:
+) -> Tuple[Slither, List[Dict], List[Output], int]:
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
 
@@ -125,9 +128,9 @@ def _process(
     results_printers = []
 
     if not printer_classes:
-        detector_results = slither.run_detectors()
-        detector_results = [x for x in detector_results if x]  # remove empty results
-        detector_results = [item for sublist in detector_results for item in sublist]  # flatten
+        detector_resultss = slither.run_detectors()
+        detector_resultss = [x for x in detector_resultss if x]  # remove empty results
+        detector_results = [item for sublist in detector_resultss for item in sublist]  # flatten
         results_detectors.extend(detector_results)
 
     else:
@@ -136,23 +139,6 @@ def _process(
         results_printers.extend(printer_results)
 
     return slither, results_detectors, results_printers, analyzed_contracts_count
-
-
-# TODO: delete me?
-def process_from_asts(
-    filenames: List[str],
-    args: argparse.Namespace,
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Dict], int]:
-    all_contracts: List[str] = []
-
-    for filename in filenames:
-        with open(filename, encoding="utf8") as file_open:
-            contract_loaded = json.load(file_open)
-            all_contracts.append(contract_loaded["ast"])
-
-    return process_single(all_contracts, args, detector_classes, printer_classes)
 
 
 # endregion
@@ -511,7 +497,7 @@ def parse_args(
 
     group_misc.add_argument(
         "--filter-paths",
-        help="Comma-separated list of paths for which results will be excluded",
+        help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/)",
         action="store",
         dest="filter_paths",
         default=defaults_flag_in_config["filter_paths"],
@@ -602,9 +588,6 @@ def parse_args(
         default=False,
     )
 
-    # if the json is splitted in different files
-    parser.add_argument("--splitted", help=argparse.SUPPRESS, action="store_true", default=False)
-
     # Disable the throw/catch on partial analyses
     parser.add_argument(
         "--disallow-partial", help=argparse.SUPPRESS, action="store_true", default=False
@@ -620,7 +603,7 @@ def parse_args(
     args.filter_paths = parse_filter_paths(args)
 
     # Verify our json-type output is valid
-    args.json_types = set(args.json_types.split(","))
+    args.json_types = set(args.json_types.split(","))  # type:ignore
     for json_type in args.json_types:
         if json_type not in JSON_OUTPUT_TYPES:
             raise Exception(f'Error: "{json_type}" is not a valid JSON result output type.')
@@ -629,7 +612,9 @@ def parse_args(
 
 
 class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
         detectors, _ = get_detectors_and_printers()
         output_detectors(detectors)
         parser.exit()
@@ -691,14 +676,14 @@ class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
 
 
 class FormatterCryticCompile(logging.Formatter):
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         # for i, msg in enumerate(record.msg):
         if record.msg.startswith("Compilation warnings/errors on "):
-            txt = record.args[1]
-            txt = txt.split("\n")
+            txt = record.args[1]  # type:ignore
+            txt = txt.split("\n")  # type:ignore
             txt = [red(x) if "Error" in x else x for x in txt]
             txt = "\n".join(txt)
-            record.args = (record.args[0], txt)
+            record.args = (record.args[0], txt)  # type:ignore
         return super().format(record)
 
 
@@ -741,7 +726,7 @@ def main_impl(
     set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
 
     # Define some variables for potential JSON output
-    json_results = {}
+    json_results: Dict[str, Any] = {}
     output_error = None
     outputting_json = args.json is not None
     outputting_json_stdout = args.json == "-"
@@ -754,7 +739,7 @@ def main_impl(
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
     # output.
-    if outputting_json or output_to_sarif:
+    if outputting_json or outputting_sarif:
         StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
 
     printer_classes = choose_printers(args, all_printer_classes)
@@ -790,7 +775,7 @@ def main_impl(
     crytic_compile_error.setLevel(logging.INFO)
 
     results_detectors: List[Dict] = []
-    results_printers: List[Dict] = []
+    results_printers: List[Output] = []
     try:
         filename = args.filename
 
@@ -803,26 +788,17 @@ def main_impl(
             number_contracts = 0
 
             slither_instances = []
-            if args.splitted:
+            for filename in filenames:
                 (
                     slither_instance,
-                    results_detectors,
-                    results_printers,
-                    number_contracts,
-                ) = process_from_asts(filenames, args, detector_classes, printer_classes)
+                    results_detectors_tmp,
+                    results_printers_tmp,
+                    number_contracts_tmp,
+                ) = process_single(filename, args, detector_classes, printer_classes)
+                number_contracts += number_contracts_tmp
+                results_detectors += results_detectors_tmp
+                results_printers += results_printers_tmp
                 slither_instances.append(slither_instance)
-            else:
-                for filename in filenames:
-                    (
-                        slither_instance,
-                        results_detectors_tmp,
-                        results_printers_tmp,
-                        number_contracts_tmp,
-                    ) = process_single(filename, args, detector_classes, printer_classes)
-                    number_contracts += number_contracts_tmp
-                    results_detectors += results_detectors_tmp
-                    results_printers += results_printers_tmp
-                    slither_instances.append(slither_instance)
 
         # Rely on CryticCompile to discern the underlying type of compilations.
         else:
@@ -865,7 +841,9 @@ def main_impl(
 
         # Output our results to markdown if we wish to compile a checklist.
         if args.checklist:
-            output_results_to_markdown(results_detectors, args.checklist_limit)
+            output_results_to_markdown(
+                results_detectors, args.checklist_limit, args.show_ignored_findings
+            )
 
         # Don't print the number of result for printers
         if number_contracts == 0:

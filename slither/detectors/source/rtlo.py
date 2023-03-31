@@ -1,5 +1,13 @@
 import re
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List
+
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.utils.output import Output
+
 
 # pylint: disable=bidirectional-unicode
 class RightToLeftOverride(AbstractDetector):
@@ -52,7 +60,7 @@ contract Token
     RTLO_CHARACTER_ENCODED = "\u202e".encode("utf-8")
     STANDARD_JSON = False
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
         pattern = re.compile(".*\u202e.*".encode("utf-8"))
 
@@ -74,7 +82,7 @@ contract Token
                 idx = start_index + result_index
 
                 relative = self.slither.crytic_compile.filename_lookup(filename).relative
-                info = f"{relative} contains a unicode right-to-left-override character at byte offset {idx}:\n"
+                info: DETECTOR_INFO = f"{relative} contains a unicode right-to-left-override character at byte offset {idx}:\n"
 
                 # We have a patch, so pattern.find will return at least one result
 

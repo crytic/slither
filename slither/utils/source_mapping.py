@@ -35,7 +35,7 @@ def get_definition(target: SourceMapping, crytic_compile: CryticCompile) -> Sour
         target.source_mapping.filename, target.source_mapping.start + start_offset + len(pattern)
     )
 
-    s = Source()
+    s = Source(target.source_mapping.compilation_unit)
     s.start = target.source_mapping.start + start_offset
     s.length = len(pattern)
     s.filename = target.source_mapping.filename
@@ -44,8 +44,7 @@ def get_definition(target: SourceMapping, crytic_compile: CryticCompile) -> Sour
     s.starting_column = starting_column
     s.ending_column = ending_column
     s.end = s.start + s.length
-    s.compilation_unit = target.compilation_unit
-
+    s.txt = txt
     return s
 
 

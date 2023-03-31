@@ -48,7 +48,7 @@ class Literal(Expression):
         # be sure to handle any character
         return str(self._value)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Literal):
             return False
         return (self.value, self.subdenomination) == (other.value, other.subdenomination)

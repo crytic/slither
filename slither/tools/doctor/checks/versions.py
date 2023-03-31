@@ -1,6 +1,6 @@
 from importlib import metadata
 import json
-from typing import Optional
+from typing import Optional, Any
 import urllib
 
 from packaging.version import parse, Version, LegacyVersion
@@ -17,6 +17,7 @@ def get_installed_version(name: str) -> Optional[Version | LegacyVersion]:
 
 def get_github_version(name: str) -> Optional[Version]:
     try:
+        # type: ignore
         with urllib.request.urlopen(
             f"https://api.github.com/repos/crytic/{name}/releases/latest"
         ) as response:
@@ -27,7 +28,7 @@ def get_github_version(name: str) -> Optional[Version]:
         return None
 
 
-def show_versions(**_kwargs) -> None:
+def show_versions(**_kwargs: Any) -> None:
     versions = {
         "Slither": (get_installed_version("slither-analyzer"), get_github_version("slither")),
         "crytic-compile": (

@@ -1,17 +1,23 @@
 """
 Module detecting dangerous conversion to enum
 """
+from typing import List, Tuple
 
+from slither.core.cfg.node import Node
+from slither.core.declarations import Contract
+from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     make_solc_versions,
+    DETECTOR_INFO,
 )
 from slither.slithir.operations import TypeConversion
 from slither.core.declarations.enum import Enum
+from slither.utils.output import Output
 
 
-def _detect_dangerous_enum_conversions(contract):
+def _detect_dangerous_enum_conversions(contract: Contract) -> List[Tuple[Node, SourceMapping]]:
     """Detect dangerous conversion to enum by checking IR
     Args:
          contract (Contract)
@@ -61,17 +67,21 @@ Attackers can trigger unexpected behaviour by calling `bug(1)`."""
 
     VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 0, 4)
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect dangerous conversion to enum"""
         results = []
 
         for c in self.compilation_unit.contracts:
             ret = _detect_dangerous_enum_conversions(c)
             for node, var in ret:
-                func_info = [node, " has a dangerous enum conversion\n"]
+                func_info: DETECTOR_INFO = [node, " has a dangerous enum conversion\n"]
                 # Output each node with the function info header as a separate result.
-                variable_info = ["\t- Variable: ", var, f" of type: {str(var.type)}\n"]
-                node_info = ["\t- Enum conversion: ", node, "\n"]
+                variable_info: DETECTOR_INFO = [
+                    "\t- Variable: ",
+                    var,
+                    f" of type: {str(var.type)}\n",
+                ]
+                node_info: DETECTOR_INFO = ["\t- Enum conversion: ", node, "\n"]
                 json = self.generate_result(func_info + variable_info + node_info)
                 results.append(json)
 

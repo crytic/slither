@@ -5,9 +5,9 @@ from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
-from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
+from slither.utils.colors import green, yellow, red
 from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output, SupportedOutput
 
@@ -59,6 +59,8 @@ ALL_SOLC_VERSIONS_06 = make_solc_versions(6, 0, 12)
 ALL_SOLC_VERSIONS_07 = make_solc_versions(7, 0, 6)
 # No VERSIONS_08 as it is still in dev
 
+DETECTOR_INFO = List[Union[str, SupportedOutput]]
+
 
 class AbstractDetector(metaclass=abc.ABCMeta):
     ARGUMENT = ""  # run the detector with slither.py --ARGUMENT
@@ -81,7 +83,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
-    ):
+    ) -> None:
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
         self.contracts: List[Contract] = compilation_unit.contracts
         self.slither: "Slither" = slither
@@ -251,7 +253,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     def generate_result(
         self,
-        info: Union[str, List[Union[str, SupportedOutput]]],
+        info: DETECTOR_INFO,
         additional_fields: Optional[Dict] = None,
     ) -> Output:
         output = Output(

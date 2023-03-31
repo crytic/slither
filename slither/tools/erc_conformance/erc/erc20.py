@@ -1,11 +1,13 @@
 import logging
+from typing import Dict, List, Optional
 
+from slither.core.declarations import Contract
 from slither.utils import output
 
 logger = logging.getLogger("Slither-conformance")
 
 
-def approval_race_condition(contract, ret):
+def approval_race_condition(contract: Contract, ret: Dict[str, List]) -> None:
     increaseAllowance = contract.get_function_from_signature("increaseAllowance(address,uint256)")
 
     if not increaseAllowance:
@@ -27,7 +29,9 @@ def approval_race_condition(contract, ret):
         )
 
 
-def check_erc20(contract, ret, explored=None):
+def check_erc20(
+    contract: Contract, ret: Dict[str, List], explored: Optional[bool] = None
+) -> Dict[str, List]:
     if explored is None:
         explored = set()
 
