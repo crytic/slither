@@ -1068,13 +1068,13 @@ def test_issue_1776():
         new_op = operations[0]
         lvalue = new_op.lvalue
         lvalue_type = lvalue.type
-        assert lvalue_type.is_dynamic
         assert isinstance(lvalue_type, ArrayType)
+        assert lvalue_type.is_dynamic
         lvalue_type1 = lvalue_type.type
-        assert not lvalue_type1.is_dynamic
         assert isinstance(lvalue_type1, ArrayType)
+        assert not lvalue_type1.is_dynamic
         assert lvalue_type1.length_value.value == "10"
         lvalue_type2 = lvalue_type1.type
-        assert not lvalue_type2.is_dynamic
         assert isinstance(lvalue_type2, ArrayType)
+        assert not lvalue_type2.is_dynamic
         assert lvalue_type2.length_value.value == "5"
