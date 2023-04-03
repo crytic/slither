@@ -129,7 +129,7 @@ def compare(
             new_modified_functions.append(function)
             new_functions.append(function)
             new_modified_function_vars += (
-                function.state_variables_read + function.state_variables_written
+                function.all_state_variables_written()
             )
         elif not function.is_constructor_variables and is_function_modified(
             orig_function, function
@@ -137,7 +137,7 @@ def compare(
             new_modified_functions.append(function)
             modified_functions.append(function)
             new_modified_function_vars += (
-                function.state_variables_read + function.state_variables_written
+                function.all_state_variables_written()
             )
 
     # Find all unmodified functions that call a modified function or read/write the
@@ -155,7 +155,7 @@ def compare(
         tainted_vars = [
             var
             for var in set(new_modified_function_vars)
-            if var in function.variables_read_or_written
+            if var in function.all_state_variables_read() + function.all_state_variables_written()
             and not var.is_constant
             and not var.is_immutable
         ]
@@ -166,7 +166,8 @@ def compare(
     for var in order_vars2:
         read_by = v2.get_functions_reading_from_variable(var)
         written_by = v2.get_functions_writing_to_variable(var)
-        if v1.get_state_variable_from_name(var.name) is None:
+        # if v1.get_state_variable_from_name(var.name) is None:
+        if next((v for v in v1.state_variables_ordered if v.name == var.name), None) is None:
             new_variables.append(var)
         elif any(
             func in read_by or func in written_by
