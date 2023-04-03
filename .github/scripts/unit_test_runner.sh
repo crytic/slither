@@ -2,11 +2,11 @@
 
 # used to pass --cov=$path and --cov-append to pytest
 if [ "$1" != "" ]; then
-    pytest "$1" tests/unit/
+    pytest "$1" tests/unit/ -n auto
     status_code=$?
     python -m coverage report
 else
-    pytest tests/unit/
+    pytest tests/unit/ -n auto
     status_code=$?
 fi
 
