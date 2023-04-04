@@ -347,9 +347,11 @@ def tainted_inheriting_contracts(
                 # Search for functions that call an inherited tainted function or access an inherited tainted variable
                 internal_calls = f.all_internal_calls()
                 if any(
-                    call == t.function for t in tainted.tainted_functions for call in internal_calls
+                    call.canonical_name == t.function.canonical_name
+                    for t in tainted.tainted_functions
+                    for call in internal_calls
                 ) or any(
-                    var == t.variable
+                    var.canonical_name == t.variable.canonical_name
                     for t in tainted.tainted_variables
                     for var in f.all_state_variables_read() + f.all_state_variables_written()
                 ):
@@ -360,7 +362,7 @@ def tainted_inheriting_contracts(
                             t.function
                             for t in tainted.tainted_functions
                             for call in internal_calls
-                            if call == t.function
+                            if call.canonical_name == t.function.canonical_name
                         ),
                         next(
                             (
@@ -368,7 +370,7 @@ def tainted_inheriting_contracts(
                                 for t in tainted.tainted_variables
                                 for var in f.all_state_variables_read()
                                 + f.all_state_variables_written()
-                                if var == t.variable
+                                if var.canonical_name == t.variable.canonical_name
                             ),
                             None,
                         ),
