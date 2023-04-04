@@ -247,10 +247,10 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
         funcs: a list of Function objects to search for external calls.
 
     Returns:
-        TaintedExternalContract(TypedDict) (
+        TaintedExternalContract() (
             contract: Contract,
-            functions: List[Function],
-            variables: List[Variable]
+            tainted_functions: List[TaintedFunction],
+            tainted_variables: List[TaintedVariable]
         )
     """
     tainted_contracts: dict[str, TaintedExternalContract] = {}
@@ -259,8 +259,10 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
     for func in funcs:
         for contract, target in func.all_high_level_calls():
             if contract.is_library:
+                # Not interested in library calls
                 continue
             if contract.name not in tainted_contracts:
+                # A contract may be tainted by multiple function calls - only make one TaintedExternalContract object
                 tainted_contracts[contract.name] = TaintedExternalContract(contract)
             if (
                 isinstance(target, Function)
@@ -269,10 +271,12 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
                 not in (f.function for f in tainted_contracts[contract.name].tainted_functions)
                 and not (target.is_constructor or target.is_fallback or target.is_receive)
             ):
+                # Found a high-level call to a new tainted function
                 tainted_function = TaintedFunction(target)
                 tainted_function.add_tainted_by(func)
                 tainted_contracts[contract.name].add_tainted_function(tainted_function)
                 for var in target.all_state_variables_written():
+                    # Consider as tainted all variables written by the tainted function
                     if var not in (
                         v.variable for v in tainted_contracts[contract.name].tainted_variables
                     ):
@@ -285,16 +289,16 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
                 not in (v.variable for v in tainted_contracts[contract.name].tainted_variables)
                 and not (target.is_constant or target.is_immutable)
             ):
+                # Found a new high-level call to a public state variable getter
                 tainted_var = TaintedVariable(target)
                 tainted_var.add_tainted_by(func)
                 tainted_contracts[contract.name]["variables"].append(target)
     for c in tainted_contracts.values():
-        # if len(c.tainted_functions) == 0 and len(c.tainted_variables) == 0:
-        #     continue
         tainted_list.append(c)
         contract = c.contract
         variables = c.tainted_variables
         for var in variables:
+            # For each tainted variable, consider as tainted any function that reads or writes to it
             var = var.variable
             read_write = set(
                 contract.get_functions_reading_from_variable(var)
@@ -330,6 +334,7 @@ def tainted_inheriting_contracts(
         check_contracts = contracts
         if contracts is None:
             check_contracts = contract.compilation_unit.contracts
+        # We are only interested in checking contracts that inherit a tainted contract
         check_contracts = [
             c
             for c in check_contracts
@@ -339,6 +344,7 @@ def tainted_inheriting_contracts(
         for c in check_contracts:
             new_taint = TaintedExternalContract(c)
             for f in c.functions_declared:
+                # Search for functions that call an inherited tainted function or access an inherited tainted variable
                 internal_calls = f.all_internal_calls()
                 if any(
                     call == t.function for t in tainted.tainted_functions for call in internal_calls
@@ -348,6 +354,7 @@ def tainted_inheriting_contracts(
                     for var in f.all_state_variables_read() + f.all_state_variables_written()
                 ):
                     tainted_func = TaintedFunction(f)
+                    # Given that at least one of the `any` conditions was met, find which one is the taint source
                     tainted_by = next(
                         (
                             t.function
@@ -369,8 +376,9 @@ def tainted_inheriting_contracts(
                     tainted_func.add_tainted_by(tainted_by)
                     new_taint.add_tainted_function(tainted_func)
             for f in new_taint.tainted_functions:
+                # For each newly found tainted function, consider as tainted any variable it writes to
                 f = f.function
-                for var in f.all_state_variables_read() + f.all_state_variables_written():
+                for var in f.all_state_variables_written():
                     if var not in (
                         v.variable for v in tainted.tainted_variables + new_taint.tainted_variables
                     ):
@@ -378,6 +386,7 @@ def tainted_inheriting_contracts(
                         tainted_var.add_tainted_by(f)
                         new_taint.add_tainted_variable(tainted_var)
             for var in new_taint.tainted_variables:
+                # For each newly found tainted variable, consider as tainted any function that reads or writes to it
                 var = var.variable
                 read_write = set(
                     contract.get_functions_reading_from_variable(var)
