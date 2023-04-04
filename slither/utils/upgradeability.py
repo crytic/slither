@@ -233,17 +233,14 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
             if (
                 isinstance(target, Function)
                 and target not in funcs
-                and target
-                not in (f for f in tainted_contracts[contract.name].tainted_functions)
+                and target not in (f for f in tainted_contracts[contract.name].tainted_functions)
                 and not (target.is_constructor or target.is_fallback or target.is_receive)
             ):
                 # Found a high-level call to a new tainted function
                 tainted_contracts[contract.name].add_tainted_function(target)
                 for var in target.all_state_variables_written():
                     # Consider as tainted all variables written by the tainted function
-                    if var not in (
-                        v for v in tainted_contracts[contract.name].tainted_variables
-                    ):
+                    if var not in (v for v in tainted_contracts[contract.name].tainted_variables):
                         tainted_contracts[contract.name].add_tainted_variable(var)
             elif (
                 isinstance(target, StateVariable)
@@ -263,9 +260,8 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
                 + contract.get_functions_writing_to_variable(var)
             )
             for f in read_write:
-                if (
-                    f not in tainted_contracts[contract.name].tainted_functions
-                    and not (f.is_constructor or f.is_fallback or f.is_receive)
+                if f not in tainted_contracts[contract.name].tainted_functions and not (
+                    f.is_constructor or f.is_fallback or f.is_receive
                 ):
                     c.add_tainted_function(f)
     return tainted_list
