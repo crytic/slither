@@ -1,5 +1,4 @@
 from pathlib import Path
-from solc_select import solc_select
 
 from slither import Slither
 from slither.core.declarations.function import FunctionType
