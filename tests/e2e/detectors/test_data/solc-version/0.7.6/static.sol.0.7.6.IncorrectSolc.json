@@ -1,0 +1,49 @@
+[
+    [
+        {
+            "elements": [
+                {
+                    "type": "pragma",
+                    "name": "0.7.6",
+                    "source_mapping": {
+                        "start": 0,
+                        "length": 22,
+                        "filename_relative": "tests/e2e/detectors/test_data/solc-version/0.7.6/static.sol",
+                        "filename_absolute": "/GENERIC_PATH",
+                        "filename_short": "tests/e2e/detectors/test_data/solc-version/0.7.6/static.sol",
+                        "is_dependency": false,
+                        "lines": [
+                            1
+                        ],
+                        "starting_column": 1,
+                        "ending_column": 23
+                    },
+                    "type_specific_fields": {
+                        "directive": [
+                            "solidity",
+                            "0.7",
+                            ".6"
+                        ]
+                    }
+                }
+            ],
+            "description": "Pragma version0.7.6 (tests/e2e/detectors/test_data/solc-version/0.7.6/static.sol#1) allows old versions\n",
+            "markdown": "Pragma version[0.7.6](tests/e2e/detectors/test_data/solc-version/0.7.6/static.sol#L1) allows old versions\n",
+            "first_markdown_element": "tests/e2e/detectors/test_data/solc-version/0.7.6/static.sol#L1",
+            "id": "730c7b68388c8968a0dc7398162989157d0fc6c1223b719c86abaa23aa141422",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        },
+        {
+            "elements": [],
+            "description": "solc-0.7.6 is not recommended for deployment\n",
+            "markdown": "solc-0.7.6 is not recommended for deployment\n",
+            "first_markdown_element": "",
+            "id": "ddb8ee36d9dd69b14eab702506268f8f9ef3283777d042e197277e29407b386e",
+            "check": "solc-version",
+            "impact": "Informational",
+            "confidence": "High"
+        }
+    ]
+]

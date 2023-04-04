@@ -57,5 +57,5 @@ body:
 description: "Slither missed a bug it should find."
 labels: 
   - false-negative
-name: False Negative"
+name: False Negative
 title: "[False Negative]: "
