@@ -6,7 +6,13 @@ from slither.utils.type import (
     export_nested_types_from_variable,
     export_return_type_from_variable,
 )
-from slither.core.solidity_types import Type, UserDefinedType, MappingType, ArrayType, ElementaryType
+from slither.core.solidity_types import (
+    Type,
+    UserDefinedType,
+    MappingType,
+    ArrayType,
+    ElementaryType,
+)
 from slither.core.declarations import Structure, Enum, Contract
 
 if TYPE_CHECKING:
