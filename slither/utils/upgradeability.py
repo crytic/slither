@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, List, Union, TypedDict
+from typing import Optional, Tuple, List, Union
 from slither.core.declarations import (
     Contract,
     Structure,
@@ -17,7 +17,6 @@ from slither.core.solidity_types import (
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.core.variables.state_variable import StateVariable
-from slither.slithir.variables import TemporaryVariable
 from slither.analyses.data_dependency.data_dependency import get_dependencies
 from slither.core.variables.variable import Variable
 from slither.core.expressions import (
@@ -64,10 +63,63 @@ from slither.slithir.variables import (
 from slither.tools.read_storage.read_storage import SlotInfo, SlitherReadStorage
 
 
-class TaintedExternalContract(TypedDict):
-    contract: Contract
-    functions: List[Function]
-    variables: List[Variable]
+class TaintedFunction:
+    def __init__(self, f: "Function") -> None:
+        self._function: Function = f
+        self._tainted_by: List[Union[Function, StateVariable]] = []
+
+    @property
+    def function(self) -> Function:
+        return self._function
+
+    @property
+    def tainted_by(self) -> List[Union[Function, StateVariable]]:
+        return self._tainted_by
+
+    def add_tainted_by(self, f: Union[Function, StateVariable]):
+        self._tainted_by.append(f)
+
+
+class TaintedVariable:
+    def __init__(self, v: "StateVariable") -> None:
+        self._variable: StateVariable = v
+        self._tainted_by: List[Function] = []
+
+    @property
+    def variable(self) -> StateVariable:
+        return self._variable
+
+    @property
+    def tainted_by(self) -> List[Function]:
+        return self._tainted_by
+
+    def add_tainted_by(self, f: Function):
+        self._tainted_by.append(f)
+
+
+class TaintedExternalContract:
+    def __init__(self, contract: "Contract") -> None:
+        self._contract: Contract = contract
+        self._tainted_functions: List[TaintedFunction] = []
+        self._tainted_variables: List[TaintedVariable] = []
+
+    @property
+    def contract(self) -> Contract:
+        return self._contract
+
+    @property
+    def tainted_functions(self) -> List[TaintedFunction]:
+        return self._tainted_functions
+
+    def add_tainted_function(self, f: TaintedFunction):
+        self._tainted_functions.append(f)
+
+    @property
+    def tainted_variables(self) -> List[TaintedVariable]:
+        return self._tainted_variables
+
+    def add_tainted_variable(self, v: TaintedVariable):
+        self._tainted_variables.append(v)
 
 
 # pylint: disable=too-many-locals
@@ -128,17 +180,13 @@ def compare(
         if sig not in func_sigs1:
             new_modified_functions.append(function)
             new_functions.append(function)
-            new_modified_function_vars += (
-                function.all_state_variables_written()
-            )
+            new_modified_function_vars += function.all_state_variables_written()
         elif not function.is_constructor_variables and is_function_modified(
             orig_function, function
         ):
             new_modified_functions.append(function)
             modified_functions.append(function)
-            new_modified_function_vars += (
-                function.all_state_variables_written()
-            )
+            new_modified_function_vars += function.all_state_variables_written()
 
     # Find all unmodified functions that call a modified function or read/write the
     # same state variable(s) as a new/modified function, i.e., tainted functions
@@ -213,41 +261,52 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
             if contract.is_library:
                 continue
             if contract.name not in tainted_contracts:
-                tainted_contracts[contract.name] = TaintedExternalContract(
-                    contract=contract, functions=[], variables=[]
-                )
+                tainted_contracts[contract.name] = TaintedExternalContract(contract)
             if (
                 isinstance(target, Function)
                 and target not in funcs
-                and target not in tainted_contracts[contract.name]["functions"]
+                and target
+                not in (f.function for f in tainted_contracts[contract.name].tainted_functions)
                 and not (target.is_constructor or target.is_fallback or target.is_receive)
             ):
-                tainted_contracts[contract.name]["functions"].append(target)
+                tainted_function = TaintedFunction(target)
+                tainted_function.add_tainted_by(func)
+                tainted_contracts[contract.name].add_tainted_function(tainted_function)
                 for var in target.all_state_variables_written():
-                    if var not in tainted_contracts[contract.name]["variables"]:
-                        tainted_contracts[contract.name]["variables"].append(var)
+                    if var not in (
+                        v.variable for v in tainted_contracts[contract.name].tainted_variables
+                    ):
+                        tainted_var = TaintedVariable(var)
+                        tainted_var.add_tainted_by(target)
+                        tainted_contracts[contract.name].add_tainted_variable(tainted_var)
             elif (
-                isinstance(target, Variable)
-                and target not in tainted_contracts[contract.name]["variables"]
+                isinstance(target, StateVariable)
+                and target
+                not in (v.variable for v in tainted_contracts[contract.name].tainted_variables)
                 and not (target.is_constant or target.is_immutable)
             ):
+                tainted_var = TaintedVariable(target)
+                tainted_var.add_tainted_by(func)
                 tainted_contracts[contract.name]["variables"].append(target)
-    for c in tainted_contracts.items():
-        if len(c[1]["functions"]) == 0 and len(c[1]["variables"]) == 0:
-            continue
-        tainted_list.append(c[1])
-        contract = c[1]["contract"]
-        variables = c[1]["variables"]
+    for c in tainted_contracts.values():
+        # if len(c.tainted_functions) == 0 and len(c.tainted_variables) == 0:
+        #     continue
+        tainted_list.append(c)
+        contract = c.contract
+        variables = c.tainted_variables
         for var in variables:
+            var = var.variable
             read_write = set(
                 contract.get_functions_reading_from_variable(var)
                 + contract.get_functions_writing_to_variable(var)
             )
             for f in read_write:
-                if f not in tainted_contracts[contract.name]["functions"] and not (
-                    f.is_constructor or f.is_fallback or f.is_receive
-                ):
-                    tainted_contracts[contract.name]["functions"].append(f)
+                if f not in (
+                    t.function for t in tainted_contracts[contract.name].tainted_functions
+                ) and not (f.is_constructor or f.is_fallback or f.is_receive):
+                    tainted_func = TaintedFunction(f)
+                    tainted_func.add_tainted_by(var)
+                    c.add_tainted_function(tainted_func)
     return tainted_list
 
 
@@ -267,41 +326,70 @@ def tainted_inheriting_contracts(
         An updated list of TaintedExternalContract, including all from the input list.
     """
     for tainted in tainted_contracts:
-        contract = tainted["contract"]
+        contract = tainted.contract
         if contracts is None:
             contracts = contract.compilation_unit.contracts
         contracts = [
             c
             for c in contracts
-            if c.name not in tainted_contracts and c.name in [i.name for i in c.inheritance]
+            if c.name not in [t.contract.name for t in tainted_contracts]
+            and c.name in [i.name for i in c.inheritance]
         ]
         for c in contracts:
-            new_taint = TaintedExternalContract(contract=c, functions=[], variables=[])
+            new_taint = TaintedExternalContract(c)
             for f in c.functions_declared:
                 internal_calls = f.all_internal_calls()
                 if any(
-                    str(call) == str(t) for t in tainted["functions"] for call in internal_calls
+                    call == t.function for t in tainted.tainted_functions for call in internal_calls
                 ) or any(
-                    str(var) == str(t)
-                    for t in tainted["variables"]
+                    var == t.variable
+                    for t in tainted.tainted_variables
                     for var in f.all_state_variables_read() + f.all_state_variables_written()
                 ):
-                    new_taint["functions"].append(f)
-            for f in new_taint["functions"]:
+                    tainted_func = TaintedFunction(f)
+                    tainted_by = next(
+                        (
+                            t.function
+                            for t in tainted.tainted_functions
+                            for call in internal_calls
+                            if str(call) == str(t.function)
+                        ),
+                        next(
+                            (
+                                t.variable
+                                for t in tainted.tainted_variables
+                                for var in f.all_state_variables_read()
+                                + f.all_state_variables_written()
+                                if var == t.variable
+                            ),
+                            None,
+                        ),
+                    )
+                    tainted_func.add_tainted_by(tainted_by)
+                    new_taint.add_tainted_function(tainted_func)
+            for f in new_taint.tainted_functions:
+                f = f.function
                 for var in f.all_state_variables_read() + f.all_state_variables_written():
-                    if not (var in tainted["variables"] or var in new_taint["variables"]):
-                        new_taint["variables"].append(var)
-            for var in new_taint["variables"]:
+                    if var not in (
+                        v.variable for v in tainted.tainted_variables + new_taint.tainted_variables
+                    ):
+                        tainted_var = TaintedVariable(var)
+                        tainted_var.add_tainted_by(f)
+                        new_taint.add_tainted_variable(tainted_var)
+            for var in new_taint.tainted_variables:
+                var = var.variable
                 read_write = set(
                     contract.get_functions_reading_from_variable(var)
                     + contract.get_functions_writing_to_variable(var)
                 )
                 for f in read_write:
-                    if f not in tainted["functions"] + new_taint["functions"] and not (
-                        f.is_constructor or f.is_fallback or f.is_receive
-                    ):
-                        new_taint["functions"].append(f)
-            if len(new_taint["functions"]) > 0:
+                    if f not in (
+                        t.function for t in tainted.tainted_functions + new_taint.tainted_functions
+                    ) and not (f.is_constructor or f.is_fallback or f.is_receive):
+                        tainted_func = TaintedFunction(f)
+                        tainted_func.add_tainted_by(var)
+                        new_taint.add_tainted_function(tainted_func)
+            if len(new_taint.tainted_functions) > 0:
                 tainted_contracts.append(new_taint)
     return tainted_contracts
 
