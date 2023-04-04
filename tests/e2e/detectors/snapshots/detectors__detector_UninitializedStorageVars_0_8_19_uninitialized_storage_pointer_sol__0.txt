@@ -1,0 +1,2 @@
+Uninitialized.bad().ret (tests/e2e/detectors/test_data/uninitialized-storage/0.8.19/uninitialized_storage_pointer.sol#7) is a storage variable never initialized
+

@@ -1,0 +1,12 @@
+Test.state (tests/e2e/detectors/test_data/write-after-write/0.8.0/write-after-write.sol#3) is written in both
+	state = 10 (tests/e2e/detectors/test_data/write-after-write/0.8.0/write-after-write.sol#10)
+	state = 20 (tests/e2e/detectors/test_data/write-after-write/0.8.0/write-after-write.sol#11)
+
+Test.bugy_external_local().local (tests/e2e/detectors/test_data/write-after-write/0.8.0/write-after-write.sol#52) is written in both
+	local = 10 (tests/e2e/detectors/test_data/write-after-write/0.8.0/write-after-write.sol#53)
+	local = 11 (tests/e2e/detectors/test_data/write-after-write/0.8.0/write-after-write.sol#56)
+
+Test.buggy_local().a (tests/e2e/detectors/test_data/write-after-write/0.8.0/write-after-write.sol#21) is written in both
+	a = 10 (tests/e2e/detectors/test_data/write-after-write/0.8.0/write-after-write.sol#22)
+	a = 20 (tests/e2e/detectors/test_data/write-after-write/0.8.0/write-after-write.sol#23)
+

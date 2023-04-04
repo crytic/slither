@@ -1,0 +1,8 @@
+CallInLoop.bad() (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#24-28) has external calls inside a loop: destinations[i].transfer(i) (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#26)
+
+CallInLoop.bad2() (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#30-37) has external calls inside a loop: destinations[i].transfer(i) (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#35)
+
+CallInLoop.bad3_internal(address,uint256) (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#45-47) has external calls inside a loop: a.transfer(i) (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#46)
+
+CallInLoopBase.bad_base() (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#9-13) has external calls inside a loop: destinations_base[i].transfer(i) (tests/e2e/detectors/test_data/calls-loop/0.4.25/multiple_calls_in_loop.sol#11)
+
