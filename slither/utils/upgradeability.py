@@ -352,7 +352,7 @@ def tainted_inheriting_contracts(
                             t.function
                             for t in tainted.tainted_functions
                             for call in internal_calls
-                            if str(call) == str(t.function)
+                            if call == t.function
                         ),
                         next(
                             (
