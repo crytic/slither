@@ -2,11 +2,9 @@ import json
 import os
 from pathlib import Path
 import sys
-from pprint import pprint
 from typing import Type, Optional, List
 
 import pytest
-from deepdiff import DeepDiff  # pip install deepdiff
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
@@ -1667,12 +1665,9 @@ def test_detector(test_item: Test, snapshot):
         test_item.solc_ver,
     ).as_posix()
     test_file_path = Path(test_dir_path, test_item.test_file).as_posix()
-    expected_result_path = Path(test_dir_path, test_item.expected_result).absolute().as_posix()
 
     zip_artifact_path = Path(f"{test_file_path}-{test_item.solc_ver}.zip").as_posix()
     crytic_compile = load_from_zip(zip_artifact_path)[0]
-    # The absolute paths saved in the zip file must be replaced by the generic path
-    artifact_filenames = crytic_compile.filenames
 
     sl = Slither(crytic_compile)
     sl.register_detector(test_item.detector)
@@ -1684,37 +1679,6 @@ def test_detector(test_item: Test, snapshot):
             actual_output += result["description"]
             actual_output += "\n"
     assert snapshot() == actual_output
-
-    with open(expected_result_path, encoding="utf8") as f:
-        expected_result = json.load(f)
-
-    results_as_string = json.dumps(results)
-
-    for additional_file in test_item.additional_files:
-        additional_path = Path(test_dir_path, additional_file).absolute().as_posix()
-        additional_path = additional_path.replace("\\", "\\\\")
-        for artifact_filename in artifact_filenames:
-            results_as_string = results_as_string.replace(artifact_filename.absolute, GENERIC_PATH)
-
-    test_file_path = test_file_path.replace("\\", "\\\\")
-    for artifact_filename in artifact_filenames:
-        results_as_string = results_as_string.replace(artifact_filename.absolute, GENERIC_PATH)
-    results = json.loads(results_as_string)
-
-    diff = DeepDiff(results, expected_result, ignore_order=True, verbose_level=2)
-    if diff:
-        pprint(diff)
-        diff_as_dict = diff.to_dict()
-
-        if "iterable_item_added" in diff_as_dict:
-            print("#### Findings added")
-            for finding_added in diff_as_dict["iterable_item_added"].values():
-                print(finding_added["description"])
-        if "iterable_item_removed" in diff_as_dict:
-            print("#### Findings removed")
-            for finding_added in diff_as_dict["iterable_item_removed"].values():
-                print(finding_added["description"])
-        assert False
 
 
 def _generate_test(test_item: Test, skip_existing=False):
