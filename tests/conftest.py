@@ -53,7 +53,7 @@ def solc_binary_path(shared_directory):
             if not solc_select.artifact_path(version).exists():
                 print("Installing solc version", version)
                 solc_select.install_artifacts([version])
-        return solc_select.artifact_path(version)
+        return solc_select.artifact_path(version).as_posix()
 
     return inner
 
