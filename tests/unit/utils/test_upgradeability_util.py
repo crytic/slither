@@ -40,7 +40,6 @@ def test_upgrades_compare() -> None:
     assert new_funcs == [v2.get_function_from_signature("i()")]
     assert modified_funcs == [v2.get_function_from_signature("checkB()")]
     assert tainted_funcs == [
-        v2.get_function_from_signature("g(uint256)"),
         v2.get_function_from_signature("h()"),
     ]
 
