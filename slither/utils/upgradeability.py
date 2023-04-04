@@ -327,15 +327,16 @@ def tainted_inheriting_contracts(
     """
     for tainted in tainted_contracts:
         contract = tainted.contract
+        check_contracts = contracts
         if contracts is None:
-            contracts = contract.compilation_unit.contracts
-        contracts = [
+            check_contracts = contract.compilation_unit.contracts
+        check_contracts = [
             c
-            for c in contracts
+            for c in check_contracts
             if c.name not in [t.contract.name for t in tainted_contracts]
             and c.name in [i.name for i in c.inheritance]
         ]
-        for c in contracts:
+        for c in check_contracts:
             new_taint = TaintedExternalContract(c)
             for f in c.functions_declared:
                 internal_calls = f.all_internal_calls()
