@@ -23,7 +23,7 @@ def _use_modifier(function: Function, modifier_name: str = "whenNotPaused") -> b
 
 class PrinterWhenNotPaused(AbstractPrinter):
 
-    ARGUMENT = "pausable"
+    ARGUMENT = "not-pausable"
     HELP = "Print functions that do not use whenNotPaused"
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#when-not-paused"
