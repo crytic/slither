@@ -526,8 +526,8 @@ Please rename it, this name is reserved for Slither's internals"""
         if not self._parsed:
             raise SlitherException("Parse the contract before running analyses")
         self._convert_to_slithir()
-
-        compute_dependency(self._compilation_unit)
+        if not self._compilation_unit.core.skip_data_dependency:
+            compute_dependency(self._compilation_unit)
         self._compilation_unit.compute_storage_layout()
         self._analyzed = True
 

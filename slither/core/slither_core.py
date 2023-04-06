@@ -96,6 +96,8 @@ class SlitherCore(Context):
         # If true, partial analysis is allowed
         self.no_fail = False
 
+        self.skip_data_dependency = False
+
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
         return list(self._compilation_units)
