@@ -1145,14 +1145,12 @@ class FunctionSolc(CallerContextExpression):
         node.set_sons([start_node])
         start_node.add_father(node)
 
-    def _fix_try(self, node: Node, visited: set[Node] = None) -> None:
-        if visited is None:
-            visited = set()
+    def _fix_try(self, node: Node) -> None:
         end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
         if end_node:
             for son in node.sons:
                 if son.type == NodeType.CATCH:
-                    self._fix_catch(son, end_node, visited)
+                    self._fix_catch(son, end_node, set())
 
     def _fix_catch(self, node: Node, end_node: Node, visited: set[Node]) -> None:
         if not node.sons:
