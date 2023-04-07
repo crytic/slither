@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional, Union, List, TYPE_CHECKING, Tuple
+from typing import Dict, Optional, Union, List, TYPE_CHECKING, Tuple, Set
 
 from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
 from slither.core.cfg.scope import Scope
@@ -1152,7 +1152,7 @@ class FunctionSolc(CallerContextExpression):
                 if son.type == NodeType.CATCH:
                     self._fix_catch(son, end_node, set())
 
-    def _fix_catch(self, node: Node, end_node: Node, visited: set[Node]) -> None:
+    def _fix_catch(self, node: Node, end_node: Node, visited: Set[Node]) -> None:
         if not node.sons:
             link_nodes(node, end_node)
         else:
