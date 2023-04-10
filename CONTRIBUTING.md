@@ -47,7 +47,7 @@ A code walkthrough is available [here](https://www.youtube.com/watch?v=EUl3UlYSl
 
 Instructions for installing a development version of Slither can be found in our [wiki](https://github.com/crytic/slither/wiki/Developer-installation).
 
-To run the unit tests, you need to clone this repository and run `make test`. Run a specific test with `make test TESTS=$test_name`.
+To run the unit tests, you need to clone this repository and run `make test`. Run a specific test with `make test TESTS=$test_name`. The names of tests can be obtained with `pytest tests --collect-only`.
 
 ### Linters
 
@@ -73,7 +73,7 @@ How do I know what kind of test(s) to write?
 
 - End-to-end: functionality that requires invoking `Slither` and inspecting some output such as printers and detectors.
 - Unit: additions and modifications to objects should be accompanied by a unit test that defines the expected behavior. Aim to write functions in as pure a way as possible such that they are easier to test.
-- Tools: tools built on top of Slither (`slither/tools) but not apart of its core functionality
+- Tools: tools built on top of Slither (`slither/tools`) but not apart of its core functionality
 
 #### Adding detector tests
 
