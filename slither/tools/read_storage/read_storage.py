@@ -320,6 +320,8 @@ class SlitherReadStorage:
                     and "sload" in str(exp.expression_right.called)
                     and str(exp.expression_right.arguments[0]) == str(var.expression)
                 ):
+                    if func.is_fallback:
+                        return "address", 160
                     storage_type = exp.expression_left.value.type.name
                     size, _ = exp.expression_left.value.type.storage_size
                     return storage_type, size * 8
