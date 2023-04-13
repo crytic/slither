@@ -320,7 +320,9 @@ class SlitherReadStorage:
                     and "sload" in str(exp.expression_right.called)
                     and str(exp.expression_right.arguments[0]) == str(var.expression)
                 ):
-                    return "address", 160
+                    storage_type = exp.expression_left.value.type.name
+                    size, _ = exp.expression_left.value.type.storage_size
+                    return storage_type, size * 8
                 # Look for variable storage in assembly stored to a hardcoded slot
                 if (
                     isinstance(exp, CallExpression)
