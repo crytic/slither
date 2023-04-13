@@ -79,6 +79,10 @@ class SlitherReadStorage:
             self._web3 = Web3(Web3.HTTPProvider(self.rpc))
         return self._web3
 
+    @web3.setter
+    def web3(self, web3: Web3):
+        self._web3 = web3
+
     @property
     def checksum_address(self) -> ChecksumAddress:
         if not self.storage_address:
