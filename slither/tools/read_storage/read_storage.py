@@ -280,8 +280,7 @@ class SlitherReadStorage:
             type (str): The type of value stored in the slot.
             size (int): The type's size in bits.
         """
-        if not (var.is_constant and var.type == ElementaryType("bytes32")):
-            return None, None
+        assert(var.is_constant and var.type == ElementaryType("bytes32"))
         storage_type = None
         size = None
         funcs = []
