@@ -69,6 +69,7 @@ class SlitherReadStorage:
         self.rpc: Optional[str] = None
         self.storage_address: Optional[str] = None
         self.table: Optional[MyPrettyTable] = None
+        self.unstructured: bool = False
 
     @property
     def contracts(self) -> List[Contract]:
@@ -129,10 +130,12 @@ class SlitherReadStorage:
                 elif isinstance(type_, ArrayType):
                     elems = self._all_array_slots(var, contract, type_, info.slot)
                     tmp[var.name].elems = elems
-        tmp = self.get_unstructured_layout(tmp)
+        if self.unstructured:
+            tmp.update(self.get_unstructured_layout())
         self._slot_info = tmp
 
-    def get_unstructured_layout(self, tmp: dict) -> dict:
+    def get_unstructured_layout(self) -> Dict[str, SlotInfo]:
+        tmp: Dict[str, SlotInfo] = {}
         for _, var in self.constant_slots:
             var_name = var.name
             try:
@@ -370,9 +373,10 @@ class SlitherReadStorage:
                         self._target_variables.append((contract, var))
                     elif var.is_constant and var.type == ElementaryType("bytes32"):
                         self._constant_storage_slots.append((contract, var))
-            hardcoded_slot = self.find_hardcoded_slot_in_fallback(contract)
-            if hardcoded_slot is not None:
-                self._constant_storage_slots.append((contract, hardcoded_slot))
+            if self.unstructured:
+                hardcoded_slot = self.find_hardcoded_slot_in_fallback(contract)
+                if hardcoded_slot is not None:
+                    self._constant_storage_slots.append((contract, hardcoded_slot))
 
     def find_hardcoded_slot_in_fallback(self, contract: Contract) -> Optional[StateVariable]:
         """

@@ -101,6 +101,7 @@ def test_unstructured_storage(web3, ganache) -> None:
     contracts = sl.contracts
 
     srs = SlitherReadStorage(contracts, 100)
+    srs.unstructured = True
     srs.rpc = ganache.provider
     srs.storage_address = address
     srs.get_all_storage_variables()

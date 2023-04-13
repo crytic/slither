@@ -104,6 +104,12 @@ def parse_args() -> argparse.Namespace:
         default="latest",
     )
 
+    parser.add_argument(
+        "--unstructured",
+        action="store_true",
+        help="Include unstructured storage slots",
+    )
+
     cryticparser.init(parser)
 
     return parser.parse_args()
@@ -127,6 +133,8 @@ def main() -> None:
         contracts = slither.contracts
 
     srs = SlitherReadStorage(contracts, args.max_depth)
+
+    srs.unstructured = bool(args.unstructured)
 
     try:
         srs.block = int(args.block)
