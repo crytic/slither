@@ -26,7 +26,7 @@ from slither.core.expressions import (
     CallExpression,
 )
 from slither.utils.myprettytable import MyPrettyTable
-from slither.visitors.expression.constants_folding import ConstantFolding
+from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
 
 from .utils import coerce_type, get_offset_value, get_storage_data
 
@@ -168,7 +168,7 @@ class SlitherReadStorage:
                     )
                     logger.info(self.log)
                     self.log = ""
-            except TypeError:
+            except (TypeError, NotConstant):
                 continue
         return tmp
 
