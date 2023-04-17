@@ -28,9 +28,6 @@ class ContractSummary(AbstractPrinter):
 
         all_contracts = []
         for c in self.contracts:
-            if c.is_top_level:
-                continue
-
             is_upgradeable_proxy = c.is_upgradeable_proxy
             is_upgradeable = c.is_upgradeable
 

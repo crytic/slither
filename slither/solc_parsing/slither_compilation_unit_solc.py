@@ -402,10 +402,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         # First we save all the contracts in a dict
         # the key is the contractid
         for contract in self._underlying_contract_to_parser:
-            if (
-                contract.name.startswith("SlitherInternalTopLevelContract")
-                and not contract.is_top_level
-            ):
+            if contract.name.startswith("SlitherInternalTopLevelContract"):
                 raise SlitherException(
                     # region multi-line-string
                     """Your codebase has a contract named 'SlitherInternalTopLevelContract'.
