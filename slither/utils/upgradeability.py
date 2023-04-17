@@ -115,6 +115,7 @@ def compare(
         new-functions: list[Function],
         modified-functions: list[Function],
         tainted-functions: list[Function]
+        tainted-contracts: list[TaintedExternalContract]
     """
 
     order_vars1 = [
