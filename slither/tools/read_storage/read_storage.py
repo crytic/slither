@@ -374,7 +374,7 @@ class SlitherReadStorage:
                 if func(var):
                     if not var.is_constant and not var.is_immutable:
                         self._target_variables.append((contract, var))
-                    elif var.is_constant and var.type == ElementaryType("bytes32"):
+                    elif self.unstructured and var.is_constant and var.type == ElementaryType("bytes32"):
                         self._constant_storage_slots.append((contract, var))
             if self.unstructured:
                 hardcoded_slot = self.find_hardcoded_slot_in_fallback(contract)
