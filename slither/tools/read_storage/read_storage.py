@@ -8,6 +8,8 @@ from eth_abi import decode, encode
 from eth_typing.evm import ChecksumAddress
 from eth_utils import keccak
 from web3 import Web3
+from web3.exceptions import ExtraDataLengthError
+from web3.middleware import geth_poa_middleware
 
 from slither.core.declarations import Contract, Structure
 from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
@@ -52,7 +54,7 @@ class SlitherReadStorage:
         self._slot_info: Dict[str, SlotInfo] = {}
         self._target_variables: List[Tuple[Contract, StateVariable]] = []
         self._web3: Optional[Web3] = None
-        self.block: Union[str, int] = "latest"
+        self._block: Optional[int] = None
         self.rpc: Optional[str] = None
         self.storage_address: Optional[str] = None
         self.table: Optional[MyPrettyTable] = None
@@ -72,6 +74,26 @@ class SlitherReadStorage:
     @log.setter
     def log(self, log: str) -> None:
         self._log = log
+
+    @property
+    def block(self) -> int:
+        """If the RPC is for a POA network, the first call to get_block fails, so we inject geth_poa_middleware"""
+        if not self._block:
+            try:
+                self._block = self.web3.eth.get_block("latest")["number"]
+            except ExtraDataLengthError:
+                self.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+                self._block = self.web3.eth.get_block("latest")["number"]
+        return self._block
+
+    @block.setter
+    def block(self, block) -> None:
+        """If the RPC is for a POA network, the first call to get_block fails, so we inject geth_poa_middleware"""
+        try:
+            self._block = self.web3.eth.get_block(block)["number"]
+        except ExtraDataLengthError:
+            self.web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            self._block = self.web3.eth.get_block(block)["number"]
 
     @property
     def web3(self) -> Web3:
