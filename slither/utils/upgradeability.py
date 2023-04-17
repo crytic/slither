@@ -182,10 +182,7 @@ def compare(
         written_by = v2.get_functions_writing_to_variable(var)
         if next((v for v in v1.state_variables_ordered if v.name == var.name), None) is None:
             new_variables.append(var)
-        elif any(
-            func in written_by
-            for func in new_modified_functions + tainted_functions
-        ):
+        elif any(func in written_by for func in new_modified_functions + tainted_functions):
             tainted_variables.append(var)
 
     # Find all external contracts and functions called by new/modified/tainted functions
