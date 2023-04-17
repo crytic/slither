@@ -118,7 +118,7 @@ def generate_interface_function_signature(
         or func.is_receive
     ):
         return None
-    view = " view" if func.view else ""
+    view = " view" if func.view and not func.pure else ""
     pure = " pure" if func.pure else ""
     payable = " payable" if func.payable else ""
     returns = [
