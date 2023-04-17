@@ -489,14 +489,15 @@ class SlitherReadStorage:
             if str_value.isdecimal():
                 value = int(value)
             if isinstance(value, (int, bytes)):
-                str_value = str(value).replace("b'", "0x").replace("\\x", "").replace("'", "")
+                if isinstance(value, bytes):
+                    str_value = "0x" + value.hex()
+                    value = int(str_value, 16)
                 exp = Literal(str_value, ElementaryType("bytes32"))
-                int_value = int(str_value, 16)
                 state_var_slots = [
                     self.get_variable_info(contract, var)[0]
                     for contract, var in self.target_variables
                 ]
-                if int_value in state_var_slots:
+                if value in state_var_slots:
                     return None
             sv.expression = exp
             sv.is_constant = True
