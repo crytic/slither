@@ -17,7 +17,7 @@ class VarReadUsingThis(AbstractDetector):
     IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Vulnerabilities-Description#public-variable-read-in-external-context"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#public-variable-read-in-external-context"
 
     WIKI_TITLE = "Public variable read in external context"
     WIKI_DESCRIPTION = "The contract reads its own variable using `this`, adding overhead of an unnecessary STATICCALL."
