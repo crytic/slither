@@ -6,13 +6,17 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 CONSTANT_FOLDING_TEST_ROOT = Path(TEST_DATA_DIR, "constant_folding")
 
 
-def test_constant_folding_unary():
+def test_constant_folding_unary(solc_binary_path):
+    solc_path = solc_binary_path("0.8.0")
     file = Path(CONSTANT_FOLDING_TEST_ROOT, "constant_folding_unary.sol").as_posix()
-    Slither(file)
+    Slither(file, solc=solc_path)
 
 
-def test_constant_folding_rational():
-    s = Slither(Path(CONSTANT_FOLDING_TEST_ROOT, "constant_folding_rational.sol").as_posix())
+def test_constant_folding_rational(solc_binary_path):
+    solc_path = solc_binary_path("0.8.0")
+    s = Slither(
+        Path(CONSTANT_FOLDING_TEST_ROOT, "constant_folding_rational.sol").as_posix(), solc=solc_path
+    )
     contract = s.get_contract_from_name("C")[0]
 
     variable_a = contract.get_state_variable_from_name("a")
@@ -50,8 +54,11 @@ def test_constant_folding_rational():
     assert str(ConstantFolding(variable_g.expression, "int64").result()) == "-7"
 
 
-def test_constant_folding_binary_expressions():
-    sl = Slither(Path(CONSTANT_FOLDING_TEST_ROOT, "constant_folding_binop.sol").as_posix())
+def test_constant_folding_binary_expressions(solc_binary_path):
+    sl = Slither(
+        Path(CONSTANT_FOLDING_TEST_ROOT, "constant_folding_binop.sol").as_posix(),
+        solc=solc_binary_path("0.8.0"),
+    )
     contract = sl.get_contract_from_name("BinOp")[0]
 
     variable_a = contract.get_state_variable_from_name("a")
