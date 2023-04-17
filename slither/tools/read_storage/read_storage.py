@@ -472,7 +472,10 @@ class SlitherReadStorage:
             exp,
             (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
         ):
-            exp = ConstantFolding(exp, "bytes32").result()
+            try:
+                exp = ConstantFolding(exp, "bytes32").result()
+            except NotConstant:
+                return None
         if (
             isinstance(exp, Literal)
             and isinstance(exp.type, ElementaryType)
