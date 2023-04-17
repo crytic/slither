@@ -1,0 +1,25 @@
+Reentrancy in ReentrancyWrite.bad0() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#16-23):
+	External calls:
+	- (success) = msg.sender.call() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#18)
+	State variables written after the call(s):
+	- notCalled = false (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#22)
+	ReentrancyWrite.notCalled (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#4) can be used in cross function reentrancies:
+	- ReentrancyWrite.bad0() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#16-23)
+	- ReentrancyWrite.bad1(address) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#25-30)
+	- ReentrancyWrite.constructor(address) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#7-14)
+	- ReentrancyWrite.good() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#32-39)
+
+Reentrancy in ReentrancyWrite.bad1(address) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#25-30):
+	External calls:
+	- (success) = msg.sender.call() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#27)
+	- bad0() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#29)
+		- (success) = msg.sender.call() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#18)
+	State variables written after the call(s):
+	- bad0() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#29)
+		- notCalled = false (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#22)
+	ReentrancyWrite.notCalled (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#4) can be used in cross function reentrancies:
+	- ReentrancyWrite.bad0() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#16-23)
+	- ReentrancyWrite.bad1(address) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#25-30)
+	- ReentrancyWrite.constructor(address) (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#7-14)
+	- ReentrancyWrite.good() (tests/e2e/detectors/test_data/reentrancy-no-eth/0.5.16/reentrancy-write.sol#32-39)
+

@@ -1660,7 +1660,7 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 # pylint: disable=too-many-locals
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
-def test_detector(test_item: Test):
+def test_detector(test_item: Test, snapshot):
     test_dir_path = Path(
         TEST_DATA_DIR,
         test_item.detector.ARGUMENT,
@@ -1677,6 +1677,13 @@ def test_detector(test_item: Test):
     sl = Slither(crytic_compile)
     sl.register_detector(test_item.detector)
     results = sl.run_detectors()
+
+    actual_output = ""
+    for detector_result in results:
+        for result in detector_result:
+            actual_output += result["description"]
+            actual_output += "\n"
+    assert snapshot() == actual_output
 
     with open(expected_result_path, encoding="utf8") as f:
         expected_result = json.load(f)

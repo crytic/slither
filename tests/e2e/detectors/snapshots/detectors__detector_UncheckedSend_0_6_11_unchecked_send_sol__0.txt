@@ -1,0 +1,2 @@
+MyConc.bad(address) (tests/e2e/detectors/test_data/unchecked-send/0.6.11/unchecked_send.sol#2-4) ignores return value by dst.send(msg.value) (tests/e2e/detectors/test_data/unchecked-send/0.6.11/unchecked_send.sol#3)
+

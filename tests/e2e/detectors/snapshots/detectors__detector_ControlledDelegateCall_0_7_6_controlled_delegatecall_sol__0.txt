@@ -1,0 +1,6 @@
+C.bad_delegate_call2(bytes) (tests/e2e/detectors/test_data/controlled-delegatecall/0.7.6/controlled_delegatecall.sol#18-20) uses delegatecall to a input-controlled function id
+	- addr_bad.delegatecall(abi.encode(func_id,data)) (tests/e2e/detectors/test_data/controlled-delegatecall/0.7.6/controlled_delegatecall.sol#19)
+
+C.bad_delegate_call(bytes) (tests/e2e/detectors/test_data/controlled-delegatecall/0.7.6/controlled_delegatecall.sol#8-11) uses delegatecall to a input-controlled function id
+	- addr_bad.delegatecall(data) (tests/e2e/detectors/test_data/controlled-delegatecall/0.7.6/controlled_delegatecall.sol#10)
+
