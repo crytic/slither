@@ -1,4 +1,3 @@
-import json
 import os
 from pathlib import Path
 import sys
@@ -8,6 +7,7 @@ import pytest
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
+from solc_select import solc_select
 
 from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
@@ -43,7 +43,6 @@ class Test:  # pylint: disable=too-few-public-methods
 def set_solc(test_item: Test):  # pylint: disable=too-many-lines
     # hacky hack hack to pick the solc version we want
     env = dict(os.environ)
-    from solc_select import solc_select
 
     if not solc_select.artifact_path(test_item.solc_ver).exists():
         print("Installing solc version", test_item.solc_ver)
