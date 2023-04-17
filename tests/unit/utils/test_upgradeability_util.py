@@ -34,7 +34,6 @@ def test_upgrades_compare() -> None:
     assert len(missing_vars) == len(tainted_contracts) == 0
     assert new_vars == [v2.get_state_variable_from_name("stateC")]
     assert tainted_vars == [
-        v2.get_state_variable_from_name("stateB"),
         v2.get_state_variable_from_name("bug"),
     ]
     assert new_funcs == [v2.get_function_from_signature("i()")]
