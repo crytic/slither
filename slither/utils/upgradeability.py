@@ -177,15 +177,13 @@ def compare(
         if len(modified_calls) > 0 or len(tainted_vars) > 0:
             tainted_functions.append(function)
 
-    # Find all new or tainted variables, i.e., variables that are read or written by a new/modified/tainted function
+    # Find all new or tainted variables, i.e., variables that are written by a new/modified/tainted function
     for var in order_vars2:
-        read_by = v2.get_functions_reading_from_variable(var)
         written_by = v2.get_functions_writing_to_variable(var)
-        # if v1.get_state_variable_from_name(var.name) is None:
         if next((v for v in v1.state_variables_ordered if v.name == var.name), None) is None:
             new_variables.append(var)
         elif any(
-            func in read_by or func in written_by
+            func in written_by
             for func in new_modified_functions + tainted_functions
         ):
             tainted_variables.append(var)
