@@ -72,6 +72,8 @@ def generate_interface(
 def generate_interface_variable_signature(
     var: "StateVariable", unroll_structs: bool = True
 ) -> Optional[str]:
+    if var.visibility in ["private", "internal"]:
+        return None
     if unroll_structs:
         params = [
             convert_type_for_solidity_signature_to_string(x).replace("(", "").replace(")", "")
