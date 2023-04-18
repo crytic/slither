@@ -80,7 +80,7 @@ class SlitherReadStorage:
         return self._web3
 
     @web3.setter
-    def web3(self, web3: Web3):
+    def web3(self, web3: Web3) -> None:
         self._web3 = web3
 
     @property
