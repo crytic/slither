@@ -24,33 +24,37 @@ if TYPE_CHECKING:
 def generate_interface(
     contract: "Contract",
     unroll_structs: bool = True,
-    skip_events: bool = False,
-    skip_errors: bool = False,
-    skip_enums: bool = False,
-    skip_structs: bool = False,
+    include_events: bool = True,
+    include_errors: bool = True,
+    include_enums: bool = True,
+    include_structs: bool = True,
 ) -> str:
     """
     Generates code for a Solidity interface to the contract.
     Args:
         contract: A Contract object.
-        unroll_structs: Specifies whether to use structures' underlying types instead of the user-defined type.
+        unroll_structs: Whether to use structures' underlying types instead of the user-defined type (default: True).
+        include_events: Whether to include event signatures in the interface (default: True).
+        include_errors: Whether to include custom error signatures in the interface (default: True).
+        include_enums: Whether to include enum definitions in the interface (default: True).
+        include_structs: Whether to include struct definitions in the interface (default: True).
 
     Returns:
         A string with the code for an interface, with function stubs for all public or external functions and
         state variables, as well as any events, custom errors and/or structs declared in the contract.
     """
     interface = f"interface I{contract.name} {{\n"
-    if not skip_events:
+    if include_events:
         for event in contract.events:
             name, args = event.signature
             interface += f"    event {name}({', '.join(args)});\n"
-    if not skip_errors:
+    if include_errors:
         for error in contract.custom_errors:
             interface += f"    error {generate_custom_error_interface(error, unroll_structs)};\n"
-    if not skip_enums:
+    if include_enums:
         for enum in contract.enums:
             interface += f"    enum {enum.name} {{ {', '.join(enum.values)} }}\n"
-    if not skip_structs:
+    if include_structs:
         for struct in contract.structures:
             interface += generate_struct_interface_str(struct, indent=4)
     for var in contract.state_variables_entry_points:
