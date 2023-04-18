@@ -1,5 +1,5 @@
 # Functions for generating Solidity code
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List
 
 from slither.utils.type import (
     convert_type_for_solidity_signature_to_string,
@@ -17,7 +17,8 @@ from slither.core.declarations import Structure, Enum, Contract
 
 if TYPE_CHECKING:
     from slither.core.declarations import FunctionContract, CustomErrorContract
-    from slither.core.variables import StateVariable
+    from slither.core.variables.state_variable import StateVariable
+    from slither.core.variables.local_variable import LocalVariable
 
 
 # pylint: disable=too-many-arguments
@@ -110,11 +111,38 @@ def generate_interface_function_signature(
 
     Args:
         func: A FunctionContract object
+        unroll_structs: Determines whether structs are unrolled into underlying types (default: True)
 
     Returns:
         The function interface as a str (contains the return values).
         Returns None if the function is private or internal, or is a constructor/fallback/receive.
     """
+
+    def format_params_or_returns(variables: List["LocalVariable"], unroll: bool) -> List[str]:
+        if unroll:
+            return [
+                convert_type_for_solidity_signature_to_string(var.type)
+                .replace("(", "")
+                .replace(")", "")
+                for var in variables
+            ]
+        return [
+            convert_type_for_solidity_signature_to_string(var.type)
+            .replace("(", "")
+            .replace(")", "")
+            + f" {var.location}"
+            if isinstance(var.type, ArrayType)
+            and isinstance(var.type.type, (UserDefinedType, ElementaryType))
+            else f"{str(var.type.type)} memory"
+            if isinstance(var.type, UserDefinedType)
+            and isinstance(var.type.type, (Structure, Enum))
+            else "address"
+            if isinstance(var.type, UserDefinedType) and isinstance(var.type.type, Contract)
+            else f"{var.type} {var.location}"
+            if var.type.is_dynamic
+            else str(var.type)
+            for var in variables
+        ]
 
     name, _, _ = func.signature
     if (
@@ -127,43 +155,8 @@ def generate_interface_function_signature(
     view = " view" if func.view and not func.pure else ""
     pure = " pure" if func.pure else ""
     payable = " payable" if func.payable else ""
-    returns = [
-        convert_type_for_solidity_signature_to_string(ret.type).replace("(", "").replace(")", "")
-        if unroll_structs
-        else convert_type_for_solidity_signature_to_string(ret.type)
-        .replace("(", "")
-        .replace(")", "")
-        + f" {ret.location}"
-        if isinstance(ret.type, ArrayType)
-        and isinstance(ret.type.type, (UserDefinedType, ElementaryType))
-        else f"{str(ret.type.type)} memory"
-        if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, (Structure, Enum))
-        else "address"
-        if isinstance(ret.type, UserDefinedType) and isinstance(ret.type.type, Contract)
-        else f"{ret.type} {ret.location}"
-        if ret.type.is_dynamic
-        else str(ret.type)
-        for ret in func.returns
-    ]
-    parameters = [
-        convert_type_for_solidity_signature_to_string(param.type).replace("(", "").replace(")", "")
-        if unroll_structs
-        else convert_type_for_solidity_signature_to_string(param.type)
-        .replace("(", "")
-        .replace(")", "")
-        + f" {param.location}"
-        if isinstance(param.type, ArrayType)
-        and isinstance(param.type.type, (UserDefinedType, ElementaryType))
-        else f"{str(param.type.type)} memory"
-        if isinstance(param.type, UserDefinedType)
-        and isinstance(param.type.type, (Structure, Enum))
-        else "address"
-        if isinstance(param.type, UserDefinedType) and isinstance(param.type.type, Contract)
-        else f"{param.type} {param.location}"
-        if param.type.is_dynamic
-        else str(param.type)
-        for param in func.parameters
-    ]
+    returns = format_params_or_returns(func.returns, unroll_structs)
+    parameters = format_params_or_returns(func.parameters, unroll_structs)
     _interface_signature_str = (
         name + "(" + ",".join(parameters) + ") external" + payable + pure + view
     )
