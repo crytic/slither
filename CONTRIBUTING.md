@@ -79,10 +79,12 @@ How do I know what kind of test(s) to write?
 
 For each new detector, at least one regression tests must be present.
 
-1. Create a test in `tests/e2e/detectors`
-2. Update `ALL_TEST` in `tests/e2e/detectors/test_detectors.py`
-3. Run `python tests/e2e/detectors/test_detectors.py --generate`. This will generate the json artifacts in `tests/expected_json`. Add the generated files to git. If updating an existing detector, identify the respective json artifacts and then delete them, or run `python ./tests/test_detectors.py --overwrite` instead.
-4. Run `pytest tests/e2e/detectors/test_detectors.py` and check that everything worked.
+1. Create a folder in `tests/e2e/detectors/test_data` with the detector's argument name.
+2. Create a test contract in `tests/e2e/detectors/test_data/<detector_name>/`.
+3. Update `ALL_TEST` in `tests/e2e/detectors/test_detectors.py`
+4. Run `python tests/e2e/detectors/test_detectors.py --compile` to create a zip file of the compilation artifacts.
+5. `pytest tests/e2e/detectors/test_detectors.py --insta update-new`. This will generate a snapshot of the detector output in `tests/e2e/detectors/snapshots/`. If updating an existing detector, run `pytest tests/e2e/detectors/test_detectors.py --insta review` and accept or reject the updates.
+6. Run `pytest tests/e2e/detectors/test_detectors.py` to ensure everything worked. Then, add and commit the files to git.
 
 > ##### Helpful commands for detector tests
 >
