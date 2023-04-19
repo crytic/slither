@@ -34,7 +34,7 @@ def test_concrete_contract(solc_binary_path) -> None:
 
     solc_path = solc_binary_path("0.5.0")
     slither = Slither(
-        Path(CONTRACT_DECL_TEST_ROOT, "concrete.sol").as_posix(),
+        Path(CONTRACT_DECL_TEST_ROOT, "concrete_old.sol").as_posix(),
         solc_force_legacy_json=True,
         solc=solc_path,
     )
