@@ -32,6 +32,7 @@ def test_concrete_contract(solc_binary_path) -> None:
     slither = Slither(Path(CONTRACT_DECL_TEST_ROOT, "concrete.sol").as_posix(), solc=solc_path)
     assert slither.contracts[0].is_fully_implemented
 
+    solc_path = solc_binary_path("0.5.0")
     slither = Slither(
         Path(CONTRACT_DECL_TEST_ROOT, "concrete.sol").as_posix(),
         solc_force_legacy_json=True,
