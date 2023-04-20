@@ -1397,7 +1397,6 @@ class FunctionSolc(CallerContextExpression):
 
         for father in node.fathers:
             father.replace_son(node, condition_node.underlying_node)
-            father.add_son(condition_node.underlying_node)
             condition_node.underlying_node.add_father(father)
 
         for son in node.sons:
