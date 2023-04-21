@@ -1052,7 +1052,7 @@ def test_issue_1748(slither_from_source):
         assert isinstance(assign_op, InitArray)
 
 
-def test_issue_1776():
+def test_issue_1776(slither_from_source):
     source = """
     contract Contract {
         function foo() public returns (uint) {
