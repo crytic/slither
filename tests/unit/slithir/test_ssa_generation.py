@@ -1050,7 +1050,7 @@ def test_issue_1748(slither_from_source):
         assert isinstance(assign_op, InitArray)
 
 
-def test_issue_1846_ternary_in_if():
+def test_issue_1846_ternary_in_if(slither_from_source):
     source = """
     contract Contract {
         function foo(uint x) public returns (uint y) {
@@ -1071,7 +1071,7 @@ def test_issue_1846_ternary_in_if():
         assert node.son_false.type == NodeType.EXPRESSION
 
 
-def test_issue_1846_ternary_in_ternary():
+def test_issue_1846_ternary_in_ternary(slither_from_source):
     source = """
         contract Contract {
             function foo(uint x) public returns (uint y) {
