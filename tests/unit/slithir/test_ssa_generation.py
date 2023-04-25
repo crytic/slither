@@ -1048,3 +1048,41 @@ def test_issue_1748(slither_from_source):
         operations = f.slithir_operations
         assign_op = operations[0]
         assert isinstance(assign_op, InitArray)
+
+
+def test_issue_1846_ternary_in_if(slither_from_source):
+    source = """
+    contract Contract {
+        function foo(uint x) public returns (uint y) {
+            if (x > 0) {
+                y = x > 1 ? 2 : 3;
+            } else {
+                y = 4;
+            }
+        }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+        f = c.functions[0]
+        node = f.nodes[1]
+        assert node.type == NodeType.IF
+        assert node.son_true.type == NodeType.IF
+        assert node.son_false.type == NodeType.EXPRESSION
+
+
+def test_issue_1846_ternary_in_ternary(slither_from_source):
+    source = """
+        contract Contract {
+            function foo(uint x) public returns (uint y) {
+                y = x > 0 ? x > 1 ? 2 : 3 : 4;
+            }
+        }
+        """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+        f = c.functions[0]
+        node = f.nodes[1]
+        assert node.type == NodeType.IF
+        assert node.son_true.type == NodeType.IF
+        assert node.son_false.type == NodeType.EXPRESSION
