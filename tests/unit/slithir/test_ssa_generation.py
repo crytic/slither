@@ -1,15 +1,17 @@
 # # pylint: disable=too-many-lines
 import pathlib
-from collections import defaultdict
 from argparse import ArgumentTypeError
+from collections import defaultdict
 from inspect import getsourcefile
 from typing import Union, List, Dict, Callable
 
 import pytest
 from solc_select.solc_select import valid_version as solc_valid_version
+
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
+from slither.core.solidity_types import ArrayType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
@@ -33,8 +35,6 @@ from slither.slithir.variables import (
     StateIRVariable,
     TemporaryVariableSSA,
 )
-
-from slither.core.solidity_types import ArrayType
 
 # Directory of currently executing script. Will be used as basis for temporary file names.
 SCRIPT_DIR = pathlib.Path(getsourcefile(lambda: 0)).parent  # type:ignore
@@ -1078,3 +1078,41 @@ def test_issue_1776(slither_from_source):
         assert isinstance(lvalue_type2, ArrayType)
         assert not lvalue_type2.is_dynamic
         assert lvalue_type2.length_value.value == "5"
+
+
+def test_issue_1846_ternary_in_if(slither_from_source):
+    source = """
+    contract Contract {
+        function foo(uint x) public returns (uint y) {
+            if (x > 0) {
+                y = x > 1 ? 2 : 3;
+            } else {
+                y = 4;
+            }
+        }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+        f = c.functions[0]
+        node = f.nodes[1]
+        assert node.type == NodeType.IF
+        assert node.son_true.type == NodeType.IF
+        assert node.son_false.type == NodeType.EXPRESSION
+
+
+def test_issue_1846_ternary_in_ternary(slither_from_source):
+    source = """
+        contract Contract {
+            function foo(uint x) public returns (uint y) {
+                y = x > 0 ? x > 1 ? 2 : 3 : 4;
+            }
+        }
+        """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+        f = c.functions[0]
+        node = f.nodes[1]
+        assert node.type == NodeType.IF
+        assert node.son_true.type == NodeType.IF
+        assert node.son_false.type == NodeType.EXPRESSION

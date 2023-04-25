@@ -170,10 +170,9 @@ class ContractSolc(CallerContextExpression):
             elif attributes["contractKind"] == "library":
                 self._contract.is_library = True
             self._contract.contract_kind = attributes["contractKind"]
-            self._contract.is_fully_implemented = attributes["fullyImplemented"]
 
+        self._contract.is_fully_implemented = attributes["fullyImplemented"]
         self._linearized_base_contracts = attributes["linearizedBaseContracts"]
-        # self._contract.fullyImplemented = attributes["fullyImplemented"]
 
         # Parse base contract information
         self._parse_base_contract_info()
