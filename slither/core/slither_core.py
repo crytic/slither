@@ -161,6 +161,51 @@ class SlitherCore(Context):
     def filename(self, filename: str):
         self._filename = filename
 
+    def count_lines(self, contract_lines):
+        multiline_comment = False
+        cloc = 0
+        sloc = 0
+        loc = 0
+
+        for line in contract_lines:
+            loc += 1
+            stripped_line = line.strip()
+            if not multiline_comment:
+                if stripped_line.startswith('//'):
+                    cloc += 1
+                elif '/*' in stripped_line:
+                    # Account for case where /* is followed by */ on the same line.
+                    # If it is, then multiline_comment does not need to be set to True
+                    start_idx = stripped_line.find('/*')
+                    end_idx = stripped_line.find('*/', start_idx + 2)
+                    if end_idx == -1:
+                        multiline_comment = True
+                    cloc += 1
+                elif stripped_line:
+                    sloc += 1
+            else:
+                cloc += 1
+                if '*/' in stripped_line:
+                    multiline_comment = False
+
+        return cloc, sloc, loc
+
+    def _update_loc(self, path: str) -> None:
+        """
+        Update the number of lines of code
+        """
+        self._seen = getattr(self, "_seen", {})  # TODO find a better place to init this
+        if path not in self._seen:
+            code_lines = self.source_code[path].split("\n")
+            cloc, sloc, loc = self.count_lines(code_lines)
+            self.code_lines = getattr(self, "code_lines", {})  # TODO find a better place to init this
+            self.code_lines = {
+                "loc": self.code_lines.get("loc", 0) + loc,
+                "cloc": self.code_lines.get("cloc", 0) + cloc,
+                "sloc": self.code_lines.get("sloc", 0) + sloc,
+            }
+            self._seen[path] = loc
+
     def add_source_code(self, path: str) -> None:
         """
         :param path:
@@ -171,6 +216,7 @@ class SlitherCore(Context):
         else:
             with open(path, encoding="utf8", newline="") as f:
                 self.source_code[path] = f.read()
+        self._update_loc(path)
 
         self.parse_ignore_comments(path)
 
