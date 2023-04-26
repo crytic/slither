@@ -205,7 +205,7 @@ class PrinterHumanSummary(AbstractPrinter):
     def _number_contracts(self):
         if self.slither.crytic_compile is None:
             return len(self.slither.contracts), 0, 0
-        contracts = [c for c in self.slither.contracts if not c.is_top_level]
+        contracts = self.slither.contracts
         deps = [c for c in contracts if c.is_from_dependency()]
         tests = [c for c in contracts if c.is_test]
         return len(contracts) - len(deps) - len(tests), len(deps), len(tests)

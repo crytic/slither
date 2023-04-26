@@ -1,0 +1,4 @@
+User.test(Target) (tests/e2e/detectors/test_data/unused-return/0.4.25/unused_return.sol#17-29) ignores return value by t.f() (tests/e2e/detectors/test_data/unused-return/0.4.25/unused_return.sol#18)
+
+User.test(Target) (tests/e2e/detectors/test_data/unused-return/0.4.25/unused_return.sol#17-29) ignores return value by a.add(0) (tests/e2e/detectors/test_data/unused-return/0.4.25/unused_return.sol#22)
+

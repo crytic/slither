@@ -1,6 +1,5 @@
 from pathlib import Path
 from collections import namedtuple
-from solc_select import solc_select
 from slither import Slither
 from slither.slithir.operations import Operation, NewContract
 
@@ -28,12 +27,12 @@ OperationTest = namedtuple("OperationTest", "contract_name slithir_op")
 OPERATION_TEST = [OperationTest("NewContract", NewContract)]
 
 
-def test_operation_reads() -> None:
+def test_operation_reads(solc_binary_path) -> None:
     """
     Every slithir operation has its own contract and reads all local and state variables in readAllLocalVariables and readAllStateVariables, respectively.
     """
-    solc_select.switch_global_version("0.8.15", always_install=True)
-    slither = Slither(Path(TEST_DATA_DIR, "operation_reads.sol").as_posix())
+    solc_path = solc_binary_path("0.8.15")
+    slither = Slither(Path(TEST_DATA_DIR, "operation_reads.sol").as_posix(), solc=solc_path)
 
     for op_test in OPERATION_TEST:
         print(op_test)
@@ -48,7 +47,3 @@ def test_operation_reads() -> None:
         local_function = target.get_function_from_signature("readAllLocalVariables()")
         num_local_vars = len(local_function.local_variables)
         check_num_local_vars_read(local_function, op_test.slithir_op, num_local_vars)
-
-
-if __name__ == "__main__":
-    test_operation_reads()

@@ -1,0 +1,3 @@
+Pragma version0.5.14 (tests/e2e/detectors/test_data/solc-version/0.5.14/static.sol#1) is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+
+solc-0.5.14 is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)

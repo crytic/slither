@@ -3,7 +3,6 @@ import pytest
 
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
-from solc_select import solc_select
 
 from slither import Slither
 
@@ -24,8 +23,8 @@ def test_node_modules() -> None:
     _run_all_detectors(slither)
 
 
-def test_contract_name_collisions() -> None:
-    solc_select.switch_global_version("0.8.0", always_install=True)
+def test_contract_name_collision(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.0")
     standard_json = SolcStandardJson()
     standard_json.add_source_file(
         Path(TEST_DATA_DIR, "test_contract_name_collisions", "a.sol").as_posix()
@@ -34,13 +33,13 @@ def test_contract_name_collisions() -> None:
         Path(TEST_DATA_DIR, "test_contract_name_collisions", "b.sol").as_posix()
     )
 
-    compilation = CryticCompile(standard_json)
+    compilation = CryticCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
 
     _run_all_detectors(slither)
 
 
-def test_cycle() -> None:
-    solc_select.switch_global_version("0.8.0", always_install=True)
-    slither = Slither(Path(TEST_DATA_DIR, "test_cyclic_import", "a.sol").as_posix())
+def test_cycle(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.0")
+    slither = Slither(Path(TEST_DATA_DIR, "test_cyclic_import", "a.sol").as_posix(), solc=solc_path)
     _run_all_detectors(slither)

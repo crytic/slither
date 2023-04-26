@@ -1,0 +1,2 @@
+Bug.testMapping (tests/e2e/detectors/test_data/public-mappings-nested/0.4.25/public_mappings_nested.sol#14) is a public mapping with nested variables
+

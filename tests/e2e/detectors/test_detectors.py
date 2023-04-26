@@ -1,15 +1,13 @@
-import json
 import os
 from pathlib import Path
 import sys
-from pprint import pprint
 from typing import Type, Optional, List
 
 import pytest
-from deepdiff import DeepDiff  # pip install deepdiff
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
+from solc_select import solc_select
 
 from slither import Slither
 from slither.detectors.abstract_detector import AbstractDetector
@@ -35,7 +33,6 @@ class Test:  # pylint: disable=too-few-public-methods
         """
         self.detector = detector
         self.test_file = test_file
-        self.expected_result = test_file + "." + solc_ver + "." + detector.__name__ + ".json"
         self.solc_ver = solc_ver
         if additional_files is None:
             self.additional_files = []
@@ -46,6 +43,10 @@ class Test:  # pylint: disable=too-few-public-methods
 def set_solc(test_item: Test):  # pylint: disable=too-many-lines
     # hacky hack hack to pick the solc version we want
     env = dict(os.environ)
+
+    if not solc_select.artifact_path(test_item.solc_ver).exists():
+        print("Installing solc version", test_item.solc_ver)
+        solc_select.install_artifacts([test_item.solc_ver])
     env["SOLC_VERSION"] = test_item.solc_ver
     os.environ.clear()
     os.environ.update(env)
@@ -1640,106 +1641,33 @@ ALL_TEST_OBJECTS = [
     ),
 ]
 
-
-def get_all_tests() -> List[Test]:
-    # installed_solcs = set(get_installed_solc_versions())
-    # required_solcs = {test.solc_ver for test in ALL_TEST_OBJECTS}
-    # missing_solcs = list(required_solcs - installed_solcs)
-    # if missing_solcs:
-    #     install_solc_versions(missing_solcs)
-
-    return ALL_TEST_OBJECTS
-
-
-ALL_TESTS = get_all_tests()
-
 GENERIC_PATH = "/GENERIC_PATH"
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
-
 # pylint: disable=too-many-locals
-@pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
-def test_detector(test_item: Test):
+@pytest.mark.parametrize("test_item", ALL_TEST_OBJECTS, ids=id_test)
+def test_detector(test_item: Test, snapshot):
     test_dir_path = Path(
         TEST_DATA_DIR,
         test_item.detector.ARGUMENT,
         test_item.solc_ver,
     ).as_posix()
     test_file_path = Path(test_dir_path, test_item.test_file).as_posix()
-    expected_result_path = Path(test_dir_path, test_item.expected_result).absolute().as_posix()
 
     zip_artifact_path = Path(f"{test_file_path}-{test_item.solc_ver}.zip").as_posix()
     crytic_compile = load_from_zip(zip_artifact_path)[0]
-    # The absolute paths saved in the zip file must be replaced by the generic path
-    artifact_filenames = crytic_compile.filenames
 
     sl = Slither(crytic_compile)
     sl.register_detector(test_item.detector)
     results = sl.run_detectors()
 
-    with open(expected_result_path, encoding="utf8") as f:
-        expected_result = json.load(f)
-
-    results_as_string = json.dumps(results)
-
-    for additional_file in test_item.additional_files:
-        additional_path = Path(test_dir_path, additional_file).absolute().as_posix()
-        additional_path = additional_path.replace("\\", "\\\\")
-        for artifact_filename in artifact_filenames:
-            results_as_string = results_as_string.replace(artifact_filename.absolute, GENERIC_PATH)
-
-    test_file_path = test_file_path.replace("\\", "\\\\")
-    for artifact_filename in artifact_filenames:
-        results_as_string = results_as_string.replace(artifact_filename.absolute, GENERIC_PATH)
-    results = json.loads(results_as_string)
-
-    diff = DeepDiff(results, expected_result, ignore_order=True, verbose_level=2)
-    if diff:
-        pprint(diff)
-        diff_as_dict = diff.to_dict()
-
-        if "iterable_item_added" in diff_as_dict:
-            print("#### Findings added")
-            for finding_added in diff_as_dict["iterable_item_added"].values():
-                print(finding_added["description"])
-        if "iterable_item_removed" in diff_as_dict:
-            print("#### Findings removed")
-            for finding_added in diff_as_dict["iterable_item_removed"].values():
-                print(finding_added["description"])
-        assert False
-
-
-def _generate_test(test_item: Test, skip_existing=False):
-    test_dir_path = Path(
-        TEST_DATA_DIR,
-        test_item.detector.ARGUMENT,
-        test_item.solc_ver,
-    ).as_posix()
-    test_file_path = Path(test_dir_path, test_item.test_file).as_posix()
-    expected_result_path = Path(test_dir_path, test_item.expected_result).absolute().as_posix()
-
-    if skip_existing:
-        if os.path.isfile(expected_result_path):
-            return
-
-    set_solc(test_item)
-    sl = Slither(test_file_path)
-    sl.register_detector(test_item.detector)
-    results = sl.run_detectors()
-
-    results_as_string = json.dumps(results)
-    test_file_path = test_file_path.replace("\\", "\\\\")
-    results_as_string = results_as_string.replace(test_file_path, GENERIC_PATH)
-
-    for additional_file in test_item.additional_files:
-        additional_path = Path(test_dir_path, additional_file).absolute().as_posix()
-        additional_path = additional_path.replace("\\", "\\\\")
-        results_as_string = results_as_string.replace(additional_path, GENERIC_PATH)
-
-    results = json.loads(results_as_string)
-    with open(expected_result_path, "w", encoding="utf8") as f:
-        f.write(json.dumps(results, indent=4))
+    actual_output = ""
+    for detector_result in results:
+        for result in detector_result:
+            actual_output += result["description"]
+            actual_output += "\n"
+    assert snapshot() == actual_output
 
 
 def _generate_compile(test_item: Test, skip_existing=False):
@@ -1762,13 +1690,9 @@ def _generate_compile(test_item: Test, skip_existing=False):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("To generate the json artifacts run\n\tpython tests/test_detectors.py --generate")
-    elif sys.argv[1] == "--generate":
-        for next_test in ALL_TESTS:
-            _generate_test(next_test, skip_existing=True)
-    elif sys.argv[1] == "--overwrite":
-        for next_test in ALL_TESTS:
-            _generate_test(next_test)
+        print(
+            "To generate the zip artifacts run\n\tpython tests/e2e/tests/test_detectors.py --compile"
+        )
     elif sys.argv[1] == "--compile":
-        for next_test in ALL_TESTS:
+        for next_test in ALL_TEST_OBJECTS:
             _generate_compile(next_test, skip_existing=True)

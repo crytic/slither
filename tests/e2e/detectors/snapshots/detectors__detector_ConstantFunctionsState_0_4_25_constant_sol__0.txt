@@ -1,0 +1,6 @@
+Constant.test_constant_bug() (tests/e2e/detectors/test_data/constant-function-state/0.4.25/constant.sol#9-11) is declared view but changes state variables:
+	- Constant.a (tests/e2e/detectors/test_data/constant-function-state/0.4.25/constant.sol#3)
+
+Constant.test_view_bug() (tests/e2e/detectors/test_data/constant-function-state/0.4.25/constant.sol#5-7) is declared view but changes state variables:
+	- Constant.a (tests/e2e/detectors/test_data/constant-function-state/0.4.25/constant.sol#3)
+

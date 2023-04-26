@@ -1,0 +1,9 @@
+Bug.bad1(address) (tests/e2e/detectors/test_data/events-access/0.5.16/missing_events_access_control.sol#19-21) should emit an event for: 
+	- owner = newOwner (tests/e2e/detectors/test_data/events-access/0.5.16/missing_events_access_control.sol#20) 
+
+Bug.bad0() (tests/e2e/detectors/test_data/events-access/0.5.16/missing_events_access_control.sol#15-17) should emit an event for: 
+	- owner = msg.sender (tests/e2e/detectors/test_data/events-access/0.5.16/missing_events_access_control.sol#16) 
+
+Bug.bad2(address) (tests/e2e/detectors/test_data/events-access/0.5.16/missing_events_access_control.sol#23-26) should emit an event for: 
+	- owner = newOwner (tests/e2e/detectors/test_data/events-access/0.5.16/missing_events_access_control.sol#25) 
+

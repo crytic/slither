@@ -1,0 +1,12 @@
+Redundant expression "bool (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#7)" inRedundantStatementsContract (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#3-18)
+
+Redundant expression "uint256 (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#12)" inRedundantStatementsContract (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#3-18)
+
+Redundant expression "test (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#14)" inRedundantStatementsContract (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#3-18)
+
+Redundant expression "RedundantStatementsContract (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#8)" inRedundantStatementsContract (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#3-18)
+
+Redundant expression "uint256 (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#6)" inRedundantStatementsContract (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#3-18)
+
+Redundant expression "assert(bool) (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#13)" inRedundantStatementsContract (tests/e2e/detectors/test_data/redundant-statements/0.4.25/redundant_statements.sol#3-18)
+

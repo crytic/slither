@@ -36,8 +36,6 @@ class PrinterSlithIR(AbstractPrinter):
         txt = ""
         for compilation_unit in self.slither.compilation_units:
             for contract in compilation_unit.contracts:
-                if contract.is_top_level:
-                    continue
                 txt += f"Contract {contract.name}\n"
                 for function in contract.functions:
                     txt += f'\tFunction {function.canonical_name} {"" if function.is_shadowed else "(*)"}\n'
