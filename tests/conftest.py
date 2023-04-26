@@ -10,9 +10,9 @@ from pathlib import Path
 from contextlib import contextmanager
 from filelock import FileLock
 from solc_select import solc_select
-from slither import Slither
 from web3 import Web3
 import pytest
+from slither import Slither
 
 
 # pylint: disable=too-few-public-methods
@@ -127,4 +127,3 @@ def slither_from_source(solc_binary_path):
             Path(fname).unlink()
 
     return inner
-
