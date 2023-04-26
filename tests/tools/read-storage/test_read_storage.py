@@ -90,6 +90,8 @@ def test_read_storage(web3, ganache, solc_binary_path) -> None:
 # pylint: disable=too-many-locals
 @pytest.mark.usefixtures("web3", "ganache")
 def test_unstructured_storage(web3, ganache) -> None:
+    solc_path = solc_binary_path(version="0.8.10")
+
     assert web3.is_connected()
     bin_path = Path(TEST_DATA_DIR, "UnstructuredStorageLayout.bin").as_posix()
     abi_path = Path(TEST_DATA_DIR, "UnstructuredStorageLayout.abi").as_posix()
@@ -99,7 +101,7 @@ def test_unstructured_storage(web3, ganache) -> None:
     contract.functions.store().transact({"from": ganache.eth_address})
     address = contract.address
 
-    sl = Slither(Path(TEST_DATA_DIR, "unstructured_storage-0.8.10.sol").as_posix())
+    sl = Slither(Path(TEST_DATA_DIR, "unstructured_storage-0.8.10.sol").as_posix(), solc=solc_path)
     contracts = sl.contracts
 
     srs = SlitherReadStorage(contracts, 100)
