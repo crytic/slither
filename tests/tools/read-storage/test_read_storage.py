@@ -89,7 +89,7 @@ def test_read_storage(web3, ganache, solc_binary_path) -> None:
 
 # pylint: disable=too-many-locals
 @pytest.mark.usefixtures("web3", "ganache")
-def test_unstructured_storage(web3, ganache) -> None:
+def test_unstructured_storage(web3, ganache, solc_binary_path) -> None:
     solc_path = solc_binary_path(version="0.8.10")
 
     assert web3.is_connected()
