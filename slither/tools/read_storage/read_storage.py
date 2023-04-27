@@ -87,7 +87,7 @@ class SlitherReadStorage:
         return self._block
 
     @block.setter
-    def block(self, block) -> None:
+    def block(self, block: Union[str, int]) -> None:
         """If the RPC is for a POA network, the first call to get_block fails, so we inject geth_poa_middleware"""
         try:
             self._block = self.web3.eth.get_block(block)["number"]
