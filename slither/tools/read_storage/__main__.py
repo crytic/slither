@@ -7,7 +7,7 @@ import argparse
 from crytic_compile import cryticparser
 
 from slither import Slither
-from slither.tools.read_storage.read_storage import SlitherReadStorage
+from slither.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo
 
 
 def parse_args() -> argparse.Namespace:
@@ -129,19 +129,18 @@ def main() -> None:
     srs = SlitherReadStorage(contracts, args.max_depth)
 
     if args.rpc_url:
+        try:
+            block = int(args.block)
+        except ValueError:
+            block = "latest"
+        rpc_info = RpcInfo(args.rpc_url, block)
+        srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
         # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
         address = target[target.find(":") + 1 :]
         # Default to implementation address unless a storage address is given.
         if not args.storage_address:
             args.storage_address = address
         srs.storage_address = args.storage_address
-
-        srs.rpc = args.rpc_url
-
-    try:
-        srs.block = int(args.block)
-    except ValueError:
-        srs.block = str(args.block or "latest")
 
     if args.variable_name:
         # Use a lambda func to only return variables that have same name as target.
