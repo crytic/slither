@@ -12,7 +12,7 @@ from web3 import Web3
 from web3.contract import Contract
 
 from slither import Slither
-from slither.tools.read_storage import SlitherReadStorage
+from slither.tools.read_storage import SlitherReadStorage, RpcInfo
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
@@ -103,8 +103,8 @@ def test_read_storage(web3, ganache) -> None:
     sl = Slither(Path(TEST_DATA_DIR, "storage_layout-0.8.10.sol").as_posix())
     contracts = sl.contracts
 
-    srs = SlitherReadStorage(contracts, 100)
-    srs.rpc = ganache.provider
+    rpc_info: RpcInfo = RpcInfo(ganache.provider)
+    srs = SlitherReadStorage(contracts, 100, rpc_info)
     srs.storage_address = address
     srs.get_all_storage_variables()
     srs.get_storage_layout()
