@@ -19,7 +19,6 @@ class Loc(AbstractPrinter):
         table.add_row(["LOC", loc])
         table.add_row(["SLOC", sloc])
         table.add_row(["CLOC", cloc])
-        txt = f"LOC: {loc} SLOC: {sloc} CLOC: {cloc}"
         txt = "Lines of Code \n" + str(table)
         self.info(txt)
         res = self.generate_output(txt)
