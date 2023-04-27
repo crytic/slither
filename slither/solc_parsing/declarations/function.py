@@ -665,6 +665,11 @@ class FunctionSolc(CallerContextExpression):
         # if the parameters are more than 1 we make the leftHandSide of the Assignment node
         # a TupleExpression otherwise an Identifier
 
+        # case when there isn't returns(...)
+        # e.g. external call that doesn't have any return variable
+        if not parameters_list:
+            return externalCall
+
         ret: Dict = {"nodeType": "Assignment", "operator": "=", "src": parameters_list["src"]}
 
         parameters = parameters_list.get("parameters", None)
