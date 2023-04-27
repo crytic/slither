@@ -180,7 +180,8 @@ class SlitherReadStorage:
         contract: Contract,
         **kwargs: Any,
     ) -> Union[SlotInfo, None]:
-        """Finds the storage slot of a variable in a given contract.
+        """
+        Finds the storage slot of a variable in a given contract.
         Args:
             target_variable (`StateVariable`): The variable to retrieve the slot for.
             contracts (`Contract`): The contract that contains the given state variable.
@@ -350,7 +351,8 @@ class SlitherReadStorage:
                 func(slot_info)
 
     def get_slot_values(self, slot_info: SlotInfo) -> None:
-        """Fetches the slot value of `SlotInfo` object
+        """
+        Fetches the slot value of `SlotInfo` object
         :param slot_info:
         """
         hex_bytes = get_storage_data(
@@ -365,7 +367,8 @@ class SlitherReadStorage:
         logger.info(f"\nValue: {slot_info.value}\n")
 
     def get_all_storage_variables(self, func: Callable = lambda x: x) -> None:
-        """Fetches all storage variables from a list of contracts.
+        """
+        Fetches all storage variables from a list of contracts.
         kwargs:
             func (Callable, optional): A criteria to filter functions e.g. name.
         """
@@ -511,7 +514,8 @@ class SlitherReadStorage:
         return None
 
     def convert_slot_info_to_rows(self, slot_info: SlotInfo) -> None:
-        """Convert and append slot info to table. Create table if it
+        """
+        Convert and append slot info to table. Create table if it
         does not yet exist
         :param slot_info:
         """
@@ -529,7 +533,8 @@ class SlitherReadStorage:
     def _find_struct_var_slot(
         elems: List[StructureVariable], slot_as_bytes: bytes, struct_var: str
     ) -> Tuple[str, str, bytes, int, int]:
-        """Finds the slot of a structure variable.
+        """
+        Finds the slot of a structure variable.
         Args:
             elems (List[StructureVariable]): Ordered list of structure variables.
             slot_as_bytes (bytes): The slot of the struct to begin searching at.
@@ -571,7 +576,8 @@ class SlitherReadStorage:
         deep_key: int = None,
         struct_var: str = None,
     ) -> Tuple[str, str, bytes, int, int]:
-        """Finds the slot of array's index.
+        """
+        Finds the slot of array's index.
         Args:
             target_variable (`StateVariable`): The array that contains the target variable.
             slot (bytes): The starting slot of the array.
@@ -674,7 +680,8 @@ class SlitherReadStorage:
         deep_key: Union[int, str] = None,
         struct_var: str = None,
     ) -> Tuple[str, str, bytes, int, int]:
-        """Finds the data slot of a target variable within a mapping.
+        """
+        Finds the data slot of a target variable within a mapping.
             target_variable (`StateVariable`): The mapping that contains the target variable.
             slot (bytes): The starting slot of the mapping.
             key (Union[int, str]): The key the variable is stored at.
@@ -745,7 +752,7 @@ class SlitherReadStorage:
                 )
                 info += info_tmp
 
-        # TODO: suppory mapping with dynamic arrays
+        # TODO: support mapping with dynamic arrays
 
         # mapping(elem => elem)
         elif isinstance(target_variable_type.type_to, ElementaryType):
@@ -851,7 +858,8 @@ class SlitherReadStorage:
         return elems
 
     def _get_array_length(self, type_: Type, slot: int) -> int:
-        """Gets the length of dynamic and fixed arrays.
+        """
+        Gets the length of dynamic and fixed arrays.
         Args:
             type_ (`AbstractType`): The array type.
             slot (int): Slot a dynamic array's length is stored at.
