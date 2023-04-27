@@ -672,6 +672,7 @@ class FunctionSolc(CallerContextExpression):
         # if the name is "" it means the return variable is not used
         if len(parameters) == 1:
             if parameters[0]["name"] != "":
+                self._add_param(parameters[0])
                 ret["typeDescriptions"] = {
                     "typeString": parameters[0]["typeName"]["typeDescriptions"]["typeString"]
                 }
@@ -692,9 +693,16 @@ class FunctionSolc(CallerContextExpression):
                 "src": parameters_list["src"],
             }
 
-            for p in parameters:
+            for i, p in enumerate(parameters):
                 if p["name"] == "":
                     continue
+
+                new_statement = {
+                    "nodeType": "VariableDefinitionStatement",
+                    "src": p["src"],
+                    "declarations": [p],
+                }
+                self._add_param_init_tuple(new_statement, i)
 
                 ident = {
                     "name": p["name"],
@@ -735,10 +743,11 @@ class FunctionSolc(CallerContextExpression):
             if index >= 1:
                 self._parse_catch(clause, node, True)
             else:
+                # the parameters for the try scope were already added in _construct_try_expression
                 self._parse_catch(clause, node, False)
         return node
 
-    def _parse_catch(self, statement: Dict, node: NodeSolc, var_initialized: bool) -> NodeSolc:
+    def _parse_catch(self, statement: Dict, node: NodeSolc, add_param: bool) -> NodeSolc:
         block = statement.get("block", None)
 
         if block is None:
@@ -748,15 +757,16 @@ class FunctionSolc(CallerContextExpression):
         try_node = self._new_node(NodeType.CATCH, statement["src"], try_scope)
         link_underlying_nodes(node, try_node)
 
-        if self.is_compact_ast:
-            params = statement.get("parameters", None)
-        else:
-            params = statement[self.get_children("children")]
+        if add_param:
+            if self.is_compact_ast:
+                params = statement.get("parameters", None)
+            else:
+                params = statement[self.get_children("children")]
 
-        if params:
-            for param in params.get("parameters", []):
-                assert param[self.get_key()] == "VariableDeclaration"
-                self._add_param(param, var_initialized)
+            if params:
+                for param in params.get("parameters", []):
+                    assert param[self.get_key()] == "VariableDeclaration"
+                    self._add_param(param, True)
 
         return self._parse_statement(block, try_node, try_scope)
 
@@ -1238,6 +1248,17 @@ class FunctionSolc(CallerContextExpression):
         # see https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
         if local_var.location == "default":
             local_var.set_location("memory")
+
+        self._add_local_variable(local_var_parser)
+        return local_var_parser
+
+    def _add_param_init_tuple(self, statement: Dict, index: int) -> LocalVariableInitFromTupleSolc:
+
+        local_var = LocalVariableInitFromTuple()
+        local_var.set_function(self._function)
+        local_var.set_offset(statement["src"], self._function.compilation_unit)
+
+        local_var_parser = LocalVariableInitFromTupleSolc(local_var, statement, index)
 
         self._add_local_variable(local_var_parser)
         return local_var_parser
