@@ -128,11 +128,6 @@ def main() -> None:
 
     srs = SlitherReadStorage(contracts, args.max_depth)
 
-    try:
-        srs.block = int(args.block)
-    except ValueError:
-        srs.block = str(args.block or "latest")
-
     if args.rpc_url:
         # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
         address = target[target.find(":") + 1 :]
@@ -142,6 +137,11 @@ def main() -> None:
         srs.storage_address = args.storage_address
 
         srs.rpc = args.rpc_url
+
+    try:
+        srs.block = int(args.block)
+    except ValueError:
+        srs.block = str(args.block or "latest")
 
     if args.variable_name:
         # Use a lambda func to only return variables that have same name as target.
