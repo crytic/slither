@@ -1,6 +1,7 @@
 # pylint: disable=unused-import,relative-beyond-top-level
 from .summary.function import FunctionSummary
 from .summary.contract import ContractSummary
+from .summary.abstractness import Abstractness
 from .summary.loc import Loc
 from .inheritance.inheritance import PrinterInheritance
 from .inheritance.inheritance_graph import PrinterInheritanceGraph
