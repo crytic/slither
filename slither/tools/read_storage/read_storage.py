@@ -46,7 +46,7 @@ class SlitherReadStorageException(Exception):
 
 class RpcInfo:
     def __init__(self, rpc_url: str, block: Union[int, str] = "latest") -> None:
-        assert(isinstance(block, int) or block.isnumeric() or block == "latest")
+        assert isinstance(block, int) or block.isnumeric() or block == "latest"
         self.rpc: str = rpc_url
         self._web3: Web3 = Web3(Web3.HTTPProvider(self.rpc))
         try:
