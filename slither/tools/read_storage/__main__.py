@@ -126,20 +126,20 @@ def main() -> None:
     else:
         contracts = slither.contracts
 
-    srs = SlitherReadStorage(contracts, args.max_depth)
-
+    rpc_info = None
     if args.rpc_url:
         try:
             block = int(args.block)
         except ValueError:
             block = "latest"
         rpc_info = RpcInfo(args.rpc_url, block)
-        srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
         # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
-        address = target[target.find(":") + 1 :]
+        address = target[target.find(":") + 1:]
         # Default to implementation address unless a storage address is given.
         if not args.storage_address:
             args.storage_address = address
+    srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
+    if args.storage_address:
         srs.storage_address = args.storage_address
 
     if args.variable_name:
