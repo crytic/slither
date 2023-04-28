@@ -743,12 +743,12 @@ Please rename it, this name is reserved for Slither's internals"""
                         f"Impossible to generate IR for {contract.name}.{func.name} ({func.source_mapping}):\n {e}"
                     )
                 except AssertionError as e:
-                    func_expressions = "\n".join([f'\t{ex}' for ex in func.expressions])
+                    func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
                     logger.error(
                         f"\nFailed to parse {contract.name}.{func.name} ({func.source_mapping}):\n "
-                        f"{func_expressions}")
+                        f"{func_expressions}"
+                    )
                     raise e
-
 
             contract.convert_expression_to_slithir_ssa()
 
