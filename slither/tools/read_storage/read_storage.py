@@ -49,6 +49,7 @@ class RpcInfo:
         assert isinstance(block, int) or block.isnumeric() or block == "latest"
         self.rpc: str = rpc_url
         self._web3: Web3 = Web3(Web3.HTTPProvider(self.rpc))
+        """If the RPC is for a POA network, the first call to get_block fails, so we inject geth_poa_middleware"""
         try:
             self._block: int = self.web3.eth.get_block(block)["number"]
         except ExtraDataLengthError:
