@@ -136,7 +136,7 @@ def main() -> None:
 
     srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
     # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
-    address = target[target.find(":") + 1:]
+    address = target[target.find(":") + 1 :]
     # Default to implementation address unless a storage address is given.
     if not args.storage_address:
         args.storage_address = address
