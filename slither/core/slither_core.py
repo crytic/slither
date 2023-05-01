@@ -171,7 +171,6 @@ class SlitherCore(Context):
         else:
             with open(path, encoding="utf8", newline="") as f:
                 self.source_code[path] = f.read()
-
         self.parse_ignore_comments(path)
 
     @property
