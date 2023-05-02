@@ -314,6 +314,10 @@ class YulBlock(YulScope):
     def function(self) -> Function:
         return self._parent_func
 
+    @property
+    def nodes(self) -> List[YulNode]:
+        return self._nodes
+
     def new_node(self, node_type: NodeType, src: Union[str, Dict]) -> YulNode:
         if self._parent_func:
             node = self._parent_func.new_node(node_type, src, self.node_scope)
