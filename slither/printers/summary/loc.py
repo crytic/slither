@@ -6,9 +6,25 @@ from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.myprettytable import transpose, make_pretty_table
 from slither.utils.tests_pattern import is_test_file
 
+"""
+Definitions:
+    "cloc": comment lines of code containing only comments
+    "sloc": source lines of code with no whitespace or comments
+    "loc": all lines of code including whitespace and comments
+    "src": source files (excluding tests and dependencies)
+    "dep": dependency files
+    "test": test files
 
-# @param takes a list of lines and returns a tuple of (cloc, sloc, loc)
+"""
+
+
 def count_lines(contract_lines: list) -> tuple:
+    """Function to count and classify the lines of code in a contract.
+    Args:
+        contract_lines: list(str) representing the lines of a contract.
+    Returns:
+        tuple(int, int, int) representing (cloc, sloc, loc)
+    """
     multiline_comment = False
     cloc = 0
     sloc = 0
@@ -39,6 +55,19 @@ def count_lines(contract_lines: list) -> tuple:
 
 
 def _update_lines_dict(file_type: str, lines: list, lines_dict: dict) -> dict:
+    """ An internal function used to update (mutate in place) the lines_dict.
+    Args:
+        file_type: str indicating  "src" (source files), "dep" (dependency files), or "test" tests.
+        lines: list(str) representing the lines of a contract.
+        lines_dict: dict to be updated with this shape:
+        {
+            "src" : {"loc": 30, "sloc": 20, "cloc":  5},   # code in source files
+            "dep" : {"loc": 50, "sloc": 30, "cloc": 10},   # code in dependencies
+            "test": {"loc": 80, "sloc": 60, "cloc": 10},   # code in tests
+        }
+    Returns:
+        an updated lines_dict
+    """
     cloc, sloc, loc = count_lines(lines)
     lines_dict[file_type]["loc"] += loc
     lines_dict[file_type]["cloc"] += cloc
@@ -46,14 +75,19 @@ def _update_lines_dict(file_type: str, lines: list, lines_dict: dict) -> dict:
     return lines_dict
 
 
-# takes a Slither object and returns a dict of loc metrics:
-# {
-#     "src" : {"loc": 30, "sloc": 20, "cloc":  5},   # code in source files
-#     "dep" : {"loc": 50, "sloc": 30, "cloc": 10},   # code in dependencies
-#     "test": {"loc": 80, "sloc": 60, "cloc": 10},   # code in tests
-# }
-# * sloc = source lines of code, cloc = comment lines of code, loc = all lines of code
 def compute_loc_metrics(slither) -> dict:
+    """Used to compute the lines of code metrics for a Slither object.
+    Args:
+        slither: A Slither object
+    Returns:
+        A new dict with the following shape:
+        {
+            "src" : {"loc": 30, "sloc": 20, "cloc":  5},   # code in source files
+            "dep" : {"loc": 50, "sloc": 30, "cloc": 10},   # code in dependencies
+            "test": {"loc": 80, "sloc": 60, "cloc": 10},   # code in tests
+        }
+    """
+
     lines_dict = {
         "src": {"loc": 0, "sloc": 0, "cloc": 0},
         "dep": {"loc": 0, "sloc": 0, "cloc": 0},
