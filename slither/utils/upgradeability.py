@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, List, Union
+from typing import Optional, Tuple, List, Union, TypedDict
 from slither.core.declarations import (
     Contract,
     Structure,
@@ -19,10 +19,12 @@ from slither.core.variables.local_variable_init_from_tuple import LocalVariableI
 from slither.core.variables.state_variable import StateVariable
 from slither.analyses.data_dependency.data_dependency import get_dependencies
 from slither.core.variables.variable import Variable
-from slither.core.expressions.literal import Literal
-from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.call_expression import CallExpression
-from slither.core.expressions.assignment_operation import AssignmentOperation
+from slither.core.expressions import (
+    Literal,
+    Identifier,
+    CallExpression,
+    AssignmentOperation,
+)
 from slither.core.cfg.node import Node, NodeType
 from slither.slithir.operations import (
     Operation,
@@ -61,11 +63,22 @@ from slither.slithir.variables import (
 from slither.tools.read_storage.read_storage import SlotInfo, SlitherReadStorage
 
 
+class TaintedExternalContract(TypedDict):
+    contract: Contract
+    functions: List[Function]
+    variables: List[Variable]
+
+
 # pylint: disable=too-many-locals
 def compare(
     v1: Contract, v2: Contract
 ) -> Tuple[
-    List[Variable], List[Variable], List[Variable], List[Function], List[Function], List[Function]
+    List[Variable],
+    List[Variable],
+    List[Variable],
+    List[Function],
+    List[Function],
+    List[Function],
 ]:
     """
     Compares two versions of a contract. Most useful for upgradeable (logic) contracts,
@@ -398,6 +411,7 @@ def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
         try:
             delegate = next(var for var in dependencies if isinstance(var, StateVariable))
         except StopIteration:
+            # TODO: Handle case where get_dependencies does not return any state variables.
             return delegate
     return delegate
 
