@@ -233,10 +233,8 @@ def encode_contract(cfilename, **kwargs):
 
     # Iterate over all the contracts
     for contract in slither.contracts:
-
         # Iterate over all the functions
         for function in contract.functions_declared:
-
             if function.nodes == [] or function.is_constructor_variables:
                 continue
 

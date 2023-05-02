@@ -327,7 +327,6 @@ def encode_ir_for_compare(ir: Operation) -> str:
 
 # pylint: disable=too-many-branches
 def encode_var_for_compare(var: Variable) -> str:
-
     # variables
     if isinstance(var, Constant):
         return f"constant({ntype(var.type)})"

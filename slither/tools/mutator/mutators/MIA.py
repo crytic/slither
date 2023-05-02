@@ -12,13 +12,10 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
-
         result: Dict = {}
 
         for contract in self.slither.contracts:
-
             for function in contract.functions_declared + list(contract.modifiers_declared):
-
                 for node in function.nodes:
                     if node.type == NodeType.IF:
                         # Retrieve the file

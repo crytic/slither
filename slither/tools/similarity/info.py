@@ -12,9 +12,7 @@ logger = logging.getLogger("Slither-simil")
 
 
 def info(args: argparse.Namespace) -> None:
-
     try:
-
         model = args.model
         if os.path.isfile(model):
             model = load_model(model)

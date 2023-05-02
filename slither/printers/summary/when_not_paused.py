@@ -10,7 +10,6 @@ from slither.utils.myprettytable import MyPrettyTable
 
 
 def _use_modifier(function: Function, modifier_name: str = "whenNotPaused") -> bool:
-
     for internal_call in function.all_internal_calls():
         if isinstance(internal_call, SolidityFunction):
             continue
@@ -20,7 +19,6 @@ def _use_modifier(function: Function, modifier_name: str = "whenNotPaused") -> b
 
 
 class PrinterWhenNotPaused(AbstractPrinter):
-
     ARGUMENT = "not-pausable"
     HELP = "Print functions that do not use whenNotPaused"
 
@@ -39,7 +37,6 @@ class PrinterWhenNotPaused(AbstractPrinter):
         txt += "Constructor and pure/view functions are not displayed\n"
         all_tables = []
         for contract in self.slither.contracts:
-
             txt += f"\n{contract.name}:\n"
             table = MyPrettyTable(["Name", "Use whenNotPaused"])
 

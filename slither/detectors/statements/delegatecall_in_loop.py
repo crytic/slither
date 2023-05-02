@@ -21,7 +21,6 @@ def detect_delegatecall_in_loop(contract: Contract) -> List[Node]:
 def delegatecall_in_loop(
     node: Optional[Node], in_loop_counter: int, visited: List[Node], results: List[Node]
 ) -> None:
-
     if node is None:
         return
 

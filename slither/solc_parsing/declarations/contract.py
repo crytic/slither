@@ -297,7 +297,6 @@ class ContractSolc(CallerContextExpression):
         self._contract.file_scope.user_defined_types[alias_canonical] = user_defined_type
 
     def _parse_struct(self, struct: Dict) -> None:
-
         st = StructureContract(self._contract.compilation_unit)
         st.set_contract(self._contract)
         st.set_offset(struct["src"], self._contract.compilation_unit)
@@ -392,7 +391,6 @@ class ContractSolc(CallerContextExpression):
         self._slither_parser.add_function_or_modifier_parser(func_parser)
 
     def parse_functions(self) -> None:
-
         for function in self._functionsNotParsed:
             self._parse_function(function)
 

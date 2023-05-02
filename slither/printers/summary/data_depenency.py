@@ -22,7 +22,6 @@ def _get(v: SUPPORTED_TYPES, c: Contract) -> List[str]:
 
 
 class DataDependency(AbstractPrinter):
-
     ARGUMENT = "data-dependency"
     HELP = "Print the data dependencies of the variables"
 

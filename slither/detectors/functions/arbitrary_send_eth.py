@@ -135,8 +135,7 @@ Bob calls `setDestination` and `withdraw`. As a result he withdraws the contract
 
         for c in self.contracts:
             arbitrary_send_result = detect_arbitrary_send(c)
-            for (func, nodes) in arbitrary_send_result:
-
+            for func, nodes in arbitrary_send_result:
                 info = [func, " sends eth to arbitrary user\n"]
                 info += ["\tDangerous calls:\n"]
 

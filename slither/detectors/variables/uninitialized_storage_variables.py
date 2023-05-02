@@ -13,7 +13,6 @@ from slither.utils.output import Output
 
 
 class UninitializedStorageVars(AbstractDetector):
-
     ARGUMENT = "uninitialized-storage"
     HELP = "Uninitialized storage variables"
     IMPACT = DetectorClassification.HIGH
@@ -111,7 +110,7 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
                     function.entry_point.context[self.key] = uninitialized_storage_variables
                     self._detect_uninitialized(function, function.entry_point, [])
 
-        for (function, uninitialized_storage_variable) in self.results:
+        for function, uninitialized_storage_variable in self.results:
             info = [
                 uninitialized_storage_variable,
                 " is a storage variable never initialized\n",

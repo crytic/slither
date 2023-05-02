@@ -19,7 +19,6 @@ class Example(AbstractDetector):  # pylint: disable=too-few-public-methods
     WIKI_RECOMMENDATION = ""
 
     def _detect(self):
-
         info = "This is an example!"
 
         json = self.generate_result(info)

@@ -40,7 +40,6 @@ contract Contract{
     WIKI_RECOMMENDATION = "Remove unused functions."
 
     def _detect(self) -> List[Output]:
-
         results = []
 
         functions_used = set()

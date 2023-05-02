@@ -50,7 +50,6 @@ def _handle_import_aliases(
     for symbol_alias in symbol_aliases:
         if "foreign" in symbol_alias and "local" in symbol_alias:
             if isinstance(symbol_alias["foreign"], dict) and "name" in symbol_alias["foreign"]:
-
                 original_name = symbol_alias["foreign"]["name"]
                 local_name = symbol_alias["local"]
                 import_directive.renaming[local_name] = original_name
@@ -151,7 +150,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             self.parse_top_level_from_loaded_json(data_loaded, filename)
             return True
         except ValueError:
-
             first = json_data.find("{")
             if first != -1:
                 last = json_data.rfind("}") + 1
@@ -555,7 +553,6 @@ Please rename it, this name is reserved for Slither's internals"""
         # Analyze a contract only if all its fathers
         # Were analyzed
         while contracts_to_be_analyzed:
-
             contract = contracts_to_be_analyzed[0]
 
             contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
@@ -585,7 +582,6 @@ Please rename it, this name is reserved for Slither's internals"""
         # Analyze a contract only if all its fathers
         # Were analyzed
         while contracts_to_be_analyzed:
-
             contract = contracts_to_be_analyzed[0]
 
             contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
@@ -612,7 +608,6 @@ Please rename it, this name is reserved for Slither's internals"""
         # Analyze a contract only if all its fathers
         # Were analyzed
         while contracts_to_be_analyzed:
-
             contract = contracts_to_be_analyzed[0]
 
             contracts_to_be_analyzed = contracts_to_be_analyzed[1:]
@@ -664,7 +659,6 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.set_is_analyzed(True)
 
     def _analyze_struct_events(self, contract: ContractSolc) -> None:
-
         contract.analyze_constant_state_variables()
 
         # Struct can refer to enum, or state variables
@@ -727,7 +721,6 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.set_is_analyzed(True)
 
     def _convert_to_slithir(self) -> None:
-
         for contract in self._compilation_unit.contracts:
             contract.add_constructor_variables()
 

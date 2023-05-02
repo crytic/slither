@@ -14,6 +14,7 @@ from slither.detectors.abstract_detector import (
 from slither.utils.output import Output
 from slither.visitors.expression.expression import ExpressionVisitor
 
+
 # pylint: disable=too-few-public-methods
 class InvalidUnaryExpressionDetector(ExpressionVisitor):
     def __init__(self, expression: Expression) -> None:

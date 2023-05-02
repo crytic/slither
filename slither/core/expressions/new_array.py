@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 
 
 class NewArray(Expression):
-
     # note: dont conserve the size of the array if provided
     def __init__(
         self, depth: int, array_type: Union["TypeAliasTopLevel", "ElementaryType"]

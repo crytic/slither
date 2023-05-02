@@ -34,7 +34,6 @@ class ConstructorPrinter(AbstractPrinter):
                     stack_definition.append(_get_source_code(cst))
 
             if len(stack_name) > 0:
-
                 info += "\n########" + "#" * len(contract.name) + "########\n"
                 info += "####### " + contract.name + " #######\n"
                 info += "########" + "#" * len(contract.name) + "########\n\n"

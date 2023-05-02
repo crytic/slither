@@ -104,6 +104,7 @@ class NodeType(Enum):
 
 # endregion
 
+
 # I am not sure why, but pylint reports a lot of "no-member" issue that are not real (Josselin)
 # pylint: disable=no-member
 class Node(SourceMapping):  # pylint: disable=too-many-public-methods
@@ -847,9 +848,7 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     def _find_read_write_call(self) -> None:  # pylint: disable=too-many-statements
-
         for ir in self.irs:
-
             self._slithir_vars |= {v for v in ir.read if self._is_valid_slithir_var(v)}
 
             if isinstance(ir, OperationWithLValue):

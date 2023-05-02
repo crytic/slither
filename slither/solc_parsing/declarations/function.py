@@ -46,7 +46,6 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
 
 
 class FunctionSolc(CallerContextExpression):
-
     # elems = [(type, name)]
 
     def __init__(
@@ -620,7 +619,6 @@ class FunctionSolc(CallerContextExpression):
         return node_endLoop
 
     def _parse_dowhile(self, do_while_statement: Dict, node: NodeSolc) -> NodeSolc:
-
         node_startDoWhile = self._new_node(
             NodeType.STARTLOOP, do_while_statement["src"], node.underlying_node.scope
         )
@@ -1054,7 +1052,6 @@ class FunctionSolc(CallerContextExpression):
         return node
 
     def _parse_cfg(self, cfg: Dict) -> None:
-
         assert cfg[self.get_key()] == "Block"
 
         node = self._new_node(NodeType.ENTRYPOINT, cfg["src"], self.underlying_function)
@@ -1162,7 +1159,6 @@ class FunctionSolc(CallerContextExpression):
                     self._fix_catch(son, end_node, visited)
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
-
         local_var = LocalVariable()
         local_var.set_function(self._function)
         local_var.set_offset(param["src"], self._function.compilation_unit)
@@ -1194,7 +1190,6 @@ class FunctionSolc(CallerContextExpression):
             self._function.add_parameters(local_var.underlying_variable)
 
     def _parse_returns(self, returns: Dict):
-
         assert returns[self.get_key()] == "ParameterList"
 
         self._function.returns_src().set_offset(returns["src"], self._function.compilation_unit)

@@ -17,7 +17,6 @@ class EventSolc:
     """
 
     def __init__(self, event: Event, event_data: Dict, contract_parser: "ContractSolc") -> None:
-
         self._event = event
         event.set_contract(contract_parser.underlying_contract)
         self._parser_contract = contract_parser

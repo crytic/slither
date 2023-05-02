@@ -16,6 +16,7 @@ from slither.tools.read_storage import SlitherReadStorage
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
+
 # pylint: disable=too-few-public-methods
 class GanacheInstance:
     def __init__(self, provider: str, eth_address: str, eth_privkey: str):
@@ -54,7 +55,6 @@ def fixture_ganache() -> Generator[GanacheInstance, None, None]:
         ),
         shell=True,
     ) as p:
-
         sleep(3)
         yield GanacheInstance(f"http://127.0.0.1:{port}", eth_address, eth_privkey)
         p.kill()

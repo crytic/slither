@@ -32,7 +32,6 @@ class PrinterHumanSummary(AbstractPrinter):
 
     @staticmethod
     def _get_summary_erc20(contract):
-
         functions_name = [f.name for f in contract.functions]
         state_variables = [v.name for v in contract.state_variables]
 
@@ -226,7 +225,6 @@ class PrinterHumanSummary(AbstractPrinter):
         return list(set(ercs))
 
     def _get_features(self, contract):  # pylint: disable=too-many-branches
-
         has_payable = False
         can_send_eth = False
         can_selfdestruct = False
@@ -363,7 +361,6 @@ class PrinterHumanSummary(AbstractPrinter):
             ["Name", "# functions", "ERCS", "ERC20 info", "Complex code", "Features"]
         )
         for contract in self.slither.contracts_derived:
-
             if contract.is_from_dependency() or contract.is_test:
                 continue
 

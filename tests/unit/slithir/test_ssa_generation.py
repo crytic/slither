@@ -117,7 +117,7 @@ def ssa_basic_properties(function: Function) -> None:
         if v and v.name:
             ssa_defs[v.name] += 1
 
-    for (k, count) in lvalue_assignments.items():
+    for k, count in lvalue_assignments.items():
         assert ssa_defs[k] >= count
 
     # Helper 5/6

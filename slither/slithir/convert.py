@@ -1674,7 +1674,6 @@ def convert_type_of_high_and_internal_level_call(
         else:
             return_type = func.type
     if return_type:
-
         # If the return type is a structure, but the lvalue is a tuple
         # We convert the type of the structure to a list of element
         # TODO: explore to replace all tuple variables by structures
@@ -1883,7 +1882,6 @@ def convert_delete(irs: List[Operation]) -> None:
 
 def _find_source_mapping_references(irs: List[Operation]) -> None:
     for ir in irs:
-
         if isinstance(ir, NewContract):
             ir.contract_created.references.append(ir.expression.source_mapping)
 

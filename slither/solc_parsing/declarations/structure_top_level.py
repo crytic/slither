@@ -26,7 +26,6 @@ class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few
         struct: Dict,
         slither_parser: "SlitherCompilationUnitSolc",
     ) -> None:
-
         if slither_parser.is_compact_ast:
             name = struct["name"]
             attributes = struct

@@ -66,7 +66,6 @@ Each commented line references types/identifiers, but performs no action with th
 
         # Loop through all functions + modifiers defined explicitly in this contract.
         for function in contract.functions_and_modifiers_declared:
-
             # Loop through each node in this function.
             for node in function.nodes:
                 if node.expression:
@@ -89,7 +88,6 @@ Each commented line references types/identifiers, but performs no action with th
         for contract in self.contracts:
             redundant_statements = self.detect_redundant_statements_contract(contract)
             if redundant_statements:
-
                 for redundant_statement in redundant_statements:
                     info: DETECTOR_INFO = [
                         'Redundant expression "',

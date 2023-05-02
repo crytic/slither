@@ -56,7 +56,6 @@ Boolean constants can be used directly and do not need to be compare to `true` o
     def _detect_boolean_equality(
         contract: Contract,
     ) -> List[Tuple[Function, Set[Node]]]:
-
         # Create our result set.
         results: List[Tuple[Function, Set[Node]]] = []
 
@@ -86,7 +85,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
         results = []
         for contract in self.contracts:
             boolean_constant_misuses = self._detect_boolean_equality(contract)
-            for (func, nodes) in boolean_constant_misuses:
+            for func, nodes in boolean_constant_misuses:
                 for node in nodes:
                     info: DETECTOR_INFO = [
                         func,
