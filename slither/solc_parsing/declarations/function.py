@@ -1294,18 +1294,20 @@ class FunctionSolc(CallerContextExpression):
             if return_arg.name != "":
                 (refId, refSrc, refType) = next(
                     (ret["id"], ret["src"], ret["typeDescriptions"])
-                    for ret in self._returnsNotParsed if ret["name"] == return_arg.name
+                    for ret in self._returnsNotParsed
+                    if ret["name"] == return_arg.name
                 )
-                return_node.add_unparsed_expression({
-                    "name": return_arg.name,
-                    "nodeType": "Identifier",
-                    "overloadedDeclarations": [],
-                    "referencedDeclaration": refId,
-                    "src": refSrc,
-                    "typeDescriptions": refType
-                })
+                return_node.add_unparsed_expression(
+                    {
+                        "name": return_arg.name,
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": refId,
+                        "src": refSrc,
+                        "typeDescriptions": refType,
+                    }
+                )
         return_node.analyze_expressions(self)
-
 
     # endregion
     ###################################################################################
