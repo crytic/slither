@@ -1,21 +1,18 @@
 """
-    Module printing summary of the contract
+    Lines of Code (LOC) printer
+
+    Definitions:
+    cloc: comment lines of code containing only comments
+    sloc: source lines of code with no whitespace or comments
+    loc: all lines of code including whitespace and comments
+    src: source files (excluding tests and dependencies)
+    dep: dependency files
+    test: test files
 """
 from pathlib import Path
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.myprettytable import transpose, make_pretty_table
 from slither.utils.tests_pattern import is_test_file
-
-"""
-Definitions:
-    "cloc": comment lines of code containing only comments
-    "sloc": source lines of code with no whitespace or comments
-    "loc": all lines of code including whitespace and comments
-    "src": source files (excluding tests and dependencies)
-    "dep": dependency files
-    "test": test files
-
-"""
 
 
 def count_lines(contract_lines: list) -> tuple:
