@@ -285,12 +285,12 @@ class FunctionSolc(CallerContextExpression):
             if body and body[self.get_key()] == "Block":
                 self._function.is_implemented = True
                 self._parse_cfg(body)
-                self._fix_implicit_return(body)
 
             for modifier in self._functionNotParsed["modifiers"]:
                 self._parse_modifier(modifier)
 
         else:
+            body = None
             children = self._functionNotParsed[self.get_children("children")]
             self._function.is_implemented = False
             for child in children[2:]:
@@ -316,6 +316,9 @@ class FunctionSolc(CallerContextExpression):
         self._rewrite_ternary_as_if_else()
 
         self._remove_alone_endif()
+
+        if body and self.is_compact_ast:
+            self._fix_implicit_return(body)
 
     # endregion
     ###################################################################################
@@ -1282,6 +1285,11 @@ class FunctionSolc(CallerContextExpression):
         for node, node_solc in self._node_to_nodesolc.items():
             if len(node.sons) == 0 and node.type != NodeType.RETURN:
                 link_underlying_nodes(node_solc, return_node)
+        for _, yul_block in self._node_to_yulobject.items():
+            for yul_node in yul_block.nodes:
+                node = yul_node.underlying_node
+                if len(node.sons) == 0 and node.type != NodeType.RETURN:
+                    link_underlying_nodes(yul_node, return_node)
         for return_arg in self.underlying_function.returns:
             if return_arg.name != "":
                 (refId, refSrc, refType) = next(
@@ -1296,7 +1304,7 @@ class FunctionSolc(CallerContextExpression):
                     "src": refSrc,
                     "typeDescriptions": refType
                 })
-        # return_node.analyze_expressions(self)
+        return_node.analyze_expressions(self)
 
 
     # endregion
