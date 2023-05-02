@@ -1278,9 +1278,9 @@ class FunctionSolc(CallerContextExpression):
 
     def _fix_implicit_return(self, cfg: dict) -> None:
         if len(self.underlying_function.returns) == 0:
-            pass
+            return
         if not any(ret.name != "" for ret in self.underlying_function.returns):
-            pass
+            return
         return_node = self._new_node(NodeType.RETURN, cfg["src"], self.underlying_function)
         for node, node_solc in self._node_to_nodesolc.items():
             if len(node.sons) == 0 and node.type != NodeType.RETURN:
