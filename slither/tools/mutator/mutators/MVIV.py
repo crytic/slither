@@ -13,12 +13,10 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
-
         result: Dict = {}
         variable: Variable
 
         for contract in self.slither.contracts:
-
             # Create fault for state variables declaration
             for variable in contract.state_variables_declared:
                 if variable.initialized:

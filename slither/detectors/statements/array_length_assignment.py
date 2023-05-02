@@ -40,7 +40,6 @@ def detect_array_length_assignment(contract: Contract) -> Set[Node]:
         for node in function.nodes:
             if node.type == NodeType.EXPRESSION:
                 for ir in node.irs:
-
                     # First we look for the member access for 'length', for which a reference is created.
                     # We add the reference to our list of array length references.
                     if isinstance(ir, Length):  # a

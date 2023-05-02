@@ -93,7 +93,6 @@ contract MyConc{
                     continue
                 unused_return = self.detect_unused_return_values(f)
                 if unused_return:
-
                     for node in unused_return:
                         info: DETECTOR_INFO = [f, " ignores return value by ", node, "\n"]
 

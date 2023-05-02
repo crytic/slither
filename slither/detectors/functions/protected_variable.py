@@ -15,7 +15,6 @@ from slither.utils.output import Output
 
 
 class ProtectedVariables(AbstractDetector):
-
     ARGUMENT = "protected-vars"
     HELP = "Detected unprotected variables"
     IMPACT = DetectorClassification.HIGH

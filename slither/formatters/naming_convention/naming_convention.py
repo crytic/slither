@@ -401,7 +401,6 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
             custom_type.type_from,
             custom_type.type_to,
         ]:
-
             full_txt_start = start
             full_txt_end = end
             full_txt = slither.core.source_code[filename_source_code].encode("utf8")[

@@ -125,7 +125,6 @@ As a result, Eve wins the game."""
         for c in self.compilation_unit.contracts_derived:
             values = detect_bad_PRNG(c)
             for func, nodes in values:
-
                 for node in nodes:
                     info: List[AllSupportedOutput] = [func, ' uses a weak PRNG: "', node, '" \n']
                     res = self.generate_result(info)

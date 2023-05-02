@@ -114,7 +114,6 @@ class FileScope:
         name: str,
         getter: Callable[[SourceUnit], Dict[str, AbstractReturnType]],
     ) -> Optional[AbstractReturnType]:
-
         assert self.filename in crytic_compile_compilation_unit.source_units
 
         source_unit = crytic_compile_compilation_unit.source_unit(self.filename)

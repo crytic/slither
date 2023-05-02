@@ -596,7 +596,6 @@ def _generate_compile(test_item: Test, skip_existing=False):
 
 
 if __name__ == "__main__":
-
     required_solcs = set()
     for test in ALL_TESTS:
         required_solcs |= set(test.solc_versions)

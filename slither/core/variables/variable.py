@@ -10,6 +10,7 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
 
+
 # pylint: disable=too-many-instance-attributes
 class Variable(SourceMapping):
     def __init__(self) -> None:

@@ -73,7 +73,6 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 
 
 def main() -> None:
-
     args = parse_args()
 
     print(args.codebase)

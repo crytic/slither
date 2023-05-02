@@ -150,9 +150,9 @@ def _process(
 ###################################################################################
 
 
-def get_detectors_and_printers() -> Tuple[
-    List[Type[AbstractDetector]], List[Type[AbstractPrinter]]
-]:
+def get_detectors_and_printers() -> (
+    Tuple[List[Type[AbstractDetector]], List[Type[AbstractPrinter]]]
+):
     detectors_ = [getattr(all_detectors, name) for name in dir(all_detectors)]
     detectors = [d for d in detectors_ if inspect.isclass(d) and issubclass(d, AbstractDetector)]
 
@@ -747,7 +747,7 @@ def main_impl(
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
-    for (l_name, l_level) in [
+    for l_name, l_level in [
         ("Slither", default_log),
         ("Contract", default_log),
         ("Function", default_log),

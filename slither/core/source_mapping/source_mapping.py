@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 # All an object needs to do is to inherits from SourceMapping
 # And call set_offset at some point
 
+
 # pylint: disable=too-many-instance-attributes
 class Source:
     def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
@@ -57,7 +58,6 @@ class Source:
         return f"{filename_short}{lines} ({self.starting_column} - {self.ending_column})"
 
     def _get_lines_str(self, line_descr: str = "") -> str:
-
         line_prefix = self.compilation_unit.core.line_prefix
 
         lines = self.lines

@@ -143,7 +143,6 @@ contract Crowdsale{
                 continue
             for node in func.nodes:
                 for ir in node.irs_ssa:
-
                     # Filter to only tainted equality (==) comparisons
                     if self.is_direct_comparison(ir) and self.is_any_tainted(ir.used, taints, func):
                         if func not in results:
@@ -172,7 +171,6 @@ contract Crowdsale{
             # sort ret to get deterministic results
             ret = sorted(list(ret.items()), key=lambda x: x[0].name)
             for f, nodes in ret:
-
                 func_info = [f, " uses a dangerous strict equality:\n"]
 
                 # sort the nodes to get deterministic results

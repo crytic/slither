@@ -78,7 +78,6 @@ As a result, Bob's usage of the contract is incorrect."""
         # Loop through all functions in all contracts.
         for contract in contracts:
             for function in contract.functions_declared:
-
                 # Skip any constructor functions.
                 if function.is_constructor:
                     continue
@@ -118,7 +117,6 @@ As a result, Bob's usage of the contract is incorrect."""
         for contract in contracts:
             for function in contract.functions_and_modifiers_declared:
                 for node in function.nodes:
-
                     # If this node has no expression, skip it.
                     if not node.expression:
                         continue

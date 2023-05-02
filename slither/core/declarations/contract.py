@@ -1379,9 +1379,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         from slither.core.declarations.function_contract import FunctionContract
 
         if self.state_variables:
-            for (idx, variable_candidate) in enumerate(self.state_variables):
+            for idx, variable_candidate in enumerate(self.state_variables):
                 if variable_candidate.expression and not variable_candidate.is_constant:
-
                     constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
                     constructor_variable.set_contract(self)  # type: ignore
@@ -1409,9 +1408,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                             counter += 1
                     break
 
-            for (idx, variable_candidate) in enumerate(self.state_variables):
+            for idx, variable_candidate in enumerate(self.state_variables):
                 if variable_candidate.expression and variable_candidate.is_constant:
-
                     constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(
                         FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES

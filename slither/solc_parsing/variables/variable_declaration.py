@@ -106,7 +106,6 @@ class VariableDeclarationSolc:
 
     def _handle_comment(self, attributes: Dict) -> None:
         if "documentation" in attributes and "text" in attributes["documentation"]:
-
             candidates = attributes["documentation"]["text"].split(",")
 
             for candidate in candidates:

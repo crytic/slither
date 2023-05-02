@@ -90,7 +90,7 @@ The assert in `bad()` increments the state variable `s_a` while checking for the
         results = []
         for contract in self.contracts:
             assert_state_change = detect_assert_state_change(contract)
-            for (func, node) in assert_state_change:
+            for func, node in assert_state_change:
                 info: DETECTOR_INFO = [
                     func,
                     " has an assert() call which possibly changes state.\n",

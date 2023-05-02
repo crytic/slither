@@ -433,7 +433,6 @@ class Flattening:
         zip: Optional[str] = None,  # pylint: disable=redefined-builtin
         zip_type: Optional[str] = None,
     ):
-
         if not self._export_path.exists():
             self._export_path.mkdir(parents=True)
 

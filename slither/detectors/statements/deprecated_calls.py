@@ -138,7 +138,8 @@ contract ContractWithDeprecatedReferences {
         """Detects the usage of any deprecated built-in symbols.
 
         Returns:
-            list of tuple: (state_variable | node, (detecting_signature, original_text, recommended_text))"""
+            list of tuple: (state_variable | node, (detecting_signature, original_text, recommended_text))
+        """
         results: List[
             Union[
                 Tuple[StateVariable, List[Tuple[str, str, str]]],
@@ -192,7 +193,7 @@ contract ContractWithDeprecatedReferences {
                     deprecated_entries = deprecated_reference[1]
                     info: DETECTOR_INFO = ["Deprecated standard detected ", source_object, ":\n"]
 
-                    for (_dep_id, original_desc, recommended_disc) in deprecated_entries:
+                    for _dep_id, original_desc, recommended_disc in deprecated_entries:
                         info += [
                             f'\t- Usage of "{original_desc}" should be replaced with "{recommended_disc}"\n'
                         ]

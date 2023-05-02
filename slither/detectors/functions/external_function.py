@@ -91,10 +91,8 @@ class ExternalFunction(AbstractDetector):
         # Loop through the list of inherited contracts and this contract, to find the first function instance which
         # matches this function's signature. Note here that `inheritance` is in order from most basic to most extended.
         for contract in function.contract.inheritance + [function.contract]:
-
             # Loop through the functions not inherited (explicitly defined in this contract).
             for f in contract.functions_declared:
-
                 # If it matches names, this is the base most function.
                 if f.full_name == function.full_name:
                     return f
@@ -159,14 +157,12 @@ class ExternalFunction(AbstractDetector):
 
         # Loop through all contracts
         for contract in self.contracts:
-
             # Filter false-positives: Immediately filter this contract if it's in blacklist
             if contract in dynamic_call_contracts:
                 continue
 
             # Next we'll want to loop through all functions defined directly in this contract.
             for function in contract.functions_declared:
-
                 # If all of the function arguments are non-reference type or calldata, we skip it.
                 reference_args = []
                 for arg in function.parameters:

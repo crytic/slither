@@ -10,7 +10,6 @@ from slither.utils.output import Output
 
 
 class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
-
     ARGUMENT = "vars-and-auth"
     HELP = "Print the state variables written and the authorization of the functions"
 
@@ -52,7 +51,6 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
                 ["Function", "State variables written", "Conditions on msg.sender"]
             )
             for function in contract.functions:
-
                 state_variables_written = [
                     v.name for v in function.all_state_variables_written() if v.name
                 ]

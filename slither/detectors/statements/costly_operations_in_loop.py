@@ -23,7 +23,6 @@ def detect_costly_operations_in_loop(contract: Contract) -> List[Node]:
 def costly_operations_in_loop(
     node: Optional[Node], in_loop_counter: int, visited: List[Node], ret: List[Node]
 ) -> None:
-
     if node is None:
         return
 
@@ -51,7 +50,6 @@ def costly_operations_in_loop(
 
 
 class CostlyOperationsInLoop(AbstractDetector):
-
     ARGUMENT = "costly-loop"
     HELP = "Costly operations in a loop"
     IMPACT = DetectorClassification.INFORMATIONAL
