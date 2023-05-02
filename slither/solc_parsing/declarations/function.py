@@ -68,6 +68,7 @@ class FunctionSolc(CallerContextExpression):
         else:
             self._function.name = function_data["attributes"][self.get_key()]
         self._functionNotParsed = function_data
+        self._returnsNotParsed: List[dict] = []
         self._params_was_analyzed = False
         self._content_was_analyzed = False
 
@@ -284,6 +285,7 @@ class FunctionSolc(CallerContextExpression):
             if body and body[self.get_key()] == "Block":
                 self._function.is_implemented = True
                 self._parse_cfg(body)
+                self._fix_implicit_return(body)
 
             for modifier in self._functionNotParsed["modifiers"]:
                 self._parse_modifier(modifier)
@@ -1145,6 +1147,13 @@ class FunctionSolc(CallerContextExpression):
         node.set_sons([start_node])
         start_node.add_father(node)
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Try-Catch
+    ###################################################################################
+    ###################################################################################
+
     def _fix_try(self, node: Node) -> None:
         end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
         if end_node:
@@ -1159,6 +1168,13 @@ class FunctionSolc(CallerContextExpression):
             for son in node.sons:
                 if son != end_node:
                     self._fix_catch(son, end_node)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Params, Returns, Modifiers
+    ###################################################################################
+    ###################################################################################
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
 
@@ -1199,11 +1215,11 @@ class FunctionSolc(CallerContextExpression):
         self._function.returns_src().set_offset(returns["src"], self._function.compilation_unit)
 
         if self.is_compact_ast:
-            returns = returns["parameters"]
+            self._returnsNotParsed = returns["parameters"]
         else:
-            returns = returns[self.get_children("children")]
+            self._returnsNotParsed = returns[self.get_children("children")]
 
-        for ret in returns:
+        for ret in self._returnsNotParsed:
             assert ret[self.get_key()] == "VariableDeclaration"
             local_var = self._add_param(ret)
             self._function.add_return(local_var.underlying_variable)
@@ -1256,6 +1272,32 @@ class FunctionSolc(CallerContextExpression):
                         nodes=[latest_entry_point, node_parser.underlying_node],
                     )
                 )
+
+    def _fix_implicit_return(self, cfg: dict) -> None:
+        if len(self.underlying_function.returns) == 0:
+            pass
+        if not any(ret.name != "" for ret in self.underlying_function.returns):
+            pass
+        return_node = self._new_node(NodeType.RETURN, cfg["src"], self.underlying_function)
+        for node, node_solc in self._node_to_nodesolc.items():
+            if len(node.sons) == 0 and node.type != NodeType.RETURN:
+                link_underlying_nodes(node_solc, return_node)
+        for return_arg in self.underlying_function.returns:
+            if return_arg.name != "":
+                (refId, refSrc, refType) = next(
+                    (ret["id"], ret["src"], ret["typeDescriptions"])
+                    for ret in self._returnsNotParsed if ret["name"] == return_arg.name
+                )
+                return_node.add_unparsed_expression({
+                    "name": return_arg.name,
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": refId,
+                    "src": refSrc,
+                    "typeDescriptions": refType
+                })
+        # return_node.analyze_expressions(self)
+
 
     # endregion
     ###################################################################################
