@@ -281,7 +281,7 @@ class FunctionSolc(CallerContextExpression):
         if self.is_compact_ast:
             body = self._functionNotParsed.get("body", None)
 
-            if body and body[self.get_key()] == "Block":
+            if body and body[self.get_key()] == "Block" and len(body["statements"]) > 0:
                 self._function.is_implemented = True
                 self._parse_cfg(body)
 
@@ -292,7 +292,7 @@ class FunctionSolc(CallerContextExpression):
             children = self._functionNotParsed[self.get_children("children")]
             self._function.is_implemented = False
             for child in children[2:]:
-                if child[self.get_key()] == "Block":
+                if child[self.get_key()] == "Block" and len(child["children"]) > 0:
                     self._function.is_implemented = True
                     self._parse_cfg(child)
 
