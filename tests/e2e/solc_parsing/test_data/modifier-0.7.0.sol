@@ -2,7 +2,7 @@ abstract contract A{
 	modifier m() virtual;
 
 	function f() public m(){
-
+        uint i = 1;
 	}
 }
 

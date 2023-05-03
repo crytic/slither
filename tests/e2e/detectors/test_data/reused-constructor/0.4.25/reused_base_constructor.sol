@@ -7,31 +7,31 @@ contract A{
 
 contract B is A{
     constructor(uint y) A(y * 3) public{
-
+        uint i = 1;
     }
 }
 
 contract C is B{
     constructor(uint y) A(y * 2) public{
-
+        uint i = 1;
     }
 }
 
 contract D is B(1), C(1) {
     constructor() B(3) C(2) public {
-
+        uint i = 1;
     }
 }
 
 contract E is B(1), C, D() {
     constructor() B(1) C(2) D() public {
-
+        uint i = 1;
     }
 }
 
 
 contract F is B {
     constructor() A(1) public {
-
+        uint i = 1;
     }
 }

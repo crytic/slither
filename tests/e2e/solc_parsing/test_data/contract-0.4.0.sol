@@ -7,7 +7,7 @@ contract A {
 // inheritance, no constructor
 contract B is A {
     function B(uint a) {
-
+        uint i = 1;
     }
 }
 
@@ -19,7 +19,7 @@ contract C is B(4) {
 // inheritance, init in constructor
 contract D is B {
     function D() B(2) {
-
+        uint i = 1;
     }
 }
 

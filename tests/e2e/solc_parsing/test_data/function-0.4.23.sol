@@ -29,7 +29,9 @@ contract C3 {
     modifier modifierNoArgs() { _; }
     modifier modifierWithArgs(uint a) { _; }
 
-    function f() public modifierNoArgs modifierWithArgs(block.timestamp) {}
+    function f() public modifierNoArgs modifierWithArgs(block.timestamp) {
+        uint i = 1;
+    }
 }
 
 contract C4 {

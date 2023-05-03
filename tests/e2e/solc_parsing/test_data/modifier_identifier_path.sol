@@ -1,6 +1,8 @@
 contract A{
 
-	function f() public m {}
+	function f() public m {
+		uint i = 1;
+	}
 	modifier m()virtual {_;}
 
 }

@@ -1,6 +1,6 @@
 contract Test{
     function unused() internal{
-
+        uint i = 1;
     }
 }
 
@@ -8,13 +8,13 @@ contract Test{
 contract Test2{
 
     function unused_but_shadowed() internal virtual{
-
+        uint i = 1;
     }
 }
 
 contract Test3 is Test2{
     function unused_but_shadowed() internal override{
-
+        uint i = 1;
     }
 
     function f() public{
@@ -24,7 +24,7 @@ contract Test3 is Test2{
 
 contract Test4 is Test2{
     function unused_but_shadowed() internal override{
-
+        uint i = 1;
     }
 }
 

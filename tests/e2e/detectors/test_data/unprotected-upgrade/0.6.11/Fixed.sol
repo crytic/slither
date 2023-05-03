@@ -41,7 +41,9 @@ contract UpgradeableNoDestruct is Initializable{
 contract Fixed2 is Initializable {
     address payable owner;
 
-    constructor() public initializer {}
+    constructor() public initializer {
+        uint i = 1;
+    }
 
     function initialize() external initializer {
         require(owner == address(0));

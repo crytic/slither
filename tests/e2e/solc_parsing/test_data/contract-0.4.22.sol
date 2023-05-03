@@ -7,7 +7,7 @@ contract A {
 // inheritance, no constructor
 contract B is A {
     constructor(uint a) public  {
-
+        uint i = 1;
     }
 }
 
@@ -19,7 +19,7 @@ contract C is B(4) {
 // inheritance, init in constructor
 contract D is B {
     constructor() B(2) public  {
-
+        uint i = 1;
     }
 }
 
