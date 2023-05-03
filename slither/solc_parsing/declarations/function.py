@@ -281,8 +281,9 @@ class FunctionSolc(CallerContextExpression):
         if self.is_compact_ast:
             body = self._functionNotParsed.get("body", None)
 
-            if body and body[self.get_key()] == "Block" and len(body["statements"]) > 0:
-                self._function.is_implemented = True
+            if body and body[self.get_key()] == "Block":
+                if len(body["statements"]) > 0 or len(self._functionNotParsed["modifiers"]) > 0:
+                    self._function.is_implemented = True
                 self._parse_cfg(body)
 
             for modifier in self._functionNotParsed["modifiers"]:
@@ -292,14 +293,16 @@ class FunctionSolc(CallerContextExpression):
             children = self._functionNotParsed[self.get_children("children")]
             self._function.is_implemented = False
             for child in children[2:]:
-                if child[self.get_key()] == "Block" and len(child["children"]) > 0:
-                    self._function.is_implemented = True
+                if child[self.get_key()] == "Block":
+                    if len(child["children"]) > 0:
+                        self._function.is_implemented = True
                     self._parse_cfg(child)
 
             # Parse modifier after parsing all the block
             # In the case a local variable is used in the modifier
             for child in children[2:]:
                 if child[self.get_key()] == "ModifierInvocation":
+                    self._function.is_implemented = True
                     self._parse_modifier(child)
 
         for local_var_parser in self._local_variables_parser:
