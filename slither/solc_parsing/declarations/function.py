@@ -1328,7 +1328,7 @@ class FunctionSolc(CallerContextExpression):
                 "lValueRequested": False,
                 "nodeType": "TupleExpression",
                 "src": cfg["src"],
-                "typeDescriptions": {}
+                "typeDescriptions": {},
             }
             type_ids = []
             type_strs = []
@@ -1368,10 +1368,7 @@ class FunctionSolc(CallerContextExpression):
                 )
                 return_node.add_unparsed_expression(
                     {
-                        "attributes": {
-                            "type": refType,
-                            "value": return_arg.name
-                        },
+                        "attributes": {"type": refType, "value": return_arg.name},
                         "name": "Identifier",
                         "src": refSrc,
                     }
@@ -1391,10 +1388,7 @@ class FunctionSolc(CallerContextExpression):
                     )
                     expression["children"].append(
                         {
-                            "attributes": {
-                                "type": refType,
-                                "value": return_arg.name
-                            },
+                            "attributes": {"type": refType, "value": return_arg.name},
                             "name": "Identifier",
                             "src": refSrc,
                         }
