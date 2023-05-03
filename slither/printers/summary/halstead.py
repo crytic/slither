@@ -72,9 +72,9 @@ def compute_halstead(contracts: list) -> tuple:
             for node in func.nodes:
                 for operation in node.irs:
                     # use operation.expression.type to get the unique operator type
-                    operator_type = operation.expression.type
-                    operators.append(operator_type)
-                    all_operators.append(operator_type)
+                    # TODO: This is broken. It considers every operation as a unique operator.
+                    operators.append(operation)
+                    all_operators.append(operation)
 
                     # use operation.used to get the operands of the operation ignoring the temporary variables
                     new_operands = [
