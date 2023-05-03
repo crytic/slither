@@ -1,0 +1,14 @@
+Loop condition at tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#47 should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition at tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#78 should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition at tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#16 should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition at tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#88 should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition at tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#105 should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition at tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#112 should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition at tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#59 should use cached array length instead of referencing `length` member of the storage array.
+ 
