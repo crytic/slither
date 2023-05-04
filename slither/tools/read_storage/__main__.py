@@ -7,7 +7,7 @@ import argparse
 from crytic_compile import cryticparser
 
 from slither import Slither
-from slither.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo
+from slither.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo, BlockTag
 
 
 def parse_args() -> argparse.Namespace:
@@ -128,13 +128,10 @@ def main() -> None:
 
     rpc_info = None
     if args.rpc_url:
-        if args.block in ["latest", "earliest", "pending", "safe", "finalized"]:
-            block = args.block
-        else:
-            try:
-                block = int(args.block)
-            except ValueError:
-                block = "latest"
+        try:
+            block = int(args.block)
+        except ValueError:
+            block = BlockTag(args.block) or "latest"
         rpc_info = RpcInfo(args.rpc_url, block)
 
     srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
