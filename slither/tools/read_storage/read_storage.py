@@ -9,6 +9,7 @@ from eth_abi import decode, encode
 from eth_typing.evm import ChecksumAddress
 from eth_utils import keccak, to_checksum_address
 from web3 import Web3
+from web3.types import BlockIdentifier
 from web3.exceptions import ExtraDataLengthError
 from web3.middleware import geth_poa_middleware
 
@@ -64,7 +65,7 @@ class BlockTag(Enum, metaclass=MetaEnum):
 
 
 class RpcInfo:
-    def __init__(self, rpc_url: str, block: Union[int, BlockTag] = "latest") -> None:
+    def __init__(self, rpc_url: str, block: BlockIdentifier = "latest") -> None:
         assert isinstance(block, int) or block in BlockTag
         self.rpc: str = rpc_url
         self._web3: Web3 = Web3(Web3.HTTPProvider(self.rpc))
