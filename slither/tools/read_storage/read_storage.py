@@ -64,7 +64,7 @@ class BlockTag(Enum, metaclass=MetaEnum):
 
 
 class RpcInfo:
-    def __init__(self, rpc_url: str, block: Union[int, str] = "latest") -> None:
+    def __init__(self, rpc_url: str, block: Union[int, BlockTag] = "latest") -> None:
         assert isinstance(block, int) or block in BlockTag
         self.rpc: str = rpc_url
         self._web3: Web3 = Web3(Web3.HTTPProvider(self.rpc))
