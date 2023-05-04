@@ -128,10 +128,13 @@ def main() -> None:
 
     rpc_info = None
     if args.rpc_url:
-        try:
-            block = int(args.block)
-        except ValueError:
-            block = "latest"
+        if args.block in ["latest", "earliest", "pending", "safe", "finalized"]:
+            block = args.block
+        else:
+            try:
+                block = int(args.block)
+            except ValueError:
+                block = "latest"
         rpc_info = RpcInfo(args.rpc_url, block)
 
     srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
