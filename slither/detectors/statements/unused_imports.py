@@ -1,6 +1,6 @@
 import os
 from logging import Logger
-from pathlib import PurePath, PurePosixPath
+from pathlib import PurePath
 from typing import Dict, Set
 
 from slither.core.compilation_unit import SlitherCompilationUnit
@@ -452,7 +452,11 @@ class UnusedImports(AbstractDetector):
             output = ""
             if k in UnusedImports.analysed_files or len(v) == 0:
                 continue
-            output += "Unused imports found in " + PurePath(os.path.relpath(k, os.curdir)).as_posix() + ".\n"
+            output += (
+                "Unused imports found in "
+                + PurePath(os.path.relpath(k, os.curdir)).as_posix()
+                + ".\n"
+            )
             output += "Consider removing the following imports:\n"
             for imp in v:
                 output += PurePath(self.absolute_path_to_imp_filename[imp]).as_posix()
