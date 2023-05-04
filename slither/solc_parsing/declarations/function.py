@@ -285,9 +285,8 @@ class FunctionSolc(CallerContextExpression):
                 if (
                     len(body["statements"]) > 0
                     or len(self._functionNotParsed["modifiers"]) > 0
-                    or self._function.function_type in [
-                        FunctionType.FALLBACK, FunctionType.RECEIVE, FunctionType.CONSTRUCTOR
-                    ]
+                    or self._function.function_type
+                    in [FunctionType.FALLBACK, FunctionType.RECEIVE, FunctionType.CONSTRUCTOR]
                 ):
                     self._function.is_implemented = True
                 self._parse_cfg(body)
@@ -300,12 +299,11 @@ class FunctionSolc(CallerContextExpression):
             self._function.is_implemented = False
             for child in children[2:]:
                 if child[self.get_key()] == "Block":
-                    if (
-                        len(child["children"]) > 0
-                        or self._function.function_type in [
-                            FunctionType.FALLBACK, FunctionType.RECEIVE, FunctionType.CONSTRUCTOR
-                        ]
-                    ):
+                    if len(child["children"]) > 0 or self._function.function_type in [
+                        FunctionType.FALLBACK,
+                        FunctionType.RECEIVE,
+                        FunctionType.CONSTRUCTOR,
+                    ]:
                         self._function.is_implemented = True
                     self._parse_cfg(child)
 
