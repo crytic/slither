@@ -1,1 +1,1 @@
-from .read_storage import SlitherReadStorage, RpcInfo
+from .read_storage import SlitherReadStorage, RpcInfo, BlockTag
