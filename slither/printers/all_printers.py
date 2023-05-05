@@ -10,6 +10,7 @@ from .summary.slithir import PrinterSlithIR
 from .summary.slithir_ssa import PrinterSlithIRSSA
 from .summary.human_summary import PrinterHumanSummary
 from .summary.halstead import Halstead
+from .summary.complexity_dashboard import ComplexityDashboard
 from .functions.cfg import CFG
 from .summary.function_ids import FunctionIds
 from .summary.variable_order import VariableOrder

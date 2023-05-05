@@ -326,6 +326,64 @@ def encode_ir_for_compare(ir: Operation) -> str:
 
 
 # pylint: disable=too-many-branches
+def encode_ir_for_halstead(ir: Operation) -> str:
+    # operations
+    if isinstance(ir, Assignment):
+        return "assignment"
+    if isinstance(ir, Index):
+        return "index"
+    if isinstance(ir, Member):
+        return "member"  # .format(ntype(ir._type))
+    if isinstance(ir, Length):
+        return "length"
+    if isinstance(ir, Binary):
+        return f"binary({str(ir.type)})"
+    if isinstance(ir, Unary):
+        return f"unary({str(ir.type)})"
+    if isinstance(ir, Condition):
+        return f"condition({encode_var_for_compare(ir.value)})"
+    if isinstance(ir, NewStructure):
+        return "new_structure"
+    if isinstance(ir, NewContract):
+        return "new_contract"
+    if isinstance(ir, NewArray):
+        return f"new_array({ntype(ir.array_type)})"
+    if isinstance(ir, NewElementaryType):
+        return f"new_elementary({ntype(ir.type)})"
+    if isinstance(ir, Delete):
+        return "delete"
+    if isinstance(ir, SolidityCall):
+        return f"solidity_call({ir.function.full_name})"
+    if isinstance(ir, InternalCall):
+        return f"internal_call({ntype(ir.type_call)})"
+    if isinstance(ir, EventCall):  # is this useful?
+        return "event"
+    if isinstance(ir, LibraryCall):
+        return "library_call"
+    if isinstance(ir, InternalDynamicCall):
+        return "internal_dynamic_call"
+    if isinstance(ir, HighLevelCall):  # TODO: improve
+        return "high_level_call"
+    if isinstance(ir, LowLevelCall):  # TODO: improve
+        return "low_level_call"
+    if isinstance(ir, TypeConversion):
+        return f"type_conversion({ntype(ir.type)})"
+    if isinstance(ir, Return):  # this can be improved using values
+        return "return"  # .format(ntype(ir.type))
+    if isinstance(ir, Transfer):
+        return "transfer"
+    if isinstance(ir, Send):
+        return "send"
+    if isinstance(ir, Unpack):  # TODO: improve
+        return "unpack"
+    if isinstance(ir, InitArray):  # TODO: improve
+        return "init_array"
+    # default
+    print(ir, "UNKNOWN")
+    return "unknwon"
+
+
+# pylint: disable=too-many-branches
 def encode_var_for_compare(var: Variable) -> str:
 
     # variables

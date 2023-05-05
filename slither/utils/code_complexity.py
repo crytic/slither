@@ -80,3 +80,14 @@ def compute_cyclomatic_complexity(function: "Function") -> int:
     N = len(function.nodes)
     P = 1
     return E - N + 2 * P
+
+
+def count_abstracts(contracts):
+    total_contract_count = 0
+    abstract_contract_count = 0
+    for c in contracts:
+        total_contract_count += 1
+        if not c.is_fully_implemented:
+            abstract_contract_count += 1
+    return (abstract_contract_count, total_contract_count)
+
