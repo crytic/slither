@@ -8,6 +8,7 @@ from .functions.authorization import PrinterWrittenVariablesAndAuthorization
 from .summary.slithir import PrinterSlithIR
 from .summary.slithir_ssa import PrinterSlithIRSSA
 from .summary.human_summary import PrinterHumanSummary
+from .summary.ck import CKMetrics
 from .functions.cfg import CFG
 from .summary.function_ids import FunctionIds
 from .summary.variable_order import VariableOrder
