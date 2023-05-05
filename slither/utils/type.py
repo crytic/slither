@@ -204,6 +204,7 @@ def is_underlying_type_address(t: "Type") -> bool:
     Return true if the underlying type is an address
     i.e. if the type is an address or a contract
     """
+    # pylint: disable=import-outside-toplevel
     from slither.core.declarations.contract import Contract
 
     if t == ElementaryType("address"):
