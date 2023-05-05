@@ -43,9 +43,6 @@ class CustomError(SourceMapping):
 
     @staticmethod
     def _convert_type_for_solidity_signature(t: Optional[Type]) -> str:
-        # pylint: disable=import-outside-toplevel
-        from slither.core.declarations import Contract
-
         if is_underlying_type_address(t):
             return "address"
         return str(t)
