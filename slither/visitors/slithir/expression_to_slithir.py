@@ -626,7 +626,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, value)
         elif expression.type in [UnaryOperationType.MINUS_PRE]:
             lvalue = TemporaryVariable(self._node)
-            assert isinstance(value.type, ElementaryType)
             operation = Binary(lvalue, Constant("0", value.type), value, BinaryType.SUBTRACTION)
             operation.set_expression(expression)
             self._result.append(operation)
