@@ -1,8 +1,8 @@
 from typing import List, TYPE_CHECKING, Optional, Type
 
-from slither.core.solidity_types import UserDefinedType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
+from slither.utils.type import is_underlying_type_address
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -46,7 +46,7 @@ class CustomError(SourceMapping):
         # pylint: disable=import-outside-toplevel
         from slither.core.declarations import Contract
 
-        if isinstance(t, UserDefinedType) and isinstance(t.type, Contract):
+        if is_underlying_type_address(t):
             return "address"
         return str(t)
 

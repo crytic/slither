@@ -31,6 +31,7 @@ from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.local_variable import LocalIRVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 from slither.utils.output import Output
+from slither.utils.type import is_underlying_type_address
 
 
 class IncorrectStrictEquality(AbstractDetector):
@@ -77,8 +78,13 @@ contract Crowdsale{
         """
         Comparing addresses strictly should not be flagged.
         """
-        addr = ElementaryType("address")
-        return ir.variable_left.type != addr or ir.variable_right.type != addr
+
+        if is_underlying_type_address(ir.variable_left.type) and is_underlying_type_address(
+            ir.variable_right.type
+        ):
+            return False
+
+        return True
 
     @staticmethod
     def is_any_tainted(
@@ -116,7 +122,6 @@ contract Crowdsale{
                     ):
                         taints.append(ir.lvalue)
                     if isinstance(ir, HighLevelCall):
-                        # print(ir.function.full_name)
                         if (
                             isinstance(ir.function, Function)
                             and ir.function.full_name == "balanceOf(address)"
@@ -133,7 +138,6 @@ contract Crowdsale{
                     if isinstance(ir, Assignment):
                         if ir.rvalue in self.sources_taint:
                             taints.append(ir.lvalue)
-
         return taints
 
     # Retrieve all tainted (node, function) pairs
@@ -155,10 +159,10 @@ contract Crowdsale{
                     # Filter to only tainted equality (==) comparisons
                     if (
                         self.is_direct_comparison(ir)
+                        # Filter out address comparisons which may occur due to lack of field sensitivity in data dependency
                         and self.is_not_comparing_addresses(ir)
                         and self.is_any_tainted(ir.used, taints, func)
                     ):
-                        #
                         if func not in results:
                             results[func] = []
                         results[func].append(node)
