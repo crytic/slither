@@ -47,7 +47,6 @@ if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.scope.scope import FileScope
     from slither.slithir.variables.state_variable import StateIRVariable
-    from slither.core.declarations.function_contract import FunctionContract
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -298,7 +297,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def contains_assembly(self, c: bool):
         self._contains_assembly = c
 
-    def can_reenter(self, callstack: Optional[List["FunctionContract"]] = None) -> bool:
+    def can_reenter(self, callstack: Optional[List[Union["Function", "Variable"]]] = None) -> bool:
         """
         Check if the function can re-enter
         Follow internal calls.
@@ -1720,8 +1719,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
     def fix_phi(
         self,
-        last_state_variables_instances: Dict[str, List["StateIRVariable"]],
-        initial_state_variables_instances: Dict[str, "StateIRVariable"],
+        last_state_variables_instances: Dict[str, List["StateVariable"]],
+        initial_state_variables_instances: Dict[str, "StateVariable"],
     ) -> None:
         from slither.slithir.operations import InternalCall, PhiCallback
         from slither.slithir.variables import Constant, StateIRVariable

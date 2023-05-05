@@ -1,0 +1,50 @@
+Reentrancy in ReentrancyBenign.bad1(address) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#23-27):
+	External calls:
+	- success = target.call() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#24)
+	State variables written after the call(s):
+	- counter += 1 (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#26)
+
+Reentrancy in ReentrancyBenign.bad0() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#16-21):
+	External calls:
+	- ! (msg.sender.call()) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#17)
+	State variables written after the call(s):
+	- counter += 1 (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#20)
+
+Reentrancy in ReentrancyBenign.bad4(address) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#46-51):
+	External calls:
+	- externalCaller(target) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#47)
+		- address(target).call() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#60)
+	- ethSender(address(0)) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#48)
+		- address(target).call.value(1)() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#64)
+	External calls sending eth:
+	- ethSender(address(0)) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#48)
+		- address(target).call.value(1)() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#64)
+	State variables written after the call(s):
+	- varChanger() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#49)
+		- anotherVariableToChange ++ (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#68)
+
+Reentrancy in ReentrancyBenign.bad3(address) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#40-44):
+	External calls:
+	- externalCaller(target) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#41)
+		- address(target).call() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#60)
+	State variables written after the call(s):
+	- varChanger() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#42)
+		- anotherVariableToChange ++ (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#68)
+
+Reentrancy in ReentrancyBenign.bad2(address) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#29-38):
+	External calls:
+	- success = target.call() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#30)
+	- address(target).call.value(1000)() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#32)
+	External calls sending eth:
+	- address(target).call.value(1000)() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#32)
+	State variables written after the call(s):
+	- counter += 1 (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#33)
+
+Reentrancy in ReentrancyBenign.bad5(address) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#53-57):
+	External calls:
+	- ethSender(address(0)) (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#54)
+		- address(target).call.value(1)() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#64)
+	State variables written after the call(s):
+	- varChanger() (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#55)
+		- anotherVariableToChange ++ (tests/e2e/detectors/test_data/reentrancy-benign/0.4.25/reentrancy-benign.sol#68)
+

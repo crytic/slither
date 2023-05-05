@@ -1,0 +1,20 @@
+Token (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.getApproved(uint256) (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#14)
+
+Token (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.approve(address,uint256) (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#12)
+
+Token (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.safeTransferFrom(address,address,uint256) (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#10)
+
+Token (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.balanceOf(address) (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#7)
+
+Token (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.ownerOf(uint256) (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#8)
+
+Token (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.transferFrom(address,address,uint256) (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#11)
+
+Token (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:IERC165.supportsInterface(bytes4) (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#4)
+
+Token (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.setApprovalForAll(address,bool) (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#13)
+
+Token (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.safeTransferFrom(address,address,uint256,bytes) (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#9)
+
+Token (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#6-16) has incorrect ERC721 function interface:Token.isApprovedForAll(address,address) (tests/e2e/detectors/test_data/erc721-interface/0.7.6/incorrect_erc721_interface.sol#15)
+

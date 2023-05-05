@@ -1,6 +1,10 @@
 from typing import List
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import Nop
 from slither.utils.output import Output
 
@@ -39,7 +43,7 @@ When reading `B`'s constructor definition, we might assume that `A()` initiates 
                 for constructor_call in cst.explicit_base_constructor_calls_statements:
                     for node in constructor_call.nodes:
                         if any(isinstance(ir, Nop) for ir in node.irs):
-                            info = ["Void constructor called in ", cst, ":\n"]
+                            info: DETECTOR_INFO = ["Void constructor called in ", cst, ":\n"]
                             info += ["\t- ", node, "\n"]
 
                             res = self.generate_result(info)

@@ -57,7 +57,7 @@ class SlitherCompilationUnit(Context):
 
         self._storage_layouts: Dict[str, Dict[str, Tuple[int, int]]] = {}
 
-        self._contract_with_missing_inheritance = set()
+        self._contract_with_missing_inheritance: Set[Contract] = set()
 
         self._source_units: Dict[int, str] = {}
 
@@ -88,7 +88,8 @@ class SlitherCompilationUnit(Context):
 
     @property
     def solc_version(self) -> str:
-        return self._crytic_compile_compilation_unit.compiler_version.version
+        # TODO: make version a non optional argument of compiler version in cc
+        return self._crytic_compile_compilation_unit.compiler_version.version  # type:ignore
 
     @property
     def crytic_compile_compilation_unit(self) -> CompilationUnit:
@@ -127,7 +128,7 @@ class SlitherCompilationUnit(Context):
         """list(Contract): List of contracts that are derived and not inherited."""
         inheritances = [x.inheritance for x in self.contracts]
         inheritance = [item for sublist in inheritances for item in sublist]
-        return [c for c in self.contracts if c not in inheritance and not c.is_top_level]
+        return [c for c in self.contracts if c not in inheritance]
 
     def get_contract_from_name(self, contract_name: Union[str, Constant]) -> List[Contract]:
         """
@@ -162,13 +163,14 @@ class SlitherCompilationUnit(Context):
 
     @property
     def functions_and_modifiers(self) -> List[Function]:
-        return self.functions + self.modifiers
+        return self.functions + list(self.modifiers)
 
     def propagate_function_calls(self) -> None:
         for f in self.functions_and_modifiers:
             for node in f.nodes:
                 for ir in node.irs_ssa:
                     if isinstance(ir, InternalCall):
+                        assert ir.function
                         ir.function.add_reachable_from_node(node, ir)
 
     # endregion
@@ -181,8 +183,8 @@ class SlitherCompilationUnit(Context):
     @property
     def state_variables(self) -> List[StateVariable]:
         if self._all_state_variables is None:
-            state_variables = [c.state_variables for c in self.contracts]
-            state_variables = [item for sublist in state_variables for item in sublist]
+            state_variabless = [c.state_variables for c in self.contracts]
+            state_variables = [item for sublist in state_variabless for item in sublist]
             self._all_state_variables = set(state_variables)
         return list(self._all_state_variables)
 
@@ -229,7 +231,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     @property
-    def contracts_with_missing_inheritance(self) -> Set:
+    def contracts_with_missing_inheritance(self) -> Set[Contract]:
         return self._contract_with_missing_inheritance
 
     # endregion
@@ -266,6 +268,7 @@ class SlitherCompilationUnit(Context):
                 if var.is_constant or var.is_immutable:
                     continue
 
+                assert var.type
                 size, new_slot = var.type.storage_size
 
                 if new_slot:
@@ -285,7 +288,7 @@ class SlitherCompilationUnit(Context):
                 else:
                     offset += size
 
-    def storage_layout_of(self, contract, var) -> Tuple[int, int]:
+    def storage_layout_of(self, contract: Contract, var: StateVariable) -> Tuple[int, int]:
         return self._storage_layouts[contract.name][var.canonical_name]
 
     # endregion

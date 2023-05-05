@@ -6,7 +6,11 @@ from typing import List
 
 from slither.core.declarations import Contract
 from slither.core.variables.state_variable import StateVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.detectors.shadowing.common import is_upgradable_gap_variable
 from slither.utils.output import Output
 
@@ -89,7 +93,7 @@ contract DerivedContract is BaseContract{
                 for all_variables in shadowing:
                     shadow = all_variables[0]
                     variables = all_variables[1:]
-                    info = [shadow, " shadows:\n"]
+                    info: DETECTOR_INFO = [shadow, " shadows:\n"]
                     for var in variables:
                         info += ["\t- ", var, "\n"]
 

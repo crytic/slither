@@ -6,7 +6,11 @@ from typing import List
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function import Function
 from slither.core.variables.state_variable import StateVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 from slither.visitors.expression.export_values import ExportValues
 
@@ -104,7 +108,7 @@ Special care must be taken when initializing state variables from an immediate f
             state_variables = detect_function_init_state_vars(contract)
             if state_variables:
                 for state_variable in state_variables:
-                    info = [
+                    info: DETECTOR_INFO = [
                         state_variable,
                         " is set pre-construction with a non-constant function or state variable:\n",
                     ]

@@ -1,0 +1,12 @@
+Test2.st (tests/e2e/detectors/test_data/uninitialized-state/0.5.16/uninitialized.sol#45) is never initialized. It is used in:
+	- Test2.use() (tests/e2e/detectors/test_data/uninitialized-state/0.5.16/uninitialized.sol#53-56)
+
+Test.balances (tests/e2e/detectors/test_data/uninitialized-state/0.5.16/uninitialized.sol#15) is never initialized. It is used in:
+	- Test.use() (tests/e2e/detectors/test_data/uninitialized-state/0.5.16/uninitialized.sol#23-26)
+
+Test2.v (tests/e2e/detectors/test_data/uninitialized-state/0.5.16/uninitialized.sol#47) is never initialized. It is used in:
+	- Test2.init() (tests/e2e/detectors/test_data/uninitialized-state/0.5.16/uninitialized.sol#49-51)
+
+Uninitialized.destination (tests/e2e/detectors/test_data/uninitialized-state/0.5.16/uninitialized.sol#5) is never initialized. It is used in:
+	- Uninitialized.transfer() (tests/e2e/detectors/test_data/uninitialized-state/0.5.16/uninitialized.sol#7-9)
+

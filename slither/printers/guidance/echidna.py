@@ -80,7 +80,7 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
     :return:
     """
     if f.view or f.pure:
-        if not f.contract.compilation_unit.solc_version.startswith("0.4"):
+        if not f.compilation_unit.solc_version.startswith("0.4"):
             return True
     if f.payable:
         return False
@@ -103,11 +103,11 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
         if isinstance(ir, HighLevelCall):
             if isinstance(ir.function, Variable) or ir.function.view or ir.function.pure:
                 # External call to constant functions are ensured to be constant only for solidity >= 0.5
-                if f.contract.compilation_unit.solc_version.startswith("0.4"):
+                if f.compilation_unit.solc_version.startswith("0.4"):
                     return False
             else:
                 return False
-        if isinstance(ir, InternalCall):
+        if isinstance(ir, InternalCall) and ir.function:
             # Storage write are not properly handled by all_state_variables_written
             if any(parameter.is_storage for parameter in ir.function.parameters):
                 return False

@@ -1,4 +1,6 @@
-from typing import Any, List
+from typing import Any, List, Optional
+
+from slither.core.expressions import NewElementaryType
 from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
@@ -32,6 +34,10 @@ def set_val(expression: Expression, val: List[Any]) -> None:
 
 
 class WriteVar(ExpressionVisitor):
+    def __init__(self, expression: Expression) -> None:
+        self._result: Optional[List[Expression]] = None
+        super().__init__(expression)
+
     def result(self) -> List[Any]:
         if self._result is None:
             self._result = list(set(get(self.expression)))
@@ -123,7 +129,7 @@ class WriteVar(ExpressionVisitor):
     def _post_new_contract(self, expression: NewContract) -> None:
         set_val(expression, [])
 
-    def _post_new_elementary_type(self, expression):
+    def _post_new_elementary_type(self, expression: NewElementaryType) -> None:
         set_val(expression, [])
 
     def _post_tuple_expression(self, expression: TupleExpression) -> None:

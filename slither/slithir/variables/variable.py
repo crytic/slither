@@ -7,8 +7,9 @@ class SlithIRVariable(Variable):
         self._index = 0
 
     @property
-    def ssa_name(self):
+    def ssa_name(self) -> str:
+        assert self.name
         return self.name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.ssa_name

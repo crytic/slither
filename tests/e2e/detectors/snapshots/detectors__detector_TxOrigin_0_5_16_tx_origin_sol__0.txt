@@ -1,0 +1,4 @@
+TxOrigin.bug0() (tests/e2e/detectors/test_data/tx-origin/0.5.16/tx_origin.sol#9-11) uses tx.origin for authorization: require(bool)(tx.origin == owner) (tests/e2e/detectors/test_data/tx-origin/0.5.16/tx_origin.sol#10)
+
+TxOrigin.bug2() (tests/e2e/detectors/test_data/tx-origin/0.5.16/tx_origin.sol#13-17) uses tx.origin for authorization: tx.origin != owner (tests/e2e/detectors/test_data/tx-origin/0.5.16/tx_origin.sol#14)
+

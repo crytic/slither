@@ -6,7 +6,11 @@ from typing import List, Set, Tuple
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import (
     Binary,
     BinaryType,
@@ -84,7 +88,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
             boolean_constant_misuses = self._detect_boolean_equality(contract)
             for (func, nodes) in boolean_constant_misuses:
                 for node in nodes:
-                    info = [
+                    info: DETECTOR_INFO = [
                         func,
                         " compares to a boolean constant:\n\t-",
                         node,

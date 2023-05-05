@@ -28,7 +28,7 @@ class Constant(SlithIRVariable):
             assert isinstance(constant_type, ElementaryType)
             self._type = constant_type
             if constant_type.type in Int + Uint + ["address"]:
-                self._val = convert_string_to_int(val)
+                self._val: Union[bool, int, str] = convert_string_to_int(val)
             elif constant_type.type == "bool":
                 self._val = (val == "true") | (val == "True")
             else:
@@ -40,6 +40,8 @@ class Constant(SlithIRVariable):
             else:
                 self._type = ElementaryType("string")
                 self._val = val
+
+        self._name = str(self._val)
 
     @property
     def value(self) -> Union[bool, int, str]:
@@ -63,20 +65,18 @@ class Constant(SlithIRVariable):
     def __str__(self) -> str:
         return str(self.value)
 
-    @property
-    def name(self) -> str:
-        return str(self)
-
-    def __eq__(self, other: Union["Constant", str]) -> bool:
+    def __eq__(self, other: object) -> bool:
         return self.value == other
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return self.value != other
 
-    def __lt__(self, other):
-        return self.value < other
+    def __lt__(self, other: object) -> bool:
+        if not isinstance(other, (Constant, str)):
+            raise NotImplementedError
+        return self.value < other  # type: ignore
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{str(self.value)}"
 
     def __hash__(self) -> int:

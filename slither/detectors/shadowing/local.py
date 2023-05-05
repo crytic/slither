@@ -9,7 +9,11 @@ from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.modifier import Modifier
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -85,7 +89,7 @@ contract Bug {
         ] = []
 
         # Loop through all functions + modifiers in this contract.
-        for function in contract.functions + contract.modifiers:
+        for function in contract.functions + list(contract.modifiers):
             # We should only look for functions declared directly in this contract (not in a base contract).
             if function.contract_declarer != contract:
                 continue
@@ -144,7 +148,7 @@ contract Bug {
                 for shadow in shadows:
                     local_variable = shadow[0]
                     overshadowed = shadow[1]
-                    info = [local_variable, " shadows:\n"]
+                    info: DETECTOR_INFO = [local_variable, " shadows:\n"]
                     for overshadowed_entry in overshadowed:
                         info += [
                             "\t- ",

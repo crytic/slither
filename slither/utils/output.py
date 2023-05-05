@@ -10,8 +10,17 @@ from zipfile import ZipFile
 from pkg_resources import require
 
 from slither.core.cfg.node import Node
-from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma
+from slither.core.declarations import (
+    Contract,
+    Function,
+    Enum,
+    Event,
+    Structure,
+    Pragma,
+    FunctionContract,
+)
 from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
@@ -351,21 +360,19 @@ def _create_parent_element(
     ],
 ]:
     # pylint: disable=import-outside-toplevel
-    from slither.core.children.child_contract import ChildContract
-    from slither.core.children.child_function import ChildFunction
-    from slither.core.children.child_inheritance import ChildInheritance
+    from slither.core.declarations.contract_level import ContractLevel
 
-    if isinstance(element, ChildInheritance):
+    if isinstance(element, FunctionContract):
         if element.contract_declarer:
             contract = Output("")
             contract.add_contract(element.contract_declarer)
             return contract.data["elements"][0]
-    elif isinstance(element, ChildContract):
+    elif isinstance(element, ContractLevel):
         if element.contract:
             contract = Output("")
             contract.add_contract(element.contract)
             return contract.data["elements"][0]
-    elif isinstance(element, ChildFunction):
+    elif isinstance(element, (LocalVariable, Node)):
         if element.function:
             function = Output("")
             function.add_function(element.function)
