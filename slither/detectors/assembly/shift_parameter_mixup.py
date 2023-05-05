@@ -52,7 +52,7 @@ The shift statement will right-shift the constant 8 by `a` bits"""
                     BinaryType.LEFT_SHIFT,
                     BinaryType.RIGHT_SHIFT,
                 ]:
-                    if isinstance(ir.variable_left, Constant):
+                    if isinstance(ir.variable_left, Constant) and not isinstance(ir.variable_right, Constant):
                         info: DETECTOR_INFO = [
                             f,
                             " contains an incorrect shift operation: ",
