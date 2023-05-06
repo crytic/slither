@@ -1,0 +1,2 @@
+Something (tests/e2e/detectors/test_data/missing-inheritance/0.6.11/unimplemented_interface.sol#5-10) should inherit from ISomething (tests/e2e/detectors/test_data/missing-inheritance/0.6.11/unimplemented_interface.sol#1-3)
+

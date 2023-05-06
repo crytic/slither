@@ -17,10 +17,9 @@ def typeRange(t: str) -> Tuple[int, int]:
     bits = int(t.split("int")[1])
     if t in Uint:
         return 0, (2**bits) - 1
-    if t in Int:
-        v = (2 ** (bits - 1)) - 1
-        return -v, v
-    return None
+    assert t in Int
+    v = (2 ** (bits - 1)) - 1
+    return -v, v
 
 
 def _detect_tautology_or_contradiction(low: int, high: int, cval: int, op: BinaryType) -> bool:

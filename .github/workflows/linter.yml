@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   build:
-    name: Pylint
+    name: Superlinter
     runs-on: ubuntu-latest
 
     steps:
@@ -43,7 +43,7 @@ jobs:
           cp pyproject.toml .github/linters
 
       - name: Lint everything else
-        uses: github/super-linter/slim@v4.9.2
+        uses: super-linter/super-linter/slim@v4.9.2
         if: always()
         env:
           # run linter on everything to catch preexisting problems

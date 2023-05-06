@@ -28,7 +28,7 @@ def enable_windows_virtual_terminal_sequences() -> bool:
 
     try:
         # pylint: disable=import-outside-toplevel
-        from ctypes import windll, byref
+        from ctypes import windll, byref  # type: ignore
         from ctypes.wintypes import DWORD, HANDLE
 
         kernel32 = windll.kernel32
@@ -65,7 +65,7 @@ def enable_windows_virtual_terminal_sequences() -> bool:
     return True
 
 
-def set_colorization_enabled(enabled: bool):
+def set_colorization_enabled(enabled: bool) -> None:
     """
     Sets the enabled state of output colorization.
     :param enabled: Boolean indicating whether output should be colorized.

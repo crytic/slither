@@ -7,7 +7,11 @@ from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
 from slither.core.solidity_types import ElementaryType
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import (
     Assignment,
     Call,
@@ -120,7 +124,7 @@ Other uses (in complex expressions, as conditionals) indicate either an error or
             boolean_constant_misuses = self._detect_boolean_constant_misuses(contract)
             for (func, nodes) in boolean_constant_misuses:
                 for node in nodes:
-                    info = [
+                    info: DETECTOR_INFO = [
                         func,
                         " uses a Boolean constant improperly:\n\t-",
                         node,

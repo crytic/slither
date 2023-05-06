@@ -1,0 +1,6 @@
+Deprecated standard detected THROW (tests/e2e/detectors/test_data/deprecated-standards/0.4.25/deprecated_calls.sol#7):
+	- Usage of "throw" should be replaced with "revert()"
+
+Deprecated standard detected msg.gas == msg.value (tests/e2e/detectors/test_data/deprecated-standards/0.4.25/deprecated_calls.sol#5):
+	- Usage of "msg.gas" should be replaced with "gasleft()"
+

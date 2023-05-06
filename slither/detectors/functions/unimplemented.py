@@ -8,7 +8,13 @@ Consider public state variables as implemented functions
 Do not consider fallback function or constructor
 """
 from typing import List, Set
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+
+from slither.core.declarations import Function
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
@@ -62,7 +68,7 @@ All unimplemented functions must be implemented on a contract that is meant to b
     def _match_state_variable(contract: Contract, f: FunctionContract) -> bool:
         return any(s.full_name == f.full_name for s in contract.state_variables)
 
-    def _detect_unimplemented_function(self, contract: Contract) -> Set[FunctionContract]:
+    def _detect_unimplemented_function(self, contract: Contract) -> Set[Function]:
         """
         Detects any function definitions which are not implemented in the given contract.
         :param contract: The contract to search unimplemented functions for.
@@ -77,6 +83,8 @@ All unimplemented functions must be implemented on a contract that is meant to b
         # fallback function and constructor.
         unimplemented = set()
         for f in contract.all_functions_called:
+            if not isinstance(f, Function):
+                continue
             if (
                 not f.is_implemented
                 and not f.is_constructor
@@ -102,7 +110,7 @@ All unimplemented functions must be implemented on a contract that is meant to b
         for contract in self.compilation_unit.contracts_derived:
             functions = self._detect_unimplemented_function(contract)
             if functions:
-                info = [contract, " does not implement functions:\n"]
+                info: DETECTOR_INFO = [contract, " does not implement functions:\n"]
 
                 for function in sorted(functions, key=lambda x: x.full_name):
                     info += ["\t- ", function, "\n"]

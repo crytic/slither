@@ -7,7 +7,11 @@ from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.contract import Contract
 from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
 from slither.core.expressions.identifier import Identifier
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -87,7 +91,13 @@ Each commented line references types/identifiers, but performs no action with th
             if redundant_statements:
 
                 for redundant_statement in redundant_statements:
-                    info = ['Redundant expression "', redundant_statement, '" in', contract, "\n"]
+                    info: DETECTOR_INFO = [
+                        'Redundant expression "',
+                        redundant_statement,
+                        '" in',
+                        contract,
+                        "\n",
+                    ]
                     json = self.generate_result(info)
                     results.append(json)
 

@@ -50,14 +50,17 @@ def contains_bad_PRNG_sources(func: Function, blockhash_ret_values: List[Variabl
     for node in func.nodes:
         for ir in node.irs_ssa:
             if isinstance(ir, Binary) and ir.type == BinaryType.MODULO:
+                var_left = ir.variable_left
+                if not isinstance(var_left, (Variable, SolidityVariable)):
+                    continue
                 if is_dependent_ssa(
-                    ir.variable_left, SolidityVariableComposed("block.timestamp"), func.contract
-                ) or is_dependent_ssa(ir.variable_left, SolidityVariable("now"), func.contract):
+                    var_left, SolidityVariableComposed("block.timestamp"), node
+                ) or is_dependent_ssa(var_left, SolidityVariable("now"), node):
                     ret.add(node)
                     break
 
                 for ret_val in blockhash_ret_values:
-                    if is_dependent_ssa(ir.variable_left, ret_val, func.contract):
+                    if is_dependent_ssa(var_left, ret_val, node):
                         ret.add(node)
                         break
     return list(ret)

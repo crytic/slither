@@ -1,0 +1,105 @@
+---
+name: Pytest
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+  schedule:
+    # run CI every day even if no PRs/merges occur
+    - cron: '0 12 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-2022"]
+        type: ["unit", "integration", "tool"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          cache: "pip"
+          cache-dependency-path: setup.py
+
+      - name: Install dependencies
+        run: |
+          pip install ".[test]"
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install test dependencies
+        run: |
+          if [ ${{ matrix.type }} = "tool" ]; then
+            # Setup Ganache for slither-read-storage tests.
+            npm install --global ganache
+          elif [ ${{ matrix.type }} = "integration" ]; then
+            # Setup Hardhat for compilation tests.
+            pushd tests/e2e/compilation/test_data/test_node_modules/ || exit
+            npm install hardhat
+            popd || exit
+          fi
+
+      - name: Run ${{ matrix.type }} tests
+        env:
+          TEST_TYPE: ${{ matrix.type }}
+        # Only run coverage on ubuntu-latest.
+        run: |
+          if [ ${{ matrix.os }} = "ubuntu-latest" ]; then
+            TEST_ARGS="--cov=slither --cov-append"
+          elif [ ${{ matrix.os }} = "windows-2022" ]; then
+            TEST_ARGS=""
+          fi
+          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" $TEST_ARGS
+
+
+      - name: Upload coverage
+        uses: ./.github/actions/upload-coverage
+        # only aggregate test coverage over linux-based tests to avoid any OS-specific filesystem information stored in
+        # coverage metadata.
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+
+  coverage:
+    needs:
+      - tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - run: pip install coverage[toml]
+
+      - name: download coverage data
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: coverage-data
+
+      - name: combine coverage data
+        id: combinecoverage
+        run: |
+          set +e
+          python -m coverage combine
+          echo "## python coverage" >> $GITHUB_STEP_SUMMARY
+          python -m coverage report -m --format=markdown >> $GITHUB_STEP_SUMMARY

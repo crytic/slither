@@ -1,0 +1,2 @@
+C.i_am_a_backdoor() (tests/e2e/detectors/test_data/suicidal/0.7.6/suicidal.sol#4-6) allows anyone to destruct the contract
+

@@ -1,0 +1,12 @@
+CostlyOperationsInLoop.bad() (tests/e2e/detectors/test_data/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol#20-24) has costly operations inside a loop:
+	- state_variable ++ (tests/e2e/detectors/test_data/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol#22)
+
+CostlyOperationsInLoop.bad2() (tests/e2e/detectors/test_data/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol#26-33) has costly operations inside a loop:
+	- state_variable ++ (tests/e2e/detectors/test_data/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol#31)
+
+CostlyOperationsInLoop.bad3_internal() (tests/e2e/detectors/test_data/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol#41-43) has costly operations inside a loop:
+	- state_variable ++ (tests/e2e/detectors/test_data/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol#42)
+
+CostlyOperationsInLoopBase.bad_base() (tests/e2e/detectors/test_data/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol#5-9) has costly operations inside a loop:
+	- state_variable_base ++ (tests/e2e/detectors/test_data/costly-loop/0.6.11/multiple_costly_operations_in_loop.sol#7)
+

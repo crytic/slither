@@ -5,7 +5,11 @@ Collect all the interfaces
 Check for contracts which implement all interface functions but do not explicitly derive from those interfaces.
 """
 from typing import List
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.core.declarations.contract import Contract
 from slither.utils.output import Output
 
@@ -139,7 +143,7 @@ contract Something {
                 continue
             intended_interfaces = self.detect_unimplemented_interface(contract, interfaces)
             for interface in intended_interfaces:
-                info = [contract, " should inherit from ", interface, "\n"]
+                info: DETECTOR_INFO = [contract, " should inherit from ", interface, "\n"]
                 res = self.generate_result(info)
                 results.append(res)
         return results
