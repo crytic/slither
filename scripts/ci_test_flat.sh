@@ -11,7 +11,7 @@ if ! slither-flat b.sol; then
     exit 1
 fi
  
-SUFFIX = '@(sol)'
+SUFFIX="@(sol)"
 if ! solc "crytic-export/flattening/"*$SUFFIX; then
     echo "solc failed on flattened files"
     exit 1
