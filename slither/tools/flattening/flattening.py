@@ -24,7 +24,7 @@ from slither.tools.flattening.export.export import (
     save_to_disk,
 )
 
-logger = logging.getLogger("Slither-flattening")
+logger = logging.getLogger("Slither-flat")
 logger.setLevel(logging.INFO)
 
 # index: where to start
