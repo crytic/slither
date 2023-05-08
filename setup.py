@@ -61,6 +61,7 @@ setup(
             "slither-read-storage = slither.tools.read_storage.__main__:main",
             "slither-doctor = slither.tools.doctor.__main__:main",
             "slither-documentation = slither.tools.documentation.__main__:main",
+            "slither-interface = slither.tools.interface.__main__:main",
         ]
     },
 )
