@@ -4,6 +4,8 @@
 
 DIR_TESTS="tests/tools/interface" 
 
+solc-select use 0.8.19 --always-install
+
 #Test 1 - Etherscan target
 slither-interface WETH9 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
 DIFF=$(diff crytic-export/interfaces/IWETH9.sol "$DIR_TESTS/test_1.sol")
