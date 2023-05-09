@@ -16,7 +16,7 @@ setup(
         "prettytable>=0.7.2",
         "pycryptodome>=3.4.6",
         # "crytic-compile>=0.3.1,<0.4.0",
-        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@windows-rel-path#egg=crytic-compile",
+        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
         "web3>=6.0.0",
     ],
     extras_require={
@@ -33,7 +33,7 @@ setup(
             "coverage[toml]",
             "filelock",
             "pytest-insta",
-            "solc-select@git+https://github.com/crytic/solc-select.git@query-artifact-path#egg=solc-select",
+            "solc-select@git+https://github.com/crytic/solc-select.git@master#egg=solc-select",
         ],
         "doc": [
             "pdoc",
