@@ -454,7 +454,7 @@ class UnusedImports(AbstractDetector):
                 continue
             output += (
                 "Unused imports found in "
-                + PurePath(os.path.relpath(k, os.curdir)).as_posix()
+                + PurePath(k).as_posix()
                 + ".\n"
             )
             output += "Consider removing the following imports:\n"

@@ -1,12 +1,12 @@
-Unused imports found in tests/e2e/detectors/test_data/unused-imports/0.8.16/C.sol.
+Unused imports found in /home/bart/Documents/TOB/slither/tests/e2e/detectors/test_data/unused-imports/0.8.16/B.sol.
 Consider removing the following imports:
-tests/e2e/detectors/test_data/unused-imports/0.8.16/B.sol
-and adding the following:
 tests/e2e/detectors/test_data/unused-imports/0.8.16/A.sol
 
 
-Unused imports found in tests/e2e/detectors/test_data/unused-imports/0.8.16/B.sol.
+Unused imports found in /home/bart/Documents/TOB/slither/tests/e2e/detectors/test_data/unused-imports/0.8.16/C.sol.
 Consider removing the following imports:
+tests/e2e/detectors/test_data/unused-imports/0.8.16/B.sol
+and adding the following:
 tests/e2e/detectors/test_data/unused-imports/0.8.16/A.sol
 
 
