@@ -107,6 +107,7 @@ def compare(
     Args:
         v1: Original version of (upgradeable) contract
         v2: Updated version of (upgradeable) contract
+        include_external: Optional flag to enable cross-contract external taint analysis
 
     Returns:
         missing-vars-in-v2: list[Variable],
