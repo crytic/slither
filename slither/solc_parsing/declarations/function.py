@@ -685,6 +685,7 @@ class FunctionSolc(CallerContextExpression):
                     "name": parameters[0]["name"],
                     "nodeType": "Identifier",
                     "src": parameters[0]["src"],
+                    "referencedDeclaration": parameters[0]["id"],
                     "typeDescriptions": parameters[0]["typeDescriptions"],
                 }
             else:
@@ -713,6 +714,7 @@ class FunctionSolc(CallerContextExpression):
                     "name": p["name"],
                     "nodeType": "Identifier",
                     "src": p["src"],
+                    "referencedDeclaration": p["id"],
                     "typeDescriptions": p["typeDescriptions"],
                 }
                 leftHandSide["components"].append(ident)
