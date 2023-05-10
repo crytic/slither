@@ -30,7 +30,7 @@ def test_upgrades_compare() -> None:
         modified_funcs,
         tainted_funcs,
         tainted_contracts,
-    ) = compare(v1, v2)
+    ) = compare(v1, v2, include_external=True)
     assert len(missing_vars) == 0
     assert new_vars == [v2.get_state_variable_from_name("stateC")]
     assert tainted_vars == [
