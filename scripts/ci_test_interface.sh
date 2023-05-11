@@ -12,7 +12,7 @@ DIFF=$(diff crytic-export/interfaces/IWETH9.sol "$DIR_TESTS/test_1.sol")
 if [  "$DIFF" != "" ]
 then
     echo "slither-interface test 1 failed"
-    cat test_1.sol
+    cat "crytic-export/interfaces/IWETH9.sol"
     echo ""
     cat "$DIR_TESTS/test_1.sol"
     exit 255
@@ -25,7 +25,7 @@ DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_2.sol")
 if [  "$DIFF" != "" ]
 then
     echo "slither-interface test 2 failed"
-    cat test_2.sol
+    cat "crytic-export/interfaces/IMock.sol"
     echo ""
     cat "$DIR_TESTS/test_2.sol"
     exit 255
@@ -38,7 +38,7 @@ DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_3.sol")
 if [  "$DIFF" != "" ]
 then
     echo "slither-interface test 3 failed"
-    cat test_3.sol
+    cat "crytic-export/interfaces/IMock.sol"
     echo ""
     cat "$DIR_TESTS/test_3.sol"
     exit 255
@@ -50,7 +50,7 @@ DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_4.sol")
 if [  "$DIFF" != "" ]
 then
     echo "slither-interface test 4 failed"
-    cat test_4.sol
+    cat "crytic-export/interfaces/IMock.sol"
     echo ""
     cat "$DIR_TESTS/test_4.sol"
     exit 255
@@ -62,7 +62,7 @@ DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_5.sol")
 if [  "$DIFF" != "" ]
 then
     echo "slither-interface test 5 failed"
-    cat test_5.sol
+    cat "crytic-export/interfaces/IMock.sol"
     echo ""
     cat "$DIR_TESTS/test_5.sol"
     exit 255
@@ -74,7 +74,7 @@ DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_6.sol")
 if [  "$DIFF" != "" ]
 then
     echo "slither-interface test 6 failed"
-    cat test_6.sol
+    cat "crytic-export/interfaces/IMock.sol"
     echo ""
     cat "$DIR_TESTS/test_6.sol"
     exit 255
@@ -86,7 +86,7 @@ DIFF=$(diff crytic-export/interfaces/IMock.sol "$DIR_TESTS/test_7.sol")
 if [  "$DIFF" != "" ]
 then
     echo "slither-interface test 7 failed"
-    cat test_7.sol
+    cat "crytic-export/interfaces/IMock.sol"
     echo ""
     cat "$DIR_TESTS/test_7.sol"
     exit 255
