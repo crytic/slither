@@ -46,27 +46,9 @@ class SlitherReadStorageException(Exception):
     pass
 
 
-# pylint: disable=no-value-for-parameter
-class MetaEnum(EnumMeta):
-    def __contains__(cls, item):
-        try:
-            cls(item)
-        except ValueError:
-            return False
-        return True
-
-
-class BlockTag(Enum, metaclass=MetaEnum):
-    LATEST = "latest"
-    EARLIEST = "earliest"
-    PENDING = "pending"
-    SAFE = "safe"
-    FINALIZED = "finalized"
-
-
 class RpcInfo:
     def __init__(self, rpc_url: str, block: BlockIdentifier = "latest") -> None:
-        assert isinstance(block, int) or block in BlockTag
+        assert isinstance(block, int) or block in ["latest", "earliest", "pending", "safe", "finalized"]
         self.rpc: str = rpc_url
         self._web3: Web3 = Web3(Web3.HTTPProvider(self.rpc))
         """If the RPC is for a POA network, the first call to get_block fails, so we inject geth_poa_middleware"""
