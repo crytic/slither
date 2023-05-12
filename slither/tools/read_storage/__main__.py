@@ -7,6 +7,7 @@ import argparse
 from crytic_compile import cryticparser
 
 from slither import Slither
+from slither.exceptions import SlitherError
 from slither.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo
 
 
@@ -128,11 +129,8 @@ def main() -> None:
 
     rpc_info = None
     if args.rpc_url:
-        try:
-            block = int(args.block)
-        except ValueError:
-            valid = ["latest", "earliest", "pending", "safe", "finalized"]
-            block = args.block if args.block in valid else "latest"
+        valid = ["latest", "earliest", "pending", "safe", "finalized"]
+        block = args.block if args.block in valid else int(args.block)
         rpc_info = RpcInfo(args.rpc_url, block)
 
     srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
