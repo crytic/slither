@@ -3,7 +3,7 @@
 """
 from typing import List
 
-from slither.core.declarations.contract import Contract
+from slither.core.declarations import Contract, SolidityFunction
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
@@ -17,7 +17,9 @@ from slither.slithir.operations import (
     NewContract,
     LibraryCall,
     InternalCall,
+    SolidityCall,
 )
+from slither.slithir.variables import Constant
 from slither.utils.output import Output
 
 
@@ -71,6 +73,26 @@ Every Ether sent to `Locked` will be lost."""
                         if isinstance(ir, (LowLevelCall)):
                             if ir.function_name in ["delegatecall", "callcode"]:
                                 return False
+                        # pylint: disable=too-many-boolean-expressions
+                        if isinstance(ir, SolidityCall) and (
+                            ir.function
+                            == SolidityFunction(
+                                "delegatecall(uint256,uint256,uint256,uint256,uint256,uint256)"
+                            )
+                            or ir.function
+                            == SolidityFunction(
+                                "callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
+                            )
+                            or ir.function
+                            == SolidityFunction(
+                                "call(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
+                            )
+                            and (
+                                not isinstance(ir.arguments[2], Constant)
+                                or ir.arguments[2].value != 0
+                            )
+                        ):
+                            return False
                         # If a new internal call or librarycall
                         # Add it to the list to explore
                         # InternalCall if to follow internal call in libraries
