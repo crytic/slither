@@ -70,7 +70,8 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
             and len(node.sons) == 1  # Should always be true for a node that has a STARTLOOP son
             and node.sons[0].type == NodeType.STARTLOOP
         ):
-            fathers_context.remove(node.variable_declaration)
+            if node.variable_declaration in fathers_context:
+                fathers_context.remove(node.variable_declaration)
 
         if self.key in node.context:
             fathers_context += node.context[self.key]

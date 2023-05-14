@@ -10,6 +10,11 @@ contract Uninitialized{
         for(uint i; i < 6; i++) { 
             uint a = i;
         }
+
+        for(uint j = 0; j < 6; j++) { 
+            uint b = j;
+        }
+
     }
 
 }
