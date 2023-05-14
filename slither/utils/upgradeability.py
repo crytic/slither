@@ -493,7 +493,7 @@ def encode_var_for_compare(var: Variable) -> str:
 
     # variables
     if isinstance(var, Constant):
-        return f"constant({ntype(var.type)})"
+        return f"constant({ntype(var.type)},{var.value})"
     if isinstance(var, SolidityVariableComposed):
         return f"solidity_variable_composed({var.name})"
     if isinstance(var, SolidityVariable):
@@ -503,9 +503,10 @@ def encode_var_for_compare(var: Variable) -> str:
     if isinstance(var, ReferenceVariable):
         return f"reference({ntype(var.type)})"
     if isinstance(var, LocalVariable):
-        return f"local_solc_variable({var.location})"
+        return f"local_solc_variable({ntype(var.type)},{var.location})"
     if isinstance(var, StateVariable):
-        return f"state_solc_variable({ntype(var.type)})"
+        slot, _ = var.contract.compilation_unit.storage_layout_of(var.contract, var)
+        return f"state_solc_variable({ntype(var.type)},{slot})"
     if isinstance(var, LocalVariableInitFromTuple):
         return "local_variable_init_tuple"
     if isinstance(var, TupleVariable):
