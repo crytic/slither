@@ -6,4 +6,10 @@ contract Uninitialized{
         return uint_not_init + uint_init;
     }    
 
+    function noreportfor() public {
+        for(uint i; i < 6; i++) { 
+            uint a = i;
+        }
+    }
+
 }
