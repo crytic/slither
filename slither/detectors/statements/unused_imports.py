@@ -1,10 +1,12 @@
-import os
 from logging import Logger
 from pathlib import PurePath
 from typing import Dict, Set
 
+from crytic_compile.utils.naming import Filename
+
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
+from slither.core.scope.scope import FileScope
 from slither.core.solidity_types import TypeAliasTopLevel, TypeAliasContract
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
@@ -31,6 +33,7 @@ class UnusedImports(AbstractDetector):
     WIKI_RECOMMENDATION = "Remove unused imports"
 
     analysed_files: Set[str] = set()
+    import_containers: Set[str] = set()
 
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
@@ -40,6 +43,49 @@ class UnusedImports(AbstractDetector):
         self.actual_imports = self._new_dict()
         self.absolute_path_to_imp_filename: Dict[str, str] = {}
         self.imports_cycle_detected = False
+
+    # pylint: disable=too-many-branches
+    @staticmethod
+    def _is_import_container(scope: FileScope) -> bool:
+        """
+        Returns True if a given file (provided as a `FileScope` object) contains only `import` directives (and pragmas).
+        Such a file doesn't need the imports it contains, but its purpose is to aggregate certain correlated imports.
+        """
+        for _, c in scope.contracts.items():
+            if c.file_scope == scope:
+                return False
+        for err in scope.custom_errors:
+            if err.file_scope == scope:
+                return False
+        for _, en in scope.enums.items():
+            if en.file_scope == scope:
+                return False
+        for f in scope.functions:
+            if f.file_scope == scope:
+                return False
+        for _, st in scope.structures.items():
+            if st.file_scope == scope:
+                return False
+        for _, ct in scope.user_defined_types.items():
+            if ct.source_mapping.filename == scope.filename:
+                return False
+        for uf in scope.using_for_directives:
+            if uf.file_scope == scope:
+                return False
+        for _, v in scope.variables.items():
+            if v.file_scope == scope:
+                return False
+        return True
+
+    @staticmethod
+    def _update_import_containers(scopes: Dict[Filename, FileScope]) -> None:
+        """
+        Updates `import_containers` set by adding "import containers" (files containing only `import` statements) from
+        the current scope.
+        """
+        for name, scope in scopes.items():
+            if UnusedImports._is_import_container(scope):
+                UnusedImports.import_containers.add(name.absolute)
 
     def _dfs(self, graph: Dict[str, Set[str]], color: Dict[str, int], x: str) -> None:
         """
@@ -430,6 +476,7 @@ class UnusedImports(AbstractDetector):
     def _detect(self):
         results = []
 
+        UnusedImports._update_import_containers(self.compilation_unit.scopes)
         self._initialise_absolute_path_to_imp_filename()
         self._initialise_actual_imports()
         self._find_top_level_items_uses()
@@ -452,11 +499,9 @@ class UnusedImports(AbstractDetector):
             output = ""
             if k in UnusedImports.analysed_files or len(v) == 0:
                 continue
-            output += (
-                "Unused imports found in "
-                + PurePath(k).as_posix()
-                + ".\n"
-            )
+            if k in UnusedImports.import_containers:
+                continue
+            output += "Unused imports found in " + PurePath(k).as_posix() + ".\n"
             output += "Consider removing the following imports:\n"
             for imp in v:
                 output += PurePath(self.absolute_path_to_imp_filename[imp]).as_posix()
