@@ -1,0 +1,3 @@
+Modifier Test.loopsNoResult() (tests/e2e/detectors/test_data/incorrect-modifier/0.4.25/modifier_default.sol#30-41) does not always execute _; or revert
+Modifier Test.requireAssertNoResult() (tests/e2e/detectors/test_data/incorrect-modifier/0.4.25/modifier_default.sol#18-22) does not always execute _; or revert
+Modifier Test.noResult() (tests/e2e/detectors/test_data/incorrect-modifier/0.4.25/modifier_default.sol#2-6) does not always execute _; or revert

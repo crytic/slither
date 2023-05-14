@@ -1,0 +1,3 @@
+Low level call in Sender.send(address) (tests/e2e/detectors/test_data/low-level-calls/0.6.11/low_level_calls.sol#5-7):
+	- _receiver.call.value(msg.value).gas(7777)() (tests/e2e/detectors/test_data/low-level-calls/0.6.11/low_level_calls.sol#6)
+

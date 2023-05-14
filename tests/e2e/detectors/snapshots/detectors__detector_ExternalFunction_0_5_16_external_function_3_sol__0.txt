@@ -1,0 +1,20 @@
+bad4(string) should be declared external:
+	- Test.bad4(string) (tests/e2e/detectors/test_data/external-function/0.5.16/external_function_3.sol#18)
+Moreover, the following function parameters should change its data location:
+x location should be calldata
+
+bad3(Test.testStruct) should be declared external:
+	- Test.bad3(Test.testStruct) (tests/e2e/detectors/test_data/external-function/0.5.16/external_function_3.sol#17)
+Moreover, the following function parameters should change its data location:
+x location should be calldata
+
+bad2(uint256[]) should be declared external:
+	- Test.bad2(uint256[]) (tests/e2e/detectors/test_data/external-function/0.5.16/external_function_3.sol#16)
+Moreover, the following function parameters should change its data location:
+x location should be calldata
+
+bad(bytes) should be declared external:
+	- Test.bad(bytes) (tests/e2e/detectors/test_data/external-function/0.5.16/external_function_3.sol#15)
+Moreover, the following function parameters should change its data location:
+x location should be calldata
+

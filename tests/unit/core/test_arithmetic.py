@@ -1,5 +1,4 @@
 from pathlib import Path
-from solc_select import solc_select
 
 from slither import Slither
 from slither.utils.arithmetic import unchecked_arithemtic_usage
@@ -8,9 +7,9 @@ from slither.utils.arithmetic import unchecked_arithemtic_usage
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data" / "arithmetic_usage"
 
 
-def test_arithmetic_usage() -> None:
-    solc_select.switch_global_version("0.8.15", always_install=True)
-    slither = Slither(Path(TEST_DATA_DIR, "test.sol").as_posix())
+def test_arithmetic_usage(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.15")
+    slither = Slither(Path(TEST_DATA_DIR, "test.sol").as_posix(), solc=solc_path)
 
     assert {
         f.source_mapping.content_hash for f in unchecked_arithemtic_usage(slither.contracts[0])

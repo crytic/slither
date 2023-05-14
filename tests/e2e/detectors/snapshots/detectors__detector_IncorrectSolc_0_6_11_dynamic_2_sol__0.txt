@@ -1,0 +1,4 @@
+Pragma version>=0.6.0<0.7.0 (tests/e2e/detectors/test_data/solc-version/0.6.11/dynamic_2.sol#1) allows old versions
+
+solc-0.6.11 is not recommended for deployment
+

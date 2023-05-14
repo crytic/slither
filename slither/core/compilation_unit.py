@@ -128,7 +128,7 @@ class SlitherCompilationUnit(Context):
         """list(Contract): List of contracts that are derived and not inherited."""
         inheritances = [x.inheritance for x in self.contracts]
         inheritance = [item for sublist in inheritances for item in sublist]
-        return [c for c in self.contracts if c not in inheritance and not c.is_top_level]
+        return [c for c in self.contracts if c not in inheritance]
 
     def get_contract_from_name(self, contract_name: Union[str, Constant]) -> List[Contract]:
         """

@@ -1,0 +1,6 @@
+C.bad3(address[]) (tests/e2e/detectors/test_data/delegatecall-loop/0.7.6/delegatecall_loop.sol#25-31) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i])) (tests/e2e/detectors/test_data/delegatecall-loop/0.7.6/delegatecall_loop.sol#28)
+
+C.bad(address[]) (tests/e2e/detectors/test_data/delegatecall-loop/0.7.6/delegatecall_loop.sol#5-9) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i])) (tests/e2e/detectors/test_data/delegatecall-loop/0.7.6/delegatecall_loop.sol#7)
+
+C.bad2_internal(address[]) (tests/e2e/detectors/test_data/delegatecall-loop/0.7.6/delegatecall_loop.sol#19-23) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i])) (tests/e2e/detectors/test_data/delegatecall-loop/0.7.6/delegatecall_loop.sol#21)
+

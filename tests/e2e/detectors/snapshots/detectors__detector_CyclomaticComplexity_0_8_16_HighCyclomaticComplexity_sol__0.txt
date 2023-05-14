@@ -1,0 +1,2 @@
+HighCyclomaticComplexity.highCC() (tests/e2e/detectors/test_data/cyclomatic-complexity/0.8.16/HighCyclomaticComplexity.sol#17-31) has a high cyclomatic complexity (12).
+

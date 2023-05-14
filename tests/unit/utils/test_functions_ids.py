@@ -1,5 +1,4 @@
 from pathlib import Path
-from solc_select import solc_select
 from slither import Slither
 
 # % solc functions_ids.sol --hashes
@@ -41,10 +40,10 @@ signatures = {
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
-def test_functions_ids() -> None:
-    solc_select.switch_global_version("0.7.0", always_install=True)
+def test_functions_ids(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.7.0")
     file = Path(TEST_DATA_DIR, "functions_ids.sol").as_posix()
-    sl = Slither(file)
+    sl = Slither(file, solc=solc_path)
     contracts_c = sl.get_contract_from_name("C")
     assert len(contracts_c) == 1
     contract_c = contracts_c[0]
@@ -58,7 +57,3 @@ def test_functions_ids() -> None:
             assert get_function_id(var.solidity_signature) == int(hashes, 16)
         else:
             assert get_function_id(func.solidity_signature) == int(hashes, 16)
-
-
-if __name__ == "__main__":
-    test_functions_ids()

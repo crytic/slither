@@ -1,0 +1,4 @@
+C.bad0() (tests/e2e/detectors/test_data/unchecked-transfer/0.7.6/unused_return_transfers.sol#20-22) ignores return value by t.transfer(address(0),1000000000000000000) (tests/e2e/detectors/test_data/unchecked-transfer/0.7.6/unused_return_transfers.sol#21)
+
+C.bad1() (tests/e2e/detectors/test_data/unchecked-transfer/0.7.6/unused_return_transfers.sol#40-42) ignores return value by t.transferFrom(address(this),address(0),1000000000000000000) (tests/e2e/detectors/test_data/unchecked-transfer/0.7.6/unused_return_transfers.sol#41)
+

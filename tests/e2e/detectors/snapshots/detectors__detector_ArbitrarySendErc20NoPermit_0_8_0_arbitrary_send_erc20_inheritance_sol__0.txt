@@ -1,0 +1,2 @@
+T.bad(address) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol#11-13) uses arbitrary from in transferFrom: erc20.safeTransferFrom(from,address(0x1),90) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.8.0/arbitrary_send_erc20_inheritance.sol#12)
+
