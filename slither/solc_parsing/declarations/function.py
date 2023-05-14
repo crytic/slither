@@ -774,6 +774,7 @@ class FunctionSolc(CallerContextExpression):
                             "nodeType": "Identifier",
                             "src": v["src"],
                             "name": v["name"],
+                            "referencedDeclaration": v["id"],
                             "typeDescriptions": {"typeString": v["typeDescriptions"]["typeString"]},
                         }
                         var_identifiers.append(identifier)
