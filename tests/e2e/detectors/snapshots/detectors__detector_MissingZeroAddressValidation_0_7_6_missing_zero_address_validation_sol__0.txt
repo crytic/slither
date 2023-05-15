@@ -1,0 +1,16 @@
+C.bad1_send(address).addr (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#14) lacks a zero-check on :
+		- addr.send(msg.value) (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#15)
+		- addr.send(msg.value) (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#16)
+
+C.bad3_transfer(address).addr (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#23) lacks a zero-check on :
+		- addr.transfer(msg.value) (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#24)
+
+C.bad4_call(address).addr (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#28) lacks a zero-check on :
+		- addr.call{value: msg.value}() (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#29)
+
+C.bad2_transfer(address).addr (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#19) lacks a zero-check on :
+		- addr.transfer(msg.value) (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#20)
+
+C.bad0_set_owner(address).new_owner (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#10) lacks a zero-check on :
+		- owner = new_owner (tests/e2e/detectors/test_data/missing-zero-check/0.7.6/missing_zero_address_validation.sol#11)
+

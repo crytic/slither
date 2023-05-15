@@ -5,7 +5,6 @@ tests that `tests/test_function.sol` gets translated into correct
 and that these objects behave correctly.
 """
 from pathlib import Path
-from solc_select import solc_select
 
 from slither import Slither
 from slither.core.declarations.function import FunctionType
@@ -15,11 +14,11 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 FUNC_DELC_TEST_ROOT = Path(TEST_DATA_DIR, "function_declaration")
 
 
-def test_functions():
+def test_functions(solc_binary_path):
     # pylint: disable=too-many-statements
-    solc_select.switch_global_version("0.6.12", always_install=True)
+    solc_path = solc_binary_path("0.6.12")
     file = Path(FUNC_DELC_TEST_ROOT, "test_function.sol").as_posix()
-    slither = Slither(file)
+    slither = Slither(file, solc=solc_path)
     functions = slither.get_contract_from_name("TestFunction")[0].available_functions_as_dict()
 
     f = functions["external_payable(uint256)"]
@@ -248,10 +247,10 @@ def test_functions():
     assert f.return_type[0] == ElementaryType("bool")
 
 
-def test_function_can_send_eth():
-    solc_select.switch_global_version("0.6.12", always_install=True)
+def test_function_can_send_eth(solc_binary_path):
+    solc_path = solc_binary_path("0.6.12")
     file = Path(FUNC_DELC_TEST_ROOT, "test_function.sol").as_posix()
-    slither = Slither(file)
+    slither = Slither(file, solc=solc_path)
     compilation_unit = slither.compilation_units[0]
     functions = compilation_unit.get_contract_from_name("TestFunctionCanSendEth")[
         0
@@ -273,10 +272,10 @@ def test_function_can_send_eth():
     assert functions["highlevel_call_via_external()"].can_send_eth() is False
 
 
-def test_reentrant():
-    solc_select.switch_global_version("0.8.10", always_install=True)
+def test_reentrant(solc_binary_path):
+    solc_path = solc_binary_path("0.8.10")
     file = Path(FUNC_DELC_TEST_ROOT, "test_function_reentrant.sol").as_posix()
-    slither = Slither(file)
+    slither = Slither(file, solc=solc_path)
     compilation_unit = slither.compilation_units[0]
     functions = compilation_unit.get_contract_from_name("TestReentrant")[
         0
@@ -290,10 +289,10 @@ def test_reentrant():
     assert functions["internal_and_reentrant()"].is_reentrant
 
 
-def test_public_variable() -> None:
-    solc_select.switch_global_version("0.6.12", always_install=True)
+def test_public_variable(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.6.12")
     file = Path(FUNC_DELC_TEST_ROOT, "test_function.sol").as_posix()
-    slither = Slither(file)
+    slither = Slither(file, solc=solc_path)
     contracts = slither.get_contract_from_name("TestFunction")
     assert len(contracts) == 1
     contract = contracts[0]
