@@ -181,7 +181,7 @@ class YulScope(metaclass=abc.ABCMeta):
     def add_yul_local_function(self, func: "YulFunction") -> None:
         self._yul_local_functions.append(func)
 
-    def get_yul_local_function_from_name(self, func_name: str) -> Optional["YulLocalVariable"]:
+    def get_yul_local_function_from_name(self, func_name: str) -> Optional["YulFunction"]:
         return next(
             (v for v in self._yul_local_functions if v.underlying.name == func_name),
             None,
@@ -252,6 +252,10 @@ class YulFunction(YulScope):
     def function(self) -> Function:
         return self._function
 
+    @property
+    def root(self) -> YulScope:
+        return self._root
+
     def convert_body(self) -> None:
         node = self.new_node(NodeType.ENTRYPOINT, self._ast["src"])
         link_underlying_nodes(self._entrypoint, node)
@@ -271,6 +275,9 @@ class YulFunction(YulScope):
     def parse_body(self) -> None:
         for node in self._nodes:
             node.analyze_expressions()
+        for f in self._yul_local_functions:
+            if f != self:
+                f.parse_body()
 
     def new_node(self, node_type: NodeType, src: str) -> YulNode:
         if self._function:
@@ -325,7 +332,10 @@ class YulBlock(YulScope):
         return yul_node
 
     def convert(self, ast: Dict) -> YulNode:
-        return convert_yul(self, self._entrypoint, ast, self.node_scope)
+        yul_node = convert_yul(self, self._entrypoint, ast, self.node_scope)
+        for f in self._yul_local_functions:
+            f.parse_body()
+        return yul_node
 
     def analyze_expressions(self) -> None:
         for node in self._nodes:
@@ -390,7 +400,6 @@ def convert_yul_function_definition(
     root.add_yul_local_function(yul_function)
 
     yul_function.convert_body()
-    yul_function.parse_body()
 
     return parent
 
@@ -808,6 +817,19 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     func = root.get_yul_local_function_from_name(name)
     if func:
         return Identifier(func.underlying)
+
+    # check yul-block scoped function
+    if isinstance(root, YulFunction):
+        yul_block = root.root
+
+        # Iterate until we get to the YulBlock scope
+        while not isinstance(yul_block, YulBlock):
+            if isinstance(yul_block, YulFunction):
+                yul_block = yul_block.root
+
+        func = yul_block.get_yul_local_function_from_name(name)
+        if func:
+            return Identifier(func.underlying)
 
     magic_suffix = _parse_yul_magic_suffixes(name, root)
     if magic_suffix:
