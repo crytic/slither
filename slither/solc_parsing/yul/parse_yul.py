@@ -787,6 +787,7 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Optional[Expression]
     return None
 
 
+# pylint: disable=too-many-branches
 def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     name = ast["name"]
 
@@ -822,8 +823,12 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     if isinstance(root, YulFunction):
         yul_block = root.root
 
-        # Iterate until we get to the YulBlock scope
+        # Iterate until we searched in all the scopes until the YulBlock scope
         while not isinstance(yul_block, YulBlock):
+            func = yul_block.get_yul_local_function_from_name(name)
+            if func:
+                return Identifier(func.underlying)
+
             if isinstance(yul_block, YulFunction):
                 yul_block = yul_block.root
 
