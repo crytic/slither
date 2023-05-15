@@ -10,6 +10,26 @@ contract CacheArrayLength
     S[] array;
     S[] array2;
 
+    function h() external
+    {
+        
+    }
+
+    function g() internal
+    {
+        this.h();
+    }
+
+    function h_view() external view
+    {
+
+    }
+
+    function g_view() internal view
+    {
+        this.h_view();
+    }
+
     function f() public
     {
         // array accessed but length doesn't change
@@ -122,6 +142,30 @@ contract CacheArrayLength
         for (uint i = 0; i < array3.length; i++)
         {
 
+        }
+
+        // array not modified, but it may potentially change in an internal function call
+        for (uint i = 0; i < array.length; i++)
+        {
+            g();
+        }
+
+        // array not modified, but it may potentially change in an external function call
+        for (uint i = 0; i < array.length; i++)
+        {
+            this.h();
+        }
+
+        // array not modified and it cannot be changed in a function call since g_view is a view function
+        for (uint i = 0; i < array.length; i++) // warning should appear
+        {
+            g_view();
+        }
+
+        // array not modified and it cannot be changed in a function call since h_view is a view function
+        for (uint i = 0; i < array.length; i++) // warning should appear
+        {
+            this.h_view();
         }
     }   
 }

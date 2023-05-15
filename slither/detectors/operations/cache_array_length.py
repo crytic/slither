@@ -7,7 +7,7 @@ from slither.core.solidity_types import ArrayType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Length, Delete
+from slither.slithir.operations import Length, Delete, HighLevelCall
 
 
 class CacheArrayLength(AbstractDetector):
@@ -119,8 +119,10 @@ contract C
         # - when `push` is called
         # - when `pop` is called
         # - when `delete` is called on the entire array
+        # - when external function call is made (instructions from internal function calls are already in
+        #   `node.all_slithir_operations()`, so we don't need to handle internal calls separately)
         if node.type == NodeType.EXPRESSION:
-            for op in node.irs:
+            for op in node.all_slithir_operations():
                 if isinstance(op, Length) and op.value == array:
                     # op accesses array.length, not necessarily modifying it
                     return True
@@ -132,6 +134,8 @@ contract C
                         and op.expression.expression.value == array
                     ):
                         return True
+                if isinstance(op, HighLevelCall) and not op.function.view and not op.function.pure:
+                    return True
 
         for son in node.sons:
             if son not in visited:
@@ -173,7 +177,7 @@ contract C
                 if not CacheArrayLength._is_loop_referencing_array_length(
                     if_node, visited, array, 1
                 ):
-                    non_optimal_array_len_usages.append(if_node.expression)
+                    non_optimal_array_len_usages.append(if_node)
 
     @staticmethod
     def _get_non_optimal_array_len_usages_for_function(f: Function) -> List[SourceMapping]:
@@ -207,8 +211,10 @@ contract C
         )
         for usage in non_optimal_array_len_usages:
             info = [
-                f"Loop condition at {usage.source_mapping} should use cached array length instead of referencing "
-                f"`length` member of the storage array.\n "
+                "Loop condition at ",
+                usage,
+                " should use cached array length instead of referencing `length` member "
+                "of the storage array.\n ",
             ]
             res = self.generate_result(info)
             results.append(res)
