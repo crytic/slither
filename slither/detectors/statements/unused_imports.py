@@ -20,7 +20,7 @@ class UnusedImports(AbstractDetector):
 
     ARGUMENT = "unused-imports"
     HELP = "Detect unused imports"
-    IMPACT = DetectorClassification.OPTIMIZATION
+    IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-imports"
@@ -512,7 +512,12 @@ class UnusedImports(AbstractDetector):
             ):
                 output += "and adding the following:\n"
                 for imp in needed_but_not_imported_directly[k]:
-                    output += PurePath(self.absolute_path_to_imp_filename[imp]).as_posix()
+                    if imp in self.absolute_path_to_imp_filename:
+                        output += PurePath(self.absolute_path_to_imp_filename[imp]).as_posix()
+                    else:
+                        # possible since `self.absolute_path_to_imp_filename` contains only existing imports, and it is
+                        # possible for the detector to recommend adding a different import
+                        output += PurePath(imp).as_posix()
                     output += "\n"
             if output != "":
                 output += "\n"
