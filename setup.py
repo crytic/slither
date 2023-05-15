@@ -18,6 +18,9 @@ setup(
         # "crytic-compile>=0.3.1,<0.4.0",
         "crytic-compile@git+https://github.com/crytic/crytic-compile.git@windows-rel-path#egg=crytic-compile",
         "web3>=6.0.0",
+        "eth-abi>=4.0.0",
+        "eth-typing>=3.0.0",
+        "eth-utils>=2.1.0",
     ],
     extras_require={
         "lint": [
