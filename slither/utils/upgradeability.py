@@ -505,7 +505,10 @@ def encode_var_for_compare(var: Variable) -> str:
     if isinstance(var, LocalVariable):
         return f"local_solc_variable({ntype(var.type)},{var.location})"
     if isinstance(var, StateVariable):
-        slot, _ = var.contract.compilation_unit.storage_layout_of(var.contract, var)
+        if not (var.is_constant or var.is_immutable):
+            slot, _ = var.contract.compilation_unit.storage_layout_of(var.contract, var)
+        else:
+            slot = var.name
         return f"state_solc_variable({ntype(var.type)},{slot})"
     if isinstance(var, LocalVariableInitFromTuple):
         return "local_variable_init_tuple"
