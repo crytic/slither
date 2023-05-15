@@ -1,0 +1,8 @@
+The function VarReadUsingThis.bad2() (tests/e2e/detectors/test_data/var-read-using-this/0.8.15/var_read_using_this.sol#8-10) reads this.erc20() (tests/e2e/detectors/test_data/var-read-using-this/0.8.15/var_read_using_this.sol#9) with `this` which adds an extra STATICCALL.
+
+The function VarReadUsingThis.bad1(uint256) (tests/e2e/detectors/test_data/var-read-using-this/0.8.15/var_read_using_this.sol#5-7) reads this.myMap(x) (tests/e2e/detectors/test_data/var-read-using-this/0.8.15/var_read_using_this.sol#6) with `this` which adds an extra STATICCALL.
+
+The function VarReadUsingThis.bad4() (tests/e2e/detectors/test_data/var-read-using-this/0.8.15/var_read_using_this.sol#14-18) reads local = this.erc20() (tests/e2e/detectors/test_data/var-read-using-this/0.8.15/var_read_using_this.sol#16) with `this` which adds an extra STATICCALL.
+
+The function VarReadUsingThis.bad3() (tests/e2e/detectors/test_data/var-read-using-this/0.8.15/var_read_using_this.sol#11-13) reads this.erc20() == address(0) (tests/e2e/detectors/test_data/var-read-using-this/0.8.15/var_read_using_this.sol#12) with `this` which adds an extra STATICCALL.
+

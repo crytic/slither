@@ -1,0 +1,8 @@
+BadPRNG.bad1() (tests/e2e/detectors/test_data/weak-prng/0.6.11/bad_prng.sol#8-10) uses a weak PRNG: "i = now % 10 (tests/e2e/detectors/test_data/weak-prng/0.6.11/bad_prng.sol#9)" 
+
+BadPRNG.bad0() (tests/e2e/detectors/test_data/weak-prng/0.6.11/bad_prng.sol#4-6) uses a weak PRNG: "i = block.timestamp % 10 (tests/e2e/detectors/test_data/weak-prng/0.6.11/bad_prng.sol#5)" 
+
+BadPRNG.bad2() (tests/e2e/detectors/test_data/weak-prng/0.6.11/bad_prng.sol#12-14) uses a weak PRNG: "i = uint256(blockhash(uint256)(10000)) % 10 (tests/e2e/detectors/test_data/weak-prng/0.6.11/bad_prng.sol#13)" 
+
+BadPRNG.bad3() (tests/e2e/detectors/test_data/weak-prng/0.6.11/bad_prng.sol#20-22) uses a weak PRNG: "i = foo() % 10 (tests/e2e/detectors/test_data/weak-prng/0.6.11/bad_prng.sol#21)" 
+

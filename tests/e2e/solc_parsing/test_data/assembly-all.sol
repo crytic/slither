@@ -1,5 +1,12 @@
 contract C {
-    function f() public {
+    modifier a() {
+        assembly {
+            let y := 0
+        }
+        _;
+    }
+
+    function f() public a {
         assembly {
             let x := 0
         }
