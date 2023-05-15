@@ -1286,12 +1286,12 @@ class FunctionSolc(CallerContextExpression):
             return
         return_node = self._new_node(NodeType.RETURN, cfg["src"], self.underlying_function)
         for node, node_solc in self._node_to_nodesolc.items():
-            if len(node.sons) == 0 and node.type != NodeType.RETURN:
+            if len(node.sons) == 0 and node.type not in [NodeType.RETURN, NodeType.THROW]:
                 link_underlying_nodes(node_solc, return_node)
         for _, yul_block in self._node_to_yulobject.items():
             for yul_node in yul_block.nodes:
                 node = yul_node.underlying_node
-                if len(node.sons) == 0 and node.type != NodeType.RETURN:
+                if len(node.sons) == 0 and node.type not in [NodeType.RETURN, NodeType.THROW]:
                     link_underlying_nodes(yul_node, return_node)
         if self.is_compact_ast:
             self._add_return_exp_compact(return_node, cfg)
