@@ -1639,6 +1639,11 @@ ALL_TEST_OBJECTS = [
         "LowCyclomaticComplexity.sol",
         "0.8.16",
     ),
+    Test(
+        all_detectors.EncodePackedCollision,
+        "encode_packed_collision.sol",
+        "0.7.6",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
