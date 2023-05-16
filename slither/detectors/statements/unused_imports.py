@@ -1,6 +1,6 @@
 from logging import Logger
 from pathlib import PurePath
-from typing import Dict, Set
+from typing import Dict, Set, TYPE_CHECKING, List
 
 from crytic_compile.utils.naming import Filename
 
@@ -10,7 +10,11 @@ from slither.core.scope.scope import FileScope
 from slither.core.solidity_types import TypeAliasTopLevel, TypeAliasContract
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification, DETECTOR_INFO
+from slither.utils.output import Output
+
+if TYPE_CHECKING:
+    from slither import Slither
 
 
 class UnusedImports(AbstractDetector):
@@ -51,28 +55,28 @@ class UnusedImports(AbstractDetector):
         Returns True if a given file (provided as a `FileScope` object) contains only `import` directives (and pragmas).
         Such a file doesn't need the imports it contains, but its purpose is to aggregate certain correlated imports.
         """
-        for _, c in scope.contracts.items():
+        for c in scope.contracts.values():
             if c.file_scope == scope:
                 return False
         for err in scope.custom_errors:
             if err.file_scope == scope:
                 return False
-        for _, en in scope.enums.items():
+        for en in scope.enums.values():
             if en.file_scope == scope:
                 return False
         for f in scope.functions:
             if f.file_scope == scope:
                 return False
-        for _, st in scope.structures.items():
+        for st in scope.structures.values():
             if st.file_scope == scope:
                 return False
-        for _, ct in scope.user_defined_types.items():
-            if ct.source_mapping.filename == scope.filename:
+        for ct in scope.user_defined_types.values():
+            if ct.source_mapping and ct.source_mapping.filename == scope.filename:
                 return False
         for uf in scope.using_for_directives:
             if uf.file_scope == scope:
                 return False
-        for _, v in scope.variables.items():
+        for v in scope.variables.values():
             if v.file_scope == scope:
                 return False
         return True
@@ -143,7 +147,10 @@ class UnusedImports(AbstractDetector):
         """
         Adds user defined types to self.needed_imports.
         """
+        assert v.source_mapping
+
         if isinstance(v.type, (TypeAliasTopLevel, TypeAliasContract)):
+            assert v.type.source_mapping
             self._add_import(
                 self.needed_imports,
                 v.source_mapping.filename.absolute,
@@ -154,6 +161,7 @@ class UnusedImports(AbstractDetector):
         """
         Adds all uses of item to self.needed_imports by its references.
         """
+        assert item.source_mapping
         for ref in item.references:
             self._add_import(
                 self.needed_imports, ref.filename.absolute, item.source_mapping.filename.absolute
@@ -165,6 +173,7 @@ class UnusedImports(AbstractDetector):
         """
         for imp in self.compilation_unit.import_directives:
             import_path = self._import_to_absolute_path(imp.filename)
+            assert imp.source_mapping
             self._add_import(self.actual_imports, imp.source_mapping.filename.absolute, import_path)
 
     def _initialise_absolute_path_to_imp_filename(self) -> None:
@@ -275,6 +284,7 @@ class UnusedImports(AbstractDetector):
         for fm in c.functions_and_modifiers:
             # the following line is needed since a non-private function / modifier will be present in derived contracts,
             # so, they are needed, but that isn't reflected in fm.references
+            assert fm.source_mapping
             self._add_import(
                 self.needed_imports,
                 fm.file_scope.filename.absolute,
@@ -331,7 +341,9 @@ class UnusedImports(AbstractDetector):
             self._add_item_by_references(c)
             # the following loop is needed since if we have an empty contract A and contract B inheriting from A,
             # then it's not reflected in A's references
+            assert c.source_mapping
             for p in c.inheritance:
+                assert p.source_mapping
                 self._add_import(
                     self.needed_imports,
                     c.source_mapping.filename.absolute,
@@ -473,8 +485,8 @@ class UnusedImports(AbstractDetector):
             imported_but_unneeded[k] = v - self.needed_imports[k]
         return imported_but_unneeded
 
-    def _detect(self):
-        results = []
+    def _detect(self) -> List[Output]:
+        results: List[Output] = []
 
         UnusedImports._update_import_containers(self.compilation_unit.scopes)
         self._initialise_absolute_path_to_imp_filename()
@@ -495,7 +507,7 @@ class UnusedImports(AbstractDetector):
         imported_but_unneeded = self._get_imported_but_unneeded()
 
         for k, v in imported_but_unneeded.items():
-            info = []
+            info: DETECTOR_INFO = []
             output = ""
             if k in UnusedImports.analysed_files or len(v) == 0:
                 continue
