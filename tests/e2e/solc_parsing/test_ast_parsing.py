@@ -187,6 +187,14 @@ ALL_TESTS = [
         "assembly-all.sol",
         ALL_VERSIONS,
     ),
+    Test(
+        "implicit-return-0.4.0.sol",
+        make_version(4, 1, 9),
+    ),
+    Test(
+        "implicit-return-0.4.10.sol",
+        make_version(4, 10, 26) + VERSIONS_05 + VERSIONS_06 + VERSIONS_07 + VERSIONS_08,
+    ),
     Test("struct-0.4.0.sol", VERSIONS_04 + VERSIONS_05),
     # TODO: legacy failing
     Test(
