@@ -614,7 +614,7 @@ if __name__ == "__main__":
             "To re-generate all the json artifacts run\n\tpython tests/test_ast_parsing.py --overwrite"
         )
         print("To compile json artifacts run\n\tpython tests/test_ast_parsing.py --compile")
-        print("\tThis will overwrite the previous json files")
+        print("\tThis will overwrite the previous json files.")
     elif sys.argv[1] == "--generate":
         for next_test in ALL_TESTS:
             _generate_test(next_test, skip_existing=True)
