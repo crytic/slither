@@ -10,7 +10,11 @@ from slither.core.scope.scope import FileScope
 from slither.core.solidity_types import TypeAliasTopLevel, TypeAliasContract
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.variable import Variable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification, DETECTOR_INFO
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 if TYPE_CHECKING:
