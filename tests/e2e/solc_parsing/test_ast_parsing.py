@@ -474,6 +474,8 @@ class TestASTParsing:
     def test_parsing(self, test_file, version, flavor):
         actual = os.path.join(TEST_ROOT, "compile", f"{test_file}-{version}-{flavor}.zip")
         expected = os.path.join(TEST_ROOT, "expected", f"{test_file}-{version}-{flavor}.json")
+        if "conditional-all" in test_file:
+            pass
 
         cc = load_from_zip(actual)[0]
 
