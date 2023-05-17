@@ -1,4 +1,5 @@
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils.output import Output
 from slither.utils.source_mapping import get_definition, get_implementation, get_references
 
 
@@ -8,7 +9,7 @@ class Declaration(AbstractPrinter):
 
     WIKI = "TODO"
 
-    def output(self, _filename):
+    def output(self, _filename: str) -> Output:
         """
         _filename is not used
         Args:

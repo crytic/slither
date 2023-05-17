@@ -1,0 +1,6 @@
+Lib.deleteSt(Lib.MyStruct[1]) (tests/e2e/detectors/test_data/mapping-deletion/0.5.16/MappingDeletion.sol#9-11) deletes Lib.MyStruct (tests/e2e/detectors/test_data/mapping-deletion/0.5.16/MappingDeletion.sol#5-7) which contains a mapping:
+	-delete st[0] (tests/e2e/detectors/test_data/mapping-deletion/0.5.16/MappingDeletion.sol#10)
+
+Balances.deleteBalance(uint256) (tests/e2e/detectors/test_data/mapping-deletion/0.5.16/MappingDeletion.sol#29-32) deletes Balances.BalancesStruct (tests/e2e/detectors/test_data/mapping-deletion/0.5.16/MappingDeletion.sol#17-20) which contains a mapping:
+	-delete stackBalance[idx] (tests/e2e/detectors/test_data/mapping-deletion/0.5.16/MappingDeletion.sol#31)
+

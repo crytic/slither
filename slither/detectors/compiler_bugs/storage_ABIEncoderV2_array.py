@@ -6,6 +6,7 @@ from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     make_solc_versions,
+    DETECTOR_INFO,
 )
 from slither.core.solidity_types import ArrayType
 from slither.core.solidity_types import UserDefinedType
@@ -122,7 +123,13 @@ contract A {
         for contract in self.contracts:
             storage_abiencoderv2_arrays = self._detect_storage_abiencoderv2_arrays(contract)
             for function, node in storage_abiencoderv2_arrays:
-                info = ["Function ", function, " trigger an abi encoding bug:\n\t- ", node, "\n"]
+                info: DETECTOR_INFO = [
+                    "Function ",
+                    function,
+                    " trigger an abi encoding bug:\n\t- ",
+                    node,
+                    "\n",
+                ]
                 res = self.generate_result(info)
                 results.append(res)
 

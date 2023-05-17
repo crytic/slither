@@ -13,23 +13,37 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "packaging",
-        "prettytable>=0.7.2",
+        "prettytable>=3.3.0",
         "pycryptodome>=3.4.6",
-        "crytic-compile>=0.3.1,<0.4.0",
-        # "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
+        # "crytic-compile>=0.3.1,<0.4.0",
+        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@dev#egg=crytic-compile",
         "web3>=6.0.0",
+        "eth-abi>=4.0.0",
+        "eth-typing>=3.0.0",
+        "eth-utils>=2.1.0",
     ],
     extras_require={
-        "dev": [
+        "lint": [
             "black==22.3.0",
             "pylint==2.13.4",
+        ],
+        "test": [
             "pytest",
             "pytest-cov",
             "pytest-xdist",
             "deepdiff",
             "numpy",
-            "openai",
+            "coverage[toml]",
+            "filelock",
+            "pytest-insta",
+            "solc-select@git+https://github.com/crytic/solc-select.git@query-artifact-path#egg=solc-select",
+        ],
+        "doc": [
             "pdoc",
+        ],
+        "dev": [
+            "slither-analyzer[lint,test,doc]",
+            "openai",
         ],
     },
     license="AGPL-3.0",
@@ -50,6 +64,7 @@ setup(
             "slither-read-storage = slither.tools.read_storage.__main__:main",
             "slither-doctor = slither.tools.doctor.__main__:main",
             "slither-documentation = slither.tools.documentation.__main__:main",
+            "slither-interface = slither.tools.interface.__main__:main",
         ]
     },
 )

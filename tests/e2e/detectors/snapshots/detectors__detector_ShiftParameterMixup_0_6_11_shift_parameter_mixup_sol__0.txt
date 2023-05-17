@@ -1,0 +1,2 @@
+C.f() (tests/e2e/detectors/test_data/incorrect-shift/0.6.11/shift_parameter_mixup.sol#3-7) contains an incorrect shift operation: a = 8 >> a (tests/e2e/detectors/test_data/incorrect-shift/0.6.11/shift_parameter_mixup.sol#5)
+

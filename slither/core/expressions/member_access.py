@@ -1,10 +1,9 @@
 from slither.core.expressions.expression import Expression
-from slither.core.expressions.expression_typed import ExpressionTyped
 
 from slither.core.solidity_types.type import Type
 
 
-class MemberAccess(ExpressionTyped):
+class MemberAccess(Expression):
     def __init__(self, member_name: str, member_type: str, expression: Expression) -> None:
         # assert isinstance(member_type, Type)
         # TODO member_type is not always a Type

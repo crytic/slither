@@ -1,11 +1,13 @@
 from typing import Optional, Any, List, Union
+
+from slither.core.declarations import Function
+from slither.core.declarations.contract import Contract
+from slither.core.variables import Variable
 from slither.slithir.operations import Call, OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
 from slither.slithir.variables.constant import Constant
-from slither.core.declarations.contract import Contract
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
-from slither.core.declarations.function_contract import FunctionContract
 
 
 class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
@@ -60,6 +62,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
     def contract_created(self) -> Contract:
         contract_name = self.contract_name
         contract_instance = self.node.file_scope.get_contract_from_name(contract_name)
+        assert contract_instance
         return contract_instance
 
     ###################################################################################
@@ -68,7 +71,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
     ###################################################################################
     ###################################################################################
 
-    def can_reenter(self, callstack: Optional[List[FunctionContract]] = None) -> bool:
+    def can_reenter(self, callstack: Optional[List[Union[Function, Variable]]] = None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view
@@ -94,11 +97,12 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
 
     # endregion
 
-    def __str__(self):
+    def __str__(self) -> str:
         options = ""
         if self.call_value:
             options = f"value:{self.call_value} "
         if self.call_salt:
             options += f"salt:{self.call_salt} "
         args = [str(a) for a in self.arguments]
-        return f"{self.lvalue} = new {self.contract_name}({','.join(args)}) {options}"
+        lvalue = self.lvalue
+        return f"{lvalue}({lvalue.type}) = new {self.contract_name}({','.join(args)}) {options}"

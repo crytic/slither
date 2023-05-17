@@ -1,7 +1,11 @@
 from typing import List, Tuple
 
 from slither.core.declarations import Function
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.code_complexity import compute_cyclomatic_complexity
 from slither.utils.output import Output
 
@@ -44,7 +48,7 @@ class CyclomaticComplexity(AbstractDetector):
             _check_for_high_cc(high_cc_functions, f)
 
         for f, cc in high_cc_functions:
-            info = [f, f" has a high cyclomatic complexity ({cc}).\n"]
+            info: DETECTOR_INFO = [f, f" has a high cyclomatic complexity ({cc}).\n"]
             res = self.generate_result(info)
             results.append(res)
         return results

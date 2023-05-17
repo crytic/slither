@@ -1,17 +1,14 @@
 import logging
-from typing import List
-
 from enum import Enum
+from typing import List, Union
 
 from slither.core.declarations import Function
 from slither.core.solidity_types import ElementaryType
+from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
+from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue, LVALUE, RVALUE
 from slither.slithir.variables import ReferenceVariable
-from slither.core.source_mapping.source_mapping import SourceMapping
-from slither.core.variables.variable import Variable
-
 
 logger = logging.getLogger("BinaryOperationIR")
 
@@ -51,7 +48,7 @@ class BinaryType(Enum):
         ]
 
     @staticmethod
-    def get_type(operation_type):  # pylint: disable=too-many-branches
+    def get_type(operation_type: str) -> "BinaryType":  # pylint: disable=too-many-branches
         if operation_type == "**":
             return BinaryType.POWER
         if operation_type == "*":
@@ -93,11 +90,10 @@ class BinaryType(Enum):
 
         raise SlithIRError(f"get_type: Unknown operation type {operation_type})")
 
-    def can_be_checked_for_overflow(self):
+    def can_be_checked_for_overflow(self) -> bool:
         return self in [
             BinaryType.POWER,
             BinaryType.MULTIPLICATION,
-            BinaryType.MODULO,
             BinaryType.ADDITION,
             BinaryType.SUBTRACTION,
             BinaryType.DIVISION,
@@ -108,8 +104,8 @@ class Binary(OperationWithLValue):
     def __init__(
         self,
         result: Variable,
-        left_variable: SourceMapping,
-        right_variable: Variable,
+        left_variable: Union[RVALUE, Function],
+        right_variable: Union[RVALUE, Function],
         operation_type: BinaryType,
     ) -> None:
         assert is_valid_rvalue(left_variable) or isinstance(left_variable, Function)
@@ -126,36 +122,38 @@ class Binary(OperationWithLValue):
             result.set_type(left_variable.type)
 
     @property
-    def read(self) -> List[SourceMapping]:
+    def read(self) -> List[Union[RVALUE, LVALUE, Function]]:
         return [self.variable_left, self.variable_right]
 
     @property
-    def get_variable(self):
+    def get_variable(self) -> List[Union[RVALUE, Function]]:
         return self._variables
 
     @property
-    def variable_left(self) -> SourceMapping:
-        return self._variables[0]
+    def variable_left(self) -> Union[RVALUE, Function]:
+        return self._variables[0]  # type: ignore
 
     @property
-    def variable_right(self) -> Variable:
-        return self._variables[1]
+    def variable_right(self) -> Union[RVALUE, Function]:
+        return self._variables[1]  # type: ignore
 
     @property
     def type(self) -> BinaryType:
         return self._type
 
     @property
-    def type_str(self):
+    def type_str(self) -> str:
         if self.node.scope.is_checked and self._type.can_be_checked_for_overflow():
-            return "(c)" + self._type.value
-        return self._type.value
+            return "(c)" + str(self._type.value)
+        return str(self._type.value)
 
-    def __str__(self):
-        if isinstance(self.lvalue, ReferenceVariable):
-            points = self.lvalue.points_to
+    def __str__(self) -> str:
+        lvalue = self.lvalue
+        assert lvalue
+        if isinstance(lvalue, ReferenceVariable):
+            points = lvalue.points_to
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
-            return f"{str(self.lvalue)}(-> {points}) = {self.variable_left} {self.type_str} {self.variable_right}"
+            return f"{str(lvalue)}(-> {points}) = {self.variable_left} {self.type_str} {self.variable_right}"
 
-        return f"{str(self.lvalue)}({self.lvalue.type}) = {self.variable_left} {self.type_str} {self.variable_right}"
+        return f"{str(lvalue)}({lvalue.type}) = {self.variable_left} {self.type_str} {self.variable_right}"

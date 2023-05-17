@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional, Union, List, TYPE_CHECKING, Tuple
+from typing import Dict, Optional, Union, List, TYPE_CHECKING, Tuple, Set
 
 from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
 from slither.core.cfg.scope import Scope
@@ -242,7 +242,7 @@ class FunctionSolc(CallerContextExpression):
         if "payable" in attributes:
             self._function.payable = attributes["payable"]
 
-    def analyze_params(self):
+    def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
             return
@@ -272,7 +272,7 @@ class FunctionSolc(CallerContextExpression):
         if returns:
             self._parse_returns(returns)
 
-    def analyze_content(self):
+    def analyze_content(self) -> None:
         if self._content_was_analyzed:
             return
 
@@ -308,8 +308,8 @@ class FunctionSolc(CallerContextExpression):
         for node_parser in self._node_to_nodesolc.values():
             node_parser.analyze_expressions(self)
 
-        for node_parser in self._node_to_yulobject.values():
-            node_parser.analyze_expressions()
+        for yul_parser in self._node_to_yulobject.values():
+            yul_parser.analyze_expressions()
 
         self._rewrite_ternary_as_if_else()
 
@@ -774,6 +774,7 @@ class FunctionSolc(CallerContextExpression):
                             "nodeType": "Identifier",
                             "src": v["src"],
                             "name": v["name"],
+                            "referencedDeclaration": v["id"],
                             "typeDescriptions": {"typeString": v["typeDescriptions"]["typeString"]},
                         }
                         var_identifiers.append(identifier)
@@ -1150,15 +1151,16 @@ class FunctionSolc(CallerContextExpression):
         if end_node:
             for son in node.sons:
                 if son.type == NodeType.CATCH:
-                    self._fix_catch(son, end_node)
+                    self._fix_catch(son, end_node, set())
 
-    def _fix_catch(self, node: Node, end_node: Node) -> None:
+    def _fix_catch(self, node: Node, end_node: Node, visited: Set[Node]) -> None:
         if not node.sons:
             link_nodes(node, end_node)
         else:
             for son in node.sons:
-                if son != end_node:
-                    self._fix_catch(son, end_node)
+                if son != end_node and son not in visited:
+                    visited.add(son)
+                    self._fix_catch(son, end_node, visited)
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
 
@@ -1297,7 +1299,7 @@ class FunctionSolc(CallerContextExpression):
                     son.remove_father(node)
                 node.set_sons(new_sons)
 
-    def _remove_alone_endif(self):
+    def _remove_alone_endif(self) -> None:
         """
         Can occur on:
         if(..){
@@ -1395,8 +1397,7 @@ class FunctionSolc(CallerContextExpression):
         endif_node = self._new_node(NodeType.ENDIF, node.source_mapping, node.scope)
 
         for father in node.fathers:
-            father.remove_son(node)
-            father.add_son(condition_node.underlying_node)
+            father.replace_son(node, condition_node.underlying_node)
             condition_node.underlying_node.add_father(father)
 
         for son in node.sons:

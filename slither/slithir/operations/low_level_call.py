@@ -1,4 +1,6 @@
-from typing import List, Union
+from typing import List, Union, Optional
+
+from slither.core.declarations import Function
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.core.variables.variable import Variable
@@ -74,7 +76,7 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
         # remove None
         return self._unroll([x for x in all_read if x])
 
-    def can_reenter(self, _callstack: None = None) -> bool:
+    def can_reenter(self, _callstack: Optional[List[Union[Function, Variable]]] = None) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool

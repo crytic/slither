@@ -2,11 +2,14 @@
 Module detecting constant functions
 Recursively check the called functions
 """
-from typing import List
+from typing import List, Dict
+
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     ALL_SOLC_VERSIONS_04,
+    DETECTOR_INFO,
 )
 from slither.formatters.attributes.const_functions import custom_format
 from slither.utils.output import Output
@@ -73,7 +76,10 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
                     if f.contains_assembly:
                         attr = "view" if f.view else "pure"
 
-                        info = [f, f" is declared {attr} but contains assembly code\n"]
+                        info: DETECTOR_INFO = [
+                            f,
+                            f" is declared {attr} but contains assembly code\n",
+                        ]
                         res = self.generate_result(info, {"contains_assembly": True})
 
                         results.append(res)
@@ -81,5 +87,5 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
         return results
 
     @staticmethod
-    def _format(comilation_unit, result):
+    def _format(comilation_unit: SlitherCompilationUnit, result: Dict) -> None:
         custom_format(comilation_unit, result)

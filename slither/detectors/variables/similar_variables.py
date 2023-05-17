@@ -7,7 +7,11 @@ from typing import List, Set, Tuple
 
 from slither.core.declarations.contract import Contract
 from slither.core.variables.local_variable import LocalVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -86,7 +90,13 @@ class SimilarVarsDetection(AbstractDetector):
                 for (v1, v2) in sorted(allVars, key=lambda x: (x[0].name, x[1].name)):
                     v_left = v1 if v1.name < v2.name else v2
                     v_right = v2 if v_left == v1 else v1
-                    info = ["Variable ", v_left, " is too similar to ", v_right, "\n"]
+                    info: DETECTOR_INFO = [
+                        "Variable ",
+                        v_left,
+                        " is too similar to ",
+                        v_right,
+                        "\n",
+                    ]
                     json = self.generate_result(info)
                     results.append(json)
         return results

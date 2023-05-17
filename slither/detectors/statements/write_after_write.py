@@ -4,7 +4,11 @@ from slither.core.cfg.node import Node, NodeType
 from slither.core.solidity_types import ElementaryType
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import (
     OperationWithLValue,
     HighLevelCall,
@@ -33,6 +37,8 @@ def _handle_ir(
         _remove_states(written)
 
     if isinstance(ir, InternalCall):
+        if not ir.function:
+            return
         if ir.function.all_high_level_calls() or ir.function.all_library_calls():
             _remove_states(written)
 
@@ -128,10 +134,17 @@ class WriteAfterWrite(AbstractDetector):
         for contract in self.compilation_unit.contracts_derived:
             for function in contract.functions:
                 if function.entry_point:
-                    ret = []
+                    ret: List[Tuple[Variable, Node, Node]] = []
                     _detect_write_after_write(function.entry_point, set(), {}, ret)
                     for var, node1, node2 in ret:
-                        info = [var, " is written in both\n\t", node1, "\n\t", node2, "\n"]
+                        info: DETECTOR_INFO = [
+                            var,
+                            " is written in both\n\t",
+                            node1,
+                            "\n\t",
+                            node2,
+                            "\n",
+                        ]
 
                         res = self.generate_result(info)
                         results.append(res)

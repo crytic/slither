@@ -1,0 +1,8 @@
+C.int_transferFrom(address,uint256,uint256,uint8,bytes32,bytes32,address) (tests/e2e/detectors/test_data/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol#42-45) uses arbitrary from in transferFrom in combination with permit: erc20.transferFrom(from,to,value) (tests/e2e/detectors/test_data/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol#44)
+
+C.bad4(address,uint256,uint256,uint8,bytes32,bytes32,address) (tests/e2e/detectors/test_data/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol#52-55) uses arbitrary from in transferFrom in combination with permit: SafeERC20.safeTransferFrom(erc20,from,to,value) (tests/e2e/detectors/test_data/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol#54)
+
+C.bad3(address,uint256,uint256,uint8,bytes32,bytes32,address) (tests/e2e/detectors/test_data/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol#47-50) uses arbitrary from in transferFrom in combination with permit: erc20.safeTransferFrom(from,to,value) (tests/e2e/detectors/test_data/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol#49)
+
+C.bad1(address,uint256,uint256,uint8,bytes32,bytes32,address) (tests/e2e/detectors/test_data/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol#32-35) uses arbitrary from in transferFrom in combination with permit: erc20.transferFrom(from,to,value) (tests/e2e/detectors/test_data/arbitrary-send-erc20-permit/0.5.16/arbitrary_send_erc20_permit.sol#34)
+

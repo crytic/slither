@@ -4,7 +4,11 @@
 from typing import List
 
 from slither.core.declarations.contract import Contract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import (
     HighLevelCall,
     LowLevelCall,
@@ -85,7 +89,7 @@ Every Ether sent to `Locked` will be lost."""
             funcs_payable = [function for function in contract.functions if function.payable]
             if funcs_payable:
                 if self.do_no_send_ether(contract):
-                    info = ["Contract locking ether found:\n"]
+                    info: DETECTOR_INFO = ["Contract locking ether found:\n"]
                     info += ["\tContract ", contract, " has payable functions:\n"]
                     for function in funcs_payable:
                         info += ["\t - ", function, "\n"]

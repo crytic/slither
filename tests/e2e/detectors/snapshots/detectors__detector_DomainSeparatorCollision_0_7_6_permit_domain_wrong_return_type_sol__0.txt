@@ -1,0 +1,2 @@
+The function signature of ERC20.DOMAIN_SEPARATOR() (tests/e2e/detectors/test_data/domain-separator-collision/0.7.6/permit_domain_wrong_return_type.sol#161-163) collides with DOMAIN_SEPARATOR and should be renamed or removed.
+

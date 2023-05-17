@@ -1,5 +1,9 @@
 from typing import List
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
 from slither.core.declarations.function_contract import FunctionContract
@@ -48,8 +52,15 @@ The shift statement will right-shift the constant 8 by `a` bits"""
                     BinaryType.LEFT_SHIFT,
                     BinaryType.RIGHT_SHIFT,
                 ]:
-                    if isinstance(ir.variable_left, Constant):
-                        info = [f, " contains an incorrect shift operation: ", node, "\n"]
+                    if isinstance(ir.variable_left, Constant) and not isinstance(
+                        ir.variable_right, Constant
+                    ):
+                        info: DETECTOR_INFO = [
+                            f,
+                            " contains an incorrect shift operation: ",
+                            node,
+                            "\n",
+                        ]
                         json = self.generate_result(info)
 
                         results.append(json)

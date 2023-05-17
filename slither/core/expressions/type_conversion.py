@@ -1,6 +1,5 @@
 from typing import Union, TYPE_CHECKING
 
-from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.type import Type
 
@@ -14,7 +13,7 @@ if TYPE_CHECKING:
     from slither.core.solidity_types.user_defined_type import UserDefinedType
 
 
-class TypeConversion(ExpressionTyped):
+class TypeConversion(Expression):
     def __init__(
         self,
         expression: Union[
@@ -27,6 +26,14 @@ class TypeConversion(ExpressionTyped):
         assert isinstance(expression_type, Type)
         self._expression: Expression = expression
         self._type: Type = expression_type
+
+    @property
+    def type(self) -> Type:
+        return self._type
+
+    @type.setter
+    def type(self, new_type: Type) -> None:
+        self._type = new_type
 
     @property
     def expression(self) -> Expression:

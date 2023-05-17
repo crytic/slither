@@ -82,7 +82,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
 }
 
 
-def solidity_function_signature(name):
+def solidity_function_signature(name: str) -> str:
     """
         Return the function signature (containing the return value)
         It is useful if a solidity function is used as a pointer
@@ -106,7 +106,7 @@ class SolidityVariable(SourceMapping):
         assert name in SOLIDITY_VARIABLES or name.endswith(("_slot", "_offset"))
 
     @property
-    def state_variable(self):
+    def state_variable(self) -> str:
         if self._name.endswith("_slot"):
             return self._name[:-5]
         if self._name.endswith("_offset"):
@@ -125,7 +125,7 @@ class SolidityVariable(SourceMapping):
     def __str__(self) -> str:
         return self._name
 
-    def __eq__(self, other: SourceMapping) -> bool:
+    def __eq__(self, other: Any) -> bool:
         return self.__class__ == other.__class__ and self.name == other.name
 
     def __hash__(self) -> int:
@@ -182,13 +182,13 @@ class SolidityFunction(SourceMapping):
         return self._return_type
 
     @return_type.setter
-    def return_type(self, r: List[Union[TypeInformation, ElementaryType]]):
+    def return_type(self, r: List[Union[TypeInformation, ElementaryType]]) -> None:
         self._return_type = r
 
     def __str__(self) -> str:
         return self._name
 
-    def __eq__(self, other: "SolidityFunction") -> bool:
+    def __eq__(self, other: Any) -> bool:
         return self.__class__ == other.__class__ and self.name == other.name
 
     def __hash__(self) -> int:
@@ -201,7 +201,11 @@ class SolidityCustomRevert(SolidityFunction):
         self._custom_error = custom_error
         self._return_type: List[Union[TypeInformation, ElementaryType]] = []
 
-    def __eq__(self, other: Union["SolidityCustomRevert", SolidityFunction]) -> bool:
+    @property
+    def custom_error(self) -> CustomError:
+        return self._custom_error
+
+    def __eq__(self, other: Any) -> bool:
         return (
             self.__class__ == other.__class__
             and self.name == other.name

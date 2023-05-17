@@ -14,7 +14,11 @@ from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
 from slither.core.variables import Variable
 from slither.core.variables.state_variable import StateVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import InternalCall, LibraryCall
 from slither.slithir.variables import ReferenceVariable
 from slither.utils.output import Output
@@ -140,7 +144,7 @@ Initialize all the variables. If a variable is meant to be initialized to zero, 
             ret = self._detect_uninitialized(c)
             for variable, functions in ret:
 
-                info = [variable, " is never initialized. It is used in:\n"]
+                info: DETECTOR_INFO = [variable, " is never initialized. It is used in:\n"]
 
                 for f in functions:
                     info += ["\t- ", f, "\n"]

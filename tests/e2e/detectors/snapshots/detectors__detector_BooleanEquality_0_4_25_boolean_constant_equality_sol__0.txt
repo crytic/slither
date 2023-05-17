@@ -1,0 +1,3 @@
+MyConc.bad1(bool) (tests/e2e/detectors/test_data/boolean-equal/0.4.25/boolean-constant-equality.sol#7-9) compares to a boolean constant:
+	-(b == true) (tests/e2e/detectors/test_data/boolean-equal/0.4.25/boolean-constant-equality.sol#8)
+

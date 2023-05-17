@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, List, Dict, Union
 
+from slither.core.declarations.contract import USING_FOR_KEY, USING_FOR_ITEM
 from slither.core.solidity_types.type import Type
 from slither.core.declarations.top_level import TopLevel
 
@@ -14,5 +15,5 @@ class UsingForTopLevel(TopLevel):
         self.file_scope: "FileScope" = scope
 
     @property
-    def using_for(self) -> Dict[Union[str, Type], List[Type]]:
+    def using_for(self) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
         return self._using_for

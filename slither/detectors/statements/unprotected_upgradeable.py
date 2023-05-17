@@ -2,7 +2,11 @@ from typing import List
 
 from slither.core.declarations import SolidityFunction, Function
 from slither.core.declarations.contract import Contract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import LowLevelCall, SolidityCall
 from slither.utils.output import Output
 
@@ -110,17 +114,15 @@ Buggy is an upgradeable contract. Anyone can call initialize on the logic contra
                             item for sublist in vars_init_in_constructors_ for item in sublist
                         ]
                         if vars_init and (set(vars_init) - set(vars_init_in_constructors)):
-                            info = (
-                                [
-                                    contract,
-                                    " is an upgradeable contract that does not protect its initialize functions: ",
-                                ]
-                                + initialize_functions
-                                + [
-                                    ". Anyone can delete the contract with: ",
-                                ]
-                                + functions_that_can_destroy
-                            )
+                            info: DETECTOR_INFO = [
+                                contract,
+                                " is an upgradeable contract that does not protect its initialize functions: ",
+                            ]
+                            info += initialize_functions
+                            info += [
+                                ". Anyone can delete the contract with: ",
+                            ]
+                            info += functions_that_can_destroy
 
                             res = self.generate_result(info)
                             results.append(res)
