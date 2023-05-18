@@ -570,6 +570,64 @@ def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
     return delegate
 
 
+def get_proxy_implementation_setters(proxy: Contract) -> List[Function]:
+    """
+    Gets a list of functions that write to the proxy's implementation variable/slot
+    Args:
+        proxy: A Contract object (proxy.is_upgradeable_proxy should be true).
+
+    Returns:
+        List[`Function`]: The list of proxy functions that set the implementation.
+
+    """
+    setters = []
+    delegate = get_proxy_implementation_var(proxy)
+    if isinstance(delegate, StateVariable):
+        setters = proxy.get_functions_writing_to_variable(delegate)
+        if len(setters) > 0:
+            return setters
+    exp = delegate.expression
+    for func in proxy.functions:
+        if func.is_constructor or func.is_fallback or func.is_receive:
+            continue
+        for node in func.all_nodes():
+            if (
+                node.type == NodeType.EXPRESSION
+                and isinstance(node.expression, CallExpression)
+                and "sstore" in str(node.expression.called)
+            ):
+                if node.expression.arguments[0] == exp:
+                    setters.append(func)
+                    break
+                if isinstance(node.expression.arguments[0], Identifier):
+                    slot_var = node.expression.arguments[0].value
+                    if isinstance(slot_var, Variable) and isinstance(
+                        slot_var.expression, Identifier
+                    ):
+                        slot_var = slot_var.expression.value
+                    if slot_var.expression == exp:
+                        setters.append(func)
+                        break
+            elif (
+                node.type == NodeType.ASSEMBLY
+                and node.inline_asm is not None
+                and "sstore" in node.inline_asm
+            ):
+                slot = node.inline_asm.split("sstore(")[1].split(",")[0]
+                if slot == exp.value:
+                    setters.append(func)
+                    break
+                slot_var = func.get_local_variable_from_name(slot)
+                if slot_var.expression is not None and isinstance(
+                    slot_var.expression, Identifier
+                ):
+                    slot_var = slot_var.expression.value
+                if slot_var.expression == exp:
+                    setters.append(func)
+                    break
+    return setters
+
+
 def find_delegate_in_fallback(proxy: Contract) -> Optional[Variable]:
     """
     Searches a proxy's fallback function for a delegatecall, then extracts the Variable being passed in as the target.
