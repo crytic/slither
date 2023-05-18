@@ -7,7 +7,6 @@ import argparse
 from crytic_compile import cryticparser
 
 from slither import Slither
-from slither.exceptions import SlitherError
 from slither.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo
 
 
