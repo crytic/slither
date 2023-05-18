@@ -61,9 +61,9 @@ def test_return_multiple_with_struct(slither_from_source) -> None:
             assert len(f.nodes) == 4
             node = f.nodes[3]
             assert node.type == NodeType.RETURN
-            assert isinstance(node_true.irs[0], Return)
-            assert node_true.irs[0].values[0] == f.get_local_variable_from_name("y")
-            assert node_true.irs[0].values[1] == f.get_local_variable_from_name("z")
+            assert isinstance(node.irs[0], Return)
+            assert node.irs[0].values[0] == f.get_local_variable_from_name("y")
+            assert node.irs[0].values[1] == f.get_local_variable_from_name("z")
 
 
 def test_nested_ifs_with_loop_legacy(slither_from_source) -> None:
@@ -89,7 +89,7 @@ def test_nested_ifs_with_loop_legacy(slither_from_source) -> None:
             }
         }
         """
-    with slither_from_source(source, legacy=True) as slither:
+    with slither_from_source(source, solc_version="0.4.1", legacy=True) as slither:
         c: Contract = slither.get_contract_from_name("Contract")[0]
         f: Function = c.functions[0]
         node_if = f.nodes[2]
@@ -132,7 +132,7 @@ def test_nested_ifs_with_loop_compact(slither_from_source) -> None:
             }
         }
         """
-    with slither_from_source(source, legacy=False) as slither:
+    with slither_from_source(source, solc_version="0.8.0", legacy=False) as slither:
         c: Contract = slither.get_contract_from_name("Contract")[0]
         f: Function = c.functions[0]
         node_if = f.nodes[2]
