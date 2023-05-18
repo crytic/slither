@@ -1,4 +1,4 @@
-import pytest
+# import pytest
 
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import (
@@ -58,4 +58,3 @@ def test_issue_1846_ternary_in_ternary(slither_from_source):
         assert node_ret.type == NodeType.RETURN
         assert isinstance(node_ret.irs[0], Return)
         assert node_ret.irs[0].values[0] == f.get_local_variable_from_name("y")
-
