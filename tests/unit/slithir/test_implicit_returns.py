@@ -148,7 +148,7 @@ def test_nested_ifs_with_loop_compact(slither_from_source) -> None:
         assert node_implicit.irs[0].values[0] == f.get_local_variable_from_name("x")
 
 
-@pytest.mark.xfail      # Explicit returns inside assembly are currently not parsed as return nodes
+@pytest.mark.xfail  # Explicit returns inside assembly are currently not parsed as return nodes
 def test_assembly_switch_cases(slither_from_source):
     source = """
         contract Contract {
