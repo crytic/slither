@@ -1,4 +1,4 @@
-# import pytest
+import pytest
 
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import (
@@ -106,6 +106,83 @@ def test_nested_ifs_with_loop_legacy(slither_from_source) -> None:
         node_throw = f.nodes[11]
         assert node_throw.type == NodeType.THROW
         assert len(node_throw.sons) == 0
+
+
+def test_nested_ifs_with_loop_compact(slither_from_source) -> None:
+    source = """
+        contract Contract {
+            function foo(uint a) public returns (uint x) {
+                x = a;
+                if(a == 1) {
+                    return a;
+                } else {
+                    require(a != 1);
+                    for (uint i = 0; i < 10; i++) {
+                        if (x > 10) {
+                            if (a < 0) {
+                                x = 10 * x;
+                            } else {
+                                revert();
+                            }
+                        } else {
+                            x++;
+                        }
+                    }
+                }
+            }
+        }
+        """
+    with slither_from_source(source, legacy=False) as slither:
+        c: Contract = slither.get_contract_from_name("Contract")[0]
+        f: Function = c.functions[0]
+        node_if = f.nodes[2]
+        assert node_if.son_true.type == NodeType.RETURN
+        node_explicit = node_if.son_true
+        assert isinstance(node_explicit.irs[0], Return)
+        assert node_explicit.irs[0].values[0] == f.get_local_variable_from_name("a")
+        node_end_if = f.nodes[17]
+        assert node_end_if.type == NodeType.ENDIF
+        assert node_end_if.sons[0].type == NodeType.RETURN
+        node_implicit = node_end_if.sons[0]
+        assert isinstance(node_implicit.irs[0], Return)
+        assert node_implicit.irs[0].values[0] == f.get_local_variable_from_name("x")
+
+
+@pytest.mark.xfail      # Explicit returns inside assembly are currently not parsed as return nodes
+def test_assembly_switch_cases(slither_from_source):
+    source = """
+        contract Contract {
+            function foo(uint a) public returns (uint x) {
+                assembly {
+                    switch a
+                    case 0 { x := 0 }
+                    case 1 { x := 1 }
+                    default {
+                        return(0x0, 32)
+                    }
+                }
+            }
+        }
+        """
+    for legacy in [True, False]:
+        with slither_from_source(source, solc_version="0.8.0", legacy=legacy) as slither:
+            c: Contract = slither.get_contract_from_name("Contract")[0]
+            f = c.functions[0]
+            if legacy:
+                node = f.nodes[2]
+                assert node.type == NodeType.RETURN
+                assert isinstance(node.irs[0], Return)
+                assert node.irs[0].values[0] == f.get_local_variable_from_name("x")
+            else:
+                node_end_if = f.nodes[5]
+                assert node_end_if.sons[0].type == NodeType.RETURN
+                node_implicit = node_end_if.sons[0]
+                assert isinstance(node_implicit.irs[0], Return)
+                assert node_implicit.irs[0].values[0] == f.get_local_variable_from_name("x")
+                # This part will fail until issue #1927 is fixed
+                node_explicit = f.nodes[10]
+                assert node_explicit.type == NodeType.RETURN
+                assert len(node_explicit.sons) == 0
 
 
 def test_issue_1846_ternary_in_ternary(slither_from_source):
