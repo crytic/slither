@@ -618,9 +618,7 @@ def get_proxy_implementation_setters(proxy: Contract) -> List[Function]:
                     setters.append(func)
                     break
                 slot_var = func.get_local_variable_from_name(slot)
-                if slot_var.expression is not None and isinstance(
-                    slot_var.expression, Identifier
-                ):
+                if slot_var.expression is not None and isinstance(slot_var.expression, Identifier):
                     slot_var = slot_var.expression.value
                 if slot_var.expression == exp:
                     setters.append(func)
