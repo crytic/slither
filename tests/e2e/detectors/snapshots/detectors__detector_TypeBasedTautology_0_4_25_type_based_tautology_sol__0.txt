@@ -1,0 +1,6 @@
+A.g(uint8) (tests/e2e/detectors/test_data/tautology/0.4.25/type_based_tautology.sol#9-11) contains a tautology or contradiction:
+	- (y < 512) (tests/e2e/detectors/test_data/tautology/0.4.25/type_based_tautology.sol#10)
+
+A.f(uint256) (tests/e2e/detectors/test_data/tautology/0.4.25/type_based_tautology.sol#2-7) contains a tautology or contradiction:
+	- x >= 0 (tests/e2e/detectors/test_data/tautology/0.4.25/type_based_tautology.sol#3)
+

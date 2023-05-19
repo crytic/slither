@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional, Union, List, TYPE_CHECKING, Tuple
+from typing import Dict, Optional, Union, List, TYPE_CHECKING, Tuple, Set
 
 from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
 from slither.core.cfg.scope import Scope
@@ -774,6 +774,7 @@ class FunctionSolc(CallerContextExpression):
                             "nodeType": "Identifier",
                             "src": v["src"],
                             "name": v["name"],
+                            "referencedDeclaration": v["id"],
                             "typeDescriptions": {"typeString": v["typeDescriptions"]["typeString"]},
                         }
                         var_identifiers.append(identifier)
@@ -1150,15 +1151,16 @@ class FunctionSolc(CallerContextExpression):
         if end_node:
             for son in node.sons:
                 if son.type == NodeType.CATCH:
-                    self._fix_catch(son, end_node)
+                    self._fix_catch(son, end_node, set())
 
-    def _fix_catch(self, node: Node, end_node: Node) -> None:
+    def _fix_catch(self, node: Node, end_node: Node, visited: Set[Node]) -> None:
         if not node.sons:
             link_nodes(node, end_node)
         else:
             for son in node.sons:
-                if son != end_node:
-                    self._fix_catch(son, end_node)
+                if son != end_node and son not in visited:
+                    visited.add(son)
+                    self._fix_catch(son, end_node, visited)
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
 
@@ -1395,8 +1397,7 @@ class FunctionSolc(CallerContextExpression):
         endif_node = self._new_node(NodeType.ENDIF, node.source_mapping, node.scope)
 
         for father in node.fathers:
-            father.remove_son(node)
-            father.add_son(condition_node.underlying_node)
+            father.replace_son(node, condition_node.underlying_node)
             condition_node.underlying_node.add_father(father)
 
         for son in node.sons:

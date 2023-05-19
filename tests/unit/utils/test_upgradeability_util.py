@@ -1,8 +1,6 @@
 import os
 from pathlib import Path
 
-from solc_select import solc_select
-
 from slither import Slither
 from slither.core.expressions import Literal
 from slither.utils.upgradeability import (
@@ -16,10 +14,10 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data" / "upgradeability_
 
 
 # pylint: disable=too-many-locals
-def test_upgrades_compare() -> None:
-    solc_select.switch_global_version("0.8.2", always_install=True)
+def test_upgrades_compare(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.2")
 
-    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.8.2.sol"))
+    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.8.2.sol"), solc=solc_path)
     v1 = sl.get_contract_from_name("ContractV1")[0]
     v2 = sl.get_contract_from_name("ContractV2")[0]
     (
@@ -59,9 +57,9 @@ def test_upgrades_compare() -> None:
     ]
 
 
-def test_upgrades_implementation_var() -> None:
-    solc_select.switch_global_version("0.8.2", always_install=True)
-    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.8.2.sol"))
+def test_upgrades_implementation_var(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.2")
+    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.8.2.sol"), solc=solc_path)
 
     erc_1967_proxy = sl.get_contract_from_name("ERC1967Proxy")[0]
     storage_proxy = sl.get_contract_from_name("InheritedStorageProxy")[0]
@@ -75,8 +73,8 @@ def test_upgrades_implementation_var() -> None:
     assert target == storage_proxy.get_state_variable_from_name("implementation")
     assert slot.slot == 1
 
-    solc_select.switch_global_version("0.5.0", always_install=True)
-    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.5.0.sol"))
+    solc_path = solc_binary_path("0.5.0")
+    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.5.0.sol"), solc=solc_path)
 
     eip_1822_proxy = sl.get_contract_from_name("EIP1822Proxy")[0]
     # zos_proxy = sl.get_contract_from_name("ZosProxy")[0]

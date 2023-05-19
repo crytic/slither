@@ -428,6 +428,7 @@ ALL_TESTS = [
     Test("user_defined_value_type/in_parenthesis-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("user_defined_value_type/top-level-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("user_defined_value_type/using-for-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/abi-decode-fixed-array.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("bytes_call.sol", ["0.8.12"]),
     Test("modifier_identifier_path.sol", VERSIONS_08),
     Test("free_functions/libraries_from_free.sol", ["0.8.12"]),
@@ -451,6 +452,7 @@ ALL_TESTS = [
     Test("yul-top-level-0.8.0.sol", ["0.8.0"]),
     Test("complex_imports/import_aliases_issue_1319/test.sol", ["0.5.12"]),
     Test("yul-state-constant-access.sol", ["0.8.16"]),
+    Test("negate-unary-element.sol", ["0.8.16"]),
 ]
 # create the output folder if needed
 try:

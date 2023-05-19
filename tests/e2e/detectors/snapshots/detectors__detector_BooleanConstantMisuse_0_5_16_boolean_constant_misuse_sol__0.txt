@@ -1,0 +1,3 @@
+MyConc.bad1(bool) (tests/e2e/detectors/test_data/boolean-cst/0.5.16/boolean-constant-misuse.sol#9-11) uses a Boolean constant improperly:
+	-(b || true) (tests/e2e/detectors/test_data/boolean-cst/0.5.16/boolean-constant-misuse.sol#10)
+

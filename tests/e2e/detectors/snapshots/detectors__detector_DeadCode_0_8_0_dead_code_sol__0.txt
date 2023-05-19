@@ -1,0 +1,6 @@
+Test4.unused_but_shadowed() (tests/e2e/detectors/test_data/dead-code/0.8.0/dead-code.sol#26-28) is never used and should be removed
+
+Test.unused() (tests/e2e/detectors/test_data/dead-code/0.8.0/dead-code.sol#2-4) is never used and should be removed
+
+Test2.unused_but_shadowed() (tests/e2e/detectors/test_data/dead-code/0.8.0/dead-code.sol#10-12) is never used and should be removed
+

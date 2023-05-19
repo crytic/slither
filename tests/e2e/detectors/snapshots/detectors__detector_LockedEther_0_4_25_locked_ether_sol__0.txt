@@ -1,0 +1,5 @@
+Contract locking ether found:
+	Contract OnlyLocked (tests/e2e/detectors/test_data/locked-ether/0.4.25/locked_ether.sol#26) has payable functions:
+	 - Locked.receive() (tests/e2e/detectors/test_data/locked-ether/0.4.25/locked_ether.sol#4-6)
+	But does not have a function to withdraw the ether
+

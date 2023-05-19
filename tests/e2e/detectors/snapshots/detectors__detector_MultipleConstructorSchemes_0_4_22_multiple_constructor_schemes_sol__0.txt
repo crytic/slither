@@ -1,0 +1,4 @@
+A (tests/e2e/detectors/test_data/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#1-14) contains multiple constructors in the same contract:
+	- A.constructor() (tests/e2e/detectors/test_data/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#3-5)
+	- A.A() (tests/e2e/detectors/test_data/multiple-constructors/0.4.22/multiple_constructor_schemes.sol#6-8)
+

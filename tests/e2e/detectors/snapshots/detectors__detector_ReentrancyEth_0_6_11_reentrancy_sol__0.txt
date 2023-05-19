@@ -1,0 +1,28 @@
+Reentrancy in Reentrancy.withdrawBalance_fixed_3() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#55-64):
+	External calls:
+	- (ret,mem) = msg.sender.call.value(amount)() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#60)
+	State variables written after the call(s):
+	- userBalance[msg.sender] = amount (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#62)
+	Reentrancy.userBalance (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#4) can be used in cross function reentrancies:
+	- Reentrancy.addToBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#10-12)
+	- Reentrancy.constructor() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#15-23)
+	- Reentrancy.getBalance(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#6-8)
+	- Reentrancy.withdrawBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#25-33)
+	- Reentrancy.withdrawBalance_fixed() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#35-44)
+	- Reentrancy.withdrawBalance_fixed_2() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#46-53)
+	- Reentrancy.withdrawBalance_fixed_3() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#55-64)
+
+Reentrancy in Reentrancy.withdrawBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#25-33):
+	External calls:
+	- (ret,mem) = msg.sender.call.value(userBalance[msg.sender])() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#28)
+	State variables written after the call(s):
+	- userBalance[msg.sender] = 0 (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#32)
+	Reentrancy.userBalance (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#4) can be used in cross function reentrancies:
+	- Reentrancy.addToBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#10-12)
+	- Reentrancy.constructor() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#15-23)
+	- Reentrancy.getBalance(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#6-8)
+	- Reentrancy.withdrawBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#25-33)
+	- Reentrancy.withdrawBalance_fixed() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#35-44)
+	- Reentrancy.withdrawBalance_fixed_2() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#46-53)
+	- Reentrancy.withdrawBalance_fixed_3() (tests/e2e/detectors/test_data/reentrancy-eth/0.6.11/reentrancy.sol#55-64)
+
