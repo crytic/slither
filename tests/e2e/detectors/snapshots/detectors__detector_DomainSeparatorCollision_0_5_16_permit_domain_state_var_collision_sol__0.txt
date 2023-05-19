@@ -1,0 +1,2 @@
+The function signature of ERC20.fopwCDKKK (tests/e2e/detectors/test_data/domain-separator-collision/0.5.16/permit_domain_state_var_collision.sol#46) collides with DOMAIN_SEPARATOR and should be renamed or removed.
+

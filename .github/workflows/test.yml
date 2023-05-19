@@ -37,8 +37,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install ".[test]"
-          solc-select install 0.8.0
-          solc-select use 0.8.0
 
       - name: Setup node
         uses: actions/setup-node@v3

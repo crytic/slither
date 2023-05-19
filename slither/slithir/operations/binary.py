@@ -94,7 +94,6 @@ class BinaryType(Enum):
         return self in [
             BinaryType.POWER,
             BinaryType.MULTIPLICATION,
-            BinaryType.MODULO,
             BinaryType.ADDITION,
             BinaryType.SUBTRACTION,
             BinaryType.DIVISION,

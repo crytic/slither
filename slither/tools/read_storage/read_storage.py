@@ -464,7 +464,7 @@ class SlitherReadStorage:
         if "int" in key_type:  # without this eth_utils encoding fails
             key = int(key)
         key = coerce_type(key_type, key)
-        slot = keccak(encode([key_type, "uint256"], [key, decode("uint256", slot)]))
+        slot = keccak(encode([key_type, "uint256"], [key, decode(["uint256"], slot)[0]]))
 
         if isinstance(target_variable_type.type_to, UserDefinedType) and isinstance(
             target_variable_type.type_to.type, Structure

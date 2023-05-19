@@ -1,0 +1,3 @@
+Void constructor called in D.constructor() (tests/e2e/detectors/test_data/void-cst/0.6.11/void-cst.sol#10-12):
+	- C() (tests/e2e/detectors/test_data/void-cst/0.6.11/void-cst.sol#10)
+

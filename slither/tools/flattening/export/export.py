@@ -15,7 +15,7 @@ ZIP_TYPES_ACCEPTED = {
 
 Export = namedtuple("Export", ["filename", "content"])
 
-logger = logging.getLogger("Slither")
+logger = logging.getLogger("Slither-flat")
 
 
 def save_to_zip(files: List[Export], zip_filename: str, zip_type: str = "lzma"):

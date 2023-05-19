@@ -1,5 +1,4 @@
 from pathlib import Path
-from solc_select import solc_select
 
 from slither import Slither
 from slither.core.declarations import Function
@@ -8,14 +7,13 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 SRC_MAPPING_TEST_ROOT = Path(TEST_DATA_DIR, "src_mapping")
 
 
-def test_source_mapping():
-    solc_select.switch_global_version("0.6.12", always_install=True)
+def test_source_mapping(solc_binary_path):
+    solc_path = solc_binary_path("0.6.12")
     file = Path(SRC_MAPPING_TEST_ROOT, "inheritance.sol").as_posix()
-    slither = Slither(file)
+    slither = Slither(file, solc=solc_path)
 
     # Check if A.f() is at the offset 27
     functions = slither.offset_to_objects(file, 27)
-    print(functions)
     assert len(functions) == 1
     function = functions.pop()
     assert isinstance(function, Function)
@@ -79,13 +77,13 @@ def _sort_references_lines(refs: list) -> list:
     return sorted([ref.lines[0] for ref in refs])
 
 
-def _test_references_user_defined_aliases():
+def test_references_user_defined_aliases(solc_binary_path):
     """
     Tests if references are filled correctly for user defined aliases (declared using "type [...] is [...]" statement).
     """
-    solc_select.switch_global_version("0.8.16", always_install=True)
+    solc_path = solc_binary_path("0.8.16")
     file = Path(SRC_MAPPING_TEST_ROOT, "ReferencesUserDefinedAliases.sol").as_posix()
-    slither = Slither(file)
+    slither = Slither(file, solc=solc_path)
 
     alias_top_level = slither.compilation_units[0].user_defined_value_types["aliasTopLevel"]
     assert len(alias_top_level.references) == 2
@@ -102,26 +100,16 @@ def _test_references_user_defined_aliases():
     assert lines == [13, 16]
 
 
-def _test_references_user_defined_types_when_casting():
+def test_references_user_defined_types_when_casting(solc_binary_path):
     """
     Tests if references are filled correctly for user defined types in case of casting.
     """
-    solc_select.switch_global_version("0.8.16", always_install=True)
+    solc_path = solc_binary_path("0.8.16")
     file = Path(SRC_MAPPING_TEST_ROOT, "ReferencesUserDefinedTypesCasting.sol").as_posix()
-    slither = Slither(file)
+    slither = Slither(file, solc=solc_path)
 
     contracts = slither.compilation_units[0].contracts
     a = contracts[0] if contracts[0].is_interface else contracts[1]
     assert len(a.references) == 2
     lines = _sort_references_lines(a.references)
     assert lines == [12, 18]
-
-
-def test_references():
-    """
-    Tests if references list is filled correctly in the following cases:
-    - user defined aliases (declared using "type [...] is [...]" statement)
-    - user defined types in case of casting (TypeConversion expressions)
-    """
-    _test_references_user_defined_aliases()
-    _test_references_user_defined_types_when_casting()

@@ -201,6 +201,10 @@ class SolidityCustomRevert(SolidityFunction):
         self._custom_error = custom_error
         self._return_type: List[Union[TypeInformation, ElementaryType]] = []
 
+    @property
+    def custom_error(self) -> CustomError:
+        return self._custom_error
+
     def __eq__(self, other: Any) -> bool:
         return (
             self.__class__ == other.__class__

@@ -1,0 +1,1 @@
+Buggy (tests/e2e/detectors/test_data/unprotected-upgrade/0.5.16/Buggy.sol#3-15) is an upgradeable contract that does not protect its initialize functions: Buggy.initialize() (tests/e2e/detectors/test_data/unprotected-upgrade/0.5.16/Buggy.sol#6-9). Anyone can delete the contract with: Buggy.kill() (tests/e2e/detectors/test_data/unprotected-upgrade/0.5.16/Buggy.sol#10-13)

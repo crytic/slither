@@ -1,0 +1,32 @@
+Reentrancy in Reentrancy.withdrawBalance_nested() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#74-80):
+	External calls:
+	- msg.sender.call.value(amount / 2)() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#77)
+	State variables written after the call(s):
+	- userBalance[msg.sender] = 0 (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#78)
+	Reentrancy.userBalance (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#4) can be used in cross function reentrancies:
+	- Reentrancy.addToBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#10-12)
+	- Reentrancy.constructor() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#15-22)
+	- Reentrancy.getBalance(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#6-8)
+	- Reentrancy.withdrawBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#24-31)
+	- Reentrancy.withdrawBalance_fixed() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#33-41)
+	- Reentrancy.withdrawBalance_fixed_2() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#43-50)
+	- Reentrancy.withdrawBalance_fixed_3() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#52-60)
+	- Reentrancy.withdrawBalance_fixed_4() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#61-72)
+	- Reentrancy.withdrawBalance_nested() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#74-80)
+
+Reentrancy in Reentrancy.withdrawBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#24-31):
+	External calls:
+	- ! (msg.sender.call.value(userBalance[msg.sender])()) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#27)
+	State variables written after the call(s):
+	- userBalance[msg.sender] = 0 (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#30)
+	Reentrancy.userBalance (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#4) can be used in cross function reentrancies:
+	- Reentrancy.addToBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#10-12)
+	- Reentrancy.constructor() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#15-22)
+	- Reentrancy.getBalance(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#6-8)
+	- Reentrancy.withdrawBalance() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#24-31)
+	- Reentrancy.withdrawBalance_fixed() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#33-41)
+	- Reentrancy.withdrawBalance_fixed_2() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#43-50)
+	- Reentrancy.withdrawBalance_fixed_3() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#52-60)
+	- Reentrancy.withdrawBalance_fixed_4() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#61-72)
+	- Reentrancy.withdrawBalance_nested() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy.sol#74-80)
+

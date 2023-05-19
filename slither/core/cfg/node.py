@@ -620,6 +620,21 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         self._sons.append(son)
 
+    def replace_son(self, ori_son: "Node", new_son: "Node") -> None:
+        """Replace a son node. Do nothing if the node to replace is not a son
+
+        Args:
+            ori_son: son to replace
+            new_son: son to replace with
+        """
+        for i, s in enumerate(self._sons):
+            if s.node_id == ori_son.node_id:
+                idx = i
+                break
+        else:
+            return
+        self._sons[idx] = new_son
+
     def set_sons(self, sons: List["Node"]) -> None:
         """Set the son nodes
 
