@@ -1363,7 +1363,14 @@ def convert_to_pop(ir: HighLevelCall, node: "Node") -> List[Operation]:
     # TODO the following is equivalent to length.points_to = arr
     # Should it be removed?
     ir_length.lvalue.points_to = arr
-    element_to_delete.set_type(ElementaryType("uint256"))
+    # Note bytes is an ElementaryType not ArrayType so in that case we use ir.destination.type
+    # while in other cases such as uint256[] (ArrayType) we use ir.destination.type.type
+    # in this way we will have the type always set to the corresponding ElementaryType
+    element_to_delete.set_type(
+        ir.destination.type
+        if isinstance(ir.destination.type, ElementaryType)
+        else ir.destination.type.type
+    )
     ir_assign_element_to_delete.set_expression(ir.expression)
     ir_assign_element_to_delete.set_node(ir.node)
     ret.append(ir_assign_element_to_delete)

@@ -90,3 +90,4 @@ from .functions.permit_domain_signature_collision import DomainSeparatorCollisio
 from .functions.codex import Codex
 from .functions.cyclomatic_complexity import CyclomaticComplexity
 from .statements.incorrect_using_for import IncorrectUsingFor
+from .operations.encode_packed import EncodePackedCollision
