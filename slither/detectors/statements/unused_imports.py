@@ -40,9 +40,6 @@ class UnusedImports(AbstractDetector):
     )
     WIKI_RECOMMENDATION = "Remove unused imports"
 
-    analysed_files: Set[str] = set()
-    import_containers: Set[str] = set()
-
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
     ):
@@ -51,6 +48,7 @@ class UnusedImports(AbstractDetector):
         self.actual_imports = self._new_dict()
         self.absolute_path_to_imp_filename: Dict[str, str] = {}
         self.imports_cycle_detected = False
+        self.import_containers: Set[str] = set()
 
     # pylint: disable=too-many-branches
     @staticmethod
@@ -85,15 +83,14 @@ class UnusedImports(AbstractDetector):
                 return False
         return True
 
-    @staticmethod
-    def _update_import_containers(scopes: Dict[Filename, FileScope]) -> None:
+    def _initialise_import_containers(self, scopes: Dict[Filename, FileScope]) -> None:
         """
-        Updates `import_containers` set by adding "import containers" (files containing only `import` statements) from
-        the current scope.
+        Initialises `import_containers` set by adding "import containers" (files containing only `import` statements)
+        from the current scope.
         """
         for name, scope in scopes.items():
             if UnusedImports._is_import_container(scope):
-                UnusedImports.import_containers.add(name.absolute)
+                self.import_containers.add(name.absolute)
 
     def _dfs(self, graph: Dict[str, Set[str]], color: Dict[str, int], x: str) -> None:
         """
@@ -492,7 +489,7 @@ class UnusedImports(AbstractDetector):
     def _detect(self) -> List[Output]:
         results: List[Output] = []
 
-        UnusedImports._update_import_containers(self.compilation_unit.scopes)
+        self._initialise_import_containers(self.compilation_unit.scopes)
         self._initialise_absolute_path_to_imp_filename()
         self._initialise_actual_imports()
         self._find_top_level_items_uses()
@@ -513,9 +510,9 @@ class UnusedImports(AbstractDetector):
         for k, v in imported_but_unneeded.items():
             info: DETECTOR_INFO = []
             output = ""
-            if k in UnusedImports.analysed_files or len(v) == 0:
+            if len(v) == 0:
                 continue
-            if k in UnusedImports.import_containers:
+            if k in self.import_containers:
                 continue
             output += "Unused imports found in " + PurePath(k).as_posix() + ".\n"
             output += "Consider removing the following imports:\n"
@@ -540,8 +537,5 @@ class UnusedImports(AbstractDetector):
             info.append(output)
             res = self.generate_result(info)
             results.append(res)
-
-        for file in self.compilation_unit.scopes:
-            UnusedImports.analysed_files.add(file.absolute)
 
         return results
