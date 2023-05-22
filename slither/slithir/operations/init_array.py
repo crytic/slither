@@ -41,7 +41,7 @@ class InitArray(OperationWithLValue):
         def convert(elem):
             if isinstance(elem, (list,)):
                 return str([convert(x) for x in elem])
-            return str(elem)
+            return f"{elem}({elem.type})"
 
         init_values = convert(self.init_values)
         return f"{self.lvalue}({self.lvalue.type}) =  {init_values}"
