@@ -742,12 +742,46 @@ Please rename it, this name is reserved for Slither's internals"""
                     self._underlying_contract_to_parser[contract].log_incorrect_parsing(
                         f"Impossible to generate IR for {contract.name}.{func.name} ({func.source_mapping}):\n {e}"
                     )
-
-            contract.convert_expression_to_slithir_ssa()
+                except Exception as e:
+                    func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                    logger.error(
+                        f"\nFailed to generate IR for {contract.name}.{func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{contract.name}.{func.name} ({func.source_mapping}):\n "
+                        f"{func_expressions}"
+                    )
+                    raise e
+            try:
+                contract.convert_expression_to_slithir_ssa()
+            except Exception as e:
+                logger.error(
+                    f"\nFailed to convert IR to SSA for {contract.name} contract. Please open an issue https://github.com/crytic/slither/issues.\n "
+                )
+                raise e
 
         for func in self._compilation_unit.functions_top_level:
-            func.generate_slithir_and_analyze()
-            func.generate_slithir_ssa({})
+            try:
+                func.generate_slithir_and_analyze()
+            except AttributeError as e:
+                logger.error(
+                    f"Impossible to generate IR for top level function {func.name} ({func.source_mapping}):\n {e}"
+                )
+            except Exception as e:
+                func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                logger.error(
+                    f"\nFailed to generate IR for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
+                    f"{func_expressions}"
+                )
+                raise e
+
+            try:
+                func.generate_slithir_ssa({})
+            except Exception as e:
+                func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                logger.error(
+                    f"\nFailed to convert IR to SSA for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
+                    f"{func_expressions}"
+                )
+                raise e
+
         self._compilation_unit.propagate_function_calls()
         for contract in self._compilation_unit.contracts:
             contract.fix_phi()
