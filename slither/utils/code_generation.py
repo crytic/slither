@@ -136,6 +136,8 @@ def generate_interface_function_signature(
                 .replace("(", "")
                 .replace(")", "")
             )
+        if var.type.is_dynamic:
+            return f"{_handle_dynamic_struct_elem(var.type)} {var.location}"
         if isinstance(var.type, ArrayType) and isinstance(
             var.type.type, (UserDefinedType, ElementaryType)
         ):
@@ -150,8 +152,6 @@ def generate_interface_function_signature(
                 return f"{str(var.type.type)} memory"
             if isinstance(var.type.type, Contract):
                 return "address"
-        if var.type.is_dynamic:
-            return f"{var.type} {var.location}"
         return str(var.type)
 
     name, _, _ = func.signature
@@ -201,7 +201,9 @@ def generate_struct_interface_str(struct: "Structure", indent: int = 0) -> str:
         spaces += " "
     definition = f"{spaces}struct {struct.name} {{\n"
     for elem in struct.elems_ordered:
-        if isinstance(elem.type, UserDefinedType):
+        if elem.type.is_dynamic:
+            definition += f"{spaces}    {_handle_dynamic_struct_elem(elem.type)} {elem.name};\n"
+        elif isinstance(elem.type, UserDefinedType):
             if isinstance(elem.type.type, (Structure, Enum)):
                 definition += f"{spaces}    {elem.type.type} {elem.name};\n"
             elif isinstance(elem.type.type, Contract):
@@ -210,6 +212,33 @@ def generate_struct_interface_str(struct: "Structure", indent: int = 0) -> str:
             definition += f"{spaces}    {elem.type} {elem.name};\n"
     definition += f"{spaces}}}\n"
     return definition
+
+
+def _handle_dynamic_struct_elem(elem_type: Type) -> str:
+    if isinstance(elem_type, ElementaryType):
+        return f"{elem_type}"
+    if isinstance(elem_type, ArrayType):
+        base_type = elem_type.type
+        if isinstance(base_type, UserDefinedType):
+            if isinstance(base_type.type, Contract):
+                return "address[]"
+            else:
+                return f"{base_type.type.name}[]"
+        else:
+            return f"{base_type}[]"
+    elif isinstance(elem_type, MappingType):
+        type_to = elem_type.type_to
+        type_from = elem_type.type_from
+        if isinstance(type_from, UserDefinedType) and isinstance(type_from.type, Contract):
+            type_from = ElementaryType("address")
+        if isinstance(type_to, MappingType):
+            return f"mapping({type_from} => {_handle_dynamic_struct_elem(type_to)})"
+        elif isinstance(type_to, UserDefinedType):
+            if isinstance(type_to.type, Contract):
+                return f"mapping({type_from} => address)"
+            else:
+                return f"mapping({type_from} => {type_to.type.name})"
+        return f"{elem_type}"
 
 
 def generate_custom_error_interface(
