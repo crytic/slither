@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from slither.core.variables.structure_variable import StructureVariable
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments,too-many-locals
 def generate_interface(
     contract: "Contract",
     unroll_structs: bool = True,
@@ -101,9 +101,8 @@ def generate_interface_variable_signature(
         while isinstance(_type, (ArrayType, UserDefinedType)):
             _type = _type.type
         if isinstance(_type, Structure):
-            for elem in _type.elems_ordered:
-                if isinstance(elem.type, MappingType):
-                    return ""
+            if any(isinstance(elem.type, MappingType) for elem in _type.elems_ordered):
+                return ""
         ret = str(_type)
         if isinstance(_type, Structure) or (isinstance(_type, Type) and _type.is_dynamic):
             ret += " memory"
@@ -215,6 +214,7 @@ def generate_struct_interface_str(struct: "Structure", indent: int = 0) -> str:
 
 
 def _handle_dynamic_struct_elem(elem_type: Type) -> str:
+    assert elem_type.is_dynamic
     if isinstance(elem_type, ElementaryType):
         return f"{elem_type}"
     if isinstance(elem_type, ArrayType):
@@ -222,23 +222,21 @@ def _handle_dynamic_struct_elem(elem_type: Type) -> str:
         if isinstance(base_type, UserDefinedType):
             if isinstance(base_type.type, Contract):
                 return "address[]"
-            else:
-                return f"{base_type.type.name}[]"
-        else:
-            return f"{base_type}[]"
-    elif isinstance(elem_type, MappingType):
+            return f"{base_type.type.name}[]"
+        return f"{base_type}[]"
+    if isinstance(elem_type, MappingType):
         type_to = elem_type.type_to
         type_from = elem_type.type_from
         if isinstance(type_from, UserDefinedType) and isinstance(type_from.type, Contract):
             type_from = ElementaryType("address")
         if isinstance(type_to, MappingType):
             return f"mapping({type_from} => {_handle_dynamic_struct_elem(type_to)})"
-        elif isinstance(type_to, UserDefinedType):
+        if isinstance(type_to, UserDefinedType):
             if isinstance(type_to.type, Contract):
                 return f"mapping({type_from} => address)"
-            else:
-                return f"mapping({type_from} => {type_to.type.name})"
+            return f"mapping({type_from} => {type_to.type.name})"
         return f"{elem_type}"
+    return ""
 
 
 def generate_custom_error_interface(
