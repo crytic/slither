@@ -1581,9 +1581,12 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
     #         (uint a, uint b) = a.st(0);
     #     }
     # }
-    if isinstance(return_type, (MappingType, ArrayType)):
+    elif isinstance(return_type, (MappingType, ArrayType)):
         return []
-    return [return_type.type]
+    elif isinstance(return_type, (ElementaryType, UserDefinedType, TypeAlias)):
+        return [return_type]
+    else:
+        assert False
 
 
 def convert_type_of_high_and_internal_level_call(
