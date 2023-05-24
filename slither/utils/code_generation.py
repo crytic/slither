@@ -232,10 +232,10 @@ def generate_struct_interface_str(struct: "Structure", indent: int = 0) -> str:
         if elem.type.is_dynamic:
             definition += f"{spaces}    {_handle_dynamic_struct_elem(elem.type)} {elem.name};\n"
         elif isinstance(elem.type, UserDefinedType):
-            if isinstance(elem.type.type, (Structure, Enum)):
+            if isinstance(elem.type.type, Structure):
                 definition += f"{spaces}    {elem.type.type} {elem.name};\n"
-            elif isinstance(elem.type.type, Contract):
-                definition += f"{spaces}    address {elem.name};\n"
+            else:
+                definition += f"{spaces}    {convert_type_for_solidity_signature_to_string(elem.type)} {elem.name};\n"
         else:
             definition += f"{spaces}    {elem.type} {elem.name};\n"
     definition += f"{spaces}}}\n"
