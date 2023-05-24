@@ -275,13 +275,13 @@ def encode_ir_for_compare(ir: Operation) -> str:
     if isinstance(ir, Assignment):
         return f"({encode_var_for_compare(ir.lvalue)}):=({encode_var_for_compare(ir.rvalue)})"
     if isinstance(ir, Index):
-        return f"index({ntype(ir.index_type)})"
+        return f"index({ntype(ir.variable_right.type)})"
     if isinstance(ir, Member):
         return "member"  # .format(ntype(ir._type))
     if isinstance(ir, Length):
         return "length"
     if isinstance(ir, Binary):
-        return f"binary({str(ir.variable_left)}{str(ir.type)}{str(ir.variable_right)})"
+        return f"binary({encode_var_for_compare(ir.variable_left)}{ir.type}{encode_var_for_compare(ir.variable_right)})"
     if isinstance(ir, Unary):
         return f"unary({str(ir.type)})"
     if isinstance(ir, Condition):
@@ -332,7 +332,7 @@ def encode_var_for_compare(var: Variable) -> str:
 
     # variables
     if isinstance(var, Constant):
-        return f"constant({ntype(var.type)})"
+        return f"constant({ntype(var.type)},{var.value})"
     if isinstance(var, SolidityVariableComposed):
         return f"solidity_variable_composed({var.name})"
     if isinstance(var, SolidityVariable):
@@ -342,9 +342,16 @@ def encode_var_for_compare(var: Variable) -> str:
     if isinstance(var, ReferenceVariable):
         return f"reference({ntype(var.type)})"
     if isinstance(var, LocalVariable):
-        return f"local_solc_variable({var.location})"
+        return f"local_solc_variable({ntype(var.type)},{var.location})"
     if isinstance(var, StateVariable):
-        return f"state_solc_variable({ntype(var.type)})"
+        if not (var.is_constant or var.is_immutable):
+            try:
+                slot, _ = var.contract.compilation_unit.storage_layout_of(var.contract, var)
+            except KeyError:
+                slot = var.name
+        else:
+            slot = var.name
+        return f"state_solc_variable({ntype(var.type)},{slot})"
     if isinstance(var, LocalVariableInitFromTuple):
         return "local_variable_init_tuple"
     if isinstance(var, TupleVariable):
