@@ -81,6 +81,13 @@ def generate_interface(
             )
         for struct in structs:
             interface += generate_struct_interface_str(struct, indent=4)
+            for elem in struct.elems_ordered:
+                if (
+                    isinstance(elem.type, UserDefinedType)
+                    and isinstance(elem.type.type, StructureContract)
+                    and elem.type.type not in structs
+                ):
+                    structs.append(elem.type.type)
     for var in contract.state_variables_entry_points:
         var_sig = generate_interface_variable_signature(var, unroll_structs)
         if var_sig is not None and var_sig != "":
