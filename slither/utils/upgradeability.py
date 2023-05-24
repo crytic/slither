@@ -220,6 +220,8 @@ def is_function_modified(f1: Function, f2: Function) -> bool:
         visited.extend([node_f1, node_f2])
         queue_f1.extend(son for son in node_f1.sons if son not in visited)
         queue_f2.extend(son for son in node_f2.sons if son not in visited)
+        if len(node_f1.irs) != len(node_f2.irs):
+            return True
         for i, ir in enumerate(node_f1.irs):
             if encode_ir_for_compare(ir) != encode_ir_for_compare(node_f2.irs[i]):
                 return True
