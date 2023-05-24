@@ -13,7 +13,7 @@ from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
 )
-from slither.core.declarations import Structure, Enum, Contract
+from slither.core.declarations import Structure, StructureContract, Enum, Contract
 
 if TYPE_CHECKING:
     from slither.core.declarations import FunctionContract, CustomErrorContract
@@ -57,15 +57,30 @@ def generate_interface(
         for enum in contract.enums:
             interface += f"    enum {enum.name} {{ {', '.join(enum.values)} }}\n"
     if include_structs:
-        for struct in contract.structures:
-            interface += generate_struct_interface_str(struct, indent=4)
+        # Include structures defined in this contract
+        structs = contract.structures
+        # Function signatures may reference other structures as well
+        # Include structures defined in libraries used for them
         for _for in contract.using_for.keys():
             if (
                 isinstance(_for, UserDefinedType)
-                and isinstance(_for.type, Structure)
-                and _for.type not in contract.structures
+                and isinstance(_for.type, StructureContract)
+                and _for.type not in structs
             ):
-                interface += generate_struct_interface_str(_for.type, indent=4)
+                structs.append(_for.type)
+        # Include any other structures used as function arguments/returns
+        for func in contract.functions_entry_points:
+            structs.extend(
+                [
+                    arg.type.type
+                    for arg in func.parameters + func.returns
+                    if isinstance(arg.type, UserDefinedType)
+                    and isinstance(arg.type.type, StructureContract)
+                    and arg.type.type not in structs
+                ]
+            )
+        for struct in structs:
+            interface += generate_struct_interface_str(struct, indent=4)
     for var in contract.state_variables_entry_points:
         var_sig = generate_interface_variable_signature(var, unroll_structs)
         if var_sig is not None and var_sig != "":
