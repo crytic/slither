@@ -163,7 +163,7 @@ class PrinterHumanSummary(AbstractPrinter):
     def _number_functions(contract):
         return len(contract.functions)
 
-    def _get_number_of_assembly_lines(self):
+    def _get_number_of_assembly_lines(self) -> int:
         total_asm_lines = 0
         for contract in self.contracts:
             for function in contract.functions_declared:
@@ -179,9 +179,7 @@ class PrinterHumanSummary(AbstractPrinter):
             return "Compilation non standard\n"
         return f"Compiled with {str(self.slither.crytic_compile.type)}\n"
 
-    def _number_contracts(self):
-        if self.slither.crytic_compile is None:
-            return len(self.slither.contracts), 0, 0
+    def _number_contracts(self) -> Tuple[int, int, int]:
         contracts = self.slither.contracts
         deps = [c for c in contracts if c.is_from_dependency()]
         tests = [c for c in contracts if c.is_test]
@@ -267,7 +265,7 @@ class PrinterHumanSummary(AbstractPrinter):
             "Proxy": contract.is_upgradeable_proxy,
         }
 
-    def _get_contracts(self, txt):
+    def _get_contracts(self, txt: str) -> str:
         (
             number_contracts,
             number_contracts_deps,
@@ -280,18 +278,18 @@ class PrinterHumanSummary(AbstractPrinter):
             txt += f"Number of contracts in tests       : {number_contracts_tests}\n"
         return txt
 
-    def _get_number_lines(self, txt, results):
-        lines_dict = compute_loc_metrics(self.slither)
+    def _get_number_lines(self, txt: str, results: Dict) -> Tuple[str, Dict]:
+        loc = compute_loc_metrics(self.slither)
         txt += "Source lines of code (SLOC) in source files: "
-        txt += f"{lines_dict['src']['sloc']}\n"
-        if lines_dict["dep"]["sloc"] > 0:
+        txt += f"{loc.src.sloc}\n"
+        if loc.dep.sloc > 0:
             txt += "Source lines of code (SLOC) in dependencies: "
-            txt += f"{lines_dict['dep']['sloc']}\n"
-        if lines_dict["test"]["sloc"] > 0:
+            txt += f"{loc.dep.sloc}\n"
+        if loc.test.sloc > 0:
             txt += "Source lines of code (SLOC) in tests       : "
-            txt += f"{lines_dict['test']['sloc']}\n"
-        results["number_lines"] = lines_dict["src"]["sloc"]
-        results["number_lines__dependencies"] = lines_dict["dep"]["sloc"]
+            txt += f"{loc.test.sloc}\n"
+        results["number_lines"] = loc.src.sloc
+        results["number_lines__dependencies"] = loc.dep.sloc
         total_asm_lines = self._get_number_of_assembly_lines()
         txt += f"Number of  assembly lines: {total_asm_lines}\n"
         results["number_lines_assembly"] = total_asm_lines
