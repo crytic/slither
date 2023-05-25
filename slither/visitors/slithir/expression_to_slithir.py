@@ -532,7 +532,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
 
     def _post_new_array(self, expression: NewArray) -> None:
         val = TemporaryVariable(self._node)
-        operation = TmpNewArray(expression.depth, expression.array_type, val)
+        operation = TmpNewArray(expression.array_type, val)
         operation.set_expression(expression)
         self._result.append(operation)
         set_val(expression, val)
