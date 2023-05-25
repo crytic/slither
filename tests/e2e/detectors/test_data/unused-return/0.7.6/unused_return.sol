@@ -8,6 +8,7 @@ library SafeMath{
 
 abstract contract Target{
     function f() public virtual returns(uint);
+    function g() public virtual returns(uint, uint);
 }
 
 contract User{
@@ -26,5 +27,12 @@ contract User{
         // As the value returned by the call is stored
         // (unused local variable should be another issue) 
         uint b = a.add(1);
+
+        t.g();
+
+        (uint c, uint d) = t.g();
+
+        // Detected as unused return
+        (uint e,) = t.g();
     }
 }

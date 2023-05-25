@@ -76,8 +76,7 @@ class ExpressionPrinter(ExpressionVisitor):
 
     def _post_new_array(self, expression: expressions.NewArray) -> None:
         array = str(expression.array_type)
-        depth = expression.depth
-        val = f"new {array}{'[]' * depth}"
+        val = f"new {array}"
         set_val(expression, val)
 
     def _post_new_contract(self, expression: expressions.NewContract) -> None:

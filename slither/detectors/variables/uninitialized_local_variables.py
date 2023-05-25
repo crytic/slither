@@ -6,7 +6,7 @@
 """
 from typing import List
 
-from slither.core.cfg.node import Node
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations.function_contract import FunctionContract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.utils.output import Output
@@ -63,6 +63,15 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
             self.visited_all_paths[node] = []
 
         self.visited_all_paths[node] = list(set(self.visited_all_paths[node] + fathers_context))
+
+        # Remove a local variable declared in a for loop header
+        if (
+            node.type == NodeType.VARIABLE
+            and len(node.sons) == 1  # Should always be true for a node that has a STARTLOOP son
+            and node.sons[0].type == NodeType.STARTLOOP
+        ):
+            if node.variable_declaration in fathers_context:
+                fathers_context.remove(node.variable_declaration)
 
         if self.key in node.context:
             fathers_context += node.context[self.key]

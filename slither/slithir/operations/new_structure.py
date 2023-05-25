@@ -39,4 +39,5 @@ class NewStructure(Call, OperationWithLValue):
 
     def __str__(self):
         args = [str(a) for a in self.arguments]
-        return f"{self.lvalue} = new {self.structure_name}({','.join(args)})"
+        lvalue = self.lvalue
+        return f"{lvalue}({lvalue.type}) = new {self.structure_name}({','.join(args)})"
