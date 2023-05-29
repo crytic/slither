@@ -17,7 +17,6 @@ class LocalVariableInitFromTupleSolc(VariableDeclarationSolc):
         assert isinstance(self._variable, LocalVariableInitFromTuple)
         return self._variable
 
-
     def _analyze_variable_attributes(self, attributes: Dict) -> None:
         """'
         Variable Location
@@ -35,4 +34,3 @@ class LocalVariableInitFromTupleSolc(VariableDeclarationSolc):
                 self.underlying_variable.set_location("default")
 
         super()._analyze_variable_attributes(attributes)
-
