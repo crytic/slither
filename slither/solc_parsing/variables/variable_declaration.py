@@ -141,6 +141,8 @@ class VariableDeclarationSolc:
             self._typeName = attributes["type"]
 
         self._variable.name = attributes["name"]
+        if hasattr(self._variable, 'set_location') and 'storageLocation' in attributes:
+            self._variable.set_location(attributes['storageLocation'])
         # self._arrayDepth = 0
         # self._isMapping = False
         # self._mappingFrom = None
