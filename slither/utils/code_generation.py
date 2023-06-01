@@ -57,8 +57,8 @@ def generate_interface(
         for enum in contract.enums:
             interface += f"    enum {enum.name} {{ {', '.join(enum.values)} }}\n"
     if include_structs:
-        # Include structures defined in this contract
-        structs = contract.structures
+        # Include structures defined in this contract and at the top level
+        structs = contract.structures + contract.compilation_unit.structures_top_level
         # Function signatures may reference other structures as well
         # Include structures defined in libraries used for them
         for _for in contract.using_for.keys():
@@ -70,15 +70,16 @@ def generate_interface(
                 structs.append(_for.type)
         # Include any other structures used as function arguments/returns
         for func in contract.functions_entry_points:
-            structs.extend(
-                [
-                    arg.type.type
-                    for arg in func.parameters + func.returns
-                    if isinstance(arg.type, UserDefinedType)
-                    and isinstance(arg.type.type, StructureContract)
-                    and arg.type.type not in structs
-                ]
-            )
+            for arg in func.parameters + func.returns:
+                _type = arg.type
+                if isinstance(_type, ArrayType):
+                    _type = _type.type
+                while isinstance(_type, MappingType):
+                    _type = _type.type_to
+                if isinstance(_type, UserDefinedType):
+                    _type = _type.type
+                if isinstance(_type, Structure) and _type not in structs:
+                    structs.append(_type)
         for struct in structs:
             interface += generate_struct_interface_str(struct, indent=4)
             for elem in struct.elems_ordered:
@@ -251,6 +252,8 @@ def _handle_dynamic_struct_elem(elem_type: Type) -> str:
         if isinstance(base_type, UserDefinedType):
             if isinstance(base_type.type, Contract):
                 return "address[]"
+            if isinstance(base_type.type, Enum):
+                return convert_type_for_solidity_signature_to_string(elem_type)
             return f"{base_type.type.name}[]"
         return f"{base_type}[]"
     if isinstance(elem_type, MappingType):
