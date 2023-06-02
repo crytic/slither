@@ -63,12 +63,14 @@ class SimilarVarsDetection(AbstractDetector):
 
         contract_var = contract.variables
 
-        all_var = set(all_var + contract_var)
+        all_var = list(set(all_var + contract_var))
 
         ret = []
-        for v1 in all_var:
+        for i in range(len(all_var)):
+            v1 = all_var[i]
             _len_v1 = len(v1.name) 
-            for v2 in all_var:
+            for j in range(i,len(all_var)):
+                v2 = all_var[j]
                 if _len_v1 != len(v2.name):
                     continue
                 _v1_name_lower = v1.name.lower()
