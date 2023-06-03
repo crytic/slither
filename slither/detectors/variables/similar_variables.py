@@ -47,7 +47,9 @@ class SimilarVarsDetection(AbstractDetector):
         Returns:
             bool: true if names are similar
         """
-        val = difflib.SequenceMatcher(a=seq1, b=seq2).ratio()
+        if len(seq1) != len(seq2):
+            return False
+        val = difflib.SequenceMatcher(a=seq1.lower(), b=seq2.lower()).ratio()
         ret = val > 0.90
         return ret
 
@@ -68,16 +70,13 @@ class SimilarVarsDetection(AbstractDetector):
         ret = []
         for i in range(len(all_var)):
             v1 = all_var[i]
-            _len_v1 = len(v1.name) 
-            for j in range(i,len(all_var)):
+            _v1_name_lower = v1.name.lower()
+            for j in range(i,len(all_var)): 
                 v2 = all_var[j]
-                if _len_v1 != len(v2.name):
-                    continue
-                _v1_name_lower = v1.name.lower()
-                _v2_name_lower = v2.name.lower()
-                if _v1_name_lower != _v2_name_lower:
-                    if SimilarVarsDetection.similar(_v1_name_lower, _v2_name_lower):
-                        ret.append((v1, v2))
+                if _v1_name_lower != v2.name.lower():
+                    if SimilarVarsDetection.similar(v1.name, v2.name):
+                        if (v2, v1) not in ret:
+                            ret.append((v1, v2))
 
         return set(ret)
 
