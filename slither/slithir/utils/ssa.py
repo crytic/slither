@@ -128,7 +128,7 @@ def add_ssa_ir(
     for v in function.parameters:
         if v.name:
             init_definition[v.name] = (v, function.entry_point)
-            function.entry_point.add_ssa_ir(Phi(LocalIRVariable(v), set()))
+            # function.entry_point.add_ssa_ir(Phi(LocalIRVariable(v), set()))
 
     for v in function.returns:
         if v.name:
@@ -146,8 +146,10 @@ def add_ssa_ir(
 
     for node in function.nodes:
         for (variable, nodes) in node.phi_origins_local_variables.values():
+
             if len(nodes) < 2:
                 continue
+
             if not is_used_later(node, variable):
                 continue
             node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes))
@@ -162,6 +164,7 @@ def add_ssa_ir(
     for v in function.parameters:
         if v.name:
             new_var = LocalIRVariable(v)
+
             function.add_parameter_ssa(new_var)
             if new_var.is_storage:
                 fake_variable = LocalIRVariable(v)
@@ -421,6 +424,7 @@ def update_lvalue(
     state_variables_instances: Dict[str, StateIRVariable],
     all_state_variables_instances: Dict[str, StateIRVariable],
 ) -> None:
+
     if isinstance(new_ir, OperationWithLValue):
         lvalue = new_ir.lvalue
         update_through_ref = False
@@ -435,6 +439,7 @@ def update_lvalue(
                 new_var.index = all_local_variables_instances[lvalue.name].index + 1
                 all_local_variables_instances[lvalue.name] = new_var
                 local_variables_instances[lvalue.name] = new_var
+
             else:
                 new_var = StateIRVariable(lvalue)
                 new_var.index = all_state_variables_instances[lvalue.canonical_name].index + 1
@@ -568,10 +573,10 @@ def add_phi_origins(
     if node.dominance_frontier and len(node.dominator_successors) != 1:
         for phi_node in node.dominance_frontier:
             for _, (variable, n) in local_variables_definition.items():
+
                 phi_node.add_phi_origin_local_variable(variable, n)
             for _, (variable, n) in state_variables_definition.items():
                 phi_node.add_phi_origin_state_variable(variable, n)
-
     if not node.dominator_successors:
         return
     for succ in node.dominator_successors:

@@ -2,5 +2,7 @@ C.bad4(address,address,uint256) (tests/e2e/detectors/test_data/arbitrary-send-er
 
 C.bad3(address,address,uint256) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.5.16/arbitrary_send_erc20.sol#57-59) uses arbitrary from in transferFrom: erc20.safeTransferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.5.16/arbitrary_send_erc20.sol#58)
 
+C.int_transferFrom(address,address,uint256) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.5.16/arbitrary_send_erc20.sol#49-51) uses arbitrary from in transferFrom: erc20.transferFrom(from,to,amount) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.5.16/arbitrary_send_erc20.sol#50)
+
 C.bad1(address,uint256) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.5.16/arbitrary_send_erc20.sol#35-37) uses arbitrary from in transferFrom: erc20.transferFrom(notsend,to,am) (tests/e2e/detectors/test_data/arbitrary-send-erc20/0.5.16/arbitrary_send_erc20.sol#36)
 

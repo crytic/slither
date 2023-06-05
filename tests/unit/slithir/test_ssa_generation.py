@@ -733,7 +733,6 @@ def test_shadow_local(slither_from_source):
         assert all(map(lambda x: x.lvalue.index == 1, get_ssa_of_type(f, Assignment)))
 
 
-@pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
 def test_multiple_named_args_returns(slither_from_source):
     """Verifies that named arguments and return values have correct versions
 
