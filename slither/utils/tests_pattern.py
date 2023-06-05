@@ -26,10 +26,13 @@ def _is_test_pattern(txt: str, pattern: str) -> bool:
 
 def is_test_file(path: Path) -> bool:
     """
-    Check if the given path points to a test/mock file
+    Check if the given path points to a test/mock file.
+    Slither's project directory is special cased to facilitate testing.
     :param path:
     :return:
     """
+    if "slither" in path.parts:
+        return False
     return any((test_pattern in path.parts for test_pattern in TESTS_PATTERNS))
 
 

@@ -125,10 +125,15 @@ class SlitherCompilationUnit(Context):
 
     @property
     def contracts_derived(self) -> List[Contract]:
-        """list(Contract): List of contracts that are derived and not inherited."""
-        inheritances = [x.inheritance for x in self.contracts]
+        """List of contracts that are derived and not inherited by other contracts (excluding tests).
+        Note, that contracts with names containing "Test" or "Mock" and contracts with paths containing
+        "test" are considered tests (see `Contract.is_test`).
+        Returns:
+            List[Contract]
+        """
+        inheritances = [x.inheritance for x in self.contracts if not x.is_test]
         inheritance = [item for sublist in inheritances for item in sublist]
-        return [c for c in self.contracts if c not in inheritance]
+        return [c for c in self.contracts if c not in inheritance if not c.is_test]
 
     def get_contract_from_name(self, contract_name: Union[str, Constant]) -> List[Contract]:
         """
