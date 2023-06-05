@@ -1583,11 +1583,9 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
     # }
     if isinstance(return_type, (MappingType, ArrayType)):
         return []
-    if isinstance(return_type, (ElementaryType, UserDefinedType, TypeAlias)):
-        return [return_type]
 
-    assert False
-
+    assert isinstance(return_type, (ElementaryType, UserDefinedType, TypeAlias)):
+    return [return_type]
 
 def convert_type_of_high_and_internal_level_call(
     ir: Operation, contract: Optional[Contract]
