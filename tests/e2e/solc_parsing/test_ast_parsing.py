@@ -308,6 +308,7 @@ ALL_TESTS = [
     Test("units_and_global_variables-0.8.0.sol", VERSIONS_08),
     Test("units_and_global_variables-0.8.4.sol", make_version(8, 4, 6)),
     Test("units_and_global_variables-0.8.7.sol", make_version(8, 7, 9)),
+    Test("global_variables-0.8.18.sol", make_version(8, 18, 18)),
     Test(
         "push-all.sol",
         ALL_VERSIONS,

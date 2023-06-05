@@ -21,10 +21,11 @@ SOLIDITY_VARIABLES_COMPOSED = {
     "block.basefee": "uint",
     "block.coinbase": "address",
     "block.difficulty": "uint256",
+    "block.prevrandao": "uint256",
     "block.gaslimit": "uint256",
     "block.number": "uint256",
     "block.timestamp": "uint256",
-    "block.blockhash": "uint256",  # alias for blockhash. It's a call
+    "block.blockhash": "bytes32",  # alias for blockhash. It's a call
     "block.chainid": "uint256",
     "msg.data": "bytes",
     "msg.gas": "uint256",
@@ -60,6 +61,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "log2(bytes32,bytes32,bytes32)": [],
     "log3(bytes32,bytes32,bytes32,bytes32)": [],
     "blockhash(uint256)": ["bytes32"],
+    "prevrandao()": ["uint256"],
     # the following need a special handling
     # as they are recognized as a SolidityVariableComposed
     # and converted to a SolidityFunction by SlithIR
