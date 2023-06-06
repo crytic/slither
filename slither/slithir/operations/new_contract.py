@@ -12,11 +12,20 @@ from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
 class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
     def __init__(
-        self, contract_name: Constant, lvalue: Union[TemporaryVariableSSA, TemporaryVariable]
+        self,
+        contract_name: Constant,
+        lvalue: Union[TemporaryVariableSSA, TemporaryVariable],
+        names: Optional[List[str]] = None
     ) -> None:
+        """
+        #### Parameters
+        names -
+            For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+            Otherwise, None.
+        """
         assert isinstance(contract_name, Constant)
         assert is_valid_lvalue(lvalue)
-        super().__init__()
+        super().__init__(names=names)
         self._contract_name = contract_name
         # todo create analyze to add the contract instance
         self._lvalue = lvalue

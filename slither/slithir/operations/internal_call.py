@@ -20,8 +20,15 @@ class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
             Union[TupleVariableSSA, TemporaryVariableSSA, TupleVariable, TemporaryVariable]
         ],
         type_call: str,
+        names: Optional[List[str]] = None
     ) -> None:
-        super().__init__()
+        """
+        #### Parameters
+        names -
+            For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+            Otherwise, None.
+        """
+        super().__init__(names=names)
         self._contract_name = ""
         if isinstance(function, Function):
             self._function: Optional[Function] = function

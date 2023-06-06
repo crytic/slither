@@ -735,12 +735,13 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         destination = get_variable(ir, lambda x: x.destination, *instances)
         function_name = ir.function_name
         nbr_arguments = ir.nbr_arguments
+        names = ir.names
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
         if isinstance(ir, LibraryCall):
-            new_ir = LibraryCall(destination, function_name, nbr_arguments, lvalue, type_call)
+            new_ir = LibraryCall(destination, function_name, nbr_arguments, lvalue, type_call, names=names)
         else:
-            new_ir = HighLevelCall(destination, function_name, nbr_arguments, lvalue, type_call)
+            new_ir = HighLevelCall(destination, function_name, nbr_arguments, lvalue, type_call, names=names)
         new_ir.call_id = ir.call_id
         new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
         new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, *instances)
@@ -761,7 +762,8 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         nbr_arguments = ir.nbr_arguments
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
-        new_ir = InternalCall(function, nbr_arguments, lvalue, type_call)
+        names = ir.names
+        new_ir = InternalCall(function, nbr_arguments, lvalue, type_call, names=names)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
     if isinstance(ir, InternalDynamicCall):
@@ -811,7 +813,8 @@ def copy_ir(ir: Operation, *instances) -> Operation:
     if isinstance(ir, NewStructure):
         structure = ir.structure
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        new_ir = NewStructure(structure, lvalue)
+        names = ir.names
+        new_ir = NewStructure(structure, lvalue, names=names)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
     if isinstance(ir, Nop):

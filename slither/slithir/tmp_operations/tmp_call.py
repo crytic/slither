@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from slither.core.declarations import (
     Event,
@@ -25,7 +25,14 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
         nbr_arguments: int,
         result: Union[TupleVariable, TemporaryVariable],
         type_call: str,
+        names: Optional[List[str]] = None
     ) -> None:
+        """
+        #### Parameters
+        names -
+            For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+            Otherwise, None.
+        """
         assert isinstance(
             called,
             (
@@ -42,12 +49,21 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
         self._called = called
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
+        self._names = names
         self._lvalue = result
         self._ori = None  #
         self._callid = None
         self._gas = None
         self._value = None
         self._salt = None
+
+    @property
+    def names(self) -> Optional[List[str]]:
+        """
+        For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+        Otherwise, None.
+        """
+        return self._names
 
     @property
     def call_value(self):
