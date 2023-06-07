@@ -5,18 +5,23 @@ Note that require()/assert() are not considered here. Even if they
 are in the outermost scope, they do not guarantee a revert, so a
 default value can still be returned.
 """
+from typing import List
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.core.cfg.node import Node, NodeType
+from slither.utils.output import Output
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.cfg.node import NodeType
 
-
-def is_revert(node):
+def is_revert(node: Node) -> bool:
     return node.type == NodeType.THROW or any(
         c.name in ["revert()", "revert(string"] for c in node.internal_calls
     )
 
 
-def _get_false_son(node):
+def _get_false_son(node: Node) -> Node:
     """Select the son node corresponding to a false branch
     Following this node stays on the outer scope of the function
     """
@@ -60,7 +65,7 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
 
     WIKI_RECOMMENDATION = "All the paths in a modifier must execute `_` or revert."
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
         for c in self.contracts:
             for mod in c.modifiers:
@@ -81,7 +86,11 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
                         node = None
                 else:
                     # Nothing was found in the outer scope
-                    info = ["Modifier ", mod, " does not always execute _; or revert"]
+                    info: DETECTOR_INFO = [
+                        "Modifier ",
+                        mod,
+                        " does not always execute _; or revert",
+                    ]
 
                     res = self.generate_result(info)
                     results.append(res)

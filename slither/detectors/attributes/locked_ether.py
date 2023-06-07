@@ -1,8 +1,14 @@
 """
     Check if ethers are locked in the contract
 """
+from typing import List
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations.contract import Contract
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import (
     HighLevelCall,
     LowLevelCall,
@@ -12,6 +18,7 @@ from slither.slithir.operations import (
     LibraryCall,
     InternalCall,
 )
+from slither.utils.output import Output
 
 
 class LockedEther(AbstractDetector):  # pylint: disable=too-many-nested-blocks
@@ -41,7 +48,7 @@ Every Ether sent to `Locked` will be lost."""
     WIKI_RECOMMENDATION = "Remove the payable attribute or add a withdraw function."
 
     @staticmethod
-    def do_no_send_ether(contract):
+    def do_no_send_ether(contract: Contract) -> bool:
         functions = contract.all_functions_called
         to_explore = functions
         explored = []
@@ -73,7 +80,7 @@ Every Ether sent to `Locked` will be lost."""
 
         return True
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:
@@ -82,7 +89,7 @@ Every Ether sent to `Locked` will be lost."""
             funcs_payable = [function for function in contract.functions if function.payable]
             if funcs_payable:
                 if self.do_no_send_ether(contract):
-                    info = ["Contract locking ether found:\n"]
+                    info: DETECTOR_INFO = ["Contract locking ether found:\n"]
                     info += ["\tContract ", contract, " has payable functions:\n"]
                     for function in funcs_payable:
                         info += ["\t - ", function, "\n"]

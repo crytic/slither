@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional, Union, List, TYPE_CHECKING
+from typing import Dict, Optional, Union, List, TYPE_CHECKING, Tuple, Set
 
 from slither.core.cfg.node import NodeType, link_nodes, insert_node, Node
 from slither.core.cfg.scope import Scope
@@ -23,10 +23,10 @@ from slither.solc_parsing.variables.local_variable_init_from_tuple import (
     LocalVariableInitFromTupleSolc,
 )
 from slither.solc_parsing.variables.variable_declaration import MultipleVariablesDeclaration
-from slither.solc_parsing.yul.parse_yul import YulBlock
 from slither.utils.expression_manipulations import SplitTernaryExpression
 from slither.visitors.expression.export_values import ExportValues
 from slither.visitors.expression.has_conditional import HasConditional
+from slither.solc_parsing.yul.parse_yul import YulBlock
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
@@ -55,7 +55,7 @@ class FunctionSolc(CallerContextExpression):
         function_data: Dict,
         contract_parser: Optional["ContractSolc"],
         slither_parser: "SlitherCompilationUnitSolc",
-    ):
+    ) -> None:
         self._slither_parser: "SlitherCompilationUnitSolc" = slither_parser
         self._contract_parser = contract_parser
         self._function = function
@@ -90,6 +90,9 @@ class FunctionSolc(CallerContextExpression):
         self._local_variables_parser: List[
             Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
         ] = []
+
+        if "documentation" in function_data:
+            function.has_documentation = True
 
     @property
     def underlying_function(self) -> Function:
@@ -140,7 +143,7 @@ class FunctionSolc(CallerContextExpression):
 
     def _add_local_variable(
         self, local_var_parser: Union[LocalVariableSolc, LocalVariableInitFromTupleSolc]
-    ):
+    ) -> None:
         # If two local variables have the same name
         # We add a suffix to the new variable
         # This is done to prevent collision during SSA translation
@@ -172,7 +175,7 @@ class FunctionSolc(CallerContextExpression):
     def function_not_parsed(self) -> Dict:
         return self._functionNotParsed
 
-    def _analyze_type(self):
+    def _analyze_type(self) -> None:
         """
         Analyz the type of the function
         Myst be called in the constructor as the name might change according to the function's type
@@ -198,7 +201,7 @@ class FunctionSolc(CallerContextExpression):
             if self._function.name == self._function.contract_declarer.name:
                 self._function.function_type = FunctionType.CONSTRUCTOR
 
-    def _analyze_attributes(self):
+    def _analyze_attributes(self) -> None:
         if self.is_compact_ast:
             attributes = self._functionNotParsed
         else:
@@ -239,7 +242,7 @@ class FunctionSolc(CallerContextExpression):
         if "payable" in attributes:
             self._function.payable = attributes["payable"]
 
-    def analyze_params(self):
+    def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
             return
@@ -269,7 +272,7 @@ class FunctionSolc(CallerContextExpression):
         if returns:
             self._parse_returns(returns)
 
-    def analyze_content(self):
+    def analyze_content(self) -> None:
         if self._content_was_analyzed:
             return
 
@@ -305,10 +308,10 @@ class FunctionSolc(CallerContextExpression):
         for node_parser in self._node_to_nodesolc.values():
             node_parser.analyze_expressions(self)
 
-        for node_parser in self._node_to_yulobject.values():
-            node_parser.analyze_expressions()
+        for yul_parser in self._node_to_yulobject.values():
+            yul_parser.analyze_expressions()
 
-        self._filter_ternary()
+        self._rewrite_ternary_as_if_else()
 
         self._remove_alone_endif()
 
@@ -340,7 +343,6 @@ class FunctionSolc(CallerContextExpression):
             node,
             [self._function.name, f"asm_{len(self._node_to_yulobject)}"],
             scope,
-            parent_func=self._function,
         )
         self._node_to_yulobject[node] = yul_object
         return yul_object
@@ -443,7 +445,7 @@ class FunctionSolc(CallerContextExpression):
 
     def _parse_for_compact_ast(  # pylint: disable=no-self-use
         self, statement: Dict
-    ) -> (Optional[Dict], Optional[Dict], Optional[Dict], Dict):
+    ) -> Tuple[Optional[Dict], Optional[Dict], Optional[Dict], Dict]:
         body = statement["body"]
         init_expression = statement.get("initializationExpression", None)
         condition = statement.get("condition", None)
@@ -453,7 +455,7 @@ class FunctionSolc(CallerContextExpression):
 
     def _parse_for_legacy_ast(
         self, statement: Dict
-    ) -> (Optional[Dict], Optional[Dict], Optional[Dict], Dict):
+    ) -> Tuple[Optional[Dict], Optional[Dict], Optional[Dict], Dict]:
         # if we're using an old version of solc (anything below and including 0.4.11) or if the user
         # explicitly enabled compact ast, we might need to make some best-effort guesses
         children = statement[self.get_children("children")]
@@ -772,6 +774,7 @@ class FunctionSolc(CallerContextExpression):
                             "nodeType": "Identifier",
                             "src": v["src"],
                             "name": v["name"],
+                            "referencedDeclaration": v["id"],
                             "typeDescriptions": {"typeString": v["typeDescriptions"]["typeString"]},
                         }
                         var_identifiers.append(identifier)
@@ -1016,7 +1019,7 @@ class FunctionSolc(CallerContextExpression):
 
         return node
 
-    def _parse_block(self, block: Dict, node: NodeSolc, check_arithmetic: bool = False):
+    def _parse_block(self, block: Dict, node: NodeSolc, check_arithmetic: bool = False) -> NodeSolc:
         """
         Return:
             Node
@@ -1051,7 +1054,7 @@ class FunctionSolc(CallerContextExpression):
             node = self._parse_statement(statement, node, new_scope)
         return node
 
-    def _parse_cfg(self, cfg: Dict):
+    def _parse_cfg(self, cfg: Dict) -> None:
 
         assert cfg[self.get_key()] == "Block"
 
@@ -1116,7 +1119,7 @@ class FunctionSolc(CallerContextExpression):
 
         return None
 
-    def _fix_break_node(self, node: Node):
+    def _fix_break_node(self, node: Node) -> None:
         end_node = self._find_end_loop(node, [], 0)
 
         if not end_node:
@@ -1132,7 +1135,7 @@ class FunctionSolc(CallerContextExpression):
         node.set_sons([end_node])
         end_node.add_father(node)
 
-    def _fix_continue_node(self, node: Node):
+    def _fix_continue_node(self, node: Node) -> None:
         start_node = self._find_start_loop(node, [])
 
         if not start_node:
@@ -1143,20 +1146,21 @@ class FunctionSolc(CallerContextExpression):
         node.set_sons([start_node])
         start_node.add_father(node)
 
-    def _fix_try(self, node: Node):
+    def _fix_try(self, node: Node) -> None:
         end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
         if end_node:
             for son in node.sons:
                 if son.type == NodeType.CATCH:
-                    self._fix_catch(son, end_node)
+                    self._fix_catch(son, end_node, set())
 
-    def _fix_catch(self, node: Node, end_node: Node):
+    def _fix_catch(self, node: Node, end_node: Node, visited: Set[Node]) -> None:
         if not node.sons:
             link_nodes(node, end_node)
         else:
             for son in node.sons:
-                if son != end_node:
-                    self._fix_catch(son, end_node)
+                if son != end_node and son not in visited:
+                    visited.add(son)
+                    self._fix_catch(son, end_node, visited)
 
     def _add_param(self, param: Dict) -> LocalVariableSolc:
 
@@ -1295,7 +1299,7 @@ class FunctionSolc(CallerContextExpression):
                     son.remove_father(node)
                 node.set_sons(new_sons)
 
-    def _remove_alone_endif(self):
+    def _remove_alone_endif(self) -> None:
         """
         Can occur on:
         if(..){
@@ -1336,7 +1340,7 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
     ###################################################################################
 
-    def _filter_ternary(self) -> bool:
+    def _rewrite_ternary_as_if_else(self) -> bool:
         ternary_found = True
         updated = False
         while ternary_found:
@@ -1393,8 +1397,7 @@ class FunctionSolc(CallerContextExpression):
         endif_node = self._new_node(NodeType.ENDIF, node.source_mapping, node.scope)
 
         for father in node.fathers:
-            father.remove_son(node)
-            father.add_son(condition_node.underlying_node)
+            father.replace_son(node, condition_node.underlying_node)
             condition_node.underlying_node.add_father(father)
 
         for son in node.sons:

@@ -2,8 +2,17 @@
 Module detecting constant functions
 Recursively check the called functions
 """
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List, Dict
+
+from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    ALL_SOLC_VERSIONS_04,
+    DETECTOR_INFO,
+)
 from slither.formatters.attributes.const_functions import custom_format
+from slither.utils.output import Output
 
 
 class ConstantFunctionsAsm(AbstractDetector):
@@ -49,7 +58,9 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
         "Ensure the attributes of contracts compiled prior to Solidity 0.5.0 are correct."
     )
 
-    def _detect(self):
+    VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04
+
+    def _detect(self) -> List[Output]:
         """Detect the constant function using assembly code
 
         Recursively visit the calls
@@ -57,8 +68,6 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
             list: {'vuln', 'filename,'contract','func','#varsWritten'}
         """
         results = []
-        if self.compilation_unit.solc_version and self.compilation_unit.solc_version >= "0.5.0":
-            return results
         for c in self.contracts:
             for f in c.functions:
                 if f.contract_declarer != c:
@@ -67,7 +76,10 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
                     if f.contains_assembly:
                         attr = "view" if f.view else "pure"
 
-                        info = [f, f" is declared {attr} but contains assembly code\n"]
+                        info: DETECTOR_INFO = [
+                            f,
+                            f" is declared {attr} but contains assembly code\n",
+                        ]
                         res = self.generate_result(info, {"contains_assembly": True})
 
                         results.append(res)
@@ -75,5 +87,5 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
         return results
 
     @staticmethod
-    def _format(comilation_unit, result):
+    def _format(comilation_unit: SlitherCompilationUnit, result: Dict) -> None:
         custom_format(comilation_unit, result)

@@ -5,9 +5,11 @@
     Iterate over all the nodes of the graph until reaching a fixpoint
 """
 from collections import namedtuple, defaultdict
+from typing import DefaultDict, List, Set
 
 from slither.detectors.abstract_detector import DetectorClassification
-from .reentrancy import Reentrancy, to_hashable
+from slither.detectors.reentrancy.reentrancy import Reentrancy, to_hashable
+from slither.utils.output import Output
 
 FindingKey = namedtuple("FindingKey", ["function", "calls", "send_eth"])
 FindingValue = namedtuple("FindingValue", ["variable", "node", "nodes"])
@@ -27,31 +29,54 @@ class ReentrancyEvent(Reentrancy):
 
     # region wiki_description
     WIKI_DESCRIPTION = """
-Detection of the [reentrancy bug](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy).
-Only report reentrancies leading to out-of-order events."""
+Detects [reentrancies](https://github.com/trailofbits/not-so-smart-contracts/tree/master/reentrancy) that allow manipulation of the order or value of events."""
     # endregion wiki_description
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
-    function bug(Called d){
+contract ReentrantContract {
+	function f() external {
+		if (BugReentrancyEvents(msg.sender).counter() == 1) {
+			BugReentrancyEvents(msg.sender).count(this);
+		}
+	}
+}
+contract Counter {
+	uint public counter;
+	event Counter(uint);
+
+}
+contract BugReentrancyEvents is Counter {
+    function count(ReentrantContract d) external {
         counter += 1;
         d.f();
         emit Counter(counter);
     }
+}
+contract NoReentrancyEvents is Counter {
+	function count(ReentrantContract d) external {
+        counter += 1;
+        emit Counter(counter);
+        d.f();
+    }
+}
 ```
 
-If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, which might lead to issues for third parties."""
+If the external call `d.f()` re-enters `BugReentrancyEvents`, the `Counter` events will be incorrect (`Counter(2)`, `Counter(2)`) whereas `NoReentrancyEvents` will correctly emit 
+(`Counter(1)`, `Counter(2)`). This may cause issues for offchain components that rely on the values of events e.g. checking for the amount deposited to a bridge."""
     # endregion wiki_exploit_scenario
 
-    WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions` pattern](http://solidity.readthedocs.io/en/v0.4.21/security-considerations.html#re-entrancy)."
+    WIKI_RECOMMENDATION = "Apply the [`check-effects-interactions` pattern](https://docs.soliditylang.org/en/latest/security-considerations.html#re-entrancy)."
 
     STANDARD_JSON = False
 
-    def find_reentrancies(self):
+    def find_reentrancies(self) -> DefaultDict[FindingKey, Set[FindingValue]]:
         result = defaultdict(set)
         for contract in self.contracts:
             for f in contract.functions_and_modifiers_declared:
+                if not f.is_reentrant:
+                    continue
                 for node in f.nodes:
                     # dead code
                     if self.KEY not in node.context:
@@ -78,7 +103,7 @@ If `d.()` re-enters, the `Counter` events will be shown in an incorrect order, w
                             result[finding_key] |= finding_vars
         return result
 
-    def _detect(self):  # pylint: disable=too-many-branches
+    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
         """"""
         super()._detect()
 

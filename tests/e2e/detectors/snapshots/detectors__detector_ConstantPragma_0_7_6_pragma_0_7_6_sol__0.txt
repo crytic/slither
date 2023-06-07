@@ -1,0 +1,5 @@
+Different versions of Solidity are used:
+	- Version used: ['^0.7.5', '^0.7.6']
+	- ^0.7.5 (tests/e2e/detectors/test_data/pragma/0.7.6/pragma.0.7.5.sol#1)
+	- ^0.7.6 (tests/e2e/detectors/test_data/pragma/0.7.6/pragma.0.7.6.sol#1)
+

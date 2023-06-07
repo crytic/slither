@@ -2,11 +2,22 @@
 Module detecting missing events for critical contract parameters set by owners and used in access control
 
 """
+from typing import List, Tuple
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.analyses.data_dependency.data_dependency import is_tainted
-from slither.slithir.operations.event_call import EventCall
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.modifier import Modifier
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.slithir.operations.event_call import EventCall
+from slither.utils.output import Output
 
 
 class MissingEventsAccessControl(AbstractDetector):
@@ -45,7 +56,9 @@ contract C {
     WIKI_RECOMMENDATION = "Emit an event for critical parameter changes."
 
     @staticmethod
-    def _detect_missing_events(contract):
+    def _detect_missing_events(
+        contract: Contract,
+    ) -> List[Tuple[FunctionContract, List[Tuple[Node, StateVariable, Modifier]]]]:
         """
         Detects if critical contract parameters set by owners and used in access control are missing events
         :param contract: The contract to check
@@ -80,7 +93,7 @@ contract C {
                 results.append((function, nodes))
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect missing events for critical contract parameters set by owners and used in access control
         Returns:
             list: {'(function, node)'}
@@ -91,7 +104,7 @@ contract C {
         for contract in self.compilation_unit.contracts_derived:
             missing_events = self._detect_missing_events(contract)
             for (function, nodes) in missing_events:
-                info = [function, " should emit an event for: \n"]
+                info: DETECTOR_INFO = [function, " should emit an event for: \n"]
                 for (node, _sv, _mod) in nodes:
                     info += ["\t- ", node, " \n"]
                 res = self.generate_result(info)

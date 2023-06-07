@@ -1,0 +1,18 @@
+Function A.bad5() (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#49-51) trigger an abi encoding bug:
+	- event2_bad(s) (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#50)
+
+Function A.bad0() (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#21-23) trigger an abi encoding bug:
+	- this.bad0_external(bad_arr) (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#22)
+
+Function A.bad4() (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#44-46) trigger an abi encoding bug:
+	- event1_bad(bad_arr) (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#45)
+
+Function A.bad2() (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#34-36) trigger an abi encoding bug:
+	- b = abi.encode(bad_arr) (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#35)
+
+Function A.bad1(A.S[3]) (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#29-31) trigger an abi encoding bug:
+	- this.bad1_external(s) (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#30)
+
+Function A.bad3() (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#39-41) trigger an abi encoding bug:
+	- b = abi.encode(s) (tests/e2e/detectors/test_data/abiencoderv2-array/0.5.9/storage_ABIEncoderV2_array.sol#40)
+

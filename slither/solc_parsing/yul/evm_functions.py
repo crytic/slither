@@ -225,7 +225,7 @@ function_args = {
 }
 
 
-def format_function_descriptor(name):
+def format_function_descriptor(name: str) -> str:
     if name not in function_args:
         return name + "()"
 
@@ -264,9 +264,9 @@ binary_ops = {
 
 
 class YulBuiltin:  # pylint: disable=too-few-public-methods
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self._name = name
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name

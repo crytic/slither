@@ -1,0 +1,10 @@
+Bad.should_be_immutable_5 (tests/e2e/detectors/test_data/immutable-states/0.6.11/immut_state_variables.sol#47) should be immutable 
+
+Bad.should_be_immutable_2 (tests/e2e/detectors/test_data/immutable-states/0.6.11/immut_state_variables.sol#44) should be immutable 
+
+Bad.should_be_immutable_4 (tests/e2e/detectors/test_data/immutable-states/0.6.11/immut_state_variables.sol#46) should be immutable 
+
+Bad.should_be_immutable (tests/e2e/detectors/test_data/immutable-states/0.6.11/immut_state_variables.sol#43) should be immutable 
+
+Bad.should_be_immutable_3 (tests/e2e/detectors/test_data/immutable-states/0.6.11/immut_state_variables.sol#45) should be immutable 
+

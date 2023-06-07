@@ -1,0 +1,6 @@
+C.bad(address[]) (tests/e2e/detectors/test_data/msg-value-loop/0.4.25/msg_value_loop.sol#5-9) use msg.value in a loop: balances[receivers[i]] += msg.value (tests/e2e/detectors/test_data/msg-value-loop/0.4.25/msg_value_loop.sol#7)
+
+C.bad3(address[]) (tests/e2e/detectors/test_data/msg-value-loop/0.4.25/msg_value_loop.sol#21-27) use msg.value in a loop: balances[receivers[j]] += msg.value (tests/e2e/detectors/test_data/msg-value-loop/0.4.25/msg_value_loop.sol#24)
+
+C.bad2_internal(address) (tests/e2e/detectors/test_data/msg-value-loop/0.4.25/msg_value_loop.sol#17-19) use msg.value in a loop: balances[a] += msg.value (tests/e2e/detectors/test_data/msg-value-loop/0.4.25/msg_value_loop.sol#18)
+

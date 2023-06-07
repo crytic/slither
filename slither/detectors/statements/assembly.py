@@ -1,9 +1,17 @@
 """
 Module detecting usage of inline assembly
 """
+from typing import List, Tuple
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.cfg.node import NodeType
+from slither.core.cfg.node import Node, NodeType
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.utils.output import Output
 
 
 class Assembly(AbstractDetector):
@@ -23,7 +31,7 @@ class Assembly(AbstractDetector):
     WIKI_RECOMMENDATION = "Do not use `evm` assembly."
 
     @staticmethod
-    def _contains_inline_assembly_use(node):
+    def _contains_inline_assembly_use(node: Node) -> bool:
         """
              Check if the node contains ASSEMBLY type
         Returns:
@@ -31,7 +39,7 @@ class Assembly(AbstractDetector):
         """
         return node.type == NodeType.ASSEMBLY
 
-    def detect_assembly(self, contract):
+    def detect_assembly(self, contract: Contract) -> List[Tuple[FunctionContract, List[Node]]]:
         ret = []
         for f in contract.functions:
             if f.contract_declarer != contract:
@@ -42,13 +50,13 @@ class Assembly(AbstractDetector):
                 ret.append((f, assembly_nodes))
         return ret
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect the functions that use inline assembly"""
         results = []
         for c in self.contracts:
             values = self.detect_assembly(c)
             for func, nodes in values:
-                info = [func, " uses assembly\n"]
+                info: DETECTOR_INFO = [func, " uses assembly\n"]
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)

@@ -21,13 +21,11 @@ def _extract_evm_info(slither):
     CFG = load_evm_cfg_builder()
 
     for contract in slither.contracts_derived:
-        contract_bytecode_runtime = (
-            contract.compilation_unit.crytic_compile_compilation_unit.bytecode_runtime(
-                contract.name
-            )
+        contract_bytecode_runtime = contract.file_scope.bytecode_runtime(
+            contract.compilation_unit.crytic_compile_compilation_unit, contract.name
         )
-        contract_srcmap_runtime = (
-            contract.compilation_unit.crytic_compile_compilation_unit.srcmap_runtime(contract.name)
+        contract_srcmap_runtime = contract.file_scope.srcmap_runtime(
+            contract.compilation_unit.crytic_compile_compilation_unit, contract.name
         )
         cfg = CFG(contract_bytecode_runtime)
         evm_info["cfg", contract.name] = cfg
@@ -38,11 +36,11 @@ def _extract_evm_info(slither):
             contract.source_mapping.filename.absolute,
         )
 
-        contract_bytecode_init = (
-            contract.compilation_unit.crytic_compile_compilation_unit.bytecode_init(contract.name)
+        contract_bytecode_init = contract.file_scope.bytecode_init(
+            contract.compilation_unit.crytic_compile_compilation_unit, contract.name
         )
-        contract_srcmap_init = (
-            contract.compilation_unit.crytic_compile_compilation_unit.srcmap_init(contract.name)
+        contract_srcmap_init = contract.file_scope.srcmap_init(
+            contract.compilation_unit.crytic_compile_compilation_unit, contract.name
         )
         cfg_init = CFG(contract_bytecode_init)
 

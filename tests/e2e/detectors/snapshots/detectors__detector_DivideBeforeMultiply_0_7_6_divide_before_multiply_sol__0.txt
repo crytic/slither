@@ -1,0 +1,3 @@
+A.f(uint256,uint256,uint256) (tests/e2e/detectors/test_data/divide-before-multiply/0.7.6/divide_before_multiply.sol#2-4) performs a multiplication on the result of a division:
+	- (a / b) * c (tests/e2e/detectors/test_data/divide-before-multiply/0.7.6/divide_before_multiply.sol#3)
+

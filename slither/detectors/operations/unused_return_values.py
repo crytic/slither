@@ -1,11 +1,20 @@
 """
 Module detecting unused return values from external calls
 """
+from typing import List
 
-from slither.core.variables.state_variable import StateVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import HighLevelCall
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operation
+from slither.slithir.variables import TupleVariable
+from slither.utils.output import Output
 
 
 class UnusedReturnValues(AbstractDetector):
@@ -40,17 +49,24 @@ contract MyConc{
 
     WIKI_RECOMMENDATION = "Ensure that all the return values of the function calls are used."
 
-    def _is_instance(self, ir):  # pylint: disable=no-self-use
-        return isinstance(ir, HighLevelCall) and (
-            (
-                isinstance(ir.function, Function)
-                and ir.function.solidity_signature
-                not in ["transfer(address,uint256)", "transferFrom(address,address,uint256)"]
+    def _is_instance(self, ir: Operation) -> bool:  # pylint: disable=no-self-use
+        return (
+            isinstance(ir, HighLevelCall)
+            and (
+                (
+                    isinstance(ir.function, Function)
+                    and ir.function.solidity_signature
+                    not in ["transfer(address,uint256)", "transferFrom(address,address,uint256)"]
+                )
+                or not isinstance(ir.function, Function)
             )
-            or not isinstance(ir.function, Function)
+            or ir.node.type == NodeType.TRY
+            and isinstance(ir, (Assignment, Unpack))
         )
 
-    def detect_unused_return_values(self, f):  # pylint: disable=no-self-use
+    def detect_unused_return_values(
+        self, f: FunctionContract
+    ) -> List[Node]:  # pylint: disable=no-self-use
         """
             Return the nodes where the return value of a call is unused
         Args:
@@ -60,20 +76,29 @@ contract MyConc{
         """
         values_returned = []
         nodes_origin = {}
+        # pylint: disable=too-many-nested-blocks
         for n in f.nodes:
             for ir in n.irs:
                 if self._is_instance(ir):
                     # if a return value is stored in a state variable, it's ok
                     if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
-                        values_returned.append(ir.lvalue)
+                        values_returned.append((ir.lvalue, None))
                         nodes_origin[ir.lvalue] = ir
+                        if isinstance(ir.lvalue, TupleVariable):
+                            # we iterate the number of elements the tuple has
+                            # and add a (variable, index) in values_returned for each of them
+                            for index in range(len(ir.lvalue.type)):
+                                values_returned.append((ir.lvalue, index))
                 for read in ir.read:
-                    if read in values_returned:
-                        values_returned.remove(read)
+                    remove = (read, ir.index) if isinstance(ir, Unpack) else (read, None)
+                    if remove in values_returned:
+                        # this is needed to remove the tuple variable when the first time one of its element is used
+                        if remove[1] is not None and (remove[0], None) in values_returned:
+                            values_returned.remove((remove[0], None))
+                        values_returned.remove(remove)
+        return [nodes_origin[value].node for (value, _) in values_returned]
 
-        return [nodes_origin[value].node for value in values_returned]
-
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect high level calls which return a value that are never used"""
         results = []
         for c in self.compilation_unit.contracts:
@@ -84,7 +109,7 @@ contract MyConc{
                 if unused_return:
 
                     for node in unused_return:
-                        info = [f, " ignores return value by ", node, "\n"]
+                        info: DETECTOR_INFO = [f, " ignores return value by ", node, "\n"]
 
                         res = self.generate_result(info)
 

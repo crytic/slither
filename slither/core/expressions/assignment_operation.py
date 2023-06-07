@@ -2,7 +2,6 @@ import logging
 from enum import Enum
 from typing import Optional, TYPE_CHECKING, List
 
-from slither.core.expressions.expression_typed import ExpressionTyped
 from slither.core.expressions.expression import Expression
 from slither.core.exceptions import SlitherCoreError
 
@@ -78,20 +77,20 @@ class AssignmentOperationType(Enum):
         raise SlitherCoreError(f"str: Unknown operation type {self})")
 
 
-class AssignmentOperation(ExpressionTyped):
+class AssignmentOperation(Expression):
     def __init__(
         self,
         left_expression: Expression,
         right_expression: Expression,
         expression_type: AssignmentOperationType,
         expression_return_type: Optional["Type"],
-    ):
+    ) -> None:
         assert isinstance(left_expression, Expression)
         assert isinstance(right_expression, Expression)
         super().__init__()
         left_expression.set_lvalue()
         self._expressions = [left_expression, right_expression]
-        self._type: Optional["AssignmentOperationType"] = expression_type
+        self._type: AssignmentOperationType = expression_type
         self._expression_return_type: Optional["Type"] = expression_return_type
 
     @property

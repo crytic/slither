@@ -1,13 +1,24 @@
 """
 Detects the passing of arrays located in memory to functions which expect to modify arrays via storage reference.
 """
+from typing import List, Set, Tuple, Union
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations import Function
+from slither.core.variables import Variable
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.local_variable import LocalVariable
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.slithir.operations.internal_call import InternalCall
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.utils.output import Output
 
 
 class ArrayByReference(AbstractDetector):
@@ -55,7 +66,7 @@ As a result, Bob's usage of the contract is incorrect."""
     WIKI_RECOMMENDATION = "Ensure the correct usage of `memory` and `storage` in the function parameters. Make all the locations explicit."
 
     @staticmethod
-    def get_funcs_modifying_array_params(contracts):
+    def get_funcs_modifying_array_params(contracts: List[Contract]) -> Set[FunctionContract]:
         """
         Obtains a set of functions which take arrays not located in storage as parameters, and writes to them.
         :param contracts: The collection of contracts to check functions in.
@@ -83,7 +94,9 @@ As a result, Bob's usage of the contract is incorrect."""
         return results
 
     @staticmethod
-    def detect_calls_passing_ref_to_function(contracts, array_modifying_funcs):
+    def detect_calls_passing_ref_to_function(
+        contracts: List[Contract], array_modifying_funcs: Set[FunctionContract]
+    ) -> List[Tuple[Node, Variable, Union[Function, Variable]]]:
         """
         Obtains all calls passing storage arrays by value to a function which cannot write to them successfully.
         :param contracts: The collection of contracts to check for problematic calls in.
@@ -94,7 +107,7 @@ As a result, Bob's usage of the contract is incorrect."""
         write to the array unsuccessfully.
         """
         # Define our resulting array.
-        results = []
+        results: List[Tuple[Node, Variable, Union[Function, Variable]]] = []
 
         # Verify we have functions in our list to check for.
         if not array_modifying_funcs:
@@ -134,7 +147,7 @@ As a result, Bob's usage of the contract is incorrect."""
                                 results.append((node, arg, ir.function))
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detects passing of arrays located in memory to functions which expect to modify arrays via storage reference.
         :return: The JSON results of the detector, which contains the calling_node, affected_argument_variable and
@@ -148,7 +161,7 @@ As a result, Bob's usage of the contract is incorrect."""
 
         if problematic_calls:
             for calling_node, affected_argument, invoked_function in problematic_calls:
-                info = [
+                info: DETECTOR_INFO = [
                     calling_node.function,
                     " passes array ",
                     affected_argument,

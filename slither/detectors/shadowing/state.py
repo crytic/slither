@@ -2,12 +2,20 @@
 Module detecting shadowing of state variables
 """
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List
+
 from slither.core.declarations import Contract
-from .common import is_upgradable_gap_variable
+from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.detectors.shadowing.common import is_upgradable_gap_variable
+from slither.utils.output import Output
 
 
-def detect_shadowing(contract: Contract):
+def detect_shadowing(contract: Contract) -> List[List[StateVariable]]:
     ret = []
     variables_fathers = []
     for father in contract.inheritance:
@@ -70,7 +78,7 @@ contract DerivedContract is BaseContract{
 
     WIKI_RECOMMENDATION = "Remove the state variable shadowing."
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect shadowing
 
         Recursively visit the calls
@@ -85,7 +93,7 @@ contract DerivedContract is BaseContract{
                 for all_variables in shadowing:
                     shadow = all_variables[0]
                     variables = all_variables[1:]
-                    info = [shadow, " shadows:\n"]
+                    info: DETECTOR_INFO = [shadow, " shadows:\n"]
                     for var in variables:
                         info += ["\t- ", var, "\n"]
 

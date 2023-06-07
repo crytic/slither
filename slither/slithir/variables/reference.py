@@ -1,6 +1,5 @@
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
-from slither.core.children.child_node import ChildNode
 from slither.core.declarations import Contract, Enum, SolidityVariable, Function
 from slither.core.variables.variable import Variable
 
@@ -8,8 +7,8 @@ if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 
-class ReferenceVariable(ChildNode, Variable):
-    def __init__(self, node: "Node", index=None):
+class ReferenceVariable(Variable):
+    def __init__(self, node: "Node", index: Optional[int] = None) -> None:
         super().__init__()
         if index is None:
             self._index = node.compilation_unit.counter_slithir_reference
@@ -18,6 +17,10 @@ class ReferenceVariable(ChildNode, Variable):
             self._index = index
         self._points_to = None
         self._node = node
+
+    @property
+    def node(self) -> "Node":
+        return self._node
 
     @property
     def index(self):
@@ -35,13 +38,6 @@ class ReferenceVariable(ChildNode, Variable):
         """
         return self._points_to
 
-    @property
-    def points_to_origin(self):
-        points = self.points_to
-        while isinstance(points, ReferenceVariable):
-            points = points.points_to
-        return points
-
     @points_to.setter
     def points_to(self, points_to):
         # Can only be a rvalue of
@@ -56,17 +52,24 @@ class ReferenceVariable(ChildNode, Variable):
         self._points_to = points_to
 
     @property
-    def name(self):
+    def points_to_origin(self):
+        points = self.points_to
+        while isinstance(points, ReferenceVariable):
+            points = points.points_to
+        return points
+
+    @property
+    def name(self) -> str:
         return f"REF_{self.index}"
 
     # overide of core.variables.variables
     # reference can have Function has a type
     # to handle the function selector
-    def set_type(self, t):
+    def set_type(self, t) -> None:
         if not isinstance(t, Function):
             super().set_type(t)
         else:
             self._type = t
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name

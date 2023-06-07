@@ -8,12 +8,12 @@ import pathlib
 import posixpath
 import re
 from collections import defaultdict
-from typing import Optional, Dict, List, Set, Union
+from typing import Optional, Dict, List, Set, Union, Tuple
 
 from crytic_compile import CryticCompile
 from crytic_compile.utils.naming import Filename
 
-from slither.core.children.child_contract import ChildContract
+from slither.core.declarations.contract_level import ContractLevel
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.context.context import Context
 from slither.core.declarations import Contract, FunctionContract
@@ -40,7 +40,7 @@ class SlitherCore(Context):
     Slither static analyzer
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._filename: Optional[str] = None
@@ -71,6 +71,12 @@ class SlitherCore(Context):
 
         self._show_ignored_findings = False
 
+        # Maps from file to detector name to the start/end ranges for that detector.
+        # Infinity is used to signal a detector has no end range.
+        self._ignore_ranges: Dict[str, Dict[str, List[Tuple[int, ...]]]] = defaultdict(
+            lambda: defaultdict(lambda: [(-1, -1)])
+        )
+
         self._compilation_units: List[SlitherCompilationUnit] = []
 
         self._contracts: List[Contract] = []
@@ -85,6 +91,10 @@ class SlitherCore(Context):
         # By default we generate file.sol#1
         # But we allow to alter this (ex: file.sol:1) for vscode integration
         self.line_prefix: str = "#"
+
+        # Use by the echidna printer
+        # If true, partial analysis is allowed
+        self.no_fail = False
 
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
@@ -151,7 +161,7 @@ class SlitherCore(Context):
     def filename(self, filename: str):
         self._filename = filename
 
-    def add_source_code(self, path):
+    def add_source_code(self, path: str) -> None:
         """
         :param path:
         :return:
@@ -161,6 +171,8 @@ class SlitherCore(Context):
         else:
             with open(path, encoding="utf8", newline="") as f:
                 self.source_code[path] = f.read()
+
+        self.parse_ignore_comments(path)
 
     @property
     def markdown_root(self) -> str:
@@ -194,7 +206,7 @@ class SlitherCore(Context):
                     isinstance(thing, FunctionContract)
                     and thing.contract_declarer == thing.contract
                 )
-                or (isinstance(thing, ChildContract) and not isinstance(thing, FunctionContract))
+                or (isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract))
             ):
                 self._offset_to_objects[definition.filename][offset].add(thing)
 
@@ -212,7 +224,7 @@ class SlitherCore(Context):
                         and thing.contract_declarer == thing.contract
                     )
                     or (
-                        isinstance(thing, ChildContract) and not isinstance(thing, FunctionContract)
+                        isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract)
                     )
                 ):
                     self._offset_to_objects[definition.filename][offset].add(thing)
@@ -284,9 +296,52 @@ class SlitherCore(Context):
     ###################################################################################
     ###################################################################################
 
+    def parse_ignore_comments(self, file: str) -> None:
+        # The first time we check a file, find all start/end ignore comments and memoize them.
+        line_number = 1
+        while True:
+
+            line_text = self.crytic_compile.get_code_from_line(file, line_number)
+            if line_text is None:
+                break
+
+            start_regex = r"^\s*//\s*slither-disable-start\s*([a-zA-Z0-9_,-]*)"
+            end_regex = r"^\s*//\s*slither-disable-end\s*([a-zA-Z0-9_,-]*)"
+            start_match = re.findall(start_regex, line_text.decode("utf8"))
+            end_match = re.findall(end_regex, line_text.decode("utf8"))
+
+            if start_match:
+                ignored = start_match[0].split(",")
+                if ignored:
+                    for check in ignored:
+                        vals = self._ignore_ranges[file][check]
+                        if len(vals) == 0 or vals[-1][1] != float("inf"):
+                            # First item in the array, or the prior item is fully populated.
+                            self._ignore_ranges[file][check].append((line_number, float("inf")))
+                        else:
+                            logger.error(
+                                f"Consecutive slither-disable-starts without slither-disable-end in {file}#{line_number}"
+                            )
+                            return
+
+            if end_match:
+                ignored = end_match[0].split(",")
+                if ignored:
+                    for check in ignored:
+                        vals = self._ignore_ranges[file][check]
+                        if len(vals) == 0 or vals[-1][1] != float("inf"):
+                            logger.error(
+                                f"slither-disable-end without slither-disable-start in {file}#{line_number}"
+                            )
+                            return
+                        self._ignore_ranges[file][check][-1] = (vals[-1][0], line_number)
+
+            line_number += 1
+
     def has_ignore_comment(self, r: Dict) -> bool:
         """
-        Check if the result has an ignore comment on the proceeding line, in which case, it is not valid
+        Check if the result has an ignore comment in the file or on the preceding line, in which
+        case, it is not valid
         """
         if not self.crytic_compile:
             return False
@@ -303,6 +358,15 @@ class SlitherCore(Context):
         )
 
         for file, lines in mapping_elements_with_lines:
+
+            # Check if result is within an ignored range.
+            ignore_ranges = self._ignore_ranges[file][r["check"]] + self._ignore_ranges[file]["all"]
+            for start, end in ignore_ranges:
+                # The full check must be within the ignore range to be ignored.
+                if start < lines[0] and end > lines[-1]:
+                    return True
+
+            # Check for next-line matchers.
             ignore_line_index = min(lines) - 1
             ignore_line_text = self.crytic_compile.get_code_from_line(file, ignore_line_index)
             if ignore_line_text:
@@ -324,7 +388,7 @@ class SlitherCore(Context):
             - All its source paths belong to the source path filtered
             - Or a similar result was reported and saved during a previous run
             - The --exclude-dependencies flag is set and results are only related to dependencies
-            - There is an ignore comment on the preceding line
+            - There is an ignore comment on the preceding line or in the file
         """
 
         # Remove duplicate due to the multiple compilation support
@@ -379,7 +443,7 @@ class SlitherCore(Context):
 
         return True
 
-    def load_previous_results(self):
+    def load_previous_results(self) -> None:
         filename = self._previous_results_filename
         try:
             if os.path.isfile(filename):
@@ -392,7 +456,7 @@ class SlitherCore(Context):
         except json.decoder.JSONDecodeError:
             logger.error(red(f"Impossible to decode {filename}. Consider removing the file"))
 
-    def write_results_to_hide(self):
+    def write_results_to_hide(self) -> None:
         if not self._results_to_hide:
             return
         filename = self._previous_results_filename
@@ -400,7 +464,7 @@ class SlitherCore(Context):
             results = self._results_to_hide + self._previous_results
             json.dump(results, f)
 
-    def save_results_to_hide(self, results: List[Dict]):
+    def save_results_to_hide(self, results: List[Dict]) -> None:
         self._results_to_hide += results
 
     def add_path_to_filter(self, path: str):
@@ -418,8 +482,8 @@ class SlitherCore(Context):
     ###################################################################################
 
     @property
-    def crytic_compile(self) -> Optional[CryticCompile]:
-        return self._crytic_compile
+    def crytic_compile(self) -> CryticCompile:
+        return self._crytic_compile  # type: ignore
 
     # endregion
     ###################################################################################

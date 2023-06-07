@@ -39,6 +39,12 @@ class FailOnLevel(enum.Enum):
 
 # Those are the flags shared by the command line and the config file
 defaults_flag_in_config = {
+    "codex": False,
+    "codex_contracts": "all",
+    "codex_model": "text-davinci-003",
+    "codex_temperature": 0,
+    "codex_max_tokens": 300,
+    "codex_log": False,
     "detectors_to_run": "all",
     "printers_to_run": None,
     "detectors_to_exclude": None,
@@ -61,6 +67,7 @@ defaults_flag_in_config = {
     "zip": None,
     "zip_type": "lzma",
     "show_ignored_findings": False,
+    "no_fail": False,
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
 
@@ -204,7 +211,9 @@ def convert_result_to_markdown(txt: str) -> str:
     return "".join(ret)
 
 
-def output_results_to_markdown(all_results: List[Dict], checklistlimit: str) -> None:
+def output_results_to_markdown(
+    all_results: List[Dict], checklistlimit: str, show_ignored_findings: bool
+) -> None:
     checks = defaultdict(list)
     info: Dict = defaultdict(dict)
     for results_ in all_results:
@@ -213,6 +222,11 @@ def output_results_to_markdown(all_results: List[Dict], checklistlimit: str) -> 
             "impact": results_["impact"],
             "confidence": results_["confidence"],
         }
+
+    if not show_ignored_findings:
+        print(
+            "**THIS CHECKLIST IS NOT COMPLETE**. Use `--show-ignored-findings` to show all the results."
+        )
 
     print("Summary")
     for check_ in checks:

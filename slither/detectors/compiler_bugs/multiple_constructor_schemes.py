@@ -1,4 +1,11 @@
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List
+
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.utils.output import Output
 
 
 class MultipleConstructorSchemes(AbstractDetector):
@@ -43,7 +50,7 @@ In Solidity [0.4.22](https://github.com/ethereum/solidity/releases/tag/v0.4.23),
 
     WIKI_RECOMMENDATION = "Only declare one constructor, preferably using the new scheme `constructor(...)` instead of `function <contractName>(...)`."
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect multiple constructor schemes in the same contract
         :return: Returns a list of contract JSON result, where each result contains all constructor definitions.
@@ -55,7 +62,10 @@ In Solidity [0.4.22](https://github.com/ethereum/solidity/releases/tag/v0.4.23),
 
             # If there is more than one, we encountered the described issue occurring.
             if constructors and len(constructors) > 1:
-                info = [contract, " contains multiple constructors in the same contract:\n"]
+                info: DETECTOR_INFO = [
+                    contract,
+                    " contains multiple constructors in the same contract:\n",
+                ]
                 for constructor in constructors:
                     info += ["\t- ", constructor, "\n"]
 

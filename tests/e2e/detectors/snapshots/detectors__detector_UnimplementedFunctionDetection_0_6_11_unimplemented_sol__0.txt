@@ -1,0 +1,10 @@
+DerivedContract_bad2 (tests/e2e/detectors/test_data/unimplemented-functions/0.6.11/unimplemented.sol#27-33) does not implement functions:
+	- BaseInterface3.get(uint256) (tests/e2e/detectors/test_data/unimplemented-functions/0.6.11/unimplemented.sol#24)
+
+DerivedContract_bad0 (tests/e2e/detectors/test_data/unimplemented-functions/0.6.11/unimplemented.sol#10-14) does not implement functions:
+	- BaseInterface.f2() (tests/e2e/detectors/test_data/unimplemented-functions/0.6.11/unimplemented.sol#3)
+	- BaseInterface2.f3() (tests/e2e/detectors/test_data/unimplemented-functions/0.6.11/unimplemented.sol#7)
+
+AbstractContract_bad1 (tests/e2e/detectors/test_data/unimplemented-functions/0.6.11/unimplemented.sol#16-21) does not implement functions:
+	- AbstractContract_bad1.f1() (tests/e2e/detectors/test_data/unimplemented-functions/0.6.11/unimplemented.sol#17)
+

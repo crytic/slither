@@ -2,7 +2,7 @@
 
 ### Test slither-check-erc
 
-DIR_TESTS="tests/check-erc"
+DIR_TESTS="tests/tools/check-erc"
 
 solc-select use 0.5.0
 slither-check-erc "$DIR_TESTS/erc20.sol" ERC20 > test_1.txt 2>&1

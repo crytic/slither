@@ -2,7 +2,7 @@ from slither.core.expressions.expression import Expression
 
 
 class NewContract(Expression):
-    def __init__(self, contract_name):
+    def __init__(self, contract_name: str) -> None:
         super().__init__()
         self._contract_name: str = contract_name
         self._gas = None
@@ -29,5 +29,5 @@ class NewContract(Expression):
     def call_salt(self, salt):
         self._salt = salt
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "new " + str(self._contract_name)

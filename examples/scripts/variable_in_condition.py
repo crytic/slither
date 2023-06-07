@@ -14,6 +14,7 @@ assert len(contracts) == 1
 contract = contracts[0]
 # Get the variable
 var_a = contract.get_state_variable_from_name("a")
+assert var_a
 
 # Get the functions reading the variable
 functions_reading_a = contract.get_functions_reading_from_variable(var_a)

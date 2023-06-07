@@ -1,20 +1,44 @@
 """
     Function module
 """
-from typing import TYPE_CHECKING, List, Tuple
+from typing import Dict, TYPE_CHECKING, List, Tuple, Optional
 
-from slither.core.children.child_contract import ChildContract
-from slither.core.children.child_inheritance import ChildInheritance
+from slither.core.declarations.contract_level import ContractLevel
 from slither.core.declarations import Function
+from slither.utils.code_complexity import compute_cyclomatic_complexity
+
 
 # pylint: disable=import-outside-toplevel,too-many-instance-attributes,too-many-statements,too-many-lines
 
 if TYPE_CHECKING:
     from slither.core.declarations import Contract
     from slither.core.scope.scope import FileScope
+    from slither.slithir.variables.state_variable import StateIRVariable
+    from slither.core.compilation_unit import SlitherCompilationUnit
 
 
-class FunctionContract(Function, ChildContract, ChildInheritance):
+class FunctionContract(Function, ContractLevel):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
+        super().__init__(compilation_unit)
+        self._contract_declarer: Optional["Contract"] = None
+
+    def set_contract_declarer(self, contract: "Contract") -> None:
+        self._contract_declarer = contract
+
+    @property
+    def contract_declarer(self) -> "Contract":
+        """
+        Return the contract where this function was declared. Only functions have both a contract, and contract_declarer
+        This is because we need to have separate representation of the function depending of the contract's context
+        For example a function calling super.f() will generate different IR depending on the current contract's inheritance
+
+        Returns:
+            The contract where this function was declared
+        """
+
+        assert self._contract_declarer
+        return self._contract_declarer
+
     @property
     def canonical_name(self) -> str:
         """
@@ -71,7 +95,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
 
     def get_summary(
         self,
-    ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str]]:
+    ) -> Tuple[str, str, str, List[str], List[str], List[str], List[str], List[str], int]:
         """
             Return the function summary
         Returns:
@@ -87,6 +111,7 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
             [str(x) for x in self.state_variables_written],
             [str(x) for x in self.internal_calls],
             [str(x) for x in self.external_calls_as_expressions],
+            compute_cyclomatic_complexity(self),
         )
 
     # endregion
@@ -96,7 +121,9 @@ class FunctionContract(Function, ChildContract, ChildInheritance):
     ###################################################################################
     ###################################################################################
 
-    def generate_slithir_ssa(self, all_ssa_state_variables_instances):
+    def generate_slithir_ssa(
+        self, all_ssa_state_variables_instances: Dict[str, "StateIRVariable"]
+    ) -> None:
         from slither.slithir.utils.ssa import add_ssa_ir, transform_slithir_vars_to_ssa
         from slither.core.dominators.utils import (
             compute_dominance_frontier,
