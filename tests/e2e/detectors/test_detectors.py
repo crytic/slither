@@ -1644,6 +1644,16 @@ ALL_TEST_OBJECTS = [
         "CacheArrayLength.sol",
         "0.8.17",
     ),
+    Test(
+        all_detectors.IncorrectUsingFor,
+        "IncorrectUsingForTopLevel.sol",
+        "0.8.17",
+    ),
+    Test(
+        all_detectors.EncodePackedCollision,
+        "encode_packed_collision.sol",
+        "0.7.6",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
