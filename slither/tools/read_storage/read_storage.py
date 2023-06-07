@@ -6,8 +6,11 @@ import dataclasses
 
 from eth_abi import decode, encode
 from eth_typing.evm import ChecksumAddress
-from eth_utils import keccak
+from eth_utils import keccak, to_checksum_address
 from web3 import Web3
+from web3.types import BlockIdentifier
+from web3.exceptions import ExtraDataLengthError
+from web3.middleware import geth_poa_middleware
 
 from slither.core.declarations import Contract, Structure
 from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
@@ -42,18 +45,43 @@ class SlitherReadStorageException(Exception):
     pass
 
 
+class RpcInfo:
+    def __init__(self, rpc_url: str, block: BlockIdentifier = "latest") -> None:
+        assert isinstance(block, int) or block in [
+            "latest",
+            "earliest",
+            "pending",
+            "safe",
+            "finalized",
+        ]
+        self.rpc: str = rpc_url
+        self._web3: Web3 = Web3(Web3.HTTPProvider(self.rpc))
+        """If the RPC is for a POA network, the first call to get_block fails, so we inject geth_poa_middleware"""
+        try:
+            self._block: int = self.web3.eth.get_block(block)["number"]
+        except ExtraDataLengthError:
+            self._web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            self._block: int = self.web3.eth.get_block(block)["number"]
+
+    @property
+    def web3(self) -> Web3:
+        return self._web3
+
+    @property
+    def block(self) -> int:
+        return self._block
+
+
 # pylint: disable=too-many-instance-attributes
 class SlitherReadStorage:
-    def __init__(self, contracts: List[Contract], max_depth: int) -> None:
+    def __init__(self, contracts: List[Contract], max_depth: int, rpc_info: RpcInfo = None) -> None:
         self._checksum_address: Optional[ChecksumAddress] = None
         self._contracts: List[Contract] = contracts
         self._log: str = ""
         self._max_depth: int = max_depth
         self._slot_info: Dict[str, SlotInfo] = {}
         self._target_variables: List[Tuple[Contract, StateVariable]] = []
-        self._web3: Optional[Web3] = None
-        self.block: Union[str, int] = "latest"
-        self.rpc: Optional[str] = None
+        self.rpc_info: Optional[RpcInfo] = rpc_info
         self.storage_address: Optional[str] = None
         self.table: Optional[MyPrettyTable] = None
 
@@ -74,17 +102,11 @@ class SlitherReadStorage:
         self._log = log
 
     @property
-    def web3(self) -> Web3:
-        if not self._web3:
-            self._web3 = Web3(Web3.HTTPProvider(self.rpc))
-        return self._web3
-
-    @property
     def checksum_address(self) -> ChecksumAddress:
         if not self.storage_address:
             raise ValueError
         if not self._checksum_address:
-            self._checksum_address = self.web3.to_checksum_address(self.storage_address)
+            self._checksum_address = to_checksum_address(self.storage_address)
         return self._checksum_address
 
     @property
@@ -223,11 +245,12 @@ class SlitherReadStorage:
         """Fetches the slot value of `SlotInfo` object
         :param slot_info:
         """
+        assert self.rpc_info is not None
         hex_bytes = get_storage_data(
-            self.web3,
+            self.rpc_info.web3,
             self.checksum_address,
             int.to_bytes(slot_info.slot, 32, byteorder="big"),
-            self.block,
+            self.rpc_info.block,
         )
         slot_info.value = self.convert_value_to_type(
             hex_bytes, slot_info.size, slot_info.offset, slot_info.type_string
@@ -441,7 +464,7 @@ class SlitherReadStorage:
         if "int" in key_type:  # without this eth_utils encoding fails
             key = int(key)
         key = coerce_type(key_type, key)
-        slot = keccak(encode([key_type, "uint256"], [key, decode("uint256", slot)]))
+        slot = keccak(encode([key_type, "uint256"], [key, decode(["uint256"], slot)[0]]))
 
         if isinstance(target_variable_type.type_to, UserDefinedType) and isinstance(
             target_variable_type.type_to.type, Structure
@@ -600,15 +623,15 @@ class SlitherReadStorage:
             (int): The length of the array.
         """
         val = 0
-        if self.rpc:
+        if self.rpc_info:
             # The length of dynamic arrays is stored at the starting slot.
             # Convert from hexadecimal to decimal.
             val = int(
                 get_storage_data(
-                    self.web3,
+                    self.rpc_info.web3,
                     self.checksum_address,
                     int.to_bytes(slot, 32, byteorder="big"),
-                    self.block,
+                    self.rpc_info.block,
                 ).hex(),
                 16,
             )

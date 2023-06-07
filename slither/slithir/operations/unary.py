@@ -58,7 +58,7 @@ class Unary(OperationWithLValue):
 
     @property
     def type_str(self):
-        return self._type.value
+        return str(self._type)
 
     def __str__(self):
         return f"{self.lvalue} = {self.type_str} {self.rvalue} "

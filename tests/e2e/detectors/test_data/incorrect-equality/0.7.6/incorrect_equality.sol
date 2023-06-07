@@ -134,3 +134,27 @@ contract TestSolidityKeyword{
 
 }
 
+interface Receiver {
+    
+}
+contract A {
+    mapping(address => Info) data;
+
+    struct Info {
+        uint a;
+        address b;
+        uint c;
+    }
+    function good(address b) public payable  {
+        data[msg.sender] = Info(block.timestamp, b, msg.value);
+        if (data[msg.sender].b == address(0)) {
+            payable(msg.sender).transfer(data[msg.sender].c);
+        }
+    }
+    function good2(address b) public payable  {
+        data[msg.sender] = Info(block.timestamp, b, msg.value);
+        if (Receiver(data[msg.sender].b) == Receiver(address(0))) {
+            payable(msg.sender).transfer(data[msg.sender].c);
+        }
+    }
+}

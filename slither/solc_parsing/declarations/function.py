@@ -852,6 +852,7 @@ class FunctionSolc(CallerContextExpression):
                             "nodeType": "Identifier",
                             "src": v["src"],
                             "name": v["name"],
+                            "referencedDeclaration": v["id"],
                             "typeDescriptions": {"typeString": v["typeDescriptions"]["typeString"]},
                         }
                         var_identifiers.append(identifier)
@@ -1488,8 +1489,7 @@ class FunctionSolc(CallerContextExpression):
         endif_node = self._new_node(NodeType.ENDIF, node.source_mapping, node.scope)
 
         for father in node.fathers:
-            father.remove_son(node)
-            father.add_son(condition_node.underlying_node)
+            father.replace_son(node, condition_node.underlying_node)
             condition_node.underlying_node.add_father(father)
 
         for son in node.sons:
