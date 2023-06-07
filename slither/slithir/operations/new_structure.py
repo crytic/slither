@@ -17,7 +17,7 @@ class NewStructure(Call, OperationWithLValue):
         self,
         structure: StructureContract,
         lvalue: Union[TemporaryVariableSSA, TemporaryVariable],
-        names: Optional[List[str]] = None
+        names: Optional[List[str]] = None,
     ) -> None:
         """
         #### Parameters
@@ -25,7 +25,7 @@ class NewStructure(Call, OperationWithLValue):
             For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
             Otherwise, None.
         """
-        super().__init__(names = names)
+        super().__init__(names=names)
         assert isinstance(structure, Structure)
         assert is_valid_lvalue(lvalue)
         self._structure = structure

@@ -384,6 +384,7 @@ def integrate_value_gas(result: List[Operation]) -> List[Operation]:
 ###################################################################################
 ###################################################################################
 
+
 def get_declared_param_names(ins: Call) -> Optional[List[str]]:
     """
     Given a call operation, return the list of parameter names, in the order
@@ -399,26 +400,27 @@ def get_declared_param_names(ins: Call) -> Optional[List[str]]:
     """
     if isinstance(ins, NewStructure):
         return [x.name for x in ins.structure.elems_ordered if not isinstance(x.type, MappingType)]
-    elif isinstance(ins, NewContract):
+    if isinstance(ins, NewContract):
         return [p.name for p in ins.contract.constructor.parameters]
-    elif isinstance(ins, (LowLevelCall, NewElementaryType, NewArray)):
+    if isinstance(ins, (LowLevelCall, NewElementaryType, NewArray)):
         # named arguments are incompatible with these call forms
         assert False
-    elif isinstance(ins, HighLevelCall) and isinstance(ins.function, str):
+    if isinstance(ins, HighLevelCall) and isinstance(ins.function, str):
         return None
-    elif isinstance(ins, (InternalCall, LibraryCall, HighLevelCall)):
+    if isinstance(ins, (InternalCall, LibraryCall, HighLevelCall)):
         if isinstance(ins.function, Function):
             return [p.name for p in ins.function.parameters]
-        else:
-            return None
-    elif isinstance(ins, InternalDynamicCall):
-        return [p.name for p in ins.function_type.params]
-    elif isinstance(ins, EventCall):
         return None
-    else:
-        assert False
+    if isinstance(ins, InternalDynamicCall):
+        return [p.name for p in ins.function_type.params]
 
-def reorder_arguments(args: List[Variable], call_names: List[str], decl_names: List[str]) -> List[Variable]:
+    assert isinstance(ins, EventCall)
+    return None
+
+
+def reorder_arguments(
+    args: List[Variable], call_names: List[str], decl_names: List[str]
+) -> List[Variable]:
     """
     Reorder named struct constructor arguments so that they match struct declaration ordering rather
     than call ordering
@@ -445,6 +447,7 @@ def reorder_arguments(args: List[Variable], call_names: List[str], decl_names: L
         args_ret.append(args[ind])
 
     return args_ret
+
 
 def propagate_type_and_convert_call(result: List[Operation], node: "Node") -> List[Operation]:
     """
@@ -495,9 +498,9 @@ def propagate_type_and_convert_call(result: List[Operation], node: "Node") -> Li
             if ins.call_id in calls_gas and isinstance(ins, (HighLevelCall, InternalDynamicCall)):
                 ins.call_gas = calls_gas[ins.call_id]
 
-        if isinstance(ins, Call) and (ins.names != None):
+        if isinstance(ins, Call) and (ins.names is not None):
             decl_param_names = get_declared_param_names(ins)
-            if decl_param_names != None:
+            if decl_param_names is not None:
                 call_data = reorder_arguments(call_data, ins.names, decl_param_names)
 
         if isinstance(ins, (Call, NewContract, NewStructure)):
@@ -958,7 +961,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
                 ins.nbr_arguments,
                 ins.lvalue,
                 ins.type_call,
-                names=ins.names
+                names=ins.names,
             )
             libcall.set_expression(ins.expression)
             libcall.call_id = ins.call_id
@@ -1017,7 +1020,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
                     len(lib_func.parameters),
                     ins.lvalue,
                     "d",
-                    names=ins.names
+                    names=ins.names,
                 )
                 lib_call.set_expression(ins.expression)
                 lib_call.set_node(ins.node)
@@ -1099,7 +1102,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
             ins.nbr_arguments,
             ins.lvalue,
             ins.type_call,
-            names=ins.names
+            names=ins.names,
         )
         msgcall.call_id = ins.call_id
 
@@ -1508,7 +1511,7 @@ def look_for_library_or_top_level(
                 ir.nbr_arguments,
                 ir.lvalue,
                 ir.type_call,
-                names=ir.names
+                names=ir.names,
             )
             lib_call.set_expression(ir.expression)
             lib_call.set_node(ir.node)

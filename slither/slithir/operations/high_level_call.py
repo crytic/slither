@@ -28,7 +28,7 @@ class HighLevelCall(Call, OperationWithLValue):
         nbr_arguments: int,
         result: Optional[Union[TemporaryVariable, TupleVariable, TemporaryVariableSSA]],
         type_call: str,
-        names: Optional[List[str]] = None
+        names: Optional[List[str]] = None,
     ) -> None:
         """
         #### Parameters

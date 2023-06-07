@@ -25,8 +25,9 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
         nbr_arguments: int,
         result: Union[TupleVariable, TemporaryVariable],
         type_call: str,
-        names: Optional[List[str]] = None
+        names: Optional[List[str]] = None,
     ) -> None:
+        # pylint: disable=too-many-arguments
         """
         #### Parameters
         names -

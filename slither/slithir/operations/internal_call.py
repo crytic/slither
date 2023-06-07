@@ -20,8 +20,9 @@ class InternalCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
             Union[TupleVariableSSA, TemporaryVariableSSA, TupleVariable, TemporaryVariable]
         ],
         type_call: str,
-        names: Optional[List[str]] = None
+        names: Optional[List[str]] = None,
     ) -> None:
+        # pylint: disable=too-many-arguments
         """
         #### Parameters
         names -

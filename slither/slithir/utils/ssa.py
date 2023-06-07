@@ -739,9 +739,13 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
         if isinstance(ir, LibraryCall):
-            new_ir = LibraryCall(destination, function_name, nbr_arguments, lvalue, type_call, names=names)
+            new_ir = LibraryCall(
+                destination, function_name, nbr_arguments, lvalue, type_call, names=names
+            )
         else:
-            new_ir = HighLevelCall(destination, function_name, nbr_arguments, lvalue, type_call, names=names)
+            new_ir = HighLevelCall(
+                destination, function_name, nbr_arguments, lvalue, type_call, names=names
+            )
         new_ir.call_id = ir.call_id
         new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
         new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, *instances)

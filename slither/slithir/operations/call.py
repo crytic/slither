@@ -13,7 +13,7 @@ class Call(Operation):
             For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
             Otherwise, None.
         """
-        assert (names == None) or isinstance(names, list)
+        assert (names is None) or isinstance(names, list)
         super().__init__()
         self._arguments: List[Variable] = []
         self._names = names

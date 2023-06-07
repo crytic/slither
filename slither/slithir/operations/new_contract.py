@@ -15,7 +15,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
         self,
         contract_name: Constant,
         lvalue: Union[TemporaryVariableSSA, TemporaryVariable],
-        names: Optional[List[str]] = None
+        names: Optional[List[str]] = None,
     ) -> None:
         """
         #### Parameters

@@ -4,7 +4,13 @@ from slither.core.expressions.expression import Expression
 
 
 class CallExpression(Expression):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, called: Expression, arguments: List[Any], type_call: str, names: Optional[List[str]] = None) -> None:
+    def __init__(
+        self,
+        called: Expression,
+        arguments: List[Any],
+        type_call: str,
+        names: Optional[List[str]] = None,
+    ) -> None:
         """
         #### Parameters
         called -
@@ -18,7 +24,7 @@ class CallExpression(Expression):  # pylint: disable=too-many-instance-attribute
             For calls without named fields, None.
         """
         assert isinstance(called, Expression)
-        assert (names == None) or isinstance(names, list)
+        assert (names is None) or isinstance(names, list)
         super().__init__()
         self._called: Expression = called
         self._arguments: List[Expression] = arguments
@@ -86,7 +92,7 @@ class CallExpression(Expression):  # pylint: disable=too-many-instance-attribute
                 txt += "{" + ",".join([o for o in options if o != ""]) + "}"
         args = (
             "{" + ",".join([f"{n}:{str(a)}" for (a, n) in zip(self._arguments, self._names)]) + "}"
-            if self._names != None
+            if self._names is not None
             else ",".join([str(a) for a in self._arguments])
         )
         return txt + "(" + args + ")"
