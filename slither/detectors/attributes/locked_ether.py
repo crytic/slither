@@ -70,9 +70,11 @@ Every Ether sent to `Locked` will be lost."""
                         ):
                             if ir.call_value and ir.call_value != 0:
                                 return False
-                        if isinstance(ir, (LowLevelCall)):
-                            if ir.function_name in ["delegatecall", "callcode"]:
-                                return False
+                        if isinstance(ir, (LowLevelCall)) and ir.function_name in [
+                            "delegatecall",
+                            "callcode",
+                        ]:
+                            return False
                         if isinstance(ir, SolidityCall):
                             call_can_send_ether = ir.function in [
                                 SolidityFunction(
