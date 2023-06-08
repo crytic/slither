@@ -33,6 +33,10 @@ logger = logging.getLogger("SlitherSolcParsing")
 logger.setLevel(logging.INFO)
 
 
+class InheritanceResolutionError(SlitherException):
+    pass
+
+
 def _handle_import_aliases(
     symbol_aliases: Dict, import_directive: Import, scope: FileScope
 ) -> None:
@@ -432,7 +436,12 @@ Please rename it, this name is reserved for Slither's internals"""
                     target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
                         contract_name
                     )
-                    assert target
+                    if target == contract_parser.underlying_contract:
+                        raise InheritanceResolutionError(
+                            "Could not resolve contract inheritance. This is likely caused by contract name reuse (see https://github.com/crytic/slither/issues/1758)."
+                            f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name."
+                        )
+                    assert target, f"Contract {contract_name} not found"
                     ancestors.append(target)
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
