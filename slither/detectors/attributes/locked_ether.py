@@ -73,22 +73,24 @@ Every Ether sent to `Locked` will be lost."""
                         if isinstance(ir, (LowLevelCall)):
                             if ir.function_name in ["delegatecall", "callcode"]:
                                 return False
-                        call_can_send_ether = isinstance(ir, SolidityCall) and ir.function in [
-                            SolidityFunction(
-                                "delegatecall(uint256,uint256,uint256,uint256,uint256,uint256)"
-                            ),
-                            SolidityFunction(
-                                "callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
-                            ),
-                            SolidityFunction(
-                                "call(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
-                            ),
-                        ]
-                        nonzero_call_value = (
-                            not isinstance(ir.arguments[2], Constant) or ir.arguments[2].value != 0
-                        )
-                        if call_can_send_ether and nonzero_call_value:
-                            return False
+                        if isinstance(ir, SolidityCall):
+                            call_can_send_ether = ir.function in [
+                                SolidityFunction(
+                                    "delegatecall(uint256,uint256,uint256,uint256,uint256,uint256)"
+                                ),
+                                SolidityFunction(
+                                    "callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
+                                ),
+                                SolidityFunction(
+                                    "call(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
+                                ),
+                            ]
+                            nonzero_call_value = (
+                                not isinstance(ir.arguments[2], Constant)
+                                or ir.arguments[2].value != 0
+                            )
+                            if call_can_send_ether and nonzero_call_value:
+                                return False
                         # If a new internal call or librarycall
                         # Add it to the list to explore
                         # InternalCall if to follow internal call in libraries
