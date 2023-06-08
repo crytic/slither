@@ -104,7 +104,8 @@ def test_unstructured_storage(web3, ganache, solc_binary_path) -> None:
     sl = Slither(Path(TEST_DATA_DIR, "unstructured_storage-0.8.10.sol").as_posix(), solc=solc_path)
     contracts = sl.contracts
 
-    srs = SlitherReadStorage(contracts, 100)
+    rpc_info: RpcInfo = RpcInfo(ganache.provider)
+    srs = SlitherReadStorage(contracts, 100, rpc_info)
     srs.unstructured = True
     srs.rpc = ganache.provider
     srs.storage_address = address
