@@ -87,11 +87,11 @@ Every Ether sent to `Locked` will be lost."""
                                     "call(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
                                 ),
                             ]
-                            nonzero_call_value = (
+                            nonzero_call_value = call_can_send_ether and (
                                 not isinstance(ir.arguments[2], Constant)
                                 or ir.arguments[2].value != 0
                             )
-                            if call_can_send_ether and nonzero_call_value:
+                            if nonzero_call_value:
                                 return False
                         # If a new internal call or librarycall
                         # Add it to the list to explore
