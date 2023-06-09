@@ -16,7 +16,7 @@ setup(
         "prettytable>=3.3.0",
         "pycryptodome>=3.4.6",
         # "crytic-compile>=0.3.1,<0.4.0",
-        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@39bdc6dcdcb6003fb937a246ea4521b722533e8c#egg=crytic-compile",
+        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@fix/legacy-zip#egg=crytic-compile",
         "web3>=6.0.0",
         "eth-abi>=4.0.0",
         "eth-typing>=3.0.0",
