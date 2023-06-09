@@ -23,4 +23,15 @@ contract Unlocked is Locked, Send{
 
 }
 
+// Still reported because solidity < 0.6.0 doesn't have assembly in the AST
+contract UnlockedAssembly is Locked{
+
+    function withdraw() public {
+        assembly {
+            let success := call(gas(), caller(),100,0,0,0,0)    
+        }
+    }
+
+}
+
 contract OnlyLocked is Locked{ }
