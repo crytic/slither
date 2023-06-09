@@ -117,6 +117,16 @@ _signed_to_unsigned = {
     BinaryOperationType.RIGHT_SHIFT_ARITHMETIC: BinaryType.RIGHT_SHIFT,
 }
 
+def convert_implicit_cast(val, left, right, operation):
+    if operation.type in [BinaryOperationType.LEFT_SHIFT, BinaryOperationType.RIGHT_SHIFT, BinaryOperationType.POWER] or left.type.size > right.type.size:
+        converted = TypeConversion(val, right, left.type)
+        val.set_type(left.type)
+        right = val
+    else:
+        converted = TypeConversion(val, left, right.type)
+        val.set_type(right.type)
+        left = val
+    return converted, left, right
 
 def convert_assignment(
     left: Union[LocalVariable, StateVariable, ReferenceVariable],
@@ -234,6 +244,16 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
                 set_val(expression, left)
             else:
+                from slither.core.solidity_types.elementary_type import (
+                    Int,
+                    Uint
+                )
+
+                if str(left.type) in Int + Uint and str(right.type) in Int + Uint and left.type.size != right.type.size:
+                    val = TemporaryVariable(self._node)
+                    converted, left, right = convert_implicit_cast(val, left, right, expression)
+                    converted.set_expression(expression)
+                    self._result.append(converted)
                 operation = convert_assignment(
                     left, right, expression.type, expression.expression_return_type
                 )
@@ -274,6 +294,17 @@ class ExpressionToSlithIR(ExpressionVisitor):
             conv_final.set_expression(expression)
             self._result.append(conv_final)
         else:
+            from slither.core.solidity_types.elementary_type import (
+                Int,
+                Uint
+            )
+            print(left.type)
+            print(right.type)
+            if str(left.type) in Int + Uint and str(right.type) in Int + Uint and left.type.size != right.type.size:
+                converted, left, right = convert_implicit_cast(val, left, right, expression)
+                converted.set_expression(expression)
+                self._result.append(converted)
+                val = TemporaryVariable(self._node)
             operation = Binary(val, left, right, _binary_to_binary[expression.type])
             operation.set_expression(expression)
             self._result.append(operation)

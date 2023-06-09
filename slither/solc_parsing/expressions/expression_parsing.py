@@ -1,6 +1,7 @@
 import logging
 import re
 from typing import Union, Dict, TYPE_CHECKING
+from slither.utils.integer_conversion import convert_string_to_int
 
 import slither.core.expressions.type_conversion
 from slither.core.declarations.solidity_variables import (
@@ -428,13 +429,19 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 value = "0x" + expression["attributes"]["hexvalue"]
             type_candidate = expression["attributes"]["type"]
 
+        def smallest_byte(x: int) -> int:
+            for byte in range(8, 256, 8):
+                if x <= 2 ** byte - 1:
+                    return byte
+            return 256
+                
         if type_candidate is None:
             if value.isdecimal():
-                type_candidate = ElementaryType("uint256")
+                type_candidate = ElementaryType(f"uint256")
             else:
                 type_candidate = ElementaryType("string")
         elif type_candidate.startswith("int_const "):
-            type_candidate = ElementaryType("uint256")
+            type_candidate = ElementaryType(f"uint{smallest_byte(convert_string_to_int(value))}")
         elif type_candidate.startswith("bool"):
             type_candidate = ElementaryType("bool")
         elif type_candidate.startswith("address"):
@@ -442,6 +449,8 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         else:
             type_candidate = ElementaryType("string")
         literal = Literal(value, type_candidate, subdenomination)
+        print(literal)
+        print(type_candidate)
         literal.set_offset(src, caller_context.compilation_unit)
         return literal
 
