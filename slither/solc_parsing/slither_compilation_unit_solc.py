@@ -438,7 +438,7 @@ Please rename it, this name is reserved for Slither's internals"""
                     )
                     if target == contract_parser.underlying_contract:
                         raise InheritanceResolutionError(
-                            "Could not resolve contract inheritance. This is likely caused by contract name reuse (see https://github.com/crytic/slither/issues/1758)."
+                            "Could not resolve contract inheritance. This is likely caused by an import renaming that collides with existing names (see https://github.com/crytic/slither/issues/1758)."
                             f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name."
                         )
                     assert target, f"Contract {contract_name} not found"
