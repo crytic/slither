@@ -90,6 +90,9 @@ def generate_interface(
                 ):
                     structs.append(elem.type.type)
     for var in contract.state_variables_entry_points:
+        if any(func.name == var.name for func in contract.functions_entry_points):
+            # ignore public variables that override a public function
+            continue
         var_sig = generate_interface_variable_signature(var, unroll_structs)
         if var_sig is not None and var_sig != "":
             interface += f"    function {var_sig};\n"
