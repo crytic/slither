@@ -40,24 +40,29 @@ def deploy_contract(w3, ganache, contract_bin, contract_abi) -> Contract:
 
 
 # pylint: disable=too-many-locals
+@pytest.mark.parametrize(
+    "test_contract, storage_file",
+    [("StorageLayout", "storage_layout"), ("UnstructuredStorageLayout", "unstructured_storage")],
+)
 @pytest.mark.usefixtures("web3", "ganache")
-def test_read_storage(web3, ganache, solc_binary_path) -> None:
+def test_read_storage(test_contract, storage_file, web3, ganache, solc_binary_path) -> None:
     solc_path = solc_binary_path(version="0.8.10")
 
     assert web3.is_connected()
-    bin_path = Path(TEST_DATA_DIR, "StorageLayout.bin").as_posix()
-    abi_path = Path(TEST_DATA_DIR, "StorageLayout.abi").as_posix()
+    bin_path = Path(TEST_DATA_DIR, f"{test_contract}.bin").as_posix()
+    abi_path = Path(TEST_DATA_DIR, f"{test_contract}.abi").as_posix()
     bytecode = get_source_file(bin_path)
     abi = get_source_file(abi_path)
     contract = deploy_contract(web3, ganache, bytecode, abi)
     contract.functions.store().transact({"from": ganache.eth_address})
     address = contract.address
 
-    sl = Slither(Path(TEST_DATA_DIR, "storage_layout-0.8.10.sol").as_posix(), solc=solc_path)
+    sl = Slither(Path(TEST_DATA_DIR, f"{test_contract}.sol").as_posix(), solc=solc_path)
     contracts = sl.contracts
 
     rpc_info: RpcInfo = RpcInfo(ganache.provider)
     srs = SlitherReadStorage(contracts, 100, rpc_info)
+    srs.unstructured = True
     srs.storage_address = address
     srs.get_all_storage_variables()
     srs.get_storage_layout()
@@ -67,57 +72,7 @@ def test_read_storage(web3, ganache, solc_binary_path) -> None:
         slot_infos_json = srs.to_json()
         json.dump(slot_infos_json, file, indent=4)
 
-    expected_file = Path(TEST_DATA_DIR, "TEST_storage_layout.json").as_posix()
-
-    with open(expected_file, "r", encoding="utf8") as f:
-        expected = json.load(f)
-    with open(actual_file, "r", encoding="utf8") as f:
-        actual = json.load(f)
-
-    diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
-    if diff:
-        for change in diff.get("values_changed", []):
-            path_list = re.findall(r"\['(.*?)'\]", change.path())
-            path = "_".join(path_list)
-            with open(f"{path}_expected.txt", "w", encoding="utf8") as f:
-                f.write(str(change.t1))
-            with open(f"{path}_actual.txt", "w", encoding="utf8") as f:
-                f.write(str(change.t2))
-
-    assert not diff
-
-
-# pylint: disable=too-many-locals
-@pytest.mark.usefixtures("web3", "ganache")
-def test_unstructured_storage(web3, ganache, solc_binary_path) -> None:
-    solc_path = solc_binary_path(version="0.8.10")
-
-    assert web3.is_connected()
-    bin_path = Path(TEST_DATA_DIR, "UnstructuredStorageLayout.bin").as_posix()
-    abi_path = Path(TEST_DATA_DIR, "UnstructuredStorageLayout.abi").as_posix()
-    bytecode = get_source_file(bin_path)
-    abi = get_source_file(abi_path)
-    contract = deploy_contract(web3, ganache, bytecode, abi)
-    contract.functions.store().transact({"from": ganache.eth_address})
-    address = contract.address
-
-    sl = Slither(Path(TEST_DATA_DIR, "unstructured_storage-0.8.10.sol").as_posix(), solc=solc_path)
-    contracts = sl.contracts
-
-    rpc_info: RpcInfo = RpcInfo(ganache.provider)
-    srs = SlitherReadStorage(contracts, 100, rpc_info)
-    srs.unstructured = True
-    srs.rpc = ganache.provider
-    srs.storage_address = address
-    srs.get_all_storage_variables()
-    srs.get_storage_layout()
-    srs.walk_slot_info(srs.get_slot_values)
-    actual_file = Path(TEST_DATA_DIR, "unstructured_storage.json").as_posix()
-    with open(actual_file, "w", encoding="utf-8") as file:
-        slot_infos_json = srs.to_json()
-        json.dump(slot_infos_json, file, indent=4)
-
-    expected_file = Path(TEST_DATA_DIR, "TEST_unstructured_storage.json").as_posix()
+    expected_file = Path(TEST_DATA_DIR, f"TEST_{storage_file}.json").as_posix()
 
     with open(expected_file, "r", encoding="utf8") as f:
         expected = json.load(f)

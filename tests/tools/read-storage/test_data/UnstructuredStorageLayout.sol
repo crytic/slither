@@ -1,5 +1,6 @@
+pragma solidity 0.8.10;
 // overwrite abi and bin:
-// solc tests/storage-layout/unstructured_storage-0.8.10.sol --abi --bin -o tests/storage-layout --overwrite
+// solc UnstructuredStorageLayout.sol --abi --bin --overwrite
 
 library StorageSlot {
     struct AddressSlot {
