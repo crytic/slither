@@ -12,4 +12,5 @@ contract BinOp {
     bool k = true || false;
     uint l = uint(1) - uint(2);
     bytes32 IMPLEMENTATION_SLOT = bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1);
+    bytes2 m = "ab";
 }       

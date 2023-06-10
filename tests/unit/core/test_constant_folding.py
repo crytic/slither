@@ -122,3 +122,10 @@ def test_constant_folding_binary_expressions(solc_binary_path):
         )
         == 24440054405305269366569402256811496959409073762505157381672968839269610695612
     )
+
+    variable_m = contract.get_state_variable_from_name("m")
+    assert str(variable_m.type) == "bytes2"
+    assert (
+        ConstantFolding(variable_m.expression, "bytes2").result().value
+        == "ab"
+    )

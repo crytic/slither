@@ -64,8 +64,6 @@ class ConstantFolding(ExpressionVisitor):
             # emulate 256-bit wrapping
             if str(self._type).startswith("uint"):
                 value = value & (2**256 - 1)
-        if str(self._type).startswith("byte"):
-            value = int.to_bytes(int(value), 32, "big")
         return Literal(value, self._type)
 
     # pylint: disable=import-outside-toplevel
@@ -212,7 +210,7 @@ class ConstantFolding(ExpressionVisitor):
         if called.name == "keccak256(bytes)":
             digest = keccak.new(digest_bits=256)
             digest.update(str(args[0]).encode("utf-8"))
-            set_val(expression, int(digest.hexdigest(), 16))
+            set_val(expression, digest.digest())
         else:
             raise NotConstant
 
@@ -280,4 +278,10 @@ class ConstantFolding(ExpressionVisitor):
         cf = ConstantFolding(expr, self._type)
         expr = cf.result()
         assert isinstance(expr, Literal)
-        set_val(expression, convert_string_to_fraction(expr.converted_value))
+        if str(expression._type).startswith("uint") and isinstance(expr.value, bytes):
+            value = int.from_bytes(expr.value, "big")
+        elif str(expression._type).startswith("byte") and isinstance(expr.value, int):
+            value = int.to_bytes(expr.value, 32, "big")
+        else:
+            value = convert_string_to_fraction(expr.converted_value)
+        set_val(expression, value)
