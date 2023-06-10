@@ -162,20 +162,13 @@ class SlitherReadStorage:
             var_name = var.name
             try:
                 exp = var.expression
-                if isinstance(exp, CallExpression) and str(exp.called) == "keccak256(bytes)":
-                    exp = exp.arguments[0]
                 if isinstance(
                     exp,
-                    (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
+                    (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion, CallExpression),
                 ):
                     exp = ConstantFolding(exp, "bytes32").result()
                 if isinstance(exp, Literal):
-                    if str(exp.value).startswith("0x") or isinstance(exp.value, bytes):
-                        slot = coerce_type("int", exp.value)
-                    else:
-                        slot_str = exp.value
-                        slot_hash = keccak(text=slot_str)
-                        slot = coerce_type("int", slot_hash)
+                    slot = coerce_type("int", exp.value)
                 else:
                     continue
                 offset = 0
@@ -190,7 +183,7 @@ class SlitherReadStorage:
                     )
                     logger.info(self.log)
                     self.log = ""
-            except (TypeError, NotConstant):
+            except NotConstant:
                 continue
         return tmp
 
@@ -498,9 +491,9 @@ class SlitherReadStorage:
             exp = exp.arguments[0]
             if "sload" in str(called):
                 break
-        if not isinstance(exp, Literal) and isinstance(
+        if isinstance(
             exp,
-            (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
+            (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion, CallExpression),
         ):
             try:
                 exp = ConstantFolding(exp, "bytes32").result()
@@ -510,7 +503,6 @@ class SlitherReadStorage:
             isinstance(exp, Literal)
             and isinstance(exp.type, ElementaryType)
             and exp.type.name in ["bytes32", "uint256"]
-            # and (str(exp.value).startswith("0x") or isinstance(exp.value, bytes))
         ):
             sv = StateVariable()
             sv.name = "fallback_sload_hardcoded"
