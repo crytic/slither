@@ -186,7 +186,7 @@ def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither
             if mapping_item[i] == "":
                 mapping_item[i] = int(prev_mapping[i])
 
-        offset, _length, file_id, _ = mapping_item
+        offset, _length, file_id, *_ = mapping_item
         prev_mapping = mapping_item
 
         if file_id == "-1":
