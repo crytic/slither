@@ -660,6 +660,70 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(node_condition, node_endDoWhile)
         return node_endDoWhile
 
+    # pylint: disable=no-self-use
+    def _construct_try_expression(self, externalCall: Dict, parameters_list: Dict) -> Dict:
+        # if the parameters are more than 1 we make the leftHandSide of the Assignment node
+        # a TupleExpression otherwise an Identifier
+
+        # case when there isn't returns(...)
+        # e.g. external call that doesn't have any return variable
+        if not parameters_list:
+            return externalCall
+
+        ret: Dict = {"nodeType": "Assignment", "operator": "=", "src": parameters_list["src"]}
+
+        parameters = parameters_list.get("parameters", None)
+
+        # if the name is "" it means the return variable is not used
+        if len(parameters) == 1:
+            if parameters[0]["name"] != "":
+                self._add_param(parameters[0])
+                ret["typeDescriptions"] = {
+                    "typeString": parameters[0]["typeName"]["typeDescriptions"]["typeString"]
+                }
+                leftHandSide = {
+                    "name": parameters[0]["name"],
+                    "nodeType": "Identifier",
+                    "src": parameters[0]["src"],
+                    "referencedDeclaration": parameters[0]["id"],
+                    "typeDescriptions": parameters[0]["typeDescriptions"],
+                }
+            else:
+                # we don't need an Assignment so we return only the external call
+                return externalCall
+        else:
+            ret["typeDescriptions"] = {"typeString": "tuple()"}
+            leftHandSide = {
+                "components": [],
+                "nodeType": "TupleExpression",
+                "src": parameters_list["src"],
+            }
+
+            for i, p in enumerate(parameters):
+                if p["name"] == "":
+                    continue
+
+                new_statement = {
+                    "nodeType": "VariableDefinitionStatement",
+                    "src": p["src"],
+                    "declarations": [p],
+                }
+                self._add_param_init_tuple(new_statement, i)
+
+                ident = {
+                    "name": p["name"],
+                    "nodeType": "Identifier",
+                    "src": p["src"],
+                    "referencedDeclaration": p["id"],
+                    "typeDescriptions": p["typeDescriptions"],
+                }
+                leftHandSide["components"].append(ident)
+
+        ret["leftHandSide"] = leftHandSide
+        ret["rightHandSide"] = externalCall
+
+        return ret
+
     def _parse_try_catch(self, statement: Dict, node: NodeSolc) -> NodeSolc:
         externalCall = statement.get("externalCall", None)
 
@@ -669,15 +733,28 @@ class FunctionSolc(CallerContextExpression):
             node.underlying_node.scope.is_checked, False, node.underlying_node.scope
         )
         new_node = self._new_node(NodeType.TRY, statement["src"], catch_scope)
-        new_node.add_unparsed_expression(externalCall)
+        clauses = statement.get("clauses", [])
+        # the first clause is the try scope
+        returned_variables = clauses[0].get("parameters", None)
+        constructed_try_expression = self._construct_try_expression(
+            externalCall, returned_variables
+        )
+        new_node.add_unparsed_expression(constructed_try_expression)
         link_underlying_nodes(node, new_node)
         node = new_node
 
-        for clause in statement.get("clauses", []):
-            self._parse_catch(clause, node)
+        for index, clause in enumerate(clauses):
+            # clauses after the first one are related to catch cases
+            # we set the parameters (e.g. data in this case. catch(string memory data) ...)
+            # to be initialized so they are not reported by the uninitialized-local-variables detector
+            if index >= 1:
+                self._parse_catch(clause, node, True)
+            else:
+                # the parameters for the try scope were already added in _construct_try_expression
+                self._parse_catch(clause, node, False)
         return node
 
-    def _parse_catch(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_catch(self, statement: Dict, node: NodeSolc, add_param: bool) -> NodeSolc:
         block = statement.get("block", None)
 
         if block is None:
@@ -687,15 +764,16 @@ class FunctionSolc(CallerContextExpression):
         try_node = self._new_node(NodeType.CATCH, statement["src"], try_scope)
         link_underlying_nodes(node, try_node)
 
-        if self.is_compact_ast:
-            params = statement.get("parameters", None)
-        else:
-            params = statement[self.get_children("children")]
+        if add_param:
+            if self.is_compact_ast:
+                params = statement.get("parameters", None)
+            else:
+                params = statement[self.get_children("children")]
 
-        if params:
-            for param in params.get("parameters", []):
-                assert param[self.get_key()] == "VariableDeclaration"
-                self._add_param(param)
+            if params:
+                for param in params.get("parameters", []):
+                    assert param[self.get_key()] == "VariableDeclaration"
+                    self._add_param(param, True)
 
         return self._parse_statement(block, try_node, try_scope)
 
@@ -1162,7 +1240,7 @@ class FunctionSolc(CallerContextExpression):
                     visited.add(son)
                     self._fix_catch(son, end_node, visited)
 
-    def _add_param(self, param: Dict) -> LocalVariableSolc:
+    def _add_param(self, param: Dict, initialized: bool = False) -> LocalVariableSolc:
 
         local_var = LocalVariable()
         local_var.set_function(self._function)
@@ -1172,9 +1250,23 @@ class FunctionSolc(CallerContextExpression):
 
         local_var_parser.analyze(self)
 
+        if initialized:
+            local_var.initialized = True
+
         # see https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
         if local_var.location == "default":
             local_var.set_location("memory")
+
+        self._add_local_variable(local_var_parser)
+        return local_var_parser
+
+    def _add_param_init_tuple(self, statement: Dict, index: int) -> LocalVariableInitFromTupleSolc:
+
+        local_var = LocalVariableInitFromTuple()
+        local_var.set_function(self._function)
+        local_var.set_offset(statement["src"], self._function.compilation_unit)
+
+        local_var_parser = LocalVariableInitFromTupleSolc(local_var, statement, index)
 
         self._add_local_variable(local_var_parser)
         return local_var_parser
