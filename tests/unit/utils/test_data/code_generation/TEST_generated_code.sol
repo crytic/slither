@@ -11,14 +11,20 @@ interface ITestContract {
     struct St {
         uint256 v;
     }
+    struct Nested {
+        St st;
+    }
     function stateA() external returns (uint256);
     function owner() external returns (address);
-    function structs(address,uint256) external returns (uint256);
+    function structsMap(address,uint256) external returns (uint256);
+    function structsArray(uint256) external returns (uint256);
+    function otherI() external returns (address);
     function err0() external;
     function err1() external;
     function err2(uint256,uint256) external;
     function newSt(uint256) external returns (uint256);
     function getSt(uint256) external view returns (uint256);
     function removeSt(uint256) external;
+    function setOtherI(address) external;
 }
 

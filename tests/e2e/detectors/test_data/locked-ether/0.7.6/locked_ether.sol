@@ -23,4 +23,14 @@ contract Unlocked is Locked, Send{
 
 }
 
+contract UnlockedAssembly is Locked{
+
+    function withdraw() public {
+        assembly {
+            let success := call(gas(), caller(),100,0,0,0,0)    
+        }
+    }
+
+}
+
 contract OnlyLocked is Locked{ }
