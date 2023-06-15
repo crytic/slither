@@ -244,7 +244,7 @@ class CKMetrics(AbstractPrinter):
         txt += str(table1) + "\n"
 
         # metrics4: function mutability counts
-        txt += bold("\nFunction mutatability\n")
+        txt += bold("\nState mutability\n")
         keys = list(metrics3[self.contracts[0].name].keys())
         table2 = make_pretty_table(["Contract", *keys], metrics3, True)
         txt += str(table2) + "\n"
