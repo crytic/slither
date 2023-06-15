@@ -1,7 +1,4 @@
 """
-
-    # TODO: Add in other CK metrics (NOC, DIT)
-    # TODO: Don't display all the general function metrics, but add those to complexity-dashboard
     CK Metrics are a suite of six software metrics proposed by Chidamber and Kemerer in 1994.
     These metrics are used to measure the complexity of a class.
     https://en.wikipedia.org/wiki/Programming_complexity
