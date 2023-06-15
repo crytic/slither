@@ -78,25 +78,3 @@ def make_pretty_table_simple(
     for k, v in data.items():
         table.add_row([k] + [v])
     return table
-
-
-# takes a dict of dicts and returns a dict of dicts with the keys transposed
-# example:
-# in:
-# {
-#     "dep": {"loc": 0, "sloc": 0, "cloc": 0},
-#     "test": {"loc": 0, "sloc": 0, "cloc": 0},
-#     "src": {"loc": 0, "sloc": 0, "cloc": 0},
-# }
-# out:
-# {
-#     'loc': {'dep': 0, 'test': 0, 'src': 0},
-#     'sloc': {'dep': 0, 'test': 0, 'src': 0},
-#     'cloc': {'dep': 0, 'test': 0, 'src': 0},
-# }
-def transpose(table):
-    any_key = list(table.keys())[0]
-    return {
-        inner_key: {outer_key: table[outer_key][inner_key] for outer_key in table}
-        for inner_key in table[any_key]
-    }
