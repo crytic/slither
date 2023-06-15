@@ -33,6 +33,10 @@ logger = logging.getLogger("SlitherSolcParsing")
 logger.setLevel(logging.INFO)
 
 
+class InheritanceResolutionError(SlitherException):
+    pass
+
+
 def _handle_import_aliases(
     symbol_aliases: Dict, import_directive: Import, scope: FileScope
 ) -> None:
@@ -194,6 +198,13 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def parse_top_level_from_loaded_json(self, data_loaded: Dict, filename: str) -> None:
+        if not data_loaded or data_loaded is None:
+            logger.error(
+                "crytic-compile returned an empty AST. "
+                "If you are trying to analyze a contract from etherscan or similar make sure it has source code available."
+            )
+            return
+
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
@@ -432,7 +443,12 @@ Please rename it, this name is reserved for Slither's internals"""
                     target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
                         contract_name
                     )
-                    assert target
+                    if target == contract_parser.underlying_contract:
+                        raise InheritanceResolutionError(
+                            "Could not resolve contract inheritance. This is likely caused by an import renaming that collides with existing names (see https://github.com/crytic/slither/issues/1758)."
+                            f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name."
+                        )
+                    assert target, f"Contract {contract_name} not found"
                     ancestors.append(target)
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
