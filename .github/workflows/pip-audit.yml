@@ -34,6 +34,6 @@ jobs:
           python -m pip install .
 
       - name: Run pip-audit
-        uses: trailofbits/gh-action-pip-audit@v0.0.4
+        uses: pypa/gh-action-pip-audit@v1.0.8
         with:
           virtual-environment: /tmp/pip-audit-env

@@ -87,6 +87,9 @@ class ModifierSolc(FunctionSolc):
         for node in self._node_to_nodesolc.values():
             node.analyze_expressions(self)
 
+        for yul_parser in self._node_to_yulobject.values():
+            yul_parser.analyze_expressions()
+
         self._rewrite_ternary_as_if_else()
         self._remove_alone_endif()
 

@@ -87,6 +87,8 @@ class UnchangedStateVariables:
     def detect(self) -> None:
         """Detect state variables that could be constant or immutable"""
         for c in self.compilation_unit.contracts_derived:
+            if c.is_signature_only():
+                continue
             variables = []
             functions = []
 
