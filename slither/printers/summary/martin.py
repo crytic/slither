@@ -9,10 +9,11 @@
     Distance from the Main Sequence (D):  abs(A + I - 1)
 
 """
-from slither.printers.abstract_printer import AbstractPrinter
+from typing import Tuple
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.utils.myprettytable import make_pretty_table
-from typing import Tuple
+from slither.printers.abstract_printer import AbstractPrinter
+
 
 def count_abstracts(contracts) -> Tuple[int, int]:
     """
