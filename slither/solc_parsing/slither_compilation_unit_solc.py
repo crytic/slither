@@ -198,6 +198,13 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def parse_top_level_from_loaded_json(self, data_loaded: Dict, filename: str) -> None:
+        if not data_loaded or data_loaded is None:
+            logger.error(
+                "crytic-compile returned an empty AST. "
+                "If you are trying to analyze a contract from etherscan or similar make sure it has source code available."
+            )
+            return
+
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
