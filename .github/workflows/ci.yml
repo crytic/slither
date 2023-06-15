@@ -36,6 +36,7 @@ jobs:
                "etherscan",
                "find_paths",
                "flat",
+               "interface",
                "kspec",
                "printers",
                # "prop"

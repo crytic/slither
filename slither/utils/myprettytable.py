@@ -1,6 +1,6 @@
 from typing import List, Dict, Union
 
-from prettytable import PrettyTable
+from prettytable.colortable import ColorTable, Themes
 
 
 class MyPrettyTable:
@@ -19,9 +19,8 @@ class MyPrettyTable:
     def add_row(self, row: List[Union[str, List[str]]]) -> None:
         self._rows.append(row)
 
-
-    def to_pretty_table(self) -> PrettyTable:
-        table = PrettyTable(self._field_names)
+    def to_pretty_table(self) -> ColorTable:
+        table = ColorTable(self._field_names, theme=Themes.OCEAN)
         for row in self._rows:
             table.add_row(row)
         if len(self._options["set_alignment"]):
@@ -38,7 +37,10 @@ class MyPrettyTable:
 
 # **Dict to MyPrettyTable utility functions**
 
-def make_pretty_table(headers: list, body: dict, totals: bool = False, total_header="TOTAL") -> MyPrettyTable:
+
+def make_pretty_table(
+    headers: list, body: dict, totals: bool = False, total_header="TOTAL"
+) -> MyPrettyTable:
     """
     Converts a dict to a MyPrettyTable.  Dict keys are the row headers.
     Args:
@@ -71,21 +73,24 @@ def make_pretty_table_simple(data: dict, first_column_header, second_column_head
     for k, v in data.items():
         table.add_row([k] + [v])
     return table
-# takes a dict of dicts and returns a dict of dicts with the keys transposed
-# example:
-# in:
-# {
-#     "dep": {"loc": 0, "sloc": 0, "cloc": 0},
-#     "test": {"loc": 0, "sloc": 0, "cloc": 0},
-#     "src": {"loc": 0, "sloc": 0, "cloc": 0},
-# }
-# out:
-# {
-#     'loc': {'dep': 0, 'test': 0, 'src': 0},
-#     'sloc': {'dep': 0, 'test': 0, 'src': 0},
-#     'cloc': {'dep': 0, 'test': 0, 'src': 0},
-# }
+
 def transpose(table):
+    """
+    takes a dict of dicts and returns a dict of dicts with the keys transposed
+    example:
+    in:
+    {
+        "dep": {"loc": 0, "sloc": 0, "cloc": 0},
+        "test": {"loc": 0, "sloc": 0, "cloc": 0},
+        "src": {"loc": 0, "sloc": 0, "cloc": 0},
+    }
+    out:
+    {
+        'loc': {'dep': 0, 'test': 0, 'src': 0},
+        'sloc': {'dep': 0, 'test': 0, 'src': 0},
+        'cloc': {'dep': 0, 'test': 0, 'src': 0},
+    }
+    """
     any_key = list(table.keys())[0]
     return {
         inner_key: {outer_key: table[outer_key][inner_key] for outer_key in table}
