@@ -12,9 +12,9 @@
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.utils.myprettytable import make_pretty_table
+from typing import Tuple
 
-
-def count_abstracts(contracts):
+def count_abstracts(contracts) -> Tuple[int, int]:
     """
     Count the number of abstract contracts
     Args:
