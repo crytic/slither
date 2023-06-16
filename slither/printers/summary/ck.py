@@ -40,7 +40,7 @@ def compute_dit(contract, depth=0):
 
 
 # pylint: disable=too-many-locals
-def compute_metrics(contracts):
+def compute_ck_metrics(contracts):
     """
     Compute CK metrics of a contract
     Args:
@@ -100,6 +100,8 @@ def compute_metrics(contracts):
     coupling = compute_coupling(contracts, 0)
 
     for contract in contracts:
+        if contract.is_interface:
+            continue
         (state_variables, constants, immutables, public_getters) = count_variables(contract)
         rfc = public_getters  # add 1 for each public getter
         metrics1[contract.name] = {
@@ -128,7 +130,7 @@ def compute_metrics(contracts):
             "RFC": 0,
             "NOC": len(dependents[contract.name]),
             "DIT": compute_dit(contract),
-            "CBO": coupling[contract.name]["Dependents"] + coupling[contract.name]["Dependencies"],
+            "CBO": coupling[contract.name]["Dependents (Ca)"] + coupling[contract.name]["Dependencies (Ce)"],
         }
         for func in contract.functions:
             if func.name == "constructor":
@@ -229,7 +231,7 @@ class CKMetrics(AbstractPrinter):
     def output(self, _filename):
         if len(self.contracts) == 0:
             return self.generate_output("No contract found")
-        metrics1, metrics2, metrics3, metrics4, metrics5 = compute_metrics(self.contracts)
+        metrics1, metrics2, metrics3, metrics4, metrics5 = compute_ck_metrics(self.contracts)
         txt = bold("\nCK complexity metrics\n")
         # metrics2: variable counts
         txt += bold("\nVariables\n")

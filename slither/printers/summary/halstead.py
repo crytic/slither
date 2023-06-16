@@ -73,6 +73,8 @@ def compute_halstead(contracts: list) -> tuple:
     all_operators = []
     all_operands = []
     for contract in contracts:
+        if contract.is_interface:
+            continue
         operators = []
         operands = []
         for func in contract.functions:

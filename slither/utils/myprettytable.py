@@ -55,7 +55,7 @@ def make_pretty_table(
     for row in body:
         table_row = [row] + [body[row][key] for key in headers[1:]]
         table.add_row(table_row)
-    if totals:
+    if totals and len(body) > 1:
         table.add_row(["TOTAL"] + [sum([body[row][key] for row in body]) for key in headers[1:]])
     return table
 

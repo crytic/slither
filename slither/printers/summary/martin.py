@@ -39,22 +39,24 @@ def compute_coupling(contracts: list, abstractness: float) -> dict:
         dict of contract names with dicts of the coupling metrics:
         {
         "contract_name1": {
-            "Dependents": 0,
-            "Dependencies": 3
-            "Instability": 1.0,
-            "Abstractness": 0.0,
-            "Distance from main sequence": 1.0,
+            "Dependents (Ca)": 0,
+            "Dependencies (Ce)": 3
+            "Instability (I)": 1.0,
+            "Abstractness (A)": 0.0,
+            "Distance from main sequence (D)": 1.0,
         },
         "contract_name2": {
-            "Dependents": 1,
-            "Dependencies": 0
-            "Instability": 0.0,
-            "Abstractness": 1.0,
-            "Distance from main sequence": 0.0,
+            "Dependents (Ca)": 1,
+            "Dependencies (Ce)": 0
+            "Instability (I)": 0.0,
+            "Abstractness (A)": 1.0,
+            "Distance from main sequence (D)": 0.0,
         }
     """
     dependencies = {}
     for contract in contracts:
+        if contract.is_interface:
+            continue
         for func in contract.functions:
             high_level_calls = [
                 ir for node in func.nodes for ir in node.irs_ssa if isinstance(ir, HighLevelCall)
@@ -79,10 +81,10 @@ def compute_coupling(contracts: list, abstractness: float) -> dict:
             i = float(ce / (ce + ca))
             d = float(abs(i - abstractness))
         coupling_dict[contract.name] = {
-            "Dependents": ca,
-            "Dependencies": ce,
-            "Instability": f"{i:.2f}",
-            "Distance from main sequence": f"{d:.2f}",
+            "Dependents (Ca)": ca,
+            "Dependencies (Ce)": ce,
+            "Instability (I)": f"{i:.2f}",
+            "Distance from main sequence (D)": f"{d:.2f}",
         }
     return coupling_dict
 

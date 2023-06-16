@@ -8,6 +8,7 @@ from .call.call_graph import PrinterCallGraph
 from .functions.authorization import PrinterWrittenVariablesAndAuthorization
 from .summary.slithir import PrinterSlithIR
 from .summary.slithir_ssa import PrinterSlithIRSSA
+from .summary.complexity_dashboard import ComplexityDashboard
 from .summary.human_summary import PrinterHumanSummary
 from .summary.ck import CKMetrics
 from .functions.cfg import CFG

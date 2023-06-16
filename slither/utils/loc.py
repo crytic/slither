@@ -34,6 +34,12 @@ class LoC:
         )
         return table
 
+    def to_dict(self) -> dict:
+        return {
+            "src": {"loc": self.src.loc, "sloc": self.src.sloc, "cloc": self.src.cloc},
+            "dep": {"loc": self.dep.loc, "sloc": self.dep.sloc, "cloc": self.dep.cloc},
+            "test": {"loc": self.test.loc, "sloc": self.test.sloc, "cloc": self.test.cloc},
+        }
 
 def count_lines(contract_lines: List[str]) -> Tuple[int, int, int]:
     """Function to count and classify the lines of code in a contract.
