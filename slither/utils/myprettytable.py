@@ -48,6 +48,7 @@ def make_pretty_table(headers: list, body: dict, totals: bool = False) -> MyPret
         table.add_row(["Total"] + [sum([body[row][key] for row in body]) for key in headers[1:]])
     return table
 
+
 def transpose(table):
     """
     Converts a dict of dicts to a dict of dicts with the keys transposed
