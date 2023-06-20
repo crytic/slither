@@ -1,12 +1,12 @@
 # pylint: disable=redefined-outer-name
 import os
-from pathlib import Path
-import tempfile
 import shutil
+import tempfile
+from pathlib import Path
 from contextlib import contextmanager
-import pytest
 from filelock import FileLock
 from solc_select import solc_select
+import pytest
 from slither import Slither
 
 
