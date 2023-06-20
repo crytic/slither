@@ -726,7 +726,9 @@ class FunctionSolc(CallerContextExpression):
                 self._parse_catch(clause, node, catch_scope, False)
         return node
 
-    def _parse_catch(self, statement: Dict, node: NodeSolc, scope: Scope, add_param: bool) -> NodeSolc:
+    def _parse_catch(
+        self, statement: Dict, node: NodeSolc, scope: Scope, add_param: bool
+    ) -> NodeSolc:
         block = statement.get("block", None)
 
         if block is None:
@@ -874,7 +876,7 @@ class FunctionSolc(CallerContextExpression):
                             self.get_children("children"): [variable, init],
                         }
 
-                        new_node = self._parse_variable_definition(new_statement, new_node)
+                        new_node = self._parse_variable_definition(new_statement, new_node, scope)
                 else:
                     # If we have
                     # var (a, b) = f()
@@ -893,7 +895,7 @@ class FunctionSolc(CallerContextExpression):
                         variables.append(variable)
 
                         new_node = self._parse_variable_definition_init_tuple(
-                            new_statement, i, new_node
+                            new_statement, i, new_node, scope
                         )
                         i = i + 1
                     var_identifiers = []
