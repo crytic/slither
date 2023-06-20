@@ -278,9 +278,9 @@ class ConstantFolding(ExpressionVisitor):
         cf = ConstantFolding(expr, self._type)
         expr = cf.result()
         assert isinstance(expr, Literal)
-        if str(expression._type).startswith("uint") and isinstance(expr.value, bytes):
+        if str(expression.type).startswith("uint") and isinstance(expr.value, bytes):
             value = int.from_bytes(expr.value, "big")
-        elif str(expression._type).startswith("byte") and isinstance(expr.value, int):
+        elif str(expression.type).startswith("byte") and isinstance(expr.value, int):
             value = int.to_bytes(expr.value, 32, "big")
         else:
             value = convert_string_to_fraction(expr.converted_value)

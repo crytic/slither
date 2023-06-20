@@ -164,7 +164,14 @@ class SlitherReadStorage:
                 exp = var.expression
                 if isinstance(
                     exp,
-                    (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion, CallExpression),
+                    (
+                        BinaryOperation,
+                        UnaryOperation,
+                        Identifier,
+                        TupleExpression,
+                        TypeConversion,
+                        CallExpression,
+                    ),
                 ):
                     exp = ConstantFolding(exp, "bytes32").result()
                 if isinstance(exp, Literal):
@@ -493,7 +500,14 @@ class SlitherReadStorage:
                 break
         if isinstance(
             exp,
-            (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion, CallExpression),
+            (
+                BinaryOperation,
+                UnaryOperation,
+                Identifier,
+                TupleExpression,
+                TypeConversion,
+                CallExpression,
+            ),
         ):
             try:
                 exp = ConstantFolding(exp, "bytes32").result()
