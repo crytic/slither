@@ -106,7 +106,7 @@ For each new detector, at least one regression tests must be present.
 > - To run tests for a specific test case, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k user_defined_value_type`  (the filename is the argument).
 > - To run tests for a specific version, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k 0.8.12`.
 > - To run tests for a specific compiler json format, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k legacy` (can be legacy or compact).
-> - The IDs of tests can be inspected using ``pytest tests/e2e/solc_parsing/test_ast_parsing.py --collect-only`.
+> - The IDs of tests can be inspected using `pytest tests/e2e/solc_parsing/test_ast_parsing.py --collect-only`.
 
 ### Synchronization with crytic-compile
 

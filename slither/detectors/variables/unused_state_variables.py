@@ -20,8 +20,6 @@ from slither.visitors.expression.export_values import ExportValues
 
 
 def detect_unused(contract: Contract) -> Optional[List[StateVariable]]:
-    if contract.is_signature_only():
-        return None
     # Get all the variables read in all the functions and modifiers
 
     all_functions = [
@@ -73,6 +71,8 @@ class UnusedStateVars(AbstractDetector):
         """Detect unused state variables"""
         results = []
         for c in self.compilation_unit.contracts_derived:
+            if c.is_signature_only():
+                continue
             unusedVars = detect_unused(c)
             if unusedVars:
                 for var in unusedVars:
