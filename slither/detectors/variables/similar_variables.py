@@ -77,7 +77,7 @@ class SimilarVarsDetection(AbstractDetector):
                 _v2_name_lower = v2.name.lower()
                 if _v1_name_lower != _v2_name_lower:
                     if SimilarVarsDetection.similar(_v1_name_lower, _v2_name_lower):
-                            ret.add((v1, v2))
+                        ret.add((v1, v2))
 
         return ret
 
