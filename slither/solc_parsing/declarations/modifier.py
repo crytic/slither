@@ -1,7 +1,7 @@
 """
     Event module
 """
-from typing import Dict, TYPE_CHECKING, Union
+from typing import Dict, TYPE_CHECKING
 
 from slither.core.cfg.node import NodeType
 from slither.core.cfg.node import link_nodes
