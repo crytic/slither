@@ -52,6 +52,7 @@ def is_valid_lvalue(v: Optional[SourceMapping]) -> bool:
         (
             StateVariable,
             LocalVariable,
+            TopLevelVariable,
             TemporaryVariable,
             ReferenceVariable,
             TupleVariable,
