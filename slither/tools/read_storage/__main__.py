@@ -104,6 +104,12 @@ def parse_args() -> argparse.Namespace:
         default="latest",
     )
 
+    parser.add_argument(
+        "--unstructured",
+        action="store_true",
+        help="Include unstructured storage slots",
+    )
+
     cryticparser.init(parser)
 
     return parser.parse_args()
@@ -133,6 +139,7 @@ def main() -> None:
         rpc_info = RpcInfo(args.rpc_url, block)
 
     srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
+    srs.unstructured = bool(args.unstructured)
     # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
     address = target[target.find(":") + 1 :]
     # Default to implementation address unless a storage address is given.
