@@ -1539,8 +1539,8 @@ ALL_TEST_OBJECTS = [
         "0.8.15",
     ),
     Test(
-        all_detectors.WrongEncodeWithSelector, 
-        "wrong-encode-selector.sol", 
+        all_detectors.WrongEncodeWithSelector,
+        "wrong-encode-selector.sol",
         "0.8.0",
     ),
     Test(
