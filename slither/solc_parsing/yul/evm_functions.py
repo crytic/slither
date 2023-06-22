@@ -51,6 +51,7 @@ evm_opcodes = [
     "TIMESTAMP",
     "NUMBER",
     "DIFFICULTY",
+    "PREVRANDAO",
     "GASLIMIT",
     "CHAINID",
     "SELFBALANCE",
@@ -168,6 +169,7 @@ builtins = [
     )
 ] + yul_funcs
 
+# "identifier": [input_count, output_count]
 function_args = {
     "byte": [2, 1],
     "addmod": [3, 1],
@@ -221,11 +223,12 @@ function_args = {
     "timestamp": [0, 1],
     "number": [0, 1],
     "difficulty": [0, 1],
+    "prevrandao": [0, 1],
     "gaslimit": [0, 1],
 }
 
 
-def format_function_descriptor(name):
+def format_function_descriptor(name: str) -> str:
     if name not in function_args:
         return name + "()"
 
@@ -264,9 +267,9 @@ binary_ops = {
 
 
 class YulBuiltin:  # pylint: disable=too-few-public-methods
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self._name = name
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name

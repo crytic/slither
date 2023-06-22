@@ -1,5 +1,6 @@
 from functools import partial
 import platform
+import sys
 
 
 class Colors:  # pylint: disable=too-few-public-methods
@@ -9,6 +10,7 @@ class Colors:  # pylint: disable=too-few-public-methods
     YELLOW = "\033[93m"
     BLUE = "\033[94m"
     MAGENTA = "\033[95m"
+    BOLD = "\033[1m"
     END = "\033[0m"
 
 
@@ -26,7 +28,7 @@ def enable_windows_virtual_terminal_sequences() -> bool:
 
     try:
         # pylint: disable=import-outside-toplevel
-        from ctypes import windll, byref
+        from ctypes import windll, byref  # type: ignore
         from ctypes.wintypes import DWORD, HANDLE
 
         kernel32 = windll.kernel32
@@ -63,7 +65,7 @@ def enable_windows_virtual_terminal_sequences() -> bool:
     return True
 
 
-def set_colorization_enabled(enabled: bool):
+def set_colorization_enabled(enabled: bool) -> None:
     """
     Sets the enabled state of output colorization.
     :param enabled: Boolean indicating whether output should be colorized.
@@ -73,7 +75,7 @@ def set_colorization_enabled(enabled: bool):
     if enabled and platform.system() == "Windows":
         Colors.COLORIZATION_ENABLED = enable_windows_virtual_terminal_sequences()
     else:
-        # This is not windows so we can enable color immediately.
+        # This is not windows, or colorization is being disabled, so we can adjust the state immediately.
         Colors.COLORIZATION_ENABLED = enabled
 
 
@@ -82,7 +84,7 @@ yellow = partial(colorize, Colors.YELLOW)
 red = partial(colorize, Colors.RED)
 blue = partial(colorize, Colors.BLUE)
 magenta = partial(colorize, Colors.MAGENTA)
+bold = partial(colorize, Colors.BOLD)
 
-# We enable colorization by default (this call is important as it will enable color mode on Windows by default),
-# regardless of whether Slither is interacted with from CLI or another script.
-set_colorization_enabled(True)
+# We enable colorization by default if the output is a tty
+set_colorization_enabled(sys.stdout.isatty())

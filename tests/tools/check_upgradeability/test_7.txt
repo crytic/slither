@@ -1,0 +1,7 @@
+INFO:Slither:
+Contract_not_called_super_init (tests/check-upgradeability/contract_initialization.sol#26-32) needs to be initialized by Contract_not_called_super_init.initialize() (tests/check-upgradeability/contract_initialization.sol#28-30).
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function
+INFO:Slither:
+Missing call to Contract_no_bug.initialize() (tests/check-upgradeability/contract_initialization.sol#13-15) in Contract_not_called_super_init.initialize() (tests/check-upgradeability/contract_initialization.sol#28-30).
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-functions-are-not-called
+INFO:Slither:2 findings, 12 detectors run

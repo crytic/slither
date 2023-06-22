@@ -5,19 +5,17 @@
 mkdir etherscan
 cd etherscan || exit 255
 
-slither 0x7F37f78cBD74481E593F9C737776F7113d76B315 --etherscan-apikey "$GITHUB_ETHERSCAN"
+echo "::group::Etherscan mainnet"
+if ! slither 0x7F37f78cBD74481E593F9C737776F7113d76B315 --etherscan-apikey "$GITHUB_ETHERSCAN" --no-fail-pedantic; then
+    echo "Etherscan mainnet test failed"
+    exit 1
+fi
+echo "::endgroup::"
 
-if [ $? -ne 5 ]
-then
-    echo "Etherscan test failed"
-    exit 255
+# Perform a small sleep when API key is not available (e.g. on PR CI from external contributor)
+if [ "$GITHUB_ETHERSCAN" = "" ]; then
+    sleep $(( ( RANDOM % 5 )  + 1 ))s
 fi
 
-slither rinkeby:0xFe05820C5A92D9bc906D4A46F662dbeba794d3b7 --etherscan-apikey "$GITHUB_ETHERSCAN"
-
-if [ $? -ne 70 ]
-then
-    echo "Etherscan test failed"
-    exit 255
-fi
+exit 0
 

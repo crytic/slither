@@ -1,11 +1,12 @@
 import re
+from typing import Dict
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.exceptions import FormatError
 from slither.formatters.utils.patches import create_patch
 
 
-def custom_format(compilation_unit: SlitherCompilationUnit, result):
+def custom_format(compilation_unit: SlitherCompilationUnit, result: Dict) -> None:
     for file_scope in compilation_unit.scopes.values():
         elements = result["elements"]
         for element in elements:
@@ -16,7 +17,7 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result):
                 element["type_specific_fields"]["parent"]["name"]
             )
             if target_contract:
-                function = target_contract.get_function_from_signature(
+                function = target_contract.get_function_from_full_name(
                     element["type_specific_fields"]["signature"]
                 )
                 if function:
@@ -25,16 +26,20 @@ def custom_format(compilation_unit: SlitherCompilationUnit, result):
                         result,
                         element["source_mapping"]["filename_absolute"],
                         int(
-                            function.parameters_src().source_mapping["start"]
-                            + function.parameters_src().source_mapping["length"]
+                            function.parameters_src().source_mapping.start
+                            + function.parameters_src().source_mapping.length
                         ),
-                        int(function.returns_src().source_mapping["start"]),
+                        int(function.returns_src().source_mapping.start),
                     )
 
 
 def _patch(
-    compilation_unit: SlitherCompilationUnit, result, in_file, modify_loc_start, modify_loc_end
-):
+    compilation_unit: SlitherCompilationUnit,
+    result: Dict,
+    in_file: str,
+    modify_loc_start: int,
+    modify_loc_end: int,
+) -> None:
     in_file_str = compilation_unit.core.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Find the keywords view|pure|constant and remove them

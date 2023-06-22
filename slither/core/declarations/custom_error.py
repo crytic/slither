@@ -1,21 +1,22 @@
-from typing import List, TYPE_CHECKING, Optional, Type, Union
+from typing import List, TYPE_CHECKING, Optional, Type
 
-from slither.core.solidity_types import UserDefinedType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
+from slither.utils.type import is_underlying_type_address
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
 
 
 class CustomError(SourceMapping):
-    def __init__(self, compilation_unit: "SlitherCompilationUnit"):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:
         super().__init__()
         self._name: str = ""
         self._parameters: List[LocalVariable] = []
         self._compilation_unit = compilation_unit
 
         self._solidity_signature: Optional[str] = None
+        self._full_name: Optional[str] = None
 
     @property
     def name(self) -> str:
@@ -29,7 +30,7 @@ class CustomError(SourceMapping):
     def parameters(self) -> List[LocalVariable]:
         return self._parameters
 
-    def add_parameters(self, p: "LocalVariable"):
+    def add_parameters(self, p: "LocalVariable") -> None:
         self._parameters.append(p)
 
     @property
@@ -41,11 +42,8 @@ class CustomError(SourceMapping):
     ###################################################################################
 
     @staticmethod
-    def _convert_type_for_solidity_signature(t: Optional[Union[Type, List[Type]]]):
-        # pylint: disable=import-outside-toplevel
-        from slither.core.declarations import Contract
-
-        if isinstance(t, UserDefinedType) and isinstance(t.type, Contract):
+    def _convert_type_for_solidity_signature(t: Optional[Type]) -> str:
+        if is_underlying_type_address(t):
             return "address"
         return str(t)
 
@@ -62,7 +60,7 @@ class CustomError(SourceMapping):
         # (set_solidity_sig was not called before find_variable)
         if self._solidity_signature is None:
             raise ValueError("Custom Error not yet built")
-        return self._solidity_signature
+        return self._solidity_signature  # type: ignore
 
     def set_solidity_sig(self) -> None:
         """
@@ -71,12 +69,25 @@ class CustomError(SourceMapping):
         Returns:
 
         """
-        parameters = [self._convert_type_for_solidity_signature(x.type) for x in self.parameters]
-        self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
+        parameters = [x.type for x in self.parameters if x.type]
+        self._full_name = self.name + "(" + ",".join(map(str, parameters)) + ")"
+        solidity_parameters = map(self._convert_type_for_solidity_signature, parameters)
+        self._solidity_signature = self.name + "(" + ",".join(solidity_parameters) + ")"
+
+    @property
+    def full_name(self) -> Optional[str]:
+        """
+        Return the error signature without
+        converting contract into address
+        :return: the error signature
+        """
+        if self._full_name is None:
+            raise ValueError("Custom Error not yet built")
+        return self._full_name
 
     # endregion
     ###################################################################################
     ###################################################################################
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "revert " + self.solidity_signature

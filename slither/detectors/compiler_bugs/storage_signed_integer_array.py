@@ -1,48 +1,24 @@
 """
 Module detecting storage signed integer array bug
 """
+from typing import List, Tuple, Set
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.cfg.node import NodeType
+from slither.core.declarations import Function, Contract
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    make_solc_versions,
+    DETECTOR_INFO,
+)
+from slither.core.cfg.node import NodeType, Node
 from slither.core.solidity_types import ArrayType
 from slither.core.solidity_types.elementary_type import Int, ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.slithir.operations import Operation, OperationWithLValue
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.init_array import InitArray
-
-vulnerable_solc_versions = [
-    "0.4.7",
-    "0.4.8",
-    "0.4.9",
-    "0.4.10",
-    "0.4.11",
-    "0.4.12",
-    "0.4.13",
-    "0.4.14",
-    "0.4.15",
-    "0.4.16",
-    "0.4.17",
-    "0.4.18",
-    "0.4.19",
-    "0.4.20",
-    "0.4.21",
-    "0.4.22",
-    "0.4.23",
-    "0.4.24",
-    "0.4.25",
-    "0.5.0",
-    "0.5.1",
-    "0.5.2",
-    "0.5.3",
-    "0.5.4",
-    "0.5.5",
-    "0.5.6",
-    "0.5.7",
-    "0.5.8",
-    "0.5.9",
-    "0.5.10",
-]
+from slither.utils.output import Output
 
 
 class StorageSignedIntegerArray(AbstractDetector):
@@ -61,7 +37,7 @@ class StorageSignedIntegerArray(AbstractDetector):
     WIKI_TITLE = "Storage Signed Integer Array"
 
     # region wiki_description
-    WIKI_DESCRIPTION = """`solc` versions `0.4.7`-`0.5.10` contain [a compiler bug](https://blog.ethereum.org/2019/06/25/solidity-storage-array-bugs)
+    WIKI_DESCRIPTION = """`solc` versions `0.4.7`-`0.5.9` contain [a compiler bug](https://blog.ethereum.org/2019/06/25/solidity-storage-array-bugs)
 leading to incorrect values in signed integer arrays."""
     # endregion wiki_description
 
@@ -84,8 +60,10 @@ contract A {
 
     WIKI_RECOMMENDATION = "Use a compiler version >= `0.5.10`."
 
+    VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 7, 25) + make_solc_versions(5, 0, 9)
+
     @staticmethod
-    def _is_vulnerable_type(ir):
+    def _is_vulnerable_type(ir: Operation) -> bool:
         """
         Detect if the IR lvalue is a vulnerable type
         Must be a storage allocation, and an array of Int
@@ -93,23 +71,28 @@ contract A {
         """
         # Storage allocation
         # Base type is signed integer
+        if not isinstance(ir, OperationWithLValue):
+            return False
+
         return (
             (
                 isinstance(ir.lvalue, StateVariable)
                 or (isinstance(ir.lvalue, LocalVariable) and ir.lvalue.is_storage)
             )
-            and isinstance(ir.lvalue.type.type, ElementaryType)
-            and ir.lvalue.type.type.type in Int
+            and isinstance(ir.lvalue.type.type, ElementaryType)  # type: ignore
+            and ir.lvalue.type.type.type in Int  # type: ignore
         )
 
-    def detect_storage_signed_integer_arrays(self, contract):
+    def detect_storage_signed_integer_arrays(
+        self, contract: Contract
+    ) -> Set[Tuple[Function, Node]]:
         """
         Detects and returns all nodes with storage-allocated signed integer array init/assignment
         :param contract: Contract to detect within
         :return: A list of tuples with (function, node) where function node has storage-allocated signed integer array init/assignment
         """
         # Create our result set.
-        results = set()
+        results: Set[Tuple[Function, Node]] = set()
 
         # Loop for each function and modifier.
         for function in contract.functions_and_modifiers_declared:
@@ -135,19 +118,21 @@ contract A {
         # Return the resulting set of tuples
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect storage signed integer array init/assignment
         """
         results = []
-        if self.compilation_unit.solc_version not in vulnerable_solc_versions:
-            return results
         for contract in self.contracts:
             storage_signed_integer_arrays = self.detect_storage_signed_integer_arrays(contract)
             for function, node in storage_signed_integer_arrays:
-                contract_info = ["Contract ", contract, " \n"]
-                function_info = ["\t- Function ", function, "\n"]
-                node_info = ["\t\t- ", node, " has a storage signed integer array assignment\n"]
+                contract_info: DETECTOR_INFO = ["Contract ", contract, " \n"]
+                function_info: DETECTOR_INFO = ["\t- Function ", function, "\n"]
+                node_info: DETECTOR_INFO = [
+                    "\t\t- ",
+                    node,
+                    " has a storage signed integer array assignment\n",
+                ]
                 res = self.generate_result(contract_info + function_info + node_info)
                 results.append(res)
 

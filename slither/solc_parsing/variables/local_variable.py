@@ -5,7 +5,7 @@ from slither.core.variables.local_variable import LocalVariable
 
 
 class LocalVariableSolc(VariableDeclarationSolc):
-    def __init__(self, variable: LocalVariable, variable_data: Dict):
+    def __init__(self, variable: LocalVariable, variable_data: Dict) -> None:
         super().__init__(variable, variable_data)
 
     @property
@@ -14,7 +14,7 @@ class LocalVariableSolc(VariableDeclarationSolc):
         assert isinstance(self._variable, LocalVariable)
         return self._variable
 
-    def _analyze_variable_attributes(self, attributes: Dict):
+    def _analyze_variable_attributes(self, attributes: Dict) -> None:
         """'
         Variable Location
         Can be storage/memory or default

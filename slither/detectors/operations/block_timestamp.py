@@ -6,13 +6,19 @@ from typing import List, Tuple
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
-from slither.core.declarations import Function, Contract
+from slither.core.declarations import Function, Contract, FunctionContract
 from slither.core.declarations.solidity_variables import (
     SolidityVariableComposed,
     SolidityVariable,
 )
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.variables import Variable
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import Binary, BinaryType
+from slither.utils.output import Output
 
 
 def _timestamp(func: Function) -> List[Node]:
@@ -20,25 +26,25 @@ def _timestamp(func: Function) -> List[Node]:
     for node in func.nodes:
         if node.contains_require_or_assert():
             for var in node.variables_read:
-                if is_dependent(var, SolidityVariableComposed("block.timestamp"), func.contract):
+                if is_dependent(var, SolidityVariableComposed("block.timestamp"), node):
                     ret.add(node)
-                if is_dependent(var, SolidityVariable("now"), func.contract):
+                if is_dependent(var, SolidityVariable("now"), node):
                     ret.add(node)
         for ir in node.irs:
             if isinstance(ir, Binary) and BinaryType.return_bool(ir.type):
-                for var in ir.read:
-                    if is_dependent(
-                        var, SolidityVariableComposed("block.timestamp"), func.contract
-                    ):
+                for var_read in ir.read:
+                    if not isinstance(var_read, (Variable, SolidityVariable)):
+                        continue
+                    if is_dependent(var_read, SolidityVariableComposed("block.timestamp"), node):
                         ret.add(node)
-                    if is_dependent(var, SolidityVariable("now"), func.contract):
+                    if is_dependent(var_read, SolidityVariable("now"), node):
                         ret.add(node)
     return sorted(list(ret), key=lambda x: x.node_id)
 
 
 def _detect_dangerous_timestamp(
     contract: Contract,
-) -> List[Tuple[Function, List[Node]]]:
+) -> List[Tuple[FunctionContract, List[Node]]]:
     """
     Args:
         contract (Contract)
@@ -47,7 +53,7 @@ def _detect_dangerous_timestamp(
     """
     ret = []
     for f in [f for f in contract.functions if f.contract_declarer == contract]:
-        nodes = _timestamp(f)
+        nodes: List[Node] = _timestamp(f)
         if nodes:
             ret.append((f, nodes))
     return ret
@@ -69,7 +75,7 @@ class Timestamp(AbstractDetector):
     WIKI_EXPLOIT_SCENARIO = """"Bob's contract relies on `block.timestamp` for its randomness. Eve is a miner and manipulates `block.timestamp` to exploit Bob's contract."""
     WIKI_RECOMMENDATION = "Avoid relying on `block.timestamp`."
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """"""
         results = []
 
@@ -77,7 +83,7 @@ class Timestamp(AbstractDetector):
             dangerous_timestamp = _detect_dangerous_timestamp(c)
             for (func, nodes) in dangerous_timestamp:
 
-                info = [func, " uses timestamp for comparisons\n"]
+                info: DETECTOR_INFO = [func, " uses timestamp for comparisons\n"]
 
                 info += ["\tDangerous comparisons:\n"]
 

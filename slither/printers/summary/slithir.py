@@ -36,8 +36,6 @@ class PrinterSlithIR(AbstractPrinter):
         txt = ""
         for compilation_unit in self.slither.compilation_units:
             for contract in compilation_unit.contracts:
-                if contract.is_top_level:
-                    continue
                 txt += f"Contract {contract.name}\n"
                 for function in contract.functions:
                     txt += f'\tFunction {function.canonical_name} {"" if function.is_shadowed else "(*)"}\n'
@@ -46,7 +44,7 @@ class PrinterSlithIR(AbstractPrinter):
                     txt += f"\tModifier {modifier.canonical_name}\n"
                     txt += _print_function(modifier)
             if compilation_unit.functions_top_level:
-                txt += "Top level functions"
+                txt += "Top level functions\n"
             for function in compilation_unit.functions_top_level:
                 txt += f"\tFunction {function.canonical_name}\n"
                 txt += _print_function(function)

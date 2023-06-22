@@ -1,6 +1,12 @@
 import re
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.formatters.naming_convention.naming_convention import custom_format
+from slither.utils.output import Output
 
 
 class NamingConvention(AbstractDetector):
@@ -36,30 +42,32 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
     STANDARD_JSON = False
 
     @staticmethod
-    def is_cap_words(name):
+    def is_cap_words(name: str) -> bool:
         return re.search("^[A-Z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
-    def is_mixed_case(name):
+    def is_mixed_case(name: str) -> bool:
         return re.search("^[a-z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
-    def is_mixed_case_with_underscore(name):
+    def is_mixed_case_with_underscore(name: str) -> bool:
         # Allow _ at the beginning to represent private variable
         # or unused parameters
         return re.search("^[_]?[a-z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
-    def is_upper_case_with_underscores(name):
+    def is_upper_case_with_underscores(name: str) -> bool:
         return re.search("^[A-Z0-9_]+_?$", name) is not None
 
     @staticmethod
-    def should_avoid_name(name):
+    def should_avoid_name(name: str) -> bool:
         return re.search("^[lOI]$", name) is not None
 
-    def _detect(self):  # pylint: disable=too-many-branches,too-many-statements
+    # pylint: disable=too-many-branches,too-many-statements
+    def _detect(self) -> List[Output]:
 
         results = []
+        info: DETECTOR_INFO
         for contract in self.contracts:
 
             if not self.is_cap_words(contract.name):
@@ -119,28 +127,28 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
             for var in contract.state_variables_declared:
                 if self.should_avoid_name(var.name):
-                    if not self.is_upper_case_with_underscores(var.name):
-                        info = [
-                            "Variable ",
-                            var,
-                            " used l, O, I, which should not be used\n",
-                        ]
+                    info = [
+                        "Variable ",
+                        var,
+                        " is single letter l, O, or I, which should not be used\n",
+                    ]
 
-                        res = self.generate_result(info)
-                        res.add(
-                            var,
-                            {
-                                "target": "variable",
-                                "convention": "l_O_I_should_not_be_used",
-                            },
-                        )
-                        results.append(res)
+                    res = self.generate_result(info)
+                    res.add(
+                        var,
+                        {
+                            "target": "variable",
+                            "convention": "l_O_I_should_not_be_used",
+                        },
+                    )
+                    results.append(res)
 
                 if var.is_constant is True:
                     # For ERC20 compatibility
                     if var.name in ["symbol", "name", "decimals"]:
                         continue
-
+                    if var.visibility == "public":
+                        continue
                     if not self.is_upper_case_with_underscores(var.name):
                         info = [
                             "Constant ",

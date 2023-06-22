@@ -1,8 +1,13 @@
 """
 Module detecting ABIEncoderV2 array bug
 """
-
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List, Set, Tuple
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    make_solc_versions,
+    DETECTOR_INFO,
+)
 from slither.core.solidity_types import ArrayType
 from slither.core.solidity_types import UserDefinedType
 from slither.core.variables.local_variable import LocalVariable
@@ -12,38 +17,10 @@ from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.slithir.operations import EventCall
 from slither.slithir.operations import HighLevelCall
 from slither.utils.utils import unroll
-
-vulnerable_solc_versions = [
-    "0.4.7",
-    "0.4.8",
-    "0.4.9",
-    "0.4.10",
-    "0.4.11",
-    "0.4.12",
-    "0.4.13",
-    "0.4.14",
-    "0.4.15",
-    "0.4.16",
-    "0.4.17",
-    "0.4.18",
-    "0.4.19",
-    "0.4.20",
-    "0.4.21",
-    "0.4.22",
-    "0.4.23",
-    "0.4.24",
-    "0.4.25",
-    "0.5.0",
-    "0.5.1",
-    "0.5.2",
-    "0.5.3",
-    "0.5.4",
-    "0.5.5",
-    "0.5.6",
-    "0.5.7",
-    "0.5.8",
-    "0.5.9",
-]
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.utils.output import Output
 
 
 class ABIEncoderV2Array(AbstractDetector):
@@ -80,8 +57,12 @@ contract A {
 
     WIKI_RECOMMENDATION = "Use a compiler >= `0.5.10`."
 
+    VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 7, 25) + make_solc_versions(5, 0, 9)
+
     @staticmethod
-    def _detect_storage_abiencoderv2_arrays(contract):
+    def _detect_storage_abiencoderv2_arrays(
+        contract: Contract,
+    ) -> Set[Tuple[FunctionContract, Node]]:
         """
         Detects and returns all nodes with storage-allocated abiencoderv2 arrays of arrays/structs in abi.encode, events or external calls
         :param contract: Contract to detect within
@@ -124,15 +105,11 @@ contract A {
         # Return the resulting set of tuples
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect ABIEncoderV2 array bug
         """
         results = []
-
-        # Check if vulnerable solc versions are used
-        if self.compilation_unit.solc_version not in vulnerable_solc_versions:
-            return results
 
         # Check if pragma experimental ABIEncoderV2 is used
         if not any(
@@ -146,7 +123,13 @@ contract A {
         for contract in self.contracts:
             storage_abiencoderv2_arrays = self._detect_storage_abiencoderv2_arrays(contract)
             for function, node in storage_abiencoderv2_arrays:
-                info = ["Function ", function, " trigger an abi encoding bug:\n\t- ", node, "\n"]
+                info: DETECTOR_INFO = [
+                    "Function ",
+                    function,
+                    " trigger an abi encoding bug:\n\t- ",
+                    node,
+                    "\n",
+                ]
                 res = self.generate_result(info)
                 results.append(res)
 

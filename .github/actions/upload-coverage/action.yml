@@ -1,0 +1,30 @@
+# Derived from <https://github.com/pyca/cryptography/blob/SOME_REF/.github/actions/upload-coverage/action.yml>
+# Originally authored by the PyCA Cryptography maintainers, and licensed under
+# the terms of the BSD license:
+# <https://github.com/pyca/cryptography/blob/main/LICENSE.BSD>
+
+name: Upload Coverage
+description: Upload coverage files
+
+runs:
+  using: "composite"
+
+  steps:
+    # FIXME(jl): codecov has the option of including machine information in filename that would solve this unique naming
+    # issue more completely.
+    # This method has the limitation of 1 coverage file per run, limiting some coverage between online/offline tests.
+    - run: |
+        COVERAGE_UUID=$(python3 -c "import uuid; print(uuid.uuid4())")
+        echo "COVERAGE_UUID=${COVERAGE_UUID}" >> $GITHUB_OUTPUT
+        if [ -f .coverage ]; then
+          mv .coverage .coverage.${COVERAGE_UUID}
+        fi
+      id: coverage-uuid
+      shell: bash
+    - uses: actions/upload-artifact@v3.1.0
+      with:
+        name: coverage-data
+        path: |
+          .coverage.*
+          *.lcov
+        if-no-files-found: ignore

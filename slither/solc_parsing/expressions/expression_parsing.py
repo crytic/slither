@@ -1,10 +1,29 @@
 import logging
 import re
-from typing import Dict, TYPE_CHECKING
+from typing import Union, Dict, TYPE_CHECKING
 
+import slither.core.expressions.type_conversion
 from slither.core.declarations.solidity_variables import (
     SOLIDITY_VARIABLES_COMPOSED,
     SolidityVariableComposed,
+)
+from slither.core.expressions import (
+    CallExpression,
+    ConditionalExpression,
+    ElementaryTypeNameExpression,
+    Identifier,
+    IndexAccess,
+    Literal,
+    MemberAccess,
+    NewArray,
+    NewContract,
+    NewElementaryType,
+    SuperCallExpression,
+    SuperIdentifier,
+    TupleExpression,
+    TypeConversion,
+    UnaryOperation,
+    UnaryOperationType,
 )
 from slither.core.expressions.assignment_operation import (
     AssignmentOperation,
@@ -14,32 +33,22 @@ from slither.core.expressions.binary_operation import (
     BinaryOperation,
     BinaryOperationType,
 )
-from slither.core.expressions.call_expression import CallExpression
-from slither.core.expressions.conditional_expression import ConditionalExpression
-from slither.core.expressions.elementary_type_name_expression import ElementaryTypeNameExpression
-from slither.core.expressions.identifier import Identifier
-from slither.core.expressions.index_access import IndexAccess
-from slither.core.expressions.literal import Literal
-from slither.core.expressions.member_access import MemberAccess
-from slither.core.expressions.new_array import NewArray
-from slither.core.expressions.new_contract import NewContract
-from slither.core.expressions.new_elementary_type import NewElementaryType
-from slither.core.expressions.super_call_expression import SuperCallExpression
-from slither.core.expressions.super_identifier import SuperIdentifier
-from slither.core.expressions.tuple_expression import TupleExpression
-from slither.core.expressions.type_conversion import TypeConversion
-from slither.core.expressions.unary_operation import UnaryOperation, UnaryOperationType
 from slither.core.solidity_types import (
     ArrayType,
     ElementaryType,
+    UserDefinedType,
 )
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.expressions.find_variable import find_variable
 from slither.solc_parsing.solidity_types.type_parsing import UnknownType, parse_type
 
+
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
+    from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
 
 logger = logging.getLogger("ExpressionParsing")
 
@@ -94,8 +103,13 @@ def filter_name(value: str) -> str:
 ###################################################################################
 ###################################################################################
 
-
-def parse_call(expression: Dict, caller_context):  # pylint: disable=too-many-statements
+# pylint: disable=too-many-statements
+def parse_call(
+    expression: Dict, caller_context: Union["FunctionSolc", "ContractSolc", "TopLevelVariableSolc"]
+) -> Union[
+    slither.core.expressions.call_expression.CallExpression,
+    slither.core.expressions.type_conversion.TypeConversion,
+]:
     src = expression["src"]
     if caller_context.is_compact_ast:
         attributes = expression
@@ -109,7 +123,6 @@ def parse_call(expression: Dict, caller_context):  # pylint: disable=too-many-st
 
     if type_conversion:
         type_call = parse_type(UnknownType(type_return), caller_context)
-
         if caller_context.is_compact_ast:
             assert len(expression["arguments"]) == 1
             expression_to_parse = expression["arguments"][0]
@@ -130,6 +143,8 @@ def parse_call(expression: Dict, caller_context):  # pylint: disable=too-many-st
         expression = parse_expression(expression_to_parse, caller_context)
         t = TypeConversion(expression, type_call)
         t.set_offset(src, caller_context.compilation_unit)
+        if isinstance(type_call, UserDefinedType):
+            type_call.type.references.append(t.source_mapping)
         return t
 
     call_gas = None
@@ -218,8 +233,7 @@ def _parse_elementary_type_name_expression(
 
 
 if TYPE_CHECKING:
-
-    from slither.core.scope.scope import FileScope
+    pass
 
 
 def parse_expression(expression: Dict, caller_context: CallerContextExpression) -> "Expression":
@@ -419,6 +433,8 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 type_candidate = ElementaryType("uint256")
             else:
                 type_candidate = ElementaryType("string")
+        elif type_candidate.startswith("rational_const "):
+            type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("int_const "):
             type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("bool"):
@@ -445,7 +461,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 t = expression["attributes"]["type"]
 
         if t:
-            found = re.findall("[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
+            found = re.findall(r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
             assert len(found) <= 1
             if found:
                 value = value + "(" + found[0] + ")"
@@ -455,22 +471,26 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             referenced_declaration = expression["referencedDeclaration"]
         else:
             referenced_declaration = None
-
         var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)
 
         identifier = Identifier(var)
         identifier.set_offset(src, caller_context.compilation_unit)
+        var.references.append(identifier.source_mapping)
+
         return identifier
 
     if name == "IndexAccess":
         if is_compact_ast:
-            index_type = expression["typeDescriptions"]["typeString"]
+            # We dont use the index type here, as we recover it later
+            # We could change the paradigm with the current AST parsing
+            # And do the type parsing in advanced for most of the operation
+            # index_type = expression["typeDescriptions"]["typeString"]
             left = expression["baseExpression"]
             right = expression.get("indexExpression", None)
         else:
-            index_type = expression["attributes"]["type"]
+            # index_type = expression["attributes"]["type"]
             children = expression["children"]
             left = children[0]
             right = children[1] if len(children) > 1 else None
@@ -487,7 +507,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         left_expression = parse_expression(left, caller_context)
         right_expression = parse_expression(right, caller_context)
-        index = IndexAccess(left_expression, right_expression, index_type)
+        index = IndexAccess(left_expression, right_expression)
         index.set_offset(src, caller_context.compilation_unit)
         return index
 
@@ -515,6 +535,9 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 var.set_offset(src, caller_context.compilation_unit)
             sup = SuperIdentifier(var)
             sup.set_offset(src, caller_context.compilation_unit)
+
+            var.references.append(sup.source_mapping)
+
             return sup
         member_access = MemberAccess(member_name, member_type, member_expression)
         member_access.set_offset(src, caller_context.compilation_unit)
@@ -538,37 +561,9 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             type_name = children[0]
 
         if type_name[caller_context.get_key()] == "ArrayTypeName":
-            depth = 0
-            while type_name[caller_context.get_key()] == "ArrayTypeName":
-                # Note: dont conserve the size of the array if provided
-                # We compute it directly
-                if is_compact_ast:
-                    type_name = type_name["baseType"]
-                else:
-                    type_name = type_name["children"][0]
-                depth += 1
-            if type_name[caller_context.get_key()] == "ElementaryTypeName":
-                if is_compact_ast:
-                    array_type = ElementaryType(type_name["name"])
-                else:
-                    array_type = ElementaryType(type_name["attributes"]["name"])
-            elif type_name[caller_context.get_key()] == "UserDefinedTypeName":
-                if is_compact_ast:
-                    if "name" not in type_name:
-                        name_type = type_name["pathNode"]["name"]
-                    else:
-                        name_type = type_name["name"]
-
-                    array_type = parse_type(UnknownType(name_type), caller_context)
-                else:
-                    array_type = parse_type(
-                        UnknownType(type_name["attributes"]["name"]), caller_context
-                    )
-            elif type_name[caller_context.get_key()] == "FunctionTypeName":
-                array_type = parse_type(type_name, caller_context)
-            else:
-                raise ParsingError(f"Incorrect type array {type_name}")
-            array = NewArray(depth, array_type)
+            array_type = parse_type(type_name, caller_context)
+            assert isinstance(array_type, ArrayType)
+            array = NewArray(array_type)
             array.set_offset(src, caller_context.compilation_unit)
             return array
 
@@ -636,12 +631,17 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             else:
                 referenced_declaration = None
 
-            var, was_created = find_variable(value, caller_context, referenced_declaration)
+            var, was_created = find_variable(
+                value, caller_context, referenced_declaration, is_identifier_path=True
+            )
             if was_created:
                 var.set_offset(src, caller_context.compilation_unit)
 
             identifier = Identifier(var)
             identifier.set_offset(src, caller_context.compilation_unit)
+
+            var.references.append(identifier.source_mapping)
+
             return identifier
 
         raise ParsingError("IdentifierPath not currently supported for the legacy ast")

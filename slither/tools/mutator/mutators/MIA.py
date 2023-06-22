@@ -1,3 +1,5 @@
+from typing import Dict
+
 from slither.core.cfg.node import NodeType
 from slither.formatters.utils.patches import create_patch
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
@@ -9,24 +11,24 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
     FAULTCLASS = FaultClass.Checking
     FAULTNATURE = FaultNature.Missing
 
-    def _mutate(self):
+    def _mutate(self) -> Dict:
 
-        result = {}
+        result: Dict = {}
 
         for contract in self.slither.contracts:
 
-            for function in contract.functions_declared + contract.modifiers_declared:
+            for function in contract.functions_declared + list(contract.modifiers_declared):
 
                 for node in function.nodes:
                     if node.type == NodeType.IF:
                         # Retrieve the file
-                        in_file = contract.source_mapping["filename_absolute"]
+                        in_file = contract.source_mapping.filename.absolute
                         # Retrieve the source code
-                        in_file_str = contract.slither.source_code[in_file]
+                        in_file_str = contract.compilation_unit.core.source_code[in_file]
 
                         # Get the string
-                        start = node.source_mapping["start"]
-                        stop = start + node.source_mapping["length"]
+                        start = node.source_mapping.start
+                        stop = start + node.source_mapping.length
                         old_str = in_file_str[start:stop]
 
                         # Replace the expression with true

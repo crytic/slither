@@ -1,6 +1,10 @@
-from typing import List
+from typing import List, Optional
 from slither.core.cfg.node import NodeType, Node
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.core.declarations import Contract
 from slither.utils.output import Output
 from slither.slithir.operations import InternalCall, OperationWithLValue
@@ -17,8 +21,12 @@ def detect_costly_operations_in_loop(contract: Contract) -> List[Node]:
 
 
 def costly_operations_in_loop(
-    node: Node, in_loop_counter: int, visited: List[Node], ret: List[Node]
+    node: Optional[Node], in_loop_counter: int, visited: List[Node], ret: List[Node]
 ) -> None:
+
+    if node is None:
+        return
+
     if node in visited:
         return
     # shared visited
@@ -35,7 +43,7 @@ def costly_operations_in_loop(
             if isinstance(ir, OperationWithLValue) and isinstance(ir.lvalue, StateVariable):
                 ret.append(ir.node)
                 break
-            if isinstance(ir, (InternalCall)):
+            if isinstance(ir, (InternalCall)) and ir.function:
                 costly_operations_in_loop(ir.function.entry_point, in_loop_counter, visited, ret)
 
     for son in node.sons:
@@ -94,7 +102,7 @@ Incrementing `state_variable` in a loop incurs a lot of gas because of expensive
             values = detect_costly_operations_in_loop(c)
             for node in values:
                 func = node.function
-                info = [func, " has costly operations inside a loop:\n"]
+                info: DETECTOR_INFO = [func, " has costly operations inside a loop:\n"]
                 info += ["\t- ", node, "\n"]
                 res = self.generate_result(info)
                 results.append(res)

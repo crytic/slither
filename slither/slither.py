@@ -1,5 +1,5 @@
 import logging
-from typing import Union, List, ValuesView
+from typing import Union, List, ValuesView, Type, Dict, Optional
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
@@ -11,6 +11,7 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.exceptions import SlitherError
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+from slither.utils.output import Output
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -19,7 +20,9 @@ logger_detector = logging.getLogger("Detectors")
 logger_printer = logging.getLogger("Printers")
 
 
-def _check_common_things(thing_name, cls, base_cls, instances_list):
+def _check_common_things(
+    thing_name: str, cls: Type, base_cls: Type, instances_list: List[Type[AbstractDetector]]
+) -> None:
 
     if not issubclass(cls, base_cls) or cls is base_cls:
         raise Exception(
@@ -46,7 +49,7 @@ def _update_file_scopes(candidates: ValuesView[FileScope]):
 
 
 class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, target: Union[str, CryticCompile], **kwargs):
+    def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
         """
         Args:
             target (str | CryticCompile)
@@ -69,12 +72,28 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
             embark_ignore_compile (bool): do not run embark build (default False)
             embark_overwrite_config (bool): overwrite original config file (default false)
 
+            change_line_prefix (str): Change the line prefix (default #)
+                for the displayed source codes (i.e. file.sol#1).
+
         """
         super().__init__()
 
         self._disallow_partial: bool = kwargs.get("disallow_partial", False)
         self._skip_assembly: bool = kwargs.get("skip_assembly", False)
         self._show_ignored_findings: bool = kwargs.get("show_ignored_findings", False)
+
+        self.line_prefix = kwargs.get("change_line_prefix", "#")
+
+        # Indicate if Codex related features should be used
+        self.codex_enabled = kwargs.get("codex", False)
+        self.codex_contracts = kwargs.get("codex_contracts", "all")
+        self.codex_model = kwargs.get("codex_model", "text-davinci-003")
+        self.codex_temperature = kwargs.get("codex_temperature", 0)
+        self.codex_max_tokens = kwargs.get("codex_max_tokens", 300)
+        self.codex_log = kwargs.get("codex_log", False)
+        self.codex_organization: Optional[str] = kwargs.get("codex_organization", None)
+
+        self.no_fail = kwargs.get("no_fail", False)
 
         self._parsers: List[SlitherCompilationUnitSolc] = []
         try:
@@ -113,41 +132,27 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
 
         triage_mode = kwargs.get("triage_mode", False)
         self._triage_mode = triage_mode
+        self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
+
+    def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:
 
         for parser in self._parsers:
-            parser.parse_contracts()
+            try:
+                parser.parse_contracts()
+            except Exception as e:
+                if self.no_fail:
+                    continue
+                raise e
 
         # skip_analyze is only used for testing
-        if not kwargs.get("skip_analyze", False):
+        if not skip_analyze:
             for parser in self._parsers:
-                parser.analyze_contracts()
-
-    # def _init_from_raw_json(self, filename):
-    #     if not os.path.isfile(filename):
-    #         raise SlitherError(
-    #             "{} does not exist (are you in the correct directory?)".format(filename)
-    #         )
-    #     assert filename.endswith("json")
-    #     with open(filename, encoding="utf8") as astFile:
-    #         stdout = astFile.read()
-    #         if not stdout:
-    #             to_log = f"Empty AST file: {filename}"
-    #             raise SlitherError(to_log)
-    #     contracts_json = stdout.split("\n=")
-    #
-    #     self._parser = SlitherCompilationUnitSolc(filename, self)
-    #
-    #     for c in contracts_json:
-    #         self._parser.parse_top_level_from_json(c)
-
-    # def _init_from_list(self, contract):
-    #     self._parser = SlitherCompilationUnitSolc("", self)
-    #     for c in contract:
-    #         if "absolutePath" in c:
-    #             path = c["absolutePath"]
-    #         else:
-    #             path = c["attributes"]["absolutePath"]
-    #         self._parser.parse_top_level_from_loaded_json(c, path)
+                try:
+                    parser.analyze_contracts()
+                except Exception as e:
+                    if self.no_fail:
+                        continue
+                    raise e
 
     @property
     def detectors(self):
@@ -173,7 +178,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
     def detectors_optimization(self):
         return [d for d in self.detectors if d.IMPACT == DetectorClassification.OPTIMIZATION]
 
-    def register_detector(self, detector_class):
+    def register_detector(self, detector_class: Type[AbstractDetector]) -> None:
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
@@ -183,7 +188,17 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
             instance = detector_class(compilation_unit, self, logger_detector)
             self._detectors.append(instance)
 
-    def register_printer(self, printer_class):
+    def unregister_detector(self, detector_class: Type[AbstractDetector]) -> None:
+        """
+        :param detector_class: Class inheriting from `AbstractDetector`.
+        """
+
+        for obj in self._detectors:
+            if isinstance(obj, detector_class):
+                self._detectors.remove(obj)
+                return
+
+    def register_printer(self, printer_class: Type[AbstractPrinter]) -> None:
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
@@ -192,7 +207,17 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
 
-    def run_detectors(self):
+    def unregister_printer(self, printer_class: Type[AbstractPrinter]) -> None:
+        """
+        :param printer_class: Class inheriting from `AbstractPrinter`.
+        """
+
+        for obj in self._printers:
+            if isinstance(obj, printer_class):
+                self._printers.remove(obj)
+                return
+
+    def run_detectors(self) -> List[Dict]:
         """
         :return: List of registered detectors results.
         """
@@ -203,7 +228,7 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         self.write_results_to_hide()
         return results
 
-    def run_printers(self):
+    def run_printers(self) -> List[Output]:
         """
         :return: List of registered printers outputs.
         """
@@ -211,5 +236,5 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         return [p.output(self._crytic_compile.target).data for p in self._printers]
 
     @property
-    def triage_mode(self):
+    def triage_mode(self) -> bool:
         return self._triage_mode

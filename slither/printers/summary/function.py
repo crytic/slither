@@ -33,8 +33,6 @@ class FunctionSummary(AbstractPrinter):
         all_txt = ""
 
         for c in self.contracts:
-            if c.is_top_level:
-                continue
             (name, inheritance, var, func_summaries, modif_summaries) = c.get_summary()
             txt = f"\nContract {name}"
             txt += "\nContract vars: " + str(var)
@@ -48,6 +46,7 @@ class FunctionSummary(AbstractPrinter):
                     "Write",
                     "Internal Calls",
                     "External Calls",
+                    "Cyclomatic Complexity",
                 ]
             )
             for (
@@ -59,20 +58,22 @@ class FunctionSummary(AbstractPrinter):
                 write,
                 internal_calls,
                 external_calls,
+                cyclomatic_complexity,
             ) in func_summaries:
-                read = self._convert(read)
-                write = self._convert(write)
-                internal_calls = self._convert(internal_calls)
-                external_calls = self._convert(external_calls)
+                read = self._convert(sorted(read))
+                write = self._convert(sorted(write))
+                internal_calls = self._convert(sorted(internal_calls))
+                external_calls = self._convert(sorted(external_calls))
                 table.add_row(
                     [
                         f_name,
                         visi,
-                        modifiers,
+                        sorted(modifiers),
                         read,
                         write,
                         internal_calls,
                         external_calls,
+                        cyclomatic_complexity,
                     ]
                 )
             txt += "\n \n" + str(table)
@@ -84,6 +85,7 @@ class FunctionSummary(AbstractPrinter):
                     "Write",
                     "Internal Calls",
                     "External Calls",
+                    "Cyclomatic Complexity",
                 ]
             )
             for (
@@ -95,12 +97,23 @@ class FunctionSummary(AbstractPrinter):
                 write,
                 internal_calls,
                 external_calls,
+                cyclomatic_complexity,
             ) in modif_summaries:
-                read = self._convert(read)
-                write = self._convert(write)
-                internal_calls = self._convert(internal_calls)
-                external_calls = self._convert(external_calls)
-                table.add_row([f_name, visi, read, write, internal_calls, external_calls])
+                read = self._convert(sorted(read))
+                write = self._convert(sorted(write))
+                internal_calls = self._convert(sorted(internal_calls))
+                external_calls = self._convert(sorted(external_calls))
+                table.add_row(
+                    [
+                        f_name,
+                        visi,
+                        read,
+                        write,
+                        internal_calls,
+                        external_calls,
+                        cyclomatic_complexity,
+                    ]
+                )
             txt += "\n\n" + str(table)
             txt += "\n"
             self.info(txt)

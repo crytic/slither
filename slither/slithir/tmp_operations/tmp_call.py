@@ -1,3 +1,5 @@
+from typing import Optional, Union
+
 from slither.core.declarations import (
     Event,
     Contract,
@@ -8,10 +10,22 @@ from slither.core.declarations import (
 from slither.core.declarations.custom_error import CustomError
 from slither.core.variables.variable import Variable
 from slither.slithir.operations.lvalue import OperationWithLValue
+from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.slithir.operations.member import Member
+from slither.slithir.tmp_operations.tmp_new_array import TmpNewArray
+from slither.slithir.tmp_operations.tmp_new_contract import TmpNewContract
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.tuple import TupleVariable
 
 
 class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, called, nbr_arguments, result, type_call):
+    def __init__(
+        self,
+        called: SourceMapping,
+        nbr_arguments: int,
+        result: Union[TupleVariable, TemporaryVariable],
+        type_call: str,
+    ) -> None:
         assert isinstance(
             called,
             (
@@ -63,13 +77,13 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
     def call_id(self):
         return self._callid
 
-    @property
-    def read(self):
-        return [self.called]
-
     @call_id.setter
     def call_id(self, c):
         self._callid = c
+
+    @property
+    def read(self):
+        return [self.called]
 
     @property
     def called(self):
@@ -80,18 +94,18 @@ class TmpCall(OperationWithLValue):  # pylint: disable=too-many-instance-attribu
         self._called = c
 
     @property
-    def nbr_arguments(self):
+    def nbr_arguments(self) -> int:
         return self._nbr_arguments
 
     @property
-    def type_call(self):
+    def type_call(self) -> str:
         return self._type_call
 
     @property
-    def ori(self):
+    def ori(self) -> Optional[Union[TmpNewContract, TmpNewArray, "TmpCall", Member]]:
         return self._ori
 
-    def set_ori(self, ori):
+    def set_ori(self, ori: Union["TmpCall", TmpNewContract, TmpNewArray, Member]) -> None:
         self._ori = ori
 
     def __str__(self):

@@ -42,11 +42,13 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
+.pytest_cache
 nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
 .vscode/
+storage_layout.json
 # Translations
 *.mo
 *.pot
@@ -107,3 +109,9 @@ ENV/
 
 # Test results
 test_artifacts/
+
+# crytic export 
+crytic-export/
+
+# Auto-generated Github pages docs
+docs/

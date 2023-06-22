@@ -35,7 +35,7 @@ class Modifiers(AbstractPrinter):
                 for (_, call) in function.all_library_calls():
                     if isinstance(call, Function):
                         modifiers += call.modifiers
-                table.add_row([function.name, [m.name for m in set(modifiers)]])
+                table.add_row([function.name, sorted([m.name for m in set(modifiers)])])
             txt += "\n" + str(table)
             self.info(txt)
             all_txt += txt

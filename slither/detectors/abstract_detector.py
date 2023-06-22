@@ -5,9 +5,9 @@ from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
-from slither.utils.colors import green, yellow, red
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
+from slither.utils.colors import green, yellow, red
 from slither.utils.comparable_enum import ComparableEnum
 from slither.utils.output import Output, SupportedOutput
 
@@ -46,6 +46,22 @@ classification_txt = {
 }
 
 
+def make_solc_versions(minor: int, patch_min: int, patch_max: int) -> List[str]:
+    """
+    Create a list of solc version: [0.minor.patch_min .... 0.minor.patch_max]
+    """
+    return [f"0.{minor}.{x}" for x in range(patch_min, patch_max + 1)]
+
+
+ALL_SOLC_VERSIONS_04 = make_solc_versions(4, 0, 26)
+ALL_SOLC_VERSIONS_05 = make_solc_versions(5, 0, 17)
+ALL_SOLC_VERSIONS_06 = make_solc_versions(6, 0, 12)
+ALL_SOLC_VERSIONS_07 = make_solc_versions(7, 0, 6)
+# No VERSIONS_08 as it is still in dev
+
+DETECTOR_INFO = List[Union[str, SupportedOutput]]
+
+
 class AbstractDetector(metaclass=abc.ABCMeta):
     ARGUMENT = ""  # run the detector with slither.py --ARGUMENT
     HELP = ""  # help information
@@ -61,9 +77,13 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     STANDARD_JSON = True
 
+    # list of vulnerable solc versions as strings (e.g. ["0.4.25", "0.5.0"])
+    # If the detector is meant to run on all versions, use None
+    VULNERABLE_SOLC_VERSIONS: Optional[List[str]] = None
+
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
-    ):
+    ) -> None:
         self.compilation_unit: SlitherCompilationUnit = compilation_unit
         self.contracts: List[Contract] = compilation_unit.contracts
         self.slither: "Slither" = slither
@@ -108,6 +128,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                 f"WIKI_RECOMMENDATION is not initialized {self.__class__.__name__}"
             )
 
+        if self.VULNERABLE_SOLC_VERSIONS is not None and not self.VULNERABLE_SOLC_VERSIONS:
+            raise IncorrectDetectorInitialization(
+                f"VULNERABLE_SOLC_VERSIONS should not be an empty list {self.__class__.__name__}"
+            )
+
         if re.match("^[a-zA-Z0-9_-]*$", self.ARGUMENT) is None:
             raise IncorrectDetectorInitialization(
                 f"ARGUMENT has illegal character {self.__class__.__name__}"
@@ -139,6 +164,11 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if self.logger:
             self.logger.info(self.color(info))
 
+    def _uses_vulnerable_solc_version(self) -> bool:
+        if self.VULNERABLE_SOLC_VERSIONS:
+            return self.compilation_unit.solc_version in self.VULNERABLE_SOLC_VERSIONS
+        return True
+
     @abc.abstractmethod
     def _detect(self) -> List[Output]:
         """TODO Documentation"""
@@ -147,7 +177,12 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     # pylint: disable=too-many-branches
     def detect(self) -> List[Dict]:
         results: List[Dict] = []
-        # only keep valid result, and remove dupplicate
+
+        # check solc version
+        if not self._uses_vulnerable_solc_version():
+            return results
+
+        # only keep valid result, and remove duplicate
         # Keep only dictionaries
         for r in [output.data for output in self._detect()]:
             if self.compilation_unit.core.valid_result(r) and r not in results:
@@ -189,7 +224,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if results and self.slither.triage_mode:
             while True:
                 indexes = input(
-                    f'Results to hide during next runs: "0,1,...,{len(results)}" or "All" (enter to not hide results): '
+                    f'Results to hide during next runs: "0,1,...,{len(results)}" or "All" (enter to not hide results):\n'
                 )
                 if indexes == "All":
                     self.slither.save_results_to_hide(results)
@@ -218,7 +253,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     def generate_result(
         self,
-        info: Union[str, List[Union[str, SupportedOutput]]],
+        info: DETECTOR_INFO,
         additional_fields: Optional[Dict] = None,
     ) -> Output:
         output = Output(

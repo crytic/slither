@@ -1,6 +1,10 @@
-from typing import List
+from typing import List, Optional
 from slither.core.cfg.node import NodeType, Node
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import LowLevelCall, InternalCall
 from slither.core.declarations import Contract
 from slither.utils.output import Output
@@ -15,8 +19,12 @@ def detect_delegatecall_in_loop(contract: Contract) -> List[Node]:
 
 
 def delegatecall_in_loop(
-    node: Node, in_loop_counter: int, visited: List[Node], results: List[Node]
+    node: Optional[Node], in_loop_counter: int, visited: List[Node], results: List[Node]
 ) -> None:
+
+    if node is None:
+        return
+
     if node in visited:
         return
     # shared visited
@@ -34,7 +42,7 @@ def delegatecall_in_loop(
             and ir.function_name == "delegatecall"
         ):
             results.append(ir.node)
-        if isinstance(ir, (InternalCall)):
+        if isinstance(ir, (InternalCall)) and ir.function:
             delegatecall_in_loop(ir.function.entry_point, in_loop_counter, visited, results)
 
     for son in node.sons:
@@ -90,7 +98,12 @@ Carefully check that the function called by `delegatecall` is not payable/doesn'
             for node in values:
                 func = node.function
 
-                info = [func, " has delegatecall inside a loop in a payable function: ", node, "\n"]
+                info: DETECTOR_INFO = [
+                    func,
+                    " has delegatecall inside a loop in a payable function: ",
+                    node,
+                    "\n",
+                ]
                 res = self.generate_result(info)
                 results.append(res)
 

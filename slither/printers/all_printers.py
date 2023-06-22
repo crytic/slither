@@ -1,6 +1,7 @@
 # pylint: disable=unused-import,relative-beyond-top-level
 from .summary.function import FunctionSummary
 from .summary.contract import ContractSummary
+from .summary.loc import LocPrinter
 from .inheritance.inheritance import PrinterInheritance
 from .inheritance.inheritance_graph import PrinterInheritanceGraph
 from .call.call_graph import PrinterCallGraph
@@ -18,3 +19,5 @@ from .summary.constructor_calls import ConstructorPrinter
 from .guidance.echidna import Echidna
 from .summary.evm import PrinterEVM
 from .summary.when_not_paused import PrinterWhenNotPaused
+from .summary.declaration import Declaration
+from .functions.dominator import Dominator

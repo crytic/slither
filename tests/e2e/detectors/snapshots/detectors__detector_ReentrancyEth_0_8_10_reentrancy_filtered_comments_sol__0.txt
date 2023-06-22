@@ -1,0 +1,9 @@
+Reentrancy in TestWithBug.withdraw(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#8-12):
+	External calls:
+	- Receiver(msg.sender).send_funds{value: amount}() (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#10)
+	State variables written after the call(s):
+	- balances[msg.sender] -= amount (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#11)
+	TestWithBug.balances (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#6) can be used in cross function reentrancies:
+	- TestWithBug.withdraw(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#8-12)
+	- TestWithBug.withdrawFiltered(uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.8.10/reentrancy_filtered_comments.sol#15-19)
+
