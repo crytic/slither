@@ -20,18 +20,40 @@ def test_upgrades_compare(solc_binary_path) -> None:
     sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.8.2.sol"), solc=solc_path)
     v1 = sl.get_contract_from_name("ContractV1")[0]
     v2 = sl.get_contract_from_name("ContractV2")[0]
-    missing_vars, new_vars, tainted_vars, new_funcs, modified_funcs, tainted_funcs = compare(v1, v2)
+    (
+        missing_vars,
+        new_vars,
+        tainted_vars,
+        new_funcs,
+        modified_funcs,
+        tainted_funcs,
+        tainted_contracts,
+    ) = compare(v1, v2, include_external=True)
     assert len(missing_vars) == 0
     assert new_vars == [v2.get_state_variable_from_name("stateC")]
     assert tainted_vars == [
-        v2.get_state_variable_from_name("stateB"),
         v2.get_state_variable_from_name("bug"),
     ]
-    assert new_funcs == [v2.get_function_from_signature("i()")]
+    assert new_funcs == [
+        v2.get_function_from_signature("i()"),
+        v2.get_function_from_signature("erc20Transfer(address,address,uint256)"),
+    ]
     assert modified_funcs == [v2.get_function_from_signature("checkB()")]
     assert tainted_funcs == [
-        v2.get_function_from_signature("g(uint256)"),
         v2.get_function_from_signature("h()"),
+    ]
+    erc20 = sl.get_contract_from_name("ERC20")[0]
+    assert len(tainted_contracts) == 1
+    assert tainted_contracts[0].contract == erc20
+    assert set(tainted_contracts[0].tainted_functions) == {
+        erc20.get_function_from_signature("transfer(address,uint256)"),
+        erc20.get_function_from_signature("_transfer(address,address,uint256)"),
+        erc20.get_function_from_signature("_burn(address,uint256)"),
+        erc20.get_function_from_signature("balanceOf(address)"),
+        erc20.get_function_from_signature("_mint(address,uint256)"),
+    }
+    assert tainted_contracts[0].tainted_variables == [
+        erc20.get_state_variable_from_name("_balances")
     ]
 
 
