@@ -95,5 +95,4 @@ def compute_dominance_frontier(nodes: List["Node"]) -> None:
                     runner.dominance_frontier = runner.dominance_frontier.union({node})
                 while runner != node.immediate_dominator:
                     runner.dominance_frontier = runner.dominance_frontier.union({node})
-                    assert runner.immediate_dominator
                     runner = runner.immediate_dominator
