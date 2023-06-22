@@ -1,0 +1,35 @@
+D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) gives base constructor A.constructor(uint256) (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#3-5) arguments more than once in inheritance hierarchy:
+	- From C (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#14-18) constructor definition
+	- From B (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#8-12) constructor definition
+
+C (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#14-18) gives base constructor A.constructor(uint256) (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#3-5) arguments more than once in inheritance hierarchy:
+	- From C (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#14-18) constructor definition
+	- From B (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#8-12) constructor definition
+
+E (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) gives base constructor C.constructor(uint256) (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#15-17) arguments more than once in inheritance hierarchy:
+	- From E (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) constructor definition
+	- From D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) contract definition
+	- From D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) constructor definition
+
+D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) gives base constructor B.constructor(uint256) (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#9-11) arguments more than once in inheritance hierarchy:
+	- From D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) contract definition
+	- From D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) constructor definition
+
+D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) gives base constructor C.constructor(uint256) (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#15-17) arguments more than once in inheritance hierarchy:
+	- From D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) contract definition
+	- From D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) constructor definition
+
+F (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#33-38) gives base constructor A.constructor(uint256) (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#3-5) arguments more than once in inheritance hierarchy:
+	- From F (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#33-38) constructor definition
+	- From B (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#8-12) constructor definition
+
+E (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) gives base constructor B.constructor(uint256) (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#9-11) arguments more than once in inheritance hierarchy:
+	- From E (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) contract definition
+	- From E (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) constructor definition
+	- From D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) contract definition
+	- From D (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#20-24) constructor definition
+
+E (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#26-30) gives base constructor A.constructor(uint256) (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#3-5) arguments more than once in inheritance hierarchy:
+	- From C (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#14-18) constructor definition
+	- From B (tests/e2e/detectors/test_data/reused-constructor/0.4.25/reused_base_constructor.sol#8-12) constructor definition
+

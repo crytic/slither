@@ -32,7 +32,7 @@ from slither.slithir.operations import (
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
 from slither.utils.output import Output
-from slither.visitors.expression.constants_folding import ConstantFolding
+from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
 
 
 def _get_name(f: Union[Function, Variable]) -> str:
@@ -80,7 +80,7 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
     :return:
     """
     if f.view or f.pure:
-        if not f.contract.compilation_unit.solc_version.startswith("0.4"):
+        if not f.compilation_unit.solc_version.startswith("0.4"):
             return True
     if f.payable:
         return False
@@ -103,11 +103,11 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
         if isinstance(ir, HighLevelCall):
             if isinstance(ir.function, Variable) or ir.function.view or ir.function.pure:
                 # External call to constant functions are ensured to be constant only for solidity >= 0.5
-                if f.contract.compilation_unit.solc_version.startswith("0.4"):
+                if f.compilation_unit.solc_version.startswith("0.4"):
                     return False
             else:
                 return False
-        if isinstance(ir, InternalCall):
+        if isinstance(ir, InternalCall) and ir.function:
             # Storage write are not properly handled by all_state_variables_written
             if any(parameter.is_storage for parameter in ir.function.parameters):
                 return False
@@ -178,11 +178,16 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
                     all_cst_used_in_binary[str(ir.type)].append(
                         ConstantValue(str(r.value), str(r.type))
                     )
-            if isinstance(ir.variable_left, Constant) and isinstance(ir.variable_right, Constant):
-                if ir.lvalue:
-                    type_ = ir.lvalue.type
-                    cst = ConstantFolding(ir.expression, type_).result()
-                    all_cst_used.append(ConstantValue(str(cst.value), str(type_)))
+                if isinstance(ir.variable_left, Constant) or isinstance(
+                    ir.variable_right, Constant
+                ):
+                    if ir.lvalue:
+                        try:
+                            type_ = ir.lvalue.type
+                            cst = ConstantFolding(ir.expression, type_).result()
+                            all_cst_used.append(ConstantValue(str(cst.value), str(type_)))
+                        except NotConstant:
+                            pass
         if isinstance(ir, TypeConversion):
             if isinstance(ir.variable, Constant):
                 if isinstance(ir.type, TypeAlias):

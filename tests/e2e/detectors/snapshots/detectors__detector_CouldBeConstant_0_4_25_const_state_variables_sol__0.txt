@@ -1,0 +1,12 @@
+A.text2 (tests/e2e/detectors/test_data/constable-states/0.4.25/const_state_variables.sol#14) should be constant 
+
+B.mySistersAddress (tests/e2e/detectors/test_data/constable-states/0.4.25/const_state_variables.sol#26) should be constant 
+
+A.myFriendsAddress (tests/e2e/detectors/test_data/constable-states/0.4.25/const_state_variables.sol#7) should be constant 
+
+MyConc.should_be_constant (tests/e2e/detectors/test_data/constable-states/0.4.25/const_state_variables.sol#42) should be constant 
+
+MyConc.should_be_constant_2 (tests/e2e/detectors/test_data/constable-states/0.4.25/const_state_variables.sol#43) should be constant 
+
+A.test (tests/e2e/detectors/test_data/constable-states/0.4.25/const_state_variables.sol#10) should be constant 
+

@@ -1,0 +1,2 @@
+Constant.test_assembly_bug() (tests/e2e/detectors/test_data/constant-function-asm/0.4.25/constant.sol#22-24) is declared view but contains assembly code
+

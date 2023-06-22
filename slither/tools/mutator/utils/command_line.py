@@ -18,6 +18,6 @@ def output_mutators(mutators_classes: List[Type[AbstractMutator]]) -> None:
     mutators_list = sorted(mutators_list, key=lambda element: (element[2], element[3], element[0]))
     idx = 1
     for (argument, help_info, fault_class, fault_nature) in mutators_list:
-        table.add_row([idx, argument, help_info, fault_class, fault_nature])
+        table.add_row([str(idx), argument, help_info, fault_class, fault_nature])
         idx = idx + 1
     print(table)

@@ -1,0 +1,4 @@
+solc-0.6.10 is not recommended for deployment
+
+Pragma version0.6.10 (tests/e2e/detectors/test_data/solc-version/0.6.10/static.sol#1) allows old versions
+

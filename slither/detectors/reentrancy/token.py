@@ -4,7 +4,11 @@ from typing import Dict, List
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, Contract, SolidityVariableComposed
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import LowLevelCall, HighLevelCall
 from slither.utils.output import Output
 
@@ -88,7 +92,7 @@ If you do, ensure your users are aware of the potential issues."""
         for contract in self.compilation_unit.contracts_derived:
             vulns = _detect_token_reentrant(contract)
             for function, nodes in vulns.items():
-                info = [function, " is an reentrancy unsafe token function:\n"]
+                info: DETECTOR_INFO = [function, " is an reentrancy unsafe token function:\n"]
                 for node in nodes:
                     info += ["\t-", node, "\n"]
                 json = self.generate_result(info)

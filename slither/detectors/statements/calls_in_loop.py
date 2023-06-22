@@ -1,6 +1,10 @@
 from typing import List, Optional
 from slither.core.cfg.node import NodeType, Node
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.core.declarations import Contract
 from slither.utils.output import Output
 from slither.slithir.operations import (
@@ -44,6 +48,7 @@ def call_in_loop(
                     continue
                 ret.append(ir.node)
             if isinstance(ir, (InternalCall)):
+                assert ir.function
                 call_in_loop(ir.function.entry_point, in_loop_counter, visited, ret)
 
     for son in node.sons:
@@ -94,7 +99,7 @@ If one of the destinations has a fallback function that reverts, `bad` will alwa
             for node in values:
                 func = node.function
 
-                info = [func, " has external calls inside a loop: ", node, "\n"]
+                info: DETECTOR_INFO = [func, " has external calls inside a loop: ", node, "\n"]
                 res = self.generate_result(info)
                 results.append(res)
 

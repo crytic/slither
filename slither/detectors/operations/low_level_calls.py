@@ -2,7 +2,11 @@
 Module detecting usage of low level calls
 """
 from typing import List, Tuple
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import LowLevelCall
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
@@ -52,7 +56,7 @@ class LowLevelCalls(AbstractDetector):
         for c in self.contracts:
             values = self.detect_low_level_calls(c)
             for func, nodes in values:
-                info = ["Low level call in ", func, ":\n"]
+                info: DETECTOR_INFO = ["Low level call in ", func, ":\n"]
 
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)

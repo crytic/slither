@@ -1,4 +1,15 @@
-from typing import Any, List
+from typing import Any, List, Optional
+
+from slither.core.expressions import (
+    AssignmentOperation,
+    ConditionalExpression,
+    ElementaryTypeNameExpression,
+    IndexAccess,
+    NewArray,
+    NewContract,
+    UnaryOperation,
+    NewElementaryType,
+)
 from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.identifier import Identifier
@@ -25,12 +36,16 @@ def set_val(expression: Expression, val: List[Any]) -> None:
 
 
 class ExportValues(ExpressionVisitor):
-    def result(self) -> List[Any]:
+    def __init__(self, expression: Expression) -> None:
+        self._result: Optional[List[Expression]] = None
+        super().__init__(expression)
+
+    def result(self) -> List[Expression]:
         if self._result is None:
             self._result = list(set(get(self.expression)))
         return self._result
 
-    def _post_assignement_operation(self, expression):
+    def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         val = left + right
@@ -49,20 +64,22 @@ class ExportValues(ExpressionVisitor):
         val = called + args
         set_val(expression, val)
 
-    def _post_conditional_expression(self, expression):
+    def _post_conditional_expression(self, expression: ConditionalExpression) -> None:
         if_expr = get(expression.if_expression)
         else_expr = get(expression.else_expression)
         then_expr = get(expression.then_expression)
         val = if_expr + else_expr + then_expr
         set_val(expression, val)
 
-    def _post_elementary_type_name_expression(self, expression):
+    def _post_elementary_type_name_expression(
+        self, expression: ElementaryTypeNameExpression
+    ) -> None:
         set_val(expression, [])
 
     def _post_identifier(self, expression: Identifier) -> None:
         set_val(expression, [expression.value])
 
-    def _post_index_access(self, expression):
+    def _post_index_access(self, expression: IndexAccess) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         val = left + right
@@ -76,13 +93,13 @@ class ExportValues(ExpressionVisitor):
         val = expr
         set_val(expression, val)
 
-    def _post_new_array(self, expression):
+    def _post_new_array(self, expression: NewArray) -> None:
         set_val(expression, [])
 
-    def _post_new_contract(self, expression):
+    def _post_new_contract(self, expression: NewContract) -> None:
         set_val(expression, [])
 
-    def _post_new_elementary_type(self, expression):
+    def _post_new_elementary_type(self, expression: NewElementaryType) -> None:
         set_val(expression, [])
 
     def _post_tuple_expression(self, expression: TupleExpression) -> None:
@@ -95,7 +112,7 @@ class ExportValues(ExpressionVisitor):
         val = expr
         set_val(expression, val)
 
-    def _post_unary_operation(self, expression):
+    def _post_unary_operation(self, expression: UnaryOperation) -> None:
         expr = get(expression.expression)
         val = expr
         set_val(expression, val)

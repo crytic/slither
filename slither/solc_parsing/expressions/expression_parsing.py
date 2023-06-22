@@ -467,6 +467,8 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 type_candidate = ElementaryType("uint256")
             else:
                 type_candidate = ElementaryType("string")
+        elif type_candidate.startswith("rational_const "):
+            type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("int_const "):
             type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("bool"):
@@ -515,11 +517,14 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
     if name == "IndexAccess":
         if is_compact_ast:
-            index_type = expression["typeDescriptions"]["typeString"]
+            # We dont use the index type here, as we recover it later
+            # We could change the paradigm with the current AST parsing
+            # And do the type parsing in advanced for most of the operation
+            # index_type = expression["typeDescriptions"]["typeString"]
             left = expression["baseExpression"]
             right = expression.get("indexExpression", None)
         else:
-            index_type = expression["attributes"]["type"]
+            # index_type = expression["attributes"]["type"]
             children = expression["children"]
             left = children[0]
             right = children[1] if len(children) > 1 else None
@@ -536,7 +541,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         left_expression = parse_expression(left, caller_context)
         right_expression = parse_expression(right, caller_context)
-        index = IndexAccess(left_expression, right_expression, index_type)
+        index = IndexAccess(left_expression, right_expression)
         index.set_offset(src, caller_context.compilation_unit)
         return index
 
@@ -590,37 +595,9 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             type_name = children[0]
 
         if type_name[caller_context.get_key()] == "ArrayTypeName":
-            depth = 0
-            while type_name[caller_context.get_key()] == "ArrayTypeName":
-                # Note: dont conserve the size of the array if provided
-                # We compute it directly
-                if is_compact_ast:
-                    type_name = type_name["baseType"]
-                else:
-                    type_name = type_name["children"][0]
-                depth += 1
-            if type_name[caller_context.get_key()] == "ElementaryTypeName":
-                if is_compact_ast:
-                    array_type = ElementaryType(type_name["name"])
-                else:
-                    array_type = ElementaryType(type_name["attributes"]["name"])
-            elif type_name[caller_context.get_key()] == "UserDefinedTypeName":
-                if is_compact_ast:
-                    if "name" not in type_name:
-                        name_type = type_name["pathNode"]["name"]
-                    else:
-                        name_type = type_name["name"]
-
-                    array_type = parse_type(UnknownType(name_type), caller_context)
-                else:
-                    array_type = parse_type(
-                        UnknownType(type_name["attributes"]["name"]), caller_context
-                    )
-            elif type_name[caller_context.get_key()] == "FunctionTypeName":
-                array_type = parse_type(type_name, caller_context)
-            else:
-                raise ParsingError(f"Incorrect type array {type_name}")
-            array = NewArray(depth, array_type)
+            array_type = parse_type(type_name, caller_context)
+            assert isinstance(array_type, ArrayType)
+            array = NewArray(array_type)
             array.set_offset(src, caller_context.compilation_unit)
             return array
 

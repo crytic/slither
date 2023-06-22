@@ -1,0 +1,12 @@
+Contract bad2 (tests/e2e/detectors/test_data/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#20-29) 
+	 s.a(10) (tests/e2e/detectors/test_data/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#27) is an unintialized function pointer call in a constructor
+
+Contract bad0 (tests/e2e/detectors/test_data/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#3-9) 
+	 a(10) (tests/e2e/detectors/test_data/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#7) is an unintialized function pointer call in a constructor
+
+Contract bad3 (tests/e2e/detectors/test_data/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#31-42) 
+	 a(10) (tests/e2e/detectors/test_data/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#36) is an unintialized function pointer call in a constructor
+
+Contract bad1 (tests/e2e/detectors/test_data/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#11-18) 
+	 b(10) (tests/e2e/detectors/test_data/uninitialized-fptr-cst/0.4.25/uninitialized_function_ptr_constructor.sol#16) is an unintialized function pointer call in a constructor
+

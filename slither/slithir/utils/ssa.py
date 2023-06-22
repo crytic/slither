@@ -366,7 +366,7 @@ def last_name(
 
 def is_used_later(
     initial_node: Node,
-    variable: Union[StateIRVariable, LocalVariable],
+    variable: Union[StateIRVariable, LocalVariable, TemporaryVariableSSA],
 ) -> bool:
     # TODO: does not handle the case where its read and written in the declaration node
     # It can be problematic if this happens in a loop/if structure
@@ -751,8 +751,7 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         variable_left = get_variable(ir, lambda x: x.variable_left, *instances)
         variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
-        index_type = ir.index_type
-        return Index(lvalue, variable_left, variable_right, index_type)
+        return Index(lvalue, variable_left, variable_right)
     if isinstance(ir, InitArray):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         init_values = get_rec_values(ir, lambda x: x.init_values, *instances)
@@ -790,10 +789,9 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
         return Member(variable_left, variable_right, lvalue)
     if isinstance(ir, NewArray):
-        depth = ir.depth
         array_type = ir.array_type
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        new_ir = NewArray(depth, array_type, lvalue)
+        new_ir = NewArray(array_type, lvalue)
         new_ir.arguments = get_rec_values(ir, lambda x: x.arguments, *instances)
         return new_ir
     if isinstance(ir, NewElementaryType):

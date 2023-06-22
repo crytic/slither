@@ -7,7 +7,11 @@ from typing import List, Set, Tuple
 
 from slither.core.declarations.contract import Contract
 from slither.core.variables.local_variable import LocalVariable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 
 
@@ -43,9 +47,7 @@ class SimilarVarsDetection(AbstractDetector):
         Returns:
             bool: true if names are similar
         """
-        if len(seq1) != len(seq2):
-            return False
-        val = difflib.SequenceMatcher(a=seq1.lower(), b=seq2.lower()).ratio()
+        val = difflib.SequenceMatcher(a=seq1, b=seq2).ratio()
         ret = val > 0.90
         return ret
 
@@ -61,17 +63,23 @@ class SimilarVarsDetection(AbstractDetector):
 
         contract_var = contract.variables
 
-        all_var = set(all_var + contract_var)
+        all_var = list(set(all_var + contract_var))
 
-        ret = []
-        for v1 in all_var:
-            for v2 in all_var:
-                if v1.name.lower() != v2.name.lower():
-                    if SimilarVarsDetection.similar(v1.name, v2.name):
-                        if (v2, v1) not in ret:
-                            ret.append((v1, v2))
+        ret = set()
+        # pylint: disable=consider-using-enumerate
+        for i in range(len(all_var)):
+            v1 = all_var[i]
+            _v1_name_lower = v1.name.lower()
+            for j in range(i, len(all_var)):
+                v2 = all_var[j]
+                if len(v1.name) != len(v2.name):
+                    continue
+                _v2_name_lower = v2.name.lower()
+                if _v1_name_lower != _v2_name_lower:
+                    if SimilarVarsDetection.similar(_v1_name_lower, _v2_name_lower):
+                        ret.add((v1, v2))
 
-        return set(ret)
+        return ret
 
     def _detect(self) -> List[Output]:
         """Detect similar variables name
@@ -86,7 +94,13 @@ class SimilarVarsDetection(AbstractDetector):
                 for (v1, v2) in sorted(allVars, key=lambda x: (x[0].name, x[1].name)):
                     v_left = v1 if v1.name < v2.name else v2
                     v_right = v2 if v_left == v1 else v1
-                    info = ["Variable ", v_left, " is too similar to ", v_right, "\n"]
+                    info: DETECTOR_INFO = [
+                        "Variable ",
+                        v_left,
+                        " is too similar to ",
+                        v_right,
+                        "\n",
+                    ]
                     json = self.generate_result(info)
                     results.append(json)
         return results

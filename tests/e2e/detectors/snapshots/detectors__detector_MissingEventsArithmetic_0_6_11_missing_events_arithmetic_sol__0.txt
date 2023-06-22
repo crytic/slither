@@ -1,0 +1,6 @@
+Bug.bad0(uint8) (tests/e2e/detectors/test_data/events-maths/0.6.11/missing_events_arithmetic.sol#22-24) should emit an event for: 
+	- uprice8 = _price (tests/e2e/detectors/test_data/events-maths/0.6.11/missing_events_arithmetic.sol#23) 
+
+Bug.bad1(int16) (tests/e2e/detectors/test_data/events-maths/0.6.11/missing_events_arithmetic.sol#30-32) should emit an event for: 
+	- iprice16 = _price (tests/e2e/detectors/test_data/events-maths/0.6.11/missing_events_arithmetic.sol#31) 
+
