@@ -308,6 +308,7 @@ ALL_TESTS = [
     Test("units_and_global_variables-0.8.0.sol", VERSIONS_08),
     Test("units_and_global_variables-0.8.4.sol", make_version(8, 4, 6)),
     Test("units_and_global_variables-0.8.7.sol", make_version(8, 7, 9)),
+    Test("global_variables-0.8.18.sol", make_version(8, 18, 18)),
     Test(
         "push-all.sol",
         ALL_VERSIONS,
@@ -453,6 +454,10 @@ ALL_TESTS = [
     Test("complex_imports/import_aliases_issue_1319/test.sol", ["0.5.12"]),
     Test("yul-state-constant-access.sol", ["0.8.16"]),
     Test("negate-unary-element.sol", ["0.8.16"]),
+    Test(
+        "assembly-functions.sol",
+        ["0.6.9", "0.7.6", "0.8.16"],
+    ),
 ]
 # create the output folder if needed
 try:

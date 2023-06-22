@@ -1,0 +1,56 @@
+{
+    "masterCopy": {
+        "name": "masterCopy",
+        "type_string": "address",
+        "slot": 0,
+        "size": 160,
+        "offset": 0,
+        "value": "0x0000000000000000000000000000000000000000",
+        "elems": {}
+    },
+    "ADMIN_SLOT": {
+        "name": "ADMIN_SLOT",
+        "type_string": "address",
+        "slot": 7616251639890160809447714111544359812065171195189364993079081710756264753419,
+        "size": 160,
+        "offset": 0,
+        "value": "0xae17D2dD99e07CA3bF2571CCAcEAA9e2Aefc2Dc6",
+        "elems": {}
+    },
+    "IMPLEMENTATION_SLOT": {
+        "name": "IMPLEMENTATION_SLOT",
+        "type_string": "address",
+        "slot": 24440054405305269366569402256811496959409073762505157381672968839269610695612,
+        "size": 160,
+        "offset": 0,
+        "value": "0x54006763154c764da4AF42a8c3cfc25Ea29765D5",
+        "elems": {}
+    },
+    "ROLLBACK_SLOT": {
+        "name": "ROLLBACK_SLOT",
+        "type_string": "bool",
+        "slot": 33048860383849004559742813297059419343339852917517107368639918720169455489347,
+        "size": 1,
+        "offset": 0,
+        "value": true,
+        "elems": {}
+    },
+    "BEACON_SLOT": {
+        "name": "BEACON_SLOT",
+        "type_string": "address",
+        "slot": 74152234768234802001998023604048924213078445070507226371336425913862612794704,
+        "size": 160,
+        "offset": 0,
+        "value": "0x54006763154c764da4AF42a8c3cfc25Ea29765D5",
+        "elems": {}
+    },
+    "fallback_sload_hardcoded": {
+        "name": "fallback_sload_hardcoded",
+        "type_string": "address",
+        "slot": 89532207833283453166981358064394884954800891875771469636219037672473505217783,
+        "size": 160,
+        "offset": 0,
+        "value": "0x54006763154c764da4AF42a8c3cfc25Ea29765D5",
+        "elems": {}
+    }
+}
