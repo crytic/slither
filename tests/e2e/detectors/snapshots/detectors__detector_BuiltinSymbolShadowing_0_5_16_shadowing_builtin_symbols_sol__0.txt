@@ -10,11 +10,11 @@ FurtherExtendedContract.this (tests/e2e/detectors/test_data/shadowing-builtin/0.
 
 BaseContract.now (tests/e2e/detectors/test_data/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#5) (state variable) shadows built-in symbol"
 
-BaseContractrevert(bool) (tests/e2e/detectors/test_data/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#7) (event) shadows built-in symbol"
-
 ExtendedContract.assert(bool).msg (tests/e2e/detectors/test_data/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#14) (local variable) shadows built-in symbol"
 
 ExtendedContract.assert(bool) (tests/e2e/detectors/test_data/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#13-15) (function) shadows built-in symbol"
+
+BaseContract.revert(bool) (tests/e2e/detectors/test_data/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#7) (event) shadows built-in symbol"
 
 FurtherExtendedContract.require().sha3 (tests/e2e/detectors/test_data/shadowing-builtin/0.5.16/shadowing_builtin_symbols.sol#26) (local variable) shadows built-in symbol"
 
