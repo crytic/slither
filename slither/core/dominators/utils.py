@@ -21,6 +21,7 @@ def intersection_predecessor(node: "Node") -> Set["Node"]:
             ret = ret.intersection(pred.dominators)
     return ret
 
+
 def _compute_dominators(nodes: List["Node"]) -> None:
     changed = True
 
