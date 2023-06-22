@@ -1100,6 +1100,13 @@ class FunctionSolc(CallerContextExpression):
             node = self._parse_statement(statement, node, new_scope)
         return node
 
+    def _update_reachability(self, node: Node):
+        if node.is_reachable:
+            return
+        node.set_is_reachable(True)
+        for son in node.sons:
+            self._update_reachability(son)
+
     def _parse_cfg(self, cfg: Dict) -> None:
 
         assert cfg[self.get_key()] == "Block"
@@ -1119,6 +1126,8 @@ class FunctionSolc(CallerContextExpression):
             self._parse_block(cfg, node, self.underlying_function)
             self._remove_incorrect_edges()
             self._remove_alone_endif()
+
+        self._update_reachability(self._function.entry_point)
 
     # endregion
     ###################################################################################
