@@ -1,7 +1,6 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import SolidityCall
 from slither.core.declarations.solidity_variables import SolidityFunction
-from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.constant import Constant
