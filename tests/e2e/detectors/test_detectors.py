@@ -1533,14 +1533,16 @@ ALL_TEST_OBJECTS = [
         "arbitrary_send_erc20_permit.sol",
         "0.8.0",
     ),
-    Test(all_detectors.WrongEncodeWithSelector,
-         "wrongencodeselector.sol",
-         "0.8.15"
+    Test(
+        all_detectors.WrongEncodeWithSelector,
+        "wrong-encode-selector.sol",
+        "0.8.15",
     ),
-    Test(all_detectors.WrongEncodeWithSelector,
-         "wrongencodeselector.sol",
-         "0.8.0"
-     ),
+    Test(
+        all_detectors.WrongEncodeWithSelector, 
+        "wrong-encode-selector.sol", 
+        "0.8.0",
+    ),
     Test(
         all_detectors.DomainSeparatorCollision,
         "permit_domain_collision.sol",
@@ -1662,6 +1664,7 @@ ALL_TEST_OBJECTS = [
 GENERIC_PATH = "/GENERIC_PATH"
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
+
 
 # pylint: disable=too-many-locals
 @pytest.mark.parametrize("test_item", ALL_TEST_OBJECTS, ids=id_test)

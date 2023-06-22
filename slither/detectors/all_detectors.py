@@ -75,6 +75,7 @@ from .compiler_bugs.enum_conversion import EnumConversion
 from .compiler_bugs.multiple_constructor_schemes import MultipleConstructorSchemes
 from .compiler_bugs.public_mapping_nested import PublicMappingNested
 from .compiler_bugs.reused_base_constructor import ReusedBaseConstructor
+from .compiler_bugs.wrong_selector_with_selector import WrongEncodeWithSelector
 from .operations.missing_events_access_control import MissingEventsAccessControl
 from .operations.missing_events_arithmetic import MissingEventsArithmetic
 from .functions.modifier import ModifierDefaultDetection
@@ -86,7 +87,6 @@ from .statements.write_after_write import WriteAfterWrite
 from .statements.msg_value_in_loop import MsgValueInLoop
 from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
-from .compiler_bugs.wrong_selector_with_selector import WrongEncodeWithSelector
 from .functions.permit_domain_signature_collision import DomainSeparatorCollision
 from .functions.codex import Codex
 from .functions.cyclomatic_complexity import CyclomaticComplexity

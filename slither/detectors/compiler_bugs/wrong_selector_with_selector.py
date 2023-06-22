@@ -1,6 +1,7 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import SolidityCall
 from slither.core.declarations.solidity_variables import SolidityFunction
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.variables.reference import ReferenceVariable
 from slither.slithir.variables.constant import Constant
@@ -23,7 +24,7 @@ def get_signatures(c):
         if variable.visibility not in ["public"]:
             continue
         name = variable.full_name
-        result[get_function_id(name)] = (name, (),())
+        result[get_function_id(name)] = (name, (), ())
 
     return result
 
@@ -33,14 +34,14 @@ class WrongEncodeWithSelector(AbstractDetector):
     Detect calls to abi.encodeWithSelector that may result in unexpected calldata encodings
     """
 
-    ARGUMENT = "wrongencodeselector"
+    ARGUMENT = "wrong-encode-selector"
     HELP = "abi.encodeWithSelector with unexpected arguments"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = "https://github.com/trailofbits/slither/wiki/encode-with-selector"
     WIKI_TITLE = "Parameters of incorrect type in abi.encodeWithSelector"
-    WIKI_DESCRIPTION = "Plugin example"
+    WIKI_DESCRIPTION = "Wrong argument number and/or types in abi.encodeWithSelector"
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
 contract Test {   
@@ -62,27 +63,29 @@ function signature.
     WIKI_RECOMMENDATION = "Make sure that arguments passed to abi.encodeWithSelector have the same types as the target function signature."
 
     def _detect(self):
-        #gather all known funcids
+        # gather all known funcids
         func_ids = {}
         for contract in self.contracts:
             func_ids.update(get_signatures(contract))
-        #todo: include func_ids from the public db
+        # todo: include func_ids from the public db
 
         results = []
         for contract in self.contracts:
             for func, node in check_contract(contract, func_ids):
-                info = [func, " calls abi.encodeWithSelector() with arguments of incorrect type:", node ]
+                info = [
+                    func,
+                    " calls abi.encodeWithSelector() with arguments of incorrect type or with an incorrect number of arguments:",
+                    node,
+                ]
                 json = self.generate_result(info)
                 results.append(json)
 
         return results
 
+
 def check_ir(function, node, ir, func_ids):
     result = []
-    if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
-            "abi.encodeWithSelector()"
-    ):
-
+    if isinstance(ir, SolidityCall) and ir.function == SolidityFunction("abi.encodeWithSelector()"):
         # build reference bindings dict
         assignments = {}
         for ir1 in node.irs:
@@ -99,15 +102,21 @@ def check_ir(function, node, ir, func_ids):
         _, _, argument_types = func_ids[selector.value]
         arguments = ir.arguments[1:]
 
+        # todo: add check for user defined types
         if len(argument_types) != len(arguments):
             result.append((function, node))
+        else:
+            for idx, expected in enumerate(argument_types):
+                if expected != str(arguments[idx].type):
+                    result.append((function, node))
+                    break
 
-        # Todo check_contract unmatching argument types for correct count
     return result
 
+
 def check_contract(contract, func_ids):
-    """ check_contract if contract has an ecodeWhitSelector that uses a selector
-        for a method with an unmatching number of arguments
+    """Check contract's usage of abi.encodeWithSelector to ensure that the number of arguments
+    and their type math the function signature of the given selector.
     """
     result = []
     for function in contract.functions_and_modifiers_declared:
