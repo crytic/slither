@@ -1,6 +1,7 @@
 pragma solidity ^0.8.2;
 
 import "./ProxyStorage.sol";
+import "./ERC20.sol";
 
 contract ContractV2 is ProxyStorage {
     uint private stateA = 0;
@@ -37,5 +38,9 @@ contract ContractV2 is ProxyStorage {
 
     function checkB() internal returns (bool) {
         return stateB == 32;
+    }
+
+    function erc20Transfer(address erc20, address to, uint256 amount) public returns (bool) {
+        return ERC20(erc20).transfer(to, amount);
     }
 }
