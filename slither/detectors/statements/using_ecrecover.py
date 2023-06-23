@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 from slither.core.declarations.contract import Contract
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
@@ -11,7 +11,7 @@ from slither.utils.output import Output
 
 class UsingEcrecover(AbstractDetector):
     """
-    Detect calls to abi.encodeWithSelector that may result in unexpected calldata encodings
+    Detect calls to ecrecover
     """
 
     ARGUMENT = "using-ecrecover"
