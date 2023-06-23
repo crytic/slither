@@ -1649,11 +1649,17 @@ ALL_TEST_OBJECTS = [
         "encode_packed_collision.sol",
         "0.7.6",
     ),
+    Test(
+        all_detectors.UsingEcrecover,
+        "using_ecrecover.sol",
+        "0.8.0",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
+
 
 # pylint: disable=too-many-locals
 @pytest.mark.parametrize("test_item", ALL_TEST_OBJECTS, ids=id_test)

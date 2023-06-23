@@ -1,0 +1,1 @@
+UsingEcrecover.bad() (tests/e2e/detectors/test_data/using-ecrecover/0.8.0/using_ecrecover.sol#2-9) uses ecrecover: signer = ecrecover(bytes32,uint8,bytes32,bytes32)(bytes32(0),uint8(1),bytes32(0),bytes32(0)) (tests/e2e/detectors/test_data/using-ecrecover/0.8.0/using_ecrecover.sol#3-8)
