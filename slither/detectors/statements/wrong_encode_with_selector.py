@@ -3,6 +3,8 @@ from slither.core.declarations.contract import Contract
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
 from slither.slithir.operations.operation import Operation
+from slither.slithir.operations import TypeConversion
+from slither.core.expressions.literal import Literal
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import SolidityCall
 from slither.core.declarations.solidity_variables import SolidityFunction
@@ -104,7 +106,15 @@ def check_wrong_selector_encoding(
         if isinstance(selector, ReferenceVariable):
             selector = assignments[selector.name]
 
-        assert isinstance(selector, Constant)
+        # Does not handle LocalVariables
+        if not isinstance(selector, Constant):
+            if isinstance(selector.expression, TypeConversion) and isinstance(
+                selector.expression.expression, Literal
+            ):
+                selector = selector.expression.expression.value
+                print("is value", selector)
+            else:
+                return result
 
         _, _, argument_types = func_ids[selector.value]
         arguments = ir.arguments[1:]
@@ -127,8 +137,10 @@ def check_contract(contract: Contract, func_ids: Dict[str, str]) -> List[Tuple[F
     """
     result = []
     for function in contract.functions_and_modifiers_declared:
-        for node in function.nodes:
-            for ir in node.irs:
-                result += check_wrong_selector_encoding(function, node, ir, func_ids)
+        if SolidityFunction("abi.encodeWithSelector()") in function.solidity_calls:
+            for node in function.nodes:
+                if SolidityFunction("abi.encodeWithSelector()") in node.solidity_calls:
+                    for ir in node.irs:
+                        result += check_wrong_selector_encoding(function, node, ir, func_ids)
 
     return result
