@@ -112,7 +112,6 @@ def check_wrong_selector_encoding(
                 selector.expression.expression, Literal
             ):
                 selector = selector.expression.expression.value
-                print("is value", selector)
             else:
                 return result
 
