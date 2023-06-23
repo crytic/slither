@@ -2,12 +2,12 @@
 Module printing summary of the contract
 """
 import logging
-from pathlib import Path
 from typing import Tuple, List, Dict
 
 from slither.core.declarations import SolidityFunction, Function
 from slither.core.variables.state_variable import StateVariable
 from slither.printers.abstract_printer import AbstractPrinter
+from slither.printers.summary.loc import compute_loc_metrics
 from slither.slithir.operations import (
     LowLevelCall,
     HighLevelCall,
@@ -21,7 +21,6 @@ from slither.utils.colors import green, red, yellow
 from slither.utils.myprettytable import MyPrettyTable
 from slither.utils.standard_libraries import is_standard_library
 from slither.core.cfg.node import NodeType
-from slither.utils.tests_pattern import is_test_file
 
 
 class PrinterHumanSummary(AbstractPrinter):
@@ -32,7 +31,6 @@ class PrinterHumanSummary(AbstractPrinter):
 
     @staticmethod
     def _get_summary_erc20(contract):
-
         functions_name = [f.name for f in contract.functions]
         state_variables = [v.name for v in contract.state_variables]
 
@@ -165,28 +163,7 @@ class PrinterHumanSummary(AbstractPrinter):
     def _number_functions(contract):
         return len(contract.functions)
 
-    def _lines_number(self):
-        if not self.slither.source_code:
-            return None
-        total_dep_lines = 0
-        total_lines = 0
-        total_tests_lines = 0
-
-        for filename, source_code in self.slither.source_code.items():
-            lines = len(source_code.splitlines())
-            is_dep = False
-            if self.slither.crytic_compile:
-                is_dep = self.slither.crytic_compile.is_dependency(filename)
-            if is_dep:
-                total_dep_lines += lines
-            else:
-                if is_test_file(Path(filename)):
-                    total_tests_lines += lines
-                else:
-                    total_lines += lines
-        return total_lines, total_dep_lines, total_tests_lines
-
-    def _get_number_of_assembly_lines(self):
+    def _get_number_of_assembly_lines(self) -> int:
         total_asm_lines = 0
         for contract in self.contracts:
             for function in contract.functions_declared:
@@ -202,9 +179,7 @@ class PrinterHumanSummary(AbstractPrinter):
             return "Compilation non standard\n"
         return f"Compiled with {str(self.slither.crytic_compile.type)}\n"
 
-    def _number_contracts(self):
-        if self.slither.crytic_compile is None:
-            return len(self.slither.contracts), 0, 0
+    def _number_contracts(self) -> Tuple[int, int, int]:
         contracts = self.slither.contracts
         deps = [c for c in contracts if c.is_from_dependency()]
         tests = [c for c in contracts if c.is_test]
@@ -226,7 +201,6 @@ class PrinterHumanSummary(AbstractPrinter):
         return list(set(ercs))
 
     def _get_features(self, contract):  # pylint: disable=too-many-branches
-
         has_payable = False
         can_send_eth = False
         can_selfdestruct = False
@@ -291,6 +265,36 @@ class PrinterHumanSummary(AbstractPrinter):
             "Proxy": contract.is_upgradeable_proxy,
         }
 
+    def _get_contracts(self, txt: str) -> str:
+        (
+            number_contracts,
+            number_contracts_deps,
+            number_contracts_tests,
+        ) = self._number_contracts()
+        txt += f"Total number of contracts in source files: {number_contracts}\n"
+        if number_contracts_deps > 0:
+            txt += f"Number of contracts in dependencies: {number_contracts_deps}\n"
+        if number_contracts_tests > 0:
+            txt += f"Number of contracts in tests       : {number_contracts_tests}\n"
+        return txt
+
+    def _get_number_lines(self, txt: str, results: Dict) -> Tuple[str, Dict]:
+        loc = compute_loc_metrics(self.slither)
+        txt += "Source lines of code (SLOC) in source files: "
+        txt += f"{loc.src.sloc}\n"
+        if loc.dep.sloc > 0:
+            txt += "Source lines of code (SLOC) in dependencies: "
+            txt += f"{loc.dep.sloc}\n"
+        if loc.test.sloc > 0:
+            txt += "Source lines of code (SLOC) in tests       : "
+            txt += f"{loc.test.sloc}\n"
+        results["number_lines"] = loc.src.sloc
+        results["number_lines__dependencies"] = loc.dep.sloc
+        total_asm_lines = self._get_number_of_assembly_lines()
+        txt += f"Number of  assembly lines: {total_asm_lines}\n"
+        results["number_lines_assembly"] = total_asm_lines
+        return txt, results
+
     def output(self, _filename):  # pylint: disable=too-many-locals,too-many-statements
         """
         _filename is not used
@@ -311,24 +315,8 @@ class PrinterHumanSummary(AbstractPrinter):
             "number_findings": {},
             "detectors": [],
         }
-
-        lines_number = self._lines_number()
-        if lines_number:
-            total_lines, total_dep_lines, total_tests_lines = lines_number
-            txt += f"Number of lines: {total_lines} (+ {total_dep_lines} in dependencies, + {total_tests_lines} in tests)\n"
-            results["number_lines"] = total_lines
-            results["number_lines__dependencies"] = total_dep_lines
-            total_asm_lines = self._get_number_of_assembly_lines()
-            txt += f"Number of assembly lines: {total_asm_lines}\n"
-            results["number_lines_assembly"] = total_asm_lines
-
-        (
-            number_contracts,
-            number_contracts_deps,
-            number_contracts_tests,
-        ) = self._number_contracts()
-        txt += f"Number of contracts: {number_contracts} (+ {number_contracts_deps} in dependencies, + {number_contracts_tests} tests) \n\n"
-
+        txt = self._get_contracts(txt)
+        txt, results = self._get_number_lines(txt, results)
         (
             txt_detectors,
             detectors_results,
@@ -352,7 +340,7 @@ class PrinterHumanSummary(AbstractPrinter):
         libs = self._standard_libraries()
         if libs:
             txt += f'\nUse: {", ".join(libs)}\n'
-            results["standard_libraries"] = [str(l) for l in libs]
+            results["standard_libraries"] = [str(lib) for lib in libs]
 
         ercs = self._ercs()
         if ercs:
@@ -363,7 +351,6 @@ class PrinterHumanSummary(AbstractPrinter):
             ["Name", "# functions", "ERCS", "ERC20 info", "Complex code", "Features"]
         )
         for contract in self.slither.contracts_derived:
-
             if contract.is_from_dependency() or contract.is_test:
                 continue
 

@@ -1077,7 +1077,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         return op
 
     if isinstance(ins.ori, TmpNewArray):
-        n = NewArray(ins.ori.depth, ins.ori.array_type, ins.lvalue)
+        n = NewArray(ins.ori.array_type, ins.lvalue)
         n.set_expression(ins.expression)
         return n
 
@@ -1363,11 +1363,12 @@ def convert_to_pop(ir: HighLevelCall, node: "Node") -> List[Operation]:
     # TODO the following is equivalent to length.points_to = arr
     # Should it be removed?
     ir_length.lvalue.points_to = arr
-    # Note bytes is an ElementaryType not ArrayType so in that case we use ir.destination.type
+    # Note bytes is an ElementaryType not ArrayType and bytes1 should be returned
+    # since bytes is bytes1[] without padding between the elements
     # while in other cases such as uint256[] (ArrayType) we use ir.destination.type.type
     # in this way we will have the type always set to the corresponding ElementaryType
     element_to_delete.set_type(
-        ir.destination.type
+        ElementaryType("bytes1")
         if isinstance(ir.destination.type, ElementaryType)
         else ir.destination.type.type
     )
@@ -1583,7 +1584,9 @@ def _convert_to_structure_to_list(return_type: Type) -> List[Type]:
     # }
     if isinstance(return_type, (MappingType, ArrayType)):
         return []
-    return [return_type.type]
+
+    assert isinstance(return_type, (ElementaryType, UserDefinedType, TypeAlias))
+    return [return_type]
 
 
 def convert_type_of_high_and_internal_level_call(

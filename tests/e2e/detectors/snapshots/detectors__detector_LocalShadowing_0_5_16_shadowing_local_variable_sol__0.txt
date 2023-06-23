@@ -10,7 +10,7 @@ FurtherExtendedContract.shadowingParent(uint256).y (tests/e2e/detectors/test_dat
 	- BaseContract.y (tests/e2e/detectors/test_data/shadowing-local/0.5.16/shadowing_local_variable.sol#5) (state variable)
 
 FurtherExtendedContract.shadowingParent(uint256).v (tests/e2e/detectors/test_data/shadowing-local/0.5.16/shadowing_local_variable.sol#25) shadows:
-	- ExtendedContractv() (tests/e2e/detectors/test_data/shadowing-local/0.5.16/shadowing_local_variable.sol#13) (event)
+	- ExtendedContract.v() (tests/e2e/detectors/test_data/shadowing-local/0.5.16/shadowing_local_variable.sol#13) (event)
 
 FurtherExtendedContract.shadowingParent(uint256).w (tests/e2e/detectors/test_data/shadowing-local/0.5.16/shadowing_local_variable.sol#25) shadows:
 	- FurtherExtendedContract.w() (tests/e2e/detectors/test_data/shadowing-local/0.5.16/shadowing_local_variable.sol#20-23) (modifier)
