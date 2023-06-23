@@ -112,7 +112,12 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         self, operator: str, function_name: str, type_name: TypeAliasTopLevel
     ) -> None:
         for tl_function in self.compilation_unit.functions_top_level:
-            if tl_function.name == function_name:
+            # The library function is bound to the first parameter's type
+            if (
+                tl_function.name == function_name
+                and tl_function.parameters
+                and type_name == tl_function.parameters[0].type
+            ):
                 type_name.operators[operator] = tl_function
                 break
 
