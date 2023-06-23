@@ -54,7 +54,7 @@ defaults_flag_in_config = {
     "exclude_low": False,
     "exclude_medium": False,
     "exclude_high": False,
-    "fail_on": FailOnLevel.PEDANTIC.value,
+    "fail_on": FailOnLevel.PEDANTIC,
     "json": None,
     "sarif": None,
     "json-types": ",".join(DEFAULT_JSON_OUTPUT_TYPES),
@@ -118,22 +118,22 @@ def migrate_config_options(args: argparse.Namespace, key: str, elem):
     if key.startswith("fail_") and getattr(args, "fail_on") == defaults_flag_in_config["fail_on"]:
         if key == "fail_pedantic":
             pedantic_setting = elem
-            fail_on = pedantic_setting and FailOnLevel.PEDANTIC or FailOnLevel.NONE
+            fail_on = FailOnLevel.PEDANTIC if pedantic_setting else FailOnLevel.NONE
             setattr(args, "fail_on", fail_on)
-            logger.info(
-                "Migrating fail_pedantic: {} as fail_on: {}".format(pedantic_setting, fail_on.value)
-            )
-        elif key == "fail_low" and elem == True:
+            logger.info(f"Migrating fail_pedantic: {pedantic_setting} as fail_on: {fail_on.value}")
+        elif key == "fail_low" and elem is True:
             logger.info("Migrating fail_low: true -> fail_on: low")
             setattr(args, "fail_on", FailOnLevel.LOW)
-        elif key == "fail_medium" and elem == True:
+
+        elif key == "fail_medium" and elem is True:
             logger.info("Migrating fail_medium: true -> fail_on: medium")
             setattr(args, "fail_on", FailOnLevel.MEDIUM)
-        elif key == "fail_high" and elem == True:
+
+        elif key == "fail_high" and elem is True:
             logger.info("Migrating fail_high: true -> fail_on: high")
             setattr(args, "fail_on", FailOnLevel.HIGH)
         else:
-            logger.warn(yellow("Key {} was deprecated but no migration was provided".format(key)))
+            logger.warning(yellow(f"Key {key} was deprecated but no migration was provided"))
 
 
 def output_to_markdown(

@@ -36,7 +36,6 @@ from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
     FailOnLevel,
-    migrate_config_options,
     output_detectors,
     output_results_to_markdown,
     output_detectors_json,
