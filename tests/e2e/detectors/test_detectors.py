@@ -1640,6 +1640,11 @@ ALL_TESTS = [
         "0.8.16",
     ),
     Test(
+        all_detectors.CacheArrayLength,
+        "CacheArrayLength.sol",
+        "0.8.17",
+    ),
+    Test(
         all_detectors.IncorrectUsingFor,
         "IncorrectUsingForTopLevel.sol",
         "0.8.17",
