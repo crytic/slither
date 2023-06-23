@@ -70,9 +70,7 @@ def check_using_ecrecover(
 
 
 def check_contract(contract: Contract) -> List[Tuple[Function, Node]]:
-    """Check contract's usage of abi.encodeWithSelector to ensure that the number of arguments
-    and their type math the function signature of the given selector.
-    """
+    """Check contract's usage of ecrecover"""
     result = []
     for function in contract.functions_and_modifiers_declared:
         if SolidityFunction("ecrecover(bytes32,uint8,bytes32,bytes32)") in function.solidity_calls:
