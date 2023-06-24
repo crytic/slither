@@ -1,6 +1,6 @@
 # Slither, the Solidity source analyzer
 
-<img src="./logo.png" alt="Logo" width="500"/>
+<img src="https://raw.githubusercontent.com/crytic/slither/master/logo.png" alt="Logo" width="500"/>
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/crytic/slither/ci.yml?branch=master)](https://github.com/crytic/slither/actions?query=workflow%3ACI)
 [![Slack Status](https://empireslacking.herokuapp.com/badge.svg)](https://empireslacking.herokuapp.com)
