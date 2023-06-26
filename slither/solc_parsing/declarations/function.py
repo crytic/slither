@@ -315,7 +315,8 @@ class FunctionSolc(CallerContextExpression):
 
         self._remove_alone_endif()
 
-        self._update_reachability(self._function.entry_point)
+        if self._function.entry_point:
+            self._update_reachability(self._function.entry_point)
 
     # endregion
     ###################################################################################
