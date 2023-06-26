@@ -1,8 +1,20 @@
 """
 Module detecting reserved keyword shadowing
 """
+from typing import List, Tuple, Union, Optional
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations import Function, Event
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.modifier import Modifier
+from slither.core.variables import Variable
+from slither.core.variables.local_variable import LocalVariable
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.utils.output import Output
 
 
 class BuiltinSymbolShadowing(AbstractDetector):
@@ -114,7 +126,7 @@ contract Bug {
         "unchecked",
     ]
 
-    def is_builtin_symbol(self, word):
+    def is_builtin_symbol(self, word: Optional[str]) -> bool:
         """Detects if a given word is a built-in symbol.
 
         Returns:
@@ -122,7 +134,9 @@ contract Bug {
 
         return word in self.BUILTIN_SYMBOLS or word in self.RESERVED_KEYWORDS
 
-    def detect_builtin_shadowing_locals(self, function_or_modifier):
+    def detect_builtin_shadowing_locals(
+        self, function_or_modifier: Union[Modifier, FunctionContract]
+    ) -> List[Tuple[str, LocalVariable]]:
         """Detects if local variables in a given function/modifier are named after built-in symbols.
             Any such items are returned in a list.
 
@@ -135,14 +149,16 @@ contract Bug {
                 results.append((self.SHADOWING_LOCAL_VARIABLE, local))
         return results
 
-    def detect_builtin_shadowing_definitions(self, contract):
+    def detect_builtin_shadowing_definitions(
+        self, contract: Contract
+    ) -> List[Tuple[str, Union[Function, Variable, Event]]]:
         """Detects if functions, access modifiers, events, state variables, or local variables are named after built-in
             symbols. Any such definitions are returned in a list.
 
         Returns:
             list of tuple: (type, definition, [local variable parent])"""
 
-        result = []
+        result: List[Tuple[str, Union[Function, Variable, Event]]] = []
 
         # Loop through all functions, modifiers, variables (state and local) to detect any built-in symbol keywords.
         for function in contract.functions_declared:
@@ -164,7 +180,7 @@ contract Bug {
 
         return result
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect shadowing of built-in symbols
 
         Recursively visit the calls
@@ -182,7 +198,7 @@ contract Bug {
                     shadow_type = shadow[0]
                     shadow_object = shadow[1]
 
-                    info = [
+                    info: DETECTOR_INFO = [
                         shadow_object,
                         f' ({shadow_type}) shadows built-in symbol"\n',
                     ]

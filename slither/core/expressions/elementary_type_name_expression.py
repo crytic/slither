@@ -3,10 +3,11 @@
 """
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.type import Type
+from slither.core.solidity_types.elementary_type import ElementaryType
 
 
 class ElementaryTypeNameExpression(Expression):
-    def __init__(self, t):
+    def __init__(self, t: ElementaryType) -> None:
         assert isinstance(t, Type)
         super().__init__()
         self._type = t
@@ -20,5 +21,5 @@ class ElementaryTypeNameExpression(Expression):
         assert isinstance(new_type, Type)
         self._type = new_type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self._type)

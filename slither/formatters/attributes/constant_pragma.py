@@ -1,4 +1,7 @@
 import re
+from typing import Dict, List, Union
+
+from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import create_patch
 
@@ -16,9 +19,9 @@ REPLACEMENT_VERSIONS = ["^0.4.25", "^0.5.3"]
 PATTERN = re.compile(r"(\^|>|>=|<|<=)?([ ]+)?(\d+)\.(\d+)\.(\d+)")
 
 
-def custom_format(slither, result):
+def custom_format(slither: SlitherCompilationUnit, result: Dict) -> None:
     elements = result["elements"]
-    versions_used = []
+    versions_used: List[str] = []
     for element in elements:
         versions_used.append("".join(element["type_specific_fields"]["directive"][1:]))
     solc_version_replace = _analyse_versions(versions_used)
@@ -33,7 +36,7 @@ def custom_format(slither, result):
         )
 
 
-def _analyse_versions(used_solc_versions):
+def _analyse_versions(used_solc_versions: List[str]) -> str:
     replace_solc_versions = []
     for version in used_solc_versions:
         replace_solc_versions.append(_determine_solc_version_replacement(version))
@@ -42,7 +45,7 @@ def _analyse_versions(used_solc_versions):
     return replace_solc_versions[0]
 
 
-def _determine_solc_version_replacement(used_solc_version):
+def _determine_solc_version_replacement(used_solc_version: str) -> str:
     versions = PATTERN.findall(used_solc_version)
     if len(versions) == 1:
         version = versions[0]
@@ -64,10 +67,16 @@ def _determine_solc_version_replacement(used_solc_version):
     raise FormatImpossible("Unknown version!")
 
 
+# pylint: disable=too-many-arguments
 def _patch(
-    slither, result, in_file, pragma, modify_loc_start, modify_loc_end
-):  # pylint: disable=too-many-arguments
-    in_file_str = slither.source_code[in_file].encode("utf8")
+    slither: SlitherCompilationUnit,
+    result: Dict,
+    in_file: str,
+    pragma: Union[str, bytes],
+    modify_loc_start: int,
+    modify_loc_end: int,
+) -> None:
+    in_file_str = slither.core.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     create_patch(
         result,

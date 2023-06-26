@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Dict
+from typing import Dict, Optional, Union
 
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
@@ -30,9 +30,8 @@ class MultipleVariablesDeclaration(Exception):
 
 
 class VariableDeclarationSolc:
-    def __init__(
-        self, variable: Variable, variable_data: Dict
-    ):  # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches
+    def __init__(self, variable: Variable, variable_data: Dict) -> None:
         """
         A variable can be declared through a statement, or directly.
         If it is through a statement, the following children may contain
@@ -43,12 +42,12 @@ class VariableDeclarationSolc:
 
         self._variable = variable
         self._was_analyzed = False
-        self._elem_to_parse = None
-        self._initializedNotParsed = None
+        self._elem_to_parse: Optional[Union[Dict, UnknownType]] = None
+        self._initializedNotParsed: Optional[Dict] = None
 
         self._is_compact_ast = False
 
-        self._reference_id = None
+        self._reference_id: Optional[int] = None
 
         if "nodeType" in variable_data:
             self._is_compact_ast = True
@@ -88,7 +87,7 @@ class VariableDeclarationSolc:
                 declaration = variable_data["children"][0]
                 self._init_from_declaration(declaration, init)
             elif nodeType == "VariableDeclaration":
-                self._init_from_declaration(variable_data, False)
+                self._init_from_declaration(variable_data, None)
             else:
                 raise ParsingError(f"Incorrect variable declaration type {nodeType}")
 
@@ -102,9 +101,10 @@ class VariableDeclarationSolc:
         Return the solc id. It can be compared with the referencedDeclaration attr
         Returns None if it was not parsed (legacy AST)
         """
+        assert self._reference_id
         return self._reference_id
 
-    def _handle_comment(self, attributes: Dict):
+    def _handle_comment(self, attributes: Dict) -> None:
         if "documentation" in attributes and "text" in attributes["documentation"]:
 
             candidates = attributes["documentation"]["text"].split(",")
@@ -121,13 +121,15 @@ class VariableDeclarationSolc:
                         self._variable.write_protection = []
                     self._variable.write_protection.append(write_protection.group(1))
 
-    def _analyze_variable_attributes(self, attributes: Dict):
+    def _analyze_variable_attributes(self, attributes: Dict) -> None:
         if "visibility" in attributes:
             self._variable.visibility = attributes["visibility"]
         else:
             self._variable.visibility = "internal"
 
-    def _init_from_declaration(self, var: Dict, init: bool):  # pylint: disable=too-many-branches
+    def _init_from_declaration(
+        self, var: Dict, init: Optional[Dict]
+    ) -> None:  # pylint: disable=too-many-branches
         if self._is_compact_ast:
             attributes = var
             self._typeName = attributes["typeDescriptions"]["typeString"]
@@ -194,13 +196,13 @@ class VariableDeclarationSolc:
                 self._initializedNotParsed = init
             elif len(var["children"]) in [0, 1]:
                 self._variable.initialized = False
-                self._initializedNotParsed = []
+                self._initializedNotParsed = None
             else:
                 assert len(var["children"]) == 2
                 self._variable.initialized = True
                 self._initializedNotParsed = var["children"][1]
 
-    def analyze(self, caller_context: CallerContextExpression):
+    def analyze(self, caller_context: CallerContextExpression) -> None:
         # Can be re-analyzed due to inheritance
         if self._was_analyzed:
             return
@@ -211,5 +213,6 @@ class VariableDeclarationSolc:
             self._elem_to_parse = None
 
         if self._variable.initialized:
+            assert self._initializedNotParsed
             self._variable.expression = parse_expression(self._initializedNotParsed, caller_context)
             self._initializedNotParsed = None

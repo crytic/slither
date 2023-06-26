@@ -6,7 +6,7 @@ from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions.literal import Literal
-from slither.core.solidity_types import TypeAlias
+from slither.core.solidity_types import TypeAlias, TypeAliasTopLevel, TypeAliasContract
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
@@ -22,7 +22,7 @@ from slither.solc_parsing.exceptions import ParsingError
 from slither.solc_parsing.expressions.expression_parsing import CallerContextExpression
 
 if TYPE_CHECKING:
-    from slither.core.declarations import Structure, Enum
+    from slither.core.declarations import Structure, Enum, Function
     from slither.core.declarations.contract import Contract
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
@@ -33,11 +33,11 @@ logger = logging.getLogger("TypeParsing")
 
 
 class UnknownType:  # pylint: disable=too-few-public-methods
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self._name = name
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
 
@@ -195,10 +195,13 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     return UserDefinedType(var_type)
 
 
-def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit"):
+def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit") -> None:
 
     if isinstance(type_found, UserDefinedType):
         type_found.type.add_reference_from_raw_source(src, sl)
+    elif isinstance(type_found, (TypeAliasTopLevel, TypeAliasContract)):
+        type_found.type.add_reference_from_raw_source(src, sl)
+        type_found.add_reference_from_raw_source(src, sl)
 
 
 # TODO: since the add of FileScope, we can probably refactor this function and makes it a lot simpler
@@ -224,6 +227,7 @@ def parse_type(
     from slither.solc_parsing.variables.function_type_variable import FunctionTypeVariableSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
     from slither.solc_parsing.declarations.function import FunctionSolc
+    from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
     from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
     from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
@@ -232,6 +236,7 @@ def parse_type(
     sl: "SlitherCompilationUnit"
     renaming: Dict[str, str]
     user_defined_types: Dict[str, TypeAlias]
+    enums_direct_access: List["Enum"] = []
     # Note: for convenicence top level functions use the same parser than function in contract
     # but contract_parser is set to None
     if isinstance(caller_context, SlitherCompilationUnitSolc) or (
@@ -242,7 +247,7 @@ def parse_type(
             sl = caller_context.compilation_unit
             next_context = caller_context
             renaming = {}
-            user_defined_types = {}
+            user_defined_types = sl.user_defined_value_types
         else:
             assert isinstance(caller_context, FunctionSolc)
             sl = caller_context.underlying_function.compilation_unit
@@ -253,17 +258,22 @@ def parse_type(
         all_structuress = [c.structures for c in sl.contracts]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += structures_direct_access
-        enums_direct_access = sl.enums_top_level
+        enums_direct_access += sl.enums_top_level
         all_enumss = [c.enums for c in sl.contracts]
         all_enums = [item for sublist in all_enumss for item in sublist]
         all_enums += enums_direct_access
         contracts = sl.contracts
         functions = []
-    elif isinstance(caller_context, (StructureTopLevelSolc, CustomErrorSolc, TopLevelVariableSolc)):
+    elif isinstance(
+        caller_context,
+        (StructureTopLevelSolc, CustomErrorSolc, TopLevelVariableSolc, UsingForTopLevelSolc),
+    ):
         if isinstance(caller_context, StructureTopLevelSolc):
             scope = caller_context.underlying_structure.file_scope
         elif isinstance(caller_context, TopLevelVariableSolc):
             scope = caller_context.underlying_variable.file_scope
+        elif isinstance(caller_context, UsingForTopLevelSolc):
+            scope = caller_context.underlying_using_for.file_scope
         else:
             assert isinstance(caller_context, CustomErrorSolc)
             custom_error = caller_context.underlying_custom_error
@@ -310,7 +320,7 @@ def parse_type(
         all_structuress = [c.structures for c in contract.file_scope.contracts.values()]
         all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += contract.file_scope.structures.values()
-        enums_direct_access: List["Enum"] = contract.enums
+        enums_direct_access += contract.enums
         enums_direct_access += contract.file_scope.enums.values()
         all_enumss = [c.enums for c in contract.file_scope.contracts.values()]
         all_enums = [item for sublist in all_enumss for item in sublist]
@@ -356,6 +366,7 @@ def parse_type(
             if name in renaming:
                 name = renaming[name]
             if name in user_defined_types:
+                _add_type_references(user_defined_types[name], t["src"], sl)
                 return user_defined_types[name]
             type_found = _find_from_type_name(
                 name,
@@ -376,6 +387,7 @@ def parse_type(
         if name in renaming:
             name = renaming[name]
         if name in user_defined_types:
+            _add_type_references(user_defined_types[name], t["src"], sl)
             return user_defined_types[name]
         type_found = _find_from_type_name(
             name,

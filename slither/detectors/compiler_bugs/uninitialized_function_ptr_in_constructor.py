@@ -1,47 +1,24 @@
 """
 Module detecting uninitialized function pointer calls in constructors
 """
-
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import Any, List, Union
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    make_solc_versions,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import InternalDynamicCall, OperationWithLValue
 from slither.slithir.variables import ReferenceVariable
 from slither.slithir.variables.variable import SlithIRVariable
-
-vulnerable_solc_versions = [
-    "0.4.5",
-    "0.4.6",
-    "0.4.7",
-    "0.4.8",
-    "0.4.9",
-    "0.4.10",
-    "0.4.11",
-    "0.4.12",
-    "0.4.13",
-    "0.4.14",
-    "0.4.15",
-    "0.4.16",
-    "0.4.17",
-    "0.4.18",
-    "0.4.19",
-    "0.4.20",
-    "0.4.21",
-    "0.4.22",
-    "0.4.23",
-    "0.4.24",
-    "0.4.25",
-    "0.5.0",
-    "0.5.1",
-    "0.5.2",
-    "0.5.3",
-    "0.5.4",
-    "0.5.5",
-    "0.5.6",
-    "0.5.7",
-    "0.5.8",
-]
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.slithir.variables.state_variable import StateIRVariable
+from slither.utils.output import Output
 
 
-def _get_variables_entrance(function):
+def _get_variables_entrance(function: FunctionContract) -> List[Union[Any, StateIRVariable]]:
     """
     Return the first SSA variables of the function
     Catpure the phi operation at the entry point
@@ -54,7 +31,7 @@ def _get_variables_entrance(function):
     return ret
 
 
-def _is_vulnerable(node, variables_entrance):
+def _is_vulnerable(node: Node, variables_entrance: List[Union[Any, StateIRVariable]]) -> bool:
     """
     Vulnerable if an IR ssa:
         - It is an internal dynamic call
@@ -110,8 +87,12 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
         "Initialize function pointers before calling. Avoid function pointers if possible."
     )
 
+    VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 5, 25) + make_solc_versions(5, 0, 8)
+
     @staticmethod
-    def _detect_uninitialized_function_ptr_in_constructor(contract):
+    def _detect_uninitialized_function_ptr_in_constructor(
+        contract: Contract,
+    ) -> List[Union[Any, Node]]:
         """
         Detect uninitialized function pointer calls in constructors
         :param contract: The contract of interest for detection
@@ -126,7 +107,7 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
             ]
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect uninitialized function pointer calls in constructors of contracts
         Returns:
@@ -134,15 +115,11 @@ The call to `a(10)` will lead to unexpected behavior because function pointer `a
         """
         results = []
 
-        # Check if vulnerable solc versions are used
-        if self.compilation_unit.solc_version not in vulnerable_solc_versions:
-            return results
-
         for contract in self.compilation_unit.contracts:
-            contract_info = ["Contract ", contract, " \n"]
+            contract_info: DETECTOR_INFO = ["Contract ", contract, " \n"]
             nodes = self._detect_uninitialized_function_ptr_in_constructor(contract)
             for node in nodes:
-                node_info = [
+                node_info: DETECTOR_INFO = [
                     "\t ",
                     node,
                     " is an unintialized function pointer call in a constructor\n",

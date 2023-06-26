@@ -1,0 +1,6 @@
+{
+  "C": {
+    "f()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->3;\n1[label=\"Node Type: INLINE ASM 1\n\"];\n1->2;\n2[label=\"Node Type: INLINE ASM 2\n\"];\n3[label=\"Node Type: EXPRESSION 3\n\"];\n3->1;\n}\n",
+    "a()": "digraph{\n0[label=\"Node Type: ENTRY_POINT 0\n\"];\n0->1;\n1[label=\"Node Type: INLINE ASM 1\n\"];\n1->2;\n2[label=\"Node Type: _ 2\n\"];\n}\n"
+  }
+}

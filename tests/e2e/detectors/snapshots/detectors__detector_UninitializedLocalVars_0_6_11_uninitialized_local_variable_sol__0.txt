@@ -1,0 +1,2 @@
+Uninitialized.func().uint_not_init (tests/e2e/detectors/test_data/uninitialized-local/0.6.11/uninitialized_local_variable.sol#8) is a local variable never initialized
+

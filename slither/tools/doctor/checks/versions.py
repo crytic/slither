@@ -1,22 +1,23 @@
 from importlib import metadata
 import json
-from typing import Optional
+from typing import Optional, Any
 import urllib
 
-from packaging.version import parse, LegacyVersion, Version
+from packaging.version import parse, Version
 
 from slither.utils.colors import yellow, green
 
 
-def get_installed_version(name: str) -> Optional[LegacyVersion | Version]:
+def get_installed_version(name: str) -> Optional[Version]:
     try:
         return parse(metadata.version(name))
     except metadata.PackageNotFoundError:
         return None
 
 
-def get_github_version(name: str) -> Optional[LegacyVersion | Version]:
+def get_github_version(name: str) -> Optional[Version]:
     try:
+        # type: ignore
         with urllib.request.urlopen(
             f"https://api.github.com/repos/crytic/{name}/releases/latest"
         ) as response:
@@ -27,7 +28,7 @@ def get_github_version(name: str) -> Optional[LegacyVersion | Version]:
         return None
 
 
-def show_versions(**_kwargs) -> None:
+def show_versions(**_kwargs: Any) -> None:
     versions = {
         "Slither": (get_installed_version("slither-analyzer"), get_github_version("slither")),
         "crytic-compile": (
@@ -45,7 +46,9 @@ def show_versions(**_kwargs) -> None:
 
     for name, (installed, latest) in versions.items():
         color = yellow if name in outdated else green
-        print(f"{name + ':':<16}{color(installed or 'N/A'):<16} (latest is {latest or 'Unknown'})")
+        print(
+            f"{name + ':':<16}{color(str(installed) or 'N/A'):<16} (latest is {str(latest) or 'Unknown'})"
+        )
 
     if len(outdated) > 0:
         print()

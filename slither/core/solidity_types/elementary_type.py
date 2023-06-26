@@ -1,5 +1,5 @@
 import itertools
-from typing import Tuple
+from typing import Tuple, Optional, Any
 
 from slither.core.solidity_types.type import Type
 
@@ -176,7 +176,7 @@ class ElementaryType(Type):
         return self.type
 
     @property
-    def size(self) -> int:
+    def size(self) -> Optional[int]:
         """
             Return the size in bits
             Return None if the size is not known
@@ -216,13 +216,13 @@ class ElementaryType(Type):
             return MaxValues[self.name]
         raise SlitherException(f"{self.name} does not have a max value")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self._type
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ElementaryType):
             return False
         return self.type == other.type
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self))

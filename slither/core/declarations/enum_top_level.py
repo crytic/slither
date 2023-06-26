@@ -8,6 +8,8 @@ if TYPE_CHECKING:
 
 
 class EnumTopLevel(Enum, TopLevel):
-    def __init__(self, name: str, canonical_name: str, values: List[str], scope: "FileScope"):
+    def __init__(
+        self, name: str, canonical_name: str, values: List[str], scope: "FileScope"
+    ) -> None:
         super().__init__(name, canonical_name, values)
         self.file_scope: "FileScope" = scope

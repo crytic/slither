@@ -2,9 +2,13 @@
     Module printing summary of the contract
 """
 import collections
+from typing import Dict, List
+
+from slither.core.declarations import FunctionContract
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils import output
 from slither.utils.colors import blue, green, magenta
+from slither.utils.output import Output
 
 
 class ContractSummary(AbstractPrinter):
@@ -13,7 +17,7 @@ class ContractSummary(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#contract-summary"
 
-    def output(self, _filename):  # pylint: disable=too-many-locals
+    def output(self, _filename: str) -> Output:  # pylint: disable=too-many-locals
         """
         _filename is not used
         Args:
@@ -24,9 +28,6 @@ class ContractSummary(AbstractPrinter):
 
         all_contracts = []
         for c in self.contracts:
-            if c.is_top_level:
-                continue
-
             is_upgradeable_proxy = c.is_upgradeable_proxy
             is_upgradeable = c.is_upgradeable
 
@@ -53,17 +54,16 @@ class ContractSummary(AbstractPrinter):
 
             # Order the function with
             # contract_declarer -> list_functions
-            public = [
+            public_function = [
                 (f.contract_declarer.name, f)
                 for f in c.functions
                 if (not f.is_shadowed and not f.is_constructor_variables)
             ]
-            collect = collections.defaultdict(list)
-            for a, b in public:
+            collect: Dict[str, List[FunctionContract]] = collections.defaultdict(list)
+            for a, b in public_function:
                 collect[a].append(b)
-            public = list(collect.items())
 
-            for contract, functions in public:
+            for contract, functions in collect.items():
                 txt += blue(f"  - From {contract}\n")
 
                 functions = sorted(functions, key=lambda f: f.full_name)
@@ -90,7 +90,7 @@ class ContractSummary(AbstractPrinter):
         self.info(txt)
 
         res = self.generate_output(txt)
-        for contract, additional_fields in all_contracts:
-            res.add(contract, additional_fields=additional_fields)
+        for current_contract, current_additional_fields in all_contracts:
+            res.add(current_contract, additional_fields=current_additional_fields)
 
         return res

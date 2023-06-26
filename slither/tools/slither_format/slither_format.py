@@ -9,7 +9,8 @@ from slither.detectors.attributes.incorrect_solc import IncorrectSolc
 from slither.detectors.attributes.constant_pragma import ConstantPragma
 from slither.detectors.naming_convention.naming_convention import NamingConvention
 from slither.detectors.functions.external_function import ExternalFunction
-from slither.detectors.variables.possible_const_state_variables import ConstCandidateStateVars
+from slither.detectors.variables.could_be_constant import CouldBeConstant
+from slither.detectors.variables.could_be_immutable import CouldBeImmutable
 from slither.detectors.attributes.const_functions_asm import ConstantFunctionsAsm
 from slither.detectors.attributes.const_functions_state import ConstantFunctionsState
 from slither.utils.colors import yellow
@@ -23,7 +24,8 @@ all_detectors: Dict[str, Type[AbstractDetector]] = {
     "pragma": ConstantPragma,
     "naming-convention": NamingConvention,
     "external-function": ExternalFunction,
-    "constable-states": ConstCandidateStateVars,
+    "constable-states": CouldBeConstant,
+    "immutable-states": CouldBeImmutable,
     "constant-function-asm": ConstantFunctionsAsm,
     "constant-functions-state": ConstantFunctionsState,
 }

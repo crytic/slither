@@ -3,6 +3,7 @@ from .examples.backdoor import Backdoor
 from .variables.uninitialized_state_variables import UninitializedStateVarsDetection
 from .variables.uninitialized_storage_variables import UninitializedStorageVars
 from .variables.uninitialized_local_variables import UninitializedLocalVars
+from .variables.var_read_using_this import VarReadUsingThis
 from .attributes.constant_pragma import ConstantPragma
 from .attributes.incorrect_solc import IncorrectSolc
 from .attributes.locked_ether import LockedEther
@@ -18,7 +19,8 @@ from .reentrancy.reentrancy_eth import ReentrancyEth
 from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
 from .reentrancy.reentrancy_events import ReentrancyEvent
 from .variables.unused_state_variables import UnusedStateVars
-from .variables.possible_const_state_variables import ConstCandidateStateVars
+from .variables.could_be_constant import CouldBeConstant
+from .variables.could_be_immutable import CouldBeImmutable
 from .statements.tx_origin import TxOrigin
 from .statements.assembly import Assembly
 from .operations.low_level_calls import LowLevelCalls
@@ -85,4 +87,9 @@ from .statements.msg_value_in_loop import MsgValueInLoop
 from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
 from .functions.permit_domain_signature_collision import DomainSeparatorCollision
+from .functions.codex import Codex
+from .functions.cyclomatic_complexity import CyclomaticComplexity
+from .operations.cache_array_length import CacheArrayLength
+from .statements.incorrect_using_for import IncorrectUsingFor
+from .operations.encode_packed import EncodePackedCollision
 from .statements.ecrecover import Ecrecover

@@ -35,7 +35,7 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
     components = []
     l = []
 
-    def visit(node):
+    def visit(node: "Node") -> None:
         if not visited[node]:
             visited[node] = True
             for son in node.sons:
@@ -45,14 +45,14 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
     for n in function.nodes:
         visit(n)
 
-    def assign(node: "Node", root: List["Node"]):
+    def assign(node: "Node", root: List["Node"]) -> None:
         if not assigned[node]:
             assigned[node] = True
             root.append(node)
             for father in node.fathers:
                 assign(father, root)
 
-    for n in l:
+    for n in reversed(l):
         component: List["Node"] = []
         assign(n, component)
         if component:
@@ -74,9 +74,9 @@ def compute_cyclomatic_complexity(function: "Function") -> int:
     # where M is the complexity
     # E number of edges
     # N number of nodes
-    # P number of connected components
+    # P number of connected components (always 1 for a function)
 
     E = compute_number_edges(function)
     N = len(function.nodes)
-    P = len(compute_strongly_connected_components(function))
+    P = 1
     return E - N + 2 * P

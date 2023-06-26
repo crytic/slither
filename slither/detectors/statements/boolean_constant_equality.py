@@ -1,13 +1,22 @@
 """
 Module detecting misuse of Boolean constants
 """
+from typing import List, Set, Tuple
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.cfg.node import Node
+from slither.core.declarations import Function
+from slither.core.declarations.contract import Contract
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import (
     Binary,
     BinaryType,
 )
 from slither.slithir.variables import Constant
+from slither.utils.output import Output
 
 
 class BooleanEquality(AbstractDetector):
@@ -44,10 +53,12 @@ Boolean constants can be used directly and do not need to be compare to `true` o
     WIKI_RECOMMENDATION = """Remove the equality to the boolean constant."""
 
     @staticmethod
-    def _detect_boolean_equality(contract):
+    def _detect_boolean_equality(
+        contract: Contract,
+    ) -> List[Tuple[Function, Set[Node]]]:
 
         # Create our result set.
-        results = []
+        results: List[Tuple[Function, Set[Node]]] = []
 
         # Loop for each function and modifier.
         # pylint: disable=too-many-nested-blocks
@@ -68,7 +79,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
         # Return the resulting set of nodes with improper uses of Boolean constants
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect Boolean constant misuses
         """
@@ -77,7 +88,7 @@ Boolean constants can be used directly and do not need to be compare to `true` o
             boolean_constant_misuses = self._detect_boolean_equality(contract)
             for (func, nodes) in boolean_constant_misuses:
                 for node in nodes:
-                    info = [
+                    info: DETECTOR_INFO = [
                         func,
                         " compares to a boolean constant:\n\t-",
                         node,

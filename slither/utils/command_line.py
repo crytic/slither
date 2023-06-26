@@ -1,4 +1,5 @@
 import argparse
+import enum
 import json
 import os
 import re
@@ -27,8 +28,23 @@ JSON_OUTPUT_TYPES = [
     "list-printers",
 ]
 
+
+class FailOnLevel(enum.Enum):
+    PEDANTIC = "pedantic"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    NONE = "none"
+
+
 # Those are the flags shared by the command line and the config file
 defaults_flag_in_config = {
+    "codex": False,
+    "codex_contracts": "all",
+    "codex_model": "text-davinci-003",
+    "codex_temperature": 0,
+    "codex_max_tokens": 300,
+    "codex_log": False,
     "detectors_to_run": "all",
     "printers_to_run": None,
     "detectors_to_exclude": None,
@@ -38,10 +54,7 @@ defaults_flag_in_config = {
     "exclude_low": False,
     "exclude_medium": False,
     "exclude_high": False,
-    "fail_pedantic": True,
-    "fail_low": False,
-    "fail_medium": False,
-    "fail_high": False,
+    "fail_on": FailOnLevel.PEDANTIC,
     "json": None,
     "sarif": None,
     "json-types": ",".join(DEFAULT_JSON_OUTPUT_TYPES),
@@ -54,7 +67,15 @@ defaults_flag_in_config = {
     "zip": None,
     "zip_type": "lzma",
     "show_ignored_findings": False,
+    "no_fail": False,
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
+}
+
+deprecated_flags = {
+    "fail_pedantic": True,
+    "fail_low": False,
+    "fail_medium": False,
+    "fail_high": False,
 }
 
 
@@ -73,6 +94,12 @@ def read_config_file(args: argparse.Namespace) -> None:
             with open(args.config_file, encoding="utf8") as f:
                 config = json.load(f)
                 for key, elem in config.items():
+                    if key in deprecated_flags:
+                        logger.info(
+                            yellow(f"{args.config_file} has a deprecated key: {key} : {elem}")
+                        )
+                        migrate_config_options(args, key, elem)
+                        continue
                     if key not in defaults_flag_in_config:
                         logger.info(
                             yellow(f"{args.config_file} has an unknown key: {key} : {elem}")
@@ -85,6 +112,28 @@ def read_config_file(args: argparse.Namespace) -> None:
     else:
         logger.error(red(f"File {args.config_file} is not a file or does not exist"))
         logger.error(yellow("Falling back to the default settings..."))
+
+
+def migrate_config_options(args: argparse.Namespace, key: str, elem):
+    if key.startswith("fail_") and getattr(args, "fail_on") == defaults_flag_in_config["fail_on"]:
+        if key == "fail_pedantic":
+            pedantic_setting = elem
+            fail_on = FailOnLevel.PEDANTIC if pedantic_setting else FailOnLevel.NONE
+            setattr(args, "fail_on", fail_on)
+            logger.info(f"Migrating fail_pedantic: {pedantic_setting} as fail_on: {fail_on.value}")
+        elif key == "fail_low" and elem is True:
+            logger.info("Migrating fail_low: true -> fail_on: low")
+            setattr(args, "fail_on", FailOnLevel.LOW)
+
+        elif key == "fail_medium" and elem is True:
+            logger.info("Migrating fail_medium: true -> fail_on: medium")
+            setattr(args, "fail_on", FailOnLevel.MEDIUM)
+
+        elif key == "fail_high" and elem is True:
+            logger.info("Migrating fail_high: true -> fail_on: high")
+            setattr(args, "fail_on", FailOnLevel.HIGH)
+        else:
+            logger.warning(yellow(f"Key {key} was deprecated but no migration was provided"))
 
 
 def output_to_markdown(
@@ -162,7 +211,9 @@ def convert_result_to_markdown(txt: str) -> str:
     return "".join(ret)
 
 
-def output_results_to_markdown(all_results: List[Dict], checklistlimit: str) -> None:
+def output_results_to_markdown(
+    all_results: List[Dict], checklistlimit: str, show_ignored_findings: bool
+) -> None:
     checks = defaultdict(list)
     info: Dict = defaultdict(dict)
     for results_ in all_results:
@@ -171,6 +222,11 @@ def output_results_to_markdown(all_results: List[Dict], checklistlimit: str) -> 
             "impact": results_["impact"],
             "confidence": results_["confidence"],
         }
+
+    if not show_ignored_findings:
+        print(
+            "**THIS CHECKLIST IS NOT COMPLETE**. Use `--show-ignored-findings` to show all the results."
+        )
 
     print("Summary")
     for check_ in checks:

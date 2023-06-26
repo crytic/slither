@@ -1,0 +1,32 @@
+Struct naming.test (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#14-16) is not in CapWords
+
+Variable T.I (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#69) is not in mixedCase
+
+Variable T.I (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#69) is single letter l, O, or I, which should not be used
+
+Variable T.O (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#68) is not in mixedCase
+
+Variable naming.Var_One (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#11) is not in mixedCase
+
+Constant naming.MY_other_CONSTANT (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#9) is not in UPPER_CASE_WITH_UNDERSCORES
+
+Contract naming (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#3-48) is not in CapWords
+
+Enum naming.numbers (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#6) is not in CapWords
+
+Parameter T.test(uint256,uint256)._used (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#59) is not in mixedCase
+
+Variable T._myPublicVar (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#56) is not in mixedCase
+
+Variable T.O (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#68) is single letter l, O, or I, which should not be used
+
+Event naming.event_(uint256) (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#23) is not in CapWords
+
+Modifier naming.CantDo() (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#41-43) is not in mixedCase
+
+Function naming.GetOne() (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#30-33) is not in mixedCase
+
+Variable T.l (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#67) is single letter l, O, or I, which should not be used
+
+Parameter naming.setInt(uint256,uint256).Number2 (tests/e2e/detectors/test_data/naming-convention/0.6.11/naming_convention.sol#35) is not in mixedCase
+

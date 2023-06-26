@@ -1,0 +1,2 @@
+Uninitialized.func().st_bug (tests/e2e/detectors/test_data/uninitialized-storage/0.4.25/uninitialized_storage_pointer.sol#10) is a storage variable never initialized
+

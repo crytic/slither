@@ -1,0 +1,36 @@
+TestContractBalance.bad5() (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#59-64) uses a dangerous strict equality:
+	- 10000000000000000000 == balance (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#61)
+
+ERC20TestBalance.bad0(ERC20Function) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#21-23) uses a dangerous strict equality:
+	- require(bool)(erc.balanceOf(address(this)) == 10) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#22)
+
+TestContractBalance.bad3() (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#47-50) uses a dangerous strict equality:
+	- require(bool)(10000000000000000000 == address(this).balance) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#48)
+
+TestContractBalance.bad6() (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#66-71) uses a dangerous strict equality:
+	- balance == 10000000000000000000 (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#68)
+
+TestSolidityKeyword.bad0() (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#123-125) uses a dangerous strict equality:
+	- require(bool)(now == 0) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#124)
+
+TestContractBalance.bad2() (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#42-45) uses a dangerous strict equality:
+	- require(bool)(address(this).balance == 10000000000000000000) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#43)
+
+ERC20TestBalance.bad1(ERC20Variable) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#25-27) uses a dangerous strict equality:
+	- require(bool)(erc.balanceOf(msg.sender) == 10) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#26)
+
+TestSolidityKeyword.bad1() (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#127-129) uses a dangerous strict equality:
+	- require(bool)(block.number == 0) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#128)
+
+TestContractBalance.bad4() (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#52-57) uses a dangerous strict equality:
+	- balance == 10000000000000000000 (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#54)
+
+TestContractBalance.bad1() (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#37-40) uses a dangerous strict equality:
+	- require(bool)(10000000000000000000 == address(address(this)).balance) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#38)
+
+TestSolidityKeyword.bad2() (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#131-133) uses a dangerous strict equality:
+	- require(bool)(block.number == 0) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#132)
+
+TestContractBalance.bad0() (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#32-35) uses a dangerous strict equality:
+	- require(bool)(address(address(this)).balance == 10000000000000000000) (tests/e2e/detectors/test_data/incorrect-equality/0.6.11/incorrect_equality.sol#33)
+
