@@ -315,6 +315,8 @@ class FunctionSolc(CallerContextExpression):
 
         self._remove_alone_endif()
 
+        self._update_reachability(self._function.entry_point)
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -1126,8 +1128,6 @@ class FunctionSolc(CallerContextExpression):
             self._parse_block(cfg, node, self.underlying_function)
             self._remove_incorrect_edges()
             self._remove_alone_endif()
-
-        self._update_reachability(self._function.entry_point)
 
     # endregion
     ###################################################################################
