@@ -36,7 +36,7 @@ setup(
             "coverage[toml]",
             "filelock",
             "pytest-insta",
-            "solc-select@git+https://github.com/crytic/solc-select.git@query-artifact-path#egg=solc-select",
+            "solc-select>=1.0.4",
         ],
         "doc": [
             "pdoc",
