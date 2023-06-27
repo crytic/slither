@@ -26,6 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
+        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.11"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11"]') }}
         type: ["cli",
                "dapp",
                "data_dependency",
@@ -53,10 +54,10 @@ jobs:
             type: truffle
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python 3.8
+      - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v3
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
           pip install ".[test]"
