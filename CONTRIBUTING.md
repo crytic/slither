@@ -10,7 +10,7 @@ Bug reports and feature suggestions can be submitted to our issue tracker. For b
 
 ## Questions
 
-Questions can be submitted to the "Discussions" page, and you may also join our [chat room](https://empireslacking.herokuapp.com/) (in the #ethereum channel).
+Questions can be submitted to the "Discussions" page, and you may also join our [chat room](https://slack.empirehacking.nyc/) (in the #ethereum channel).
 
 ## Code
 

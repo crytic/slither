@@ -3,7 +3,7 @@
 <img src="https://raw.githubusercontent.com/crytic/slither/master/logo.png" alt="Logo" width="500"/>
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/crytic/slither/ci.yml?branch=master)](https://github.com/crytic/slither/actions?query=workflow%3ACI)
-[![Slack Status](https://empireslacking.herokuapp.com/badge.svg)](https://empireslacking.herokuapp.com)
+[![Slack Status](https://slack.empirehacking.nyc/badge.svg)](https://slack.empirehacking.nyc)
 [![PyPI version](https://badge.fury.io/py/slither-analyzer.svg)](https://badge.fury.io/py/slither-analyzer)
 
 Slither is a Solidity static analysis framework written in Python3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses. Slither enables developers to find vulnerabilities, enhance their code comprehension, and quickly prototype custom analyses.
@@ -224,7 +224,7 @@ Documentation on Slither's internals is available [here](https://crytic.github.i
 
 ## Getting Help
 
-Feel free to stop by our [Slack channel](https://empireslacking.herokuapp.com) (#ethereum) for help using or extending Slither.
+Feel free to stop by our [Slack channel](https://slack.empirehacking.nyc) (#ethereum) for help using or extending Slither.
 
 - The [Printer documentation](https://github.com/trailofbits/slither/wiki/Printer-documentation) describes the information Slither is capable of visualizing for each contract.
 
