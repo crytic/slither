@@ -1,0 +1,34 @@
+# CITATION.cff: Citation File Format for reproducible research software
+
+cff-version: 1.2.0
+title: Slither
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Josselin Feist
+    family-names: Feist
+  - given-names: Gustavo
+    family-names: Grieco
+  - given-names: Alex
+    family-names: Grace
+identifiers:
+  - type: doi
+    value: 10.48550/arXiv.1908.09878
+    description: arXiv.1908.09878
+  - type: url
+    value: 'https://arxiv.org/abs/1908.09878'
+    description: arxiv
+repository-code: 'https://github.com/crytic/slither'
+repository-artifact: 'https://github.com/crytic/slither/releases'
+abstract: 'Slither: A Static Analysis Framework for Smart Contracts'
+keywords:
+  - 'ethereum '
+  - Static Analysis
+  - Smart contracts
+  - EVM
+license: AGPL-3.0-or-later
+commit: 3d4f934d3228f072b7df2c5e7252c64df4601bc8
+version: 0.9.5
+date-released: '2023-06-28'
