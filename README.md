@@ -1,23 +1,35 @@
-# Slither, the Solidity source analyzer
+# [Slither, the Solidity source analyzer](https://crytic.github.io/slither/slither.html)
 
 <img src="https://raw.githubusercontent.com/crytic/slither/master/logo.png" alt="Logo" width="500"/>
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/crytic/slither/ci.yml?branch=master)](https://github.com/crytic/slither/actions?query=workflow%3ACI)
-[![Slack Status](https://empireslacking.herokuapp.com/badge.svg)](https://empireslacking.herokuapp.com)
 [![PyPI version](https://badge.fury.io/py/slither-analyzer.svg)](https://badge.fury.io/py/slither-analyzer)
+[![Slither - Read the Docs](https://img.shields.io/badge/Slither-Read_the_Docs-2ea44f)](https://crytic.github.io/slither/slither.html)
+[![docs](https://github.com/crytic/slither/actions/workflows/docs.yml/badge.svg)](https://github.com/crytic/slither/actions/workflows/docs.yml)
+
 
 Slither is a Solidity static analysis framework written in Python3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses. Slither enables developers to find vulnerabilities, enhance their code comprehension, and quickly prototype custom analyses.
 
-- [Features](#features)
-- [Usage](#usage)
-- [How to Install](#how-to-install)
-- [Detectors](#detectors)
-- [Printers](#printers)
-- [Tools](#tools)
-- [API Documentation](#api-documentation)
-- [Getting Help](#getting-help)
-- [FAQ](#faq)
-- [Publications](#publications)
+  * [Features](#features)
+  * [Usage](#usage)
+  * [How to install](#how-to-install)
+    + [Using Pip](#using-pip)
+    + [Using Git](#using-git)
+    + [Using Docker](#using-docker)
+    + [Integration](#integration)
+  * [Detectors](#detectors)
+  * [Printers](#printers)
+    + [Quick Review Printers](#quick-review-printers)
+    + [In-Depth Review Printers](#in-depth-review-printers)
+  * [Tools](#tools)
+  * [API Documentation](#api-documentation)
+  * [Getting Help](#getting-help)
+  * [FAQ](#faq)
+  * [License](#license)
+  * [Publications](#publications)
+    + [Trail of Bits publication](#trail-of-bits-publication)
+    + [External publications](#external-publications)
+
 
 ## Features
 
@@ -36,7 +48,7 @@ Slither is a Solidity static analysis framework written in Python3. It runs a su
 
 Run Slither on a Hardhat/Foundry/Dapp/Brownie application:
 
-```bash
+```console
 slither .
 ```
 
@@ -44,18 +56,19 @@ This is the preferred option if your project has dependencies as Slither relies 
 
 However, you can run Slither on a single file that does not import dependencies:
 
-```bash
+```console
 slither tests/uninitialized.sol
 ```
 
 ## How to install
 
-Slither requires Python 3.8+.
+> **Note** <br />
+> Slither requires Python 3.8+.
 If you're **not** going to use one of the [supported compilation frameworks](https://github.com/crytic/crytic-compile), you need [solc](https://github.com/ethereum/solidity/), the Solidity compiler; we recommend using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions.
 
 ### Using Pip
 
-```bash
+```console
 pip3 install slither-analyzer
 ```
 
