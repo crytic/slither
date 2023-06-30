@@ -90,18 +90,16 @@ Second, there is no verification of ecrecover's return value.
                             info += ["\t\t- ", node, "\n"]
                         res = self.generate_result(info)
                         results.append(res)
-                for _, nonce_nodes in nonce_results:
-                    for var, nodes in nonce_nodes.items():
-                        info: DETECTOR_INFO = [
-                            var,
-                            " lacks a nonce on ",
-                            ":\n",
-                        ]
-                        print("NODES", nodes)
-                        for node in nodes:
-                            info += ["\t\t- ", node, "\n"]
-                        res = self.generate_result(info)
-                        results.append(res)
+                if nonce_results:
+                    info: DETECTOR_INFO = [
+                        function,
+                        " lacks a nonce on ",
+                        ":\n",
+                    ]
+                    for node in nonce_results:
+                        info += ["\t\t- ", node, "\n"]
+                    res = self.generate_result(info)
+                    results.append(res)
 
         return results
 
@@ -121,8 +119,9 @@ def _zero_address_validation(var: LocalVariable, function: Function) -> bool:
 
 def _nonce_validation(function: Function) -> bool:
     for node in function.nodes:
-        if "nonce" in node.variables_written:
-            return True
+        for var in node.variables_written:
+            if "nonce" in str(var.expression) and "keccak256" in str(var.expression):
+                return True
     return False
 
 
@@ -138,6 +137,7 @@ def _detect_ecrecover(
     if SolidityFunction("ecrecover(bytes32,uint8,bytes32,bytes32)") in function.solidity_calls:
         address_list = []
         nonce_list = []
+        calls_list = []
         var_nodes = defaultdict(list)
         nonce_nodes = defaultdict(list)
         for node in function.nodes:
@@ -147,16 +147,15 @@ def _detect_ecrecover(
                         address_list.append(var)
                         var_nodes[var].append(node)
             if SolidityFunction("keccak256(bytes)") in node.solidity_calls:
-                for var in node.variables_written:
-                    if "nonce" not in str(var.expression) and "keccak256" in str(var.expression):
-                        if var not in nonce_list:
-                            nonce_list.append(var)
-                        nonce_nodes[var].append(node)
+                for ir in node.irs:
+                    if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
+                        "keccak256(bytes)"
+                    ):
+                        if "nonce" not in str(ir.expression):
+                            nonce_results.append(node)
 
         for var in address_list:
             if not _zero_address_validation(var, function):
                 results.append((function, var_nodes))
-        for var in nonce_list:
-            if not _nonce_validation(function):
-                nonce_results.append((function, nonce_nodes))
+
     return (results, nonce_results)

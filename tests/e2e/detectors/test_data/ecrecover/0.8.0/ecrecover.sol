@@ -79,9 +79,11 @@ contract A {
         bytes32 r,
         bytes32 s
     ) external {
-        bytes32 hash = keccak256(abi.encode(info, nonces[msg.sender]++));
         bytes32 data = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n32",
+                keccak256(abi.encode(info, nonces[msg.sender]++))
+            )
         );
         address receiver = ecrecover(data, v, r, s);
         require(receiver != address(0), "ECDSA: invalid signature");
