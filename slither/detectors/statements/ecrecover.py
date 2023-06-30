@@ -3,17 +3,11 @@ Module detecting improper use of ecrecover.
 
 """
 from collections import defaultdict
-from typing import DefaultDict, List, Tuple, Union
+from typing import DefaultDict, List, Tuple
 from slither.utils.output import Output
 from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.cfg.node import Node
 from slither.core.declarations.function import Function
-from slither.core.declarations.function_contract import FunctionContract
-from slither.slithir.operations.operation import Operation
-from slither.slithir.operations.assignment import Assignment
-from slither.core.expressions.expression import Expression
-from slither.core.expressions.call_expression import CallExpression
-from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -22,7 +16,6 @@ from slither.detectors.abstract_detector import (
 )
 from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.operations.solidity_call import SolidityCall
-from slither.analyses.data_dependency.data_dependency import is_tainted
 
 
 class Ecrecover(AbstractDetector):
@@ -117,14 +110,6 @@ def _zero_address_validation(var: LocalVariable, function: Function) -> bool:
     return False
 
 
-def _nonce_validation(function: Function) -> bool:
-    for node in function.nodes:
-        for var in node.variables_written:
-            if "nonce" in str(var.expression) and "keccak256" in str(var.expression):
-                return True
-    return False
-
-
 def _detect_ecrecover(
     function: Function,
 ) -> Tuple[
@@ -136,10 +121,8 @@ def _detect_ecrecover(
 
     if SolidityFunction("ecrecover(bytes32,uint8,bytes32,bytes32)") in function.solidity_calls:
         address_list = []
-        nonce_list = []
-        calls_list = []
         var_nodes = defaultdict(list)
-        nonce_nodes = defaultdict(list)
+
         for node in function.nodes:
             if SolidityFunction("ecrecover(bytes32,uint8,bytes32,bytes32)") in node.solidity_calls:
                 for var in node.local_variables_written:

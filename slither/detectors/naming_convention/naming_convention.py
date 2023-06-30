@@ -65,11 +65,9 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
     # pylint: disable=too-many-branches,too-many-statements
     def _detect(self) -> List[Output]:
-
         results = []
         info: DETECTOR_INFO
         for contract in self.contracts:
-
             if not self.is_cap_words(contract.name):
                 info = ["Contract ", contract, " is not in CapWords\n"]
 
@@ -97,14 +95,10 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                 if func.is_constructor:
                     continue
                 if not self.is_mixed_case(func.name):
-                    if (
-                        func.visibility
-                        in [
-                            "internal",
-                            "private",
-                        ]
-                        and self.is_mixed_case_with_underscore(func.name)
-                    ):
+                    if func.visibility in [
+                        "internal",
+                        "private",
+                    ] and self.is_mixed_case_with_underscore(func.name):
                         continue
                     if func.name.startswith(("echidna_", "crytic_")):
                         continue
