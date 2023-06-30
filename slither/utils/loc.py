@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Tuple
 
@@ -19,9 +19,9 @@ class LoCInfo:
 
 @dataclass
 class LoC:
-    src: LoCInfo = LoCInfo()
-    dep: LoCInfo = LoCInfo()
-    test: LoCInfo = LoCInfo()
+    src: LoCInfo = field(default_factory=LoCInfo)
+    dep: LoCInfo = field(default_factory=LoCInfo)
+    test: LoCInfo = field(default_factory=LoCInfo)
 
     def to_pretty_table(self) -> MyPrettyTable:
         table = MyPrettyTable(["", "src", "dep", "test"])
