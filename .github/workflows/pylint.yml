@@ -37,7 +37,7 @@ jobs:
           cp pyproject.toml .github/linters
 
       - name: Pylint
-        uses: super-linter/super-linter/slim@v4.9.2
+        uses: super-linter/super-linter/slim@v5.1.0
         if: always()
         env:
           # Run linters only on new files for pylint to speed up the CI
