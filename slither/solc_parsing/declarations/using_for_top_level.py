@@ -55,22 +55,29 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
             self._propagate_global(type_name)
         else:
             for f in self._functions:
-                full_name_split = f["function"]["name"].split(".")
-                if len(full_name_split) == 1:
+                # User defined operator
+                if "operator" in f:
                     # Top level function
-                    function_name: str = full_name_split[0]
-                    self._analyze_top_level_function(function_name, type_name)
-                elif len(full_name_split) == 2:
-                    # It can be a top level function behind an aliased import
-                    # or a library function
-                    first_part = full_name_split[0]
-                    function_name = full_name_split[1]
-                    self._check_aliased_import(first_part, function_name, type_name)
+                    function_name: str = f["definition"]["name"]
+                    operator: str = f["operator"]
+                    self._analyze_operator(operator, function_name, type_name)
                 else:
-                    # MyImport.MyLib.a we don't care of the alias
-                    library_name_str = full_name_split[1]
-                    function_name = full_name_split[2]
-                    self._analyze_library_function(library_name_str, function_name, type_name)
+                    full_name_split = f["function"]["name"].split(".")
+                    if len(full_name_split) == 1:
+                        # Top level function
+                        function_name: str = full_name_split[0]
+                        self._analyze_top_level_function(function_name, type_name)
+                    elif len(full_name_split) == 2:
+                        # It can be a top level function behind an aliased import
+                        # or a library function
+                        first_part = full_name_split[0]
+                        function_name = full_name_split[1]
+                        self._check_aliased_import(first_part, function_name, type_name)
+                    else:
+                        # MyImport.MyLib.a we don't care of the alias
+                        library_name_str = full_name_split[1]
+                        function_name = full_name_split[2]
+                        self._analyze_library_function(library_name_str, function_name, type_name)
 
     def _check_aliased_import(
         self,
@@ -99,6 +106,19 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
             ):
                 self._using_for.using_for[type_name].append(tl_function)
                 self._propagate_global(type_name)
+                break
+
+    def _analyze_operator(
+        self, operator: str, function_name: str, type_name: TypeAliasTopLevel
+    ) -> None:
+        for tl_function in self._using_for.file_scope.functions:
+            # The library function is bound to the first parameter's type
+            if (
+                tl_function.name == function_name
+                and tl_function.parameters
+                and type_name == tl_function.parameters[0].type
+            ):
+                type_name.operators[operator] = tl_function
                 break
 
     def _analyze_library_function(

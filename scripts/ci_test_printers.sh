@@ -5,7 +5,7 @@
 cd tests/e2e/solc_parsing/test_data/compile/ || exit
 
 # Do not test the evm printer,as it needs a refactoring
-ALL_PRINTERS="cfg,constructor-calls,contract-summary,data-dependency,echidna,function-id,function-summary,modifiers,call-graph,halstead,human-summary,inheritance,inheritance-graph,slithir,slithir-ssa,vars-and-auth,require,variable-order,declaration"
+ALL_PRINTERS="cfg,constructor-calls,contract-summary,data-dependency,echidna,function-id,function-summary,modifiers,call-graph,halstead,human-summary,inheritance,inheritance-graph,loc, slithir,slithir-ssa,vars-and-auth,require,variable-order,declaration"
 
 # Only test 0.5.17 to limit test time
 for file in *0.5.17-compact.zip; do
