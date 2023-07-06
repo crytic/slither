@@ -39,6 +39,7 @@ def test_ternary_conversions(solc_binary_path) -> None:
 
             assert vars_declared == vars_assigned
 
+
 def test_ternary_tuple(solc_binary_path) -> None:
     """
     Test that in the ternary liftings of an assignment of the form `(z, ) = ...`,
@@ -54,5 +55,10 @@ def test_ternary_tuple(solc_binary_path) -> None:
 
     if_node = if_nodes[0]
     assert isinstance(if_node.son_true.expression, AssignmentOperation)
-    assert len([ir for ir in if_node.son_true.all_slithir_operations() if isinstance(ir, Unpack)]) == 1
-    assert len([ir for ir in if_node.son_false.all_slithir_operations() if isinstance(ir, Unpack)]) == 1
+    assert (
+        len([ir for ir in if_node.son_true.all_slithir_operations() if isinstance(ir, Unpack)]) == 1
+    )
+    assert (
+        len([ir for ir in if_node.son_false.all_slithir_operations() if isinstance(ir, Unpack)])
+        == 1
+    )
