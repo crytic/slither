@@ -39,7 +39,7 @@ contract C {
     function g(address one) public {
         (, uint x) = Test(one).testTuple();
     }
-    
+
     uint[] myIntegers;
     function _h(uint c) internal returns(uint) {
         return c;
@@ -49,8 +49,18 @@ contract C {
             myIntegers[cond ? a : b]
         );
     }
-    
+
     function i(bool cond) public {
         bytes memory a = new bytes(cond ? 1 : 2);
+    }
+}
+
+contract D {
+    function values(uint n) internal returns (uint, uint) {
+        return (0, 1);
+    }
+
+    function a(uint n) external {
+        (uint a,) = values(n > 0 ? 1 : 0);
     }
 }
