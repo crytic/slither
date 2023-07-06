@@ -147,7 +147,7 @@ class SplitTernaryExpression:
         for next_expr in expression.expressions:
             # TODO: can we get rid of `NoneType` expressions in `TupleExpression`?
             # montyly: this might happen with unnamed tuple (ex: (,,,) = f()), but it needs to be checked
-            if next_expr:
+            if next_expr is not None:
 
                 if self.conditional_not_ahead(
                     next_expr, true_expression, false_expression, f_expressions
@@ -158,6 +158,9 @@ class SplitTernaryExpression:
                         true_expression.expressions[-1],
                         false_expression.expressions[-1],
                     )
+            else:
+                true_expression.expressions.append(None)
+                false_expression.expressions.append(None)
 
     def convert_index_access(
         self, next_expr: IndexAccess, true_expression: Expression, false_expression: Expression
