@@ -39,10 +39,10 @@ class Halstead(AbstractPrinter):
 
         halstead = HalsteadMetrics(self.contracts)
 
-        res = self.generate_output(halstead.full_txt)
+        res = self.generate_output(halstead.full_text)
         res.add_pretty_table(halstead.core.pretty_table, halstead.core.title)
         res.add_pretty_table(halstead.extended1.pretty_table, halstead.extended1.title)
         res.add_pretty_table(halstead.extended2.pretty_table, halstead.extended2.title)
-        self.info(halstead.full_txt)
+        self.info(halstead.full_text)
 
         return res
