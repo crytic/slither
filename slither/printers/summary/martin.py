@@ -12,6 +12,7 @@
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.martin import MartinMetrics
 
+
 class Martin(AbstractPrinter):
     ARGUMENT = "martin"
     HELP = "Martin agile software metrics (Ca, Ce, I, A, D)"

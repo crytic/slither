@@ -39,6 +39,7 @@ class MartinContractMetrics:
             "Distance from main sequence": f"{self.d:.2f}",
         }
 
+
 @dataclass
 class SectionInfo:
     """Class to hold the information for a section of the report."""
@@ -62,9 +63,7 @@ class MartinMetrics:
         "Instability",
         "Distance from main sequence",
     )
-    SECTIONS: Tuple[Tuple[str, Tuple[str]]] = (
-        ("Core", CORE_KEYS),
-    )
+    SECTIONS: Tuple[Tuple[str, Tuple[str]]] = (("Core", CORE_KEYS),)
 
     def __post_init__(self):
         self.update_abstractness()
@@ -84,7 +83,9 @@ class MartinMetrics:
             txt = "Martin agile software metrics\n"
             txt += "Efferent Coupling (Ce) - Number of contracts that a contract depends on\n"
             txt += "Afferent Coupling (Ca) - Number of contracts that depend on the contract\n"
-            txt += "Instability (I) - Ratio of efferent coupling to total coupling (Ce / (Ce + Ca))\n"
+            txt += (
+                "Instability (I) - Ratio of efferent coupling to total coupling (Ce / (Ce + Ca))\n"
+            )
             txt += "Abstractness (A) - Number of abstract contracts / total number of contracts\n"
             txt += "Distance from the Main Sequence (D) - abs(A + I - 1)\n"
             txt += "\n"
@@ -104,13 +105,15 @@ class MartinMetrics:
                 abstract_contract_count += 1
         self.abstractness = float(abstract_contract_count / len(self.contracts))
 
-
     def update_coupling(self) -> Dict:
         dependencies = {}
         for contract in self.contracts:
             for func in contract.functions:
                 high_level_calls = [
-                    ir for node in func.nodes for ir in node.irs_ssa if isinstance(ir, HighLevelCall)
+                    ir
+                    for node in func.nodes
+                    for ir in node.irs_ssa
+                    if isinstance(ir, HighLevelCall)
                 ]
                 # convert irs to string with target function and contract name
                 external_calls = [h.destination.type.type.name for h in high_level_calls]
@@ -122,9 +125,9 @@ class MartinMetrics:
                     dependents[dep] = set()
                 dependents[dep].add(contract)
 
-        coupling_dict = {}
         for contract in self.contracts:
             ce = len(dependencies.get(contract.name, []))
             ca = len(dependents.get(contract.name, []))
-            self.contract_metrics[contract.name] = MartinContractMetrics(contract, ca, ce, self.abstractness)
-
+            self.contract_metrics[contract.name] = MartinContractMetrics(
+                contract, ca, ce, self.abstractness
+            )

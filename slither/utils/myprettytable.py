@@ -26,6 +26,7 @@ class MyPrettyTable:
 
 # **Dict to MyPrettyTable utility functions**
 
+
 def make_pretty_table(headers: list, body: dict, totals: bool = False) -> MyPrettyTable:
     """
     Converts a dict to a MyPrettyTable.  Dict keys are the row headers.

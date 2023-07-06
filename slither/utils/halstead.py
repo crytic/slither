@@ -207,7 +207,6 @@ class HalsteadMetrics:
             None, all_operators=all_operators, all_operands=all_operands
         )
 
-
     def update_reporting_sections(self):
         # Create the table and text for each section.
         data = {
