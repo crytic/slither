@@ -9,6 +9,7 @@ contract CacheArrayLength
 
     S[] array;
     S[] array2;
+    uint public x;
 
     function h() external
     {
@@ -166,6 +167,11 @@ contract CacheArrayLength
         for (uint i = 0; i < array.length; i++) // warning should appear
         {
             this.h_view();
+        }
+        // array not modified and it cannot be changed in a function call since x is a public state variable
+        for (uint i = 0; i < array.length; i++) // warning should appear
+        {
+            this.x();
         }
     }   
 }
