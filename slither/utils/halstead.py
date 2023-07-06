@@ -149,7 +149,7 @@ class HalsteadMetrics:
     """
 
     contracts: List[Contract] = field(default_factory=list)
-    contract_metrics: OrderedDict[Contract, HalsteadContractMetrics] = field(
+    contract_metrics: OrderedDict = field(
         default_factory=OrderedDict
     )
     title: str = "Halstead complexity metrics"
