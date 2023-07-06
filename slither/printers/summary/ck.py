@@ -19,6 +19,7 @@ from slither.utils.myprettytable import make_pretty_table
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.printers.summary.martin import compute_coupling
+from slither.utils.ck import CKMetrics
 
 
 def compute_dit(contract, depth=0):
