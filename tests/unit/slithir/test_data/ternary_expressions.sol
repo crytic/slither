@@ -61,6 +61,7 @@ contract D {
     }
 
     function a(uint n) external {
-        (uint a,) = values(n > 0 ? 1 : 0);
+        uint a;
+        (a,) = values(n > 0 ? 1 : 0);
     }
 }
