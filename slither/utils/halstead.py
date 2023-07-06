@@ -35,8 +35,10 @@ from slither.utils.upgradeability import encode_ir_for_halstead
 
 
 @dataclass
+# pylint: disable=too-many-instance-attributes
 class HalsteadContractMetrics:
     """Class to hold the Halstead metrics for a single contract."""
+
     contract: Contract
     all_operators: List[str] = field(default_factory=list)
     all_operands: List[str] = field(default_factory=list)
@@ -54,29 +56,31 @@ class HalsteadContractMetrics:
     B: float = 0
 
     def __post_init__(self):
-        """ Operators and operands can be passed in as constructor args to avoid computing
+        """Operators and operands can be passed in as constructor args to avoid computing
         them based on the contract. Useful for computing metrics for ALL_CONTRACTS"""
-        if (len(self.all_operators) == 0):
+        if len(self.all_operators) == 0:
             self.populate_operators_and_operands()
-        if (len(self.all_operators) > 0):
+        if len(self.all_operators) > 0:
             self.compute_metrics()
 
     def to_dict(self) -> Dict[str, float]:
         """Return the metrics as a dictionary."""
-        return OrderedDict({
-            "Total Operators": self.N1,
-            "Unique Operators": self.n1,
-            "Total Operands": self.N2,
-            "Unique Operands": self.n2,
-            "Vocabulary": str(self.n1 + self.n2),
-            "Program Length": str(self.N1 + self.N2),
-            "Estimated Length": f"{self.S:.0f}",
-            "Volume": f"{self.V:.0f}",
-            "Difficulty": f"{self.D:.0f}",
-            "Effort": f"{self.E:.0f}",
-            "Time": f"{self.T:.0f}",
-            "Estimated Bugs": f"{self.B:.3f}",
-        })
+        return OrderedDict(
+            {
+                "Total Operators": self.N1,
+                "Unique Operators": self.n1,
+                "Total Operands": self.N2,
+                "Unique Operands": self.n2,
+                "Vocabulary": str(self.n1 + self.n2),
+                "Program Length": str(self.N1 + self.N2),
+                "Estimated Length": f"{self.S:.0f}",
+                "Volume": f"{self.V:.0f}",
+                "Difficulty": f"{self.D:.0f}",
+                "Effort": f"{self.E:.0f}",
+                "Time": f"{self.T:.0f}",
+                "Estimated Bugs": f"{self.B:.3f}",
+            }
+        )
 
     def populate_operators_and_operands(self):
         """Populate the operators and operands lists."""
@@ -90,15 +94,15 @@ class HalsteadContractMetrics:
                     operators.append(encoded_operator)
 
                     # use operation.used to get the operands of the operation ignoring the temporary variables
-                    operands.extend([
-                        op for op in operation.used if not isinstance(op, TemporaryVariable)
-                    ])
+                    operands.extend(
+                        [op for op in operation.used if not isinstance(op, TemporaryVariable)]
+                    )
         self.all_operators.extend(operators)
         self.all_operands.extend(operands)
 
-    def compute_metrics(self, all_operators=[], all_operands=[]):
+    def compute_metrics(self, all_operators=None, all_operands=None):
         """Compute the Halstead metrics."""
-        if len(all_operators) == 0:
+        if all_operators is None:
             all_operators = self.all_operators
             all_operands = self.all_operands
 
@@ -126,12 +130,14 @@ class HalsteadContractMetrics:
 @dataclass
 class SectionInfo:
     """Class to hold the information for a section of the report."""
+
     title: str
     pretty_table: MyPrettyTable
     txt: str
 
 
 @dataclass
+# pylint: disable=too-many-instance-attributes
 class HalsteadMetrics:
     """Class to hold the Halstead metrics for all contracts. Contains methods useful for reporting.
 
@@ -141,8 +147,11 @@ class HalsteadMetrics:
     3. Extended metrics 2 (D, E, T, B)
 
     """
+
     contracts: List[Contract] = field(default_factory=list)
-    contract_metrics: OrderedDict[Contract, HalsteadContractMetrics] = field(default_factory=OrderedDict)
+    contract_metrics: OrderedDict[Contract, HalsteadContractMetrics] = field(
+        default_factory=OrderedDict
+    )
     title: str = "Halstead complexity metrics"
     full_txt: str = ""
     core: SectionInfo = field(default=SectionInfo)
@@ -172,7 +181,6 @@ class HalsteadMetrics:
         ("Extended2", EXTENDED2_KEYS),
     )
 
-
     def __post_init__(self):
         # Compute the metrics for each contract and for all contracts.
         for contract in self.contracts:
@@ -181,14 +189,18 @@ class HalsteadMetrics:
         # If there are more than 1 contract, compute the metrics for all contracts.
         if len(self.contracts) > 1:
             all_operators = [
-                operator for contract in self.contracts
+                operator
+                for contract in self.contracts
                 for operator in self.contract_metrics[contract.name].all_operators
             ]
             all_operands = [
-                operand for contract in self.contracts
+                operand
+                for contract in self.contracts
                 for operand in self.contract_metrics[contract.name].all_operands
             ]
-            self.contract_metrics["ALL CONTRACTS"] = HalsteadContractMetrics(all_operators=all_operators, all_operands=all_operands)
+            self.contract_metrics["ALL CONTRACTS"] = HalsteadContractMetrics(
+                None, all_operators=all_operators, all_operands=all_operands
+            )
 
         # Create the table and text for each section.
         data = {
@@ -200,4 +212,8 @@ class HalsteadMetrics:
             section_title = f"{self.title} ({title})"
             txt = f"\n\n{section_title}:\n{pretty_table}\n"
             self.full_txt += txt
-            setattr(self, title.lower(), SectionInfo(title=section_title, pretty_table=pretty_table, txt=txt))
+            setattr(
+                self,
+                title.lower(),
+                SectionInfo(title=section_title, pretty_table=pretty_table, txt=txt),
+            )

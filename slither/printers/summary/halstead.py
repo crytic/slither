@@ -26,6 +26,7 @@
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.halstead import HalsteadMetrics
 
+
 class Halstead(AbstractPrinter):
     ARGUMENT = "halstead"
     HELP = "Computes the Halstead complexity metrics for each contract"
