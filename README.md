@@ -1,6 +1,6 @@
-<img src="https://raw.githubusercontent.com/crytic/slither/master/logo.png" alt="Slither Static Analysis Framework Logo" width="500" />
-
 # [Slither, the Solidity source analyzer](https://crytic.github.io/slither/slither.html)
+
+<img src="https://raw.githubusercontent.com/crytic/slither/master/logo.png" alt="Slither Static Analysis Framework Logo" width="500" />
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/crytic/slither/ci.yml?branch=master)](https://github.com/crytic/slither/actions?query=workflow%3ACI)
 ![PyPI](https://img.shields.io/pypi/v/slither-analyzer?logo=python&logoColor=white&label=slither-analyzer)
@@ -8,46 +8,44 @@
 [![Slither - Wiki](https://img.shields.io/badge/Slither-Wiki-2ea44f)](https://github.com/crytic/slither/wiki/SlithIR)
 
 > Join the Empire Hacking Slack  
-> 
+>
 > [![Slack Status](https://slack.empirehacking.nyc/badge.svg)](https://slack.empirehacking.nyc/)
 > > <sub><i>- Discussions and Support </i></sub>
 
-
 **Slither** is a Solidity static analysis framework written in Python3. It runs a suite of vulnerability detectors, prints visual information about contract details, and provides an API to easily write custom analyses. Slither enables developers to find vulnerabilities, enhance their code comprehension, and quickly prototype custom analyses.
 
-  * [Features](#features)
-  * [Usage](#usage)
-  * [How to install](#how-to-install)
-    + [Using Pip](#using-pip)
-    + [Using Git](#using-git)
-    + [Using Docker](#using-docker)
-    + [Integration](#integration)
-  * [Detectors](#detectors)
-  * [Printers](#printers)
-    + [Quick Review Printers](#quick-review-printers)
-    + [In-Depth Review Printers](#in-depth-review-printers)
-  * [Tools](#tools)
-  * [API Documentation](#api-documentation)
-  * [Getting Help](#getting-help)
-  * [FAQ](#faq)
-  * [License](#license)
-  * [Publications](#publications)
-    + [Trail of Bits publication](#trail-of-bits-publication)
-    + [External publications](#external-publications)
-
+* [Features](#features)
+* [Usage](#usage)
+* [How to install](#how-to-install)
+  * [Using Pip](#using-pip)
+  * [Using Git](#using-git)
+  * [Using Docker](#using-docker)
+  * [Integration](#integration)
+* [Detectors](#detectors)
+* [Printers](#printers)
+  * [Quick Review Printers](#quick-review-printers)
+  * [In-Depth Review Printers](#in-depth-review-printers)
+* [Tools](#tools)
+* [API Documentation](#api-documentation)
+* [Getting Help](#getting-help)
+* [FAQ](#faq)
+* [License](#license)
+* [Publications](#publications)
+  * [Trail of Bits publication](#trail-of-bits-publication)
+  * [External publications](#external-publications)
 
 ## Features
 
-- Detects vulnerable Solidity code with low false positives (see the list of [trophies](./trophies.md))
-- Identifies where the error condition occurs in the source code
-- Easily integrates into continuous integration and Hardhat/Foundry builds
-- Built-in 'printers' quickly report crucial contract information
-- Detector API to write custom analyses in Python
-- Ability to analyze contracts written with Solidity >= 0.4
-- Intermediate representation ([SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR)) enables simple, high-precision analyses
-- Correctly parses 99.9% of all public Solidity code
-- Average execution time of less than 1 second per contract
-- Integrates with Github's code scanning in [CI](https://github.com/marketplace/actions/slither-action)
+* Detects vulnerable Solidity code with low false positives (see the list of [trophies](./trophies.md))
+* Identifies where the error condition occurs in the source code
+* Easily integrates into continuous integration and Hardhat/Foundry builds
+* Built-in 'printers' quickly report crucial contract information
+* Detector API to write custom analyses in Python
+* Ability to analyze contracts written with Solidity >= 0.4
+* Intermediate representation ([SlithIR](https://github.com/trailofbits/slither/wiki/SlithIR)) enables simple, high-precision analyses
+* Correctly parses 99.9% of all public Solidity code
+* Average execution time of less than 1 second per contract
+* Integrates with Github's code scanning in [CI](https://github.com/marketplace/actions/slither-action)
 
 ## Usage
 
@@ -102,9 +100,9 @@ docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
 
 ### Integration
 
-- For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
-- To generate a Markdown report, use `slither [target] --checklist`.
-- To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
+* For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
+* To generate a Markdown report, use `slither [target] --checklist`.
+* To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
 
 ## Detectors
 
@@ -200,23 +198,24 @@ Num | Detector | What it Detects | Impact | Confidence
 
 For more information, see
 
-- The [Detector Documentation](https://github.com/crytic/slither/wiki/Detector-Documentation) for details on each detector
-- The [Detection Selection](https://github.com/crytic/slither/wiki/Usage#detector-selection) to run only selected detectors. By default, all the detectors are run.
-- The [Triage Mode](https://github.com/crytic/slither/wiki/Usage#triage-mode) to filter individual results
+* The [Detector Documentation](https://github.com/crytic/slither/wiki/Detector-Documentation) for details on each detector
+* The [Detection Selection](https://github.com/crytic/slither/wiki/Usage#detector-selection) to run only selected detectors. By default, all the detectors are run.
+* The [Triage Mode](https://github.com/crytic/slither/wiki/Usage#triage-mode) to filter individual results
 
 ## Printers
+
 ### Quick Review Printers
-- `human-summary`: [Print a human-readable summary of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#human-summary)
-- `inheritance-graph`: [Export the inheritance graph of each contract to a dot file](https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance-graph)
-- `contract-summary`: [Print a summary of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#contract-summary)
-- `loc`: [Count the total number lines of code (LOC), source lines of code (SLOC), and comment lines of code (CLOC) found in source files (SRC), dependencies (DEP), and test files (TEST).](https://github.com/trailofbits/slither/wiki/Printer-documentation#loc)
+* `human-summary`: [Print a human-readable summary of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#human-summary)
+* `inheritance-graph`: [Export the inheritance graph of each contract to a dot file](https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance-graph)
+* `contract-summary`: [Print a summary of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#contract-summary)
+* `loc`: [Count the total number lines of code (LOC), source lines of code (SLOC), and comment lines of code (CLOC) found in source files (SRC), dependencies (DEP), and test files (TEST).](https://github.com/trailofbits/slither/wiki/Printer-documentation#loc)
 
 ### In-Depth Review Printers
-- `call-graph`: [Export the call-graph of the contracts to a dot file](https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph)
-- `cfg`: [Export the CFG of each functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#cfg)
-- `function-summary`: [Print a summary of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#function-summary)
-- `vars-and-auth`: [Print the state variables written and the authorization of the functions](https://github.com/crytic/slither/wiki/Printer-documentation#variables-written-and-authorization)
-- `not-pausable`: [Print functions that do not use `whenNotPaused` modifier](https://github.com/trailofbits/slither/wiki/Printer-documentation#when-not-paused).
+* `call-graph`: [Export the call-graph of the contracts to a dot file](https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph)
+* `cfg`: [Export the CFG of each functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#cfg)
+* `function-summary`: [Print a summary of the functions](https://github.com/trailofbits/slither/wiki/Printer-documentation#function-summary)
+* `vars-and-auth`: [Print the state variables written and the authorization of the functions](https://github.com/crytic/slither/wiki/Printer-documentation#variables-written-and-authorization)
+* `not-pausable`: [Print functions that do not use `whenNotPaused` modifier](https://github.com/trailofbits/slither/wiki/Printer-documentation#when-not-paused).
 
 To run a printer, use `--print` and a comma-separated list of printers.
 
@@ -224,13 +223,13 @@ See the [Printer documentation](https://github.com/crytic/slither/wiki/Printer-d
 
 ## Tools
 
-- `slither-check-upgradeability`: [Review `delegatecall`-based upgradeability](https://github.com/crytic/slither/wiki/Upgradeability-Checks)
-- `slither-prop`: [Automatic unit test and property generation](https://github.com/crytic/slither/wiki/Property-generation)
-- `slither-flat`: [Flatten a codebase](https://github.com/crytic/slither/wiki/Contract-Flattening)
-- `slither-check-erc`: [Check the ERC's conformance](https://github.com/crytic/slither/wiki/ERC-Conformance)
-- `slither-format`: [Automatic patch generation](https://github.com/crytic/slither/wiki/Slither-format)
-- `slither-read-storage`: [Read storage values from contracts](./slither/tools/read_storage/README.md)
-- `slither-interface`: [Generate an interface for a contract](./slither/tools/interface/README.md)
+* `slither-check-upgradeability`: [Review `delegatecall`-based upgradeability](https://github.com/crytic/slither/wiki/Upgradeability-Checks)
+* `slither-prop`: [Automatic unit test and property generation](https://github.com/crytic/slither/wiki/Property-generation)
+* `slither-flat`: [Flatten a codebase](https://github.com/crytic/slither/wiki/Contract-Flattening)
+* `slither-check-erc`: [Check the ERC's conformance](https://github.com/crytic/slither/wiki/ERC-Conformance)
+* `slither-format`: [Automatic patch generation](https://github.com/crytic/slither/wiki/Slither-format)
+* `slither-read-storage`: [Read storage values from contracts](./slither/tools/read_storage/README.md)
+* `slither-interface`: [Generate an interface for a contract](./slither/tools/interface/README.md)
 
 See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documentation) for additional tools.
 
@@ -244,23 +243,23 @@ Documentation on Slither's internals is available [here](https://crytic.github.i
 
 Feel free to stop by our [Slack channel](https://empireslacking.herokuapp.com) (#ethereum) for help using or extending Slither.
 
-- The [Printer documentation](https://github.com/trailofbits/slither/wiki/Printer-documentation) describes the information Slither is capable of visualizing for each contract.
+* The [Printer documentation](https://github.com/trailofbits/slither/wiki/Printer-documentation) describes the information Slither is capable of visualizing for each contract.
 
-- The [Detector documentation](https://github.com/trailofbits/slither/wiki/Adding-a-new-detector) describes how to write a new vulnerability analyses.
+* The [Detector documentation](https://github.com/trailofbits/slither/wiki/Adding-a-new-detector) describes how to write a new vulnerability analyses.
 
-- The [API documentation](https://github.com/crytic/slither/wiki/Python-API) describes the methods and objects available for custom analyses.
+* The [API documentation](https://github.com/crytic/slither/wiki/Python-API) describes the methods and objects available for custom analyses.
 
-- The [SlithIR documentation](https://github.com/trailofbits/slither/wiki/SlithIR) describes the SlithIR intermediate representation.
+* The [SlithIR documentation](https://github.com/trailofbits/slither/wiki/SlithIR) describes the SlithIR intermediate representation.
 
 ## FAQ
 
 How do I exclude mocks or tests?
 
-- View our documentation on [path filtering](https://github.com/crytic/slither/wiki/Usage#path-filtering).
+* View our documentation on [path filtering](https://github.com/crytic/slither/wiki/Usage#path-filtering).
 
 How do I fix "unknown file" or compilation issues?
 
-- Because slither requires the solc AST, it must have all dependencies available.
+* Because slither requires the solc AST, it must have all dependencies available.
 If a contract has dependencies, `slither contract.sol` will fail.
 Instead, use `slither .` in the parent directory of `contracts/` (you should see `contracts/` when you run `ls`).
 If you have a `node_modules/` folder, it must be in the same directory as `contracts/`. To verify that this issue is related to slither,
@@ -275,7 +274,7 @@ Slither is licensed and distributed under the AGPLv3 license. [Contact us](mailt
 
 ### Trail of Bits publication
 
-- [Slither: A Static Analysis Framework For Smart Contracts](https://arxiv.org/abs/1908.09878), Josselin Feist, Gustavo Grieco, Alex Groce - WETSEB '19
+* [Slither: A Static Analysis Framework For Smart Contracts](https://arxiv.org/abs/1908.09878), Josselin Feist, Gustavo Grieco, Alex Groce - WETSEB '19
 
 ### External publications
 
