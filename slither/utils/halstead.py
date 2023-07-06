@@ -151,7 +151,7 @@ class HalsteadMetrics:
     contracts: List[Contract] = field(default_factory=list)
     contract_metrics: OrderedDict = field(default_factory=OrderedDict)
     title: str = "Halstead complexity metrics"
-    full_txt: str = ""
+    full_text: str = ""
     core: SectionInfo = field(default=SectionInfo)
     extended1: SectionInfo = field(default=SectionInfo)
     extended2: SectionInfo = field(default=SectionInfo)
@@ -181,25 +181,34 @@ class HalsteadMetrics:
 
     def __post_init__(self):
         # Compute the metrics for each contract and for all contracts.
+        self.update_contract_metrics()
+        self.add_all_contracts_metrics()
+        self.update_reporting_sections()
+
+    def update_contract_metrics(self):
         for contract in self.contracts:
             self.contract_metrics[contract.name] = HalsteadContractMetrics(contract=contract)
 
+    def add_all_contracts_metrics(self):
         # If there are more than 1 contract, compute the metrics for all contracts.
-        if len(self.contracts) > 1:
-            all_operators = [
-                operator
-                for contract in self.contracts
-                for operator in self.contract_metrics[contract.name].all_operators
-            ]
-            all_operands = [
-                operand
-                for contract in self.contracts
-                for operand in self.contract_metrics[contract.name].all_operands
-            ]
-            self.contract_metrics["ALL CONTRACTS"] = HalsteadContractMetrics(
-                None, all_operators=all_operators, all_operands=all_operands
-            )
+        if len(self.contracts) <= 1:
+            return
+        all_operators = [
+            operator
+            for contract in self.contracts
+            for operator in self.contract_metrics[contract.name].all_operators
+        ]
+        all_operands = [
+            operand
+            for contract in self.contracts
+            for operand in self.contract_metrics[contract.name].all_operands
+        ]
+        self.contract_metrics["ALL CONTRACTS"] = HalsteadContractMetrics(
+            None, all_operators=all_operators, all_operands=all_operands
+        )
 
+
+    def update_reporting_sections(self):
         # Create the table and text for each section.
         data = {
             contract.name: self.contract_metrics[contract.name].to_dict()
@@ -209,7 +218,7 @@ class HalsteadMetrics:
             pretty_table = make_pretty_table(["Contract", *keys], data, False)
             section_title = f"{self.title} ({title})"
             txt = f"\n\n{section_title}:\n{pretty_table}\n"
-            self.full_txt += txt
+            self.full_text += txt
             setattr(
                 self,
                 title.lower(),
