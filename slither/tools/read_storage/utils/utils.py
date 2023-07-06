@@ -37,6 +37,8 @@ def coerce_type(
         (Union[int, bool, str, ChecksumAddress, hex]): The type representation of the value.
     """
     if "int" in solidity_type:
+        if str(value).startswith("0x"):
+            return to_int(hexstr=value)
         return to_int(value)
     if "bool" in solidity_type:
         return bool(to_int(value))

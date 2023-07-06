@@ -26,12 +26,15 @@ class MyPrettyTable:
 
 # **Dict to MyPrettyTable utility functions**
 
-
-# Converts a dict to a MyPrettyTable.  Dict keys are the row headers.
-# @param headers str[] of column names
-# @param body dict of row headers with a dict of the values
-# @param totals bool optional add Totals row
 def make_pretty_table(headers: list, body: dict, totals: bool = False) -> MyPrettyTable:
+    """
+    Converts a dict to a MyPrettyTable.  Dict keys are the row headers.
+    Args:
+        data: dict of row headers with a dict of the values
+        column_header: str of column name for 1st column
+    Returns:
+        MyPrettyTable
+    """
     table = MyPrettyTable(headers)
     for row in body:
         table_row = [row] + [body[row][key] for key in headers[1:]]
@@ -41,21 +44,28 @@ def make_pretty_table(headers: list, body: dict, totals: bool = False) -> MyPret
     return table
 
 
-# takes a dict of dicts and returns a dict of dicts with the keys transposed
-# example:
-# in:
-# {
-#     "dep": {"loc": 0, "sloc": 0, "cloc": 0},
-#     "test": {"loc": 0, "sloc": 0, "cloc": 0},
-#     "src": {"loc": 0, "sloc": 0, "cloc": 0},
-# }
-# out:
-# {
-#     'loc': {'dep': 0, 'test': 0, 'src': 0},
-#     'sloc': {'dep': 0, 'test': 0, 'src': 0},
-#     'cloc': {'dep': 0, 'test': 0, 'src': 0},
-# }
 def transpose(table):
+    """
+    Converts a dict of dicts to a dict of dicts with the keys transposed
+    Args:
+        table: dict of dicts
+    Returns:
+        dict of dicts
+
+    Example:
+        in:
+        {
+            "dep": {"loc": 0, "sloc": 0, "cloc": 0},
+            "test": {"loc": 0, "sloc": 0, "cloc": 0},
+            "src": {"loc": 0, "sloc": 0, "cloc": 0},
+        }
+        out:
+        {
+            'loc': {'dep': 0, 'test': 0, 'src': 0},
+            'sloc': {'dep': 0, 'test': 0, 'src': 0},
+            'cloc': {'dep': 0, 'test': 0, 'src': 0},
+        }
+    """
     any_key = list(table.keys())[0]
     return {
         inner_key: {outer_key: table[outer_key][inner_key] for outer_key in table}

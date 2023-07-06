@@ -35,6 +35,7 @@ from slither.utils.output import (
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
+    FailOnLevel,
     output_detectors,
     output_results_to_markdown,
     output_detectors_json,
@@ -206,22 +207,22 @@ def choose_detectors(
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
-    if args.exclude_optimization and not args.fail_pedantic:
+    if args.exclude_optimization:
         detectors_to_run = [
             d for d in detectors_to_run if d.IMPACT != DetectorClassification.OPTIMIZATION
         ]
 
-    if args.exclude_informational and not args.fail_pedantic:
+    if args.exclude_informational:
         detectors_to_run = [
             d for d in detectors_to_run if d.IMPACT != DetectorClassification.INFORMATIONAL
         ]
-    if args.exclude_low and not args.fail_low:
+    if args.exclude_low:
         detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.LOW]
-    if args.exclude_medium and not args.fail_medium:
+    if args.exclude_medium:
         detectors_to_run = [
             d for d in detectors_to_run if d.IMPACT != DetectorClassification.MEDIUM
         ]
-    if args.exclude_high and not args.fail_high:
+    if args.exclude_high:
         detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.HIGH]
     if args.detectors_to_exclude:
         detectors_to_run = [
@@ -386,41 +387,44 @@ def parse_args(
         default=defaults_flag_in_config["exclude_high"],
     )
 
-    group_detector.add_argument(
+    fail_on_group = group_detector.add_mutually_exclusive_group()
+    fail_on_group.add_argument(
         "--fail-pedantic",
-        help="Return the number of findings in the exit code",
-        action="store_true",
-        default=defaults_flag_in_config["fail_pedantic"],
+        help="Fail if any findings are detected",
+        action="store_const",
+        dest="fail_on",
+        const=FailOnLevel.PEDANTIC,
     )
-
-    group_detector.add_argument(
-        "--no-fail-pedantic",
-        help="Do not return the number of findings in the exit code. Opposite of --fail-pedantic",
-        dest="fail_pedantic",
-        action="store_false",
-        required=False,
-    )
-
-    group_detector.add_argument(
+    fail_on_group.add_argument(
         "--fail-low",
-        help="Fail if low or greater impact finding is detected",
-        action="store_true",
-        default=defaults_flag_in_config["fail_low"],
+        help="Fail if any low or greater impact findings are detected",
+        action="store_const",
+        dest="fail_on",
+        const=FailOnLevel.LOW,
     )
-
-    group_detector.add_argument(
+    fail_on_group.add_argument(
         "--fail-medium",
-        help="Fail if medium or greater impact finding is detected",
-        action="store_true",
-        default=defaults_flag_in_config["fail_medium"],
+        help="Fail if any medium or greater impact findings are detected",
+        action="store_const",
+        dest="fail_on",
+        const=FailOnLevel.MEDIUM,
     )
-
-    group_detector.add_argument(
+    fail_on_group.add_argument(
         "--fail-high",
-        help="Fail if high impact finding is detected",
-        action="store_true",
-        default=defaults_flag_in_config["fail_high"],
+        help="Fail if any high impact findings are detected",
+        action="store_const",
+        dest="fail_on",
+        const=FailOnLevel.HIGH,
     )
+    fail_on_group.add_argument(
+        "--fail-none",
+        "--no-fail-pedantic",
+        help="Do not return the number of findings in the exit code",
+        action="store_const",
+        dest="fail_on",
+        const=FailOnLevel.NONE,
+    )
+    fail_on_group.set_defaults(fail_on=FailOnLevel.PEDANTIC)
 
     group_detector.add_argument(
         "--show-ignored-findings",
@@ -896,17 +900,18 @@ def main_impl(
         stats = pstats.Stats(cp).sort_stats("cumtime")
         stats.print_stats()
 
-    if args.fail_high:
+    fail_on = FailOnLevel(args.fail_on)
+    if fail_on == FailOnLevel.HIGH:
         fail_on_detection = any(result["impact"] == "High" for result in results_detectors)
-    elif args.fail_medium:
+    elif fail_on == FailOnLevel.MEDIUM:
         fail_on_detection = any(
             result["impact"] in ["Medium", "High"] for result in results_detectors
         )
-    elif args.fail_low:
+    elif fail_on == FailOnLevel.LOW:
         fail_on_detection = any(
             result["impact"] in ["Low", "Medium", "High"] for result in results_detectors
         )
-    elif args.fail_pedantic:
+    elif fail_on == FailOnLevel.PEDANTIC:
         fail_on_detection = bool(results_detectors)
     else:
         fail_on_detection = False
