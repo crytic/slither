@@ -1,5 +1,4 @@
 from pathlib import Path
-import pdb
 from slither import Slither
 from slither.core.cfg.node import NodeType
 from slither.slithir.operations.unpack import Unpack
