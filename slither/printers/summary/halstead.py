@@ -25,19 +25,182 @@
 
 """
 import math
+from dataclasses import dataclass, field
+from typing import Tuple, List, Dict
 from collections import OrderedDict
+from slither.core.declarations import (
+    Contract,
+    Pragma,
+    Import,
+    Function,
+    Modifier,
+)
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slithir.variables.temporary import TemporaryVariable
-from slither.utils.myprettytable import make_pretty_table
-from slither.utils.upgradeability import encode_ir_for_halstead
+from slither.utils.myprettytable import make_pretty_table, MyPrettyTable
+from slither.utils.upgradeability import encode_ir_for_halstead # TODO: Add to slither/utils/halstead
 
 
-def compute_halstead(contracts: list) -> tuple:
+@dataclass
+class HalsteadContractMetrics:
+    """Class to hold the Halstead metrics for a single contract."""
+    # TODO: Add to slither/utils/halstead
+    contract: Contract
+    all_operators: List[str] = field(default_factory=list)
+    all_operands: List[str] = field(default_factory=list)
+    n1: int = 0
+    n2: int = 0
+    N1: int = 0
+    N2: int = 0
+    n: int = 0
+    N: int = 0
+    S: float = 0
+    V: float = 0
+    D: float = 0
+    E: float = 0
+    T: float = 0
+    B: float = 0
+
+    def __post_init__(self):
+        if (len(self.all_operators) == 0):
+            self.populate_operators_and_operands()
+        self.compute_metrics()
+
+    def to_dict(self) -> Dict[str, float]:
+        """Return the metrics as a dictionary."""
+        return OrderedDict({
+            "Total Operators": self.N1,
+            "Unique Operators": self.n1,
+            "Total Operands": self.N2,
+            "Unique Operands": self.n2,
+            "Vocabulary": str(self.n1 + self.n2),
+            "Program Length": str(self.N1 + self.N2),
+            "Estimated Length": f"{self.S:.0f}",
+            "Volume": f"{self.V:.0f}",
+            "Difficulty": f"{self.D:.0f}",
+            "Effort": f"{self.E:.0f}",
+            "Time": f"{self.T:.0f}",
+            "Estimated Bugs": f"{self.B:.3f}",
+        })
+
+    def populate_operators_and_operands(self):
+        """Populate the operators and operands lists."""
+        operators = []
+        operands = []
+        for func in self.contract.functions:
+            for node in func.nodes:
+                for operation in node.irs:
+                    # use operation.expression.type to get the unique operator type
+                    encoded_operator = encode_ir_for_halstead(operation)
+                    operators.append(encoded_operator)
+
+                    # use operation.used to get the operands of the operation ignoring the temporary variables
+                    operands.extend([
+                        op for op in operation.used if not isinstance(op, TemporaryVariable)
+                    ])
+        # import pdb; pdb.set_trace()
+        self.all_operators.extend(operators)
+        self.all_operands.extend(operands)
+
+    def compute_metrics(self, all_operators=[], all_operands=[]):
+        """Compute the Halstead metrics."""
+        if len(all_operators) == 0:
+            all_operators = self.all_operators
+            all_operands = self.all_operands
+
+        self.n1 = len(set(all_operators))
+        self.n2 = len(set(all_operands))
+        self.N1 = len(all_operators)
+        self.N2 = len(all_operands)
+        if any(number <= 0 for number in [self.n1, self.n2, self.N1, self.N2]):
+            raise ValueError("n1 and n2 must be greater than 0")
+
+        self.n = self.n1 + self.n2
+        self.N = self.N1 + self.N2
+        self.S = self.n1 * math.log2(self.n1) + self.n2 * math.log2(self.n2)
+        self.V = self.N * math.log2(self.n)
+        self.D = (self.n1 / 2) * (self.N2 / self.n2)
+        self.E = self.D * self.V
+        self.T = self.E / 18
+        self.B = (self.E ** (2 / 3)) / 3000
+
+
+@dataclass
+class SectionInfo:
+    title: str
+    pretty_table: MyPrettyTable
+    txt: str
+
+
+@dataclass
+class HalsteadMetrics:
+    """Class to hold the Halstead metrics for all contracts and methods for reporting."""
+    contracts: List[Contract] = field(default_factory=list)
+    contract_metrics: OrderedDict[Contract, HalsteadContractMetrics] = field(default_factory=OrderedDict)
+    title: str = "Halstead complexity metrics"
+    full_txt: str = ""
+    core: SectionInfo = field(default=SectionInfo)
+    extended1: SectionInfo = field(default=SectionInfo)
+    extended2: SectionInfo = field(default=SectionInfo)
+    CORE_KEYS = (
+        "Total Operators",
+        "Unique Operators",
+        "Total Operands",
+        "Unique Operands",
+    )
+    EXTENDED1_KEYS = (
+        "Vocabulary",
+        "Program Length",
+        "Estimated Length",
+        "Volume",
+    )
+    EXTENDED2_KEYS = (
+        "Difficulty",
+        "Effort",
+        "Time",
+        "Estimated Bugs",
+    )
+    SECTIONS: Tuple[Tuple[str, Tuple[str]]] = (
+        ("Core", CORE_KEYS),
+        ("Extended1", EXTENDED1_KEYS),
+        ("Extended2", EXTENDED2_KEYS),
+    )
+
+
+    def __post_init__(self):
+        for contract in self.contracts:
+            self.contract_metrics[contract.name] = HalsteadContractMetrics(contract=contract)
+
+        if len(self.contracts) > 1:
+            all_operators = [
+                operator for contract in self.contracts
+                for operator in self.contract_metrics[contract.name].all_operators
+            ]
+
+            all_operands = [
+                operand for contract in self.contracts
+                for operand in self.contract_metrics[contract.name].all_operands
+            ]
+
+            self.contract_metrics["ALL CONTRACTS"] = HalsteadContractMetrics(all_operators=all_operators, all_operands=all_operands)
+
+        data = {
+            contract.name: self.contract_metrics[contract.name].to_dict()
+            for contract in self.contracts
+        }
+        for (title, keys) in self.SECTIONS:
+            pretty_table = make_pretty_table(["Contract", *keys], data, False)
+            section_title = f"{self.title} - {title}"
+            txt = f"\n\n{section_title}:\n{pretty_table}\n"
+            self.full_txt += txt
+            setattr(self, title.lower(), SectionInfo(title=section_title, pretty_table=pretty_table, txt=txt))
+
+def compute_halstead(contracts: list) -> Tuple[Dict, Dict, Dict]:
     """Used to compute the Halstead complexity metrics for a list of contracts.
     Args:
         contracts: list of contracts.
     Returns:
-        Halstead metrics as a tuple of two OrderedDicts (core_metrics, extended_metrics)
+        Halstead metrics as a tuple of three OrderedDicts (core_metrics, extended_metrics1, extended_metrics2)
         which each contain one key per contract. The value of each key is a dict of metrics.
 
         In addition to one key per contract, there is a key for "ALL CONTRACTS" that contains
@@ -162,6 +325,8 @@ class Halstead(AbstractPrinter):
 
         core, extended1, extended2 = compute_halstead(self.contracts)
 
+        halstead = HalsteadMetrics(self.contracts)
+
         # Core metrics: operations and operands
         txt = "\n\nHalstead complexity core metrics:\n"
         keys = list(core[self.contracts[0].name].keys())
@@ -185,5 +350,9 @@ class Halstead(AbstractPrinter):
         res.add_pretty_table(table_extended1, "Halstead extended metrics1")
         res.add_pretty_table(table_extended2, "Halstead extended metrics2")
         self.info(txt)
+        self.info("*****************************************************************")
+        self.info("new one")
+        self.info("*****************************************************************")
+        self.info(halstead.full_txt)
 
         return res
