@@ -86,6 +86,8 @@ class HalsteadContractMetrics:
         """Populate the operators and operands lists."""
         operators = []
         operands = []
+        if not hasattr(self.contract, "functions"):
+            return
         for func in self.contract.functions:
             for node in func.nodes:
                 for operation in node.irs:
