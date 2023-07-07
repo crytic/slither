@@ -105,9 +105,11 @@ class MartinMetrics:
                 abstract_contract_count += 1
         self.abstractness = float(abstract_contract_count / len(self.contracts))
 
+    # pylint: disable=too-many-branches
     def update_coupling(self) -> Dict:
         dependencies = {}
         for contract in self.contracts:
+            external_calls = []
             for func in contract.functions:
                 high_level_calls = [
                     ir
@@ -116,7 +118,27 @@ class MartinMetrics:
                     if isinstance(ir, HighLevelCall)
                 ]
                 # convert irs to string with target function and contract name
-                external_calls = [h.destination.type.type.name for h in high_level_calls]
+                # Get the target contract name for each high level call
+                new_external_calls = []
+                for high_level_call in high_level_calls:
+                    if isinstance(high_level_call.destination, Contract):
+                        new_external_call = high_level_call.destination.name
+                    elif isinstance(high_level_call.destination, str):
+                        new_external_call = high_level_call.destination
+                    elif not hasattr(high_level_call.destination, "type"):
+                        continue
+                    elif isinstance(high_level_call.destination.type, Contract):
+                        new_external_call = high_level_call.destination.type.name
+                    elif isinstance(high_level_call.destination.type, str):
+                        new_external_call = high_level_call.destination.type
+                    elif not hasattr(high_level_call.destination.type, "type"):
+                        continue
+                    if isinstance(high_level_call.destination.type.type, Contract):
+                        new_external_call = high_level_call.destination.type.type.name
+                    if isinstance(high_level_call.destination.type.type, str):
+                        new_external_call = high_level_call.destination.type.type
+                    new_external_calls.append(new_external_call)
+                external_calls.extend(new_external_calls)
             dependencies[contract.name] = set(external_calls)
         dependents = {}
         for contract, deps in dependencies.items():

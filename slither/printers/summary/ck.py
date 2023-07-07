@@ -22,8 +22,7 @@ from slither.utils.colors import bold
 from slither.utils.myprettytable import make_pretty_table
 from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.printers.summary.martin import compute_coupling
-from slither.utils.ck import CKMetrics
+from slither.utils.martin import MartinMetrics
 
 
 def compute_dit(contract, depth=0):
@@ -101,8 +100,8 @@ def compute_metrics(contracts):
         for inherited in contracts
     }
 
-    # We pass 0 for the 2nd arg (abstractness) because we only care about the coupling metrics (Ca and Ce)
-    coupling = compute_coupling(contracts, 0)
+    # Use MartinMetrics to compute Ca and Ce
+    martin = MartinMetrics(contracts)
 
     for contract in contracts:
         (state_variables, constants, immutables, public_getters) = count_variables(contract)
