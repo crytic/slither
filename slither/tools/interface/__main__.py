@@ -86,10 +86,11 @@ def main() -> None:
     )
 
     # add version pragma
-    interface = (
-        f"pragma solidity {_contract.compilation_unit.pragma_directives[0].version};\n\n"
-        + interface
-    )
+    if _contract.compilation_unit.pragma_directives:
+        interface = (
+            f"pragma solidity {_contract.compilation_unit.pragma_directives[0].version};\n\n"
+            + interface
+        )
 
     # write interface to file
     export = Path("crytic-export", "interfaces")

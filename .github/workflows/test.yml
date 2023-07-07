@@ -25,12 +25,13 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
         type: ["unit", "integration", "tool"]
+        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.11"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11"]') }}
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python 3.8
+      - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python }}
           cache: "pip"
           cache-dependency-path: setup.py
 
@@ -74,7 +75,7 @@ jobs:
         uses: ./.github/actions/upload-coverage
         # only aggregate test coverage over linux-based tests to avoid any OS-specific filesystem information stored in
         # coverage metadata.
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.8' }}
 
   coverage:
     needs:

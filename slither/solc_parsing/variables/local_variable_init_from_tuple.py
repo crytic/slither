@@ -16,3 +16,21 @@ class LocalVariableInitFromTupleSolc(VariableDeclarationSolc):
         # Todo: Not sure how to overcome this with mypy
         assert isinstance(self._variable, LocalVariableInitFromTuple)
         return self._variable
+
+    def _analyze_variable_attributes(self, attributes: Dict) -> None:
+        """'
+        Variable Location
+        Can be storage/memory or default
+        """
+        if "storageLocation" in attributes:
+            location = attributes["storageLocation"]
+            self.underlying_variable.set_location(location)
+        else:
+            if "memory" in attributes["type"]:
+                self.underlying_variable.set_location("memory")
+            elif "storage" in attributes["type"]:
+                self.underlying_variable.set_location("storage")
+            else:
+                self.underlying_variable.set_location("default")
+
+        super()._analyze_variable_attributes(attributes)

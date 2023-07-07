@@ -1,5 +1,6 @@
 from fractions import Fraction
 from typing import Union
+from Crypto.Hash import keccak
 
 from slither.core import expressions
 from slither.core.expressions import (
@@ -11,9 +12,9 @@ from slither.core.expressions import (
     UnaryOperation,
     TupleExpression,
     TypeConversion,
+    CallExpression,
 )
 from slither.core.variables import Variable
-
 from slither.utils.integer_conversion import convert_string_to_fraction, convert_string_to_int
 from slither.visitors.expression.expression import ExpressionVisitor
 from slither.core.solidity_types.elementary_type import ElementaryType
@@ -65,23 +66,31 @@ class ConstantFolding(ExpressionVisitor):
                 value = value & (2**256 - 1)
         return Literal(value, self._type)
 
+    # pylint: disable=import-outside-toplevel
     def _post_identifier(self, expression: Identifier) -> None:
-        if not isinstance(expression.value, Variable):
-            return
-        if not expression.value.is_constant:
-            raise NotConstant
-        expr = expression.value.expression
-        # assumption that we won't have infinite loop
-        # Everything outside of literal
-        if isinstance(
-            expr, (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion)
-        ):
-            cf = ConstantFolding(expr, self._type)
-            expr = cf.result()
-        assert isinstance(expr, Literal)
-        set_val(expression, convert_string_to_int(expr.converted_value))
+        from slither.core.declarations.solidity_variables import SolidityFunction
 
-    # pylint: disable=too-many-branches
+        if isinstance(expression.value, Variable):
+            if expression.value.is_constant:
+                expr = expression.value.expression
+                # assumption that we won't have infinite loop
+                # Everything outside of literal
+                if isinstance(
+                    expr,
+                    (BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
+                ):
+                    cf = ConstantFolding(expr, self._type)
+                    expr = cf.result()
+                assert isinstance(expr, Literal)
+                set_val(expression, convert_string_to_int(expr.converted_value))
+            else:
+                raise NotConstant
+        elif isinstance(expression.value, SolidityFunction):
+            set_val(expression, expression.value)
+        else:
+            raise NotConstant
+
+    # pylint: disable=too-many-branches,too-many-statements
     def _post_binary_operation(self, expression: BinaryOperation) -> None:
         expression_left = expression.expression_left
         expression_right = expression.expression_right
@@ -95,7 +104,6 @@ class ConstantFolding(ExpressionVisitor):
             (Literal, BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
         ):
             raise NotConstant
-
         left = get_val(expression_left)
         right = get_val(expression_right)
 
@@ -183,7 +191,9 @@ class ConstantFolding(ExpressionVisitor):
             raise NotConstant
 
     def _post_literal(self, expression: Literal) -> None:
-        if expression.converted_value in ["true", "false"]:
+        if str(expression.type) == "bool":
+            set_val(expression, expression.converted_value)
+        elif str(expression.type) == "string":
             set_val(expression, expression.converted_value)
         else:
             try:
@@ -195,7 +205,14 @@ class ConstantFolding(ExpressionVisitor):
         raise NotConstant
 
     def _post_call_expression(self, expression: expressions.CallExpression) -> None:
-        raise NotConstant
+        called = get_val(expression.called)
+        args = [get_val(arg) for arg in expression.arguments]
+        if called.name == "keccak256(bytes)":
+            digest = keccak.new(digest_bits=256)
+            digest.update(str(args[0]).encode("utf-8"))
+            set_val(expression, digest.digest())
+        else:
+            raise NotConstant
 
     def _post_conditional_expression(self, expression: expressions.ConditionalExpression) -> None:
         raise NotConstant
@@ -247,10 +264,24 @@ class ConstantFolding(ExpressionVisitor):
         expr = expression.expression
         if not isinstance(
             expr,
-            (Literal, BinaryOperation, UnaryOperation, Identifier, TupleExpression, TypeConversion),
+            (
+                Literal,
+                BinaryOperation,
+                UnaryOperation,
+                Identifier,
+                TupleExpression,
+                TypeConversion,
+                CallExpression,
+            ),
         ):
             raise NotConstant
         cf = ConstantFolding(expr, self._type)
         expr = cf.result()
         assert isinstance(expr, Literal)
-        set_val(expression, convert_string_to_fraction(expr.converted_value))
+        if str(expression.type).startswith("uint") and isinstance(expr.value, bytes):
+            value = int.from_bytes(expr.value, "big")
+        elif str(expression.type).startswith("byte") and isinstance(expr.value, int):
+            value = int.to_bytes(expr.value, 32, "big")
+        else:
+            value = convert_string_to_fraction(expr.converted_value)
+        set_val(expression, value)

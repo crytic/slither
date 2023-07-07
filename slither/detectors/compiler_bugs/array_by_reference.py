@@ -133,7 +133,7 @@ As a result, Bob's usage of the contract is incorrect."""
                             continue
 
                         # Verify one of these parameters is an array in storage.
-                        for arg in ir.arguments:
+                        for (param, arg) in zip(ir.function.parameters, ir.arguments):
                             # Verify this argument is a variable that is an array type.
                             if not isinstance(arg, (StateVariable, LocalVariable)):
                                 continue
@@ -141,8 +141,11 @@ As a result, Bob's usage of the contract is incorrect."""
                                 continue
 
                             # If it is a state variable OR a local variable referencing storage, we add it to the list.
-                            if isinstance(arg, StateVariable) or (
-                                isinstance(arg, LocalVariable) and arg.location == "storage"
+                            if (
+                                isinstance(arg, StateVariable)
+                                or (isinstance(arg, LocalVariable) and arg.location == "storage")
+                            ) and (
+                                isinstance(param.type, ArrayType) and param.location != "storage"
                             ):
                                 results.append((node, arg, ir.function))
         return results
@@ -165,9 +168,9 @@ As a result, Bob's usage of the contract is incorrect."""
                     calling_node.function,
                     " passes array ",
                     affected_argument,
-                    "by reference to ",
+                    " by reference to ",
                     invoked_function,
-                    "which only takes arrays by value\n",
+                    " which only takes arrays by value\n",
                 ]
 
                 res = self.generate_result(info)

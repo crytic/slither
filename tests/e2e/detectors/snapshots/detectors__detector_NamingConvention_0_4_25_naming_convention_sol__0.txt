@@ -18,9 +18,9 @@ Parameter T.test(uint256,uint256)._used (tests/e2e/detectors/test_data/naming-co
 
 Variable T._myPublicVar (tests/e2e/detectors/test_data/naming-convention/0.4.25/naming_convention.sol#56) is not in mixedCase
 
-Event namingevent_(uint256) (tests/e2e/detectors/test_data/naming-convention/0.4.25/naming_convention.sol#23) is not in CapWords
-
 Variable T.O (tests/e2e/detectors/test_data/naming-convention/0.4.25/naming_convention.sol#68) is single letter l, O, or I, which should not be used
+
+Event naming.event_(uint256) (tests/e2e/detectors/test_data/naming-convention/0.4.25/naming_convention.sol#23) is not in CapWords
 
 Modifier naming.CantDo() (tests/e2e/detectors/test_data/naming-convention/0.4.25/naming_convention.sol#41-43) is not in mixedCase
 

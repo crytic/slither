@@ -1,5 +1,6 @@
+pragma solidity 0.8.10;
 // overwrite abi and bin:
-// solc tests/storage-layout/storage_layout-0.8.10.sol --abi --bin -o tests/storage-layout --overwrite
+// solc StorageLayout.sol --abi --bin --overwrite
 contract StorageLayout {
     uint248 packedUint = 1;
     bool packedBool = true;

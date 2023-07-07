@@ -12,6 +12,10 @@
     - Lack of Cohesion of Methods (LCOM) is a metric that measures the lack of cohesion in methods.
     - Weighted Methods per Class (WMC) is a metric that measures the complexity of a class.
 
+    During the calculation of the metrics above, there are a number of other intermediate metrics that are calculated.
+    These are also included in the output:
+    TODO!!!
+
 """
 from typing import Tuple
 from slither.utils.colors import bold
@@ -221,7 +225,7 @@ def no_auth(func) -> bool:
     return True
 
 
-class CKMetrics(AbstractPrinter):
+class CK(AbstractPrinter):
     ARGUMENT = "ck"
     HELP = "Chidamber and Kemerer (CK) complexity metrics and related function attributes"
 
