@@ -133,10 +133,12 @@ class MartinMetrics:
                         new_external_call = high_level_call.destination.type
                     elif not hasattr(high_level_call.destination.type, "type"):
                         continue
-                    if isinstance(high_level_call.destination.type.type, Contract):
+                    elif isinstance(high_level_call.destination.type.type, Contract):
                         new_external_call = high_level_call.destination.type.type.name
-                    if isinstance(high_level_call.destination.type.type, str):
+                    elif isinstance(high_level_call.destination.type.type, str):
                         new_external_call = high_level_call.destination.type.type
+                    else:
+                        continue
                     new_external_calls.append(new_external_call)
                 external_calls.extend(new_external_calls)
             dependencies[contract.name] = set(external_calls)
