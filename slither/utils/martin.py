@@ -63,7 +63,7 @@ class MartinMetrics:
         "Instability",
         "Distance from main sequence",
     )
-    SECTIONS: Tuple[Tuple[str, Tuple[str]]] = (("Core", CORE_KEYS),)
+    SECTIONS: Tuple[Tuple[str, str, Tuple[str]]] = (("Core", "core", CORE_KEYS),)
 
     def __post_init__(self):
         self.update_abstractness()
@@ -76,7 +76,7 @@ class MartinMetrics:
             contract.name: self.contract_metrics[contract.name].to_dict()
             for contract in self.contracts
         }
-        for (title, keys) in self.SECTIONS:
+        for (title, attr, keys) in self.SECTIONS:
             pretty_table = make_pretty_table(["Contract", *keys], data, False)
             section_title = f"{self.title} ({title})"
             txt = f"\n\n{section_title}:\n"
@@ -94,7 +94,7 @@ class MartinMetrics:
             self.full_text += txt
             setattr(
                 self,
-                title.lower(),
+                attr,
                 SectionInfo(title=section_title, pretty_table=pretty_table, txt=txt),
             )
 

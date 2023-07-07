@@ -58,7 +58,10 @@ class HalsteadContractMetrics:
     def __post_init__(self):
         """Operators and operands can be passed in as constructor args to avoid computing
         them based on the contract. Useful for computing metrics for ALL_CONTRACTS"""
+
         if len(self.all_operators) == 0:
+            if not hasattr(self.contract, "functions"):
+                return
             self.populate_operators_and_operands()
         if len(self.all_operators) > 0:
             self.compute_metrics()
@@ -86,8 +89,7 @@ class HalsteadContractMetrics:
         """Populate the operators and operands lists."""
         operators = []
         operands = []
-        if not hasattr(self.contract, "functions"):
-            return
+
         for func in self.contract.functions:
             for node in func.nodes:
                 for operation in node.irs:
@@ -175,10 +177,10 @@ class HalsteadMetrics:
         "Time",
         "Estimated Bugs",
     )
-    SECTIONS: Tuple[Tuple[str, Tuple[str]]] = (
-        ("Core", CORE_KEYS),
-        ("Extended1", EXTENDED1_KEYS),
-        ("Extended2", EXTENDED2_KEYS),
+    SECTIONS: Tuple[Tuple[str, str, Tuple[str]]] = (
+        ("Core", "core", CORE_KEYS),
+        ("Extended 1/2", "extended1", EXTENDED1_KEYS),
+        ("Extended 2/2", "extended2", EXTENDED2_KEYS),
     )
 
     def __post_init__(self):
@@ -215,13 +217,13 @@ class HalsteadMetrics:
             contract.name: self.contract_metrics[contract.name].to_dict()
             for contract in self.contracts
         }
-        for (title, keys) in self.SECTIONS:
+        for (title, attr, keys) in self.SECTIONS:
             pretty_table = make_pretty_table(["Contract", *keys], data, False)
             section_title = f"{self.title} ({title})"
             txt = f"\n\n{section_title}:\n{pretty_table}\n"
             self.full_text += txt
             setattr(
                 self,
-                title.lower(),
+                attr,
                 SectionInfo(title=section_title, pretty_table=pretty_table, txt=txt),
             )

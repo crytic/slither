@@ -37,6 +37,7 @@ class MyPrettyTable:
 
 # UTILITY FUNCTIONS
 
+
 def make_pretty_table(
     headers: list, body: dict, totals: bool = False, total_header="TOTAL"
 ) -> MyPrettyTable:
