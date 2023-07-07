@@ -815,19 +815,26 @@ class FunctionSolc(CallerContextExpression):
                             new_node = self._parse_variable_definition_init_tuple(
                                 new_statement, i, new_node, scope
                             )
+                        else:
+                            variables.append(None)
                         i = i + 1
 
                     var_identifiers = []
                     # craft of the expression doing the assignement
                     for v in variables:
-                        identifier = {
-                            "nodeType": "Identifier",
-                            "src": v["src"],
-                            "name": v["name"],
-                            "referencedDeclaration": v["id"],
-                            "typeDescriptions": {"typeString": v["typeDescriptions"]["typeString"]},
-                        }
-                        var_identifiers.append(identifier)
+                        if v is not None:
+                            identifier = {
+                                "nodeType": "Identifier",
+                                "src": v["src"],
+                                "name": v["name"],
+                                "referencedDeclaration": v["id"],
+                                "typeDescriptions": {
+                                    "typeString": v["typeDescriptions"]["typeString"]
+                                },
+                            }
+                            var_identifiers.append(identifier)
+                        else:
+                            var_identifiers.append(None)
 
                     tuple_expression = {
                         "nodeType": "TupleExpression",
