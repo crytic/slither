@@ -101,10 +101,8 @@ contract MyConc{
     def _detect(self) -> List[Output]:
         """Detect high level calls which return a value that are never used"""
         results = []
-        for c in self.compilation_unit.contracts:
-            for f in c.functions + c.modifiers:
-                if f.contract_declarer != c:
-                    continue
+        for c in self.compilation_unit.contracts_derived:
+            for f in c.functions_and_modifiers:
                 unused_return = self.detect_unused_return_values(f)
                 if unused_return:
 
