@@ -1149,16 +1149,16 @@ class FunctionSolc(CallerContextExpression):
 
         return None
 
-    def _find_start_loop(self, node: Node, visited: List[Node]) -> Optional[Node]:
+    def _find_if_loop(self, node: Node, visited: List[Node]) -> Optional[Node]:
         if node in visited:
             return None
 
-        if node.type == NodeType.STARTLOOP:
+        if node.type == NodeType.IFLOOP:
             return node
 
         visited = visited + [node]
         for father in node.fathers:
-            ret = self._find_start_loop(father, visited)
+            ret = self._find_if_loop(father, visited)
             if ret:
                 return ret
 
@@ -1181,15 +1181,15 @@ class FunctionSolc(CallerContextExpression):
         end_node.add_father(node)
 
     def _fix_continue_node(self, node: Node) -> None:
-        start_node = self._find_start_loop(node, [])
+        if_loop_node = self._find_if_loop(node, [])
 
-        if not start_node:
+        if not if_loop_node:
             raise ParsingError(f"Continue in no-loop context {node.node_id}")
 
         for son in node.sons:
             son.remove_father(node)
-        node.set_sons([start_node])
-        start_node.add_father(node)
+        node.set_sons([if_loop_node])
+        if_loop_node.add_father(node)
 
     def _fix_try(self, node: Node) -> None:
         end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
