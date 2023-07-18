@@ -443,6 +443,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         # Look for type(X).max / min
         # Because we looked at the AST structure, we need to look into the nested expression
         # Hopefully this is always on a direct sub field, and there is no weird construction
+        # pylint: disable=too-many-nested-blocks
         if isinstance(expression.expression, CallExpression) and expression.member_name in [
             "min",
             "max",
@@ -462,10 +463,22 @@ class ExpressionToSlithIR(ExpressionVisitor):
                         constant_type = type_found
                     else:
                         # type(enum).max/min
-                        assert isinstance(type_expression_found, Identifier)
-                        type_found_in_expression = type_expression_found.value
-                        assert isinstance(type_found_in_expression, (EnumContract, EnumTopLevel))
-                        type_found = UserDefinedType(type_found_in_expression)
+                        # Case when enum is in another contract e.g. type(C.E).max
+                        if isinstance(type_expression_found, MemberAccess):
+                            contract = type_expression_found.expression.value
+                            assert isinstance(contract, Contract)
+                            for enum in contract.enums:
+                                if enum.name == type_expression_found.member_name:
+                                    type_found_in_expression = enum
+                                    type_found = UserDefinedType(enum)
+                                    break
+                        else:
+                            assert isinstance(type_expression_found, Identifier)
+                            type_found_in_expression = type_expression_found.value
+                            assert isinstance(
+                                type_found_in_expression, (EnumContract, EnumTopLevel)
+                            )
+                            type_found = UserDefinedType(type_found_in_expression)
                         constant_type = None
                         min_value = type_found_in_expression.min
                         max_value = type_found_in_expression.max
@@ -522,6 +535,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
             # Lookup errors referred to as member of contract e.g. Test.myError.selector
             if expression.member_name in expr.custom_errors_as_dict:
                 set_val(expression, expr.custom_errors_as_dict[expression.member_name])
+                return
+            # Lookup enums when in a different contract e.g. C.E
+            if str(expression) in expr.enums_as_dict:
+                set_val(expression, expr.enums_as_dict[str(expression)])
                 return
 
         val_ref = ReferenceVariable(self._node)
