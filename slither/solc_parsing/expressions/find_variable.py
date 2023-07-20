@@ -81,10 +81,11 @@ def _find_variable_in_function_parser(
     if referenced_declaration and referenced_declaration in func_variables_renamed:
         return func_variables_renamed[referenced_declaration].underlying_variable
 
-    # If not found, check in state variables
-    state_variables = function_parser.underlying_function.contract.variables_as_dict
-    if var_name in state_variables:
-        return state_variables[var_name]
+    if not isinstance(function_parser.underlying_function, FunctionTopLevel):
+        # If not found, check in state variables
+        state_variables = function_parser.underlying_function.contract.variables_as_dict
+        if var_name in state_variables:
+            return state_variables[var_name]
 
     # If not found, check for name
     func_variables = function_parser.underlying_function.variables_as_dict
