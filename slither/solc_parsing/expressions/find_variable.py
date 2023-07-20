@@ -87,6 +87,12 @@ def _find_variable_in_function_parser(
         if var_name in state_variables:
             return state_variables[var_name]
 
+    # If not found, check in top level variables
+    top_level_variables = function_parser.underlying_function.compilation_unit.variables_top_level
+    for top_level_variable in top_level_variables:
+        if top_level_variable.name == var_name:
+            return top_level_variable
+
     # If not found, check for name
     func_variables = function_parser.underlying_function.variables_as_dict
     if var_name in func_variables:
