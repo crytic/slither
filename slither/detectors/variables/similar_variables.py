@@ -2,7 +2,7 @@
 Check for state variables too similar
 Do not check contract inheritance
 """
-import difflib
+import cydifflib
 from typing import List, Set, Tuple
 
 from slither.core.declarations.contract import Contract
@@ -47,7 +47,7 @@ class SimilarVarsDetection(AbstractDetector):
         Returns:
             bool: true if names are similar
         """
-        val = difflib.SequenceMatcher(a=seq1, b=seq2).ratio()
+        val = cydifflib.SequenceMatcher(a=seq1, b=seq2).ratio()
         ret = val > 0.90
         return ret
 
