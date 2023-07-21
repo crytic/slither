@@ -106,6 +106,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         self._available_functions_as_dict: Optional[Dict[str, "Function"]] = None
         self._all_functions_called: Optional[List["InternalCallType"]] = None
+        self._functions_declared: List["Function"] = None
 
         self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
         self.file_scope: "FileScope" = scope
@@ -597,7 +598,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         list(Function): List of the functions defined within the contract (not inherited)
         """
-        return [f for f in self.functions if f.contract_declarer == self]
+        if self._functions_declared is None:
+            self._functions_declared = [f for f in self.functions if f.contract_declarer == self]
+
+        return self._functions_declared
 
     @property
     def functions_entry_points(self) -> List["FunctionContract"]:

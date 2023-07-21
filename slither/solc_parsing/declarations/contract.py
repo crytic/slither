@@ -450,7 +450,7 @@ class ContractSolc(CallerContextExpression):
         try:
             elements_no_params = self._functions_no_params
             getter = lambda c: c.functions_parser
-            getter_available = lambda c: c.functions_declared
+            getter_available = lambda c: [f for f in c.functions if f.contract_declarer == c]
             Cls = FunctionContract
             Cls_parser = FunctionSolc
             functions = self._analyze_params_elements(
