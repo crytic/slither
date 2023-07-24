@@ -385,7 +385,17 @@ def integrate_value_gas(result: List[Operation]) -> List[Operation]:
 ###################################################################################
 
 
-def get_declared_param_names(ins: Call) -> Optional[List[str]]:
+def get_declared_param_names(
+    ins: Union[
+        NewStructure,
+        NewContract,
+        InternalCall,
+        LibraryCall,
+        HighLevelCall,
+        InternalDynamicCall,
+        EventCall,
+    ]
+) -> Optional[List[str]]:
     """
     Given a call operation, return the list of parameter names, in the order
     listed in the function declaration.
@@ -400,13 +410,6 @@ def get_declared_param_names(ins: Call) -> Optional[List[str]]:
     """
     if isinstance(ins, NewStructure):
         return [x.name for x in ins.structure.elems_ordered if not isinstance(x.type, MappingType)]
-    if isinstance(ins, NewContract):
-        return [p.name for p in ins.contract.constructor.parameters]
-    if isinstance(ins, (LowLevelCall, NewElementaryType, NewArray)):
-        # named arguments are incompatible with these call forms
-        assert False
-    if isinstance(ins, HighLevelCall) and isinstance(ins.function, str):
-        return None
     if isinstance(ins, (InternalCall, LibraryCall, HighLevelCall)):
         if isinstance(ins.function, Function):
             return [p.name for p in ins.function.parameters]
@@ -414,7 +417,7 @@ def get_declared_param_names(ins: Call) -> Optional[List[str]]:
     if isinstance(ins, InternalDynamicCall):
         return [p.name for p in ins.function_type.params]
 
-    assert isinstance(ins, EventCall)
+    assert isinstance(ins, (EventCall, NewContract))
     return None
 
 
@@ -435,9 +438,6 @@ def reorder_arguments(
     #### Returns
     Reordered arguments to constructor call, now in declaration order
     """
-    assert isinstance(args, list)
-    assert isinstance(call_names, list)
-    assert isinstance(decl_names, list)
     assert len(args) == len(call_names)
     assert len(call_names) == len(decl_names)
 
@@ -499,6 +499,18 @@ def propagate_type_and_convert_call(result: List[Operation], node: "Node") -> Li
                 ins.call_gas = calls_gas[ins.call_id]
 
         if isinstance(ins, Call) and (ins.names is not None):
+            assert isinstance(
+                ins,
+                (
+                    NewStructure,
+                    NewContract,
+                    InternalCall,
+                    LibraryCall,
+                    HighLevelCall,
+                    InternalDynamicCall,
+                    EventCall,
+                ),
+            )
             decl_param_names = get_declared_param_names(ins)
             if decl_param_names is not None:
                 call_data = reorder_arguments(call_data, ins.names, decl_param_names)
