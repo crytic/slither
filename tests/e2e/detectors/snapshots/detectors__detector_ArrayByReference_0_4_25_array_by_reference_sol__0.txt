@@ -1,0 +1,14 @@
+D.f() (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#42-48) passes array D.x (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#39) by reference to C.setByValue(uint256[1]) (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#21-23) which only takes arrays by value
+
+C.g() (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#10-15) passes array C.g().y (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#11) by reference to C.setByValueAndReturn(uint256[1]) (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#25-28) which only takes arrays by value
+
+C.f() (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#4-8) passes array C.x (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#2) by reference to C.setByValueAndReturn(uint256[1]) (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#25-28) which only takes arrays by value
+
+C.f() (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#4-8) passes array C.x (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#2) by reference to C.setByValue(uint256[1]) (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#21-23) which only takes arrays by value
+
+D.f() (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#42-48) passes array D.x (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#39) by reference to C.setByValueAndReturn(uint256[1]) (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#25-28) which only takes arrays by value
+
+C.g() (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#10-15) passes array C.g().y (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#11) by reference to C.setByValue(uint256[1]) (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#21-23) which only takes arrays by value
+
+E.f() (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#57-61) passes array E.x (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#54) by reference to E.setByValue(uint256[1],uint256[1]) (tests/e2e/detectors/test_data/array-by-reference/0.4.25/array_by_reference.sol#63-66) which only takes arrays by value
+

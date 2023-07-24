@@ -1,0 +1,2 @@
+MyConc.bad(address) (tests/e2e/detectors/test_data/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol#2-4) ignores return value by dst.call.value(msg.value)() (tests/e2e/detectors/test_data/unchecked-lowlevel/0.5.16/unchecked_lowlevel.sol#3)
+

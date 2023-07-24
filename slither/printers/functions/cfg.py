@@ -19,8 +19,6 @@ class CFG(AbstractPrinter):
         info = ""
         all_files = []
         for contract in self.contracts:  # type: ignore
-            if contract.is_top_level:
-                continue
             for function in contract.functions + list(contract.modifiers):
                 if filename:
                     new_filename = f"{filename}-{contract.name}-{function.full_name}.dot"

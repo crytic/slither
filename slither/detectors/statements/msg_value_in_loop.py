@@ -79,7 +79,7 @@ contract MsgValueInLoop{
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = """
-Track msg.value through a local variable and decrease its amount on every iteration/usage.
+Provide an explicit array of amounts alongside the receivers array, and check that the sum of all amounts matches `msg.value`.
 """
 
     def _detect(self) -> List[Output]:

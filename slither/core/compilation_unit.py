@@ -13,7 +13,7 @@ from slither.core.declarations import (
     Function,
     Modifier,
 )
-from slither.core.declarations.custom_error import CustomError
+from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
@@ -46,7 +46,7 @@ class SlitherCompilationUnit(Context):
         self._using_for_top_level: List[UsingForTopLevel] = []
         self._pragma_directives: List[Pragma] = []
         self._import_directives: List[Import] = []
-        self._custom_errors: List[CustomError] = []
+        self._custom_errors: List[CustomErrorTopLevel] = []
         self._user_defined_value_types: Dict[str, TypeAliasTopLevel] = {}
 
         self._all_functions: Set[Function] = set()
@@ -128,7 +128,7 @@ class SlitherCompilationUnit(Context):
         """list(Contract): List of contracts that are derived and not inherited."""
         inheritances = [x.inheritance for x in self.contracts]
         inheritance = [item for sublist in inheritances for item in sublist]
-        return [c for c in self.contracts if c not in inheritance and not c.is_top_level]
+        return [c for c in self.contracts if c not in inheritance]
 
     def get_contract_from_name(self, contract_name: Union[str, Constant]) -> List[Contract]:
         """
@@ -216,7 +216,7 @@ class SlitherCompilationUnit(Context):
         return self._using_for_top_level
 
     @property
-    def custom_errors(self) -> List[CustomError]:
+    def custom_errors(self) -> List[CustomErrorTopLevel]:
         return self._custom_errors
 
     @property

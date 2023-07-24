@@ -32,6 +32,14 @@ contract C {
         } catch {
             actualBalance = 0;
         }
+
+        try ERC20(msg.sender).balanceOf(address(this)) returns (uint balance) {
+            uint c;
+            for (uint i; i < balance; i++) {
+                c++;
+            }
+        } catch {
+        }
     }
 
     function tryCatchContractDeployment() public {

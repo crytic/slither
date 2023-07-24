@@ -4,7 +4,9 @@ from typing import Union
 from slither.exceptions import SlitherError
 
 
-def convert_string_to_fraction(val: Union[str, int]) -> Fraction:
+def convert_string_to_fraction(val: Union[str, bytes, int]) -> Fraction:
+    if isinstance(val, bytes):
+        return int.from_bytes(val, byteorder="big")
     if isinstance(val, int):
         return Fraction(val)
     if val.startswith(("0x", "0X")):

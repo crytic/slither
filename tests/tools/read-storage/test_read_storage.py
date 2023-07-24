@@ -1,64 +1,15 @@
-import json
 import re
-import shutil
-import subprocess
-from time import sleep
+import json
 from pathlib import Path
-from typing import Generator
 
 import pytest
 from deepdiff import DeepDiff
-from web3 import Web3
 from web3.contract import Contract
 
 from slither import Slither
-from slither.tools.read_storage import SlitherReadStorage
+from slither.tools.read_storage import SlitherReadStorage, RpcInfo
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
-
-# pylint: disable=too-few-public-methods
-class GanacheInstance:
-    def __init__(self, provider: str, eth_address: str, eth_privkey: str):
-        self.provider = provider
-        self.eth_address = eth_address
-        self.eth_privkey = eth_privkey
-
-
-@pytest.fixture(scope="module", name="web3")
-def fixture_web3(ganache: GanacheInstance):
-    w3 = Web3(Web3.HTTPProvider(ganache.provider, request_kwargs={"timeout": 30}))
-    return w3
-
-
-@pytest.fixture(scope="module", name="ganache")
-def fixture_ganache() -> Generator[GanacheInstance, None, None]:
-    """Fixture that runs ganache"""
-    if not shutil.which("ganache"):
-        raise Exception(
-            "ganache was not found in PATH, you can install it with `npm install -g ganache`"
-        )
-
-    # Address #1 when ganache is run with `--wallet.seed test`, it starts with 1000 ETH
-    eth_address = "0xae17D2dD99e07CA3bF2571CCAcEAA9e2Aefc2Dc6"
-    eth_privkey = "0xe48ba530a63326818e116be262fd39ae6dcddd89da4b1f578be8afd4e8894b8d"
-    eth = int(1e18 * 1e6)
-    port = 8545
-    with subprocess.Popen(
-        f"""ganache
-        --port {port}
-        --chain.networkId 1
-        --chain.chainId 1
-        --account {eth_privkey},{eth}
-        """.replace(
-            "\n", " "
-        ),
-        shell=True,
-    ) as p:
-
-        sleep(3)
-        yield GanacheInstance(f"http://127.0.0.1:{port}", eth_address, eth_privkey)
-        p.kill()
-        p.wait()
 
 
 def get_source_file(file_path) -> str:
@@ -89,22 +40,29 @@ def deploy_contract(w3, ganache, contract_bin, contract_abi) -> Contract:
 
 
 # pylint: disable=too-many-locals
+@pytest.mark.parametrize(
+    "test_contract, storage_file",
+    [("StorageLayout", "storage_layout"), ("UnstructuredStorageLayout", "unstructured_storage")],
+)
 @pytest.mark.usefixtures("web3", "ganache")
-def test_read_storage(web3, ganache) -> None:
+def test_read_storage(test_contract, storage_file, web3, ganache, solc_binary_path) -> None:
+    solc_path = solc_binary_path(version="0.8.10")
+
     assert web3.is_connected()
-    bin_path = Path(TEST_DATA_DIR, "StorageLayout.bin").as_posix()
-    abi_path = Path(TEST_DATA_DIR, "StorageLayout.abi").as_posix()
+    bin_path = Path(TEST_DATA_DIR, f"{test_contract}.bin").as_posix()
+    abi_path = Path(TEST_DATA_DIR, f"{test_contract}.abi").as_posix()
     bytecode = get_source_file(bin_path)
     abi = get_source_file(abi_path)
     contract = deploy_contract(web3, ganache, bytecode, abi)
     contract.functions.store().transact({"from": ganache.eth_address})
     address = contract.address
 
-    sl = Slither(Path(TEST_DATA_DIR, "storage_layout-0.8.10.sol").as_posix())
+    sl = Slither(Path(TEST_DATA_DIR, f"{test_contract}.sol").as_posix(), solc=solc_path)
     contracts = sl.contracts
 
-    srs = SlitherReadStorage(contracts, 100)
-    srs.rpc = ganache.provider
+    rpc_info: RpcInfo = RpcInfo(ganache.provider)
+    srs = SlitherReadStorage(contracts, 100, rpc_info)
+    srs.unstructured = True
     srs.storage_address = address
     srs.get_all_storage_variables()
     srs.get_storage_layout()
@@ -114,7 +72,7 @@ def test_read_storage(web3, ganache) -> None:
         slot_infos_json = srs.to_json()
         json.dump(slot_infos_json, file, indent=4)
 
-    expected_file = Path(TEST_DATA_DIR, "TEST_storage_layout.json").as_posix()
+    expected_file = Path(TEST_DATA_DIR, f"TEST_{storage_file}.json").as_posix()
 
     with open(expected_file, "r", encoding="utf8") as f:
         expected = json.load(f)

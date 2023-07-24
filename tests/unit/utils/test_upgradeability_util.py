@@ -1,8 +1,6 @@
 import os
 from pathlib import Path
 
-from solc_select import solc_select
-
 from slither import Slither
 from slither.core.expressions import Literal
 from slither.utils.upgradeability import (
@@ -16,30 +14,52 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data" / "upgradeability_
 
 
 # pylint: disable=too-many-locals
-def test_upgrades_compare() -> None:
-    solc_select.switch_global_version("0.8.2", always_install=True)
+def test_upgrades_compare(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.2")
 
-    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.8.2.sol"))
+    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.8.2.sol"), solc=solc_path)
     v1 = sl.get_contract_from_name("ContractV1")[0]
     v2 = sl.get_contract_from_name("ContractV2")[0]
-    missing_vars, new_vars, tainted_vars, new_funcs, modified_funcs, tainted_funcs = compare(v1, v2)
+    (
+        missing_vars,
+        new_vars,
+        tainted_vars,
+        new_funcs,
+        modified_funcs,
+        tainted_funcs,
+        tainted_contracts,
+    ) = compare(v1, v2, include_external=True)
     assert len(missing_vars) == 0
     assert new_vars == [v2.get_state_variable_from_name("stateC")]
     assert tainted_vars == [
-        v2.get_state_variable_from_name("stateB"),
         v2.get_state_variable_from_name("bug"),
     ]
-    assert new_funcs == [v2.get_function_from_signature("i()")]
+    assert new_funcs == [
+        v2.get_function_from_signature("i()"),
+        v2.get_function_from_signature("erc20Transfer(address,address,uint256)"),
+    ]
     assert modified_funcs == [v2.get_function_from_signature("checkB()")]
     assert tainted_funcs == [
-        v2.get_function_from_signature("g(uint256)"),
         v2.get_function_from_signature("h()"),
+    ]
+    erc20 = sl.get_contract_from_name("ERC20")[0]
+    assert len(tainted_contracts) == 1
+    assert tainted_contracts[0].contract == erc20
+    assert set(tainted_contracts[0].tainted_functions) == {
+        erc20.get_function_from_signature("transfer(address,uint256)"),
+        erc20.get_function_from_signature("_transfer(address,address,uint256)"),
+        erc20.get_function_from_signature("_burn(address,uint256)"),
+        erc20.get_function_from_signature("balanceOf(address)"),
+        erc20.get_function_from_signature("_mint(address,uint256)"),
+    }
+    assert tainted_contracts[0].tainted_variables == [
+        erc20.get_state_variable_from_name("_balances")
     ]
 
 
-def test_upgrades_implementation_var() -> None:
-    solc_select.switch_global_version("0.8.2", always_install=True)
-    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.8.2.sol"))
+def test_upgrades_implementation_var(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.2")
+    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.8.2.sol"), solc=solc_path)
 
     erc_1967_proxy = sl.get_contract_from_name("ERC1967Proxy")[0]
     storage_proxy = sl.get_contract_from_name("InheritedStorageProxy")[0]
@@ -53,8 +73,8 @@ def test_upgrades_implementation_var() -> None:
     assert target == storage_proxy.get_state_variable_from_name("implementation")
     assert slot.slot == 1
 
-    solc_select.switch_global_version("0.5.0", always_install=True)
-    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.5.0.sol"))
+    solc_path = solc_binary_path("0.5.0")
+    sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.5.0.sol"), solc=solc_path)
 
     eip_1822_proxy = sl.get_contract_from_name("EIP1822Proxy")[0]
     # zos_proxy = sl.get_contract_from_name("ZosProxy")[0]
