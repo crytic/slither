@@ -1,0 +1,2 @@
+Variable Similar.f().testVariable (tests/e2e/detectors/test_data/similar-names/0.4.25/similar_variables.sol#3) is too similar to Similar.f().textVariable (tests/e2e/detectors/test_data/similar-names/0.4.25/similar_variables.sol#4)
+

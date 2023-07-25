@@ -1,19 +1,17 @@
-# pylint: disable=too-many-lines
+# # pylint: disable=too-many-lines
 import pathlib
 from argparse import ArgumentTypeError
 from collections import defaultdict
-from contextlib import contextmanager
 from inspect import getsourcefile
-from tempfile import NamedTemporaryFile
-from typing import Union, List, Optional, Dict, Callable
+from typing import Union, List, Dict, Callable
 
 import pytest
-from solc_select import solc_select
 from solc_select.solc_select import valid_version as solc_valid_version
 
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
+from slither.core.solidity_types import ArrayType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
@@ -230,45 +228,7 @@ def phi_values_inserted(f: Function) -> None:
                         assert have_phi_for_var(df, ssa_lvalue)
 
 
-@contextmanager
-def select_solc_version(version: Optional[str]) -> None:
-    """Selects solc version to use for running tests.
-
-    If no version is provided, latest is used."""
-    # If no solc_version selected just use the latest avail
-    if not version:
-        # This sorts the versions numerically
-        vers = sorted(
-            map(
-                lambda x: (int(x[0]), int(x[1]), int(x[2])),
-                map(lambda x: x.split(".", 3), solc_select.installed_versions()),
-            )
-        )
-        ver = list(vers)[-1]
-        version = ".".join(map(str, ver))
-    solc_select.switch_global_version(version, always_install=True)
-    yield version
-
-
-@contextmanager
-def slither_from_source(source_code: str, solc_version: Optional[str] = None):
-    """Yields a Slither instance using source_code string and solc_version
-
-    Creates a temporary file and changes the solc-version temporary to solc_version.
-    """
-
-    fname = ""
-    try:
-        with NamedTemporaryFile(dir=SCRIPT_DIR, mode="w", suffix=".sol", delete=False) as f:
-            fname = f.name
-            f.write(source_code)
-        with select_solc_version(solc_version):
-            yield Slither(fname)
-    finally:
-        pathlib.Path(fname).unlink()
-
-
-def verify_properties_hold(source_code_or_slither: Union[str, Slither]) -> None:
+def verify_properties_hold(slither: Slither) -> None:
     """Ensures that basic properties of SSA hold true"""
 
     def verify_func(func: Function) -> None:
@@ -289,12 +249,8 @@ def verify_properties_hold(source_code_or_slither: Union[str, Slither]) -> None:
                         _dump_function(f)
                         verify_func(f)
 
-    if isinstance(source_code_or_slither, Slither):
-        verify(source_code_or_slither)
-    else:
-        slither: Slither
-        with slither_from_source(source_code_or_slither) as slither:
-            verify(slither)
+    assert isinstance(slither, Slither)
+    verify(slither)
 
 
 def _dump_function(f: Function) -> None:
@@ -327,8 +283,8 @@ def get_ssa_of_type(f: Union[Function, Node], ssatype) -> List[Operation]:
     return get_filtered_ssa(f, lambda ssanode: isinstance(ssanode, ssatype))
 
 
-def test_multi_write() -> None:
-    contract = """
+def test_multi_write(slither_from_source) -> None:
+    source = """
     pragma solidity ^0.8.11;
     contract Test {
     function multi_write(uint val) external pure returns(uint) {
@@ -337,11 +293,12 @@ def test_multi_write() -> None:
         val = 3;
     }
     }"""
-    verify_properties_hold(contract)
+    with slither_from_source(source) as slither:
+        verify_properties_hold(slither)
 
 
-def test_single_branch_phi() -> None:
-    contract = """
+def test_single_branch_phi(slither_from_source) -> None:
+    source = """
         pragma solidity ^0.8.11;
         contract Test {
         function single_branch_phi(uint val) external pure returns(uint) {
@@ -352,11 +309,12 @@ def test_single_branch_phi() -> None:
         }
         }
         """
-    verify_properties_hold(contract)
+    with slither_from_source(source) as slither:
+        verify_properties_hold(slither)
 
 
-def test_basic_phi() -> None:
-    contract = """
+def test_basic_phi(slither_from_source) -> None:
+    source = """
     pragma solidity ^0.8.11;
     contract Test {
     function basic_phi(uint val) external pure returns(uint) {
@@ -369,11 +327,12 @@ def test_basic_phi() -> None:
     }
     }
     """
-    verify_properties_hold(contract)
+    with slither_from_source(source) as slither:
+        verify_properties_hold(slither)
 
 
-def test_basic_loop_phi() -> None:
-    contract = """
+def test_basic_loop_phi(slither_from_source) -> None:
+    source = """
     pragma solidity ^0.8.11;
     contract Test {
     function basic_loop_phi(uint val) external pure returns(uint) {
@@ -384,12 +343,13 @@ def test_basic_loop_phi() -> None:
     }
     }
     """
-    verify_properties_hold(contract)
+    with slither_from_source(source) as slither:
+        verify_properties_hold(slither)
 
 
 @pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
-def test_phi_propagation_loop():
-    contract = """
+def test_phi_propagation_loop(slither_from_source):
+    source = """
      pragma solidity ^0.8.11;
      contract Test {
      function looping(uint v) external pure returns(uint) {
@@ -405,12 +365,13 @@ def test_phi_propagation_loop():
     }
     }
     """
-    verify_properties_hold(contract)
+    with slither_from_source(source) as slither:
+        verify_properties_hold(slither)
 
 
 @pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
-def test_free_function_properties():
-    contract = """
+def test_free_function_properties(slither_from_source):
+    source = """
         pragma solidity ^0.8.11;
 
         function free_looping(uint v) returns(uint) {
@@ -427,10 +388,11 @@ def test_free_function_properties():
 
        contract Test {}
        """
-    verify_properties_hold(contract)
+    with slither_from_source(source) as slither:
+        verify_properties_hold(slither)
 
 
-def test_ssa_inter_transactional() -> None:
+def test_ssa_inter_transactional(slither_from_source) -> None:
     source = """
     pragma solidity ^0.8.11;
     contract A {
@@ -473,7 +435,7 @@ def test_ssa_inter_transactional() -> None:
 
 
 @pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
-def test_ssa_phi_callbacks():
+def test_ssa_phi_callbacks(slither_from_source):
     source = """
     pragma solidity ^0.8.11;
     contract A {
@@ -532,7 +494,7 @@ def test_ssa_phi_callbacks():
 
 
 @pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
-def test_storage_refers_to():
+def test_storage_refers_to(slither_from_source):
     """Test the storage aspects of the SSA IR
 
     When declaring a var as being storage, start tracking what storage it refers_to.
@@ -601,7 +563,7 @@ def test_storage_refers_to():
 @pytest.mark.skipif(
     not valid_version("0.4.0"), reason="Solidity version 0.4.0 not available on this platform"
 )
-def test_initial_version_exists_for_locals():
+def test_initial_version_exists_for_locals(slither_from_source):
     """
     In solidity you can write statements such as
     uint a = a + 1, this test ensures that can be handled for local variables.
@@ -638,7 +600,7 @@ def test_initial_version_exists_for_locals():
 @pytest.mark.skipif(
     not valid_version("0.4.0"), reason="Solidity version 0.4.0 not available on this platform"
 )
-def test_initial_version_exists_for_state_variables():
+def test_initial_version_exists_for_state_variables(slither_from_source):
     """
     In solidity you can write statements such as
     uint a = a + 1, this test ensures that can be handled for state variables.
@@ -675,7 +637,7 @@ def test_initial_version_exists_for_state_variables():
 
 
 @pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
-def test_initial_version_exists_for_state_variables_function_assign():
+def test_initial_version_exists_for_state_variables_function_assign(slither_from_source):
     """
     In solidity you can write statements such as
     uint a = a + 1, this test ensures that can be handled for local variables.
@@ -717,7 +679,7 @@ def test_initial_version_exists_for_state_variables_function_assign():
 @pytest.mark.skipif(
     not valid_version("0.4.0"), reason="Solidity version 0.4.0 not available on this platform"
 )
-def test_return_local_before_assign():
+def test_return_local_before_assign(slither_from_source):
     src = """
     // this require solidity < 0.5
     // a variable can be returned before declared. Ensure it can be
@@ -747,7 +709,7 @@ def test_return_local_before_assign():
 @pytest.mark.skipif(
     not valid_version("0.5.0"), reason="Solidity version 0.5.0 not available on this platform"
 )
-def test_shadow_local():
+def test_shadow_local(slither_from_source):
     src = """
     contract A {
      // this require solidity 0.5
@@ -772,7 +734,7 @@ def test_shadow_local():
 
 
 @pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
-def test_multiple_named_args_returns():
+def test_multiple_named_args_returns(slither_from_source):
     """Verifies that named arguments and return values have correct versions
 
     Each arg/ret have an initial version, version 0, and is written once and should
@@ -801,7 +763,7 @@ def test_multiple_named_args_returns():
 
 
 @pytest.mark.xfail(reason="Tests for wanted state of SSA IR, not current.", strict=True)
-def test_memory_array():
+def test_memory_array(slither_from_source):
     src = """
     contract MemArray {
         struct A {
@@ -867,7 +829,7 @@ def test_memory_array():
 
 
 @pytest.mark.xfail(reason="Tests for wanted state of SSA IR, not current.", strict=True)
-def test_storage_array():
+def test_storage_array(slither_from_source):
     src = """
     contract StorageArray {
         struct A {
@@ -922,7 +884,7 @@ def test_storage_array():
 
 
 @pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
-def test_issue_468():
+def test_issue_468(slither_from_source):
     """
     Ensure issue 468 is corrected as per
     https://github.com/crytic/slither/issues/468#issuecomment-620974151
@@ -976,7 +938,7 @@ def test_issue_468():
 
 
 @pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
-def test_issue_434():
+def test_issue_434(slither_from_source):
     source = """
      contract Contract {
         int public a;
@@ -1030,7 +992,7 @@ def test_issue_434():
 
 
 @pytest.mark.xfail(strict=True, reason="Fails in current slither version. Fix in #1102.")
-def test_issue_473():
+def test_issue_473(slither_from_source):
     source = """
     contract Contract {
     function f() public returns (int) {
@@ -1073,7 +1035,7 @@ def test_issue_473():
         assert second_phi.lvalue in return_value.values
 
 
-def test_issue_1748():
+def test_issue_1748(slither_from_source):
     source = """
     contract Contract {
         uint[] arr;
@@ -1088,3 +1050,69 @@ def test_issue_1748():
         operations = f.slithir_operations
         assign_op = operations[0]
         assert isinstance(assign_op, InitArray)
+
+
+def test_issue_1776(slither_from_source):
+    source = """
+    contract Contract {
+        function foo() public returns (uint) {
+            uint[5][10][] memory arr = new uint[5][10][](2);
+            return 0;
+        }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+        f = c.functions[0]
+        operations = f.slithir_operations
+        new_op = operations[0]
+        lvalue = new_op.lvalue
+        lvalue_type = lvalue.type
+        assert isinstance(lvalue_type, ArrayType)
+        assert lvalue_type.is_dynamic
+        lvalue_type1 = lvalue_type.type
+        assert isinstance(lvalue_type1, ArrayType)
+        assert not lvalue_type1.is_dynamic
+        assert lvalue_type1.length_value.value == "10"
+        lvalue_type2 = lvalue_type1.type
+        assert isinstance(lvalue_type2, ArrayType)
+        assert not lvalue_type2.is_dynamic
+        assert lvalue_type2.length_value.value == "5"
+
+
+def test_issue_1846_ternary_in_if(slither_from_source):
+    source = """
+    contract Contract {
+        function foo(uint x) public returns (uint y) {
+            if (x > 0) {
+                y = x > 1 ? 2 : 3;
+            } else {
+                y = 4;
+            }
+        }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+        f = c.functions[0]
+        node = f.nodes[1]
+        assert node.type == NodeType.IF
+        assert node.son_true.type == NodeType.IF
+        assert node.son_false.type == NodeType.EXPRESSION
+
+
+def test_issue_1846_ternary_in_ternary(slither_from_source):
+    source = """
+        contract Contract {
+            function foo(uint x) public returns (uint y) {
+                y = x > 0 ? x > 1 ? 2 : 3 : 4;
+            }
+        }
+        """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+        f = c.functions[0]
+        node = f.nodes[1]
+        assert node.type == NodeType.IF
+        assert node.son_true.type == NodeType.IF
+        assert node.son_false.type == NodeType.EXPRESSION

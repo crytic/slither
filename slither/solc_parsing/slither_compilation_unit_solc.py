@@ -33,6 +33,10 @@ logger = logging.getLogger("SlitherSolcParsing")
 logger.setLevel(logging.INFO)
 
 
+class InheritanceResolutionError(SlitherException):
+    pass
+
+
 def _handle_import_aliases(
     symbol_aliases: Dict, import_directive: Import, scope: FileScope
 ) -> None:
@@ -194,6 +198,13 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def parse_top_level_from_loaded_json(self, data_loaded: Dict, filename: str) -> None:
+        if not data_loaded or data_loaded is None:
+            logger.error(
+                "crytic-compile returned an empty AST. "
+                "If you are trying to analyze a contract from etherscan or similar make sure it has source code available."
+            )
+            return
+
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
@@ -402,10 +413,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         # First we save all the contracts in a dict
         # the key is the contractid
         for contract in self._underlying_contract_to_parser:
-            if (
-                contract.name.startswith("SlitherInternalTopLevelContract")
-                and not contract.is_top_level
-            ):
+            if contract.name.startswith("SlitherInternalTopLevelContract"):
                 raise SlitherException(
                     # region multi-line-string
                     """Your codebase has a contract named 'SlitherInternalTopLevelContract'.
@@ -435,7 +443,12 @@ Please rename it, this name is reserved for Slither's internals"""
                     target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
                         contract_name
                     )
-                    assert target
+                    if target == contract_parser.underlying_contract:
+                        raise InheritanceResolutionError(
+                            "Could not resolve contract inheritance. This is likely caused by an import renaming that collides with existing names (see https://github.com/crytic/slither/issues/1758)."
+                            f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name."
+                        )
+                    assert target, f"Contract {contract_name} not found"
                     ancestors.append(target)
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
@@ -745,12 +758,46 @@ Please rename it, this name is reserved for Slither's internals"""
                     self._underlying_contract_to_parser[contract].log_incorrect_parsing(
                         f"Impossible to generate IR for {contract.name}.{func.name} ({func.source_mapping}):\n {e}"
                     )
-
-            contract.convert_expression_to_slithir_ssa()
+                except Exception as e:
+                    func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                    logger.error(
+                        f"\nFailed to generate IR for {contract.name}.{func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{contract.name}.{func.name} ({func.source_mapping}):\n "
+                        f"{func_expressions}"
+                    )
+                    raise e
+            try:
+                contract.convert_expression_to_slithir_ssa()
+            except Exception as e:
+                logger.error(
+                    f"\nFailed to convert IR to SSA for {contract.name} contract. Please open an issue https://github.com/crytic/slither/issues.\n "
+                )
+                raise e
 
         for func in self._compilation_unit.functions_top_level:
-            func.generate_slithir_and_analyze()
-            func.generate_slithir_ssa({})
+            try:
+                func.generate_slithir_and_analyze()
+            except AttributeError as e:
+                logger.error(
+                    f"Impossible to generate IR for top level function {func.name} ({func.source_mapping}):\n {e}"
+                )
+            except Exception as e:
+                func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                logger.error(
+                    f"\nFailed to generate IR for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
+                    f"{func_expressions}"
+                )
+                raise e
+
+            try:
+                func.generate_slithir_ssa({})
+            except Exception as e:
+                func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                logger.error(
+                    f"\nFailed to convert IR to SSA for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
+                    f"{func_expressions}"
+                )
+                raise e
+
         self._compilation_unit.propagate_function_calls()
         for contract in self._compilation_unit.contracts:
             contract.fix_phi()

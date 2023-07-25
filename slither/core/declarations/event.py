@@ -45,7 +45,7 @@ class Event(ContractLevel, SourceMapping):
         Returns:
             str: contract.func_name(type1,type2)
         """
-        return self.contract.name + self.full_name
+        return self.contract.name + "." + self.full_name
 
     @property
     def elems(self) -> List["EventVariable"]:

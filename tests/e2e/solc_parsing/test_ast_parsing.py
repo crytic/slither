@@ -308,6 +308,7 @@ ALL_TESTS = [
     Test("units_and_global_variables-0.8.0.sol", VERSIONS_08),
     Test("units_and_global_variables-0.8.4.sol", make_version(8, 4, 6)),
     Test("units_and_global_variables-0.8.7.sol", make_version(8, 7, 9)),
+    Test("global_variables-0.8.18.sol", make_version(8, 18, 18)),
     Test(
         "push-all.sol",
         ALL_VERSIONS,
@@ -428,6 +429,7 @@ ALL_TESTS = [
     Test("user_defined_value_type/in_parenthesis-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("user_defined_value_type/top-level-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("user_defined_value_type/using-for-0.8.8.sol", ["0.8.8"] + make_version(8, 10, 15)),
+    Test("user_defined_value_type/abi-decode-fixed-array.sol", ["0.8.8"] + make_version(8, 10, 15)),
     Test("bytes_call.sol", ["0.8.12"]),
     Test("modifier_identifier_path.sol", VERSIONS_08),
     Test("free_functions/libraries_from_free.sol", ["0.8.12"]),
@@ -451,6 +453,12 @@ ALL_TESTS = [
     Test("yul-top-level-0.8.0.sol", ["0.8.0"]),
     Test("complex_imports/import_aliases_issue_1319/test.sol", ["0.5.12"]),
     Test("yul-state-constant-access.sol", ["0.8.16"]),
+    Test("negate-unary-element.sol", ["0.8.16"]),
+    Test(
+        "assembly-functions.sol",
+        ["0.6.9", "0.7.6", "0.8.16"],
+    ),
+    Test("user_defined_operators-0.8.19.sol", ["0.8.19"]),
 ]
 # create the output folder if needed
 try:
@@ -493,12 +501,9 @@ class TestASTParsing:
 
         actual = generate_output(sl)
 
-        try:
-            with open(expected, "r", encoding="utf8") as f:
-                expected = json.load(f)
-        except OSError:
-            pytest.xfail("the file for this test was not generated")
-            raise
+        assert os.path.isfile(expected), f"Expected file {expected} does not exist"
+        with open(expected, "r", encoding="utf8") as f:
+            expected = json.load(f)
 
         diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
         if diff:

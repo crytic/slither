@@ -1,0 +1,6 @@
+VectorSum.sumAsm(uint256[]) (tests/e2e/detectors/test_data/assembly/0.6.11/inline_assembly_library.sol#14-20) uses assembly
+	- INLINE ASM (tests/e2e/detectors/test_data/assembly/0.6.11/inline_assembly_library.sol#16-18)
+
+VectorSum.sumPureAsm(uint256[]) (tests/e2e/detectors/test_data/assembly/0.6.11/inline_assembly_library.sol#23-45) uses assembly
+	- INLINE ASM (tests/e2e/detectors/test_data/assembly/0.6.11/inline_assembly_library.sol#24-44)
+

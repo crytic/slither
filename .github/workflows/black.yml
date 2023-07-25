@@ -32,7 +32,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python 3.8
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
@@ -42,7 +42,7 @@ jobs:
           cp pyproject.toml .github/linters
 
       - name: Black
-        uses: github/super-linter/slim@v4.9.2
+        uses: super-linter/super-linter/slim@v4.9.2
         if: always()
         env:
           # run linter on everything to catch preexisting problems
