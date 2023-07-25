@@ -21,7 +21,7 @@ setup(
         "eth-abi>=4.0.0",
         "eth-typing>=3.0.0",
         "eth-utils>=2.1.0",
-        "cydifflib>=1.0.1",
+        "cydifflib@git+https://github.com/maxbachmann/CyDifflib.git@35bd095b3c2547fdbf6f270c9ef1d2b545d4007f",
     ],
     extras_require={
         "lint": [
