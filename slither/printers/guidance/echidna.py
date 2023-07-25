@@ -1,5 +1,4 @@
 import json
-import re
 from collections import defaultdict
 from typing import Dict, List, Set, Tuple, NamedTuple, Union
 
@@ -33,6 +32,7 @@ from slither.slithir.operations import (
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
 from slither.utils.output import Output
+from slither.utils.tests_pattern import is_test_contract
 from slither.visitors.expression.constants_folding import ConstantFolding
 
 
@@ -53,9 +53,7 @@ def _extract_payable(contracts) -> Dict[str, List[str]]:
     return ret
 
 
-def _extract_solidity_variable_usage(
-    contracts, sol_var: SolidityVariable
-) -> Dict[str, List[str]]:
+def _extract_solidity_variable_usage(contracts, sol_var: SolidityVariable) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
     for contract in contracts:
         functions_using_sol_var = []
@@ -391,8 +389,7 @@ class Echidna(AbstractPrinter):
             _filename(string)
         """
 
-        filter = r"mock(s)?|test(s)?"
-        contracts = [c for c in self.slither.contracts if not re.search(filter, c.file_scope.filename.absolute, re.IGNORECASE)]
+        contracts = [c for c in self.slither.contracts if not is_test_contract(c)]
 
         payable = _extract_payable(contracts)
         timestamp = _extract_solidity_variable_usage(
@@ -404,9 +401,7 @@ class Echidna(AbstractPrinter):
         msg_sender = _extract_solidity_variable_usage(
             contracts, SolidityVariableComposed("msg.sender")
         )
-        msg_gas = _extract_solidity_variable_usage(
-            contracts, SolidityVariableComposed("msg.gas")
-        )
+        msg_gas = _extract_solidity_variable_usage(contracts, SolidityVariableComposed("msg.gas"))
         assert_usage = _extract_assert(contracts)
         cst_functions = _extract_constant_functions(contracts)
         (cst_used, cst_used_in_binary) = _extract_constants(contracts)
@@ -421,7 +416,7 @@ class Echidna(AbstractPrinter):
 
         external_calls = _have_external_calls(contracts)
 
-        #call_parameters = _call_a_parameter(self.slither, contracts)
+        # call_parameters = _call_a_parameter(self.slither, contracts)
 
         use_balance = _use_balance(contracts)
 
@@ -442,7 +437,7 @@ class Echidna(AbstractPrinter):
             "functions_relations": functions_relations,
             "constructors": constructors,
             "have_external_calls": external_calls,
-            #"call_a_parameter": call_parameters,
+            # "call_a_parameter": call_parameters,
             "use_balance": use_balance,
             "solc_versions": [unit.solc_version for unit in self.slither.compilation_units],
             "with_fallback": with_fallback,
