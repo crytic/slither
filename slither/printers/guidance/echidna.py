@@ -33,7 +33,7 @@ from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant
 from slither.utils.output import Output
 from slither.utils.tests_pattern import is_test_contract
-from slither.visitors.expression.constants_folding import ConstantFolding
+from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
 
 
 def _get_name(f: Union[Function, Variable]) -> str:
