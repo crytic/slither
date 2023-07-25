@@ -2,8 +2,8 @@
 Check for state variables too similar
 Do not check contract inheritance
 """
-import cydifflib
 from typing import List, Set, Tuple
+import cydifflib
 
 from slither.core.declarations.contract import Contract
 from slither.core.variables.local_variable import LocalVariable
