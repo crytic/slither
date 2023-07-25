@@ -10,10 +10,11 @@ from slither.core.declarations.function import (
     FunctionType,
 )
 from slither.core.declarations.function_contract import FunctionContract
-from slither.core.expressions import AssignmentOperation
+from slither.core.expressions import AssignmentOperation, AssignmentOperationType, Identifier
 from slither.core.source_mapping.source_mapping import Source
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.solidity_types.elementary_type import ElementaryType, ElementaryTypeName
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError
@@ -48,6 +49,7 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
 class FunctionSolc(CallerContextExpression):
 
     # elems = [(type, name)]
+    temp_var_num: int = 0
 
     def __init__(
         self,
@@ -1399,6 +1401,46 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
     ###################################################################################
 
+    def __make_temporary_variable_declaration_node(
+            self,
+            node_expression: "Expression",
+            node_source_mapping,  # SourceMapping,
+            node_scope,  # TODO: add type
+            node_function: Function,
+            temp_var: Optional[LocalVariable] = None
+    ) -> (Node, LocalVariable):
+        temp_var_node_parser = self._new_node(
+            NodeType.VARIABLE,
+            node_source_mapping,
+            node_scope
+        )
+        temp_var_node = temp_var_node_parser.underlying_node
+        if temp_var is None:
+            FunctionSolc.temp_var_num += 1
+            temp_var = LocalVariable()
+            temp_var.name = f'temp-var-{FunctionSolc.temp_var_num}'
+            temp_var.type = ElementaryType('bool')
+            temp_var.initialized = True
+            temp_var.set_location('default')
+            temp_var.set_function(node_function)
+        temp_var_node.add_expression(
+            AssignmentOperation(
+                Identifier(temp_var),
+                node_expression,
+                AssignmentOperationType.ASSIGN,
+                None
+            )
+        )
+        temp_var_node.add_variable_declaration(temp_var)
+        return (temp_var_node, temp_var)
+
+    def __link_node_immediately_before(self, new_node: Node, node_in_cfg: Node) -> None:
+        for father in node_in_cfg:
+            father.replace_son(node_in_cfg, new_node)
+            node_in_cfg.remove_father(father)
+            new_node.add_father(father)
+        link_nodes(new_node, node_in_cfg)
+
     def _rewrite_ternary_as_if_else(self) -> bool:
         ternary_found = True
         updated = False
@@ -1407,7 +1449,64 @@ class FunctionSolc(CallerContextExpression):
             for node in self._node_to_nodesolc:
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
-                    st = SplitTernaryExpression(node.expression)
+                    if node.is_conditional():
+                        if node.type == NodeType.IF:
+                            if_node = node
+                            temp_var_node, temp_var = self.__make_temporary_variable_declaration_node(
+                                if_node.expression,
+                                if_node.source_mapping,
+                                if_node.scope,
+                                if_node.function
+                            )
+                            node_variable: Identifier = Identifier(temp_var)
+                            self.__link_node_immediately_before(temp_var_node, if_node)
+                            node_to_be_parsed_instead = temp_var_node
+
+                        elif node.type == NodeType.IFLOOP:
+                            temp_var_node_pre_loop, temp_var = self.__make_temporary_variable_declaration_node(
+                                node.expression,
+                                node.source_mapping,
+                                node.scope,
+                                node.function
+                            )
+                            temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node(
+                                node.expression,
+                                node.source_mapping,
+                                node.scope,
+                                node.function,
+                                temp_var
+                            )
+                            node_variable: Identifier = Identifier(temp_var)
+                            # TODO: refactor
+                            # TODO: fix do while loop case
+                            begin_loop_node: Optional[Node] = None
+                            for father in node.fathers:
+                                if father.type == NodeType.STARTLOOP:
+                                    begin_loop_node = father
+                                    continue
+                                father.replace_son(node, temp_var_node_during_loop)
+                                node.remove_father(father)
+                                temp_var_node_during_loop.add_father(father)
+
+                            assert begin_loop_node
+
+                            node.add_father(temp_var_node_during_loop)
+                            temp_var_node_during_loop.add_son(node)
+
+                            for father in begin_loop_node.fathers:
+                                father.replace_son(begin_loop_node, temp_var_node_pre_loop)
+                                temp_var_node_pre_loop.add_father(father)
+                            begin_loop_node.add_father(temp_var_node_pre_loop)
+                            temp_var_node_pre_loop.add_son(begin_loop_node)
+
+                            node_to_be_parsed_instead = temp_var_node_pre_loop
+
+                        else:
+                            raise TypeError(f'Unknown conditional type {node.type}')
+
+                        node.add_expression(node_variable, bypass_verif_empty=True)
+                        node = node_to_be_parsed_instead  # goes back by cfg
+                    st = SplitTernaryExpression(node.expression, node.is_conditional())
                     condition = st.condition
                     if not condition:
                         raise ParsingError(
