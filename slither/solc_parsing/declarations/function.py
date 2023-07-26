@@ -1448,6 +1448,14 @@ class FunctionSolc(CallerContextExpression):
             new_node.add_father(father)
         link_nodes(new_node, node_in_cfg)
 
+    def __find_start_loop_in_nodes_fathers(self, node: Node) -> Optional[Node]:
+        begin_loop_node: Optional[Node] = None
+        for father in node.fathers:
+            if father.type == NodeType.STARTLOOP:
+                begin_loop_node = father
+                break
+        return begin_loop_node
+
     def _rewrite_ternary_as_if_else(self) -> bool:
         ternary_found = True
         updated = False
@@ -1471,32 +1479,34 @@ class FunctionSolc(CallerContextExpression):
 
                         elif node.type == NodeType.IFLOOP:
                             if_loop_node = node
-                            temp_var_node_pre_loop, temp_var = self.__make_temporary_variable_declaration_node(
-                                if_loop_node.expression,
-                                if_loop_node.source_mapping,
-                                if_loop_node.scope,
-                                if_loop_node.function
-                            )
-                            temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node(
-                                if_loop_node.expression,
-                                if_loop_node.source_mapping,
-                                if_loop_node.scope,
-                                if_loop_node.function,
-                                temp_var
-                            )
+                            begin_loop_node: Optional[Node] = self.__find_start_loop_in_nodes_fathers(if_loop_node)
+                            if begin_loop_node:  # if BEGIN_LOOP is IF_LOOP's father, IF_LOOP represents `while`
+                                temp_var_node_pre_loop, temp_var = self.__make_temporary_variable_declaration_node(
+                                    if_loop_node.expression,
+                                    if_loop_node.source_mapping,
+                                    if_loop_node.scope,
+                                    if_loop_node.function
+                                )
+                                temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node(
+                                    if_loop_node.expression,
+                                    if_loop_node.source_mapping,
+                                    if_loop_node.scope,
+                                    if_loop_node.function,
+                                    temp_var
+                                )
+                                self.__link_node_immediately_before(temp_var_node_during_loop, if_loop_node, begin_loop_node)
+                                self.__link_node_immediately_before(temp_var_node_pre_loop, begin_loop_node)
+                                node_to_be_parsed_instead = temp_var_node_pre_loop
+                            else:
+                                temp_var_node, temp_var = self.__make_temporary_variable_declaration_node(
+                                    if_loop_node.expression,
+                                    if_loop_node.source_mapping,
+                                    if_loop_node.scope,
+                                    if_loop_node.function
+                                )
+                                self.__link_node_immediately_before(temp_var_node, if_loop_node)
+                                node_to_be_parsed_instead = temp_var_node
                             node_variable: Identifier = Identifier(temp_var)
-                            # TODO: fix do while loop case
-                            begin_loop_node: Optional[Node] = None
-                            for father in node.fathers:
-                                if father.type == NodeType.STARTLOOP:
-                                    begin_loop_node = father
-                                    break
-                            assert begin_loop_node
-
-                            self.__link_node_immediately_before(temp_var_node_during_loop, if_loop_node, begin_loop_node)
-                            self.__link_node_immediately_before(temp_var_node_pre_loop, begin_loop_node)
-
-                            node_to_be_parsed_instead = temp_var_node_pre_loop
 
                         else:
                             raise TypeError(f'Unknown conditional type {node.type}')
