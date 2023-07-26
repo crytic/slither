@@ -1434,8 +1434,15 @@ class FunctionSolc(CallerContextExpression):
         temp_var_node.add_variable_declaration(temp_var)
         return (temp_var_node, temp_var)
 
-    def __link_node_immediately_before(self, new_node: Node, node_in_cfg: Node) -> None:
-        for father in node_in_cfg:
+    def __link_node_immediately_before(
+            self,
+            new_node: Node,
+            node_in_cfg: Node,
+            node_not_to_be_detached: Optional[Node] = None
+    ) -> None:
+        for father in node_in_cfg.fathers:
+            if father == node_not_to_be_detached:
+                continue
             father.replace_son(node_in_cfg, new_node)
             node_in_cfg.remove_father(father)
             new_node.add_father(father)
@@ -1463,41 +1470,31 @@ class FunctionSolc(CallerContextExpression):
                             node_to_be_parsed_instead = temp_var_node
 
                         elif node.type == NodeType.IFLOOP:
+                            if_loop_node = node
                             temp_var_node_pre_loop, temp_var = self.__make_temporary_variable_declaration_node(
-                                node.expression,
-                                node.source_mapping,
-                                node.scope,
-                                node.function
+                                if_loop_node.expression,
+                                if_loop_node.source_mapping,
+                                if_loop_node.scope,
+                                if_loop_node.function
                             )
                             temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node(
-                                node.expression,
-                                node.source_mapping,
-                                node.scope,
-                                node.function,
+                                if_loop_node.expression,
+                                if_loop_node.source_mapping,
+                                if_loop_node.scope,
+                                if_loop_node.function,
                                 temp_var
                             )
                             node_variable: Identifier = Identifier(temp_var)
-                            # TODO: refactor
                             # TODO: fix do while loop case
                             begin_loop_node: Optional[Node] = None
                             for father in node.fathers:
                                 if father.type == NodeType.STARTLOOP:
                                     begin_loop_node = father
-                                    continue
-                                father.replace_son(node, temp_var_node_during_loop)
-                                node.remove_father(father)
-                                temp_var_node_during_loop.add_father(father)
-
+                                    break
                             assert begin_loop_node
 
-                            node.add_father(temp_var_node_during_loop)
-                            temp_var_node_during_loop.add_son(node)
-
-                            for father in begin_loop_node.fathers:
-                                father.replace_son(begin_loop_node, temp_var_node_pre_loop)
-                                temp_var_node_pre_loop.add_father(father)
-                            begin_loop_node.add_father(temp_var_node_pre_loop)
-                            temp_var_node_pre_loop.add_son(begin_loop_node)
+                            self.__link_node_immediately_before(temp_var_node_during_loop, if_loop_node, begin_loop_node)
+                            self.__link_node_immediately_before(temp_var_node_pre_loop, begin_loop_node)
 
                             node_to_be_parsed_instead = temp_var_node_pre_loop
 
@@ -1506,7 +1503,7 @@ class FunctionSolc(CallerContextExpression):
 
                         node.add_expression(node_variable, bypass_verif_empty=True)
                         node = node_to_be_parsed_instead  # goes back by cfg
-                    st = SplitTernaryExpression(node.expression, node.is_conditional())
+                    st = SplitTernaryExpression(node.expression)
                     condition = st.condition
                     if not condition:
                         raise ParsingError(
