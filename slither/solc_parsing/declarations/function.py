@@ -14,7 +14,7 @@ from slither.core.expressions import AssignmentOperation, AssignmentOperationTyp
 from slither.core.source_mapping.source_mapping import Source
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
-from slither.core.solidity_types.elementary_type import ElementaryType, ElementaryTypeName
+from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError
