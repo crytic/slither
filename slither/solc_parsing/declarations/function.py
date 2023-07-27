@@ -1470,8 +1470,11 @@ class FunctionSolc(CallerContextExpression):
                 self.__link_node_immediately_before(temp_var_node_pre_loop, begin_loop_node)
             else:
                 self.__link_node_immediately_before(temp_var_node, if_loop_node)
-            node.add_expression(Identifier(temp_var), bypass_verif_empty=True)
-            return temp_var_node
+        else:
+            raise TypeError(f'Unknown conditional type {node.type}')
+
+        node.add_expression(Identifier(temp_var), bypass_verif_empty=True)
+        return temp_var_node
 
 
     def _rewrite_ternary_as_if_else(self) -> bool:
