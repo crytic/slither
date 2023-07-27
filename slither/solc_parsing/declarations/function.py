@@ -11,7 +11,7 @@ from slither.core.declarations.function import (
 )
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import AssignmentOperation, AssignmentOperationType, Identifier
-from slither.core.source_mapping.source_mapping import Source
+from slither.core.source_mapping.source_mapping import Source, SourceMapping
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.core.solidity_types.elementary_type import ElementaryType
@@ -1404,8 +1404,8 @@ class FunctionSolc(CallerContextExpression):
     def __make_temporary_variable_declaration_node(
             self,
             node_expression: "Expression",
-            node_source_mapping,  # SourceMapping,
-            node_scope,  # TODO: add type
+            node_source_mapping: SourceMapping,
+            node_scope: Union[Scope, Function],
             node_function: Function,
             temp_var: Optional[LocalVariable] = None
     ) -> (Node, LocalVariable):
