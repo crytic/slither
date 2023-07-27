@@ -1401,7 +1401,7 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
     ###################################################################################
 
-    def __make_temporary_variable_declaration_node(
+    def __make_temporary_variable_declaration_node_from_condition(
             self,
             node_expression: "Expression",
             node_source_mapping: SourceMapping,
@@ -1465,7 +1465,7 @@ class FunctionSolc(CallerContextExpression):
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
                     if node.is_conditional():
-                        temp_var_node, temp_var = self.__make_temporary_variable_declaration_node(
+                        temp_var_node, temp_var = self.__make_temporary_variable_declaration_node_from_condition(
                             node.expression,
                             node.source_mapping,
                             node.scope,
@@ -1479,7 +1479,7 @@ class FunctionSolc(CallerContextExpression):
                             begin_loop_node: Optional[Node] = self.__find_start_loop_in_nodes_fathers(if_loop_node)
                             if begin_loop_node:  # if BEGIN_LOOP is IF_LOOP's father, IF_LOOP represents `while`
                                 temp_var_node_pre_loop = temp_var_node
-                                temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node(
+                                temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node_from_condition(
                                     if_loop_node.expression,
                                     if_loop_node.source_mapping,
                                     if_loop_node.scope,
