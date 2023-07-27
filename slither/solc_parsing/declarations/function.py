@@ -1403,16 +1403,13 @@ class FunctionSolc(CallerContextExpression):
 
     def __make_temporary_variable_declaration_node_from_condition(
             self,
-            node_expression: "Expression",
-            node_source_mapping: SourceMapping,
-            node_scope: Union[Scope, Function],
-            node_function: Function,
+            node: Node,
             temp_var: Optional[LocalVariable] = None
     ) -> (Node, LocalVariable):
         temp_var_node_parser = self._new_node(
             NodeType.VARIABLE,
-            node_source_mapping,
-            node_scope
+            node.source_mapping,
+            node.scope
         )
         temp_var_node = temp_var_node_parser.underlying_node
         if temp_var is None:
@@ -1422,11 +1419,11 @@ class FunctionSolc(CallerContextExpression):
             temp_var.type = ElementaryType('bool')
             temp_var.initialized = True
             temp_var.set_location('default')
-            temp_var.set_function(node_function)
+            temp_var.set_function(node.function)
         temp_var_node.add_expression(
             AssignmentOperation(
                 Identifier(temp_var),
-                node_expression,
+                node.expression,
                 AssignmentOperationType.ASSIGN,
                 None
             )
@@ -1466,10 +1463,7 @@ class FunctionSolc(CallerContextExpression):
                 if has_cond.result():
                     if node.is_conditional():
                         temp_var_node, temp_var = self.__make_temporary_variable_declaration_node_from_condition(
-                            node.expression,
-                            node.source_mapping,
-                            node.scope,
-                            node.function
+                            node
                         )
                         if node.type == NodeType.IF:
                             self.__link_node_immediately_before(temp_var_node, node)
@@ -1480,10 +1474,7 @@ class FunctionSolc(CallerContextExpression):
                             if begin_loop_node:  # if BEGIN_LOOP is IF_LOOP's father, IF_LOOP represents `while`
                                 temp_var_node_pre_loop = temp_var_node
                                 temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node_from_condition(
-                                    if_loop_node.expression,
-                                    if_loop_node.source_mapping,
-                                    if_loop_node.scope,
-                                    if_loop_node.function,
+                                    if_loop_node,
                                     temp_var
                                 )
                                 self.__link_node_immediately_before(temp_var_node_during_loop, if_loop_node, begin_loop_node)
