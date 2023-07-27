@@ -1465,28 +1465,20 @@ class FunctionSolc(CallerContextExpression):
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
                     if node.is_conditional():
+                        temp_var_node, temp_var = self.__make_temporary_variable_declaration_node(
+                            node.expression,
+                            node.source_mapping,
+                            node.scope,
+                            node.function
+                        )
                         if node.type == NodeType.IF:
-                            if_node = node
-                            temp_var_node, temp_var = self.__make_temporary_variable_declaration_node(
-                                if_node.expression,
-                                if_node.source_mapping,
-                                if_node.scope,
-                                if_node.function
-                            )
-                            node_variable: Identifier = Identifier(temp_var)
-                            self.__link_node_immediately_before(temp_var_node, if_node)
-                            node_to_be_parsed_instead = temp_var_node
+                            self.__link_node_immediately_before(temp_var_node, node)
 
                         elif node.type == NodeType.IFLOOP:
                             if_loop_node = node
                             begin_loop_node: Optional[Node] = self.__find_start_loop_in_nodes_fathers(if_loop_node)
                             if begin_loop_node:  # if BEGIN_LOOP is IF_LOOP's father, IF_LOOP represents `while`
-                                temp_var_node_pre_loop, temp_var = self.__make_temporary_variable_declaration_node(
-                                    if_loop_node.expression,
-                                    if_loop_node.source_mapping,
-                                    if_loop_node.scope,
-                                    if_loop_node.function
-                                )
+                                temp_var_node_pre_loop = temp_var_node
                                 temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node(
                                     if_loop_node.expression,
                                     if_loop_node.source_mapping,
@@ -1496,23 +1488,14 @@ class FunctionSolc(CallerContextExpression):
                                 )
                                 self.__link_node_immediately_before(temp_var_node_during_loop, if_loop_node, begin_loop_node)
                                 self.__link_node_immediately_before(temp_var_node_pre_loop, begin_loop_node)
-                                node_to_be_parsed_instead = temp_var_node_pre_loop
                             else:
-                                temp_var_node, temp_var = self.__make_temporary_variable_declaration_node(
-                                    if_loop_node.expression,
-                                    if_loop_node.source_mapping,
-                                    if_loop_node.scope,
-                                    if_loop_node.function
-                                )
                                 self.__link_node_immediately_before(temp_var_node, if_loop_node)
-                                node_to_be_parsed_instead = temp_var_node
-                            node_variable: Identifier = Identifier(temp_var)
 
                         else:
                             raise TypeError(f'Unknown conditional type {node.type}')
 
-                        node.add_expression(node_variable, bypass_verif_empty=True)
-                        node = node_to_be_parsed_instead  # goes back by cfg
+                        node.add_expression(Identifier(temp_var), bypass_verif_empty=True)
+                        node = temp_var_node  # goes back by cfg
                     st = SplitTernaryExpression(node.expression)
                     condition = st.condition
                     if not condition:
