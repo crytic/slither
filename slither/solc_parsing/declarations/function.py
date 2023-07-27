@@ -11,7 +11,7 @@ from slither.core.declarations.function import (
 )
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import AssignmentOperation, AssignmentOperationType, Identifier
-from slither.core.source_mapping.source_mapping import Source, SourceMapping
+from slither.core.source_mapping.source_mapping import Source
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
 from slither.core.solidity_types.elementary_type import ElementaryType
