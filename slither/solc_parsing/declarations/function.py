@@ -1453,6 +1453,27 @@ class FunctionSolc(CallerContextExpression):
                 break
         return begin_loop_node
 
+    def __inject_condition_expression_from_conditional_node(self, node: Node) -> Node:
+        temp_var_node, temp_var = self.__make_temporary_variable_declaration_node_from_condition(node)
+        if node.type == NodeType.IF:
+            self.__link_node_immediately_before(temp_var_node, node)
+        elif node.type == NodeType.IFLOOP:
+            if_loop_node = node
+            begin_loop_node: Optional[Node] = self.__find_start_loop_in_nodes_fathers(if_loop_node)
+            if begin_loop_node:  # if BEGIN_LOOP is IF_LOOP's father, IF_LOOP represents `while`
+                temp_var_node_pre_loop = temp_var_node
+                temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node_from_condition(
+                    if_loop_node,
+                    temp_var
+                )
+                self.__link_node_immediately_before(temp_var_node_during_loop, if_loop_node, begin_loop_node)
+                self.__link_node_immediately_before(temp_var_node_pre_loop, begin_loop_node)
+            else:
+                self.__link_node_immediately_before(temp_var_node, if_loop_node)
+            node.add_expression(Identifier(temp_var), bypass_verif_empty=True)
+            return temp_var_node
+
+
     def _rewrite_ternary_as_if_else(self) -> bool:
         ternary_found = True
         updated = False
@@ -1462,31 +1483,8 @@ class FunctionSolc(CallerContextExpression):
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
                     if node.is_conditional():
-                        temp_var_node, temp_var = self.__make_temporary_variable_declaration_node_from_condition(
-                            node
-                        )
-                        if node.type == NodeType.IF:
-                            self.__link_node_immediately_before(temp_var_node, node)
-
-                        elif node.type == NodeType.IFLOOP:
-                            if_loop_node = node
-                            begin_loop_node: Optional[Node] = self.__find_start_loop_in_nodes_fathers(if_loop_node)
-                            if begin_loop_node:  # if BEGIN_LOOP is IF_LOOP's father, IF_LOOP represents `while`
-                                temp_var_node_pre_loop = temp_var_node
-                                temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node_from_condition(
-                                    if_loop_node,
-                                    temp_var
-                                )
-                                self.__link_node_immediately_before(temp_var_node_during_loop, if_loop_node, begin_loop_node)
-                                self.__link_node_immediately_before(temp_var_node_pre_loop, begin_loop_node)
-                            else:
-                                self.__link_node_immediately_before(temp_var_node, if_loop_node)
-
-                        else:
-                            raise TypeError(f'Unknown conditional type {node.type}')
-
-                        node.add_expression(Identifier(temp_var), bypass_verif_empty=True)
-                        node = temp_var_node  # goes back by cfg
+                        temp_var_node = self.__inject_condition_expression_from_conditional_node(node)
+                        node = temp_var_node  # goes back by new cfg
                     st = SplitTernaryExpression(node.expression)
                     condition = st.condition
                     if not condition:
