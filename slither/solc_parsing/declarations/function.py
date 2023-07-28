@@ -47,7 +47,6 @@ def link_underlying_nodes(node1: NodeSolc, node2: NodeSolc):
 
 
 class FunctionSolc(CallerContextExpression):
-
     # elems = [(type, name)]
     temp_var_num: int = 0
 
@@ -600,7 +599,6 @@ class FunctionSolc(CallerContextExpression):
         return node_endLoop
 
     def _parse_dowhile(self, do_while_statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
-
         node_startDoWhile = self._new_node(NodeType.STARTLOOP, do_while_statement["src"], scope)
         condition_scope = Scope(scope.is_checked, False, scope)
 
@@ -1103,7 +1101,6 @@ class FunctionSolc(CallerContextExpression):
         return node
 
     def _parse_cfg(self, cfg: Dict) -> None:
-
         assert cfg[self.get_key()] == "Block"
 
         node = self._new_node(NodeType.ENTRYPOINT, cfg["src"], self.underlying_function)
@@ -1210,7 +1207,6 @@ class FunctionSolc(CallerContextExpression):
                     self._fix_catch(son, end_node, visited)
 
     def _add_param(self, param: Dict, initialized: bool = False) -> LocalVariableSolc:
-
         local_var = LocalVariable()
         local_var.set_function(self._function)
         local_var.set_offset(param["src"], self._function.compilation_unit)
@@ -1230,7 +1226,6 @@ class FunctionSolc(CallerContextExpression):
         return local_var_parser
 
     def _add_param_init_tuple(self, statement: Dict, index: int) -> LocalVariableInitFromTupleSolc:
-
         local_var = LocalVariableInitFromTuple()
         local_var.set_function(self._function)
         local_var.set_offset(statement["src"], self._function.compilation_unit)
@@ -1256,7 +1251,6 @@ class FunctionSolc(CallerContextExpression):
             self._function.add_parameters(local_var.underlying_variable)
 
     def _parse_returns(self, returns: Dict):
-
         assert returns[self.get_key()] == "ParameterList"
 
         self._function.returns_src().set_offset(returns["src"], self._function.compilation_unit)
@@ -1402,40 +1396,28 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
 
     def __make_temporary_variable_declaration_node_from_condition(
-            self,
-            node: Node,
-            temp_var: Optional[LocalVariable] = None
+        self, node: Node, temp_var: Optional[LocalVariable] = None
     ) -> (Node, LocalVariable):
-        temp_var_node_parser = self._new_node(
-            NodeType.VARIABLE,
-            node.source_mapping,
-            node.scope
-        )
+        temp_var_node_parser = self._new_node(NodeType.VARIABLE, node.source_mapping, node.scope)
         temp_var_node = temp_var_node_parser.underlying_node
         if temp_var is None:
             FunctionSolc.temp_var_num += 1
             temp_var = LocalVariable()
-            temp_var.name = f'temp-var-{FunctionSolc.temp_var_num}'
-            temp_var.type = ElementaryType('bool')
+            temp_var.name = f"temp-var-{FunctionSolc.temp_var_num}"
+            temp_var.type = ElementaryType("bool")
             temp_var.initialized = True
-            temp_var.set_location('default')
+            temp_var.set_location("default")
             temp_var.set_function(node.function)
         temp_var_node.add_expression(
             AssignmentOperation(
-                Identifier(temp_var),
-                node.expression,
-                AssignmentOperationType.ASSIGN,
-                None
+                Identifier(temp_var), node.expression, AssignmentOperationType.ASSIGN, None
             )
         )
         temp_var_node.add_variable_declaration(temp_var)
         return (temp_var_node, temp_var)
 
     def __link_node_immediately_before(
-            self,
-            new_node: Node,
-            node_in_cfg: Node,
-            node_not_to_be_detached: Optional[Node] = None
+        self, new_node: Node, node_in_cfg: Node, node_not_to_be_detached: Optional[Node] = None
     ) -> None:
         for father in node_in_cfg.fathers:
             if father == node_not_to_be_detached:
@@ -1454,7 +1436,9 @@ class FunctionSolc(CallerContextExpression):
         return begin_loop_node
 
     def __inject_condition_expression_from_conditional_node(self, node: Node) -> Node:
-        temp_var_node, temp_var = self.__make_temporary_variable_declaration_node_from_condition(node)
+        temp_var_node, temp_var = self.__make_temporary_variable_declaration_node_from_condition(
+            node
+        )
         if node.type == NodeType.IF:
             self.__link_node_immediately_before(temp_var_node, node)
         elif node.type == NodeType.IFLOOP:
@@ -1462,20 +1446,23 @@ class FunctionSolc(CallerContextExpression):
             begin_loop_node: Optional[Node] = self.__find_start_loop_in_nodes_fathers(if_loop_node)
             if begin_loop_node:  # if BEGIN_LOOP is IF_LOOP's father, IF_LOOP represents `while`
                 temp_var_node_pre_loop = temp_var_node
-                temp_var_node_during_loop, _ = self.__make_temporary_variable_declaration_node_from_condition(
-                    if_loop_node,
-                    temp_var
+                (
+                    temp_var_node_during_loop,
+                    _,
+                ) = self.__make_temporary_variable_declaration_node_from_condition(
+                    if_loop_node, temp_var
                 )
-                self.__link_node_immediately_before(temp_var_node_during_loop, if_loop_node, begin_loop_node)
+                self.__link_node_immediately_before(
+                    temp_var_node_during_loop, if_loop_node, begin_loop_node
+                )
                 self.__link_node_immediately_before(temp_var_node_pre_loop, begin_loop_node)
             else:
                 self.__link_node_immediately_before(temp_var_node, if_loop_node)
         else:
-            raise TypeError(f'Unknown conditional type {node.type}')
+            raise TypeError(f"Unknown conditional type {node.type}")
 
         node.add_expression(Identifier(temp_var), bypass_verif_empty=True)
         return temp_var_node
-
 
     def _rewrite_ternary_as_if_else(self) -> bool:
         ternary_found = True
@@ -1486,7 +1473,9 @@ class FunctionSolc(CallerContextExpression):
                 has_cond = HasConditional(node.expression)
                 if has_cond.result():
                     if node.is_conditional():
-                        temp_var_node = self.__inject_condition_expression_from_conditional_node(node)
+                        temp_var_node = self.__inject_condition_expression_from_conditional_node(
+                            node
+                        )
                         node = temp_var_node  # goes back by new cfg
                     st = SplitTernaryExpression(node.expression)
                     condition = st.condition
