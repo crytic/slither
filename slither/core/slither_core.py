@@ -466,6 +466,7 @@ class SlitherCore(Context):
 
     def save_results_to_hide(self, results: List[Dict]) -> None:
         self._results_to_hide += results
+        self.write_results_to_hide()
 
     def add_path_to_filter(self, path: str):
         """
