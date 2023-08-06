@@ -402,88 +402,21 @@ class UnusedImports(AbstractDetector):
             UnusedImports._add_all_imports_for_file(self.actual_imports, all_imports, k)
         return all_imports
 
-    def _get_all_imports_in_needed(self, all_imports: Dict[str, Set[str]]) -> Dict[str, Set[str]]:
-        """
-        Returns a dict, that for each file, holds all files imported directly or indirectly by any of imports that this
-        file needs.
-        For instance, if we have:
-            D.sol:
-                import B.sol // needed
-                import C.sol // unneeded
-            B.sol:
-                import A.sol
-        then all_imports_in_needed[D.sol] = {A.sol}.
-
-        The idea here is that, if file D.sol has to import B.sol, it automatically imports all of B's imports.
-        So, if D.sol needs A.sol as well, we won't recommend adding A.sol to D's imports, because it imports it
-        indirectly by importing B.sol.
-        But, if on the other hand, B.sol isn't needed in D.sol, but A.sol is, then all_imports_in_needed[D.sol] = {},
-        hence we will recommend importing A.sol (since it won't be imported indirectly) and removing B.sol from imports.
-        """
-        all_imports_in_needed = self._new_dict()
-        for k, imps in self.needed_imports.items():
-            for imp in imps:
-                all_imports_in_needed[k] |= all_imports[imp]
-        return all_imports_in_needed
-
-    def _remove_redundant_imports_from_needed(self, all_imports: Dict[str, Set[str]]) -> None:
-        """
-        Removes some imports from the needed_imports dict. The resulting dict, for each key k, contains the smallest
-        number of items such that the following equality holds:
-            all_imports[old_needed_imports[k]] = all_imports[new_needed_imports[k]],
-        where old_needed_imports is needed_imports before the function call and new_needed_imports - after the call.
-        The reasoning behind this is, that as long as the above equality holds, we can remove some imports from
-        needed_imports, while still importing the same set of files.
-        For instance, consider the following example:
-            C.sol:
-                import B.sol // B.sol needed
-                import A.sol // A.sol needed
-            B.sol:
-                import A.sol
-        Before the function call, needed_imports[C.sol] = {A.sol, B.sol}, since both files are used in C.sol.
-        However, by importing B.sol, C.sol automatically imports A.sol as well, so it doesn't need to import A.sol
-        directly. So, after the call: needed_imports[C.sol] = {B.sol}.
-        """
-        for _, vs in self.needed_imports.items():
-            to_remove: Set[str] = set()
-            for v in vs:
-                to_remove |= all_imports[v]
-            for imp in to_remove:
-                if imp in vs:
-                    vs.remove(imp)
-
-    def _get_needed_but_not_imported_directly(self) -> Dict[str, Set[str]]:
-        """
-        Returns a dict, that for each file, contains files that are needed by it, but not imported directly (via
-        "import" statement). These files can, however, be imported indirectly.
-        For instance, if we have:
-            C.sol
-                import B.sol // unneeded, but something from A.sol is used somewhere in C.sol
-            B.sol:
-                import A.sol
-        then needed_but_not_imported_directly[C.sol] = {A.sol}, even though A.sol is imported indirectly in C.sol using
-        "import B.sol".
-        """
-        needed_but_not_imported_directly = self._new_dict()
-        for k, v in self.needed_imports.items():
-            needed_but_not_imported_directly[k] = v - self.actual_imports[k]
-        return needed_but_not_imported_directly
-
     def _get_imported_but_unneeded(self) -> Dict[str, Set[str]]:
         """
         Returns a dict, that for each file, contains files that are directly imported by it (via "import" statement),
-        but are not needed (even, if their own imports are needed).
-        For instance, if we have:
-            C.sol:
-                import B.sol // unneeded, but something from A.sol is used somewhere in C.sol
-            B.sol:
-                import A.sol
-        then imported_but_unneeded[C.sol] = {B.sol}, even though A.sol is needed and imported indirectly in C.sol using
-        "import B.sol".
+        but are not needed (that is, none of their direct or indirect imports is needed in the source file).
         """
+        all_imports = self._get_all_imports()
+
         imported_but_unneeded = self._new_dict()
         for k, v in self.actual_imports.items():
-            imported_but_unneeded[k] = v - self.needed_imports[k]
+            for imp in v:
+                if (
+                    imp not in self.needed_imports[k]
+                    and len(self.needed_imports[k].intersection(all_imports[imp])) == 0
+                ):
+                    imported_but_unneeded[k].add(imp)
         return imported_but_unneeded
 
     def _detect(self) -> List[Output]:
@@ -500,11 +433,6 @@ class UnusedImports(AbstractDetector):
             # no support for cycles in import graph at the moment
             return results
 
-        all_imports = self._get_all_imports()
-        all_imports_in_needed = self._get_all_imports_in_needed(all_imports)
-        self._remove_redundant_imports_from_needed(all_imports)
-
-        needed_but_not_imported_directly = self._get_needed_but_not_imported_directly()
         imported_but_unneeded = self._get_imported_but_unneeded()
 
         for k, v in imported_but_unneeded.items():
@@ -519,21 +447,7 @@ class UnusedImports(AbstractDetector):
             for imp in v:
                 output += PurePath(self.absolute_path_to_imp_filename[imp]).as_posix()
                 output += "\n"
-            if (
-                len(needed_but_not_imported_directly[k]) > 0
-                and len(needed_but_not_imported_directly[k] - all_imports_in_needed[k]) > 0
-            ):
-                output += "and adding the following:\n"
-                for imp in needed_but_not_imported_directly[k]:
-                    if imp in self.absolute_path_to_imp_filename:
-                        output += PurePath(self.absolute_path_to_imp_filename[imp]).as_posix()
-                    else:
-                        # possible since `self.absolute_path_to_imp_filename` contains only existing imports, and it is
-                        # possible for the detector to recommend adding a different import
-                        output += PurePath(imp).as_posix()
-                    output += "\n"
-            if output != "":
-                output += "\n"
+
             info.append(output)
             res = self.generate_result(info)
             results.append(res)
