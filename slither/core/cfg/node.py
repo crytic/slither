@@ -74,6 +74,7 @@ class NodeType(Enum):
     IF = "IF"
     VARIABLE = "NEW VARIABLE"  # Variable declaration
     ASSEMBLY = "INLINE ASM"
+    ENDASSEMBLY = "END INLINE ASM"
     IFLOOP = "IF_LOOP"
 
     # Nodes where control flow merges

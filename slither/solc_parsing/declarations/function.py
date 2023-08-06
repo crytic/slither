@@ -983,7 +983,9 @@ class FunctionSolc(CallerContextExpression):
                 # technically, entrypoint and exitpoint are YulNodes and we should be returning a NodeSolc here
                 # but they both expose an underlying_node so oh well
                 link_underlying_nodes(node, entrypoint)
-                node = exitpoint
+                end_assembly = self._new_node(NodeType.ENDASSEMBLY, statement["src"], scope)
+                link_underlying_nodes(exitpoint, end_assembly)
+                node = end_assembly
             else:
                 asm_node = self._new_node(NodeType.ASSEMBLY, statement["src"], scope)
                 self._function.contains_assembly = True
