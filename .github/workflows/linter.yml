@@ -9,8 +9,6 @@ defaults:
 on:
   pull_request:
     branches: [master, dev]
-    paths:
-      - "**/*.py"
     
   schedule:
     # run CI every day even if no PRs/merges occur
@@ -33,7 +31,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python 3.8
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
@@ -41,6 +39,10 @@ jobs:
         run: |
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
+
+      - name: Register yamllint problem matcher
+        run: |
+          echo "::add-matcher::.github/workflows/matchers/yamllint.json"
 
       - name: Lint everything else
         uses: super-linter/super-linter/slim@v4.9.2
@@ -55,7 +57,6 @@ jobs:
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_ISORT: false
-          # Always false
           VALIDATE_JSON: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_PYTHON_FLAKE8: false
