@@ -12,7 +12,7 @@ from slither.core.solidity_types import (
     MappingType,
     ArrayType,
     ElementaryType,
-    TypeAlias
+    TypeAlias,
 )
 from slither.core.declarations import Structure, StructureContract, Enum, Contract
 
