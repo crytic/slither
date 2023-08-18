@@ -44,6 +44,7 @@ def _find_variable_in_function_parser(
     if function_parser is None:
         return None
     func_variables = function_parser.underlying_function.variables_as_dict
+    print("func_variables", func_variables)
     if var_name in func_variables:
         return func_variables[var_name]
 
@@ -208,9 +209,10 @@ def find_variable(
 
     from slither.vyper_parsing.declarations.contract import ContractVyper
     from slither.vyper_parsing.declarations.function import FunctionVyper
-    function_parser: Optional[FunctionSolc] = (
+    function_parser: Optional[FunctionVyper] = (
         caller_context if isinstance(caller_context, FunctionVyper) else None
     )
+    print("function_parser", function_parser)
     ret1 = _find_variable_in_function_parser(var_name, function_parser)
     if ret1:
         return ret1, False
@@ -218,6 +220,10 @@ def find_variable(
     ret = _find_in_contract(var_name, caller_context, caller_context)
     if ret:
         return ret, False
+
+    print(current_scope.variables)
+    if var_name in current_scope.variables:
+        return current_scope.variables[var_name], False
 
     # Could refer to any enum
     all_enumss = [c.enums_as_dict for c in current_scope.contracts.values()]

@@ -168,7 +168,6 @@ class FunctionVyper:
 
         body = self._functionNotParsed.body
 
-        print(self._functionNotParsed)
         if body:
             self._function.is_implemented = True
             self._parse_cfg(body)
@@ -256,9 +255,11 @@ class FunctionVyper:
 
                         pass
                     elif isinstance(expr, Assert):
-                        print(expr)
-                        assert False
-                        pass
+                        new_node = self._new_node(NodeType.EXPRESSION, expr.src, scope)
+                        new_node.add_unparsed_expression(expr)
+
+
+
                     elif isinstance(expr, Log):
                         new_node = self._new_node(NodeType.EXPRESSION, expr.src, scope)
                         new_node.add_unparsed_expression(expr.value)

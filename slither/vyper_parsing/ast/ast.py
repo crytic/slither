@@ -197,16 +197,24 @@ def parse_raise(raw: Dict) -> Raise:
 def parse_expr(raw: Dict) -> Expr:
     return Expr(value=parse(raw["value"]), **_extract_base_props(raw))
 
+unop_ast_type_to_op_symbol = {"Not": "!", "USub": "-"}
 
 def parse_unary_op(raw: Dict) -> UnaryOp:
-    return UnaryOp(op=raw["op"], operand=parse(raw["operand"]), **_extract_base_props(raw))
+    unop_str = unop_ast_type_to_op_symbol[raw["op"]["ast_type"]]
+    return UnaryOp(op=unop_str, operand=parse(raw["operand"]), **_extract_base_props(raw))
 
-binop_ast_type_to_op_symbol = {"Add": "+", "Mult": "*", "Sub": "-", "Div": "-", "Pow": "**", "Mod": "%", "BitAnd": "&", "BitOr": "|", "Shr": "<<", "Shl": ">>"}
+binop_ast_type_to_op_symbol = {"Add": "+", "Mult": "*", "Sub": "-", "Div": "-", "Pow": "**", "Mod": "%", "BitAnd": "&", "BitOr": "|", "Shr": "<<", "Shl": ">>", "NotEq": "!=", "Eq": "==", "LtE": "<=", "GtE": ">=", "Lt": "<", "Gt": ">",  "In": "In", "NotIn": "NotIn"}
 
 def parse_bin_op(raw: Dict) -> BinOp:
-    op_str = binop_ast_type_to_op_symbol[raw["op"]["ast_type"]]
+    arith_op_str = binop_ast_type_to_op_symbol[raw["op"]["ast_type"]]
     return BinOp(
-        left=parse(raw["left"]), op=op_str, right=parse(raw["right"]), **_extract_base_props(raw)
+        left=parse(raw["left"]), op=arith_op_str, right=parse(raw["right"]), **_extract_base_props(raw)
+    )
+
+def parse_compare(raw: Dict) -> Compare:
+    logical_op_str = binop_ast_type_to_op_symbol[raw["op"]["ast_type"]]
+    return Compare(
+        left=parse(raw["left"]), op=logical_op_str, right=parse(raw["right"]), **_extract_base_props(raw)
     )
 
 
@@ -241,12 +249,6 @@ def parse_name_constant(raw: Dict) -> NameConstant:
 def parse_doc_str(raw: Dict) -> str:
     assert isinstance(raw["value"], str)
     return raw["value"]
-
-
-def parse_compare(raw: Dict) -> Compare:
-    return Compare(
-        left=parse(raw["left"]), op=raw["op"], right=parse(raw["right"]), **_extract_base_props(raw)
-    )
 
 
 def parse_if(raw: Dict) -> ASTNode:

@@ -7,6 +7,7 @@ from slither.core.declarations.solidity_variables import (
     SOLIDITY_VARIABLES_COMPOSED,
     SolidityVariableComposed,
 )
+from slither.core.declarations import SolidityFunction
 from slither.core.expressions import (
     CallExpression,
     ConditionalExpression,
@@ -251,7 +252,7 @@ def _user_defined_op_call(
     return call
 
 
-from slither.vyper_parsing.ast.types import Int, Call, Attribute, Name, Tuple, Hex, BinOp, Str
+from slither.vyper_parsing.ast.types import Int, Call, Attribute, Name, Tuple, Hex, BinOp, Str, Assert, Compare, UnaryOp
 
 def parse_expression(expression: Dict, caller_context) -> "Expression":
     print("parse_expression")
@@ -275,11 +276,11 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         arguments = [parse_expression(a, caller_context) for a in expression.args]
         # Since the AST lacks the type of the return values, we recover it.
         rets = called.value.returns
+        
         def get_type_str(x):
             return str(x.type)
+        
         type_str = get_type_str(rets[0]) if len(rets) == 1 else f"tuple({','.join(map(get_type_str, rets))})"
-        print(type_str)
-
 
         return CallExpression(called, arguments, type_str)
     
@@ -290,6 +291,8 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
     
     if isinstance(expression, Name):
         var, was_created = find_variable(expression.id, caller_context)
+        print(var)
+        print(var.__class__)
         assert var
         return Identifier(var)
     
@@ -297,12 +300,28 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         tuple_vars = [parse_expression(x, caller_context) for x in expression.elements]
         return TupleExpression(tuple_vars)
     
-    if isinstance(expression, BinOp):
+    if isinstance(expression, UnaryOp):
+        operand = parse_expression(expression.operand, caller_context)
+        op = UnaryOperationType.get_type(expression.op, isprefix=True) #TODO does vyper have postfix?
+
+        return UnaryOperation(operand, op)
+
+    if isinstance(expression, (BinOp, Compare)):
         lhs = parse_expression(expression.left, caller_context)
         rhs = parse_expression(expression.right, caller_context)
 
         op = BinaryOperationType.get_type(expression.op)
         return BinaryOperation(lhs, rhs, op)
         
+    if isinstance(expression, Assert):
+        type_str = "tuple()"
+        if expression.msg is None:
+            func = SolidityFunction("require(bool)")
+            args = [parse_expression(expression.test, caller_context)]
+        else:
+            func = SolidityFunction("require(bool,string)")
+            args = [parse_expression(expression.test, caller_context), parse_expression(expression.msg, caller_context)]
 
+        return CallExpression(Identifier(func), args, type_str)
+    
     raise ParsingError(f"Expression not parsed {expression}")

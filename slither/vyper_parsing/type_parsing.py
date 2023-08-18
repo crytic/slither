@@ -3,6 +3,8 @@ from slither.core.solidity_types.elementary_type import (
     ElementaryTypeName,
 )  # TODO rename solidity type
 from slither.core.solidity_types.array_type import ArrayType
+from slither.core.solidity_types.mapping_type import MappingType
+
 from slither.vyper_parsing.expressions.expression_parsing import parse_expression
 from slither.vyper_parsing.ast.types import Name, Subscript, Call, Index, Tuple
 from typing import Union
@@ -16,19 +18,33 @@ def parse_type(annotation: Union[Name, Subscript, Call], contract):
         name = annotation.id
     elif isinstance(annotation, Subscript):
         assert isinstance(annotation.slice, Index)
-
         # This is also a strange construct...
         if isinstance(annotation.slice.value, Tuple):
-            type_ = parse_type(annotation.slice.value.elements[0], contract)
-            length = parse_expression(annotation.slice.value.elements[1], contract)
-        else:
-            # TODO it is weird that the ast_type is     `Index` when it's a type annotation and not an expression
-            # so we grab the value
-            type_ = parse_type(annotation.value, contract)
-            length = parse_expression(annotation.slice.value, contract)
+            assert isinstance(annotation.value, Name)
+            if annotation.value.id == "DynArray":
+                type_ = parse_type(annotation.slice.value.elements[0], contract)
+                length = parse_expression(annotation.slice.value.elements[1], contract)
+                return ArrayType(type_, length)
+            else:
+                assert annotation.value.id == "HashMap"
+                type_from = parse_type(annotation.slice.value.elements[0], contract)
+                type_to = parse_type(annotation.slice.value.elements[1], contract)
 
-        # TODO this can also me `HashMaps`
+                return MappingType(type_from, type_to)
+
+        elif isinstance(annotation.value, Subscript):
+            type_ = parse_type(annotation.value, contract)
+        
+        elif isinstance(annotation.value, Name):
+            # TODO it is weird that the ast_type is `Index` when it's a type annotation and not an expression, so we grab the value.
+            # Subscript(src='13:10:0', node_id=7, value=Name(src='13:6:0', node_id=8, id='String'), slice=Index(src='13:10:0', node_id=12, value=Int(src='20:2:0', node_id=10, value=64)))
+            type_ = parse_type(annotation.value, contract)
+            if annotation.value.id == "String":
+                return type_
+            
+        length = parse_expression(annotation.slice.value, contract)
         return ArrayType(type_, length)
+        
 
     elif isinstance(annotation, Call):
         return parse_type(annotation.args[0], contract)
