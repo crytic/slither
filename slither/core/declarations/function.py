@@ -106,7 +106,7 @@ def _filter_state_variables_written(expressions: List["Expression"]):
             ret.append(expression.expression_left)
     return ret
 
-
+#TODO replace
 class FunctionLanguage(Enum):
     Solidity = 0
     Yul = 1
@@ -1521,6 +1521,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def _analyze_read_write(self) -> None:
         """Compute variables read/written/..."""
         write_var = [x.variables_written_as_expression for x in self.nodes]
+        print(write_var)
         write_var = [x for x in write_var if x]
         write_var = [item for sublist in write_var for item in sublist]
         write_var = list(set(write_var))
@@ -1756,6 +1757,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
 
     def generate_slithir_and_analyze(self) -> None:
+        print("generate_slithir_and_analyze")
+        print(self.nodes)
+
         for node in self.nodes:
             node.slithir_generation()
 

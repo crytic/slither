@@ -1,4 +1,5 @@
 import math
+from enum import Enum
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
 from crytic_compile import CompilationUnit, CryticCompile
@@ -29,6 +30,20 @@ if TYPE_CHECKING:
     from slither.core.slither_core import SlitherCore
 
 
+class Language(Enum):
+    SOLIDITY = "solidity"
+    VYPER = "vyper"
+
+    @staticmethod
+    def from_str(label: str):
+        if label == "solc":
+            return Language.SOLIDITY
+        elif label == "vyper":
+            return Language.VYPER
+        else:
+            raise ValueError(f"Unknown language: {label}")
+
+
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCompilationUnit(Context):
     def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit) -> None:
@@ -36,6 +51,7 @@ class SlitherCompilationUnit(Context):
 
         self._core = core
         self._crytic_compile_compilation_unit = crytic_compilation_unit
+        self._language = Language.from_str(crytic_compilation_unit.compiler_version.compiler)
 
         # Top level object
         self.contracts: List[Contract] = []
@@ -81,6 +97,13 @@ class SlitherCompilationUnit(Context):
     # region Compiler
     ###################################################################################
     ###################################################################################
+    @property
+    def is_vyper(self) -> bool:
+        return self._language == Language.VYPER
+
+    @property
+    def is_solidity(self) -> bool:
+        return self._language == Language.SOLIDITY
 
     @property
     def compiler_version(self) -> CompilerVersion:
@@ -259,6 +282,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     def compute_storage_layout(self) -> None:
+        assert self.is_solidity
         for contract in self.contracts_derived:
             self._storage_layouts[contract.name] = {}
 

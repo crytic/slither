@@ -434,6 +434,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def _post_literal(self, expression: Literal) -> None:
         expression_type = expression.type
         assert isinstance(expression_type, ElementaryType)
+        print(expression.value)
         cst = Constant(expression.value, expression_type, expression.subdenomination)
         set_val(expression, cst)
 

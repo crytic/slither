@@ -136,7 +136,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def id(self) -> int:
         """Unique id."""
-        assert self._id
+        assert self._id is not None
         return self._id
 
     @id.setter
