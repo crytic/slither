@@ -87,8 +87,10 @@ class ContractVyper:
             elif isinstance(node, InterfaceDef):
                 # TODO This needs to be done lazily as interfaces can refer to constant state variables
                 contract = Contract(self._contract.compilation_unit, self._contract.file_scope)
-                contract_parser = ContractVyper(self._slither_parser, contract, node)
                 contract.set_offset(node.src, self._contract.compilation_unit)
+                contract.is_interface = True
+
+                contract_parser = ContractVyper(self._slither_parser, contract, node)
                 self._contract.file_scope.contracts[contract.name] = contract
                 self._slither_parser._underlying_contract_to_parser[contract] = contract_parser
 
@@ -162,11 +164,15 @@ class ContractVyper:
 
         self._functionsNotParsed = []
 
-    def analyze(self) -> None:
-        print("Analyze", self._contract._name)
+
+    def analyze_state_variables(self):
         # Struct defs can refer to constant state variables
         for var_parser in self._variables_parser:
             var_parser.analyze(self._contract)
+
+
+    def analyze(self) -> None:
+        print("Analyze", self._contract._name)
 
         for struct_parser in self._structures_parser:
             struct_parser.analyze(self._contract)

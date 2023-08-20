@@ -197,12 +197,14 @@ def parse_raise(raw: Dict) -> Raise:
 def parse_expr(raw: Dict) -> Expr:
     return Expr(value=parse(raw["value"]), **_extract_base_props(raw))
 
+# This is done for convenience so we can call `UnaryOperationType.get_type` during expression parsing.
 unop_ast_type_to_op_symbol = {"Not": "!", "USub": "-"}
 
 def parse_unary_op(raw: Dict) -> UnaryOp:
     unop_str = unop_ast_type_to_op_symbol[raw["op"]["ast_type"]]
     return UnaryOp(op=unop_str, operand=parse(raw["operand"]), **_extract_base_props(raw))
 
+# This is done for convenience so we can call `BinaryOperationType.get_type` during expression parsing.
 binop_ast_type_to_op_symbol = {"Add": "+", "Mult": "*", "Sub": "-", "Div": "-", "Pow": "**", "Mod": "%", "BitAnd": "&", "BitOr": "|", "Shr": "<<", "Shl": ">>", "NotEq": "!=", "Eq": "==", "LtE": "<=", "GtE": ">=", "Lt": "<", "Gt": ">",  "In": "In", "NotIn": "NotIn"}
 
 def parse_bin_op(raw: Dict) -> BinOp:

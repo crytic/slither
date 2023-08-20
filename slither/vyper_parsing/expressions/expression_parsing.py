@@ -314,6 +314,8 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         return BinaryOperation(lhs, rhs, op)
         
     if isinstance(expression, Assert):
+        # Treat assert the same as a Solidity `require`.
+        # TODO rename from `SolidityFunction` to `Builtin`?
         type_str = "tuple()"
         if expression.msg is None:
             func = SolidityFunction("require(bool)")
