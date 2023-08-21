@@ -16,3 +16,7 @@ class CustomErrorContract(CustomError, ContractLevel):
         :return:
         """
         return self.contract == contract
+
+    @property
+    def canonical_name(self) -> str:
+        return self.contract.name + "." + self.full_name
