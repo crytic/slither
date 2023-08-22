@@ -173,10 +173,10 @@ class FunctionVyper:
             self._parse_cfg(body)
 
         for local_var_parser in self._local_variables_parser:
-            local_var_parser.analyze(self._function.contract)
+            local_var_parser.analyze(self._function)
 
         for node_parser in self._node_to_NodeVyper.values():
-            node_parser.analyze_expressions(self._function.contract)
+            node_parser.analyze_expressions(self._function)
 
     # endregion
     ###################################################################################
@@ -205,7 +205,7 @@ class FunctionVyper:
 
         curr_node = self._new_node(NodeType.ENTRYPOINT, "-1:-1:-1", self.underlying_function)
         self._function.entry_point = curr_node.underlying_node
-        scope = None
+        scope = Scope(True, False, self.underlying_function)
 
         if cfg:
             self._function.is_empty = False
@@ -227,10 +227,16 @@ class FunctionVyper:
 
                         curr_node = new_node
 
-                    elif isinstance(expr, (Assign, AugAssign)):
+                    elif isinstance(expr, (AugAssign, Assign)):
                         new_node = self._new_node(NodeType.EXPRESSION, expr.src, scope)
-                        new_node.add_unparsed_expression(expr.value)
+                        new_node.add_unparsed_expression(expr)
                         link_underlying_nodes(curr_node, new_node)
+
+                    # elif isinstance(expr, Assign):
+                    #     new_node = self._new_node(NodeType.EXPRESSION, expr.src, scope)
+                    #     new_node.add_unparsed_expression(expr.target)
+                    #     new_node.add_unparsed_expression(expr.value)
+                    #     link_underlying_nodes(curr_node, new_node)
 
                     elif isinstance(expr, For):
                         node_startLoop = self._new_node(NodeType.STARTLOOP, expr.src, scope)
@@ -281,7 +287,7 @@ class FunctionVyper:
                         pass
                     elif isinstance(expr, Raise):
                         print(expr)
-                        assert False
+                        # assert False
                         pass
                     else:
                         print(f"isinstance(expr, {expr.__class__.__name__})")

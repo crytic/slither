@@ -10,6 +10,7 @@ from slither.exceptions import SlitherException
 SOLIDITY_VARIABLES = {
     "now": "uint256",
     "this": "address",
+    "self": "address",
     "abi": "address",  # to simplify the conversion, assume that abi return an address
     "msg": "",
     "tx": "",
@@ -81,6 +82,22 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "balance(address)": ["uint256"],
     "code(address)": ["bytes"],
     "codehash(address)": ["bytes32"],
+    # Vyper
+    "create_from_blueprint()":[],
+    "empty()":[],
+    "convert()":[], # TODO make type conversion
+    "len()":[], 
+    "method_id()":[],
+    "unsafe_sub()": [],
+    "unsafe_add()": [],
+    "unsafe_div()":[],
+    "unsafe_mul()":[],
+    "pow_mod256()":[], 
+    "max_value()":[],
+    "min_value()":[],
+    "concat()":[],
+    "ecrecover()":[],
+    "isqrt()":[]
 }
 
 
