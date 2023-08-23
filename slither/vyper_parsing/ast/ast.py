@@ -301,11 +301,13 @@ def parse_enum_def(raw: Dict) -> EnumDef:
 
     return EnumDef(name=raw["name"], body=nodes_parsed, **_extract_base_props(raw))
 
+aug_assign_ast_type_to_op_symbol = {"Add": "+=", "Mult": "*=", "Sub": "-=", "Div": "-=", "Pow": "**=", "Mod": "%=", "BitAnd": "&=", "BitOr": "|=", "Shr": "<<=", "Shl": ">>="}
 
 def parse_aug_assign(raw: Dict) -> AugAssign:
+    op_str = aug_assign_ast_type_to_op_symbol[raw["op"]["ast_type"]]
     return AugAssign(
         target=parse(raw["target"]),
-        op=raw["op"],
+        op=op_str,
         value=parse(raw["value"]),
         **_extract_base_props(raw),
     )
