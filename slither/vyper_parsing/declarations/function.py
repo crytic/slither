@@ -178,6 +178,8 @@ class FunctionVyper:
         for node_parser in self._node_to_NodeVyper.values():
             node_parser.analyze_expressions(self._function)
 
+
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -239,11 +241,63 @@ class FunctionVyper:
                     #     link_underlying_nodes(curr_node, new_node)
 
                     elif isinstance(expr, For):
+
                         node_startLoop = self._new_node(NodeType.STARTLOOP, expr.src, scope)
+
+                        local_var = LocalVariable()
+                        local_var.set_function(self._function)
+                        local_var.set_offset(expr.src, self._function.compilation_unit)
+
+                        counter_var = AnnAssign(expr.target.src, expr.target.node_id, target=Name("-1:-1:-1", -1, "counter_var"), annotation=Name("-1:-1:-1", -1, "uint256"), value=Int("-1:-1:-1", -1, 0))
+                        local_var_parser = LocalVariableVyper(local_var, counter_var)
+                        self._add_local_variable(local_var_parser)
+                        new_node = self._new_node(NodeType.VARIABLE, expr.src, scope)
+                        new_node.add_unparsed_expression(counter_var.value)
+                        new_node.underlying_node.add_variable_declaration(local_var)
+
+                        if isinstance(expr.iter, Name):
+                            # TODO use expr.src instead of -1:-1:1?
+                            cond_expr = Compare("-1:-1:-1", -1, left=Name("-1:-1:-1", -1, "counter_var"), op="<=", right=Call("-1:-1:-1", -1, func=Name("-1:-1:-1", -1, "len"), args=[expr.iter], keywords=[], keyword=None))
+                            node_condition = self._new_node(NodeType.IFLOOP, expr.src, scope)
+                            node_condition.add_unparsed_expression(cond_expr)
+
+                            # HACK  
+                            # The loop variable is not annotated so we infer its type by looking at the type of the iterator
+                            loop_iterator = list(filter(lambda x: x._variable.name == expr.iter.id, self._local_variables_parser))[0]
+                            # Assumes `Subscript`
+                            # TODO this should go in the body of the loop: expr.body.insert(0, ...)
+                            loop_var_annotation = loop_iterator._elem_to_parse.slice.value.elements[0]
+                            value = Subscript("-1:-1:-1", -1, value=Name("-1:-1:-1", -1, loop_iterator._variable.name), slice=Index("-1:-1:-1", -1, value=Name("-1:-1:-1", -1, "counter_var")))
+                            loop_var = AnnAssign(expr.target.src, expr.target.node_id, target=expr.target, annotation=loop_var_annotation, value=value)
+                            local_var = LocalVariable()
+                            local_var.set_function(self._function)
+                            local_var.set_offset(expr.src, self._function.compilation_unit)
+                            local_var_parser = LocalVariableVyper(local_var, loop_var)
+                            self._add_local_variable(local_var_parser)
+                            new_node = self._new_node(NodeType.VARIABLE, expr.src, scope)
+                            new_node.add_unparsed_expression(loop_var.value)
+                            new_node.underlying_node.add_variable_declaration(local_var)
+
+                        elif isinstance(expr.iter, Call):
+                            range_val = expr.iter.args[0]
+                            cond_expr = Compare("-1:-1:-1", -1, left=Name("-1:-1:-1", -1, "counter_var"), op="<=", right=range_val)
+                            loop_var = AnnAssign(expr.target.src, expr.target.node_id, target=expr.target, annotation=Name("-1:-1:-1", -1, "uint256"), value=Name("-1:-1:-1", -1, "counter_var"))
+                            local_var = LocalVariable()
+                            local_var.set_function(self._function)
+                            local_var.set_offset(expr.src, self._function.compilation_unit)
+                            local_var_parser = LocalVariableVyper(local_var, loop_var)
+                            self._add_local_variable(local_var_parser)
+                            new_node = self._new_node(NodeType.VARIABLE, expr.src, scope)
+                            new_node.add_unparsed_expression(loop_var.value)
+                            new_node.underlying_node.add_variable_declaration(local_var)
+                        else:
+                            print(expr)
+                            raise NotImplementedError
+                        # assert False
                         node_endLoop = self._new_node(NodeType.ENDLOOP, expr.src, scope)
 
-                        node_condition = self._new_node(NodeType.IFLOOP, expr.iter.src, scope)
-                        node_condition.add_unparsed_expression(expr.iter)
+
+
                         # link_underlying_nodes(node_startLoop, node_condition)
                         for stmt in expr.body:
                             parse_statement(curr_node, stmt)
