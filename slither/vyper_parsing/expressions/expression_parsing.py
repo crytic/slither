@@ -423,16 +423,34 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             #   }
             # }
             # We assume left operand in membership comparison cannot be Array type
-            assert isinstance(expression.right, VyList)
             conditions = deque()
-            inner_op = BinaryOperationType.get_type("!=") if expression.op == "NotIn" else BinaryOperationType.get_type("==")
-            outer_op = BinaryOperationType.get_type("&&") if expression.op == "NotIn" else BinaryOperationType.get_type("||")
-            for elem in expression.right.elements:
-                elem_expr = parse_expression(elem, caller_context)
+            if isinstance(expression.right, VyList):
+                inner_op = BinaryOperationType.get_type("!=") if expression.op == "NotIn" else BinaryOperationType.get_type("==")
+                outer_op = BinaryOperationType.get_type("&&") if expression.op == "NotIn" else BinaryOperationType.get_type("||")
                 
-                conditions.append(BinaryOperation(lhs, elem_expr, inner_op))
+                for elem in expression.right.elements:
+                    elem_expr = parse_expression(elem, caller_context)
+                    print("elem", repr(elem_expr))
+                    conditions.append(BinaryOperation(lhs, elem_expr, inner_op))
+            else:
+                inner_op = BinaryOperationType.get_type("|") #if expression.op == "NotIn" else BinaryOperationType.get_type("==")
+                outer_op = BinaryOperationType.get_type("&") #if expression.op == "NotIn" else BinaryOperationType.get_type("||")
             
-            assert len(conditions) % 2 == 0
+                x, _ = find_variable(expression.right.value.attr, caller_context)
+                print(x)
+                print(x.type.type_to)
+                print(x.type.type_to.__class__)
+                enum_members = x.type.type_to.type.values
+                # for each value, create a literal with value = 2 ^ n (0 indexed)
+                # and then translate to bitmasking
+                enum_values = [Literal(2 ** n, ElementaryType("uint256")) for n in range(len(enum_members))]
+                inner_lhs = enum_values[0]
+                for expr in enum_values[1:]:
+                    inner_lhs = BinaryOperation(inner_lhs, expr, inner_op)
+                    conditions.append(inner_lhs)
+                print(conditions)
+                return BinaryOperation(lhs, conditions[0], outer_op)
+
             while len(conditions) > 1:
                 lhs = conditions.pop()
                 rhs = conditions.pop()
