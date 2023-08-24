@@ -282,7 +282,10 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         called = parse_expression(expression.func, caller_context)
 
         if isinstance(called, Identifier) and isinstance(called.value, SolidityFunction):
-            if called.value.name == "convert()":
+            if called.value.name == "empty()":
+                type_to = parse_type(expression.args[0], caller_context)
+                return CallExpression(called, [], str(type_to))
+            elif called.value.name == "convert()":
                 arg = parse_expression(expression.args[0], caller_context) 
                 type_to = parse_type(expression.args[1], caller_context)
                 return TypeConversion(arg, type_to)
@@ -294,9 +297,8 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             elif called.value.name==  "max_value()":
                 type_to = parse_type(expression.args[0], caller_context)
                 member_type =  str(type_to)
-                x = MemberAccess("max", member_type, CallExpression(Identifier(SolidityFunction("type()")), [ElementaryTypeNameExpression(type_to)], member_type))
-                print(x)
-                return x
+                # TODO return Literal
+                return MemberAccess("max", member_type, CallExpression(Identifier(SolidityFunction("type()")), [ElementaryTypeNameExpression(type_to)], member_type))
 
 
         if expression.args and isinstance(expression.args[0], VyDict):
@@ -320,7 +322,10 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             
             else:
                 rets = ["tuple()"]
-            
+        elif isinstance(called, MemberAccess) and called.type is not None:
+            # (recover_type_2) Propagate the type collected to the `CallExpression`
+            # see recover_type_1
+            rets = called.type
         else:
             rets = ["tuple()"]
         
@@ -330,7 +335,8 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             return str(x.type)
 
         type_str = get_type_str(rets[0]) if len(rets) == 1 else f"tuple({','.join(map(get_type_str, rets))})"
-
+        print(CallExpression(called, arguments, type_str))
+        print(type_str)
         return CallExpression(called, arguments, type_str)
     
     if isinstance(expression, Attribute):
@@ -352,8 +358,25 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
 
         else:
             expr = parse_expression(expression.value, caller_context)
+            member_name_ret_type = None
+            # (recover_type_1) This may be a call to an interface and we don't have the return types,
+            # so we see if there's a function identifier with `member_name` and propagate the type to 
+            # its enclosing `CallExpression`
+            # try: TODO this is using the wrong caller_context and needs to be interface instead of self namespace
+            #     var, was_created = find_variable(member_name, caller_context)
+            #     if isinstance(var, Function):
+            #         rets = var.returns
+            #         def get_type_str(x):
+            #             if isinstance(x, str):
+            #                 return x
+            #             return str(x.type)
 
-            member_access = MemberAccess(member_name, None, expr)
+            #         type_str = get_type_str(rets[0]) if len(rets) == 1 else f"tuple({','.join(map(get_type_str, rets))})"
+            #         member_name_ret_type = type_str
+            # except:
+            #     pass
+
+            member_access = MemberAccess(member_name, member_name_ret_type, expr)
 
         return member_access
 
@@ -373,9 +396,9 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         rhs = parse_expression(expression.value, caller_context)
 
         op = AssignmentOperationType.get_type(expression.op)
-        return BinaryOperation(lhs, rhs, op)
+        return AssignmentOperation(lhs, rhs, op, None)
 
-    if isinstance(expression, Tuple):
+    if isinstance(expression, (Tuple, VyList)):
         tuple_vars = [parse_expression(x, caller_context) for x in expression.elements]
         return TupleExpression(tuple_vars)
     

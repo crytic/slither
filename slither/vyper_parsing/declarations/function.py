@@ -30,6 +30,7 @@ class FunctionVyper:
         self,
         function: Function,
         function_data: Dict,
+        contract_parser: "ContractVyper",
     ) -> None:
         self._node_to_NodeVyper: Dict[Node, NodeVyper] = {}
 
@@ -40,6 +41,7 @@ class FunctionVyper:
         self._function.id = function_data.node_id
 
         self._local_variables_parser: List = []
+        self._contract_parser = contract_parser
 
         for decorator in function_data.decorators:
             if not hasattr(decorator, "id"):
@@ -255,18 +257,28 @@ class FunctionVyper:
                         new_node.add_unparsed_expression(counter_var.value)
                         new_node.underlying_node.add_variable_declaration(local_var)
 
-                        if isinstance(expr.iter, Name):
+                        if isinstance(expr.iter, (Attribute,Name)):
+                            # HACK  
+                            # The loop variable is not annotated so we infer its type by looking at the type of the iterator
+                            if isinstance(expr.iter, Attribute): # state
+                                iter_expr = expr.iter
+                                loop_iterator = list(filter(lambda x: x._variable.name == iter_expr.attr,  self._contract_parser._variables_parser))[0]
+
+                            else: # local
+                                iter_expr = expr.iter
+                                loop_iterator = list(filter(lambda x: x._variable.name == iter_expr.id, self._local_variables_parser))[0]
+
                             # TODO use expr.src instead of -1:-1:1?
-                            cond_expr = Compare("-1:-1:-1", -1, left=Name("-1:-1:-1", -1, "counter_var"), op="<=", right=Call("-1:-1:-1", -1, func=Name("-1:-1:-1", -1, "len"), args=[expr.iter], keywords=[], keyword=None))
+                            cond_expr = Compare("-1:-1:-1", -1, left=Name("-1:-1:-1", -1, "counter_var"), op="<=", right=Call("-1:-1:-1", -1, func=Name("-1:-1:-1", -1, "len"), args=[iter_expr], keywords=[], keyword=None))
                             node_condition = self._new_node(NodeType.IFLOOP, expr.src, scope)
                             node_condition.add_unparsed_expression(cond_expr)
 
-                            # HACK  
-                            # The loop variable is not annotated so we infer its type by looking at the type of the iterator
-                            loop_iterator = list(filter(lambda x: x._variable.name == expr.iter.id, self._local_variables_parser))[0]
-                            # Assumes `Subscript`
                             # TODO this should go in the body of the loop: expr.body.insert(0, ...)
-                            loop_var_annotation = loop_iterator._elem_to_parse.slice.value.elements[0]
+                            if loop_iterator._elem_to_parse.value.id == "DynArray":
+                                loop_var_annotation = loop_iterator._elem_to_parse.slice.value.elements[0]
+                            else:
+                                loop_var_annotation = loop_iterator._elem_to_parse.value
+
                             value = Subscript("-1:-1:-1", -1, value=Name("-1:-1:-1", -1, loop_iterator._variable.name), slice=Index("-1:-1:-1", -1, value=Name("-1:-1:-1", -1, "counter_var")))
                             loop_var = AnnAssign(expr.target.src, expr.target.node_id, target=expr.target, annotation=loop_var_annotation, value=value)
                             local_var = LocalVariable()

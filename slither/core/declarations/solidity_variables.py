@@ -16,6 +16,7 @@ SOLIDITY_VARIABLES = {
     "tx": "",
     "block": "",
     "super": "",
+    "chain": "",
 }
 
 SOLIDITY_VARIABLES_COMPOSED = {
@@ -86,7 +87,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "create_from_blueprint()":[],
     "empty()":[],
     "convert()":[], # TODO make type conversion
-    "len()":[], 
+    "len()":["uint256"],
     "method_id()":[],
     "unsafe_sub()": [],
     "unsafe_add()": [],
@@ -97,7 +98,15 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "min_value()":[],
     "concat()":[],
     "ecrecover()":[],
-    "isqrt()":[]
+    "isqrt()":[],
+    "range()":[],
+    "min()":[],
+    "max()":[],
+    "shift()":[],
+    "abs()":[],
+    "raw_call()":[],
+    "_abi_encode()":[],
+    "slice()":[],
 }
 
 

@@ -9,13 +9,17 @@ class LocalVariableVyper:
     def __init__(self, variable: LocalVariable, variable_data: Union[Arg, Name]) -> None:
         self._variable: LocalVariable = variable
 
-        if isinstance(variable_data, (Arg, )):
+        if isinstance(variable_data, Arg):
             self._variable.name = variable_data.arg
             self._elem_to_parse = variable_data.annotation
-        elif isinstance(variable_data, (AnnAssign, )):
+        elif isinstance(variable_data, AnnAssign):
             self._variable.name = variable_data.target.id
             self._elem_to_parse = variable_data.annotation
+        elif isinstance(variable_data, Name):
+            self._variable.name = variable_data.id
+            self._elem_to_parse = variable_data
         else:
+            # param Subscript
             self._variable.name = ""
             self._elem_to_parse = variable_data
 

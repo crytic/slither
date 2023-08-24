@@ -85,7 +85,7 @@ class ContractVyper:
                     self._contract.file_scope.contracts[contract.name] = contract
 
             elif isinstance(node, InterfaceDef):
-                # TODO This needs to be done lazily as interfaces can refer to constant state variables
+                # This needs to be done lazily as interfaces can refer to constant state variables
                 contract = Contract(self._contract.compilation_unit, self._contract.file_scope)
                 contract.set_offset(node.src, self._contract.compilation_unit)
                 contract.is_interface = True
@@ -158,7 +158,7 @@ class ContractVyper:
             func.set_contract(self._contract)
             func.set_contract_declarer(self._contract)
 
-            func_parser = FunctionVyper(func, function)
+            func_parser = FunctionVyper(func, function, self)
             self._contract.add_function(func)
             self._functions_parser.append(func_parser)
 
