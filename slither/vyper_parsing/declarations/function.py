@@ -399,14 +399,16 @@ class FunctionVyper:
 
         print(returns)
         self._function.returns_src().set_offset(returns.src, self._function.compilation_unit)
-
+        # Only the type of the arg is given, not a name. We create an an `Arg` with an empty name
+        # so that the function has the correct return type in its signature but doesn't clash with 
+        # other identifiers during name resolution (`find_variable`).
         if isinstance(returns, (Name, Subscript)):
-            local_var = self._add_param(returns)
+            local_var = self._add_param(Arg(returns.src, returns.node_id, "", annotation=returns))
             self._function.add_return(local_var.underlying_variable)
         else:
             assert isinstance(returns, Tuple)
             for ret in returns.elements:
-                local_var = self._add_param(ret)
+                local_var = self._add_param(Arg(ret.src, ret.node_id, "", annotation=ret))
                 self._function.add_return(local_var.underlying_variable)
 
     ###################################################################################
