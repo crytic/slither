@@ -573,7 +573,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         expr = get(expression.expression)
         val = TemporaryVariable(self._node)
         expression_type = expression.type
-        assert isinstance(expression_type, (TypeAlias, UserDefinedType, ElementaryType))
+        assert isinstance(expression_type, (TypeAlias, UserDefinedType, ElementaryType, ArrayType))
         operation = TypeConversion(val, expr, expression_type)
         val.set_type(expression.type)
         operation.set_expression(expression)
