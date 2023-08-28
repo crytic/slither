@@ -309,6 +309,8 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             arguments = [parse_expression(a, caller_context) for a in expression.args]
 
         if isinstance(called, Identifier):
+            print("called", called)
+            print("called.value", called.value.__class__.__name__)
             # Since the AST lacks the type of the return values, we recover it.
             if isinstance(called.value, Function):
                 rets = called.value.returns
@@ -325,7 +327,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         elif isinstance(called, MemberAccess) and called.type is not None:
             # (recover_type_2) Propagate the type collected to the `CallExpression`
             # see recover_type_1
-            rets = called.type
+            rets = [called.type]
         else:
             rets = ["tuple()"]
         
@@ -333,7 +335,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             if isinstance(x, str):
                 return x
             return str(x.type)
-
+        print(rets)
         type_str = get_type_str(rets[0]) if len(rets) == 1 else f"tuple({','.join(map(get_type_str, rets))})"
         print(CallExpression(called, arguments, type_str))
         print(type_str)
@@ -347,8 +349,10 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
                 var, was_created = find_variable(member_name, caller_context)
                 # TODO replace with self
                 return SuperIdentifier(var)
-
             expr = parse_expression(expression.value, caller_context)
+            # TODO this is ambiguous because it could be a type conversion of an interface or a member access
+            if expression.attr == "address":
+                return TypeConversion(expr, ElementaryType("address"))
             member_access = MemberAccess(member_name, None, expr)
             # member_access.set_offset(src, caller_context.compilation_unit)
             if str(member_access) in SOLIDITY_VARIABLES_COMPOSED:
@@ -362,17 +366,22 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             # (recover_type_1) This may be a call to an interface and we don't have the return types,
             # so we see if there's a function identifier with `member_name` and propagate the type to 
             # its enclosing `CallExpression`
-            # try: TODO this is using the wrong caller_context and needs to be interface instead of self namespace
-            #     var, was_created = find_variable(member_name, caller_context)
-            #     if isinstance(var, Function):
-            #         rets = var.returns
-            #         def get_type_str(x):
-            #             if isinstance(x, str):
-            #                 return x
-            #             return str(x.type)
+            # TODO this is using the wrong caller_context and needs to be interface instead of self namespace
+            print(expr)
+            print(expr.__class__.__name__)
 
-            #         type_str = get_type_str(rets[0]) if len(rets) == 1 else f"tuple({','.join(map(get_type_str, rets))})"
-            #         member_name_ret_type = type_str
+            if isinstance(expr, TypeConversion) and isinstance(expr.type, UserDefinedType):
+            # try: 
+                var, was_created = find_variable(member_name, expr.type.type)
+                if isinstance(var, Function):
+                    rets = var.returns
+                    def get_type_str(x):
+                        if isinstance(x, str):
+                            return x
+                        return str(x.type)
+
+                    type_str = get_type_str(rets[0]) if len(rets) == 1 else f"tuple({','.join(map(get_type_str, rets))})"
+                    member_name_ret_type = type_str
             # except:
             #     pass
 
