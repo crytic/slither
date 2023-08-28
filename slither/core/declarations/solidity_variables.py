@@ -36,6 +36,10 @@ SOLIDITY_VARIABLES_COMPOSED = {
     "msg.value": "uint256",
     "tx.gasprice": "uint256",
     "tx.origin": "address",
+    # Vyper
+    "chain.id": "uint256",
+    "block.prevhash": "bytes32",
+
 }
 
 SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
