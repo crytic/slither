@@ -44,8 +44,7 @@ def _find_variable_in_function_parser(
     if function_parser is None:
         return None
     func_variables = function_parser.variables_as_dict
-    # print("func_variables", func_variables)
-    
+    print("func_variables", func_variables)
     if var_name in func_variables:
         return func_variables[var_name]
 
@@ -65,7 +64,6 @@ def _find_in_contract(
     # variable are looked from the contract declarer
     print(contract)
     contract_variables = contract.variables_as_dict
-    # print(contract_variables)
     if var_name in contract_variables:
         return contract_variables[var_name]
 
@@ -110,46 +108,6 @@ def _find_in_contract(
 
 
     return None
-
-
-def _find_variable_init(
-    caller_context: CallerContextExpression,
-) -> Tuple[List[Contract], List["Function"], FileScope,]:
-    from slither.vyper_parsing.declarations.contract import ContractVyper
-    from slither.vyper_parsing.declarations.function import FunctionVyper
-
-
-    direct_contracts: List[Contract]
-    direct_functions_parser: List[Function]
-    scope: FileScope
-
-    if isinstance(caller_context, FileScope):
-        direct_contracts = []
-        direct_functions_parser = []
-        scope = caller_context
-    elif isinstance(caller_context, ContractVyper):
-        direct_contracts = [caller_context.underlying_contract]
-        direct_functions_parser = [
-            f.underlying_function
-            for f in caller_context.functions_parser + caller_context.modifiers_parser
-        ]
-        scope = caller_context.underlying_contract.file_scope
-    elif isinstance(caller_context, FunctionVyper):
-
-        direct_contracts = [caller_context.underlying_contract]
-        direct_functions_parser = [
-            f.underlying_function
-            for f in caller_context.functions_parser
-        ]
-
-
-        scope = contract.file_scope
-    else:
-        raise SlitherError(
-            f"{type(caller_context)} ({caller_context} is not valid for find_variable"
-        )
-
-    return direct_contracts, direct_functions_parser, scope
 
 
 def find_variable(
@@ -202,6 +160,7 @@ def find_variable(
     print("caller_context")
     print(caller_context)
     print(caller_context.__class__.__name__)
+    print("var", var_name)
     if isinstance(caller_context, Contract):
         direct_contracts = [caller_context]
         direct_functions = caller_context.functions_declared
@@ -213,11 +172,6 @@ def find_variable(
         current_scope = caller_context.contract.file_scope
         next_context = caller_context.contract
     # print(direct_functions)
-
-    # Only look for reference declaration in the direct contract, see comment at the end
-    # Reference looked are split between direct and all
-    # Because functions are copied between contracts, two functions can have the same ref
-    # So we need to first look with respect to the direct context
 
     function_parser: Optional[FunctionVyper] = (
         caller_context if isinstance(caller_context, FunctionContract) else None
