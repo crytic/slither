@@ -10,6 +10,13 @@ from slither.vyper_parsing.ast.types import (
     ImportFrom,
     InterfaceDef,
     AnnAssign,
+    Expr,
+    Name,
+    Arguments,
+    Index,
+    Subscript,
+    Int,
+    Arg,
 )
 
 from slither.vyper_parsing.declarations.event import EventVyper
@@ -74,15 +81,111 @@ class ContractVyper:
             elif isinstance(node, StructDef):
                 self._structuresNotParsed.append(node)
             elif isinstance(node, ImportFrom):
+                # TOOD aliases
+                # We create an `InterfaceDef` sense the compilatuion unit does not contain the actual interface
                 # https://github.com/vyperlang/vyper/tree/master/vyper/builtins/interfaces
                 if node.module == "vyper.interfaces":
-                    # TODO add functions
-                    contract = Contract(self._contract.compilation_unit, self._contract.file_scope)
-                    contract.set_offset("-1:-1:-1", self._contract.compilation_unit)
-
-                    contract.name = node.name
-                    contract.is_interface = True
-                    self._contract.file_scope.contracts[contract.name] = contract
+                    interfaces = {
+                        "ERC20Detailed": InterfaceDef(
+                            src="-1:-1:-1",
+                            node_id=-1,
+                            name="ERC20Detailed",
+                            body=[
+                                FunctionDef(
+                                    src="-1:-1:-1",
+                                    node_id=-1,
+                                    doc_string=None,
+                                    name="name",
+                                    args=Arguments(
+                                        src="-1:-1:-1",
+                                        node_id=-1,
+                                        args=[],
+                                        default=None,
+                                        defaults=[],
+                                    ),
+                                    returns=Subscript(
+                                        src="-1:-1:-1",
+                                        node_id=-1,
+                                        value=Name(src="-1:-1:-1", node_id=-1, id="String"),
+                                        slice=Index(
+                                            src="-1:-1:-1",
+                                            node_id=-1,
+                                            value=Int(src="-1:-1:-1", node_id=-1, value=1),
+                                        ),
+                                    ),
+                                    body=[
+                                        Expr(
+                                            src="-1:-1:-1",
+                                            node_id=-1,
+                                            value=Name(src="-1:-1:-1", node_id=-1, id="view"),
+                                        )
+                                    ],
+                                    decorators=[],
+                                    pos=None,
+                                ),
+                                FunctionDef(
+                                    src="-1:-1:-1",
+                                    node_id=-1,
+                                    doc_string=None,
+                                    name="symbol",
+                                    args=Arguments(
+                                        src="-1:-1:-1",
+                                        node_id=-1,
+                                        args=[],
+                                        default=None,
+                                        defaults=[],
+                                    ),
+                                    returns=Subscript(
+                                        src="-1:-1:-1",
+                                        node_id=-1,
+                                        value=Name(src="-1:-1:-1", node_id=-1, id="String"),
+                                        slice=Index(
+                                            src="-1:-1:-1",
+                                            node_id=-1,
+                                            value=Int(src="-1:-1:-1", node_id=-1, value=1),
+                                        ),
+                                    ),
+                                    body=[
+                                        Expr(
+                                            src="-1:-1:-1",
+                                            node_id=-1,
+                                            value=Name(src="-1:-1:-1", node_id=-1, id="view"),
+                                        )
+                                    ],
+                                    decorators=[],
+                                    pos=None,
+                                ),
+                                FunctionDef(
+                                    src="-1:-1:-1",
+                                    node_id=-1,
+                                    doc_string=None,
+                                    name="decimals",
+                                    args=Arguments(
+                                        src="-1:-1:-1",
+                                        node_id=-1,
+                                        args=[],
+                                        default=None,
+                                        defaults=[],
+                                    ),
+                                    returns=Name(src="-1:-1:-1", node_id=-1, id="uint8"),
+                                    body=[
+                                        Expr(
+                                            src="-1:-1:-1",
+                                            node_id=-1,
+                                            value=Name(src="-1:-1:-1", node_id=-1, id="view"),
+                                        )
+                                    ],
+                                    decorators=[],
+                                    pos=None,
+                                ),
+                            ],
+                        ),
+                        "ERC20": InterfaceDef(src="-1:-1:-1", node_id=1, name='ERC20', body=[FunctionDef(src="-1:-1:-1", node_id=2, doc_string=None, name='totalSupply', args=Arguments(src="-1:-1:-1", node_id=3, args=[], default=None, defaults=[]), returns=Name(src="-1:-1:-1", node_id=7, id='uint256'), body=[Expr(src="-1:-1:-1", node_id=4, value=Name(src="-1:-1:-1", node_id=5, id='view'))], decorators=[], pos=None), FunctionDef(src="-1:-1:-1", node_id=9, doc_string=None, name='balanceOf', args=Arguments(src="-1:-1:-1", node_id=10, args=[Arg(src="-1:-1:-1", node_id=11, arg='_owner', annotation=Name(src="-1:-1:-1", node_id=12, id='address'))], default=None, defaults=[]), returns=Name(src="-1:-1:-1", node_id=17, id='uint256'), body=[Expr(src="-1:-1:-1", node_id=14, value=Name(src="-1:-1:-1", node_id=15, id='view'))], decorators=[], pos=None), FunctionDef(src="-1:-1:-1", node_id=19, doc_string=None, name='allowance', args=Arguments(src="-1:-1:-1", node_id=20, args=[Arg(src="-1:-1:-1", node_id=21, arg='_owner', annotation=Name(src="-1:-1:-1", node_id=22, id='address')), Arg(src="-1:-1:-1", node_id=24, arg='_spender', annotation=Name(src="-1:-1:-1", node_id=25, id='address'))], default=None, defaults=[]), returns=Name(src="-1:-1:-1", node_id=30, id='uint256'), body=[Expr(src="-1:-1:-1", node_id=27, value=Name(src="-1:-1:-1", node_id=28, id='view'))], decorators=[], pos=None), FunctionDef(src="-1:-1:-1", node_id=32, doc_string=None, name='transfer', args=Arguments(src="-1:-1:-1", node_id=33, args=[Arg(src="-1:-1:-1", node_id=34, arg='_to', annotation=Name(src="-1:-1:-1", node_id=35, id='address')), Arg(src="-1:-1:-1", node_id=37, arg='_value', annotation=Name(src="-1:-1:-1", node_id=38, id='uint256'))], default=None, defaults=[]), returns=Name(src="-1:-1:-1", node_id=43, id='bool'), body=[Expr(src="-1:-1:-1", node_id=40, value=Name(src="-1:-1:-1", node_id=41, id='nonpayable'))], decorators=[], pos=None), FunctionDef(src="-1:-1:-1", node_id=45, doc_string=None, name='transferFrom', args=Arguments(src="-1:-1:-1", node_id=46, args=[Arg(src="-1:-1:-1", node_id=47, arg='_from', annotation=Name(src="-1:-1:-1", node_id=48, id='address')), Arg(src="-1:-1:-1", node_id=50, arg='_to', annotation=Name(src="-1:-1:-1", node_id=51, id='address')), Arg(src="-1:-1:-1", node_id=53, arg='_value', annotation=Name(src="-1:-1:-1", node_id=54, id='uint256'))], default=None, defaults=[]), returns=Name(src="-1:-1:-1", node_id=59, id='bool'), body=[Expr(src="-1:-1:-1", node_id=56, value=Name(src="-1:-1:-1", node_id=57, id='nonpayable'))], decorators=[], pos=None), FunctionDef(src="-1:-1:-1", node_id=61, doc_string=None, name='approve', args=Arguments(src="-1:-1:-1", node_id=62, args=[Arg(src="-1:-1:-1", node_id=63, arg='_spender', annotation=Name(src="-1:-1:-1", node_id=64, id='address')), Arg(src="-1:-1:-1", node_id=66, arg='_value', annotation=Name(src="-1:-1:-1", node_id=67, id='uint256'))], default=None, defaults=[]), returns=Name(src="-1:-1:-1", node_id=72, id='bool'), body=[Expr(src="-1:-1:-1", node_id=69, value=Name(src="-1:-1:-1", node_id=70, id='nonpayable'))], decorators=[], pos=None)]),
+                        "ERC165": [],
+                        "ERC721": [],
+                        "ERC4626": [],
+                    }
+                    self._data.body.append(interfaces[node.name])
 
             elif isinstance(node, InterfaceDef):
                 # This needs to be done lazily as interfaces can refer to constant state variables
@@ -164,12 +267,10 @@ class ContractVyper:
 
         self._functionsNotParsed = []
 
-
     def analyze_state_variables(self):
         # Struct defs can refer to constant state variables
         for var_parser in self._variables_parser:
             var_parser.analyze(self._contract)
-
 
     def analyze(self) -> None:
         print("Analyze", self._contract._name)
