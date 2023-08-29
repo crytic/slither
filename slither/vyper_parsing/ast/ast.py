@@ -316,10 +316,12 @@ def parse_aug_assign(raw: Dict) -> AugAssign:
 def parse_unsupported(raw: Dict) -> ASTNode:
     raise ParsingError("unsupported Vyper node", raw["ast_type"], raw.keys(), raw)
 
+bool_op_ast_type_to_op_symbol = {"And": "&&", "Or": "||"}
 
 def parse_bool_op(raw: Dict) -> BoolOp:
+    op_str = bool_op_ast_type_to_op_symbol[raw["op"]["ast_type"]]
     return BoolOp(
-        op=raw["op"], values=[parse(x) for x in raw["values"]], **_extract_base_props(raw)
+        op=op_str, values=[parse(x) for x in raw["values"]], **_extract_base_props(raw)
     )
 
 
