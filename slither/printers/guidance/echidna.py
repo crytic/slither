@@ -30,7 +30,7 @@ from slither.slithir.operations import (
     TypeConversion,
 )
 from slither.slithir.operations.binary import Binary
-from slither.slithir.variables import Constant
+from slither.slithir.variables import Constant, ReferenceVariable
 from slither.utils.output import Output
 from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
 
@@ -208,19 +208,20 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
             except ValueError:  # index could fail; should never happen in working solidity code
                 pass
         for r in ir.read:
+            var_read = r.points_to_origin if isinstance(r, ReferenceVariable) else r
             # Do not report struct_name in a.struct_name
             if isinstance(ir, Member):
                 continue
-            if isinstance(r, Constant):
-                all_cst_used.append(ConstantValue(str(r.value), str(r.type)))
-            if isinstance(r, StateVariable):
-                if r.node_initialization:
-                    if r.node_initialization.irs:
-                        if r.node_initialization in context_explored:
+            if isinstance(var_read, Constant):
+                all_cst_used.append(ConstantValue(str(var_read.value), str(var_read.type)))
+            if isinstance(var_read, StateVariable):
+                if var_read.node_initialization:
+                    if var_read.node_initialization.irs:
+                        if var_read.node_initialization in context_explored:
                             continue
-                        context_explored.add(r.node_initialization)
+                        context_explored.add(var_read.node_initialization)
                         _extract_constants_from_irs(
-                            r.node_initialization.irs,
+                            var_read.node_initialization.irs,
                             all_cst_used,
                             all_cst_used_in_binary,
                             context_explored,
