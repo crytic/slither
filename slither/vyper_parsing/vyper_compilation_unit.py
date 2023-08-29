@@ -1,12 +1,12 @@
 from typing import Dict
+import os
+import re
 from dataclasses import dataclass, field
 from slither.core.declarations import Contract
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.vyper_parsing.declarations.contract import ContractVyper
 from slither.analyses.data_dependency.data_dependency import compute_dependency
-from slither.vyper_parsing.declarations.struct import Structure
-from slither.core.variables.state_variable import StateVariable
-
+from slither.vyper_parsing.ast.types import Module
 from slither.exceptions import SlitherException
 
 
@@ -18,7 +18,16 @@ class VyperCompilationUnit:
     _underlying_contract_to_parser: Dict[Contract, ContractVyper] = field(default_factory=dict)
     _contracts_by_id: Dict[int, Contract] = field(default_factory=dict)
 
-    def parse_module(self, data: Dict, filename: str):
+    def parse_module(self, data: Module, filename: str):
+
+        sourceUnit_candidates = re.findall("[0-9]*:[0-9]*:([0-9]*)", data.src)
+        assert len(sourceUnit_candidates) == 1, "Source unit not found"
+        sourceUnit = int(sourceUnit_candidates[0])
+
+        self._compilation_unit.source_units[sourceUnit] = filename
+        if os.path.isfile(filename) and not filename in self._compilation_unit.core.source_code:
+            self._compilation_unit.core.add_source_code(filename)
+
         scope = self._compilation_unit.get_scope(filename)
         contract = Contract(self._compilation_unit, scope)
         contract_parser = ContractVyper(self, contract, data)
