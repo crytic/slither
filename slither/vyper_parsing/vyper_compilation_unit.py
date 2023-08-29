@@ -58,11 +58,17 @@ class VyperCompilationUnit:
         self._analyzed = True
 
     def _convert_to_slithir(self) -> None:
-        
         for contract in self._compilation_unit.contracts:
             contract.add_constructor_variables()
             for func in contract.functions:
                 func.generate_slithir_and_analyze()
+
+            contract.convert_expression_to_slithir_ssa()
+        
+        self._compilation_unit.propagate_function_calls()
+        for contract in self._compilation_unit.contracts:
+            contract.fix_phi()
+            contract.update_read_write_using_ssa()
 
     # def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
 
