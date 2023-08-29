@@ -32,7 +32,7 @@ class NodeVyper:
         if self._unparsed_expression:
             expression = parse_expression(self._unparsed_expression, caller_context)
             self._node.add_expression(expression)
-            # self._unparsed_expression = None
+            self._unparsed_expression = None
 
         if self._node.expression:
 
@@ -44,9 +44,9 @@ class NodeVyper:
                     AssignmentOperationType.ASSIGN,
                     self._node.variable_declaration.type,
                 )
-                # _expression.set_offset(
-                #     self._node.expression.source_mapping, self._node.compilation_unit
-                # )
+                _expression.set_offset(
+                    self._node.expression.source_mapping, self._node.compilation_unit
+                )
                 self._node.add_expression(_expression, bypass_verif_empty=True)
 
             expression = self._node.expression
