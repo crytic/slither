@@ -108,9 +108,10 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "max()":[],
     "shift()":[],
     "abs()":[],
-    "raw_call()":[],
+    "raw_call()":["bool", "bytes32"],
     "_abi_encode()":[],
     "slice()":[],
+    "uint2str()":["string"],
 }
 
 
