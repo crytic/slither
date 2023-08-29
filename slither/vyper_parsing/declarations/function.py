@@ -225,6 +225,7 @@ class FunctionVyper:
 
                         new_node = self._new_node(NodeType.VARIABLE, expr.src, scope)
                         if expr.value is not None:
+                            local_var.initialized = True
                             new_node.add_unparsed_expression(expr.value)
                         new_node.underlying_node.add_variable_declaration(local_var)
                         link_underlying_nodes(curr_node, new_node)
@@ -254,6 +255,7 @@ class FunctionVyper:
                         local_var_parser = LocalVariableVyper(local_var, counter_var)
                         self._add_local_variable(local_var_parser)
                         new_node = self._new_node(NodeType.VARIABLE, expr.src, scope)
+                        local_var.initialized = True
                         new_node.add_unparsed_expression(counter_var.value)
                         new_node.underlying_node.add_variable_declaration(local_var)
 
@@ -287,6 +289,7 @@ class FunctionVyper:
                             local_var_parser = LocalVariableVyper(local_var, loop_var)
                             self._add_local_variable(local_var_parser)
                             new_node = self._new_node(NodeType.VARIABLE, expr.src, scope)
+                            local_var.initialized = True
                             new_node.add_unparsed_expression(loop_var.value)
                             new_node.underlying_node.add_variable_declaration(local_var)
 
@@ -300,6 +303,7 @@ class FunctionVyper:
                             local_var_parser = LocalVariableVyper(local_var, loop_var)
                             self._add_local_variable(local_var_parser)
                             new_node = self._new_node(NodeType.VARIABLE, expr.src, scope)
+                            local_var.initialized = True
                             new_node.add_unparsed_expression(loop_var.value)
                             new_node.underlying_node.add_variable_declaration(local_var)
                         else:
