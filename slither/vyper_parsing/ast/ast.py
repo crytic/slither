@@ -205,7 +205,7 @@ def parse_unary_op(raw: Dict) -> UnaryOp:
     return UnaryOp(op=unop_str, operand=parse(raw["operand"]), **_extract_base_props(raw))
 
 # This is done for convenience so we can call `BinaryOperationType.get_type` during expression parsing.
-binop_ast_type_to_op_symbol = {"Add": "+", "Mult": "*", "Sub": "-", "Div": "-", "Pow": "**", "Mod": "%", "BitAnd": "&", "BitOr": "|", "Shr": "<<", "Shl": ">>", "NotEq": "!=", "Eq": "==", "LtE": "<=", "GtE": ">=", "Lt": "<", "Gt": ">",  "In": "In", "NotIn": "NotIn"}
+binop_ast_type_to_op_symbol = {"Add": "+", "Mult": "*", "Sub": "-", "Div": "/", "Pow": "**", "Mod": "%", "BitAnd": "&", "BitOr": "|", "Shr": "<<", "Shl": ">>", "NotEq": "!=", "Eq": "==", "LtE": "<=", "GtE": ">=", "Lt": "<", "Gt": ">",  "In": "In", "NotIn": "NotIn"}
 
 def parse_bin_op(raw: Dict) -> BinOp:
     arith_op_str = binop_ast_type_to_op_symbol[raw["op"]["ast_type"]]
