@@ -672,7 +672,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         rhs = parse_expression(expression.values[1], caller_context)
 
         op = BinaryOperationType.get_type(expression.op)
-        parsed_expr = BinaryOperation(lhs, op)
+        parsed_expr = BinaryOperation(lhs, rhs, op)
         parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
         return parsed_expr
 

@@ -238,11 +238,14 @@ class FunctionVyper:
 
                         curr_node = new_node
 
-                    # elif isinstance(expr, Assign):
-                    #     new_node = self._new_node(NodeType.EXPRESSION, expr.src, scope)
-                    #     new_node.add_unparsed_expression(expr.target)
-                    #     new_node.add_unparsed_expression(expr.value)
-                    #     link_underlying_nodes(curr_node, new_node)
+                    elif isinstance(expr, Expr):
+                        # TODO This is a workaround to handle Vyper putting payable/view in the function body...
+                        if not isinstance(expr.value, Name):
+                            new_node = self._new_node(NodeType.EXPRESSION, expr.src, scope)
+                            new_node.add_unparsed_expression(expr.value)
+                            link_underlying_nodes(curr_node, new_node)
+
+                            curr_node = new_node
 
                     elif isinstance(expr, For):
 
@@ -441,8 +444,6 @@ class FunctionVyper:
                         link_underlying_nodes(curr_node, condition_node)
                         curr_node = endIf_node
 
-                    elif isinstance(expr, Expr):
-                        pass
                     elif isinstance(expr, Pass):
                         pass
                     elif isinstance(expr, Raise):
