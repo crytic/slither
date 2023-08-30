@@ -3,7 +3,7 @@ import re
 from logging import Logger
 from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
 
-from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.core.compilation_unit import SlitherCompilationUnit, Language
 from slither.core.declarations import Contract
 from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
@@ -80,6 +80,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     # list of vulnerable solc versions as strings (e.g. ["0.4.25", "0.5.0"])
     # If the detector is meant to run on all versions, use None
     VULNERABLE_SOLC_VERSIONS: Optional[List[str]] = None
+    # If the detector is meant to run on all languages, use None
+    # Otherwise, use `solidity` or `vyper`
+    LANGUAGE: Optional[str] = None
 
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
@@ -133,6 +136,14 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                 f"VULNERABLE_SOLC_VERSIONS should not be an empty list {self.__class__.__name__}"
             )
 
+        if self.LANGUAGE is not None and self.LANGUAGE not in [
+            Language.SOLIDITY.value,
+            Language.VYPER.value,
+        ]:
+            raise IncorrectDetectorInitialization(
+                f"LANGUAGE should not be either 'solidity' or 'vyper' {self.__class__.__name__}"
+            )
+
         if re.match("^[a-zA-Z0-9_-]*$", self.ARGUMENT) is None:
             raise IncorrectDetectorInitialization(
                 f"ARGUMENT has illegal character {self.__class__.__name__}"
@@ -164,9 +175,14 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if self.logger:
             self.logger.info(self.color(info))
 
-    def _uses_vulnerable_solc_version(self) -> bool:
+    def _is_applicable_detector(self) -> bool:
         if self.VULNERABLE_SOLC_VERSIONS:
-            return self.compilation_unit.solc_version in self.VULNERABLE_SOLC_VERSIONS
+            return (
+                self.compilation_unit.is_solidity
+                and self.compilation_unit.solc_version in self.VULNERABLE_SOLC_VERSIONS
+            )
+        if self.LANGUAGE:
+            return self.compilation_unit._language == self.LANGUAGE
         return True
 
     @abc.abstractmethod
@@ -179,7 +195,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         results: List[Dict] = []
 
         # check solc version
-        if not self._uses_vulnerable_solc_version():
+        if not self._is_applicable_detector():
             return results
 
         # only keep valid result, and remove duplicate

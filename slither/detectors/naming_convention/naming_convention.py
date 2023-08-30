@@ -24,7 +24,7 @@ class NamingConvention(AbstractDetector):
     HELP = "Conformity to Solidity naming conventions"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
-
+    LANGUAGE = "solidity"
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions"
 
     WIKI_TITLE = "Conformance to Solidity naming conventions"
