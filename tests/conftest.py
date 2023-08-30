@@ -59,7 +59,7 @@ def solc_binary_path(shared_directory):
 
 
 @pytest.fixture
-def slither_from_source(solc_binary_path):
+def slither_from_solidity_source(solc_binary_path):
     @contextmanager
     def inner(source_code: str, solc_version: str = "0.8.19"):
         """Yields a Slither instance using source_code string and solc_version.
