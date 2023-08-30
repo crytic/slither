@@ -39,6 +39,7 @@ SOLIDITY_VARIABLES_COMPOSED = {
     # Vyper
     "chain.id": "uint256",
     "block.prevhash": "bytes32",
+    "self.balance": "uint256",
 
 }
 

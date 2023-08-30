@@ -368,7 +368,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         member_name = expression.attr
         if isinstance(expression.value, Name):
 
-            if expression.value.id  == "self":
+            if expression.value.id  == "self" and member_name != "balance":
                 var, was_created = find_variable(member_name, caller_context)
                 # TODO replace with self
                 if was_created:
