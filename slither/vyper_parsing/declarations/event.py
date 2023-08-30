@@ -22,9 +22,6 @@ class EventVyper:
         self._event = event
         self._event.name = event_def.name
         self._elemsNotParsed = event_def.body
-        print(event_def)
-        # assert False
-        # self.analyze() # TODO create `VariableDecl` from `AnnAssign` from `event_def.body` (also for `StructDef`)
 
     def analyze(self, contract) -> None:
         for elem_to_parse in self._elemsNotParsed:

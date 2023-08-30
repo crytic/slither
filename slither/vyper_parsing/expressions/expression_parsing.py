@@ -49,209 +49,6 @@ from slither.vyper_parsing.type_parsing import parse_type
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
 
-logger = logging.getLogger("ExpressionParsing")
-
-# pylint: disable=anomalous-backslash-in-string,import-outside-toplevel,too-many-branches,too-many-locals
-
-# region Filtering
-###################################################################################
-###################################################################################
-
-
-def filter_name(value: str) -> str:
-    value = value.replace(" memory", "")
-    value = value.replace(" storage", "")
-    value = value.replace(" external", "")
-    value = value.replace(" internal", "")
-    value = value.replace("struct ", "")
-    value = value.replace("contract ", "")
-    value = value.replace("enum ", "")
-    value = value.replace(" ref", "")
-    value = value.replace(" pointer", "")
-    value = value.replace(" pure", "")
-    value = value.replace(" view", "")
-    value = value.replace(" constant", "")
-    value = value.replace(" payable", "")
-    value = value.replace("function (", "function(")
-    value = value.replace("returns (", "returns(")
-    value = value.replace(" calldata", "")
-
-    # remove the text remaining after functio(...)
-    # which should only be ..returns(...)
-    # nested parenthesis so we use a system of counter on parenthesis
-    idx = value.find("(")
-    if idx:
-        counter = 1
-        max_idx = len(value)
-        while counter:
-            assert idx < max_idx
-            idx = idx + 1
-            if value[idx] == "(":
-                counter += 1
-            elif value[idx] == ")":
-                counter -= 1
-        value = value[: idx + 1]
-    return value
-
-
-# endregion
-
-###################################################################################
-###################################################################################
-# region Parsing
-###################################################################################
-###################################################################################
-
-# pylint: disable=too-many-statements
-def parse_call(
-    expression: Dict, caller_context
-) -> Union[
-    slither.core.expressions.call_expression.CallExpression,
-    slither.core.expressions.type_conversion.TypeConversion,
-]:
-    src = expression["src"]
-    if caller_context.is_compact_ast:
-        attributes = expression
-        type_conversion = expression["kind"] == "typeConversion"
-        type_return = attributes["typeDescriptions"]["typeString"]
-
-    else:
-        attributes = expression["attributes"]
-        type_conversion = attributes["type_conversion"]
-        type_return = attributes["type"]
-
-    if type_conversion:
-        type_call = parse_type(UnknownType(type_return), caller_context)
-        if caller_context.is_compact_ast:
-            assert len(expression["arguments"]) == 1
-            expression_to_parse = expression["arguments"][0]
-        else:
-            children = expression["children"]
-            assert len(children) == 2
-            type_info = children[0]
-            expression_to_parse = children[1]
-            assert type_info["name"] in [
-                "ElementaryTypenameExpression",
-                "ElementaryTypeNameExpression",
-                "Identifier",
-                "TupleExpression",
-                "IndexAccess",
-                "MemberAccess",
-            ]
-
-        expression = parse_expression(expression_to_parse, caller_context)
-        t = TypeConversion(expression, type_call)
-        t.set_offset(src, caller_context.compilation_unit)
-        if isinstance(type_call, UserDefinedType):
-            type_call.type.references.append(t.source_mapping)
-        return t
-
-    call_gas = None
-    call_value = None
-    call_salt = None
-    if caller_context.is_compact_ast:
-        called = parse_expression(expression["expression"], caller_context)
-        # If the next expression is a FunctionCallOptions
-        # We can here the gas/value information
-        # This is only available if the syntax is {gas: , value: }
-        # For the .gas().value(), the member are considered as function call
-        # And converted later to the correct info (convert.py)
-        if expression["expression"][caller_context.get_key()] == "FunctionCallOptions":
-            call_with_options = expression["expression"]
-            for idx, name in enumerate(call_with_options.get("names", [])):
-                option = parse_expression(call_with_options["options"][idx], caller_context)
-                if name == "value":
-                    call_value = option
-                if name == "gas":
-                    call_gas = option
-                if name == "salt":
-                    call_salt = option
-        arguments = []
-        if expression["arguments"]:
-            arguments = [parse_expression(a, caller_context) for a in expression["arguments"]]
-    else:
-        children = expression["children"]
-        called = parse_expression(children[0], caller_context)
-        arguments = [parse_expression(a, caller_context) for a in children[1::]]
-
-    if isinstance(called, SuperCallExpression):
-        sp = SuperCallExpression(called, arguments, type_return)
-        sp.set_offset(expression["src"], caller_context.compilation_unit)
-        return sp
-    call_expression = CallExpression(called, arguments, type_return)
-    call_expression.set_offset(src, caller_context.compilation_unit)
-
-    # Only available if the syntax {gas:, value:} was used
-    call_expression.call_gas = call_gas
-    call_expression.call_value = call_value
-    call_expression.call_salt = call_salt
-    return call_expression
-
-
-def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
-    if is_compact_ast:
-        assert expression["nodeType"] == "MemberAccess"
-        base_name = expression["memberName"]
-        arguments = expression["typeDescriptions"]["typeString"]
-    else:
-        assert expression["name"] == "MemberAccess"
-        attributes = expression["attributes"]
-        base_name = attributes["member_name"]
-        arguments = attributes["type"]
-
-    assert arguments.startswith("function ")
-    # remove function (...()
-    arguments = arguments[len("function ") :]
-
-    arguments = filter_name(arguments)
-    if " " in arguments:
-        arguments = arguments[: arguments.find(" ")]
-
-    return base_name + arguments
-
-
-def _parse_elementary_type_name_expression(
-    expression: Dict, is_compact_ast: bool, caller_context: CallerContextExpression
-) -> ElementaryTypeNameExpression:
-    # nop exression
-    # uint;
-    if is_compact_ast:
-        value = expression["typeName"]
-    else:
-        if "children" in expression:
-            value = expression["children"][0]["attributes"]["name"]
-        else:
-            value = expression["attributes"]["value"]
-    if isinstance(value, dict):
-        t = parse_type(value, caller_context)
-    else:
-        t = parse_type(UnknownType(value), caller_context)
-    e = ElementaryTypeNameExpression(t)
-    e.set_offset(expression["src"], caller_context.compilation_unit)
-    return e
-
-
-if TYPE_CHECKING:
-    pass
-
-
-def _user_defined_op_call(
-    caller_context: CallerContextExpression, src, function_id: int, args: List[Any], type_call: str
-) -> CallExpression:
-    var, was_created = find_variable(None, caller_context, function_id)
-
-    if was_created:
-        var.set_offset(src, caller_context.compilation_unit)
-
-    identifier = Identifier(var)
-    identifier.set_offset(src, caller_context.compilation_unit)
-
-    var.references.append(identifier.source_mapping)
-
-    call = CallExpression(identifier, args, type_call)
-    call.set_offset(src, caller_context.compilation_unit)
-    return call
-
 
 from collections import deque
 from slither.vyper_parsing.ast.types import (
@@ -355,19 +152,37 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
                     ),
                 )
                 return parsed_expr
-            
+
             elif called.value.name == "raw_call()":
                 args = [parse_expression(a, caller_context) for a in expression.args]
                 # This is treated specially in order to force `extract_tmp_call` to treat this as a `HighLevelCall` which will be converted
                 # to a `LowLevelCall` by `convert_to_low_level`. This is an artifact of the late conversion of Solidity...
-                call = CallExpression(MemberAccess("raw_call", "tuple(bool,bytes32)", args[0]), args[1:], "tuple(bool,bytes32)")
+                call = CallExpression(
+                    MemberAccess("raw_call", "tuple(bool,bytes32)", args[0]),
+                    args[1:],
+                    "tuple(bool,bytes32)",
+                )
                 call.set_offset(expression.src, caller_context.compilation_unit)
-                call.call_value = next(iter(parse_expression(x.value, caller_context) for x in expression.keywords if x.arg == "value"), None)
-                call.call_gas = next(iter(parse_expression(x.value, caller_context) for x in expression.keywords if x.arg == "gas"), None)
+                call.call_value = next(
+                    iter(
+                        parse_expression(x.value, caller_context)
+                        for x in expression.keywords
+                        if x.arg == "value"
+                    ),
+                    None,
+                )
+                call.call_gas = next(
+                    iter(
+                        parse_expression(x.value, caller_context)
+                        for x in expression.keywords
+                        if x.arg == "gas"
+                    ),
+                    None,
+                )
                 # TODO handle `max_outsize` keyword
 
-                return call 
-            
+                return call
+
         if expression.args and isinstance(expression.args[0], VyDict):
             arguments = []
             for val in expression.args[0].values:

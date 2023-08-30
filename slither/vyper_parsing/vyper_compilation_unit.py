@@ -78,39 +78,3 @@ class VyperCompilationUnit:
         for contract in self._compilation_unit.contracts:
             contract.fix_phi()
             contract.update_read_write_using_ssa()
-
-    # def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
-
-    #     self._contracts_by_id: Dict[int, ContractSolc] = {}
-    #     self._parsed = False
-    #     self._analyzed = False
-
-    #     self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = {}
-    #     self._structures_top_level_parser: List[StructureTopLevelSolc] = []
-    #     self._custom_error_parser: List[CustomErrorSolc] = []
-    #     self._variables_top_level_parser: List[TopLevelVariableSolc] = []
-    #     self._functions_top_level_parser: List[FunctionSolc] = []
-    #     self._using_for_top_level_parser: List[UsingForTopLevelSolc] = []
-
-    #     self._all_functions_and_modifier_parser: List[FunctionSolc] = []
-
-    #     self._top_level_contracts_counter = 0
-
-    # @property
-    # def compilation_unit(self) -> SlitherCompilationUnit:
-    #     return self._compilation_unit
-
-    # @property
-    # def all_functions_and_modifiers_parser(self) -> List[FunctionSolc]:
-    #     return self._all_functions_and_modifier_parser
-
-    # def add_function_or_modifier_parser(self, f: FunctionSolc) -> None:
-    #     self._all_functions_and_modifier_parser.append(f)
-
-    # @property
-    # def underlying_contract_to_parser(self) -> Dict[Contract, ContractSolc]:
-    #     return self._underlying_contract_to_parser
-
-    # @property
-    # def slither_parser(self) -> "SlitherCompilationUnitSolc":
-    #     return self
