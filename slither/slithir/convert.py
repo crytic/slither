@@ -1131,6 +1131,7 @@ def can_be_low_level(ir: HighLevelCall) -> bool:
         "delegatecall",
         "callcode",
         "staticcall",
+        "raw_call",
     ]
 
 
@@ -1159,13 +1160,14 @@ def convert_to_low_level(
         ir.set_node(prev_ir.node)
         ir.lvalue.set_type(ElementaryType("bool"))
         return ir
-    if ir.function_name in ["call", "delegatecall", "callcode", "staticcall"]:
+    if ir.function_name in ["call", "delegatecall", "callcode", "staticcall", "raw_call"]:
         new_ir = LowLevelCall(
             ir.destination, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call
         )
         new_ir.call_gas = ir.call_gas
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
+        # TODO fix this for Vyper
         if ir.node.compilation_unit.solc_version >= "0.5":
             new_ir.lvalue.set_type([ElementaryType("bool"), ElementaryType("bytes")])
         else:
@@ -1916,7 +1918,8 @@ def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Operation]:
     irs = propagate_type_and_convert_call(irs, node)
     irs = remove_unused(irs)
     find_references_origin(irs)
-    convert_constant_types(irs)
+    # TODO refine only for Solidity
+    # convert_constant_types(irs)
     convert_delete(irs)
 
     _find_source_mapping_references(irs)
