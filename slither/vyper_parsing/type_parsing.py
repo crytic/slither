@@ -11,11 +11,12 @@ from slither.core.solidity_types.user_defined_type import UserDefinedType
 
 from slither.core.declarations.function_contract import FunctionContract
 
+
 def parse_type(annotation: Union[Name, Subscript, Call], caller_context):
     from slither.vyper_parsing.expressions.expression_parsing import parse_expression
 
     if isinstance(caller_context, FunctionContract):
-        contract =  caller_context.contract
+        contract = caller_context.contract
     else:
         contract = caller_context
 
@@ -41,17 +42,16 @@ def parse_type(annotation: Union[Name, Subscript, Call], caller_context):
 
         elif isinstance(annotation.value, Subscript):
             type_ = parse_type(annotation.value, caller_context)
-        
+
         elif isinstance(annotation.value, Name):
             # TODO it is weird that the ast_type is `Index` when it's a type annotation and not an expression, so we grab the value.
             # Subscript(src='13:10:0', node_id=7, value=Name(src='13:6:0', node_id=8, id='String'), slice=Index(src='13:10:0', node_id=12, value=Int(src='20:2:0', node_id=10, value=64)))
             type_ = parse_type(annotation.value, caller_context)
             if annotation.value.id == "String":
                 return type_
-            
+
         length = parse_expression(annotation.slice.value, caller_context)
         return ArrayType(type_, length)
-        
 
     elif isinstance(annotation, Call):
         return parse_type(annotation.args[0], caller_context)
@@ -62,8 +62,6 @@ def parse_type(annotation: Union[Name, Subscript, Call], caller_context):
     lname = name.lower()  # todo map String to string
     if lname in ElementaryTypeName:
         return ElementaryType(lname)
-
-
 
     if name in contract.structures_as_dict:
         return UserDefinedType(contract.structures_as_dict[name])

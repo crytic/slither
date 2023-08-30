@@ -197,26 +197,56 @@ def parse_raise(raw: Dict) -> Raise:
 def parse_expr(raw: Dict) -> Expr:
     return Expr(value=parse(raw["value"]), **_extract_base_props(raw))
 
+
 # This is done for convenience so we can call `UnaryOperationType.get_type` during expression parsing.
 unop_ast_type_to_op_symbol = {"Not": "!", "USub": "-"}
+
 
 def parse_unary_op(raw: Dict) -> UnaryOp:
     unop_str = unop_ast_type_to_op_symbol[raw["op"]["ast_type"]]
     return UnaryOp(op=unop_str, operand=parse(raw["operand"]), **_extract_base_props(raw))
 
+
 # This is done for convenience so we can call `BinaryOperationType.get_type` during expression parsing.
-binop_ast_type_to_op_symbol = {"Add": "+", "Mult": "*", "Sub": "-", "Div": "/", "Pow": "**", "Mod": "%", "BitAnd": "&", "BitOr": "|", "Shr": "<<", "Shl": ">>", "NotEq": "!=", "Eq": "==", "LtE": "<=", "GtE": ">=", "Lt": "<", "Gt": ">",  "In": "In", "NotIn": "NotIn"}
+binop_ast_type_to_op_symbol = {
+    "Add": "+",
+    "Mult": "*",
+    "Sub": "-",
+    "Div": "/",
+    "Pow": "**",
+    "Mod": "%",
+    "BitAnd": "&",
+    "BitOr": "|",
+    "Shr": "<<",
+    "Shl": ">>",
+    "NotEq": "!=",
+    "Eq": "==",
+    "LtE": "<=",
+    "GtE": ">=",
+    "Lt": "<",
+    "Gt": ">",
+    "In": "In",
+    "NotIn": "NotIn",
+}
+
 
 def parse_bin_op(raw: Dict) -> BinOp:
     arith_op_str = binop_ast_type_to_op_symbol[raw["op"]["ast_type"]]
     return BinOp(
-        left=parse(raw["left"]), op=arith_op_str, right=parse(raw["right"]), **_extract_base_props(raw)
+        left=parse(raw["left"]),
+        op=arith_op_str,
+        right=parse(raw["right"]),
+        **_extract_base_props(raw),
     )
+
 
 def parse_compare(raw: Dict) -> Compare:
     logical_op_str = binop_ast_type_to_op_symbol[raw["op"]["ast_type"]]
     return Compare(
-        left=parse(raw["left"]), op=logical_op_str, right=parse(raw["right"]), **_extract_base_props(raw)
+        left=parse(raw["left"]),
+        op=logical_op_str,
+        right=parse(raw["right"]),
+        **_extract_base_props(raw),
     )
 
 
@@ -301,7 +331,20 @@ def parse_enum_def(raw: Dict) -> EnumDef:
 
     return EnumDef(name=raw["name"], body=nodes_parsed, **_extract_base_props(raw))
 
-aug_assign_ast_type_to_op_symbol = {"Add": "+=", "Mult": "*=", "Sub": "-=", "Div": "-=", "Pow": "**=", "Mod": "%=", "BitAnd": "&=", "BitOr": "|=", "Shr": "<<=", "Shl": ">>="}
+
+aug_assign_ast_type_to_op_symbol = {
+    "Add": "+=",
+    "Mult": "*=",
+    "Sub": "-=",
+    "Div": "-=",
+    "Pow": "**=",
+    "Mod": "%=",
+    "BitAnd": "&=",
+    "BitOr": "|=",
+    "Shr": "<<=",
+    "Shl": ">>=",
+}
+
 
 def parse_aug_assign(raw: Dict) -> AugAssign:
     op_str = aug_assign_ast_type_to_op_symbol[raw["op"]["ast_type"]]
@@ -316,13 +359,13 @@ def parse_aug_assign(raw: Dict) -> AugAssign:
 def parse_unsupported(raw: Dict) -> ASTNode:
     raise ParsingError("unsupported Vyper node", raw["ast_type"], raw.keys(), raw)
 
+
 bool_op_ast_type_to_op_symbol = {"And": "&&", "Or": "||"}
+
 
 def parse_bool_op(raw: Dict) -> BoolOp:
     op_str = bool_op_ast_type_to_op_symbol[raw["op"]["ast_type"]]
-    return BoolOp(
-        op=op_str, values=[parse(x) for x in raw["values"]], **_extract_base_props(raw)
-    )
+    return BoolOp(op=op_str, values=[parse(x) for x in raw["values"]], **_extract_base_props(raw))
 
 
 def parse(raw: Dict) -> ASTNode:

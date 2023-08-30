@@ -51,9 +51,9 @@ class VyperCompilationUnit:
     def analyze_contracts(self) -> None:
         if not self._parsed:
             raise SlitherException("Parse the contract before running analyses")
-        
+
         for contract, contract_parser in self._underlying_contract_to_parser.items():
-            # State variables are analyzed for all contracts because interfaces may 
+            # State variables are analyzed for all contracts because interfaces may
             # reference them, specifically, constants.
             contract_parser.analyze_state_variables()
 
@@ -73,7 +73,7 @@ class VyperCompilationUnit:
                 func.generate_slithir_and_analyze()
 
             contract.convert_expression_to_slithir_ssa()
-        
+
         self._compilation_unit.propagate_function_calls()
         for contract in self._compilation_unit.contracts:
             contract.fix_phi()

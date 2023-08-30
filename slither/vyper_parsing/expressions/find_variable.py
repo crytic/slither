@@ -36,7 +36,6 @@ if TYPE_CHECKING:
 # CallerContext =Union["ContractSolc", "FunctionSolc", "CustomErrorSolc", "StructureTopLevelSolc"]
 
 
-
 def _find_variable_in_function_parser(
     var_name: str,
     function_parser: Optional["FunctionSolc"],
@@ -49,8 +48,6 @@ def _find_variable_in_function_parser(
         return func_variables[var_name]
 
     return None
-
-
 
 
 def _find_in_contract(
@@ -66,8 +63,6 @@ def _find_in_contract(
     contract_variables = contract.variables_as_dict
     if var_name in contract_variables:
         return contract_variables[var_name]
-
-
 
     functions = {f.name: f for f in contract.functions if not f.is_shadowed}
     # print(functions)
@@ -105,7 +100,6 @@ def _find_in_contract(
     enums = {e.name: e for e in contract.enums}
     if var_name in enums:
         return enums[var_name]
-
 
     return None
 
@@ -157,6 +151,7 @@ def find_variable(
     # structure/enums cannot be shadowed
     from slither.vyper_parsing.declarations.contract import ContractVyper
     from slither.vyper_parsing.declarations.function import FunctionVyper
+
     print("caller_context")
     print(caller_context)
     print(caller_context.__class__.__name__)
@@ -208,5 +203,5 @@ def find_variable(
     print(next_context.events_as_dict)
     if f"{var_name}()" in next_context.events_as_dict:
         return next_context.events_as_dict[f"{var_name}()"], False
-    
+
     raise VariableNotFound(f"Variable not found: {var_name} (context {caller_context})")

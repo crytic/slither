@@ -180,8 +180,6 @@ class FunctionVyper:
         for node_parser in self._node_to_NodeVyper.values():
             node_parser.analyze_expressions(self._function)
 
-
-
     # endregion
     ###################################################################################
     ###################################################################################
@@ -206,7 +204,6 @@ class FunctionVyper:
 
     def _parse_cfg(self, cfg: Dict) -> None:
 
-
         entry_node = self._new_node(NodeType.ENTRYPOINT, "-1:-1:-1", self.underlying_function)
         self._function.entry_point = entry_node.underlying_node
         scope = Scope(True, False, self.underlying_function)
@@ -215,6 +212,7 @@ class FunctionVyper:
             self._function.is_empty = False
             curr_node = entry_node
             for expr in cfg:
+
                 def parse_statement(curr_node, expr):
                     if isinstance(expr, AnnAssign):
                         local_var = LocalVariable()
@@ -240,7 +238,6 @@ class FunctionVyper:
 
                         curr_node = new_node
 
-
                     # elif isinstance(expr, Assign):
                     #     new_node = self._new_node(NodeType.EXPRESSION, expr.src, scope)
                     #     new_node.add_unparsed_expression(expr.target)
@@ -256,7 +253,13 @@ class FunctionVyper:
                         local_var.set_function(self._function)
                         local_var.set_offset(expr.src, self._function.compilation_unit)
 
-                        counter_var = AnnAssign(expr.target.src, expr.target.node_id, target=Name("-1:-1:-1", -1, "counter_var"), annotation=Name("-1:-1:-1", -1, "uint256"), value=Int("-1:-1:-1", -1, 0))
+                        counter_var = AnnAssign(
+                            expr.target.src,
+                            expr.target.node_id,
+                            target=Name("-1:-1:-1", -1, "counter_var"),
+                            annotation=Name("-1:-1:-1", -1, "uint256"),
+                            value=Int("-1:-1:-1", -1, 0),
+                        )
                         local_var_parser = LocalVariableVyper(local_var, counter_var)
                         self._add_local_variable(local_var_parser)
                         counter_node = self._new_node(NodeType.VARIABLE, expr.src, scope)
@@ -267,45 +270,93 @@ class FunctionVyper:
                         link_underlying_nodes(node_startLoop, counter_node)
 
                         node_condition = None
-                        if isinstance(expr.iter, (Attribute,Name)):
-                            # HACK  
+                        if isinstance(expr.iter, (Attribute, Name)):
+                            # HACK
                             # The loop variable is not annotated so we infer its type by looking at the type of the iterator
-                            if isinstance(expr.iter, Attribute): # state variable
+                            if isinstance(expr.iter, Attribute):  # state variable
                                 iter_expr = expr.iter
-                                loop_iterator = list(filter(lambda x: x._variable.name == iter_expr.attr,  self._contract_parser._variables_parser))[0]
+                                loop_iterator = list(
+                                    filter(
+                                        lambda x: x._variable.name == iter_expr.attr,
+                                        self._contract_parser._variables_parser,
+                                    )
+                                )[0]
 
-                            else: # local variable
+                            else:  # local variable
                                 iter_expr = expr.iter
-                                loop_iterator = list(filter(lambda x: x._variable.name == iter_expr.id, self._local_variables_parser))[0]
+                                loop_iterator = list(
+                                    filter(
+                                        lambda x: x._variable.name == iter_expr.id,
+                                        self._local_variables_parser,
+                                    )
+                                )[0]
 
                             # TODO use expr.src instead of -1:-1:1?
-                            cond_expr = Compare("-1:-1:-1", -1, left=Name("-1:-1:-1", -1, "counter_var"), op="<=", right=Call("-1:-1:-1", -1, func=Name("-1:-1:-1", -1, "len"), args=[iter_expr], keywords=[], keyword=None))
+                            cond_expr = Compare(
+                                "-1:-1:-1",
+                                -1,
+                                left=Name("-1:-1:-1", -1, "counter_var"),
+                                op="<=",
+                                right=Call(
+                                    "-1:-1:-1",
+                                    -1,
+                                    func=Name("-1:-1:-1", -1, "len"),
+                                    args=[iter_expr],
+                                    keywords=[],
+                                    keyword=None,
+                                ),
+                            )
                             node_condition = self._new_node(NodeType.IFLOOP, expr.src, scope)
                             node_condition.add_unparsed_expression(cond_expr)
 
-
                             if loop_iterator._elem_to_parse.value.id == "DynArray":
-                                loop_var_annotation = loop_iterator._elem_to_parse.slice.value.elements[0]
+                                loop_var_annotation = (
+                                    loop_iterator._elem_to_parse.slice.value.elements[0]
+                                )
                             else:
                                 loop_var_annotation = loop_iterator._elem_to_parse.value
 
-                            value = Subscript("-1:-1:-1", -1, value=Name("-1:-1:-1", -1, loop_iterator._variable.name), slice=Index("-1:-1:-1", -1, value=Name("-1:-1:-1", -1, "counter_var")))
-                            loop_var = AnnAssign(expr.target.src, expr.target.node_id, target=expr.target, annotation=loop_var_annotation, value=value)
+                            value = Subscript(
+                                "-1:-1:-1",
+                                -1,
+                                value=Name("-1:-1:-1", -1, loop_iterator._variable.name),
+                                slice=Index(
+                                    "-1:-1:-1", -1, value=Name("-1:-1:-1", -1, "counter_var")
+                                ),
+                            )
+                            loop_var = AnnAssign(
+                                expr.target.src,
+                                expr.target.node_id,
+                                target=expr.target,
+                                annotation=loop_var_annotation,
+                                value=value,
+                            )
 
-                        elif isinstance(expr.iter, Call): # range
+                        elif isinstance(expr.iter, Call):  # range
                             range_val = expr.iter.args[0]
-                            cond_expr = Compare("-1:-1:-1", -1, left=Name("-1:-1:-1", -1, "counter_var"), op="<=", right=range_val)
+                            cond_expr = Compare(
+                                "-1:-1:-1",
+                                -1,
+                                left=Name("-1:-1:-1", -1, "counter_var"),
+                                op="<=",
+                                right=range_val,
+                            )
                             node_condition = self._new_node(NodeType.IFLOOP, expr.src, scope)
                             node_condition.add_unparsed_expression(cond_expr)
-                            loop_var = AnnAssign(expr.target.src, expr.target.node_id, target=expr.target, annotation=Name("-1:-1:-1", -1, "uint256"), value=Name("-1:-1:-1", -1, "counter_var"))
-                        
+                            loop_var = AnnAssign(
+                                expr.target.src,
+                                expr.target.node_id,
+                                target=expr.target,
+                                annotation=Name("-1:-1:-1", -1, "uint256"),
+                                value=Name("-1:-1:-1", -1, "counter_var"),
+                            )
+
                         else:
                             raise NotImplementedError
-                        
-                        # link 
+
+                        # link
                         link_underlying_nodes(counter_node, node_condition)
 
-                        
                         # We update the index variable or range variable in the loop body
                         expr.body.insert(0, loop_var)
                         body_node = None
@@ -313,17 +364,23 @@ class FunctionVyper:
                         for stmt in expr.body:
                             body_node = parse_statement(new_node, stmt)
                             new_node = body_node
-                        
+
                         node_endLoop = self._new_node(NodeType.ENDLOOP, expr.src, scope)
-                        
-                        loop_increment = AugAssign("-1:-1:-1", -1, target=Name("-1:-1:-1", -1, "counter_var"), op="+=", value=Int("-1:-1:-1", -1, 1))
+
+                        loop_increment = AugAssign(
+                            "-1:-1:-1",
+                            -1,
+                            target=Name("-1:-1:-1", -1, "counter_var"),
+                            op="+=",
+                            value=Int("-1:-1:-1", -1, 1),
+                        )
                         node_increment = self._new_node(NodeType.EXPRESSION, expr.src, scope)
                         node_increment.add_unparsed_expression(loop_increment)
                         link_underlying_nodes(node_increment, node_condition)
-                        
+
                         if body_node is not None:
                             link_underlying_nodes(body_node, node_increment)
-                            
+
                         link_underlying_nodes(node_condition, node_endLoop)
 
                         curr_node = node_endLoop
@@ -357,8 +414,8 @@ class FunctionVyper:
                     elif isinstance(expr, If):
                         condition_node = self._new_node(NodeType.IF, expr.test.src, scope)
                         condition_node.add_unparsed_expression(expr.test)
-                        
-                        endIf_node = self._new_node(NodeType.ENDIF,  expr.src, scope)
+
+                        endIf_node = self._new_node(NodeType.ENDIF, expr.src, scope)
 
                         true_node = None
                         new_node = condition_node
@@ -367,20 +424,20 @@ class FunctionVyper:
                             new_node = true_node
                         # link_underlying_nodes(condition_node, true_node)
                         link_underlying_nodes(true_node, endIf_node)
-                        
+
                         false_node = None
                         new_node = condition_node
                         for stmt in expr.orelse:
                             false_node = parse_statement(new_node, stmt)
                             new_node = false_node
-                            
+
                         if false_node is not None:
                             # link_underlying_nodes(condition_node, false_node)
                             link_underlying_nodes(false_node, endIf_node)
 
                         else:
                             link_underlying_nodes(condition_node, endIf_node)
-                        
+
                         link_underlying_nodes(curr_node, condition_node)
                         curr_node = endIf_node
 
@@ -396,6 +453,7 @@ class FunctionVyper:
                         print(f"isinstance(expr, {expr.__class__.__name__})")
                         assert False
                     return curr_node
+
                 curr_node = parse_statement(curr_node, expr)
             # self._parse_block(cfg, node, self.underlying_function)
         else:
@@ -437,7 +495,7 @@ class FunctionVyper:
         print(returns)
         self._function.returns_src().set_offset(returns.src, self._function.compilation_unit)
         # Only the type of the arg is given, not a name. We create an an `Arg` with an empty name
-        # so that the function has the correct return type in its signature but doesn't clash with 
+        # so that the function has the correct return type in its signature but doesn't clash with
         # other identifiers during name resolution (`find_variable`).
         if isinstance(returns, (Name, Subscript)):
             local_var = self._add_param(Arg(returns.src, returns.node_id, "", annotation=returns))

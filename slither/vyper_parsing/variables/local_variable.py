@@ -27,7 +27,6 @@ class LocalVariableVyper:
 
         self._variable.set_location("default")
 
-
     @property
     def underlying_variable(self) -> LocalVariable:
         return self._variable
