@@ -71,7 +71,7 @@ jobs:
               exit 1
           fi
           mkdir -p "$INSTALLDIR"
-          wget "$URL" -q -O "$INSTALLDIR/$FILENAME"
+          curl "$URL" -o "$INSTALLDIR/$FILENAME"
           chmod 755 "$INSTALLDIR/$FILENAME"
           echo "$INSTALLDIR" >> "$GITHUB_PATH"
       - name: Run ${{ matrix.type }} tests
