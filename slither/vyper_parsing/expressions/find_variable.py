@@ -30,11 +30,6 @@ if TYPE_CHECKING:
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
 
-# pylint: disable=import-outside-toplevel,too-many-branches,too-many-locals
-
-
-# CallerContext =Union["ContractSolc", "FunctionSolc", "CustomErrorSolc", "StructureTopLevelSolc"]
-
 
 def _find_variable_in_function_parser(
     var_name: str,
@@ -82,20 +77,6 @@ def _find_in_contract(
     if var_name in enums:
         return enums[var_name]
 
-    # Note: contract.custom_errors_as_dict uses the name (not the sol sig) as key
-    # This is because when the dic is populated the underlying object is not yet parsed
-    # As a result, we need to iterate over all the custom errors here instead of using the dict
-    custom_errors = contract.custom_errors
-    try:
-        for custom_error in custom_errors:
-            if var_name in [custom_error.solidity_signature, custom_error.full_name]:
-                return custom_error
-    except ValueError:
-        # This can happen as custom error sol signature might not have been built
-        # when find_variable was called
-        # TODO refactor find_variable to prevent this from happening
-        pass
-
     # If the enum is refered as its name rather than its canonicalName
     enums = {e.name: e for e in contract.enums}
     if var_name in enums:
@@ -130,25 +111,10 @@ def find_variable(
     :type var_name:
     :param caller_context:
     :type caller_context:
-    :param referenced_declaration:
     :return:
     :rtype:
     """
 
-    # variable are looked from the contract declarer
-    # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer
-    # the difference between function and variable come from the fact that an internal call, or an variable access
-    # in a function does not behave similariy, for example in:
-    # contract C{
-    #   function f(){
-    #     state_var = 1
-    #     f2()
-    #  }
-    # state_var will refer to C.state_var, no mater if C is inherited
-    # while f2() will refer to the function definition of the inherited contract (C.f2() in the context of C, or
-    # the contract inheriting from C)
-    # for events it's unclear what should be the behavior, as they can be shadowed, but there is not impact
-    # structure/enums cannot be shadowed
     from slither.vyper_parsing.declarations.contract import ContractVyper
     from slither.vyper_parsing.declarations.function import FunctionVyper
 
