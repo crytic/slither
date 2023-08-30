@@ -106,7 +106,8 @@ def _filter_state_variables_written(expressions: List["Expression"]):
             ret.append(expression.expression_left)
     return ret
 
-#TODO replace
+
+# TODO replace
 class FunctionLanguage(Enum):
     Solidity = 0
     Yul = 1
@@ -238,7 +239,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._name == "" and self._function_type == FunctionType.CONSTRUCTOR:
             return "constructor"
-        if self._function_type == FunctionType.FALLBACK:
+        if self._name == "" and self._function_type == FunctionType.FALLBACK:
             return "fallback"
         if self._function_type == FunctionType.RECEIVE:
             return "receive"
@@ -985,14 +986,15 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         (str, list(str), list(str)): Function signature as
         (name, list parameters type, list return values type)
         """
-        if self._signature is None:
-            signature = (
-                self.name,
-                [str(x.type) for x in self.parameters],
-                [str(x.type) for x in self.returns],
-            )
-            self._signature = signature
-        return self._signature
+        # FIXME memoizing this function is not working properly for vyper
+        # if self._signature is None:
+        return (
+            self.name,
+            [str(x.type) for x in self.parameters],
+            [str(x.type) for x in self.returns],
+        )
+        #     self._signature = signature
+        # return self._signature
 
     @property
     def signature_str(self) -> str:
@@ -1758,7 +1760,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
     def generate_slithir_and_analyze(self) -> None:
         print("generate_slithir_and_analyze")
-        print(self.nodes)
 
         for node in self.nodes:
             node.slithir_generation()

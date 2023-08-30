@@ -77,3 +77,23 @@ def slither_from_solidity_source(solc_binary_path):
             Path(fname).unlink()
 
     return inner
+
+
+@pytest.fixture
+def slither_from_vyper_source():
+    @contextmanager
+    def inner(source_code: str):
+        """Yields a Slither instance using source_code string.
+        Creates a temporary file and compiles with vyper.
+        """
+
+        fname = ""
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".vy", delete=False) as f:
+                fname = f.name
+                f.write(source_code)
+            yield Slither(fname)
+        finally:
+            Path(fname).unlink()
+
+    return inner
