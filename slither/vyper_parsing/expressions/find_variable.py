@@ -20,20 +20,18 @@ from slither.core.solidity_types import (
     MappingType,
     TypeAlias,
 )
-from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
-from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import VariableNotFound
 
 if TYPE_CHECKING:
-    from slither.solc_parsing.declarations.function import FunctionSolc
-    from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.vyper_parsing.declarations.function import FunctionVyper
+
 
 
 def _find_variable_in_function_parser(
     var_name: str,
-    function_parser: Optional["FunctionSolc"],
+    function_parser: Optional["FunctionVyper"],
 ) -> Optional[Variable]:
     if function_parser is None:
         return None
@@ -87,7 +85,7 @@ def _find_in_contract(
 
 def find_variable(
     var_name: str,
-    caller_context: CallerContextExpression,
+    caller_context,
 ) -> Tuple[
     Union[
         Variable,

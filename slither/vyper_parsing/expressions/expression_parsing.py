@@ -40,8 +40,6 @@ from slither.core.solidity_types import (
     UserDefinedType,
 )
 from slither.core.declarations.contract import Contract
-from slither.solc_parsing.declarations.caller_context import CallerContextExpression
-from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.vyper_parsing.expressions.find_variable import find_variable
 from slither.vyper_parsing.type_parsing import parse_type
 
@@ -107,6 +105,8 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         return literal
 
     if isinstance(expression, Call):
+        print("Call")
+        print(expression)
         called = parse_expression(expression.func, caller_context)
         if isinstance(called, Identifier) and isinstance(called.value, SolidityFunction):
             if called.value.name == "empty()":
@@ -227,7 +227,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             if len(rets) == 1
             else f"tuple({','.join(map(get_type_str, rets))})"
         )
-
+        print(arguments)
         parsed_expr = CallExpression(called, arguments, type_str)
         parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
         return parsed_expr
@@ -235,7 +235,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
     if isinstance(expression, Attribute):
         member_name = expression.attr
         if isinstance(expression.value, Name):
-
+            print(expression)
             if expression.value.id == "self" and member_name != "balance":
                 var, was_created = find_variable(member_name, caller_context)
                 # TODO replace with self
