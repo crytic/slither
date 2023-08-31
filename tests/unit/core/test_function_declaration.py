@@ -368,8 +368,8 @@ def __default__():
         assert f.can_send_eth()
         assert f.can_reenter()
 
-        # f = functions["withdraw_locked()"]
-        # assert not f.can_reenter()
+        f = functions["withdraw_locked()"]
+        assert not f.is_reentrant
 
         var = contract.get_state_variable_from_name("balances")
         assert var

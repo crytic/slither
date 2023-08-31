@@ -1499,7 +1499,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         Determine if the function can be re-entered
         """
         # TODO: compare with hash of known nonReentrant modifier instead of the name
-        if "nonReentrant" in [m.name for m in self.modifiers]:
+        if "nonReentrant" in [m.name for m in self.modifiers] or "nonreentrant(lock)" in [
+            m.name for m in self.modifiers
+        ]:
             return False
 
         if self.visibility in ["public", "external"]:

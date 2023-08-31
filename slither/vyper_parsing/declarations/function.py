@@ -8,7 +8,8 @@ from slither.core.declarations.function import (
     Function,
     FunctionType,
 )
-from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.function import ModifierStatements
+from slither.core.declarations.modifier import Modifier
 from slither.core.expressions import AssignmentOperation
 from slither.core.source_mapping.source_mapping import Source
 from slither.core.variables.local_variable import LocalVariable
@@ -33,47 +34,46 @@ class FunctionVyper:
         function_data: Dict,
         contract_parser: "ContractVyper",
     ) -> None:
-        self._node_to_NodeVyper: Dict[Node, NodeVyper] = {}
 
         self._function = function
-        print(function_data.name)
-        print(function_data)
         self._function.name = function_data.name
         self._function.id = function_data.node_id
-
+        self._functionNotParsed = function_data
+        self._decoratorNotParsed = None
         self._local_variables_parser: List[LocalVariableVyper] = []
         self._contract_parser = contract_parser
         self._node_to_NodeVyper: Dict[Node, NodeVyper] = {}
 
         for decorator in function_data.decorators:
-            if not hasattr(decorator, "id"):
-                continue  # TODO isinstance Name
-            if decorator.id in ["external", "public", "internal"]:
-                self._function.visibility = decorator.id
-            elif decorator.id == "view":
-                self._function.view = True
-            elif decorator.id == "pure":
-                self._function.pure = True
-            elif decorator.id == "payable":
-                self._function.payable = True
-            elif decorator.id == "nonpayable":
-                self._function.payable = False
+            if isinstance(decorator, Call):
+                # TODO handle multiple
+                self._decoratorNotParsed = decorator
+            elif isinstance(decorator, Name):
+                if decorator.id in ["external", "public", "internal"]:
+                    self._function.visibility = decorator.id
+                elif decorator.id == "view":
+                    self._function.view = True
+                elif decorator.id == "pure":
+                    self._function.pure = True
+                elif decorator.id == "payable":
+                    self._function.payable = True
+                elif decorator.id == "nonpayable":
+                    self._function.payable = False
             else:
                 raise ValueError(f"Unknown decorator {decorator.id}")
+
         # Interfaces do not have decorators and are external
         if self._function._visibility is None:
             self._function.visibility = "external"
-        self._functionNotParsed = function_data
+
         self._params_was_analyzed = False
         self._content_was_analyzed = False
-
         self._counter_scope_local_variables = 0
-
-        self._analyze_function_type()
-
 
         if function_data.doc_string is not None:
             function.has_documentation = True
+
+        self._analyze_function_type()
 
     @property
     def underlying_function(self) -> Function:
@@ -165,6 +165,34 @@ class FunctionVyper:
 
         for node_parser in self._node_to_NodeVyper.values():
             node_parser.analyze_expressions(self._function)
+
+        self._analyze_decorator()
+
+    def _analyze_decorator(self) -> None:
+        if not self._decoratorNotParsed:
+            return
+
+        decorator = self._decoratorNotParsed
+        if decorator.args:
+            name = f"{decorator.func.id}({decorator.args[0].value})"
+        else:
+            name = decorator.func.id
+
+        contract = self._contract_parser.underlying_contract
+        compilation_unit = self._contract_parser.underlying_contract.compilation_unit
+        modifier = Modifier(compilation_unit)
+        modifier._name = name
+        modifier.set_offset(decorator.src, compilation_unit)
+        modifier.set_contract(contract)
+        modifier.set_contract_declarer(contract)
+        latest_entry_point = self._function.entry_point
+        self._function.add_modifier(
+            ModifierStatements(
+                modifier=modifier,
+                entry_point=latest_entry_point,
+                nodes=[latest_entry_point],
+            )
+        )
 
     # endregion
     ###################################################################################
