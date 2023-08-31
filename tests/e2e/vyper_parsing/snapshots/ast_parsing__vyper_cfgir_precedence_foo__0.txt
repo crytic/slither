@@ -1,0 +1,17 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+x != super.fb() && x != super.fa()
+
+IRs:
+TMP_0(uint256) = INTERNAL_CALL, precedence.fb()()
+TMP_1(bool) = x != TMP_0
+TMP_2(uint256) = INTERNAL_CALL, precedence.fa()()
+TMP_3(bool) = x != TMP_2
+TMP_4(bool) = TMP_1 && TMP_3
+RETURN TMP_4"];
+}

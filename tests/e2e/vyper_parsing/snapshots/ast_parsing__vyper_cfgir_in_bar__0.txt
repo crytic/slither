@@ -1,0 +1,50 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+a = 0
+
+IRs:
+a(int128) := 0(uint256)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+b = 0
+
+IRs:
+b(int128) := 0(uint256)"];
+2->3;
+3[label="Node Type: IF 3
+
+EXPRESSION:
+x & 1 | 2
+
+IRs:
+TMP_0(uint256) = 1 | 2
+TMP_1(in.Roles) = x & TMP_0
+CONDITION TMP_1"];
+3->5[label="True"];
+3->4[label="False"];
+4[label="Node Type: END_IF 4
+"];
+4->6;
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+True
+
+IRs:
+RETURN True"];
+5->4;
+6[label="Node Type: RETURN 6
+
+EXPRESSION:
+False
+
+IRs:
+RETURN False"];
+}
