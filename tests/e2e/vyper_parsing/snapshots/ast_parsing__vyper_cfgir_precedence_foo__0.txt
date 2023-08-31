@@ -5,7 +5,7 @@ digraph{
 1[label="Node Type: RETURN 1
 
 EXPRESSION:
-x != super.fb() && x != super.fa()
+x != self.fb() && x != self.fa()
 
 IRs:
 TMP_0(uint256) = INTERNAL_CALL, precedence.fb()()

@@ -21,7 +21,7 @@ b(int128) := 0(uint256)"];
 3[label="Node Type: EXPRESSION 3
 
 EXPRESSION:
-(a,b) = super.foo()
+(a,b) = self.foo()
 
 IRs:
 TUPLE_0(int128,int128) = INTERNAL_CALL, tuple.foo()()

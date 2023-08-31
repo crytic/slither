@@ -16,7 +16,7 @@ counter_var(uint256) := 0(uint256)"];
 3[label="Node Type: IF_LOOP 3
 
 EXPRESSION:
-counter_var <= len()(super.strategies)
+counter_var <= len()(self.strategies)
 
 IRs:
 TMP_0(uint256) = SOLIDITY_CALL len()(strategies)

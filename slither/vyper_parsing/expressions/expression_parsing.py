@@ -20,7 +20,7 @@ from slither.core.expressions import (
     NewContract,
     NewElementaryType,
     SuperCallExpression,
-    SuperIdentifier,
+    SelfIdentifier,
     TupleExpression,
     TypeConversion,
     UnaryOperation,
@@ -42,7 +42,7 @@ from slither.core.solidity_types import (
 from slither.core.declarations.contract import Contract
 from slither.vyper_parsing.expressions.find_variable import find_variable
 from slither.vyper_parsing.type_parsing import parse_type
-
+from slither.all_exceptions import ParsingError
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
@@ -237,14 +237,14 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
     if isinstance(expression, Attribute):
         member_name = expression.attr
         if isinstance(expression.value, Name):
-            print(expression)
+            # TODO this is ambiguous because it could be a state variable or a call to balance
             if expression.value.id == "self" and member_name != "balance":
-                var, was_created = find_variable(member_name, caller_context)
-                # TODO replace with self
+                var, was_created = find_variable(member_name, caller_context, is_self=True)
                 if was_created:
                     var.set_offset(expression.src, caller_context.compilation_unit)
-                parsed_expr = SuperIdentifier(var)
+                parsed_expr = SelfIdentifier(var)
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
+                var.references.append(parsed_expr.source_mapping)
                 return parsed_expr
 
             expr = parse_expression(expression.value, caller_context)
@@ -267,12 +267,11 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             # (recover_type_1) This may be a call to an interface and we don't have the return types,
             # so we see if there's a function identifier with `member_name` and propagate the type to
             # its enclosing `CallExpression`
-            # TODO this is using the wrong caller_context and needs to be interface instead of self namespace
             print(expr)
             print(expr.__class__.__name__)
 
             if isinstance(expr, TypeConversion) and isinstance(expr.type, UserDefinedType):
-                # try:
+                # If we access a member of an interface, needs to be interface instead of self namespace
                 var, was_created = find_variable(member_name, expr.type.type)
                 if isinstance(var, Function):
                     rets = var.returns
@@ -288,8 +287,6 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
                         else f"tuple({','.join(map(get_type_str, rets))})"
                     )
                     member_name_ret_type = type_str
-            # except:
-            #     pass
 
             member_access = MemberAccess(member_name, member_name_ret_type, expr)
 

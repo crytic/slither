@@ -28,7 +28,6 @@ if TYPE_CHECKING:
     from slither.vyper_parsing.declarations.function import FunctionVyper
 
 
-
 def _find_variable_in_function_parser(
     var_name: str,
     function_parser: Optional["FunctionVyper"],
@@ -86,6 +85,7 @@ def _find_in_contract(
 def find_variable(
     var_name: str,
     caller_context,
+    is_self: bool = False,
 ) -> Tuple[
     Union[
         Variable,
@@ -96,8 +96,6 @@ def find_variable(
         Event,
         Enum,
         Structure,
-        CustomError,
-        TypeAlias,
     ],
     bool,
 ]:
@@ -136,9 +134,12 @@ def find_variable(
         caller_context if isinstance(caller_context, FunctionContract) else None
     )
     # print("function_parser", function_parser)
-    ret1 = _find_variable_in_function_parser(var_name, function_parser)
-    if ret1:
-        return ret1, False
+    # If a local shadows a state variable but the attribute is `self`, we want to
+    # return the state variable and not the local.
+    if not is_self:
+        ret1 = _find_variable_in_function_parser(var_name, function_parser)
+        if ret1:
+            return ret1, False
 
     ret = _find_in_contract(var_name, next_context, caller_context)
     if ret:

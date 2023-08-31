@@ -113,3 +113,16 @@ def test_references_user_defined_types_when_casting(solc_binary_path):
     assert len(a.references) == 2
     lines = _sort_references_lines(a.references)
     assert lines == [12, 18]
+
+def test_references_self_identifier():
+    """
+    Tests that shadowing state variables with local variables does not affect references.
+    """
+    file = Path(SRC_MAPPING_TEST_ROOT, "SelfIdentifier.vy").as_posix()
+    slither = Slither(file)
+
+    contracts = slither.compilation_units[0].contracts
+    a = contracts[0].state_variables[0]
+    assert len(a.references) == 1
+    lines = _sort_references_lines(a.references)
+    assert lines == [4]
