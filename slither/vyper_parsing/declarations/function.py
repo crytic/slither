@@ -19,6 +19,7 @@ from slither.vyper_parsing.ast.types import *
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.vyper_parsing.declarations.contract import ContractVyper
 
 
 def link_underlying_nodes(node1: NodeVyper, node2: NodeVyper):
@@ -40,8 +41,9 @@ class FunctionVyper:
         self._function.name = function_data.name
         self._function.id = function_data.node_id
 
-        self._local_variables_parser: List = []
+        self._local_variables_parser: List[LocalVariableVyper] = []
         self._contract_parser = contract_parser
+        self._node_to_NodeVyper: Dict[Node, NodeVyper] = {}
 
         for decorator in function_data.decorators:
             if not hasattr(decorator, "id"):
@@ -54,6 +56,8 @@ class FunctionVyper:
                 self._function.pure = True
             elif decorator.id == "payable":
                 self._function.payable = True
+            elif decorator.id == "nonpayable":
+                self._function.payable = False
             else:
                 raise ValueError(f"Unknown decorator {decorator.id}")
         # Interfaces do not have decorators and are external
@@ -64,24 +68,9 @@ class FunctionVyper:
         self._content_was_analyzed = False
 
         self._counter_scope_local_variables = 0
-        # # variable renamed will map the solc id
-        # # to the variable. It only works for compact format
-        # # Later if an expression provides the referencedDeclaration attr
-        # # we can retrieve the variable
-        # # It only matters if two variables have the same name in the function
-        # # which is only possible with solc > 0.5
-        # self._variables_renamed: Dict[
-        #     int, Union[LocalVariableVyper, LocalVariableInitFromTupleSolc]
-        # ] = {}
 
         self._analyze_function_type()
 
-        # self._node_to_NodeVyper: Dict[Node, NodeVyper] = {}
-        # self._node_to_yulobject: Dict[Node, YulBlock] = {}
-
-        # self._local_variables_parser: List[
-        #     Union[LocalVariableVyper, LocalVariableInitFromTupleSolc]
-        # ] = []
 
         if function_data.doc_string is not None:
             function.has_documentation = True
@@ -107,12 +96,9 @@ class FunctionVyper:
         return self._variables_renamed
 
     def _add_local_variable(self, local_var_parser: LocalVariableVyper) -> None:
-        # If two local variables have the same name
-        # We add a suffix to the new variable
-        # This is done to prevent collision during SSA translation
-        # Use of while in case of collision
-        # In the worst case, the name will be really long
-        # TODO no shadowing?
+        # Ensure variables name are unique for SSA conversion
+        # This should not apply to actual Vyper variables currently
+        # but is necessary if we have nested loops where we've created artificial variables e.g. counter_var
         if local_var_parser.underlying_variable.name:
             known_variables = [v.name for v in self._function.variables]
             while local_var_parser.underlying_variable.name in known_variables:
