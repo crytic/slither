@@ -10,6 +10,3 @@ struct Loan:
     liquidation_range: LMGauge
 
 x: public(Loan)
-
-
-# TODO Will this overly complicate analyzing AST https://github.com/vyperlang/vyper/pull/3411
