@@ -63,3 +63,20 @@ def bar():
         (contract, function) = func.high_level_calls[0]
         assert contract == interface
         assert function.signature_str == "foo() returns(int128,uint256)"
+
+def test_phi_entry_point_internal_call(slither_from_vyper_source):
+    with slither_from_vyper_source(
+        """
+counter: uint256
+@internal
+def b(y: uint256):
+    self.counter = y # tainted by x, 1
+
+@external
+def a(x: uint256):
+    self.b(x)
+    self.b(1)
+"""
+    ) as sl:
+        b = sl.contracts[0].get_function_from_signature("b(uint256)")
+        assert len(list(filter(lambda x: isinstance(x, Phi), b.all_slithir_operations()))) == 1
