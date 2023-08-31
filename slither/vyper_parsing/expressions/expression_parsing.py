@@ -136,6 +136,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
                         member_type,
                     ),
                 )
+                parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                 return parsed_expr
 
             elif called.value.name == "max_value()":
@@ -151,6 +152,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
                         member_type,
                     ),
                 )
+                parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                 return parsed_expr
 
             elif called.value.name == "raw_call()":
