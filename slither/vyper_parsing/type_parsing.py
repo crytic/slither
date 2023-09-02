@@ -20,7 +20,7 @@ def parse_type(annotation: Union[Name, Subscript, Call], caller_context):
     else:
         contract = caller_context
 
-    assert isinstance(annotation, (Name, Subscript, Call))
+    assert isinstance(annotation, (Name, Subscript, Call, Tuple))
     print(annotation)
     if isinstance(annotation, Name):
         name = annotation.id
@@ -54,12 +54,36 @@ def parse_type(annotation: Union[Name, Subscript, Call], caller_context):
         return ArrayType(type_, length)
 
     elif isinstance(annotation, Call):
+        # TODO event variable represented as Call
         return parse_type(annotation.args[0], caller_context)
+
+    elif isinstance(annotation, Tuple):
+        # Vyper has tuple types like python x = f() where f() -> (y,z)
+        # and tuple elements can be unpacked like x[0]: y and x[1]: z.
+        # We model these as a struct and unpack each index into a field
+        # e.g. accessing the 0th element is translated as x._0
+        from slither.core.declarations.structure import Structure
+        from slither.core.variables.structure_variable import StructureVariable
+
+        st = Structure(caller_context.compilation_unit)
+        st.set_offset("-1:-1:-1", caller_context.compilation_unit)
+        st.name = "FAKE_TUPLE"
+        for idx, elem_info in enumerate(annotation.elements):
+            elem = StructureVariable()
+            elem.type = parse_type(elem_info, caller_context)
+            elem.name = f"_{idx}"
+            elem.set_structure(st)
+            elem.set_offset("-1:-1:-1", caller_context.compilation_unit)
+            st.elems[elem.name] = elem
+            st.add_elem_in_order(elem.name)
+            st.name += elem.name
+
+        return UserDefinedType(st)
 
     else:
         assert False
 
-    lname = name.lower()  # todo map String to string
+    lname = name.lower()  # TODO map String to string
     if lname in ElementaryTypeName:
         return ElementaryType(lname)
 

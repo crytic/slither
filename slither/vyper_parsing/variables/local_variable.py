@@ -1,7 +1,7 @@
 from typing import Union
 
 from slither.core.variables.local_variable import LocalVariable
-from slither.vyper_parsing.ast.types import Arg, Name, AnnAssign, Subscript, Call
+from slither.vyper_parsing.ast.types import Arg, Name, AnnAssign, Subscript, Call, Tuple
 from slither.vyper_parsing.type_parsing import parse_type
 
 
@@ -23,7 +23,7 @@ class LocalVariableVyper:
             self._variable.name = ""
             self._elem_to_parse = variable_data
 
-        assert isinstance(self._elem_to_parse, (Name, Subscript, Call))
+        assert isinstance(self._elem_to_parse, (Name, Subscript, Call, Tuple))
 
         self._variable.set_location("default")
 

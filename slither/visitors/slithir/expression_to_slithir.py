@@ -11,6 +11,7 @@ from slither.core.declarations import (
     EnumContract,
     EnumTopLevel,
     Enum,
+    Structure,
 )
 from slither.core.expressions import (
     AssignmentOperation,
@@ -233,6 +234,35 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 operation.set_expression(expression)
                 self._result.append(operation)
                 set_val(expression, left)
+
+            elif (
+                isinstance(left.type, UserDefinedType)
+                and isinstance(left.type.type, Structure)
+                and isinstance(right, TupleVariable)
+            ):
+                # This will result in a `NewStructure` operation where
+                # each field is assigned the value unpacked from the tuple
+                # (see `slither.vyper_parsing.type_parsing.parse_type`)
+                args = []
+                for idx, elem in enumerate(left.type.type.elems.values()):
+                    temp = TemporaryVariable(self._node)
+                    temp.type = elem.type
+                    args.append(temp)
+                    operation = Unpack(temp, right, idx)
+                    operation.set_expression(expression)
+                    self._result.append(operation)
+
+                for arg in args:
+                    op = Argument(arg)
+                    op.set_expression(expression)
+                    self._result.append(op)
+
+                operation = TmpCall(
+                    left.type.type, len(left.type.type.elems), left, left.type.type.name
+                )
+                operation.set_expression(expression)
+                self._result.append(operation)
+
             else:
                 operation = convert_assignment(
                     left, right, expression.type, expression.expression_return_type
@@ -417,6 +447,21 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, t)
             return
         val = ReferenceVariable(self._node)
+
+        if (
+            isinstance(left, LocalVariable)
+            and isinstance(left.type, UserDefinedType)
+            and isinstance(left.type.type, Structure)
+        ):
+            # We rewrite the index access to a tuple variable as
+            # an access to its field i.e. the 0th element is the field "_0"
+            # (see `slither.vyper_parsing.type_parsing.parse_type`)
+            operation = Member(left, Constant("_" + str(right)), val)
+            operation.set_expression(expression)
+            self._result.append(operation)
+            set_val(expression, val)
+            return
+
         # access to anonymous array
         # such as [0,1][x]
         if isinstance(left, list):
@@ -426,6 +471,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             operation = InitArray(init_array_right, init_array_val)
             operation.set_expression(expression)
             self._result.append(operation)
+
         operation = Index(val, left, right)
         operation.set_expression(expression)
         self._result.append(operation)
