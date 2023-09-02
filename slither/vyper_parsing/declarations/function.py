@@ -156,9 +156,11 @@ class FunctionVyper:
 
         body = self._functionNotParsed.body
 
-        if body:
+        if body and not isinstance(body[0], Pass):
             self._function.is_implemented = True
             self._parse_cfg(body)
+        else:
+            self._function.is_implemented = False
 
         for local_var_parser in self._local_variables_parser:
             local_var_parser.analyze(self._function)
@@ -462,6 +464,7 @@ class FunctionVyper:
                         pass
                     elif isinstance(expr, Raise):
                         print(expr)
+                        # TODO
                         # assert False
                         pass
                     else:

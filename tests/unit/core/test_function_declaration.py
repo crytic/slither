@@ -351,6 +351,7 @@ def __default__():
         assert not f.payable
         assert not f.view
         assert not f.pure
+        assert not f.is_implemented
 
         f = functions["__default__()"]
         assert f.function_type == FunctionType.FALLBACK
@@ -358,6 +359,7 @@ def __default__():
         assert f.payable
         assert not f.view
         assert not f.pure
+        assert not f.is_implemented
 
         f = functions["withdraw()"]
         assert f.function_type == FunctionType.NORMAL
@@ -367,9 +369,11 @@ def __default__():
         assert not f.pure
         assert f.can_send_eth()
         assert f.can_reenter()
+        assert f.is_implemented
 
         f = functions["withdraw_locked()"]
         assert not f.is_reentrant
+        assert f.is_implemented
 
         var = contract.get_state_variable_from_name("balances")
         assert var
