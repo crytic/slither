@@ -576,7 +576,9 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                 if isinstance(t, ArrayType) or (
                     isinstance(t, ElementaryType) and t.type == "bytes"
                 ):
-                    if ir.function_name == "push" and len(ir.arguments) <= 1:
+                    # Solidity uses push
+                    # Vyper uses append
+                    if ir.function_name in ["push", "append"] and len(ir.arguments) <= 1:
                         return convert_to_push(ir, node)
                     if ir.function_name == "pop" and len(ir.arguments) == 0:
                         return convert_to_pop(ir, node)

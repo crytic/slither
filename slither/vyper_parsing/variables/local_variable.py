@@ -25,7 +25,9 @@ class LocalVariableVyper:
 
         assert isinstance(self._elem_to_parse, (Name, Subscript, Call, Tuple))
 
-        self._variable.set_location("default")
+        # Vyper does not have data locations or storage pointers.
+        # If this was left as default, reference types would be considered storage by `LocalVariable.is_storage`
+        self._variable.set_location("memory")
 
     @property
     def underlying_variable(self) -> LocalVariable:
