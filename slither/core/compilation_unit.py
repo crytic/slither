@@ -189,6 +189,10 @@ class SlitherCompilationUnit(Context):
         return self.functions + list(self.modifiers)
 
     def propagate_function_calls(self) -> None:
+        """This info is used to compute the rvalues of Phi operations in `fix_phi` and ultimately
+        is responsible for the `read` property of Phi operations which is vital to
+        propagating taints inter-procedurally
+        """
         for f in self.functions_and_modifiers:
             for node in f.nodes:
                 for ir in node.irs_ssa:

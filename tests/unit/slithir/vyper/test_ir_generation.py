@@ -64,6 +64,7 @@ def bar():
         assert contract == interface
         assert function.signature_str == "foo() returns(int128,uint256)"
 
+
 def test_phi_entry_point_internal_call(slither_from_vyper_source):
     with slither_from_vyper_source(
         """
@@ -78,5 +79,15 @@ def a(x: uint256):
     self.b(1)
 """
     ) as sl:
-        b = sl.contracts[0].get_function_from_signature("b(uint256)")
-        assert len(list(filter(lambda x: isinstance(x, Phi), b.all_slithir_operations()))) == 1
+        f = sl.contracts[0].get_function_from_signature("b(uint256)")
+        assert (
+            len(
+                [
+                    ssanode
+                    for node in f.nodes
+                    for ssanode in node.irs_ssa
+                    if isinstance(ssanode, Phi)
+                ]
+            )
+            == 1
+        )

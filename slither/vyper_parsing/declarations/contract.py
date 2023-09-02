@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from typing import List, TYPE_CHECKING
 from slither.vyper_parsing.ast.types import (
     Module,
@@ -40,7 +41,9 @@ class ContractVyper:
         self._contract: Contract = contract
         self._slither_parser: "VyperCompilationUnit" = slither_parser
         self._data = module
-        self._contract.name = module.name
+        # Vyper models only have one contract (aside from interfaces) and the name is the file path
+        # We use the stem to make it a more user friendly name that is easy to query via canonical name
+        self._contract.name = Path(module.name).stem
         self._contract.id = module.node_id
         self._is_analyzed: bool = False
 
@@ -492,6 +495,7 @@ class ContractVyper:
 
             func_parser = FunctionVyper(func, function, self)
             self._contract.add_function(func)
+            self._contract.compilation_unit.add_function(func)
             self._functions_parser.append(func_parser)
 
         self._functionsNotParsed = []
