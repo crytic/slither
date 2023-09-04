@@ -24,10 +24,10 @@ EXPRESSION:
 x == b || x == a
 
 IRs:
-TMP_2(bool) = x == b
-TMP_3(bool) = x == a
-TMP_4(bool) = TMP_2 || TMP_3
-CONDITION TMP_4"];
+TMP_18(bool) = x == b
+TMP_19(bool) = x == a
+TMP_20(bool) = TMP_18 || TMP_19
+CONDITION TMP_20"];
 3->5[label="True"];
 3->4[label="False"];
 4[label="Node Type: END_IF 4
@@ -41,7 +41,30 @@ True
 IRs:
 RETURN True"];
 5->4;
-6[label="Node Type: RETURN 6
+6[label="Node Type: IF 6
+
+EXPRESSION:
+x != b && x != a
+
+IRs:
+TMP_21(bool) = x != b
+TMP_22(bool) = x != a
+TMP_23(bool) = TMP_21 && TMP_22
+CONDITION TMP_23"];
+6->8[label="True"];
+6->7[label="False"];
+7[label="Node Type: END_IF 7
+"];
+7->9;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+revert(string)(nope)
+
+IRs:
+TMP_24(None) = SOLIDITY_CALL revert(string)(nope)"];
+8->7;
+9[label="Node Type: RETURN 9
 
 EXPRESSION:
 False

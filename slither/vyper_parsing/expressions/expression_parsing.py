@@ -69,6 +69,7 @@ from slither.vyper_parsing.ast.types import (
     Assign,
     AugAssign,
     VyList,
+    Raise,
 )
 
 
@@ -192,6 +193,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         else:
             arguments = [parse_expression(a, caller_context) for a in expression.args]
 
+        rets = None
         if isinstance(called, Identifier):
             print("called", called)
             print("called.value", called.value.__class__.__name__)
@@ -211,6 +213,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
 
             elif isinstance(called.value, SolidityFunction):
                 rets = called.value.return_type
+
             elif isinstance(called.value, Contract):
                 # Type conversions are not explicitly represented in the AST e.g. converting address to contract/ interface,
                 # so we infer that a type conversion is occurring if `called` is a `Contract` type.
@@ -219,14 +222,12 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                 return parsed_expr
 
-            else:
-                rets = ["tuple()"]
-
         elif isinstance(called, MemberAccess) and called.type is not None:
             # (recover_type_2) Propagate the type collected to the `CallExpression`
             # see recover_type_1
             rets = [called.type]
-        else:
+
+        if rets is None:
             rets = ["tuple()"]
 
         def get_type_str(x):
@@ -235,6 +236,13 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             return str(x.type)
 
         print(rets)
+        # def vars_to_typestr(rets: List[Expression]) -> str:
+        #     if len(rets) == 0:
+        #         return ""
+        #     if len(rets) == 1:
+        #         return str(rets[0].type)
+        #     return f"tuple({','.join(str(ret.type) for ret in rets)})"
+
         type_str = (
             get_type_str(rets[0])
             if len(rets) == 1
@@ -347,30 +355,48 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
     if isinstance(expression, Compare):
         lhs = parse_expression(expression.left, caller_context)
 
+        # We assume left operand in membership comparison cannot be Array type
         if expression.op in ["In", "NotIn"]:
-            # If we see a membership operator e.g. x in [foo(), bar()] we rewrite it as if-else:
-            #  if (x == foo()) {
-            #   return true
-            # } else {
-            #   if (x == bar()) {
-            #       return true
-            #   } else {
-            #       return false
-            #   }
-            # }
-            # We assume left operand in membership comparison cannot be Array type
+            # If we see a membership operator e.g. x in [foo(), bar()], we convert it to logical operations
+            # like (x == foo() || x == bar()) or (x != foo() && x != bar()) for "not in"
+            # TODO consider rewriting as if-else to accurately represent the precedence of potential side-effects
+
             conditions = deque()
-            if isinstance(expression.right, VyList):
+            rhs = parse_expression(expression.right, caller_context)
+            is_tuple = isinstance(rhs, TupleExpression)
+            is_array = isinstance(rhs, Identifier) and isinstance(rhs.value.type, ArrayType)
+            if is_array:
+                assert rhs.value.type.is_fixed_array
+            if is_tuple or is_array:
+                length = len(rhs.expressions) if is_tuple else rhs.value.type.length_value.value
                 inner_op = (
                     BinaryOperationType.get_type("!=")
                     if expression.op == "NotIn"
                     else BinaryOperationType.get_type("==")
                 )
+                for i in range(length):
+                    elem_expr = (
+                        rhs.expressions[i]
+                        if is_tuple
+                        else IndexAccess(rhs, Literal(str(i), ElementaryType("uint256")))
+                    )
+                    elem_expr.set_offset(rhs.source_mapping, caller_context.compilation_unit)
+                    parsed_expr = BinaryOperation(lhs, elem_expr, inner_op)
+                    parsed_expr.set_offset(lhs.source_mapping, caller_context.compilation_unit)
+                    conditions.append(parsed_expr)
+
                 outer_op = (
                     BinaryOperationType.get_type("&&")
                     if expression.op == "NotIn"
                     else BinaryOperationType.get_type("||")
                 )
+                while len(conditions) > 1:
+                    lhs = conditions.pop()
+                    rhs = conditions.pop()
+
+                    conditions.appendleft(BinaryOperation(lhs, rhs, outer_op))
+
+                return conditions.pop()
 
                 for elem in expression.right.elements:
                     elem_expr = parse_expression(elem, caller_context)
@@ -378,79 +404,31 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
                     parsed_expr = BinaryOperation(lhs, elem_expr, inner_op)
                     parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                     conditions.append(parsed_expr)
-            else:
-                rhs = parse_expression(expression.right, caller_context)
-                print(rhs)
-                print(rhs.__class__.__name__)
-                if isinstance(rhs, Identifier):
-                    if isinstance(rhs.value.type, ArrayType):
-                        inner_op = (
-                            BinaryOperationType.get_type("!=")
-                            if expression.op == "NotIn"
-                            else BinaryOperationType.get_type("==")
-                        )
-                        outer_op = (
-                            BinaryOperationType.get_type("&&")
-                            if expression.op == "NotIn"
-                            else BinaryOperationType.get_type("||")
-                        )
+            else:  # enum type membership check https://docs.vyperlang.org/en/stable/types.html?h#id18
+                is_member_op = (
+                    BinaryOperationType.get_type("==")
+                    if expression.op == "NotIn"
+                    else BinaryOperationType.get_type("!=")
+                )
+                # If all bits are cleared, then the lhs is not a member of the enum
+                # This allows representing membership in multiple enum members
+                # For example, if enum Foo has members A (1), B (2), and C (4), then
+                # (x in [Foo.A, Foo.B]) is equivalent to (x & (Foo.A | Foo.B) != 0),
+                # where (Foo.A | Foo.B) evaluates to 3.
+                # Thus, when x is 3, (x & (Foo.A | Foo.B) != 0) is true.
 
-                        enum_members = rhs.value.type.length_value.value
-                        for i in range(enum_members):
-                            elem_expr = IndexAccess(rhs, Literal(str(i), ElementaryType("uint256")))
-                            elem_expr.set_offset(
-                                rhs.source_mapping, caller_context.compilation_unit
-                            )
-                            parsed_expr = BinaryOperation(lhs, elem_expr, inner_op)
-                            parsed_expr.set_offset(
-                                lhs.source_mapping, caller_context.compilation_unit
-                            )
-                            conditions.append(parsed_expr)
-                    # elif isinstance(rhs.value.type, UserDefinedType):
+                enum_bit_mask = BinaryOperation(
+                    TypeConversion(lhs, ElementaryType("uint256")),
+                    TypeConversion(rhs, ElementaryType("uint256")),
+                    BinaryOperationType.get_type("&"),
+                )
+                membership_check = BinaryOperation(
+                    enum_bit_mask, Literal("0", ElementaryType("uint256")), is_member_op
+                )
+                membership_check.set_offset(lhs.source_mapping, caller_context.compilation_unit)
+                return membership_check
 
-                    else:
-                        assert False
-                else:
-                    # This is an indexaccess like hashmap[address, Roles]
-                    inner_op = BinaryOperationType.get_type(
-                        "|"
-                    )  # if expression.op == "NotIn" else BinaryOperationType.get_type("==")
-                    outer_op = BinaryOperationType.get_type(
-                        "&"
-                    )  # if expression.op == "NotIn" else BinaryOperationType.get_type("||")
-
-                    # x, _ = find_variable(expression.right.value.attr, caller_context)
-                    # print(x)
-                    # print(x.type.type_to)
-                    # print(x.type.type_to.__class__)
-                    print(repr(rhs))
-                    print(rhs)
-
-                    enum_members = rhs.expression_left.value.type.type_to.type.values
-                    # for each value, create a literal with value = 2 ^ n (0 indexed)
-                    # and then translate to bitmasking
-                    enum_values = [
-                        Literal(str(2**n), ElementaryType("uint256"))
-                        for n in range(len(enum_members))
-                    ]
-                    inner_lhs = enum_values[0]
-                    for expr in enum_values[1:]:
-                        inner_lhs = BinaryOperation(inner_lhs, expr, inner_op)
-                        conditions.append(inner_lhs)
-
-                    parsed_expr = BinaryOperation(lhs, conditions[0], outer_op)
-                    parsed_expr.set_offset(lhs.source_mapping, caller_context.compilation_unit)
-                    return parsed_expr
-
-            while len(conditions) > 1:
-                lhs = conditions.pop()
-                rhs = conditions.pop()
-
-                conditions.appendleft(BinaryOperation(lhs, rhs, outer_op))
-
-            return conditions.pop()
-
-        else:
+        else:  # a regular logical operator
             rhs = parse_expression(expression.right, caller_context)
             op = BinaryOperationType.get_type(expression.op)
 
@@ -498,6 +476,19 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
 
         op = BinaryOperationType.get_type(expression.op)
         parsed_expr = BinaryOperation(lhs, rhs, op)
+        parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
+        return parsed_expr
+
+    if isinstance(expression, Raise):
+        type_str = "tuple()"
+        func = (
+            SolidityFunction("revert()")
+            if expression.exc is None
+            else SolidityFunction("revert(string)")
+        )
+        args = [] if expression.exc is None else [parse_expression(expression.exc, caller_context)]
+
+        parsed_expr = CallExpression(Identifier(func), args, type_str)
         parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
         return parsed_expr
 
