@@ -53,6 +53,7 @@ contract Test {
 
 contract T {
     uint private _myPrivateVar;
+    uint internal _myInternalVar;
     uint _myPublicVar;
 
 

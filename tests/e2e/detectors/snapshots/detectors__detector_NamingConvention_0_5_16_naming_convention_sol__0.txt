@@ -16,8 +16,6 @@ Enum naming.numbers (tests/e2e/detectors/test_data/naming-convention/0.5.16/nami
 
 Parameter T.test(uint256,uint256)._used (tests/e2e/detectors/test_data/naming-convention/0.5.16/naming_convention.sol#59) is not in mixedCase
 
-Variable T._myPublicVar (tests/e2e/detectors/test_data/naming-convention/0.5.16/naming_convention.sol#56) is not in mixedCase
-
 Variable T.O (tests/e2e/detectors/test_data/naming-convention/0.5.16/naming_convention.sol#68) is single letter l, O, or I, which should not be used
 
 Event naming.event_(uint256) (tests/e2e/detectors/test_data/naming-convention/0.5.16/naming_convention.sol#23) is not in CapWords
