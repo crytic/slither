@@ -52,12 +52,12 @@ class VyperCompilationUnit:
         if not self._parsed:
             raise SlitherException("Parse the contract before running analyses")
 
-        for contract, contract_parser in self._underlying_contract_to_parser.items():
+        for contract_parser in self._underlying_contract_to_parser.values():
             # State variables are analyzed for all contracts because interfaces may
             # reference them, specifically, constants.
             contract_parser.analyze_state_variables()
 
-        for contract, contract_parser in self._underlying_contract_to_parser.items():
+        for contract_parser in self._underlying_contract_to_parser.values():
             contract_parser.analyze()
 
         self._convert_to_slithir()

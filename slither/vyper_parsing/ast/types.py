@@ -85,9 +85,6 @@ class Index(ASTNode):
     value: ASTNode
 
 
-# TODO CONSTANT?
-
-
 @dataclass
 class Bytes(ASTNode):
     value: bytes

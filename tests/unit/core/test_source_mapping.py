@@ -114,6 +114,7 @@ def test_references_user_defined_types_when_casting(solc_binary_path):
     lines = _sort_references_lines(a.references)
     assert lines == [12, 18]
 
+
 def test_references_self_identifier():
     """
     Tests that shadowing state variables with local variables does not affect references.

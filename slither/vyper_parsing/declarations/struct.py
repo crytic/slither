@@ -7,17 +7,15 @@ from slither.vyper_parsing.ast.types import StructDef, AnnAssign
 
 
 class StructVyper:
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         st: Structure,
         struct: StructDef,
     ) -> None:
 
-        print(struct)
-
         self._structure = st
         st.name = struct.name
-        # st.canonical_name = canonicalName
+        st.canonical_name = struct.name + self._structure.contract.name
 
         self._elemsNotParsed: List[AnnAssign] = struct.body
 

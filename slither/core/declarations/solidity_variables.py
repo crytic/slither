@@ -40,7 +40,6 @@ SOLIDITY_VARIABLES_COMPOSED = {
     "chain.id": "uint256",
     "block.prevhash": "bytes32",
     "self.balance": "uint256",
-
 }
 
 SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
@@ -89,30 +88,30 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "code(address)": ["bytes"],
     "codehash(address)": ["bytes32"],
     # Vyper
-    "create_from_blueprint()":[],
-    "empty()":[],
-    "convert()":[], # TODO make type conversion
-    "len()":["uint256"],
-    "method_id()":[],
+    "create_from_blueprint()": [],
+    "empty()": [],
+    "convert()": [],  # TODO make type conversion
+    "len()": ["uint256"],
+    "method_id()": [],
     "unsafe_sub()": [],
     "unsafe_add()": [],
-    "unsafe_div()":[],
-    "unsafe_mul()":[],
-    "pow_mod256()":[], 
-    "max_value()":[],
-    "min_value()":[],
-    "concat()":[],
-    "ecrecover()":[],
-    "isqrt()":[],
-    "range()":[],
-    "min()":[],
-    "max()":[],
-    "shift()":[],
-    "abs()":[],
-    "raw_call()":["bool", "bytes32"],
-    "_abi_encode()":[],
-    "slice()":[],
-    "uint2str()":["string"],
+    "unsafe_div()": [],
+    "unsafe_mul()": [],
+    "pow_mod256()": [],
+    "max_value()": [],
+    "min_value()": [],
+    "concat()": [],
+    "ecrecover()": [],
+    "isqrt()": [],
+    "range()": [],
+    "min()": [],
+    "max()": [],
+    "shift()": [],
+    "abs()": [],
+    "raw_call()": ["bool", "bytes32"],
+    "_abi_encode()": [],
+    "slice()": [],
+    "uint2str()": ["string"],
 }
 
 

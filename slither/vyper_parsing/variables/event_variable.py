@@ -10,8 +10,11 @@ class EventVariableVyper:
         print(variable_data)
         self._variable = variable
         self._variable.name = variable_data.target.id
-        if isinstance(variable_data.annotation, Call) and variable_data.annotation.func.id == "indexed":
-            self._variable.indexed = True 
+        if (
+            isinstance(variable_data.annotation, Call)
+            and variable_data.annotation.func.id == "indexed"
+        ):
+            self._variable.indexed = True
         else:
             self._variable.indexed = False
         self._elem_to_parse = variable_data.annotation
