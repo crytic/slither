@@ -35,7 +35,7 @@ class Unary(OperationWithLValue):
         self,
         result: Union[TemporaryVariableSSA, TemporaryVariable],
         variable: Union[Constant, LocalIRVariable, LocalVariable],
-        operation_type: UnaryOperationType,
+        operation_type: UnaryType,
     ) -> None:
         assert is_valid_rvalue(variable)
         assert is_valid_lvalue(result)
@@ -53,7 +53,7 @@ class Unary(OperationWithLValue):
         return self._variable
 
     @property
-    def type(self) -> UnaryOperationType:
+    def type(self) -> UnaryType:
         return self._type
 
     @property
