@@ -114,8 +114,8 @@ def convert_expression(expression: Expression, node: "Node") -> List[Operation]:
 
     visitor = ExpressionToSlithIR(expression, node)
     result = visitor.result()
-
-    result = apply_ir_heuristics(result, node)
+    is_solidity = node.compilation_unit.is_solidity
+    result = apply_ir_heuristics(result, node, is_solidity)
 
     if result:
         if node.type in [NodeType.IF, NodeType.IFLOOP]:
@@ -1910,7 +1910,7 @@ def _find_source_mapping_references(irs: List[Operation]) -> None:
 ###################################################################################
 
 
-def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Operation]:
+def apply_ir_heuristics(irs: List[Operation], node: "Node", is_solidity: bool) -> List[Operation]:
     """
     Apply a set of heuristic to improve slithIR
     """
@@ -1920,9 +1920,11 @@ def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Operation]:
     irs = propagate_type_and_convert_call(irs, node)
     irs = remove_unused(irs)
     find_references_origin(irs)
-    # TODO refine only for Solidity
-    # convert_constant_types(irs)
-    convert_delete(irs)
+
+    # These are heuristics that are only applied to Solidity
+    if is_solidity:
+        convert_constant_types(irs)
+        convert_delete(irs)
 
     _find_source_mapping_references(irs)
 
