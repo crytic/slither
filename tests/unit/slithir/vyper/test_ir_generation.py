@@ -10,7 +10,7 @@ import pytest
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
-from slither.core.solidity_types import ArrayType
+from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
@@ -71,7 +71,7 @@ def test_phi_entry_point_internal_call(slither_from_vyper_source):
 counter: uint256
 @internal
 def b(y: uint256):
-    self.counter = y # tainted by x, 1
+    self.counter = y
 
 @external
 def a(x: uint256):
@@ -91,3 +91,34 @@ def a(x: uint256):
             )
             == 1
         )
+
+
+def test_call_with_default_args(slither_from_vyper_source):
+    with slither_from_vyper_source(
+        """
+counter: uint256
+@internal
+def c(y: uint256, config: bool = True):
+    self.counter = y
+@external
+def a(x: uint256):
+    self.c(x)
+    self.c(1)
+@external
+def b(x: uint256):
+    self.c(x, False)
+    self.c(1, False)
+"""
+    ) as sl:
+        a = sl.contracts[0].get_function_from_signature("a(uint256)")
+        for node in a.nodes:
+            for op in node.irs_ssa:
+                if isinstance(op, InternalCall) and op.function.name == "c":
+                    assert len(op.arguments) == 2
+                    assert op.arguments[1] == Constant("True", ElementaryType("bool"))
+        b = sl.contracts[0].get_function_from_signature("b(uint256)")
+        for node in b.nodes:
+            for op in node.irs_ssa:
+                if isinstance(op, InternalCall) and op.function.name == "c":
+                    assert len(op.arguments) == 2
+                    assert op.arguments[1] == Constant("False", ElementaryType("bool"))

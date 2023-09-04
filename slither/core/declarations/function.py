@@ -138,6 +138,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._parameters: List["LocalVariable"] = []
         self._parameters_ssa: List["LocalIRVariable"] = []
         self._parameters_src: SourceMapping = SourceMapping()
+        # This is used for vyper calls with default arguments
+        self._default_args_as_expressions: List["Expression"] = []
         self._returns: List["LocalVariable"] = []
         self._returns_ssa: List["LocalIRVariable"] = []
         self._returns_src: SourceMapping = SourceMapping()

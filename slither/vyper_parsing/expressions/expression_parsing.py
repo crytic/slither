@@ -198,6 +198,17 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             # Since the AST lacks the type of the return values, we recover it.
             if isinstance(called.value, Function):
                 rets = called.value.returns
+                # Default arguments are not represented in the AST, so we recover them as well.
+                if called.value._default_args_as_expressions and len(arguments) < len(
+                    called.value.parameters
+                ):
+                    arguments.extend(
+                        [
+                            parse_expression(x, caller_context)
+                            for x in called.value._default_args_as_expressions
+                        ]
+                    )
+
             elif isinstance(called.value, SolidityFunction):
                 rets = called.value.return_type
             elif isinstance(called.value, Contract):

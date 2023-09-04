@@ -31,7 +31,7 @@ class FunctionVyper:
     def __init__(
         self,
         function: Function,
-        function_data: Dict,
+        function_data: FunctionDef,
         contract_parser: "ContractVyper",
     ) -> None:
 
@@ -503,7 +503,8 @@ class FunctionVyper:
 
         print(params)
         self._function.parameters_src().set_offset(params.src, self._function.compilation_unit)
-
+        if params.defaults:
+            self._function._default_args_as_expressions = params.defaults
         for param in params.args:
             local_var = self._add_param(param)
             self._function.add_parameters(local_var.underlying_variable)
