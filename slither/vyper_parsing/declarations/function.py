@@ -229,7 +229,12 @@ class FunctionVyper:
         curr_node = entry_node
         for expr in cfg:
 
-            def parse_statement(curr_node, expr):
+            def parse_statement(
+                curr_node: NodeVyper,
+                expr: ASTNode,
+                continue_destination=None,
+                break_destination=None,
+            ) -> NodeVyper:
                 if isinstance(expr, AnnAssign):
                     local_var = LocalVariable()
                     local_var.set_function(self._function)
@@ -266,6 +271,8 @@ class FunctionVyper:
                 elif isinstance(expr, For):
 
                     node_startLoop = self._new_node(NodeType.STARTLOOP, expr.src, scope)
+                    node_endLoop = self._new_node(NodeType.ENDLOOP, expr.src, scope)
+
                     link_underlying_nodes(curr_node, node_startLoop)
 
                     local_var = LocalVariable()
@@ -371,18 +378,10 @@ class FunctionVyper:
                     else:
                         raise NotImplementedError
 
+                    # After creating condition node, we link it declaration of the loop variable
                     link_underlying_nodes(counter_node, node_condition)
 
-                    # We update the index variable or range variable in the loop body
-                    expr.body.insert(0, loop_var)
-                    body_node = None
-                    new_node = node_condition
-                    for stmt in expr.body:
-                        body_node = parse_statement(new_node, stmt)
-                        new_node = body_node
-
-                    node_endLoop = self._new_node(NodeType.ENDLOOP, expr.src, scope)
-
+                    # Create an expression for the loop increment (counter_var += 1)
                     loop_increment = AugAssign(
                         "-1:-1:-1",
                         -1,
@@ -394,6 +393,25 @@ class FunctionVyper:
                     node_increment.add_unparsed_expression(loop_increment)
                     link_underlying_nodes(node_increment, node_condition)
 
+                    prev_continue_destination = continue_destination
+                    prev_break_destination = break_destination
+                    continue_destination = node_increment
+                    break_destination = node_endLoop
+
+                    # We assign the index variable or range variable in the loop body on each iteration
+                    expr.body.insert(0, loop_var)
+                    body_node = None
+                    new_node = node_condition
+                    for stmt in expr.body:
+                        body_node = parse_statement(
+                            new_node, stmt, continue_destination, break_destination
+                        )
+                        new_node = body_node
+
+                    # Reset to previous jump destinations for nested loops
+                    continue_destination = prev_continue_destination
+                    break_destination = prev_break_destination
+
                     if body_node is not None:
                         link_underlying_nodes(body_node, node_increment)
 
@@ -402,9 +420,15 @@ class FunctionVyper:
                     curr_node = node_endLoop
 
                 elif isinstance(expr, Continue):
-                    pass
+                    new_node = self._new_node(NodeType.CONTINUE, expr.src, scope)
+                    link_underlying_nodes(curr_node, new_node)
+                    link_underlying_nodes(new_node, continue_destination)
+
                 elif isinstance(expr, Break):
-                    pass
+                    new_node = self._new_node(NodeType.BREAK, expr.src, scope)
+                    link_underlying_nodes(curr_node, new_node)
+                    link_underlying_nodes(new_node, break_destination)
+
                 elif isinstance(expr, Return):
                     new_node = self._new_node(NodeType.RETURN, expr.src, scope)
                     if expr.value is not None:
@@ -436,19 +460,22 @@ class FunctionVyper:
                     true_node = None
                     new_node = condition_node
                     for stmt in expr.body:
-                        true_node = parse_statement(new_node, stmt)
+                        true_node = parse_statement(
+                            new_node, stmt, continue_destination, break_destination
+                        )
                         new_node = true_node
-                    # link_underlying_nodes(condition_node, true_node)
+
                     link_underlying_nodes(true_node, endIf_node)
 
                     false_node = None
                     new_node = condition_node
                     for stmt in expr.orelse:
-                        false_node = parse_statement(new_node, stmt)
+                        false_node = parse_statement(
+                            new_node, stmt, continue_destination, break_destination
+                        )
                         new_node = false_node
 
                     if false_node is not None:
-                        # link_underlying_nodes(condition_node, false_node)
                         link_underlying_nodes(false_node, endIf_node)
 
                     else:
@@ -481,13 +508,11 @@ class FunctionVyper:
         local_var = LocalVariable()
         local_var.set_function(self._function)
         local_var.set_offset(param.src, self._function.compilation_unit)
-        print("add_param", param)
         local_var_parser = LocalVariableVyper(local_var, param)
 
         if initialized:
             local_var.initialized = True
 
-        # see https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
         if local_var.location == "default":
             local_var.set_location("memory")
 
@@ -496,7 +521,6 @@ class FunctionVyper:
 
     def _parse_params(self, params: Arguments):
 
-        print(params)
         self._function.parameters_src().set_offset(params.src, self._function.compilation_unit)
         if params.defaults:
             self._function._default_args_as_expressions = params.defaults
@@ -506,7 +530,6 @@ class FunctionVyper:
 
     def _parse_returns(self, returns: Union[Name, Tuple, Subscript]):
 
-        print(returns)
         self._function.returns_src().set_offset(returns.src, self._function.compilation_unit)
         # Only the type of the arg is given, not a name. We create an an `Arg` with an empty name
         # so that the function has the correct return type in its signature but doesn't clash with
