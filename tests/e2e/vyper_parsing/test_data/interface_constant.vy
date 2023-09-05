@@ -1,12 +1,7 @@
-interface LMGauge:
-    def callback_collateral_shares(n: int256, collateral_per_share: DynArray[uint256, MAX_TICKS_UINT]): nonpayable
-    def callback_user_shares(user: address, n: int256, user_shares: DynArray[uint256, MAX_TICKS_UINT]): nonpayable
+struct MyStruct:
+    liquidation_range: address
+MY_CONSTANT: constant(uint256) =  50
+interface MyInterface:
+    def my_func(a: int256, b: DynArray[uint256, MY_CONSTANT]) -> MyStruct: nonpayable
 
 
-MAX_TICKS_UINT: constant(uint256) =  50
-
-
-struct Loan:
-    liquidation_range: LMGauge
-
-x: public(Loan)

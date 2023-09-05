@@ -96,4 +96,7 @@ def parse_type(
 
     if name in contract.file_scope.contracts:
         return UserDefinedType(contract.file_scope.contracts[name])
+
+    if name in contract.file_scope.structures:
+        return UserDefinedType(contract.file_scope.structures[name])
     assert False

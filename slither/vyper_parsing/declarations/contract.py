@@ -453,6 +453,8 @@ class ContractVyper:
             st_parser = StructVyper(st, struct)
             self._contract.structures_as_dict[st.name] = st
             self._structures_parser.append(st_parser)
+            # Interfaces can refer to struct defs
+            self._contract.file_scope.structures[st.name] = st
 
         self._structuresNotParsed = []
 
