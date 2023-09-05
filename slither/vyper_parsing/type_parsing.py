@@ -1,20 +1,19 @@
+from typing import Union
 from slither.core.solidity_types.elementary_type import (
     ElementaryType,
     ElementaryTypeName,
 )  # TODO rename solidity type
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.mapping_type import MappingType
-
 from slither.vyper_parsing.ast.types import Name, Subscript, Call, Index, Tuple
-from typing import Union
 from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.declarations import FunctionContract, Contract
 
-from slither.core.declarations.function_contract import FunctionContract
-
-
+# pylint: disable=too-many-branches,too-many-return-statements,import-outside-toplevel,too-many-locals
 def parse_type(
-    annotation: Union[Name, Subscript, Call, Tuple], caller_context
-):  # pylint disable=too-many-branches,too-many-return-statements,import-outside-toplevel
+    annotation: Union[Name, Subscript, Call, Tuple],
+    caller_context: Union[FunctionContract, Contract],
+):
     from slither.vyper_parsing.expressions.expression_parsing import parse_expression
 
     if isinstance(caller_context, FunctionContract):

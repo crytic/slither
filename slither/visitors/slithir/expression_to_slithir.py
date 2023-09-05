@@ -171,9 +171,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
     def result(self) -> List[Operation]:
         return self._result
 
-    def _post_assignement_operation(
-        self, expression: AssignmentOperation
-    ) -> None:  # pylint: disable=too-many-branches,too-many-statements
+    # pylint: disable=too-many-branches,too-many-statements
+    def _post_assignement_operation(self, expression: AssignmentOperation) -> None:
         left = get(expression.expression_left)
         right = get(expression.expression_right)
         operation: Operation

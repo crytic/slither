@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, TYPE_CHECKING, Tuple
+from typing import Dict, Union, List, TYPE_CHECKING
 
 from slither.core.cfg.node import NodeType, link_nodes, Node
 from slither.core.cfg.scope import Scope
@@ -13,7 +13,33 @@ from slither.core.variables.local_variable import LocalVariable
 from slither.vyper_parsing.cfg.node import NodeVyper
 from slither.solc_parsing.exceptions import ParsingError
 from slither.vyper_parsing.variables.local_variable import LocalVariableVyper
-from slither.vyper_parsing.ast.types import *
+from slither.vyper_parsing.ast.types import (
+    Int,
+    Call,
+    Attribute,
+    Name,
+    Tuple as TupleVyper,
+    ASTNode,
+    AnnAssign,
+    FunctionDef,
+    Return,
+    Assert,
+    Compare,
+    Log,
+    Subscript,
+    If,
+    Pass,
+    Assign,
+    AugAssign,
+    Raise,
+    Expr,
+    For,
+    Index,
+    Arg,
+    Arguments,
+    Continue,
+    Break,
+)
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -24,7 +50,7 @@ def link_underlying_nodes(node1: NodeVyper, node2: NodeVyper):
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
-class FunctionVyper:
+class FunctionVyper:  # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         function: Function,
@@ -183,7 +209,7 @@ class FunctionVyper:
         contract = self._contract_parser.underlying_contract
         compilation_unit = self._contract_parser.underlying_contract.compilation_unit
         modifier = Modifier(compilation_unit)
-        modifier._name = name
+        modifier.name = name
         modifier.set_offset(decorator.src, compilation_unit)
         modifier.set_contract(contract)
         modifier.set_contract_declarer(contract)
@@ -218,6 +244,7 @@ class FunctionVyper:
     ###################################################################################
     ###################################################################################
 
+    # pylint: disable=too-many-branches,too-many-statements,protected-access,too-many-locals
     def _parse_cfg(self, cfg: List[ASTNode]) -> None:
 
         entry_node = self._new_node(NodeType.ENTRYPOINT, "-1:-1:-1", self.underlying_function)
@@ -517,7 +544,7 @@ class FunctionVyper:
             local_var = self._add_param(param)
             self._function.add_parameters(local_var.underlying_variable)
 
-    def _parse_returns(self, returns: Union[Name, Tuple, Subscript]):
+    def _parse_returns(self, returns: Union[Name, TupleVyper, Subscript]):
 
         self._function.returns_src().set_offset(returns.src, self._function.compilation_unit)
         # Only the type of the arg is given, not a name. We create an an `Arg` with an empty name
@@ -527,7 +554,7 @@ class FunctionVyper:
             local_var = self._add_param(Arg(returns.src, returns.node_id, "", annotation=returns))
             self._function.add_return(local_var.underlying_variable)
         else:
-            assert isinstance(returns, Tuple)
+            assert isinstance(returns, TupleVyper)
             for ret in returns.elements:
                 local_var = self._add_param(Arg(ret.src, ret.node_id, "", annotation=ret))
                 self._function.add_return(local_var.underlying_variable)

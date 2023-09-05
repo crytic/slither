@@ -1,10 +1,10 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Optional, List, Union, TYPE_CHECKING
 from collections import deque
 from slither.core.declarations.solidity_variables import (
     SOLIDITY_VARIABLES_COMPOSED,
     SolidityVariableComposed,
 )
-from slither.core.declarations import SolidityFunction, Function
+from slither.core.declarations import SolidityFunction, FunctionContract
 from slither.core.variables.state_variable import StateVariable
 from slither.core.expressions import (
     CallExpression,
@@ -57,14 +57,25 @@ from slither.vyper_parsing.ast.types import (
     AugAssign,
     VyList,
     Raise,
+    ASTNode,
 )
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
 
 
-def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylint
-    print("parse_expression", expression)
+def vars_to_typestr(rets: Optional[List["Expression"]]) -> str:
+    if rets is None:
+        return "tuple()"
+    if len(rets) == 1:
+        return str(rets[0].type)
+    return f"tuple({','.join(str(ret.type) for ret in rets)})"
+
+
+# pylint: disable=too-many-branches,too-many-statements,too-many-locals
+def parse_expression(
+    expression: ASTNode, caller_context: Union[FunctionContract, Contract]
+) -> "Expression":
 
     if isinstance(expression, Int):
         literal = Literal(str(expression.value), ElementaryType("uint256"))
@@ -103,14 +114,14 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylin
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                 return parsed_expr
 
-            elif called.value.name == "convert()":
+            if called.value.name == "convert()":
                 arg = parse_expression(expression.args[0], caller_context)
                 type_to = parse_type(expression.args[1], caller_context)
                 parsed_expr = TypeConversion(arg, type_to)
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                 return parsed_expr
 
-            elif called.value.name == "min_value()":
+            if called.value.name == "min_value()":
                 type_to = parse_type(expression.args[0], caller_context)
                 member_type = str(type_to)
                 # TODO return Literal
@@ -126,7 +137,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylin
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                 return parsed_expr
 
-            elif called.value.name == "max_value()":
+            if called.value.name == "max_value()":
                 type_to = parse_type(expression.args[0], caller_context)
                 member_type = str(type_to)
                 # TODO return Literal
@@ -142,7 +153,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylin
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                 return parsed_expr
 
-            elif called.value.name == "raw_call()":
+            if called.value.name == "raw_call()":
                 args = [parse_expression(a, caller_context) for a in expression.args]
                 # This is treated specially in order to force `extract_tmp_call` to treat this as a `HighLevelCall` which will be converted
                 # to a `LowLevelCall` by `convert_to_low_level`. This is an artifact of the late conversion of Solidity...
@@ -182,9 +193,10 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylin
         rets = None
         # Since the AST lacks the type of the return values, we recover it.
         if isinstance(called, Identifier):
-            if isinstance(called.value, Function):
+            if isinstance(called.value, FunctionContract):
                 rets = called.value.returns
                 # Default arguments are not represented in the AST, so we recover them as well.
+                # pylint: disable=protected-access
                 if called.value._default_args_as_expressions and len(arguments) < len(
                     called.value.parameters
                 ):
@@ -209,28 +221,9 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylin
         elif isinstance(called, MemberAccess) and called.type is not None:
             # (recover_type_2) Propagate the type collected to the `CallExpression`
             # see recover_type_1
-            rets = [called.type]
+            rets = [called]
 
-        if rets is None:
-            rets = ["tuple()"]
-
-        def get_type_str(x):
-            if isinstance(x, str):
-                return x
-            return str(x.type)
-
-        # def vars_to_typestr(rets: List[Expression]) -> str:
-        #     if len(rets) == 0:
-        #         return ""
-        #     if len(rets) == 1:
-        #         return str(rets[0].type)
-        #     return f"tuple({','.join(str(ret.type) for ret in rets)})"
-
-        type_str = (
-            get_type_str(rets[0])
-            if len(rets) == 1
-            else f"tuple({','.join(map(get_type_str, rets))})"
-        )
+        type_str = vars_to_typestr(rets)
         parsed_expr = CallExpression(called, arguments, type_str)
         parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
         return parsed_expr
@@ -266,41 +259,28 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylin
             # (recover_type_1) This may be a call to an interface and we don't have the return types,
             # so we see if there's a function identifier with `member_name` and propagate the type to
             # its enclosing `CallExpression`
-            if isinstance(expr, Identifier) and isinstance(expr.value, StateVariable) and isinstance(expr.value.type, UserDefinedType) and isinstance(expr.value.type.type, Contract):
+            if (
+                isinstance(expr, Identifier)
+                and isinstance(expr.value, StateVariable)
+                and isinstance(expr.value.type, UserDefinedType)
+                and isinstance(expr.value.type.type, Contract)
+            ):
                 # If we access a member of an interface, needs to be interface instead of self namespace
                 var = find_variable(member_name, expr.value.type.type)
-                if isinstance(var, Function):
+                if isinstance(var, FunctionContract):
                     rets = var.returns
+                    member_name_ret_type = vars_to_typestr(rets)
 
-                    def get_type_str(x):
-                        if isinstance(x, str):
-                            return x
-                        return str(x.type)
-
-                    type_str = (
-                        get_type_str(rets[0])
-                        if len(rets) == 1
-                        else f"tuple({','.join(map(get_type_str, rets))})"
-                    )
-                    member_name_ret_type = type_str
-               
-            if isinstance(expr, TypeConversion) and isinstance(expr.type, UserDefinedType) and isinstance(expr.type.type, Contract):
+            if (
+                isinstance(expr, TypeConversion)
+                and isinstance(expr.type, UserDefinedType)
+                and isinstance(expr.type.type, Contract)
+            ):
                 # If we access a member of an interface, needs to be interface instead of self namespace
                 var = find_variable(member_name, expr.type.type)
-                if isinstance(var, Function):
+                if isinstance(var, FunctionContract):
                     rets = var.returns
-
-                    def get_type_str(x):
-                        if isinstance(x, str):
-                            return x
-                        return str(x.type)
-
-                    type_str = (
-                        get_type_str(rets[0])
-                        if len(rets) == 1
-                        else f"tuple({','.join(map(get_type_str, rets))})"
-                    )
-                    member_name_ret_type = type_str
+                    member_name_ret_type = vars_to_typestr(rets)
 
             member_access = MemberAccess(member_name, member_name_ret_type, expr)
 
@@ -359,7 +339,9 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylin
             is_tuple = isinstance(rhs, TupleExpression)
             is_array = isinstance(rhs, Identifier) and isinstance(rhs.value.type, ArrayType)
             if is_array:
-                assert rhs.value.type.is_fixed_array
+                assert (
+                    rhs.value.type.is_fixed_array
+                ), "Dynamic arrays are not supported in comparison operators"
             if is_tuple or is_array:
                 length = len(rhs.expressions) if is_tuple else rhs.value.type.length_value.value
                 inner_op = (
@@ -391,37 +373,36 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylin
 
                 return conditions.pop()
 
-            else:  # enum type membership check https://docs.vyperlang.org/en/stable/types.html?h#id18
-                is_member_op = (
-                    BinaryOperationType.get_type("==")
-                    if expression.op == "NotIn"
-                    else BinaryOperationType.get_type("!=")
-                )
-                # If all bits are cleared, then the lhs is not a member of the enum
-                # This allows representing membership in multiple enum members
-                # For example, if enum Foo has members A (1), B (2), and C (4), then
-                # (x in [Foo.A, Foo.B]) is equivalent to (x & (Foo.A | Foo.B) != 0),
-                # where (Foo.A | Foo.B) evaluates to 3.
-                # Thus, when x is 3, (x & (Foo.A | Foo.B) != 0) is true.
+            # enum type membership check https://docs.vyperlang.org/en/stable/types.html?h#id18
+            is_member_op = (
+                BinaryOperationType.get_type("==")
+                if expression.op == "NotIn"
+                else BinaryOperationType.get_type("!=")
+            )
+            # If all bits are cleared, then the lhs is not a member of the enum
+            # This allows representing membership in multiple enum members
+            # For example, if enum Foo has members A (1), B (2), and C (4), then
+            # (x in [Foo.A, Foo.B]) is equivalent to (x & (Foo.A | Foo.B) != 0),
+            # where (Foo.A | Foo.B) evaluates to 3.
+            # Thus, when x is 3, (x & (Foo.A | Foo.B) != 0) is true.
+            enum_bit_mask = BinaryOperation(
+                TypeConversion(lhs, ElementaryType("uint256")),
+                TypeConversion(rhs, ElementaryType("uint256")),
+                BinaryOperationType.get_type("&"),
+            )
+            membership_check = BinaryOperation(
+                enum_bit_mask, Literal("0", ElementaryType("uint256")), is_member_op
+            )
+            membership_check.set_offset(lhs.source_mapping, caller_context.compilation_unit)
+            return membership_check
 
-                enum_bit_mask = BinaryOperation(
-                    TypeConversion(lhs, ElementaryType("uint256")),
-                    TypeConversion(rhs, ElementaryType("uint256")),
-                    BinaryOperationType.get_type("&"),
-                )
-                membership_check = BinaryOperation(
-                    enum_bit_mask, Literal("0", ElementaryType("uint256")), is_member_op
-                )
-                membership_check.set_offset(lhs.source_mapping, caller_context.compilation_unit)
-                return membership_check
+        # a regular logical operator
+        rhs = parse_expression(expression.right, caller_context)
+        op = BinaryOperationType.get_type(expression.op)
 
-        else:  # a regular logical operator
-            rhs = parse_expression(expression.right, caller_context)
-            op = BinaryOperationType.get_type(expression.op)
-
-            parsed_expr = BinaryOperation(lhs, rhs, op)
-            parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
-            return parsed_expr
+        parsed_expr = BinaryOperation(lhs, rhs, op)
+        parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
+        return parsed_expr
 
     if isinstance(expression, BinOp):
         lhs = parse_expression(expression.left, caller_context)

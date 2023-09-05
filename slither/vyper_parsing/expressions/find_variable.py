@@ -98,10 +98,10 @@ def find_variable(
     :return:
     :rtype:
     """
-
+    # pylint: disable=import-outside-toplevel
     from slither.vyper_parsing.declarations.function import (
         FunctionVyper,
-    )  # pylint: disable=import-outside-toplevel
+    )
 
     if isinstance(caller_context, Contract):
         current_scope = caller_context.file_scope

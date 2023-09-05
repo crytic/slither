@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from slither.vyper_parsing.vyper_compilation_unit import VyperCompilationUnit
 
 
-class ContractVyper:
+class ContractVyper:  # pylint: disable=too-many-instance-attributes
     def __init__(
         self, slither_parser: "VyperCompilationUnit", contract: Contract, module: Module
     ) -> None:
@@ -426,6 +426,7 @@ class ContractVyper:
 
                 contract_parser = ContractVyper(self._slither_parser, contract, node)
                 self._contract.file_scope.contracts[contract.name] = contract
+                # pylint: disable=protected-access
                 self._slither_parser._underlying_contract_to_parser[contract] = contract_parser
 
             elif isinstance(node, AnnAssign):  # implements: ERC20
