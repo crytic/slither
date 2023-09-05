@@ -1,5 +1,3 @@
-
-
 interface Test:
     def foo() -> (int128, uint256): nonpayable
 

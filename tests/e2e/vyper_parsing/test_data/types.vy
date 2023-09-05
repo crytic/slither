@@ -3,12 +3,8 @@ symbol: public(String[32])
 decimals: public(uint256)
 totalSupply: public(uint256)
 
-
-
-
 balances: HashMap[address, uint256]
 allowances: HashMap[address, HashMap[address, uint256]]
-
 
 MAX_BANDS: constant(uint256) = 10
 

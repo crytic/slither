@@ -16,9 +16,6 @@ interface IStrategy:
     def convertToShares(assets: uint256) -> uint256: view
     def previewWithdraw(assets: uint256) -> uint256: view
 
-
-
-
 struct X:
     y: int8
 

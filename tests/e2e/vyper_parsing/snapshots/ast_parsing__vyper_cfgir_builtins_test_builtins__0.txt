@@ -53,10 +53,11 @@ f(uint256) := block.timestamp(uint256)"];
 7[label="Node Type: NEW VARIABLE 7
 
 EXPRESSION:
-h = chain.id
+h = bytes32(chain.id)
 
 IRs:
-h(uint256) := chain.id(uint256)"];
+TMP_0 = CONVERT chain.id to bytes32
+h(bytes32) := TMP_0(bytes32)"];
 7->8;
 8[label="Node Type: NEW VARIABLE 8
 
@@ -64,8 +65,8 @@ EXPRESSION:
 i = slice()(msg.data,0,32)
 
 IRs:
-TMP_0(None) = SOLIDITY_CALL slice()(msg.data,0,32)
-i(bytes[32]) =  ['TMP_0(None)']"];
+TMP_1(None) = SOLIDITY_CALL slice()(msg.data,0,32)
+i(bytes[32]) =  ['TMP_1(None)']"];
 8->9;
 9[label="Node Type: NEW VARIABLE 9
 

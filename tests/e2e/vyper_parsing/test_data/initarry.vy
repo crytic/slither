@@ -3,8 +3,8 @@ interface ERC20:
     def transferFrom(_from: address, _to: address, _value: uint256) -> bool: nonpayable
     def approve(_spender: address, _value: uint256) -> bool: nonpayable
 
-BORROWED_TOKEN: immutable(ERC20)    # x
-COLLATERAL_TOKEN: immutable(ERC20)    # x
+BORROWED_TOKEN: immutable(ERC20)
+COLLATERAL_TOKEN: immutable(ERC20)
 
 @external
 def __init__(x: address, y: address):
