@@ -459,7 +459,6 @@ class ContractVyper:
 
     def parse_state_variables(self) -> None:
         for varNotParsed in self._variablesNotParsed:
-            print(varNotParsed)
             var = StateVariable()
             var.set_contract(self._contract)
             var.set_offset(varNotParsed.src, self._contract.compilation_unit)
@@ -506,7 +505,6 @@ class ContractVyper:
             var_parser.analyze(self._contract)
 
     def analyze(self) -> None:
-        print("Analyze", self._contract._name)
 
         for struct_parser in self._structures_parser:
             struct_parser.analyze(self._contract)

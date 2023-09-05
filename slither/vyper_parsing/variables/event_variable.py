@@ -7,7 +7,6 @@ from slither.vyper_parsing.ast.types import AnnAssign, Call
 
 class EventVariableVyper:
     def __init__(self, variable: EventVariable, variable_data: AnnAssign):
-        print(variable_data)
         self._variable = variable
         self._variable.name = variable_data.target.id
         if (

@@ -74,9 +74,6 @@ from slither.vyper_parsing.ast.types import (
 
 
 def parse_expression(expression: Dict, caller_context) -> "Expression":
-    print("parse_expression")
-    print(expression, "\n")
-    # assert False
 
     if isinstance(expression, Int):
         literal = Literal(str(expression.value), ElementaryType("uint256"))
@@ -106,8 +103,6 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         return literal
 
     if isinstance(expression, Call):
-        print("Call")
-        print(expression)
         called = parse_expression(expression.func, caller_context)
         if isinstance(called, Identifier) and isinstance(called.value, SolidityFunction):
             if called.value.name == "empty()":
@@ -195,8 +190,6 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
 
         rets = None
         if isinstance(called, Identifier):
-            print("called", called)
-            print("called.value", called.value.__class__.__name__)
             # Since the AST lacks the type of the return values, we recover it.
             if isinstance(called.value, Function):
                 rets = called.value.returns
@@ -235,7 +228,6 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
                 return x
             return str(x.type)
 
-        print(rets)
         # def vars_to_typestr(rets: List[Expression]) -> str:
         #     if len(rets) == 0:
         #         return ""
@@ -248,7 +240,6 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             if len(rets) == 1
             else f"tuple({','.join(map(get_type_str, rets))})"
         )
-        print(arguments)
         parsed_expr = CallExpression(called, arguments, type_str)
         parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
         return parsed_expr
@@ -258,9 +249,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         if isinstance(expression.value, Name):
             # TODO this is ambiguous because it could be a state variable or a call to balance
             if expression.value.id == "self" and member_name != "balance":
-                var, was_created = find_variable(member_name, caller_context, is_self=True)
-                if was_created:
-                    var.set_offset(expression.src, caller_context.compilation_unit)
+                var = find_variable(member_name, caller_context, is_self=True)
                 parsed_expr = SelfIdentifier(var)
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                 var.references.append(parsed_expr.source_mapping)
@@ -286,12 +275,9 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
             # (recover_type_1) This may be a call to an interface and we don't have the return types,
             # so we see if there's a function identifier with `member_name` and propagate the type to
             # its enclosing `CallExpression`
-            print(expr)
-            print(expr.__class__.__name__)
-
             if isinstance(expr, TypeConversion) and isinstance(expr.type, UserDefinedType):
                 # If we access a member of an interface, needs to be interface instead of self namespace
-                var, was_created = find_variable(member_name, expr.type.type)
+                var = find_variable(member_name, expr.type.type)
                 if isinstance(var, Function):
                     rets = var.returns
 
@@ -313,9 +299,7 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
         return member_access
 
     if isinstance(expression, Name):
-        var, was_created = find_variable(expression.id, caller_context)
-        if was_created:
-            var.set_offset(expression.src, caller_context.compilation_unit)
+        var = find_variable(expression.id, caller_context)
         parsed_expr = Identifier(var)
         parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
         return parsed_expr
@@ -398,12 +382,6 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":
 
                 return conditions.pop()
 
-                for elem in expression.right.elements:
-                    elem_expr = parse_expression(elem, caller_context)
-                    print("elem", repr(elem_expr))
-                    parsed_expr = BinaryOperation(lhs, elem_expr, inner_op)
-                    parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
-                    conditions.append(parsed_expr)
             else:  # enum type membership check https://docs.vyperlang.org/en/stable/types.html?h#id18
                 is_member_op = (
                     BinaryOperationType.get_type("==")

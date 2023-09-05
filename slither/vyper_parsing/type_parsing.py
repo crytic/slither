@@ -12,7 +12,7 @@ from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.declarations.function_contract import FunctionContract
 
 
-def parse_type(annotation: Union[Name, Subscript, Call], caller_context):
+def parse_type(annotation: Union[Name, Subscript, Call, Tuple], caller_context):
     from slither.vyper_parsing.expressions.expression_parsing import parse_expression
 
     if isinstance(caller_context, FunctionContract):
@@ -21,7 +21,7 @@ def parse_type(annotation: Union[Name, Subscript, Call], caller_context):
         contract = caller_context
 
     assert isinstance(annotation, (Name, Subscript, Call, Tuple))
-    print(annotation)
+
     if isinstance(annotation, Name):
         name = annotation.id
     elif isinstance(annotation, Subscript):
@@ -90,11 +90,9 @@ def parse_type(annotation: Union[Name, Subscript, Call], caller_context):
     if name in contract.structures_as_dict:
         return UserDefinedType(contract.structures_as_dict[name])
 
-    print(contract.enums_as_dict)
     if name in contract.enums_as_dict:
         return UserDefinedType(contract.enums_as_dict[name])
 
-    print(contract.file_scope.contracts)
     if name in contract.file_scope.contracts:
         return UserDefinedType(contract.file_scope.contracts[name])
     assert False
