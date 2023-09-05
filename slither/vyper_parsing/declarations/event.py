@@ -1,7 +1,6 @@
 """
     Event module
 """
-from typing import TYPE_CHECKING, Dict
 
 from slither.core.variables.event_variable import EventVariable
 from slither.vyper_parsing.variables.event_variable import EventVariableVyper

@@ -1,4 +1,4 @@
-from typing import Union, Optional, Dict, TYPE_CHECKING
+from typing import Optional, Dict
 
 from slither.core.cfg.node import Node
 from slither.core.cfg.node import NodeType

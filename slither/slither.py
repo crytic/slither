@@ -13,6 +13,7 @@ from slither.printers.abstract_printer import AbstractPrinter
 from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 from slither.vyper_parsing.vyper_compilation_unit import VyperCompilationUnit
 from slither.utils.output import Output
+from slither.vyper_parsing.ast.ast import parse
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -103,8 +104,6 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
             if compilation_unit_slither.is_vyper:
                 vyper_parser = VyperCompilationUnit(compilation_unit_slither)
                 for path, ast in compilation_unit.asts.items():
-                    from slither.vyper_parsing.ast.ast import parse
-
                     ast_nodes = parse(ast["ast"])
                     vyper_parser.parse_module(ast_nodes, path)
                 self._parsers.append(vyper_parser)

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional, Dict, Union, ForwardRef
+from typing import List, Optional, Union
 from dataclasses import dataclass
 
 
@@ -165,9 +165,6 @@ class Assert(ASTNode):
 @dataclass
 class Raise(ASTNode):
     exc: ASTNode
-
-
-from enum import Enum
 
 
 @dataclass

@@ -1,6 +1,3 @@
-from typing import Dict
-
-
 from slither.core.variables.structure_variable import StructureVariable
 from slither.vyper_parsing.type_parsing import parse_type
 from slither.vyper_parsing.ast.types import AnnAssign

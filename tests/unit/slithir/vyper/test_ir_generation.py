@@ -1,38 +1,13 @@
 # # pylint: disable=too-many-lines
-import pathlib
-from argparse import ArgumentTypeError
-from collections import defaultdict
-from inspect import getsourcefile
-from typing import Union, List, Dict, Callable
 
-import pytest
 
-from slither import Slither
-from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations import Function, Contract
-from slither.core.solidity_types import ArrayType, ElementaryType
-from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.state_variable import StateVariable
+from slither.core.solidity_types import ElementaryType
 from slither.slithir.operations import (
-    OperationWithLValue,
     Phi,
-    Assignment,
-    HighLevelCall,
-    Return,
-    Operation,
-    Binary,
-    BinaryType,
     InternalCall,
-    Index,
-    InitArray,
 )
-from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import (
     Constant,
-    ReferenceVariable,
-    LocalIRVariable,
-    StateIRVariable,
-    TemporaryVariableSSA,
 )
 
 

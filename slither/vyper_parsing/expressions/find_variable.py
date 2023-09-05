@@ -1,27 +1,17 @@
-from typing import TYPE_CHECKING, Optional, Union, List, Tuple
+from typing import TYPE_CHECKING, Optional, Union, Tuple
 
 from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function import Function
 from slither.core.declarations.function_contract import FunctionContract
-from slither.core.declarations.function_top_level import FunctionTopLevel
-from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.declarations.solidity_variables import (
     SOLIDITY_FUNCTIONS,
     SOLIDITY_VARIABLES,
     SolidityFunction,
     SolidityVariable,
 )
-from slither.core.scope.scope import FileScope
-from slither.core.solidity_types import (
-    ArrayType,
-    FunctionType,
-    MappingType,
-    TypeAlias,
-)
 from slither.core.variables.variable import Variable
-from slither.exceptions import SlitherError
 from slither.solc_parsing.exceptions import VariableNotFound
 
 if TYPE_CHECKING:
@@ -109,8 +99,9 @@ def find_variable(
     :rtype:
     """
 
-    from slither.vyper_parsing.declarations.contract import ContractVyper
-    from slither.vyper_parsing.declarations.function import FunctionVyper
+    from slither.vyper_parsing.declarations.function import (
+        FunctionVyper,
+    )  # pylint: disable=import-outside-toplevel
 
     if isinstance(caller_context, Contract):
         current_scope = caller_context.file_scope

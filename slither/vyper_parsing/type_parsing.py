@@ -12,7 +12,9 @@ from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.declarations.function_contract import FunctionContract
 
 
-def parse_type(annotation: Union[Name, Subscript, Call, Tuple], caller_context):
+def parse_type(
+    annotation: Union[Name, Subscript, Call, Tuple], caller_context
+):  # pylint disable=too-many-branches,too-many-return-statements,import-outside-toplevel
     from slither.vyper_parsing.expressions.expression_parsing import parse_expression
 
     if isinstance(caller_context, FunctionContract):
@@ -33,8 +35,7 @@ def parse_type(annotation: Union[Name, Subscript, Call, Tuple], caller_context):
                 type_ = parse_type(annotation.slice.value.elements[0], caller_context)
                 length = parse_expression(annotation.slice.value.elements[1], caller_context)
                 return ArrayType(type_, length)
-            else:
-                assert annotation.value.id == "HashMap"
+            if annotation.value.id == "HashMap":
                 type_from = parse_type(annotation.slice.value.elements[0], caller_context)
                 type_to = parse_type(annotation.slice.value.elements[1], caller_context)
 

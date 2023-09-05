@@ -38,10 +38,10 @@ class Language(Enum):
     def from_str(label: str):
         if label == "solc":
             return Language.SOLIDITY
-        elif label == "vyper":
+        if label == "vyper":
             return Language.VYPER
-        else:
-            raise ValueError(f"Unknown language: {label}")
+
+        raise ValueError(f"Unknown language: {label}")
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, List
+from typing import List
 
 from slither.core.declarations.structure import Structure
 from slither.core.variables.structure_variable import StructureVariable

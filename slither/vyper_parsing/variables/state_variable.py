@@ -1,5 +1,3 @@
-from typing import Dict
-
 from slither.core.variables.state_variable import StateVariable
 from slither.vyper_parsing.ast.types import VariableDecl
 from slither.vyper_parsing.type_parsing import parse_type

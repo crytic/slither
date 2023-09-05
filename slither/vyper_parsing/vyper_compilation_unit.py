@@ -25,7 +25,7 @@ class VyperCompilationUnit:
         sourceUnit = int(sourceUnit_candidates[0])
 
         self._compilation_unit.source_units[sourceUnit] = filename
-        if os.path.isfile(filename) and not filename in self._compilation_unit.core.source_code:
+        if os.path.isfile(filename) and filename not in self._compilation_unit.core.source_code:
             self._compilation_unit.core.add_source_code(filename)
 
         scope = self._compilation_unit.get_scope(filename)

@@ -1,8 +1,5 @@
-import logging
-import re
-from typing import Union, Dict, TYPE_CHECKING, List, Any
-
-import slither.core.expressions.type_conversion
+from typing import Dict, TYPE_CHECKING
+from collections import deque
 from slither.core.declarations.solidity_variables import (
     SOLIDITY_VARIABLES_COMPOSED,
     SolidityVariableComposed,
@@ -10,16 +7,11 @@ from slither.core.declarations.solidity_variables import (
 from slither.core.declarations import SolidityFunction, Function
 from slither.core.expressions import (
     CallExpression,
-    ConditionalExpression,
     ElementaryTypeNameExpression,
     Identifier,
     IndexAccess,
     Literal,
     MemberAccess,
-    NewArray,
-    NewContract,
-    NewElementaryType,
-    SuperCallExpression,
     SelfIdentifier,
     TupleExpression,
     TypeConversion,
@@ -43,12 +35,6 @@ from slither.core.declarations.contract import Contract
 from slither.vyper_parsing.expressions.find_variable import find_variable
 from slither.vyper_parsing.type_parsing import parse_type
 from slither.all_exceptions import ParsingError
-
-if TYPE_CHECKING:
-    from slither.core.expressions.expression import Expression
-
-
-from collections import deque
 from slither.vyper_parsing.ast.types import (
     Int,
     Call,
@@ -72,8 +58,11 @@ from slither.vyper_parsing.ast.types import (
     Raise,
 )
 
+if TYPE_CHECKING:
+    from slither.core.expressions.expression import Expression
 
-def parse_expression(expression: Dict, caller_context) -> "Expression":
+
+def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylint
 
     if isinstance(expression, Int):
         literal = Literal(str(expression.value), ElementaryType("uint256"))

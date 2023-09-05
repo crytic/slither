@@ -1,4 +1,3 @@
-import logging
 from pathlib import Path
 from typing import List, TYPE_CHECKING
 from slither.vyper_parsing.ast.types import (

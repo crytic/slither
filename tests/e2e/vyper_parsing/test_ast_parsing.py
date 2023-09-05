@@ -1,4 +1,3 @@
-from typing import Dict
 from pathlib import Path
 from slither import Slither
 
