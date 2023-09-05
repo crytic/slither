@@ -6,7 +6,7 @@ from slither.vyper_parsing.type_parsing import parse_type
 
 
 class LocalVariableVyper:
-    def __init__(self, variable: LocalVariable, variable_data: Union[Arg, Name]) -> None:
+    def __init__(self, variable: LocalVariable, variable_data: Union[Arg, AnnAssign, Name]) -> None:
         self._variable: LocalVariable = variable
 
         if isinstance(variable_data, Arg):
@@ -15,12 +15,9 @@ class LocalVariableVyper:
         elif isinstance(variable_data, AnnAssign):
             self._variable.name = variable_data.target.id
             self._elem_to_parse = variable_data.annotation
-        elif isinstance(variable_data, Name):
-            self._variable.name = variable_data.id
-            self._elem_to_parse = variable_data
         else:
-            # param Subscript
-            self._variable.name = ""
+            assert isinstance(variable_data, Name)
+            self._variable.name = variable_data.id
             self._elem_to_parse = variable_data
 
         assert isinstance(self._elem_to_parse, (Name, Subscript, Call, Tuple))

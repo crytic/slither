@@ -305,6 +305,7 @@ def test_public_variable(solc_binary_path) -> None:
     assert var.type == ElementaryType("bytes32")
 
 
+# pylint: disable=too-many-statements
 def test_vyper_functions(slither_from_vyper_source) -> None:
     with slither_from_vyper_source(
         """
@@ -352,6 +353,7 @@ def __default__():
         assert not f.view
         assert not f.pure
         assert not f.is_implemented
+        assert f.is_empty
 
         f = functions["__default__()"]
         assert f.function_type == FunctionType.FALLBACK
@@ -360,6 +362,7 @@ def __default__():
         assert not f.view
         assert not f.pure
         assert not f.is_implemented
+        assert f.is_empty
 
         f = functions["withdraw()"]
         assert f.function_type == FunctionType.NORMAL
@@ -370,10 +373,12 @@ def __default__():
         assert f.can_send_eth()
         assert f.can_reenter()
         assert f.is_implemented
+        assert not f.is_empty
 
         f = functions["withdraw_locked()"]
         assert not f.is_reentrant
         assert f.is_implemented
+        assert not f.is_empty
 
         var = contract.get_state_variable_from_name("balances")
         assert var

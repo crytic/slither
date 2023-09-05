@@ -5,9 +5,10 @@ from slither.core.solidity_types.elementary_type import (
 )  # TODO rename solidity type
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.solidity_types.mapping_type import MappingType
-from slither.vyper_parsing.ast.types import Name, Subscript, Call, Index, Tuple
 from slither.core.solidity_types.user_defined_type import UserDefinedType
 from slither.core.declarations import FunctionContract, Contract
+from slither.vyper_parsing.ast.types import Name, Subscript, Call, Index, Tuple
+from slither.solc_parsing.exceptions import ParsingError
 
 # pylint: disable=too-many-branches,too-many-return-statements,import-outside-toplevel,too-many-locals
 def parse_type(
@@ -25,9 +26,24 @@ def parse_type(
 
     if isinstance(annotation, Name):
         name = annotation.id
+        lname = name.lower()  # map `String` to string
+        if lname in ElementaryTypeName:
+            return ElementaryType(lname)
+
+        if name in contract.structures_as_dict:
+            return UserDefinedType(contract.structures_as_dict[name])
+
+        if name in contract.enums_as_dict:
+            return UserDefinedType(contract.enums_as_dict[name])
+
+        if name in contract.file_scope.contracts:
+            return UserDefinedType(contract.file_scope.contracts[name])
+
+        if name in contract.file_scope.structures:
+            return UserDefinedType(contract.file_scope.structures[name])
     elif isinstance(annotation, Subscript):
         assert isinstance(annotation.slice, Index)
-        # This is also a strange construct...
+        # This is also a strange construct... https://github.com/vyperlang/vyper/issues/3577
         if isinstance(annotation.slice.value, Tuple):
             assert isinstance(annotation.value, Name)
             if annotation.value.id == "DynArray":
@@ -44,17 +60,17 @@ def parse_type(
             type_ = parse_type(annotation.value, caller_context)
 
         elif isinstance(annotation.value, Name):
-            # TODO it is weird that the ast_type is `Index` when it's a type annotation and not an expression, so we grab the value.
-            # Subscript(src='13:10:0', node_id=7, value=Name(src='13:6:0', node_id=8, id='String'), slice=Index(src='13:10:0', node_id=12, value=Int(src='20:2:0', node_id=10, value=64)))
+            # TODO it is weird that the ast_type is `Index` when it's a type annotation and not an expression, so we grab the value. https://github.com/vyperlang/vyper/issues/3577
             type_ = parse_type(annotation.value, caller_context)
             if annotation.value.id == "String":
+                # This is an elementary type
                 return type_
 
         length = parse_expression(annotation.slice.value, caller_context)
         return ArrayType(type_, length)
 
     elif isinstance(annotation, Call):
-        # TODO event variable represented as Call
+        # TODO event variable represented as Call https://github.com/vyperlang/vyper/issues/3579
         return parse_type(annotation.args[0], caller_context)
 
     elif isinstance(annotation, Tuple):
@@ -80,22 +96,4 @@ def parse_type(
 
         return UserDefinedType(st)
 
-    else:
-        assert False
-
-    lname = name.lower()  # TODO map String to string
-    if lname in ElementaryTypeName:
-        return ElementaryType(lname)
-
-    if name in contract.structures_as_dict:
-        return UserDefinedType(contract.structures_as_dict[name])
-
-    if name in contract.enums_as_dict:
-        return UserDefinedType(contract.enums_as_dict[name])
-
-    if name in contract.file_scope.contracts:
-        return UserDefinedType(contract.file_scope.contracts[name])
-
-    if name in contract.file_scope.structures:
-        return UserDefinedType(contract.file_scope.structures[name])
-    assert False
+    raise ParsingError(f"Type name not found {name} context {caller_context}")

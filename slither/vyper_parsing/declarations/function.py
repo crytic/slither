@@ -282,7 +282,7 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
                 curr_node = new_node
 
             elif isinstance(expr, Expr):
-                # TODO This is a workaround to handle Vyper putting payable/view in the function body...
+                # TODO This is a workaround to handle Vyper putting payable/view in the function body... https://github.com/vyperlang/vyper/issues/3578
                 if not isinstance(expr.value, Name):
                     new_node = self._new_node(NodeType.EXPRESSION, expr.src, scope)
                     new_node.add_unparsed_expression(expr.value)

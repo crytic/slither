@@ -83,7 +83,7 @@ def parse_expression(
         return literal
 
     if isinstance(expression, Hex):
-        # TODO this is an implicit conversion and could potentially be bytes20 or other?
+        # TODO this is an implicit conversion and could potentially be bytes20 or other? https://github.com/vyperlang/vyper/issues/3580
         literal = Literal(str(expression.value), ElementaryType("address"))
         literal.set_offset(expression.src, caller_context.compilation_unit)
         return literal
@@ -191,7 +191,7 @@ def parse_expression(
             arguments = [parse_expression(a, caller_context) for a in expression.args]
 
         rets = None
-        # Since the AST lacks the type of the return values, we recover it.
+        # Since the AST lacks the type of the return values, we recover it. https://github.com/vyperlang/vyper/issues/3581
         if isinstance(called, Identifier):
             if isinstance(called.value, FunctionContract):
                 rets = called.value.returns
@@ -212,7 +212,7 @@ def parse_expression(
 
             elif isinstance(called.value, Contract):
                 # Type conversions are not explicitly represented in the AST e.g. converting address to contract/ interface,
-                # so we infer that a type conversion is occurring if `called` is a `Contract` type.
+                # so we infer that a type conversion is occurring if `called` is a `Contract` type. https://github.com/vyperlang/vyper/issues/3580
                 type_to = parse_type(expression.func, caller_context)
                 parsed_expr = TypeConversion(arguments[0], type_to)
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
@@ -231,7 +231,7 @@ def parse_expression(
     if isinstance(expression, Attribute):
         member_name = expression.attr
         if isinstance(expression.value, Name):
-            # TODO this is ambiguous because it could be a state variable or a call to balance
+            # TODO this is ambiguous because it could be a state variable or a call to balance https://github.com/vyperlang/vyper/issues/3582
             if expression.value.id == "self" and member_name != "balance":
                 var = find_variable(member_name, caller_context, is_self=True)
                 parsed_expr = SelfIdentifier(var)
@@ -241,6 +241,7 @@ def parse_expression(
 
             expr = parse_expression(expression.value, caller_context)
             # TODO this is ambiguous because it could be a type conversion of an interface or a member access
+            # see https://github.com/vyperlang/vyper/issues/3580 and ttps://github.com/vyperlang/vyper/issues/3582
             if expression.attr == "address":
                 parsed_expr = TypeConversion(expr, ElementaryType("address"))
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
@@ -258,7 +259,7 @@ def parse_expression(
             member_name_ret_type = None
             # (recover_type_1) This may be a call to an interface and we don't have the return types,
             # so we see if there's a function identifier with `member_name` and propagate the type to
-            # its enclosing `CallExpression`
+            # its enclosing `CallExpression`. https://github.com/vyperlang/vyper/issues/3581
             if (
                 isinstance(expr, Identifier)
                 and isinstance(expr.value, StateVariable)
