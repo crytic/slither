@@ -326,7 +326,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
                 custom_error.set_offset(top_level_data["src"], self._compilation_unit)
 
-                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, self)
+                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, None, self)
                 scope.custom_errors.add(custom_error)
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
