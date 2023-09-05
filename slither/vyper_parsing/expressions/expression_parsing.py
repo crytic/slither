@@ -5,6 +5,7 @@ from slither.core.declarations.solidity_variables import (
     SolidityVariableComposed,
 )
 from slither.core.declarations import SolidityFunction, Function
+from slither.core.variables.state_variable import StateVariable
 from slither.core.expressions import (
     CallExpression,
     ElementaryTypeNameExpression,
@@ -63,6 +64,7 @@ if TYPE_CHECKING:
 
 
 def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylint
+    print("parse_expression", expression)
 
     if isinstance(expression, Int):
         literal = Literal(str(expression.value), ElementaryType("uint256"))
@@ -178,8 +180,8 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylin
             arguments = [parse_expression(a, caller_context) for a in expression.args]
 
         rets = None
+        # Since the AST lacks the type of the return values, we recover it.
         if isinstance(called, Identifier):
-            # Since the AST lacks the type of the return values, we recover it.
             if isinstance(called.value, Function):
                 rets = called.value.returns
                 # Default arguments are not represented in the AST, so we recover them as well.
@@ -264,7 +266,25 @@ def parse_expression(expression: Dict, caller_context) -> "Expression":  # pylin
             # (recover_type_1) This may be a call to an interface and we don't have the return types,
             # so we see if there's a function identifier with `member_name` and propagate the type to
             # its enclosing `CallExpression`
-            if isinstance(expr, TypeConversion) and isinstance(expr.type, UserDefinedType):
+            if isinstance(expr, Identifier) and isinstance(expr.value, StateVariable) and isinstance(expr.value.type, UserDefinedType) and isinstance(expr.value.type.type, Contract):
+                # If we access a member of an interface, needs to be interface instead of self namespace
+                var = find_variable(member_name, expr.value.type.type)
+                if isinstance(var, Function):
+                    rets = var.returns
+
+                    def get_type_str(x):
+                        if isinstance(x, str):
+                            return x
+                        return str(x.type)
+
+                    type_str = (
+                        get_type_str(rets[0])
+                        if len(rets) == 1
+                        else f"tuple({','.join(map(get_type_str, rets))})"
+                    )
+                    member_name_ret_type = type_str
+               
+            if isinstance(expr, TypeConversion) and isinstance(expr.type, UserDefinedType) and isinstance(expr.type.type, Contract):
                 # If we access a member of an interface, needs to be interface instead of self namespace
                 var = find_variable(member_name, expr.type.type)
                 if isinstance(var, Function):
