@@ -1,9 +1,0 @@
-digraph{
-0[label="Node Type: OTHER_ENTRYPOINT 0
-
-EXPRESSION:
-MAX_TICKS_UINT = 50
-
-IRs:
-MAX_TICKS_UINT(uint256) := 50(uint256)"];
-}

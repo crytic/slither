@@ -98,6 +98,10 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
     ###################################################################################
     @property
+    def language(self) -> Language:
+        return self._language
+
+    @property
     def is_vyper(self) -> bool:
         return self._language == Language.VYPER
 

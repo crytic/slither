@@ -182,7 +182,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                 and self.compilation_unit.solc_version in self.VULNERABLE_SOLC_VERSIONS
             )
         if self.LANGUAGE:
-            return self.compilation_unit._language.value == self.LANGUAGE
+            return self.compilation_unit.language.value == self.LANGUAGE
         return True
 
     @abc.abstractmethod

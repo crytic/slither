@@ -26,7 +26,6 @@ class Identifier(Expression):
         ],
     ) -> None:
         super().__init__()
-        assert value
         # pylint: disable=import-outside-toplevel
         from slither.core.declarations import Contract, SolidityVariable, SolidityFunction
         from slither.solc_parsing.yul.evm_functions import YulBuiltin

@@ -17,6 +17,7 @@ SOLIDITY_VARIABLES = {
     "block": "",
     "super": "",
     "chain": "",
+    "ZERO_ADDRESS": "address",
 }
 
 SOLIDITY_VARIABLES_COMPOSED = {
@@ -89,8 +90,9 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "codehash(address)": ["bytes32"],
     # Vyper
     "create_from_blueprint()": [],
+    "create_minimal_proxy_to()": [],
     "empty()": [],
-    "convert()": [],  # TODO make type conversion
+    "convert()": [],
     "len()": ["uint256"],
     "method_id()": [],
     "unsafe_sub()": [],
