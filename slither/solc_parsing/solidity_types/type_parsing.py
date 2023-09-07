@@ -82,9 +82,9 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         # all_enums = [c.enums for c in contracts]
         # all_enums = [item for sublist in all_enums for item in sublist]
         # all_enums += contract.slither.enums_top_level
-        var_type = next((e for e in all_enums if e.name == enum_name), None)
+        var_type = next((e for e in all_enums if e.canonical_name == enum_name), None)
         if not var_type:
-            var_type = next((e for e in all_enums if e.canonical_name == enum_name), None)
+            var_type = next((e for e in all_enums if e.name == enum_name), None)
     if not var_type:
         # any contract can refer to another contract's structure
         name_struct = name
@@ -94,9 +94,9 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         # all_structures = [c.structures for c in contracts]
         # all_structures = [item for sublist in all_structures for item in sublist]
         # all_structures += contract.slither.structures_top_level
-        var_type = next((st for st in all_structures if st.name == name_struct), None)
+        var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
         if not var_type:
-            var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
+            var_type = next((st for st in all_structures if st.name == name_struct), None)
         # case where struct xxx.xx[] where not well formed in the AST
         if not var_type:
             depth = 0
