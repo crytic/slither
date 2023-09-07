@@ -2,6 +2,7 @@ import logging
 from typing import Union, List, TYPE_CHECKING, Any
 
 from slither.core import expressions
+from slither.core.scope.scope import FileScope
 from slither.core.declarations import (
     Function,
     SolidityVariable,
@@ -11,6 +12,8 @@ from slither.core.declarations import (
     EnumContract,
     EnumTopLevel,
     Enum,
+    SolidityImportPlaceHolder,
+    Import,
 )
 from slither.core.expressions import (
     AssignmentOperation,
@@ -524,11 +527,75 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 set_val(expression, expr.custom_errors_as_dict[expression.member_name])
                 return
 
+        if isinstance(expr, (SolidityImportPlaceHolder, Import)):
+            scope = (
+                expr.import_directive.scope
+                if isinstance(expr, SolidityImportPlaceHolder)
+                else expr.scope
+            )
+            if self._check_elem_in_scope(expression.member_name, scope, expression):
+                return
+
         val_ref = ReferenceVariable(self._node)
         member = Member(expr, Constant(expression.member_name), val_ref)
         member.set_expression(expression)
         self._result.append(member)
         set_val(expression, val_ref)
+
+    def _check_elem_in_scope(self, elem: str, scope: FileScope, expression: MemberAccess) -> bool:
+        if elem in scope.renaming:
+            self._check_elem_in_scope(scope.renaming[elem], scope, expression)
+            return True
+
+        if elem in scope.contracts:
+            set_val(expression, scope.contracts[elem])
+            return True
+
+        if elem in scope.structures:
+            set_val(expression, scope.structures[elem])
+            return True
+
+        if elem in scope.variables:
+            set_val(expression, scope.variables[elem])
+            return True
+
+        if elem in scope.enums:
+            set_val(expression, scope.enums[elem])
+            return True
+
+        if elem in scope.user_defined_types:
+            set_val(expression, scope.user_defined_types[elem])
+            return True
+
+        for import_directive in scope.imports:
+            if elem == import_directive.alias:
+                set_val(expression, import_directive)
+                return True
+
+        for custom_error in scope.custom_errors:
+            if custom_error.name == elem:
+                set_val(expression, custom_error)
+                return True
+
+        if str(expression.type).startswith("function "):
+            # This is needed to handle functions overloading
+            signature_to_seaarch = (
+                str(expression.type)
+                .replace("function ", elem)
+                .replace("pure ", "")
+                .replace("view ", "")
+                .replace("struct ", "")
+                .replace("enum ", "")
+                .replace(" memory", "")
+                .split(" returns", maxsplit=1)[0]
+            )
+
+            for function in scope.functions:
+                if signature_to_seaarch == function.full_name:
+                    set_val(expression, function)
+                    return True
+
+        return False
 
     def _post_new_array(self, expression: NewArray) -> None:
         val = TemporaryVariable(self._node)

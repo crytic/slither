@@ -459,6 +459,7 @@ ALL_TESTS = [
         ["0.6.9", "0.7.6", "0.8.16"],
     ),
     Test("user_defined_operators-0.8.19.sol", ["0.8.19"]),
+    Test("aliasing/main.sol", ["0.8.19"]),
 ]
 # create the output folder if needed
 try:
