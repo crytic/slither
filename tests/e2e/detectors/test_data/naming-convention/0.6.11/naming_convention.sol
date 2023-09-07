@@ -54,7 +54,7 @@ contract Test {
 contract T {
     uint private _myPrivateVar;
     uint internal _myInternalVar;
-    uint _myPublicVar;
+    uint public _myPublicVar;
 
 
     function test(uint _unused, uint _used) public returns(uint){
