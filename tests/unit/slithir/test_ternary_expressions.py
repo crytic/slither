@@ -1,9 +1,6 @@
 from pathlib import Path
 from slither import Slither
 from slither.core.cfg.node import NodeType
-from slither.slithir.operations.unpack import Unpack
-from slither.slithir.operations import Assignment
-from slither.core.expressions import AssignmentOperation, TupleExpression
 from slither.slithir.operations import Assignment, Unpack
 from slither.core.expressions import (
     AssignmentOperation,
