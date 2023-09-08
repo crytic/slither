@@ -96,8 +96,8 @@ For each new detector, at least one regression tests must be present.
 #### Adding parsing tests
 
 1. Create a test in `tests/e2e/solc_parsing/`
-2. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --compile`. This will compile the artifact in `tests/e2e/solc_parsing/compile`. Add the compiled artifact to git.
-3. Update `ALL_TESTS` in `tests/e2e/solc_parsing/test_ast_parsing.py`.
+2. Update `ALL_TESTS` in `tests/e2e/solc_parsing/test_ast_parsing.py`.
+3. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --compile`. This will compile the artifact in `tests/e2e/solc_parsing/compile`. Add the compiled artifact to git.
 4. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/e2e/solc_parsing/expected_json`. Add the generated files to git.
 5. Run `pytest tests/e2e/solc_parsing/test_ast_parsing.py` and check that everything worked.
 
