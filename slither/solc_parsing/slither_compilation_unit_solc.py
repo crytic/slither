@@ -344,10 +344,10 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 original_type = ElementaryType(underlying_type["name"])
 
-                user_defined_type = TypeAliasTopLevel(original_type, alias, scope)
-                user_defined_type.set_offset(top_level_data["src"], self._compilation_unit)
-                self._compilation_unit.user_defined_value_types[alias] = user_defined_type
-                scope.user_defined_types[alias] = user_defined_type
+                type_alias = TypeAliasTopLevel(original_type, alias, scope)
+                type_alias.set_offset(top_level_data["src"], self._compilation_unit)
+                self._compilation_unit.type_aliases[alias] = type_alias
+                scope.type_aliases[alias] = type_alias
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
