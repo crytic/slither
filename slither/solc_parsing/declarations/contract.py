@@ -291,10 +291,10 @@ class ContractSolc(CallerContextExpression):
         alias = item["name"]
         alias_canonical = self._contract.name + "." + item["name"]
 
-        user_defined_type = TypeAliasContract(original_type, alias, self.underlying_contract)
-        user_defined_type.set_offset(item["src"], self.compilation_unit)
-        self._contract.file_scope.user_defined_types[alias] = user_defined_type
-        self._contract.file_scope.user_defined_types[alias_canonical] = user_defined_type
+        type_alias = TypeAliasContract(original_type, alias, self.underlying_contract)
+        type_alias.set_offset(item["src"], self.compilation_unit)
+        self._contract.type_aliases_as_dict[alias] = type_alias
+        self._contract.file_scope.type_aliases[alias_canonical] = type_alias
 
     def _parse_struct(self, struct: Dict) -> None:
 

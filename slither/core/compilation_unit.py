@@ -47,7 +47,7 @@ class SlitherCompilationUnit(Context):
         self._pragma_directives: List[Pragma] = []
         self._import_directives: List[Import] = []
         self._custom_errors: List[CustomErrorTopLevel] = []
-        self._user_defined_value_types: Dict[str, TypeAliasTopLevel] = {}
+        self._type_aliases: Dict[str, TypeAliasTopLevel] = {}
 
         self._all_functions: Set[Function] = set()
         self._all_modifiers: Set[Modifier] = set()
@@ -220,8 +220,8 @@ class SlitherCompilationUnit(Context):
         return self._custom_errors
 
     @property
-    def user_defined_value_types(self) -> Dict[str, TypeAliasTopLevel]:
-        return self._user_defined_value_types
+    def type_aliases(self) -> Dict[str, TypeAliasTopLevel]:
+        return self._type_aliases
 
     # endregion
     ###################################################################################
