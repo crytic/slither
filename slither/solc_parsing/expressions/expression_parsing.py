@@ -486,13 +486,18 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         t = None
 
+        referenced_declaration = None
         if caller_context.is_compact_ast:
             value = expression["name"]
             t = expression["typeDescriptions"]["typeString"]
+            if "referencedDeclaration" in expression:
+                referenced_declaration = expression["referencedDeclaration"]
         else:
             value = expression["attributes"]["value"]
             if "type" in expression["attributes"]:
                 t = expression["attributes"]["type"]
+            if "referencedDeclaration" in expression["attributes"]:
+                referenced_declaration = expression["attributes"]["referencedDeclaration"]
 
         if t:
             found = re.findall(r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
@@ -501,10 +506,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 value = value + "(" + found[0] + ")"
                 value = filter_name(value)
 
-        if "referencedDeclaration" in expression:
-            referenced_declaration = expression["referencedDeclaration"]
-        else:
-            referenced_declaration = None
         var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)

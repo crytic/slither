@@ -63,10 +63,8 @@ def _find_variable_from_ref_declaration(
     if referenced_declaration is None:
         return None
     # We look for variable declared with the referencedDeclaration attribute
-    if function_parser is not None:
-        func_variables_renamed = function_parser.variables_renamed
-        if referenced_declaration in func_variables_renamed:
-            return func_variables_renamed[referenced_declaration].underlying_variable
+    if function_parser is not None and referenced_declaration in function_parser.variables_renamed:
+        return function_parser.variables_renamed[referenced_declaration].underlying_variable
 
     if (
         contract_declarer is not None
