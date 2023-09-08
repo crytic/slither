@@ -1,6 +1,6 @@
 interface Test {
     function test() external payable returns (uint);
-    function testTuple() external payable returns (uint, uint);
+    function testTuple(uint) external payable returns (uint, uint);
 }
 contract C {
     // TODO
@@ -36,21 +36,12 @@ contract C {
     }
 
     // Unused tuple variable
-    function g(address one) public {
-        (, uint x) = Test(one).testTuple();
-    }
-
     uint[] myIntegers;
-    function _h(uint c) internal returns(uint) {
-        return c;
-    }
-    function h(bool cond, uint a, uint b) public {
-        uint d = _h(
-            myIntegers[cond ? a : b]
-        );
+    function g(address one, bool cond, uint a, uint b) public {
+        (, uint x) = Test(one).testTuple(myIntegers[cond ? a : b]);
     }
 
-    function i(bool cond) public {
+    function h(bool cond) public {
         bytes memory a = new bytes(cond ? 1 : 2);
     }
 }

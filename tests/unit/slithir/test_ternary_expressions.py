@@ -4,6 +4,13 @@ from slither.core.cfg.node import NodeType
 from slither.slithir.operations.unpack import Unpack
 from slither.slithir.operations import Assignment
 from slither.core.expressions import AssignmentOperation, TupleExpression
+from slither.slithir.operations import Assignment, Unpack
+from slither.core.expressions import (
+    AssignmentOperation,
+    TupleExpression,
+    NewElementaryType,
+    CallExpression,
+)
 
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
@@ -23,7 +30,9 @@ def test_ternary_conversions(solc_binary_path) -> None:
                 for inner_node in node.sons:
                     # Count all variables declared
                     expression = inner_node.expression
-                    if isinstance(expression, AssignmentOperation):
+                    if isinstance(
+                        expression, (AssignmentOperation, NewElementaryType, CallExpression)
+                    ):
                         var_expr = expression.expression_left
                         # Only tuples declare more than one var
                         if isinstance(var_expr, TupleExpression):
@@ -33,10 +42,9 @@ def test_ternary_conversions(solc_binary_path) -> None:
 
                     for ir in inner_node.irs:
                         # Count all variables defined
-                        if isinstance(ir, Assignment):
+                        if isinstance(ir, (Assignment, Unpack)):
                             vars_assigned += 1
-
-            assert vars_declared == vars_assigned
+        assert vars_declared == vars_assigned and vars_assigned != 0
 
 
 def test_ternary_tuple(solc_binary_path) -> None:
