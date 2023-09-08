@@ -1,0 +1,20 @@
+Loop condition `j < array.length` (tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#109) should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition `i < array.length` (tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#161) should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition `i < array.length` (tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#172) should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition `j < array.length` (tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#126) should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition `k < array2.length` (tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#133) should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition `i < array.length` (tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#68) should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition `k < array2.length` (tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#99) should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition `i < array.length` (tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#167) should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition `i < array.length` (tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#37) should use cached array length instead of referencing `length` member of the storage array.
+ 
+Loop condition `i < array.length` (tests/e2e/detectors/test_data/cache-array-length/0.8.17/CacheArrayLength.sol#80) should use cached array length instead of referencing `length` member of the storage array.
+ 

@@ -56,7 +56,7 @@ def id_test(test_item: Test):
     return f"{test_item.detector.__name__}-{test_item.solc_ver}-{test_item.test_file}"
 
 
-ALL_TEST_OBJECTS = [
+ALL_TESTS = [
     Test(
         all_detectors.UninitializedFunctionPtrsConstructor,
         "uninitialized_function_ptr_constructor.sol",
@@ -1650,6 +1650,11 @@ ALL_TEST_OBJECTS = [
         "0.8.16",
     ),
     Test(
+        all_detectors.CacheArrayLength,
+        "CacheArrayLength.sol",
+        "0.8.17",
+    ),
+    Test(
         all_detectors.IncorrectUsingFor,
         "IncorrectUsingForTopLevel.sol",
         "0.8.17",
@@ -1667,7 +1672,7 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
 # pylint: disable=too-many-locals
-@pytest.mark.parametrize("test_item", ALL_TEST_OBJECTS, ids=id_test)
+@pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
 def test_detector(test_item: Test, snapshot):
     test_dir_path = Path(
         TEST_DATA_DIR,
@@ -1715,5 +1720,5 @@ if __name__ == "__main__":
             "To generate the zip artifacts run\n\tpython tests/e2e/tests/test_detectors.py --compile"
         )
     elif sys.argv[1] == "--compile":
-        for next_test in ALL_TEST_OBJECTS:
+        for next_test in ALL_TESTS:
             _generate_compile(next_test, skip_existing=True)
