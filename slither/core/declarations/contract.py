@@ -895,7 +895,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         Returns:
             StateVariable
         """
-        return next((v for v in self.state_variables if v.name == canonical_name), None)
+        return next((v for v in self.state_variables if v.canonical_name == canonical_name), None)
 
     def get_structure_from_name(self, structure_name: str) -> Optional["StructureContract"]:
         """

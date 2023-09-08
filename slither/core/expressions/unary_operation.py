@@ -106,8 +106,6 @@ class UnaryOperation(Expression):
             UnaryOperationType.MINUSMINUS_PRE,
             UnaryOperationType.PLUSPLUS_POST,
             UnaryOperationType.MINUSMINUS_POST,
-            UnaryOperationType.PLUS_PRE,
-            UnaryOperationType.MINUS_PRE,
         ]:
             expression.set_lvalue()
 
