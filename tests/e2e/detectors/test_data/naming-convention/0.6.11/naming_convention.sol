@@ -8,6 +8,8 @@ contract naming {
     uint constant MY_CONSTANT = 1;
     uint constant MY_other_CONSTANT = 2;
 
+    uint public immutable i_myImutableVar = 1;
+
     uint Var_One = 1;
     uint varTwo = 2;
 
@@ -55,7 +57,8 @@ contract T {
     uint private _myPrivateVar;
     uint internal _myInternalVar;
     uint public _myPublicVar;
-
+    uint public s_myStateVar;
+    uint public myPublicVar;
 
     function test(uint _unused, uint _used) public returns(uint){
         return _used;}

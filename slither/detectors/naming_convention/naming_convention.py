@@ -46,6 +46,14 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
         return re.search("^[A-Z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
+    def is_immutable_naming(name: str) -> bool:
+        return re.search("^i_[a-z]([A-Za-z0-9]+)?_?$", name) is not None
+
+    @staticmethod
+    def is_state_naming(name: str) -> bool:
+        return re.search("^s_[a-z]([A-Za-z0-9]+)?_?$", name) is not None
+
+    @staticmethod
     def is_mixed_case(name: str) -> bool:
         return re.search("^[a-z]([A-Za-z0-9]+)?_?$", name) is not None
 
@@ -167,10 +175,22 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         results.append(res)
 
                 else:
-                    if var.visibility in ["private", "internal"]:
+                    # first priority: check for immutable variable naming conventions
+                    if var.is_immutable:
+                        correct_naming = self.is_immutable_naming(var.name)
+
+                    # second priority: check for state variable naming conventions
+                    elif self.is_state_naming(var.name):
+                        correct_naming = True
+
+                    # third priority: check if visibility is private or internal and check for underscore mixed case
+                    elif var.visibility in ["private", "internal"]:
                         correct_naming = self.is_mixed_case_with_underscore(var.name)
+
+                    # fourth priority: check for mixed case naming conventions
                     else:
                         correct_naming = self.is_mixed_case(var.name)
+
                     if not correct_naming:
                         info = ["Variable ", var, " is not in mixedCase\n"]
 

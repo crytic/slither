@@ -55,7 +55,8 @@ contract T {
     uint private _myPrivateVar;
     uint internal _myInternalVar;
     uint public _myPublicVar;
-
+    uint public s_myStateVar;
+    uint public myPublicVar;
 
     function test(uint _unused, uint _used) public returns(uint){
         return _used;}
