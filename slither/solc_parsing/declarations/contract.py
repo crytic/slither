@@ -319,7 +319,7 @@ class ContractSolc(CallerContextExpression):
         ce.set_contract(self._contract)
         ce.set_offset(custom_error["src"], self.compilation_unit)
 
-        ce_parser = CustomErrorSolc(ce, custom_error, self._slither_parser)
+        ce_parser = CustomErrorSolc(ce, custom_error, self, self._slither_parser)
         self._contract.custom_errors_as_dict[ce.name] = ce
         self._custom_errors_parser.append(ce_parser)
 
