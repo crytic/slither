@@ -1857,7 +1857,7 @@ def convert_constant_types(irs: List[Operation]) -> None:
                     if isinstance(ir.lvalue.type.type, ElementaryType):
                         if ir.lvalue.type.type.type in ElementaryTypeInt:
                             for r in ir.read:
-                                if r.type.type not in ElementaryTypeInt:
+                                if r.type.type.type not in ElementaryTypeInt:
                                     r.set_type(ElementaryType(ir.lvalue.type.type.type))
                                     was_changed = True
 
