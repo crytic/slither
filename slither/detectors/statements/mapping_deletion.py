@@ -6,6 +6,7 @@ from typing import List, Tuple
 from slither.core.cfg.node import Node
 from slither.core.declarations import Structure
 from slither.core.declarations.contract import Contract
+from slither.core.variables.variable import Variable
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types import MappingType, UserDefinedType
 from slither.detectors.abstract_detector import (
@@ -69,13 +70,24 @@ The mapping `balances` is never deleted, so `remove` does not work as intended."
                 for ir in node.irs:
                     if isinstance(ir, Delete):
                         value = ir.variable
-                        if isinstance(value.type, UserDefinedType) and isinstance(
-                            value.type.type, Structure
-                        ):
-                            st = value.type.type
-                            if any(isinstance(e.type, MappingType) for e in st.elems.values()):
-                                ret.append((f, st, node))
+                        MappingDeletionDetection.check_if_mapping(value, ret, f, node)
+
         return ret
+
+    @staticmethod
+    def check_if_mapping(
+        value: Variable,
+        ret: List[Tuple[FunctionContract, Structure, Node]],
+        f: FunctionContract,
+        node: Node,
+    ):
+        if isinstance(value.type, UserDefinedType) and isinstance(value.type.type, Structure):
+            st = value.type.type
+            if any(isinstance(e.type, MappingType) for e in st.elems.values()):
+                ret.append((f, st, node))
+                return
+            for e in st.elems.values():
+                MappingDeletionDetection.check_if_mapping(e, ret, f, node)
 
     def _detect(self) -> List[Output]:
         """Detect mapping deletion

@@ -85,15 +85,13 @@ def test_references_user_defined_aliases(solc_binary_path):
     file = Path(SRC_MAPPING_TEST_ROOT, "ReferencesUserDefinedAliases.sol").as_posix()
     slither = Slither(file, solc=solc_path)
 
-    alias_top_level = slither.compilation_units[0].user_defined_value_types["aliasTopLevel"]
+    alias_top_level = slither.compilation_units[0].type_aliases["aliasTopLevel"]
     assert len(alias_top_level.references) == 2
     lines = _sort_references_lines(alias_top_level.references)
     assert lines == [12, 16]
 
     alias_contract_level = (
-        slither.compilation_units[0]
-        .contracts[0]
-        .file_scope.user_defined_types["C.aliasContractLevel"]
+        slither.compilation_units[0].contracts[0].file_scope.type_aliases["C.aliasContractLevel"]
     )
     assert len(alias_contract_level.references) == 2
     lines = _sort_references_lines(alias_contract_level.references)

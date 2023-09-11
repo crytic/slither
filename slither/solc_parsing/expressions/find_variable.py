@@ -114,6 +114,8 @@ def find_top_level(
     :return:
     :rtype:
     """
+    if var_name in scope.type_aliases:
+        return scope.type_aliases[var_name], False
 
     if var_name in scope.structures:
         return scope.structures[var_name], False
@@ -204,6 +206,10 @@ def _find_in_contract(
                 sig = sig[0 : sig.find("(")]
                 if sig == var_name:
                     return modifier
+
+    type_aliases = contract.type_aliases_as_dict
+    if var_name in type_aliases:
+        return type_aliases[var_name]
 
     # structures are looked on the contract declarer
     structures = contract.structures_as_dict
@@ -361,9 +367,6 @@ def find_variable(
 
     if var_name in current_scope.renaming:
         var_name = current_scope.renaming[var_name]
-
-    if var_name in current_scope.user_defined_types:
-        return current_scope.user_defined_types[var_name], False
 
     # Use ret0/ret1 to help mypy
     ret0 = _find_variable_from_ref_declaration(
