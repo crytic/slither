@@ -1,0 +1,64 @@
+cff-version: 1.2.0
+title: Slither Analyzer
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Josselin
+    family-names: Feist
+  - given-names: Gustavo
+    family-names: Grieco
+  - given-names: Alex
+    family-names: Groce
+identifiers:
+  - type: doi
+    value: 10.48550/arXiv.1908.09878
+    description: arXiv.1908.09878
+  - type: url
+    value: 'https://arxiv.org/abs/1908.09878'
+    description: arxiv
+  - type: doi
+    value: 10.1109/wetseb.2019.00008
+repository-code: 'https://github.com/crytic/slither'
+url: 'https://www.trailofbits.com/'
+repository-artifact: 'https://github.com/crytic/slither/releases'
+abstract: >-
+  Slither is a static analysis framework designed to provide
+  rich information about Ethereum smart contracts.
+
+  It works by converting Solidity smart contracts into an
+  intermediate representation called SlithIR.
+
+  SlithIR uses Static Single Assignment (SSA) form and a
+  reduced instruction set to ease implementation of analyses
+  while preserving semantic information that would be lost
+  in transforming Solidity to bytecode. 
+
+  Slither allows for the application of commonly used
+  program analysis techniques like dataflow and taint
+  tracking.
+
+
+  Our framework has four main use cases: 
+
+  (1) automated detection of vulnerabilities,
+
+  (2) automated detection of code optimization
+  opportunities,
+
+  (3) improvement of the user's understanding of the
+  contracts, and
+
+  (4) assistance with code review.  
+keywords:
+  - Ethereum
+  - Static Analysis
+  - Smart contracts
+  - EVM
+  - bug detection
+  - Software Engineering
+license: AGPL-3.0-only
+commit: 3d4f934d3228f072b7df2c5e7252c64df4601bc8
+version: 0.9.5
+date-released: '2023-06-28'
