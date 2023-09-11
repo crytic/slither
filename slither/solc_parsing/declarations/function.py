@@ -1103,7 +1103,7 @@ class FunctionSolc(CallerContextExpression):
             node = self._parse_statement(statement, node, new_scope)
         return node
 
-    def _update_reachability(self, node: Node):
+    def _update_reachability(self, node: Node) -> None:
         if node.is_reachable:
             return
         node.set_is_reachable(True)
