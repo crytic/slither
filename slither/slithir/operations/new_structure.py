@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional, Union
 
 from slither.slithir.operations.call import Call
 from slither.slithir.operations.lvalue import OperationWithLValue
@@ -17,8 +17,15 @@ class NewStructure(Call, OperationWithLValue):
         self,
         structure: StructureContract,
         lvalue: Union[TemporaryVariableSSA, TemporaryVariable],
+        names: Optional[List[str]] = None,
     ) -> None:
-        super().__init__()
+        """
+        #### Parameters
+        names -
+            For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+            Otherwise, None.
+        """
+        super().__init__(names=names)
         assert isinstance(structure, Structure)
         assert is_valid_lvalue(lvalue)
         self._structure = structure
