@@ -6,9 +6,25 @@ from slither.slithir.operations.operation import Operation
 
 
 class Call(Operation):
-    def __init__(self) -> None:
+    def __init__(self, names: Optional[List[str]] = None) -> None:
+        """
+        #### Parameters
+        names -
+            For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+            Otherwise, None.
+        """
+        assert (names is None) or isinstance(names, list)
         super().__init__()
         self._arguments: List[Variable] = []
+        self._names = names
+
+    @property
+    def names(self) -> Optional[List[str]]:
+        """
+        For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+        Otherwise, None.
+        """
+        return self._names
 
     @property
     def arguments(self) -> List[Variable]:

@@ -53,7 +53,7 @@ jobs:
           - os: windows-2022
             type: truffle
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v4
         with:
@@ -67,7 +67,7 @@ jobs:
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@v22
+        uses: cachix/install-nix-action@v23
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
