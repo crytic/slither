@@ -8,7 +8,9 @@ from .call.call_graph import PrinterCallGraph
 from .functions.authorization import PrinterWrittenVariablesAndAuthorization
 from .summary.slithir import PrinterSlithIR
 from .summary.slithir_ssa import PrinterSlithIRSSA
+from .summary.complexity_dashboard import ComplexityDashboard
 from .summary.human_summary import PrinterHumanSummary
+from .summary.ck import CKMetrics
 from .functions.cfg import CFG
 from .summary.function_ids import FunctionIds
 from .summary.variable_order import VariableOrder
@@ -21,3 +23,4 @@ from .summary.evm import PrinterEVM
 from .summary.when_not_paused import PrinterWhenNotPaused
 from .summary.declaration import Declaration
 from .functions.dominator import Dominator
+from .summary.martin import Martin
