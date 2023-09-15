@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING, Optional, Union, List, Tuple
 from slither.core.declarations import Event, Enum, Structure
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error import CustomError
+from slither.core.declarations.custom_error_contract import CustomErrorContract
+from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.function import Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
@@ -114,6 +116,8 @@ def find_top_level(
     :return:
     :rtype:
     """
+    if var_name in scope.type_aliases:
+        return scope.type_aliases[var_name], False
 
     if var_name in scope.structures:
         return scope.structures[var_name], False
@@ -205,6 +209,10 @@ def _find_in_contract(
                 if sig == var_name:
                     return modifier
 
+    type_aliases = contract.type_aliases_as_dict
+    if var_name in type_aliases:
+        return type_aliases[var_name]
+
     # structures are looked on the contract declarer
     structures = contract.structures_as_dict
     if var_name in structures:
@@ -240,6 +248,7 @@ def _find_in_contract(
     return None
 
 
+# pylint: disable=too-many-statements
 def _find_variable_init(
     caller_context: CallerContextExpression,
 ) -> Tuple[List[Contract], List["Function"], FileScope,]:
@@ -247,6 +256,7 @@ def _find_variable_init(
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
     from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
+    from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 
     direct_contracts: List[Contract]
     direct_functions_parser: List[Function]
@@ -289,6 +299,24 @@ def _find_variable_init(
         direct_contracts = []
         direct_functions_parser = []
         scope = caller_context.underlying_variable.file_scope
+    elif isinstance(caller_context, CustomErrorSolc):
+        if caller_context.contract_parser:
+            direct_contracts = [caller_context.contract_parser.underlying_contract]
+            direct_functions_parser = [
+                f.underlying_function
+                for f in caller_context.contract_parser.functions_parser
+                + caller_context.contract_parser.modifiers_parser
+            ]
+        else:
+            # Top level custom error
+            direct_contracts = []
+            direct_functions_parser = []
+        underlying_custom_error = caller_context.underlying_custom_error
+        if isinstance(underlying_custom_error, CustomErrorTopLevel):
+            scope = underlying_custom_error.file_scope
+        else:
+            assert isinstance(underlying_custom_error, CustomErrorContract)
+            scope = underlying_custom_error.contract.file_scope
     else:
         raise SlitherError(
             f"{type(caller_context)} ({caller_context} is not valid for find_variable"
@@ -337,6 +365,7 @@ def find_variable(
     """
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.contract import ContractSolc
+    from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 
     # variable are looked from the contract declarer
     # functions can be shadowed, but are looked from the contract instance, rather than the contract declarer
@@ -361,9 +390,6 @@ def find_variable(
 
     if var_name in current_scope.renaming:
         var_name = current_scope.renaming[var_name]
-
-    if var_name in current_scope.user_defined_types:
-        return current_scope.user_defined_types[var_name], False
 
     # Use ret0/ret1 to help mypy
     ret0 = _find_variable_from_ref_declaration(
@@ -391,6 +417,15 @@ def find_variable(
             contract_declarer = underlying_func.contract_declarer
         else:
             assert isinstance(underlying_func, FunctionTopLevel)
+    elif isinstance(caller_context, CustomErrorSolc):
+        underlying_custom_error = caller_context.underlying_custom_error
+        if isinstance(underlying_custom_error, CustomErrorContract):
+            contract = underlying_custom_error.contract
+            # We check for contract variables here because _find_in_contract
+            # will return since in this case the contract_declarer is None
+            for var in contract.variables:
+                if var_name == var.name:
+                    return var, False
 
     ret = _find_in_contract(var_name, contract, contract_declarer, is_super, is_identifier_path)
     if ret:

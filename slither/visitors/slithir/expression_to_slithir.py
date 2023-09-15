@@ -50,6 +50,7 @@ from slither.slithir.operations import (
     Member,
     TypeConversion,
     Unary,
+    UnaryType,
     Unpack,
     Return,
     SolidityCall,
@@ -108,6 +109,13 @@ _binary_to_binary = {
     BinaryOperationType.ANDAND: BinaryType.ANDAND,
     BinaryOperationType.OROR: BinaryType.OROR,
 }
+
+
+_unary_to_unary = {
+    UnaryOperationType.BANG: UnaryType.BANG,
+    UnaryOperationType.TILD: UnaryType.TILD,
+}
+
 
 _signed_to_unsigned = {
     BinaryOperationType.DIVISION_SIGNED: BinaryType.DIVISION,
@@ -304,7 +312,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 val = TupleVariable(self._node)
             else:
                 val = TemporaryVariable(self._node)
-            internal_call = InternalCall(called, len(args), val, expression.type_call)
+            internal_call = InternalCall(
+                called, len(args), val, expression.type_call, names=expression.names
+            )
             internal_call.set_expression(expression)
             self._result.append(internal_call)
             set_val(expression, val)
@@ -373,7 +383,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
             else:
                 val = TemporaryVariable(self._node)
 
-            message_call = TmpCall(called, len(args), val, expression.type_call)
+            message_call = TmpCall(
+                called, len(args), val, expression.type_call, names=expression.names
+            )
             message_call.set_expression(expression)
             # Gas/value are only accessible here if the syntax {gas: , value: }
             # Is used over .gas().value()
@@ -516,8 +528,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
             # contract A { type MyInt is int}
             # contract B { function f() public{ A.MyInt test = A.MyInt.wrap(1);}}
             # The logic is handled by _post_call_expression
-            if expression.member_name in expr.file_scope.user_defined_types:
-                set_val(expression, expr.file_scope.user_defined_types[expression.member_name])
+            if expression.member_name in expr.file_scope.type_aliases:
+                set_val(expression, expr.file_scope.type_aliases[expression.member_name])
                 return
             # Lookup errors referred to as member of contract e.g. Test.myError.selector
             if expression.member_name in expr.custom_errors_as_dict:
@@ -585,7 +597,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         operation: Operation
         if expression.type in [UnaryOperationType.BANG, UnaryOperationType.TILD]:
             lvalue = TemporaryVariable(self._node)
-            operation = Unary(lvalue, value, expression.type)
+            operation = Unary(lvalue, value, _unary_to_unary[expression.type])
             operation.set_expression(expression)
             self._result.append(operation)
             set_val(expression, lvalue)

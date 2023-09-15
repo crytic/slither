@@ -126,15 +126,24 @@ def _extract_constant_functions(slither: SlitherCore) -> Dict[str, List[str]]:
     return ret
 
 
-def _extract_assert(slither: SlitherCore) -> Dict[str, List[str]]:
-    ret: Dict[str, List[str]] = {}
+def _extract_assert(slither: SlitherCore) -> Dict[str, Dict[str, List[Dict]]]:
+    """
+    Return the list of contract -> function name -> List(source mapping of the assert))
+
+    Args:
+        slither:
+
+    Returns:
+
+    """
+    ret: Dict[str, Dict[str, List[Dict]]] = {}
     for contract in slither.contracts:
-        functions_using_assert = []
+        functions_using_assert: Dict[str, List[Dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
-            for v in f.all_solidity_calls():
-                if v == SolidityFunction("assert(bool)"):
-                    functions_using_assert.append(_get_name(f))
-                    break
+            for node in f.all_nodes():
+                if SolidityFunction("assert(bool)") in node.solidity_calls and node.source_mapping:
+                    func_name = _get_name(f)
+                    functions_using_assert[func_name].append(node.source_mapping.to_json())
         if functions_using_assert:
             ret[contract.name] = functions_using_assert
     return ret

@@ -17,9 +17,15 @@ contract Balances {
     struct BalancesStruct{
         address owner;
         mapping(address => uint) balances;
-    } 
+    }
+
+    struct NestedBalanceStruct {
+        BalancesStruct balanceStruct;
+    }
     
     mapping(uint => BalancesStruct) public stackBalance;
+    NestedBalanceStruct internal nestedStackBalance;
+
     function createBalance(uint idx) public {
         require(stackBalance[idx].owner == address(0));
         BalancesStruct storage str = stackBalance[idx];
@@ -29,6 +35,10 @@ contract Balances {
     function deleteBalance(uint idx) public {
         require(stackBalance[idx].owner == msg.sender);
         delete stackBalance[idx];
+    }
+
+    function deleteNestedBalance() public {
+        delete nestedStackBalance;
     }
     
     function setBalance(uint idx, address addr, uint val) public {

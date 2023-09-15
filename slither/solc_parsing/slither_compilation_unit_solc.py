@@ -326,7 +326,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
                 custom_error.set_offset(top_level_data["src"], self._compilation_unit)
 
-                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, self)
+                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, None, self)
                 scope.custom_errors.add(custom_error)
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
@@ -344,10 +344,10 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 original_type = ElementaryType(underlying_type["name"])
 
-                user_defined_type = TypeAliasTopLevel(original_type, alias, scope)
-                user_defined_type.set_offset(top_level_data["src"], self._compilation_unit)
-                self._compilation_unit.user_defined_value_types[alias] = user_defined_type
-                scope.user_defined_types[alias] = user_defined_type
+                type_alias = TypeAliasTopLevel(original_type, alias, scope)
+                type_alias.set_offset(top_level_data["src"], self._compilation_unit)
+                self._compilation_unit.type_aliases[alias] = type_alias
+                scope.type_aliases[alias] = type_alias
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")

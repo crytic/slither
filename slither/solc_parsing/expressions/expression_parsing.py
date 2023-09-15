@@ -179,7 +179,8 @@ def parse_call(
         sp = SuperCallExpression(called, arguments, type_return)
         sp.set_offset(expression["src"], caller_context.compilation_unit)
         return sp
-    call_expression = CallExpression(called, arguments, type_return)
+    names = expression["names"] if "names" in expression and len(expression["names"]) > 0 else None
+    call_expression = CallExpression(called, arguments, type_return, names=names)
     call_expression.set_offset(src, caller_context.compilation_unit)
 
     # Only available if the syntax {gas:, value:} was used
