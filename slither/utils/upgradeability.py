@@ -1,66 +1,28 @@
-from typing import Optional, Tuple, List, Union
+from typing import Optional, Tuple, List
+
+from slither.analyses.data_dependency.data_dependency import get_dependencies
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import (
     Contract,
-    Structure,
-    Enum,
-    SolidityVariableComposed,
-    SolidityVariable,
     Function,
 )
-from slither.core.solidity_types import (
-    Type,
-    ElementaryType,
-    ArrayType,
-    MappingType,
-    UserDefinedType,
-)
-from slither.core.variables.local_variable import LocalVariable
-from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
-from slither.core.variables.state_variable import StateVariable
-from slither.analyses.data_dependency.data_dependency import get_dependencies
-from slither.core.variables.variable import Variable
 from slither.core.expressions import (
     Literal,
     Identifier,
     CallExpression,
     AssignmentOperation,
 )
-from slither.core.cfg.node import Node, NodeType
-from slither.slithir.operations import (
-    Operation,
-    Assignment,
-    Index,
-    Member,
-    Length,
-    Binary,
-    Unary,
-    Condition,
-    NewArray,
-    NewStructure,
-    NewContract,
-    NewElementaryType,
-    SolidityCall,
-    Delete,
-    EventCall,
-    LibraryCall,
-    InternalDynamicCall,
-    HighLevelCall,
-    LowLevelCall,
-    TypeConversion,
-    Return,
-    Transfer,
-    Send,
-    Unpack,
-    InitArray,
-    InternalCall,
+from slither.core.solidity_types import (
+    ElementaryType,
 )
-from slither.slithir.variables import (
-    TemporaryVariable,
-    TupleVariable,
-    Constant,
-    ReferenceVariable,
+from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.variable import Variable
+from slither.slithir.operations import (
+    LowLevelCall,
 )
 from slither.tools.read_storage.read_storage import SlotInfo, SlitherReadStorage
+from slither.utils.encoding import encode_ir_for_upgradeability_compare
 
 
 class TaintedExternalContract:
@@ -385,199 +347,11 @@ def is_function_modified(f1: Function, f2: Function) -> bool:
         if len(node_f1.irs) != len(node_f2.irs):
             return True
         for i, ir in enumerate(node_f1.irs):
-            if encode_ir_for_compare(ir) != encode_ir_for_compare(node_f2.irs[i]):
+            if encode_ir_for_upgradeability_compare(ir) != encode_ir_for_upgradeability_compare(
+                node_f2.irs[i]
+            ):
                 return True
     return False
-
-
-# pylint: disable=too-many-branches
-def ntype(_type: Union[Type, str]) -> str:
-    if isinstance(_type, ElementaryType):
-        _type = str(_type)
-    elif isinstance(_type, ArrayType):
-        if isinstance(_type.type, ElementaryType):
-            _type = str(_type)
-        else:
-            _type = "user_defined_array"
-    elif isinstance(_type, Structure):
-        _type = str(_type)
-    elif isinstance(_type, Enum):
-        _type = str(_type)
-    elif isinstance(_type, MappingType):
-        _type = str(_type)
-    elif isinstance(_type, UserDefinedType):
-        if isinstance(_type.type, Contract):
-            _type = f"contract({_type.type.name})"
-        elif isinstance(_type.type, Structure):
-            _type = f"struct({_type.type.name})"
-        elif isinstance(_type.type, Enum):
-            _type = f"enum({_type.type.name})"
-    else:
-        _type = str(_type)
-
-    _type = _type.replace(" memory", "")
-    _type = _type.replace(" storage ref", "")
-
-    if "struct" in _type:
-        return "struct"
-    if "enum" in _type:
-        return "enum"
-    if "tuple" in _type:
-        return "tuple"
-    if "contract" in _type:
-        return "contract"
-    if "mapping" in _type:
-        return "mapping"
-    return _type.replace(" ", "_")
-
-
-# pylint: disable=too-many-branches
-def encode_ir_for_compare(ir: Operation) -> str:
-    # operations
-    if isinstance(ir, Assignment):
-        return f"({encode_var_for_compare(ir.lvalue)}):=({encode_var_for_compare(ir.rvalue)})"
-    if isinstance(ir, Index):
-        return f"index({ntype(ir.variable_right.type)})"
-    if isinstance(ir, Member):
-        return "member"  # .format(ntype(ir._type))
-    if isinstance(ir, Length):
-        return "length"
-    if isinstance(ir, Binary):
-        return f"binary({encode_var_for_compare(ir.variable_left)}{ir.type}{encode_var_for_compare(ir.variable_right)})"
-    if isinstance(ir, Unary):
-        return f"unary({str(ir.type)})"
-    if isinstance(ir, Condition):
-        return f"condition({encode_var_for_compare(ir.value)})"
-    if isinstance(ir, NewStructure):
-        return "new_structure"
-    if isinstance(ir, NewContract):
-        return "new_contract"
-    if isinstance(ir, NewArray):
-        return f"new_array({ntype(ir.array_type)})"
-    if isinstance(ir, NewElementaryType):
-        return f"new_elementary({ntype(ir.type)})"
-    if isinstance(ir, Delete):
-        return f"delete({encode_var_for_compare(ir.lvalue)},{encode_var_for_compare(ir.variable)})"
-    if isinstance(ir, SolidityCall):
-        return f"solidity_call({ir.function.full_name})"
-    if isinstance(ir, InternalCall):
-        return f"internal_call({ntype(ir.type_call)})"
-    if isinstance(ir, EventCall):  # is this useful?
-        return "event"
-    if isinstance(ir, LibraryCall):
-        return "library_call"
-    if isinstance(ir, InternalDynamicCall):
-        return "internal_dynamic_call"
-    if isinstance(ir, HighLevelCall):  # TODO: improve
-        return "high_level_call"
-    if isinstance(ir, LowLevelCall):  # TODO: improve
-        return "low_level_call"
-    if isinstance(ir, TypeConversion):
-        return f"type_conversion({ntype(ir.type)})"
-    if isinstance(ir, Return):  # this can be improved using values
-        return "return"  # .format(ntype(ir.type))
-    if isinstance(ir, Transfer):
-        return f"transfer({encode_var_for_compare(ir.call_value)})"
-    if isinstance(ir, Send):
-        return f"send({encode_var_for_compare(ir.call_value)})"
-    if isinstance(ir, Unpack):  # TODO: improve
-        return "unpack"
-    if isinstance(ir, InitArray):  # TODO: improve
-        return "init_array"
-
-    # default
-    return ""
-
-
-# pylint: disable=too-many-branches
-def encode_ir_for_halstead(ir: Operation) -> str:
-    # operations
-    if isinstance(ir, Assignment):
-        return "assignment"
-    if isinstance(ir, Index):
-        return "index"
-    if isinstance(ir, Member):
-        return "member"  # .format(ntype(ir._type))
-    if isinstance(ir, Length):
-        return "length"
-    if isinstance(ir, Binary):
-        return f"binary({str(ir.type)})"
-    if isinstance(ir, Unary):
-        return f"unary({str(ir.type)})"
-    if isinstance(ir, Condition):
-        return f"condition({encode_var_for_compare(ir.value)})"
-    if isinstance(ir, NewStructure):
-        return "new_structure"
-    if isinstance(ir, NewContract):
-        return "new_contract"
-    if isinstance(ir, NewArray):
-        return f"new_array({ntype(ir.array_type)})"
-    if isinstance(ir, NewElementaryType):
-        return f"new_elementary({ntype(ir.type)})"
-    if isinstance(ir, Delete):
-        return "delete"
-    if isinstance(ir, SolidityCall):
-        return f"solidity_call({ir.function.full_name})"
-    if isinstance(ir, InternalCall):
-        return f"internal_call({ntype(ir.type_call)})"
-    if isinstance(ir, EventCall):  # is this useful?
-        return "event"
-    if isinstance(ir, LibraryCall):
-        return "library_call"
-    if isinstance(ir, InternalDynamicCall):
-        return "internal_dynamic_call"
-    if isinstance(ir, HighLevelCall):  # TODO: improve
-        return "high_level_call"
-    if isinstance(ir, LowLevelCall):  # TODO: improve
-        return "low_level_call"
-    if isinstance(ir, TypeConversion):
-        return f"type_conversion({ntype(ir.type)})"
-    if isinstance(ir, Return):  # this can be improved using values
-        return "return"  # .format(ntype(ir.type))
-    if isinstance(ir, Transfer):
-        return "transfer"
-    if isinstance(ir, Send):
-        return "send"
-    if isinstance(ir, Unpack):  # TODO: improve
-        return "unpack"
-    if isinstance(ir, InitArray):  # TODO: improve
-        return "init_array"
-    # default
-    raise NotImplementedError(f"encode_ir_for_halstead: {ir}")
-
-
-# pylint: disable=too-many-branches
-def encode_var_for_compare(var: Variable) -> str:
-
-    # variables
-    if isinstance(var, Constant):
-        return f"constant({ntype(var.type)},{var.value})"
-    if isinstance(var, SolidityVariableComposed):
-        return f"solidity_variable_composed({var.name})"
-    if isinstance(var, SolidityVariable):
-        return f"solidity_variable{var.name}"
-    if isinstance(var, TemporaryVariable):
-        return "temporary_variable"
-    if isinstance(var, ReferenceVariable):
-        return f"reference({ntype(var.type)})"
-    if isinstance(var, LocalVariable):
-        return f"local_solc_variable({ntype(var.type)},{var.location})"
-    if isinstance(var, StateVariable):
-        if not (var.is_constant or var.is_immutable):
-            try:
-                slot, _ = var.contract.compilation_unit.storage_layout_of(var.contract, var)
-            except KeyError:
-                slot = var.name
-        else:
-            slot = var.name
-        return f"state_solc_variable({ntype(var.type)},{slot})"
-    if isinstance(var, LocalVariableInitFromTuple):
-        return "local_variable_init_tuple"
-    if isinstance(var, TupleVariable):
-        return "tuple_variable"
-
-    # default
-    return ""
 
 
 def get_proxy_implementation_slot(proxy: Contract) -> Optional[SlotInfo]:

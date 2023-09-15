@@ -110,7 +110,7 @@ class CKContractMetrics:
     dit: int = 0
     cbo: int = 0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not hasattr(self.contract, "functions"):
             return
         self.count_variables()
@@ -123,7 +123,7 @@ class CKContractMetrics:
 
     # pylint: disable=too-many-locals
     # pylint: disable=too-many-branches
-    def calculate_metrics(self):
+    def calculate_metrics(self) -> None:
         """Calculate the metrics for a contract"""
         rfc = self.public  # initialize with public getter count
         for func in self.contract.functions:
@@ -186,7 +186,7 @@ class CKContractMetrics:
             self.ext_calls += len(external_calls)
             self.rfc = rfc
 
-    def count_variables(self):
+    def count_variables(self) -> None:
         """Count the number of variables in a contract"""
         state_variable_count = 0
         constant_count = 0
@@ -302,7 +302,7 @@ class CKMetrics:
         ("Core", "core", CORE_KEYS),
     )
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         martin_metrics = MartinMetrics(self.contracts).contract_metrics
         dependents = {
             inherited.name: {
@@ -323,6 +323,7 @@ class CKMetrics:
             for contract in self.contracts
         }
 
+        subtitle = ""
         # Update each section
         for (title, attr, keys) in self.SECTIONS:
             if attr == "core":

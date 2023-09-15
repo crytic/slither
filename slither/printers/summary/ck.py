@@ -32,6 +32,7 @@
 """
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.ck import CKMetrics
+from slither.utils.output import Output
 
 
 class CK(AbstractPrinter):
@@ -40,7 +41,7 @@ class CK(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#ck"
 
-    def output(self, _filename):
+    def output(self, _filename: str) -> Output:
         if len(self.contracts) == 0:
             return self.generate_output("No contract found")
 

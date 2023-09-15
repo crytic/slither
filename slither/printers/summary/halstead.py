@@ -25,6 +25,7 @@
 """
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.halstead import HalsteadMetrics
+from slither.utils.output import Output
 
 
 class Halstead(AbstractPrinter):
@@ -33,7 +34,7 @@ class Halstead(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#halstead"
 
-    def output(self, _filename):
+    def output(self, _filename: str) -> Output:
         if len(self.contracts) == 0:
             return self.generate_output("No contract found")
 

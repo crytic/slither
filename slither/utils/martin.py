@@ -26,12 +26,12 @@ class MartinContractMetrics:
     i: float = 0.0
     d: float = 0.0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.ce + self.ca > 0:
             self.i = float(self.ce / (self.ce + self.ca))
             self.d = float(abs(self.i - self.abstractness))
 
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         return {
             "Dependents": self.ca,
             "Dependencies": self.ce,
@@ -65,12 +65,12 @@ class MartinMetrics:
     )
     SECTIONS: Tuple[Tuple[str, str, Tuple[str]]] = (("Core", "core", CORE_KEYS),)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.update_abstractness()
         self.update_coupling()
         self.update_reporting_sections()
 
-    def update_reporting_sections(self):
+    def update_reporting_sections(self) -> None:
         # Create the table and text for each section.
         data = {
             contract.name: self.contract_metrics[contract.name].to_dict()
@@ -98,7 +98,7 @@ class MartinMetrics:
                 SectionInfo(title=section_title, pretty_table=pretty_table, txt=txt),
             )
 
-    def update_abstractness(self) -> float:
+    def update_abstractness(self) -> None:
         abstract_contract_count = 0
         for c in self.contracts:
             if not c.is_fully_implemented:
@@ -106,7 +106,7 @@ class MartinMetrics:
         self.abstractness = float(abstract_contract_count / len(self.contracts))
 
     # pylint: disable=too-many-branches
-    def update_coupling(self) -> Dict:
+    def update_coupling(self) -> None:
         dependencies = {}
         for contract in self.contracts:
             external_calls = []

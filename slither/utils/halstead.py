@@ -25,13 +25,17 @@
 
 """
 import math
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Tuple, List, Dict
-from collections import OrderedDict
+
 from slither.core.declarations import Contract
 from slither.slithir.variables.temporary import TemporaryVariable
+from slither.utils.encoding import encode_ir_for_halstead
 from slither.utils.myprettytable import make_pretty_table, MyPrettyTable
-from slither.utils.upgradeability import encode_ir_for_halstead
+
+
+# pylint: disable=too-many-branches
 
 
 @dataclass
@@ -55,7 +59,7 @@ class HalsteadContractMetrics:
     T: float = 0
     B: float = 0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Operators and operands can be passed in as constructor args to avoid computing
         them based on the contract. Useful for computing metrics for ALL_CONTRACTS"""
 
@@ -85,7 +89,7 @@ class HalsteadContractMetrics:
             }
         )
 
-    def populate_operators_and_operands(self):
+    def populate_operators_and_operands(self) -> None:
         """Populate the operators and operands lists."""
         operators = []
         operands = []
@@ -104,7 +108,7 @@ class HalsteadContractMetrics:
         self.all_operators.extend(operators)
         self.all_operands.extend(operands)
 
-    def compute_metrics(self, all_operators=None, all_operands=None):
+    def compute_metrics(self, all_operators=None, all_operands=None) -> None:
         """Compute the Halstead metrics."""
         if all_operators is None:
             all_operators = self.all_operators
@@ -183,17 +187,17 @@ class HalsteadMetrics:
         ("Extended 2/2", "extended2", EXTENDED2_KEYS),
     )
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Compute the metrics for each contract and for all contracts.
         self.update_contract_metrics()
         self.add_all_contracts_metrics()
         self.update_reporting_sections()
 
-    def update_contract_metrics(self):
+    def update_contract_metrics(self) -> None:
         for contract in self.contracts:
             self.contract_metrics[contract.name] = HalsteadContractMetrics(contract=contract)
 
-    def add_all_contracts_metrics(self):
+    def add_all_contracts_metrics(self) -> None:
         # If there are more than 1 contract, compute the metrics for all contracts.
         if len(self.contracts) <= 1:
             return
@@ -211,7 +215,7 @@ class HalsteadMetrics:
             None, all_operators=all_operators, all_operands=all_operands
         )
 
-    def update_reporting_sections(self):
+    def update_reporting_sections(self) -> None:
         # Create the table and text for each section.
         data = {
             contract.name: self.contract_metrics[contract.name].to_dict()
