@@ -176,7 +176,9 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
                 else:
                     if var.visibility in ["private", "internal"]:
-                        correct_naming = self.is_mixed_case_with_underscore(var.name) or self.is_state_naming(var.name)
+                        correct_naming = self.is_mixed_case_with_underscore(
+                            var.name
+                        ) or self.is_state_naming(var.name)
 
                         if not correct_naming and var.is_immutable:
                             correct_naming = self.is_immutable_naming(var.name)
