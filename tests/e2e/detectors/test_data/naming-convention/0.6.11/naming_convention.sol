@@ -9,6 +9,7 @@ contract naming {
     uint constant MY_other_CONSTANT = 2;
 
     uint public immutable i_myImutableVar = 1;
+    uint private immutable i_myPrivateImutableVar = 1;
 
     uint Var_One = 1;
     uint varTwo = 2;
@@ -55,7 +56,9 @@ contract Test {
 
 contract T {
     uint private _myPrivateVar;
+    uint private s_myPrivateVar;
     uint internal _myInternalVar;
+    uint internal s_myInternalVar;
     uint public _myPublicVar;
     uint public s_myStateVar;
     uint public myPublicVar;
