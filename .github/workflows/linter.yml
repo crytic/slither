@@ -45,7 +45,7 @@ jobs:
           echo "::add-matcher::.github/workflows/matchers/yamllint.json"
 
       - name: Lint everything else
-        uses: super-linter/super-linter/slim@v4.9.2
+        uses: super-linter/super-linter/slim@v5.3.0
         if: always()
         env:
           # run linter on everything to catch preexisting problems
