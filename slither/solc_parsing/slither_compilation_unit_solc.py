@@ -15,7 +15,7 @@ from slither.core.declarations.import_directive import Import
 from slither.core.declarations.pragma_directive import Pragma
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
-from slither.core.scope.scope import FileScope
+from slither.core.scope.scope import FileScope, FileScopeToImport
 from slither.core.solidity_types import ElementaryType, TypeAliasTopLevel
 from slither.core.variables.top_level_variable import TopLevelVariable
 from slither.exceptions import SlitherException
@@ -39,7 +39,7 @@ class InheritanceResolutionError(SlitherException):
 
 def _handle_import_aliases(
     symbol_aliases: Dict, import_directive: Import, scope: FileScope
-) -> None:
+) -> List[str]:
     """
     Handle the parsing of import aliases
 
@@ -51,24 +51,27 @@ def _handle_import_aliases(
     Returns:
 
     """
+    to_import = []
     for symbol_alias in symbol_aliases:
-        if "foreign" in symbol_alias and "local" in symbol_alias:
-            if isinstance(symbol_alias["foreign"], dict) and "name" in symbol_alias["foreign"]:
+        if "foreign" in symbol_alias:
+            original_name = symbol_alias["foreign"]["name"]
+            to_import.append(original_name)
+            if "local" in symbol_alias:
+                if isinstance(symbol_alias["foreign"], dict) and "name" in symbol_alias["foreign"]:
+                    local_name = symbol_alias["local"]
+                    import_directive.renaming[local_name] = original_name
+                    # Assuming that two imports cannot collide in renaming
+                    scope.renaming[local_name] = original_name
 
-                original_name = symbol_alias["foreign"]["name"]
-                local_name = symbol_alias["local"]
-                import_directive.renaming[local_name] = original_name
-                # Assuming that two imports cannot collide in renaming
-                scope.renaming[local_name] = original_name
+                # This path should only be hit for the malformed AST of solc 0.5.12 where
+                # the foreign identifier cannot be found but is required to resolve the alias.
+                # see https://github.com/crytic/slither/issues/1319
+                elif symbol_alias["local"]:
+                    raise SlitherException(
+                        "Cannot resolve local alias for import directive due to malformed AST. Please upgrade to solc 0.6.0 or higher."
+                    )
 
-            # This path should only be hit for the malformed AST of solc 0.5.12 where
-            # the foreign identifier cannot be found but is required to resolve the alias.
-            # see https://github.com/crytic/slither/issues/1319
-            elif symbol_alias["local"]:
-                raise SlitherException(
-                    "Cannot resolve local alias for import directive due to malformed AST. Please upgrade to solc 0.6.0 or higher."
-                )
-
+    return to_import
 
 class SlitherCompilationUnitSolc(CallerContextExpression):
     # pylint: disable=no-self-use,too-many-instance-attributes
@@ -257,6 +260,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._using_for_top_level_parser.append(usingFor_parser)
 
             elif top_level_data[self.get_key()] == "ImportDirective":
+                to_import = []
                 if self.is_compact_ast:
                     import_directive = Import(
                         Path(
@@ -270,7 +274,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                         import_directive.alias = top_level_data["unitAlias"]
                     if "symbolAliases" in top_level_data:
                         symbol_aliases = top_level_data["symbolAliases"]
-                        _handle_import_aliases(symbol_aliases, import_directive, scope)
+                        to_import = _handle_import_aliases(symbol_aliases, import_directive, scope)
                 else:
                     import_directive = Import(
                         Path(
@@ -289,7 +293,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.import_directives.append(import_directive)
 
                 get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
-                scope.accessible_scopes.append(get_imported_scope)
+                scope.accessible_scopes.append(FileScopeToImport(get_imported_scope, to_import))
 
             elif top_level_data[self.get_key()] == "StructDefinition":
                 st = StructureTopLevel(self.compilation_unit, scope)

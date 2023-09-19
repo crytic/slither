@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Optional, Union, Set, TypeVar, Callable
+from typing import List, Any, Dict, Optional, Union, Set, TypeVar, Callable, Tuple
 
 from crytic_compile import CompilationUnit
 from crytic_compile.source_unit import SourceUnit
@@ -27,7 +27,7 @@ def _dict_contain(d1: Dict, d2: Dict) -> bool:
 class FileScope:
     def __init__(self, filename: Filename) -> None:
         self.filename = filename
-        self.accessible_scopes: List[FileScope] = []
+        self.accessible_scopes: List[FileScopeToImport] = []
 
         self.contracts: Dict[str, Contract] = {}
         # Custom error are a list instead of a dict
@@ -238,3 +238,97 @@ class FileScope:
         return hash(self.filename.relative)
 
     # endregion
+
+class FileScopeToImport:
+    def __init__(self, filescope: FileScope, items_to_import: List[str]) -> None:
+        self.filescope = filescope
+        self.items_to_import = items_to_import
+    
+    @property
+    def contracts(self) -> Dict[str, Contract]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for name, contract in self.filescope.contracts.items():
+                if name in self.items_to_import:
+                    result[name] = contract
+            return result
+        return self.filescope.contracts
+
+    @property
+    def custom_errors(self) -> Set[CustomErrorTopLevel]:
+        if len(self.items_to_import) != 0:
+            result = set()
+            for custom_error in self.filescope.custom_errors:
+                if custom_error.name in self.items_to_import:
+                    result.add(custom_error)
+            return result
+        return self.filescope.custom_errors
+
+    @property
+    def enums(self) -> Dict[str, EnumTopLevel]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for name, enum in self.filescope.enums.items():
+                if name in self.items_to_import:
+                    result[name] = enum
+            return result
+        return self.filescope.enums
+
+    @property
+    def functions(self) -> Set[FunctionTopLevel]:
+        if len(self.items_to_import) != 0:
+            result = set()
+            for function in self.filescope.functions:
+                if function.name in self.items_to_import:
+                    result.add(function)
+            return result
+        return self.filescope.functions
+
+    @property
+    def using_for_directives(self) -> Set[UsingForTopLevel]:
+        # TODO check it's correct
+        if len(self.items_to_import) == 0:
+            return self.filescope.using_for_directives
+        return set()
+        
+    @property
+    def imports(self) -> Set[Import]:
+        # TODO check it's correct
+        if len(self.items_to_import) == 0:
+            return self.filescope.imports
+        return set()
+
+    @property
+    def pragmas(self) -> Set[Pragma]:
+        # TODO check it's correct
+        return self.filescope.pragmas
+
+    @property
+    def structures(self) -> Dict[str, StructureTopLevel]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for name, structure in self.filescope.structures.items():
+                if name in self.items_to_import:
+                    result[name] = structure
+            return result
+        return self.filescope.structures
+
+    @property
+    def variables(self) -> Dict[str, TopLevelVariable]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for name, variable in self.filescope.variables.items():
+                if name in self.items_to_import:
+                    result[name] = variable
+            return result
+        return self.filescope.variables
+
+    @property
+    def renaming(self) -> Dict[str, str]:
+        # TODO check it's correct
+        return self.filescope.renaming
+
+    @property
+    def type_aliases(self) -> Dict[str, TypeAlias]:
+        # TODO check it's correct
+        return self.filescope.type_aliases
