@@ -67,7 +67,7 @@ The function will return 6 bytes starting from offset 5, instead of returning a 
     def _detect(self) -> List[Output]:
         results: List[Output] = []
         for c in self.contracts:
-            for f in c.functions_declared:
+            for f in c.functions_and_modifiers_declared:
 
                 for node in f.nodes:
                     if node.sons:
