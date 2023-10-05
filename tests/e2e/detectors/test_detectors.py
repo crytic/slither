@@ -1654,6 +1654,16 @@ ALL_TESTS = [
         "encode_packed_collision.sol",
         "0.7.6",
     ),
+    Test(
+        all_detectors.IncorrectReturn,
+        "incorrect_return.sol",
+        "0.8.10",
+    ),
+    Test(
+        all_detectors.ReturnInsteadOfLeave,
+        "incorrect_return.sol",
+        "0.8.10",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"

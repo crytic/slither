@@ -92,3 +92,5 @@ from .functions.cyclomatic_complexity import CyclomaticComplexity
 from .operations.cache_array_length import CacheArrayLength
 from .statements.incorrect_using_for import IncorrectUsingFor
 from .operations.encode_packed import EncodePackedCollision
+from .assembly.incorrect_return import IncorrectReturn
+from .assembly.return_instead_of_leave import ReturnInsteadOfLeave
