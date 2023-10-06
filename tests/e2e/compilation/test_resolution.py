@@ -54,7 +54,9 @@ def test_contract_function_parameter(solc_binary_path) -> None:
     compilation = CryticCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
     contract = slither.contracts[0]
+    function = contract.functions[0]
+    parameters = function.parameters
 
-    for function in contract.functions:
-        for parameter in function.parameters:
-            str(parameter)
+    assert (parameters[0].name == 'param1')
+    assert (parameters[1].name == '')
+    assert (parameters[2].name == 'param3')
