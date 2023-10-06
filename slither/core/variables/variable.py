@@ -179,5 +179,4 @@ class Variable(SourceMapping):
         return f'{name}({",".join(parameters)})'
 
     def __str__(self) -> str:
-        assert self._name
         return self._name
