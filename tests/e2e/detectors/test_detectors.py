@@ -1664,6 +1664,16 @@ ALL_TESTS = [
         "incorrect_return.sol",
         "0.8.10",
     ),
+    Test(
+        all_detectors.IncorrectOperatorExponentiation,
+        "incorrect_exp.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.TautologicalCompare,
+        "compare.sol",
+        "0.8.20",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
