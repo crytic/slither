@@ -1674,6 +1674,11 @@ ALL_TESTS = [
         "compare.sol",
         "0.8.20",
     ),
+    Test(
+        all_detectors.ReturnBomb,
+        "return_bomb.sol",
+        "0.8.20",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
