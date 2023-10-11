@@ -58,7 +58,11 @@ The function will halt the execution, instead of returning a two uint."""
         for c in self.contracts:
             for f in c.functions_declared:
 
-                if len(f.returns) == 2 and f.contains_assembly:
+                if (
+                    len(f.returns) == 2
+                    and f.contains_assembly
+                    and f.visibility not in ["public", "external"]
+                ):
                     results += self._check_function(f)
 
         return results
