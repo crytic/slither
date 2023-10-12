@@ -8,7 +8,7 @@ EXPRESSION:
 user_shares = ()
 
 IRs:
-user_shares(uint256[10]) =  []"];
+user_shares(uint256[10]) = []"];
 1->2;
 2[label="Node Type: EXPRESSION 2
 
