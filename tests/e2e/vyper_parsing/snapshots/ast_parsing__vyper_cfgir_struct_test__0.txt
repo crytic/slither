@@ -1,0 +1,13 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+X(1)
+
+IRs:
+TMP_0(struct.X) = new X(1)
+RETURN TMP_0"];
+}

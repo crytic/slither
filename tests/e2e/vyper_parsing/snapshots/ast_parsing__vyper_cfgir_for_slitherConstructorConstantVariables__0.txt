@@ -1,0 +1,19 @@
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+x = 1 + 1
+
+IRs:
+TMP_4(uint256) = 1 + 1
+x(uint256) := TMP_4(uint256)"];
+0->1;
+1[label="Node Type: OTHER_ENTRYPOINT 1
+
+EXPRESSION:
+MAX_QUEUE = 1 + x
+
+IRs:
+TMP_5(uint256) = 1 + x
+MAX_QUEUE(uint256) := TMP_5(uint256)"];
+}

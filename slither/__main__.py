@@ -870,12 +870,6 @@ def main_impl(
         logging.error(red(output_error))
         logging.error("Please report an issue to https://github.com/crytic/slither/issues")
 
-    except Exception:  # pylint: disable=broad-except
-        output_error = traceback.format_exc()
-        traceback.print_exc()
-        logging.error(f"Error in {args.filename}")  # pylint: disable=logging-fstring-interpolation
-        logging.error(output_error)
-
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
         if "console" in args.json_types:

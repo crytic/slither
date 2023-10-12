@@ -1,0 +1,24 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+config
+
+IRs:
+CONDITION config"];
+1->3[label="True"];
+1->2[label="False"];
+2[label="Node Type: END_IF 2
+"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+self.counter = y
+
+IRs:
+counter(uint256) := y(uint256)"];
+3->2;
+}

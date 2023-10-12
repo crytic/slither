@@ -1,0 +1,9 @@
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+MY_CONSTANT = 50
+
+IRs:
+MY_CONSTANT(uint256) := 50(uint256)"];
+}
