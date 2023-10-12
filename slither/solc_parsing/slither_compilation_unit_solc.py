@@ -75,9 +75,12 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
         super().__init__()
 
+        self._compilation_unit: SlitherCompilationUnit = compilation_unit
+
         self._contracts_by_id: Dict[int, ContractSolc] = {}
         self._parsed = False
         self._analyzed = False
+        self._is_compact_ast = False
 
         self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = {}
         self._structures_top_level_parser: List[StructureTopLevelSolc] = []
@@ -85,11 +88,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
         self._functions_top_level_parser: List[FunctionSolc] = []
         self._using_for_top_level_parser: List[UsingForTopLevelSolc] = []
-
-        self._is_compact_ast = False
-        # self._core: SlitherCore = core
-        self._compilation_unit = compilation_unit
-
         self._all_functions_and_modifier_parser: List[FunctionSolc] = []
 
         self._top_level_contracts_counter = 0
@@ -145,14 +143,14 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             data_loaded = json.loads(json_data)
             # Truffle AST
             if "ast" in data_loaded:
-                self.parse_top_level_from_loaded_json(data_loaded["ast"], data_loaded["sourcePath"])
+                self.parse_top_level_items(data_loaded["ast"], data_loaded["sourcePath"])
                 return True
             # solc AST, where the non-json text was removed
             if "attributes" in data_loaded:
                 filename = data_loaded["attributes"]["absolutePath"]
             else:
                 filename = data_loaded["absolutePath"]
-            self.parse_top_level_from_loaded_json(data_loaded, filename)
+            self.parse_top_level_items(data_loaded, filename)
             return True
         except ValueError:
 
@@ -163,7 +161,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 json_data = json_data[first:last]
 
                 data_loaded = json.loads(json_data)
-                self.parse_top_level_from_loaded_json(data_loaded, filename)
+                self.parse_top_level_items(data_loaded, filename)
                 return True
             return False
 
@@ -197,7 +195,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._compilation_unit.enums_top_level.append(enum)
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
-    def parse_top_level_from_loaded_json(self, data_loaded: Dict, filename: str) -> None:
+    def parse_top_level_items(self, data_loaded: Dict, filename: str) -> None:
         if not data_loaded or data_loaded is None:
             logger.error(
                 "crytic-compile returned an empty AST. "
@@ -326,7 +324,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
                 custom_error.set_offset(top_level_data["src"], self._compilation_unit)
 
-                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, self)
+                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, None, self)
                 scope.custom_errors.add(custom_error)
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
@@ -344,10 +342,10 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 original_type = ElementaryType(underlying_type["name"])
 
-                user_defined_type = TypeAliasTopLevel(original_type, alias, scope)
-                user_defined_type.set_offset(top_level_data["src"], self._compilation_unit)
-                self._compilation_unit.user_defined_value_types[alias] = user_defined_type
-                scope.user_defined_types[alias] = user_defined_type
+                type_alias = TypeAliasTopLevel(original_type, alias, scope)
+                type_alias.set_offset(top_level_data["src"], self._compilation_unit)
+                self._compilation_unit.type_aliases[alias] = type_alias
+                scope.type_aliases[alias] = type_alias
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
@@ -405,7 +403,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def parse_contracts(self) -> None:  # pylint: disable=too-many-statements,too-many-branches
         if not self._underlying_contract_to_parser:
             logger.info(
-                f"No contract were found in {self._compilation_unit.core.filename}, check the correct compilation"
+                f"No contracts were found in {self._compilation_unit.core.filename}, check the correct compilation"
             )
         if self._parsed:
             raise Exception("Contract analysis can be run only once!")

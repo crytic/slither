@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.scope.scope import FileScope
     from slither.core.cfg.node import Node
+    from slither.core.solidity_types import TypeAliasContract
 
 
 LOGGER = logging.getLogger("Contract")
@@ -81,6 +82,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._functions: Dict[str, "FunctionContract"] = {}
         self._linearizedBaseContracts: List[int] = []
         self._custom_errors: Dict[str, "CustomErrorContract"] = {}
+        self._type_aliases: Dict[str, "TypeAliasContract"] = {}
 
         # The only str is "*"
         self._using_for: Dict[USING_FOR_KEY, USING_FOR_ITEM] = {}
@@ -136,7 +138,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def id(self) -> int:
         """Unique id."""
-        assert self._id
+        assert self._id is not None
         return self._id
 
     @id.setter
@@ -363,6 +365,38 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def custom_errors_as_dict(self) -> Dict[str, "CustomErrorContract"]:
         return self._custom_errors
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Custom Errors
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def type_aliases(self) -> List["TypeAliasContract"]:
+        """
+        list(TypeAliasContract): List of the contract's custom errors
+        """
+        return list(self._type_aliases.values())
+
+    @property
+    def type_aliases_inherited(self) -> List["TypeAliasContract"]:
+        """
+        list(TypeAliasContract): List of the inherited custom errors
+        """
+        return [s for s in self.type_aliases if s.contract != self]
+
+    @property
+    def type_aliases_declared(self) -> List["TypeAliasContract"]:
+        """
+        list(TypeAliasContract): List of the custom errors declared within the contract (not inherited)
+        """
+        return [s for s in self.type_aliases if s.contract == self]
+
+    @property
+    def type_aliases_as_dict(self) -> Dict[str, "TypeAliasContract"]:
+        return self._type_aliases
 
     # endregion
     ###################################################################################

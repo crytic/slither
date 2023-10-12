@@ -442,7 +442,7 @@ def parse_args(
 
     group_checklist.add_argument(
         "--checklist-limit",
-        help="Limite the number of results per detector in the markdown file",
+        help="Limit the number of results per detector in the markdown file",
         action="store",
         default="",
     )
@@ -869,12 +869,6 @@ def main_impl(
         logging.error(red("Error:"))
         logging.error(red(output_error))
         logging.error("Please report an issue to https://github.com/crytic/slither/issues")
-
-    except Exception:  # pylint: disable=broad-except
-        output_error = traceback.format_exc()
-        traceback.print_exc()
-        logging.error(f"Error in {args.filename}")  # pylint: disable=logging-fstring-interpolation
-        logging.error(output_error)
 
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
