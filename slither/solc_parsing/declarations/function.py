@@ -315,6 +315,9 @@ class FunctionSolc(CallerContextExpression):
 
         self._remove_alone_endif()
 
+        if self._function.entry_point:
+            self._update_reachability(self._function.entry_point)
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -1101,6 +1104,13 @@ class FunctionSolc(CallerContextExpression):
         for statement in statements:
             node = self._parse_statement(statement, node, new_scope)
         return node
+
+    def _update_reachability(self, node: Node) -> None:
+        if node.is_reachable:
+            return
+        node.set_is_reachable(True)
+        for son in node.sons:
+            self._update_reachability(son)
 
     def _parse_cfg(self, cfg: Dict) -> None:
 

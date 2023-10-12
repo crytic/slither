@@ -194,6 +194,8 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         self.file_scope: "FileScope" = file_scope
         self._function: Optional["Function"] = None
 
+        self._is_reachable: bool = False
+
     ###################################################################################
     ###################################################################################
     # region General's properties
@@ -234,6 +236,13 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def function(self) -> "Function":
         return self._function
+
+    @property
+    def is_reachable(self) -> bool:
+        return self._is_reachable
+
+    def set_is_reachable(self, new_is_reachable: bool) -> None:
+        self._is_reachable = new_is_reachable
 
     # endregion
     ###################################################################################
