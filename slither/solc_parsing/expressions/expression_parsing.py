@@ -175,7 +175,7 @@ def parse_call(
         called = parse_expression(children[0], caller_context)
         arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
-    if isinstance(called, SuperCallExpression):
+    if isinstance(called, SuperIdentifier):
         sp = SuperCallExpression(called, arguments, type_return)
         sp.set_offset(expression["src"], caller_context.compilation_unit)
         return sp

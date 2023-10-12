@@ -1,0 +1,28 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+chainlink_lrd = Test(msg.sender).get()
+
+IRs:
+TMP_0 = CONVERT msg.sender to Test
+TUPLE_0(uint80,int256,uint256,uint256,uint80) = HIGH_LEVEL_CALL, dest:TMP_0(Test), function:get, arguments:[]  
+TMP_1(uint80)= UNPACK TUPLE_0 index: 0 
+TMP_2(int256)= UNPACK TUPLE_0 index: 1 
+TMP_3(uint256)= UNPACK TUPLE_0 index: 2 
+TMP_4(uint256)= UNPACK TUPLE_0 index: 3 
+TMP_5(uint80)= UNPACK TUPLE_0 index: 4 
+chainlink_lrd(FAKE_TUPLE_0_1_2_3_4) = new FAKE_TUPLE_0_1_2_3_4(TMP_1,TMP_2,TMP_3,TMP_4,TMP_5)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+chainlink_lrd[0]
+
+IRs:
+REF_1(uint80) -> chainlink_lrd._0
+RETURN REF_1"];
+}

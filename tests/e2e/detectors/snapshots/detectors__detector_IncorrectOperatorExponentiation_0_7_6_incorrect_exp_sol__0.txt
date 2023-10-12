@@ -1,0 +1,9 @@
+Test.bad1() (tests/e2e/detectors/test_data/incorrect-exp/0.7.6/incorrect_exp.sol#9-12) has bitwise-xor operator ^ instead of the exponentiation operator **: 
+	 - UINT_MAX = 2 ^ 256 - 1 (tests/e2e/detectors/test_data/incorrect-exp/0.7.6/incorrect_exp.sol#10)
+
+Test.bad0(uint256) (tests/e2e/detectors/test_data/incorrect-exp/0.7.6/incorrect_exp.sol#5-7) has bitwise-xor operator ^ instead of the exponentiation operator **: 
+	 - a ^ 2 (tests/e2e/detectors/test_data/incorrect-exp/0.7.6/incorrect_exp.sol#6)
+
+Derived.slitherConstructorVariables() (tests/e2e/detectors/test_data/incorrect-exp/0.7.6/incorrect_exp.sol#30) has bitwise-xor operator ^ instead of the exponentiation operator **: 
+	 - my_var = 2 ^ 256 - 1 (tests/e2e/detectors/test_data/incorrect-exp/0.7.6/incorrect_exp.sol#3)
+

@@ -114,8 +114,8 @@ def convert_expression(expression: Expression, node: "Node") -> List[Operation]:
 
     visitor = ExpressionToSlithIR(expression, node)
     result = visitor.result()
-
-    result = apply_ir_heuristics(result, node)
+    is_solidity = node.compilation_unit.is_solidity
+    result = apply_ir_heuristics(result, node, is_solidity)
 
     if result:
         if node.type in [NodeType.IF, NodeType.IFLOOP]:
@@ -657,7 +657,9 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                 if isinstance(t, ArrayType) or (
                     isinstance(t, ElementaryType) and t.type == "bytes"
                 ):
-                    if ir.function_name == "push" and len(ir.arguments) <= 1:
+                    # Solidity uses push
+                    # Vyper uses append
+                    if ir.function_name in ["push", "append"] and len(ir.arguments) <= 1:
                         return convert_to_push(ir, node)
                     if ir.function_name == "pop" and len(ir.arguments) == 0:
                         return convert_to_pop(ir, node)
@@ -1215,6 +1217,7 @@ def can_be_low_level(ir: HighLevelCall) -> bool:
         "delegatecall",
         "callcode",
         "staticcall",
+        "raw_call",
     ]
 
 
@@ -1243,13 +1246,14 @@ def convert_to_low_level(
         ir.set_node(prev_ir.node)
         ir.lvalue.set_type(ElementaryType("bool"))
         return ir
-    if ir.function_name in ["call", "delegatecall", "callcode", "staticcall"]:
+    if ir.function_name in ["call", "delegatecall", "callcode", "staticcall", "raw_call"]:
         new_ir = LowLevelCall(
             ir.destination, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call
         )
         new_ir.call_gas = ir.call_gas
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
+        # TODO fix this for Vyper
         if ir.node.compilation_unit.solc_version >= "0.5":
             new_ir.lvalue.set_type([ElementaryType("bool"), ElementaryType("bytes")])
         else:
@@ -1294,7 +1298,12 @@ def convert_to_solidity_func(
         and len(new_ir.arguments) == 2
         and isinstance(new_ir.arguments[1], list)
     ):
-        types = list(new_ir.arguments[1])
+        types = []
+        for arg_type in new_ir.arguments[1]:
+            decode_type = arg_type
+            if isinstance(decode_type, (Structure, Enum, Contract)):
+                decode_type = UserDefinedType(decode_type)
+            types.append(decode_type)
         new_ir.lvalue.set_type(types)
     # abi.decode where the type to decode is a singleton
     # abi.decode(a, (uint))
@@ -1991,7 +2000,7 @@ def _find_source_mapping_references(irs: List[Operation]) -> None:
 ###################################################################################
 
 
-def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Operation]:
+def apply_ir_heuristics(irs: List[Operation], node: "Node", is_solidity: bool) -> List[Operation]:
     """
     Apply a set of heuristic to improve slithIR
     """
@@ -2001,8 +2010,11 @@ def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Operation]:
     irs = propagate_type_and_convert_call(irs, node)
     irs = remove_unused(irs)
     find_references_origin(irs)
-    convert_constant_types(irs)
-    convert_delete(irs)
+
+    # These are heuristics that are only applied to Solidity
+    if is_solidity:
+        convert_constant_types(irs)
+        convert_delete(irs)
 
     _find_source_mapping_references(irs)
 
