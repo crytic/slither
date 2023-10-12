@@ -179,4 +179,6 @@ class Variable(SourceMapping):
         return f'{name}({",".join(parameters)})'
 
     def __str__(self) -> str:
+        if self._name is None:
+            return ""
         return self._name
