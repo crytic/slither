@@ -56,10 +56,24 @@ def _find_variable_from_ref_declaration(
     referenced_declaration: Optional[int],
     all_contracts: List["Contract"],
     all_functions: List["Function"],
+    function_parser: Optional["FunctionSolc"],
+    contract_declarer: Optional["Contract"],
 ) -> Optional[Union[Contract, Function]]:
+    """
+    Reference declarations take the highest priority, but they are not available for legacy AST.
+    """
     if referenced_declaration is None:
         return None
-    # id of the contracts is the referenced declaration
+    # We look for variable declared with the referencedDeclaration attribute
+    if function_parser is not None and referenced_declaration in function_parser.variables_renamed:
+        return function_parser.variables_renamed[referenced_declaration].underlying_variable
+
+    if (
+        contract_declarer is not None
+        and referenced_declaration in contract_declarer.state_variables_by_ref_id
+    ):
+        return contract_declarer.state_variables_by_ref_id[referenced_declaration]
+    # Ccontracts  ids are the referenced declaration
     # This is not true for the functions, as we dont always have the referenced_declaration
     # But maybe we could? (TODO)
     for contract_candidate in all_contracts:
@@ -74,14 +88,9 @@ def _find_variable_from_ref_declaration(
 def _find_variable_in_function_parser(
     var_name: str,
     function_parser: Optional["FunctionSolc"],
-    referenced_declaration: Optional[int] = None,
 ) -> Optional[Variable]:
     if function_parser is None:
         return None
-    # We look for variable declared with the referencedDeclaration attr
-    func_variables_renamed = function_parser.variables_renamed
-    if referenced_declaration and referenced_declaration in func_variables_renamed:
-        return func_variables_renamed[referenced_declaration].underlying_variable
     # If not found, check for name
     func_variables = function_parser.underlying_function.variables_as_dict
     if var_name in func_variables:
@@ -391,20 +400,6 @@ def find_variable(
     if var_name in current_scope.renaming:
         var_name = current_scope.renaming[var_name]
 
-    # Use ret0/ret1 to help mypy
-    ret0 = _find_variable_from_ref_declaration(
-        referenced_declaration, direct_contracts, direct_functions
-    )
-    if ret0:
-        return ret0, False
-
-    function_parser: Optional[FunctionSolc] = (
-        caller_context if isinstance(caller_context, FunctionSolc) else None
-    )
-    ret1 = _find_variable_in_function_parser(var_name, function_parser, referenced_declaration)
-    if ret1:
-        return ret1, False
-
     contract: Optional[Contract] = None
     contract_declarer: Optional[Contract] = None
     if isinstance(caller_context, ContractSolc):
@@ -426,6 +421,24 @@ def find_variable(
             for var in contract.variables:
                 if var_name == var.name:
                     return var, False
+
+    function_parser: Optional[FunctionSolc] = (
+        caller_context if isinstance(caller_context, FunctionSolc) else None
+    )
+    # Use ret0/ret1 to help mypy
+    ret0 = _find_variable_from_ref_declaration(
+        referenced_declaration,
+        direct_contracts,
+        direct_functions,
+        function_parser,
+        contract_declarer,
+    )
+    if ret0:
+        return ret0, False
+
+    ret1 = _find_variable_in_function_parser(var_name, function_parser)
+    if ret1:
+        return ret1, False
 
     ret = _find_in_contract(var_name, contract, contract_declarer, is_super, is_identifier_path)
     if ret:
@@ -477,6 +490,8 @@ def find_variable(
         referenced_declaration,
         list(current_scope.contracts.values()),
         list(current_scope.functions),
+        None,
+        None,
     )
     if ret:
         return ret, False

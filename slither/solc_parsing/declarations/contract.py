@@ -357,6 +357,8 @@ class ContractSolc(CallerContextExpression):
             self._variables_parser.append(var_parser)
 
             assert var.name
+            if var_parser.reference_id is not None:
+                self._contract.state_variables_by_ref_id[var_parser.reference_id] = var
             self._contract.variables_as_dict[var.name] = var
             self._contract.add_variables_ordered([var])
 
