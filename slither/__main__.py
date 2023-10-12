@@ -79,6 +79,11 @@ def process_single(
         ast = "--ast-json"
     slither = Slither(target, ast_format=ast, **vars(args))
 
+    if args.sarif_input:
+        slither.sarif_input = args.sarif_input
+    if args.sarif_triage:
+        slither.sarif_triage = args.sarif_triage
+
     return _process(slither, detector_classes, printer_classes)
 
 
@@ -467,6 +472,20 @@ def parse_args(
         help='Export the results as a SARIF JSON file ("--sarif -" to export to stdout)',
         action="store",
         default=defaults_flag_in_config["sarif"],
+    )
+
+    group_misc.add_argument(
+        "--sarif-input",
+        help="Sarif input (beta)",
+        action="store",
+        default=defaults_flag_in_config["sarif_input"],
+    )
+
+    group_misc.add_argument(
+        "--sarif-triage",
+        help="Sarif triage (beta)",
+        action="store",
+        default=defaults_flag_in_config["sarif_triage"],
     )
 
     group_misc.add_argument(
