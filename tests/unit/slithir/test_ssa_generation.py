@@ -1118,7 +1118,7 @@ def test_issue_1846_ternary_in_ternary(slither_from_solidity_source):
         assert node.son_false.type == NodeType.EXPRESSION
 
 
-def test_issue_2016(slither_from_source):
+def test_issue_2016(slither_from_solidity_source):
     source = """
     contract Contract {
         function test() external {
@@ -1126,7 +1126,7 @@ def test_issue_2016(slither_from_source):
         }
     }
     """
-    with slither_from_source(source) as slither:
+    with slither_from_solidity_source(source) as slither:
         c = slither.get_contract_from_name("Contract")[0]
         f = c.functions[0]
         operations = f.slithir_operations
