@@ -11,7 +11,7 @@ from solc_select.solc_select import valid_version as solc_valid_version
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
-from slither.core.solidity_types import ArrayType
+from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
@@ -1116,3 +1116,23 @@ def test_issue_1846_ternary_in_ternary(slither_from_solidity_source):
         assert node.type == NodeType.IF
         assert node.son_true.type == NodeType.IF
         assert node.son_false.type == NodeType.EXPRESSION
+
+
+def test_issue_2016(slither_from_source):
+    source = """
+    contract Contract {
+        function test() external {
+            int[] memory a = new int[](5);
+        }
+    }
+    """
+    with slither_from_source(source) as slither:
+        c = slither.get_contract_from_name("Contract")[0]
+        f = c.functions[0]
+        operations = f.slithir_operations
+        new_op = operations[0]
+        lvalue = new_op.lvalue
+        lvalue_type = lvalue.type
+        assert isinstance(lvalue_type, ArrayType)
+        assert lvalue_type.type == ElementaryType("int256")
+        assert lvalue_type.is_dynamic

@@ -442,7 +442,7 @@ def parse_args(
 
     group_checklist.add_argument(
         "--checklist-limit",
-        help="Limite the number of results per detector in the markdown file",
+        help="Limit the number of results per detector in the markdown file",
         action="store",
         default="",
     )

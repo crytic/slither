@@ -44,4 +44,4 @@ class InitArray(OperationWithLValue):
             return f"{elem}({elem.type})"
 
         init_values = convert(self.init_values)
-        return f"{self.lvalue}({self.lvalue.type}) =  {init_values}"
+        return f"{self.lvalue}({self.lvalue.type}) = {init_values}"

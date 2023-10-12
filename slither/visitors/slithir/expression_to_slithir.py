@@ -51,6 +51,7 @@ from slither.slithir.operations import (
     Member,
     TypeConversion,
     Unary,
+    UnaryType,
     Unpack,
     Return,
     SolidityCall,
@@ -109,6 +110,13 @@ _binary_to_binary = {
     BinaryOperationType.ANDAND: BinaryType.ANDAND,
     BinaryOperationType.OROR: BinaryType.OROR,
 }
+
+
+_unary_to_unary = {
+    UnaryOperationType.BANG: UnaryType.BANG,
+    UnaryOperationType.TILD: UnaryType.TILD,
+}
+
 
 _signed_to_unsigned = {
     BinaryOperationType.DIVISION_SIGNED: BinaryType.DIVISION,
@@ -335,7 +343,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 val = TupleVariable(self._node)
             else:
                 val = TemporaryVariable(self._node)
-            internal_call = InternalCall(called, len(args), val, expression.type_call)
+            internal_call = InternalCall(
+                called, len(args), val, expression.type_call, names=expression.names
+            )
             internal_call.set_expression(expression)
             self._result.append(internal_call)
             set_val(expression, val)
@@ -404,7 +414,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
             else:
                 val = TemporaryVariable(self._node)
 
-            message_call = TmpCall(called, len(args), val, expression.type_call)
+            message_call = TmpCall(
+                called, len(args), val, expression.type_call, names=expression.names
+            )
             message_call.set_expression(expression)
             # Gas/value are only accessible here if the syntax {gas: , value: }
             # Is used over .gas().value()
@@ -490,6 +502,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         # Look for type(X).max / min
         # Because we looked at the AST structure, we need to look into the nested expression
         # Hopefully this is always on a direct sub field, and there is no weird construction
+        # pylint: disable=too-many-nested-blocks
         if isinstance(expression.expression, CallExpression) and expression.member_name in [
             "min",
             "max",
@@ -509,10 +522,22 @@ class ExpressionToSlithIR(ExpressionVisitor):
                         constant_type = type_found
                     else:
                         # type(enum).max/min
-                        assert isinstance(type_expression_found, Identifier)
-                        type_found_in_expression = type_expression_found.value
-                        assert isinstance(type_found_in_expression, (EnumContract, EnumTopLevel))
-                        type_found = UserDefinedType(type_found_in_expression)
+                        # Case when enum is in another contract e.g. type(C.E).max
+                        if isinstance(type_expression_found, MemberAccess):
+                            contract = type_expression_found.expression.value
+                            assert isinstance(contract, Contract)
+                            for enum in contract.enums:
+                                if enum.name == type_expression_found.member_name:
+                                    type_found_in_expression = enum
+                                    type_found = UserDefinedType(enum)
+                                    break
+                        else:
+                            assert isinstance(type_expression_found, Identifier)
+                            type_found_in_expression = type_expression_found.value
+                            assert isinstance(
+                                type_found_in_expression, (EnumContract, EnumTopLevel)
+                            )
+                            type_found = UserDefinedType(type_found_in_expression)
                         constant_type = None
                         min_value = type_found_in_expression.min
                         max_value = type_found_in_expression.max
@@ -563,12 +588,16 @@ class ExpressionToSlithIR(ExpressionVisitor):
             # contract A { type MyInt is int}
             # contract B { function f() public{ A.MyInt test = A.MyInt.wrap(1);}}
             # The logic is handled by _post_call_expression
-            if expression.member_name in expr.file_scope.user_defined_types:
-                set_val(expression, expr.file_scope.user_defined_types[expression.member_name])
+            if expression.member_name in expr.file_scope.type_aliases:
+                set_val(expression, expr.file_scope.type_aliases[expression.member_name])
                 return
             # Lookup errors referred to as member of contract e.g. Test.myError.selector
             if expression.member_name in expr.custom_errors_as_dict:
                 set_val(expression, expr.custom_errors_as_dict[expression.member_name])
+                return
+            # Lookup enums when in a different contract e.g. C.E
+            if str(expression) in expr.enums_as_dict:
+                set_val(expression, expr.enums_as_dict[str(expression)])
                 return
 
         val_ref = ReferenceVariable(self._node)
@@ -632,7 +661,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         operation: Operation
         if expression.type in [UnaryOperationType.BANG, UnaryOperationType.TILD]:
             lvalue = TemporaryVariable(self._node)
-            operation = Unary(lvalue, value, expression.type)
+            operation = Unary(lvalue, value, _unary_to_unary[expression.type])
             operation.set_expression(expression)
             self._result.append(operation)
             set_val(expression, lvalue)
