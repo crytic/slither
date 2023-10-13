@@ -20,3 +20,4 @@ from .function_top_level import FunctionTopLevel
 from .custom_error_contract import CustomErrorContract
 from .custom_error_top_level import CustomErrorTopLevel
 from .custom_error import CustomError
+from .solidity_import_placeholder import SolidityImportPlaceHolder
