@@ -30,7 +30,7 @@ from slither.slithir.operations import (
     TypeConversion,
 )
 from slither.slithir.operations.binary import Binary
-from slither.slithir.variables import Constant
+from slither.slithir.variables import Constant, ReferenceVariable
 from slither.utils.output import Output
 from slither.utils.tests_pattern import is_test_contract
 from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
@@ -125,15 +125,24 @@ def _extract_constant_functions(contracts) -> Dict[str, List[str]]:
     return ret
 
 
-def _extract_assert(contracts) -> Dict[str, List[str]]:
-    ret: Dict[str, List[str]] = {}
-    for contract in contracts:
-        functions_using_assert = []
+def _extract_assert(slither: SlitherCore) -> Dict[str, Dict[str, List[Dict]]]:
+    """
+    Return the list of contract -> function name -> List(source mapping of the assert))
+
+    Args:
+        slither:
+
+    Returns:
+
+    """
+    ret: Dict[str, Dict[str, List[Dict]]] = {}
+    for contract in slither.contracts:
+        functions_using_assert: Dict[str, List[Dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
-            for v in f.all_solidity_calls():
-                if v == SolidityFunction("assert(bool)"):
-                    functions_using_assert.append(_get_name(f))
-                    break
+            for node in f.all_nodes():
+                if SolidityFunction("assert(bool)") in node.solidity_calls and node.source_mapping:
+                    func_name = _get_name(f)
+                    functions_using_assert[func_name].append(node.source_mapping.to_json())
         if functions_using_assert:
             ret[contract.name] = functions_using_assert
     return ret
@@ -207,19 +216,20 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
             except ValueError:  # index could fail; should never happen in working solidity code
                 pass
         for r in ir.read:
+            var_read = r.points_to_origin if isinstance(r, ReferenceVariable) else r
             # Do not report struct_name in a.struct_name
             if isinstance(ir, Member):
                 continue
-            if isinstance(r, Constant):
-                all_cst_used.append(ConstantValue(str(r.value), str(r.type)))
-            if isinstance(r, StateVariable):
-                if r.node_initialization:
-                    if r.node_initialization.irs:
-                        if r.node_initialization in context_explored:
+            if isinstance(var_read, Constant):
+                all_cst_used.append(ConstantValue(str(var_read.value), str(var_read.type)))
+            if isinstance(var_read, StateVariable):
+                if var_read.node_initialization:
+                    if var_read.node_initialization.irs:
+                        if var_read.node_initialization in context_explored:
                             continue
-                        context_explored.add(r.node_initialization)
+                        context_explored.add(var_read.node_initialization)
                         _extract_constants_from_irs(
-                            r.node_initialization.irs,
+                            var_read.node_initialization.irs,
                             all_cst_used,
                             all_cst_used_in_binary,
                             context_explored,

@@ -2,7 +2,7 @@
 Module detecting possible loss of precision due to divide before multiple
 """
 from collections import defaultdict
-from typing import DefaultDict, List, Set, Tuple
+from typing import DefaultDict, List, Tuple
 
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
@@ -63,7 +63,7 @@ def is_assert(node: Node) -> bool:
 
 # pylint: disable=too-many-branches
 def _explore(
-    to_explore: Set[Node], f_results: List[List[Node]], divisions: DefaultDict[LVALUE, List[Node]]
+    to_explore: List[Node], f_results: List[List[Node]], divisions: DefaultDict[LVALUE, List[Node]]
 ) -> None:
     explored = set()
     while to_explore:  # pylint: disable=too-many-nested-blocks
@@ -114,7 +114,7 @@ def _explore(
                 f_results.append(node_results)
 
         for son in node.sons:
-            to_explore.add(son)
+            to_explore.append(son)
 
 
 def detect_divide_before_multiply(
@@ -145,7 +145,7 @@ def detect_divide_before_multiply(
         # track all the division results (and the assignment of the division results)
         divisions: DefaultDict[LVALUE, List[Node]] = defaultdict(list)
 
-        _explore({function.entry_point}, f_results, divisions)
+        _explore([function.entry_point], f_results, divisions)
 
         for f_result in f_results:
             results.append((function, f_result))

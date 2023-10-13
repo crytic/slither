@@ -4,13 +4,13 @@ import re
 import sys
 from pathlib import Path
 from typing import List, Dict, Tuple
-from packaging.version import parse as parse_version
-import pytest
-from deepdiff import DeepDiff
-from solc_select.solc_select import install_artifacts as install_solc_versions
-from solc_select.solc_select import installed_versions as get_installed_solc_versions
+
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
+from deepdiff import DeepDiff
+from packaging.version import parse as parse_version
+from solc_select.solc_select import install_artifacts as install_solc_versions
+from solc_select.solc_select import installed_versions as get_installed_solc_versions
 
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
@@ -459,6 +459,8 @@ ALL_TESTS = [
         ["0.6.9", "0.7.6", "0.8.16"],
     ),
     Test("user_defined_operators-0.8.19.sol", ["0.8.19"]),
+    Test("type-aliases.sol", ["0.8.19"]),
+    Test("enum-max-min.sol", ["0.8.19"]),
 ]
 # create the output folder if needed
 try:

@@ -9,6 +9,7 @@ from pathlib import Path
 from slither import Slither
 from slither.core.declarations.function import FunctionType
 from slither.core.solidity_types.elementary_type import ElementaryType
+from slither.core.solidity_types.mapping_type import MappingType
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 FUNC_DELC_TEST_ROOT = Path(TEST_DATA_DIR, "function_declaration")
@@ -302,3 +303,96 @@ def test_public_variable(solc_binary_path) -> None:
     assert var.signature_str == "info() returns(bytes32)"
     assert var.visibility == "public"
     assert var.type == ElementaryType("bytes32")
+
+
+# pylint: disable=too-many-statements
+def test_vyper_functions(slither_from_vyper_source) -> None:
+    with slither_from_vyper_source(
+        """
+balances: public(HashMap[address, uint256])
+allowances: HashMap[address, HashMap[address, uint256]]
+@pure
+@internal
+def add(x: int128, y: int128) -> int128:
+    return x + y
+@external
+def __init__():
+    pass
+@external
+def withdraw():
+    raw_call(msg.sender, b"", value= self.balances[msg.sender])
+@external
+@nonreentrant("lock")
+def withdraw_locked():
+    raw_call(msg.sender, b"", value= self.balances[msg.sender])
+@payable
+@external
+def __default__():
+    pass
+    """
+    ) as sl:
+        contract = sl.contracts[0]
+        functions = contract.available_functions_as_dict()
+
+        f = functions["add(int128,int128)"]
+        assert f.function_type == FunctionType.NORMAL
+        assert f.visibility == "internal"
+        assert not f.payable
+        assert f.view is False
+        assert f.pure is True
+        assert f.parameters[0].name == "x"
+        assert f.parameters[0].type == ElementaryType("int128")
+        assert f.parameters[1].name == "y"
+        assert f.parameters[1].type == ElementaryType("int128")
+        assert f.return_type[0] == ElementaryType("int128")
+
+        f = functions["__init__()"]
+        assert f.function_type == FunctionType.CONSTRUCTOR
+        assert f.visibility == "external"
+        assert not f.payable
+        assert not f.view
+        assert not f.pure
+        assert not f.is_implemented
+        assert f.is_empty
+
+        f = functions["__default__()"]
+        assert f.function_type == FunctionType.FALLBACK
+        assert f.visibility == "external"
+        assert f.payable
+        assert not f.view
+        assert not f.pure
+        assert not f.is_implemented
+        assert f.is_empty
+
+        f = functions["withdraw()"]
+        assert f.function_type == FunctionType.NORMAL
+        assert f.visibility == "external"
+        assert not f.payable
+        assert not f.view
+        assert not f.pure
+        assert f.can_send_eth()
+        assert f.can_reenter()
+        assert f.is_implemented
+        assert not f.is_empty
+
+        f = functions["withdraw_locked()"]
+        assert not f.is_reentrant
+        assert f.is_implemented
+        assert not f.is_empty
+
+        var = contract.get_state_variable_from_name("balances")
+        assert var
+        assert var.solidity_signature == "balances(address)"
+        assert var.signature_str == "balances(address) returns(uint256)"
+        assert var.visibility == "public"
+        assert var.type == MappingType(ElementaryType("address"), ElementaryType("uint256"))
+
+        var = contract.get_state_variable_from_name("allowances")
+        assert var
+        assert var.solidity_signature == "allowances(address,address)"
+        assert var.signature_str == "allowances(address,address) returns(uint256)"
+        assert var.visibility == "internal"
+        assert var.type == MappingType(
+            ElementaryType("address"),
+            MappingType(ElementaryType("address"), ElementaryType("uint256")),
+        )

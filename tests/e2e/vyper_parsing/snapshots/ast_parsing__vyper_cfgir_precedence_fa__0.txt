@@ -1,0 +1,12 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+1
+
+IRs:
+RETURN 1"];
+}

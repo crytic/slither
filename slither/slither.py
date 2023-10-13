@@ -11,7 +11,9 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.exceptions import SlitherError
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
+from slither.vyper_parsing.vyper_compilation_unit import VyperCompilationUnit
 from slither.utils.output import Output
+from slither.vyper_parsing.ast.ast import parse
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -62,16 +64,6 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
             triage_mode (bool): if true, switch to triage mode (default false)
             exclude_dependencies (bool): if true, exclude results that are only related to dependencies
             generate_patches (bool): if true, patches are generated (json output only)
-
-            truffle_ignore (bool): ignore truffle.js presence (default false)
-            truffle_build_directory (str): build truffle directory (default 'build/contracts')
-            truffle_ignore_compile (bool): do not run truffle compile (default False)
-            truffle_version (str): use a specific truffle version (default None)
-
-            embark_ignore (bool): ignore embark.js presence (default false)
-            embark_ignore_compile (bool): do not run embark build (default False)
-            embark_overwrite_config (bool): overwrite original config file (default false)
-
             change_line_prefix (str): Change the line prefix (default #)
                 for the displayed source codes (i.e. file.sol#1).
 
@@ -108,13 +100,23 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         for compilation_unit in crytic_compile.compilation_units.values():
             compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
             self._compilation_units.append(compilation_unit_slither)
-            parser = SlitherCompilationUnitSolc(compilation_unit_slither)
-            self._parsers.append(parser)
-            for path, ast in compilation_unit.asts.items():
-                parser.parse_top_level_from_loaded_json(ast, path)
-                self.add_source_code(path)
 
-            _update_file_scopes(compilation_unit_slither.scopes.values())
+            if compilation_unit_slither.is_vyper:
+                vyper_parser = VyperCompilationUnit(compilation_unit_slither)
+                for path, ast in compilation_unit.asts.items():
+                    ast_nodes = parse(ast["ast"])
+                    vyper_parser.parse_module(ast_nodes, path)
+                self._parsers.append(vyper_parser)
+            else:
+                # Solidity specific
+                assert compilation_unit_slither.is_solidity
+                sol_parser = SlitherCompilationUnitSolc(compilation_unit_slither)
+                self._parsers.append(sol_parser)
+                for path, ast in compilation_unit.asts.items():
+                    sol_parser.parse_top_level_items(ast, path)
+                    self.add_source_code(path)
+
+                _update_file_scopes(compilation_unit_slither.scopes.values())
 
         if kwargs.get("generate_patches", False):
             self.generate_patches = True
