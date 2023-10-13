@@ -4,7 +4,7 @@ from typing import Dict, List, Set, Tuple, NamedTuple, Union
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
-from slither.core.declarations import Enum, Function
+from slither.core.declarations import Enum, Function, Contract
 from slither.core.declarations.solidity_variables import (
     SolidityVariableComposed,
     SolidityFunction,
