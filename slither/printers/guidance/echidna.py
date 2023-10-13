@@ -125,18 +125,18 @@ def _extract_constant_functions(contracts) -> Dict[str, List[str]]:
     return ret
 
 
-def _extract_assert(slither: SlitherCore) -> Dict[str, Dict[str, List[Dict]]]:
+def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]]]:
     """
     Return the list of contract -> function name -> List(source mapping of the assert))
 
     Args:
-        slither:
+        contracts: list of contracts
 
     Returns:
 
     """
     ret: Dict[str, Dict[str, List[Dict]]] = {}
-    for contract in slither.contracts:
+    for contract in contracts:
         functions_using_assert: Dict[str, List[Dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
             for node in f.all_nodes():
