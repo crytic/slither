@@ -33,7 +33,7 @@ class IncorrectSolc(AbstractDetector):
     HELP = "Incorrect Solidity version"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
-
+    LANGUAGE = "solidity"
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity"
 
     WIKI_TITLE = "Incorrect versions of Solidity"

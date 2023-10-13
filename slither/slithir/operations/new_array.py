@@ -33,4 +33,4 @@ class NewArray(Call, OperationWithLValue):
     def __str__(self):
         args = [str(a) for a in self.arguments]
         lvalue = self.lvalue
-        return f"{lvalue}{lvalue.type})  = new {self.array_type}({','.join(args)})"
+        return f"{lvalue}({lvalue.type})  = new {self.array_type}({','.join(args)})"

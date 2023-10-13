@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.scope.scope import FileScope
     from slither.core.cfg.node import Node
+    from slither.core.solidity_types import TypeAliasContract
 
 
 LOGGER = logging.getLogger("Contract")
@@ -77,10 +78,13 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         # do not contain private variables inherited from contract
         self._variables: Dict[str, "StateVariable"] = {}
         self._variables_ordered: List["StateVariable"] = []
+        # Reference id -> variable declaration (only available for compact AST)
+        self._state_variables_by_ref_id: Dict[int, "StateVariable"] = {}
         self._modifiers: Dict[str, "Modifier"] = {}
         self._functions: Dict[str, "FunctionContract"] = {}
         self._linearizedBaseContracts: List[int] = []
         self._custom_errors: Dict[str, "CustomErrorContract"] = {}
+        self._type_aliases: Dict[str, "TypeAliasContract"] = {}
 
         # The only str is "*"
         self._using_for: Dict[USING_FOR_KEY, USING_FOR_ITEM] = {}
@@ -136,7 +140,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def id(self) -> int:
         """Unique id."""
-        assert self._id
+        assert self._id is not None
         return self._id
 
     @id.setter
@@ -367,9 +371,47 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     # endregion
     ###################################################################################
     ###################################################################################
+    # region Custom Errors
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def type_aliases(self) -> List["TypeAliasContract"]:
+        """
+        list(TypeAliasContract): List of the contract's custom errors
+        """
+        return list(self._type_aliases.values())
+
+    @property
+    def type_aliases_inherited(self) -> List["TypeAliasContract"]:
+        """
+        list(TypeAliasContract): List of the inherited custom errors
+        """
+        return [s for s in self.type_aliases if s.contract != self]
+
+    @property
+    def type_aliases_declared(self) -> List["TypeAliasContract"]:
+        """
+        list(TypeAliasContract): List of the custom errors declared within the contract (not inherited)
+        """
+        return [s for s in self.type_aliases if s.contract == self]
+
+    @property
+    def type_aliases_as_dict(self) -> Dict[str, "TypeAliasContract"]:
+        return self._type_aliases
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
     # region Variables
     ###################################################################################
     ###################################################################################
+    @property
+    def state_variables_by_ref_id(self) -> Dict[int, "StateVariable"]:
+        """
+        Returns the state variables by reference id (only available for compact AST).
+        """
+        return self._state_variables_by_ref_id
 
     @property
     def variables(self) -> List["StateVariable"]:
@@ -861,7 +903,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         Returns:
             StateVariable
         """
-        return next((v for v in self.state_variables if v.name == canonical_name), None)
+        return next((v for v in self.state_variables if v.canonical_name == canonical_name), None)
 
     def get_structure_from_name(self, structure_name: str) -> Optional["StructureContract"]:
         """

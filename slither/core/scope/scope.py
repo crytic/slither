@@ -52,7 +52,7 @@ class FileScope:
 
         # User defined types
         # Name -> type alias
-        self.user_defined_types: Dict[str, TypeAlias] = {}
+        self.type_aliases: Dict[str, TypeAlias] = {}
 
     def add_accesible_scopes(self) -> bool:
         """
@@ -95,8 +95,8 @@ class FileScope:
             if not _dict_contain(new_scope.renaming, self.renaming):
                 self.renaming.update(new_scope.renaming)
                 learn_something = True
-            if not _dict_contain(new_scope.user_defined_types, self.user_defined_types):
-                self.user_defined_types.update(new_scope.user_defined_types)
+            if not _dict_contain(new_scope.type_aliases, self.type_aliases):
+                self.type_aliases.update(new_scope.type_aliases)
                 learn_something = True
 
         return learn_something

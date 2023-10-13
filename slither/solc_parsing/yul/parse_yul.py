@@ -748,7 +748,7 @@ def parse_yul_function_call(root: YulScope, node: YulNode, ast: Dict) -> Optiona
 def _check_for_state_variable_name(root: YulScope, potential_name: str) -> Optional[Identifier]:
     root_function = root.function
     if isinstance(root_function, FunctionContract):
-        var = root_function.contract.get_state_variable_from_name(potential_name)
+        var = root_function.contract_declarer.get_state_variable_from_name(potential_name)
         if var:
             return Identifier(var)
     return None

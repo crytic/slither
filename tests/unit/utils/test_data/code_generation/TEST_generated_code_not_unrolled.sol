@@ -14,6 +14,9 @@ interface ITestContract {
     struct Nested {
         St st;
     }
+    struct Fee {
+        uint128 fee;
+    }
     function stateA() external returns (uint256);
     function owner() external returns (address);
     function structsMap(address,uint256) external returns (St memory);
@@ -26,5 +29,6 @@ interface ITestContract {
     function getSt(uint256) external view returns (St memory);
     function removeSt(St memory) external;
     function setOtherI(address) external;
+    function newFee(uint128) external returns (Fee memory);
 }
 
