@@ -404,7 +404,7 @@ class Echidna(AbstractPrinter):
             _filename(string)
         """
 
-        contracts = [c for c in self.slither.contracts if not is_test_contract(c)]
+        contracts = self.slither.contracts
 
         payable = _extract_payable(contracts)
         timestamp = _extract_solidity_variable_usage(
