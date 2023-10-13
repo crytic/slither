@@ -50,7 +50,9 @@ def _update_file_scopes(candidates: ValuesView[FileScope]):
         learned_something = False
 
 
-class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
+class Slither(
+    SlitherCore
+):  # pylint: disable=too-many-instance-attributes,too-many-locals,too-many-statements
     def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
         """
         Args:
