@@ -1,0 +1,5 @@
+Mark.oops(address) (tests/e2e/detectors/test_data/return-bomb/0.8.20/return_bomb.sol#31-55) tries to limit the gas of an external call that controls implicit decoding
+	ret1 = BadGuy(badGuy).fbad{gas: 2000}() (tests/e2e/detectors/test_data/return-bomb/0.8.20/return_bomb.sol#42)
+	(x,str) = BadGuy(badGuy).fbad1{gas: 2000}() (tests/e2e/detectors/test_data/return-bomb/0.8.20/return_bomb.sol#44)
+	(success,ret) = badGuy.call{gas: 10000}(abi.encodeWithSelector(BadGuy.llbad.selector)) (tests/e2e/detectors/test_data/return-bomb/0.8.20/return_bomb.sol#47-51)
+

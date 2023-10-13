@@ -1,0 +1,4 @@
+C.bad1() (tests/e2e/detectors/test_data/incorrect-return/0.8.10/incorrect_return.sol#21-24) calls C.indirect() (tests/e2e/detectors/test_data/incorrect-return/0.8.10/incorrect_return.sol#17-19) which halt the execution return(uint256,uint256)(5,6) (tests/e2e/detectors/test_data/incorrect-return/0.8.10/incorrect_return.sol#4)
+
+C.bad0() (tests/e2e/detectors/test_data/incorrect-return/0.8.10/incorrect_return.sol#8-11) calls C.internal_return() (tests/e2e/detectors/test_data/incorrect-return/0.8.10/incorrect_return.sol#2-6) which halt the execution return(uint256,uint256)(5,6) (tests/e2e/detectors/test_data/incorrect-return/0.8.10/incorrect_return.sol#4)
+

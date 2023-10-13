@@ -24,7 +24,7 @@ class NamingConvention(AbstractDetector):
     HELP = "Conformity to Solidity naming conventions"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
-
+    LANGUAGE = "solidity"
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions"
 
     WIKI_TITLE = "Conformance to Solidity naming conventions"
@@ -44,6 +44,14 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
     @staticmethod
     def is_cap_words(name: str) -> bool:
         return re.search("^[A-Z]([A-Za-z0-9]+)?_?$", name) is not None
+
+    @staticmethod
+    def is_immutable_naming(name: str) -> bool:
+        return re.search("^i_[a-z]([A-Za-z0-9]+)?_?$", name) is not None
+
+    @staticmethod
+    def is_state_naming(name: str) -> bool:
+        return re.search("^s_[a-z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
     def is_mixed_case(name: str) -> bool:
@@ -168,9 +176,16 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
 
                 else:
                     if var.visibility in ["private", "internal"]:
-                        correct_naming = self.is_mixed_case_with_underscore(var.name)
+                        correct_naming = self.is_mixed_case_with_underscore(
+                            var.name
+                        ) or self.is_state_naming(var.name)
+
+                        if not correct_naming and var.is_immutable:
+                            correct_naming = self.is_immutable_naming(var.name)
+
                     else:
                         correct_naming = self.is_mixed_case(var.name)
+
                     if not correct_naming:
                         info = ["Variable ", var, " is not in mixedCase\n"]
 

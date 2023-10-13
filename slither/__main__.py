@@ -79,6 +79,11 @@ def process_single(
         ast = "--ast-json"
     slither = Slither(target, ast_format=ast, **vars(args))
 
+    if args.sarif_input:
+        slither.sarif_input = args.sarif_input
+    if args.sarif_triage:
+        slither.sarif_triage = args.sarif_triage
+
     return _process(slither, detector_classes, printer_classes)
 
 
@@ -442,7 +447,7 @@ def parse_args(
 
     group_checklist.add_argument(
         "--checklist-limit",
-        help="Limite the number of results per detector in the markdown file",
+        help="Limit the number of results per detector in the markdown file",
         action="store",
         default="",
     )
@@ -467,6 +472,20 @@ def parse_args(
         help='Export the results as a SARIF JSON file ("--sarif -" to export to stdout)',
         action="store",
         default=defaults_flag_in_config["sarif"],
+    )
+
+    group_misc.add_argument(
+        "--sarif-input",
+        help="Sarif input (beta)",
+        action="store",
+        default=defaults_flag_in_config["sarif_input"],
+    )
+
+    group_misc.add_argument(
+        "--sarif-triage",
+        help="Sarif triage (beta)",
+        action="store",
+        default=defaults_flag_in_config["sarif_triage"],
     )
 
     group_misc.add_argument(
@@ -869,12 +888,6 @@ def main_impl(
         logging.error(red("Error:"))
         logging.error(red(output_error))
         logging.error("Please report an issue to https://github.com/crytic/slither/issues")
-
-    except Exception:  # pylint: disable=broad-except
-        output_error = traceback.format_exc()
-        traceback.print_exc()
-        logging.error(f"Error in {args.filename}")  # pylint: disable=logging-fstring-interpolation
-        logging.error(output_error)
 
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
