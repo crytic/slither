@@ -17,7 +17,7 @@ class CacheArrayLength(AbstractDetector):
     ARGUMENT = "cache-array-length"
     HELP = (
         "Detects `for` loops that use `length` member of some storage array in their loop condition and don't "
-        "modify it. "
+        "modify it."
     )
     IMPACT = DetectorClassification.OPTIMIZATION
     CONFIDENCE = DetectorClassification.HIGH
