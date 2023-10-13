@@ -32,7 +32,6 @@ from slither.slithir.operations import (
 from slither.slithir.operations.binary import Binary
 from slither.slithir.variables import Constant, ReferenceVariable
 from slither.utils.output import Output
-from slither.utils.tests_pattern import is_test_contract
 from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
 
 
@@ -44,7 +43,7 @@ def _get_name(f: Union[Function, Variable]) -> str:
     return f.solidity_signature
 
 
-def _extract_payable(contracts) -> Dict[str, List[str]]:
+def _extract_payable(contracts: List[Contract]) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
     for contract in contracts:
         payable_functions = [_get_name(f) for f in contract.functions_entry_points if f.payable]
@@ -53,7 +52,9 @@ def _extract_payable(contracts) -> Dict[str, List[str]]:
     return ret
 
 
-def _extract_solidity_variable_usage(contracts, sol_var: SolidityVariable) -> Dict[str, List[str]]:
+def _extract_solidity_variable_usage(
+    contracts: List[Contract], sol_var: SolidityVariable
+) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
     for contract in contracts:
         functions_using_sol_var = []
@@ -113,7 +114,7 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
     return True
 
 
-def _extract_constant_functions(contracts) -> Dict[str, List[str]]:
+def _extract_constant_functions(contracts: List[Contract]) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
     for contract in contracts:
         cst_functions = [_get_name(f) for f in contract.functions_entry_points if _is_constant(f)]
@@ -237,7 +238,7 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
 
 
 def _extract_constants(
-    contracts,
+    contracts: List[Contract],
 ) -> Tuple[Dict[str, Dict[str, List]], Dict[str, Dict[str, Dict]]]:
     # contract -> function -> [ {"value": value, "type": type} ]
     ret_cst_used: Dict[str, Dict[str, List[ConstantValue]]] = defaultdict(dict)
@@ -269,7 +270,7 @@ def _extract_constants(
 
 
 def _extract_function_relations(
-    contracts,
+    contracts: List[Contract],
 ) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
     # contract -> function -> [functions]
     ret: Dict[str, Dict[str, Dict[str, List[str]]]] = defaultdict(dict)
@@ -297,7 +298,7 @@ def _extract_function_relations(
     return ret
 
 
-def _have_external_calls(contracts) -> Dict[str, List[str]]:
+def _have_external_calls(contracts: List[Contract]) -> Dict[str, List[str]]:
     """
     Detect the functions with external calls
     :param slither:
@@ -313,7 +314,7 @@ def _have_external_calls(contracts) -> Dict[str, List[str]]:
     return ret
 
 
-def _use_balance(contracts) -> Dict[str, List[str]]:
+def _use_balance(contracts: List[Contract]) -> Dict[str, List[str]]:
     """
     Detect the functions with external calls
     :param slither:
@@ -332,7 +333,7 @@ def _use_balance(contracts) -> Dict[str, List[str]]:
     return ret
 
 
-def _with_fallback(contracts) -> Set[str]:
+def _with_fallback(contracts: List[Contract]) -> Set[str]:
     ret: Set[str] = set()
     for contract in contracts:
         for function in contract.functions_entry_points:
@@ -341,7 +342,7 @@ def _with_fallback(contracts) -> Set[str]:
     return ret
 
 
-def _with_receive(contracts) -> Set[str]:
+def _with_receive(contracts: List[Contract]) -> Set[str]:
     ret: Set[str] = set()
     for contract in contracts:
         for function in contract.functions_entry_points:
@@ -350,7 +351,7 @@ def _with_receive(contracts) -> Set[str]:
     return ret
 
 
-def _call_a_parameter(slither: SlitherCore, contracts) -> Dict[str, List[Dict]]:
+def _call_a_parameter(slither: SlitherCore, contracts: List[Contract]) -> Dict[str, List[Dict]]:
     """
     Detect the functions with external calls
     :param slither:
