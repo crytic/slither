@@ -14,7 +14,7 @@ from slither.core.declarations import (
     Enum,
     SolidityImportPlaceHolder,
     Import,
-    Structure
+    Structure,
 )
 from slither.core.expressions import (
     AssignmentOperation,
@@ -639,8 +639,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, scope.enums[elem])
             return True
 
-        if elem in scope.user_defined_types:
-            set_val(expression, scope.user_defined_types[elem])
+        if elem in scope.type_aliases:
+            set_val(expression, scope.type_aliases[elem])
             return True
 
         for import_directive in scope.imports:
