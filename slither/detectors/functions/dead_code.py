@@ -25,7 +25,7 @@ class DeadCode(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code"
 
     WIKI_TITLE = "Dead-code"
-    WIKI_DESCRIPTION = "Functions that are not sued."
+    WIKI_DESCRIPTION = "Functions that are not used."
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
