@@ -184,6 +184,7 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
             self._function.is_implemented = True
             self._function.is_empty = False
             self._parse_cfg(body)
+            self._update_reachability(self._function.entry_point)
         else:
             self._function.is_implemented = False
             self._function.is_empty = True
@@ -243,6 +244,12 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
     # region Parsing function
     ###################################################################################
     ###################################################################################
+    def _update_reachability(self, node: Node) -> None:
+        if node.is_reachable:
+            return
+        node.set_is_reachable(True)
+        for son in node.sons:
+            self._update_reachability(son)
 
     # pylint: disable=too-many-branches,too-many-statements,protected-access,too-many-locals
     def _parse_cfg(self, cfg: List[ASTNode]) -> None:
