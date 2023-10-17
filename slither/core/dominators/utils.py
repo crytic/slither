@@ -15,11 +15,11 @@ def intersection_predecessor(node: "Node") -> Set["Node"]:
         ret = ret.intersection(pred.dominators)
     if not any(father.is_reachable for father in node.fathers):
         return set()
-    
+
     ret = set()
     for pred in node.fathers:
         ret = ret.union(pred.dominators)
-    
+
     for pred in node.fathers:
         if pred.is_reachable:
             ret = ret.intersection(pred.dominators)
