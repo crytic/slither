@@ -73,14 +73,14 @@ If you're **not** going to use one of the [supported compilation frameworks](htt
 ### Using Pip
 
 ```console
-pip3 install slither-analyzer
+python3 -m pip install slither-analyzer
 ```
 
 ### Using Git
 
 ```bash
 git clone https://github.com/crytic/slither.git && cd slither
-python3 setup.py install
+python3 -m pip install .
 ```
 
 We recommend using a Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
