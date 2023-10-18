@@ -10,20 +10,19 @@ def intersection_predecessor(node: "Node") -> Set["Node"]:
     if not node.fathers:
         return set()
 
-    # Revert PR1984
     ret = node.fathers[0].dominators
     for pred in node.fathers[1:]:
         ret = ret.intersection(pred.dominators)
-    # if not any(father.is_reachable for father in node.fathers):
-    #     return set()
-    #
-    # ret = set()
-    # for pred in node.fathers:
-    #     ret = ret.union(pred.dominators)
-    #
-    # for pred in node.fathers:
-    #     if pred.is_reachable:
-    #         ret = ret.intersection(pred.dominators)
+    if not any(father.is_reachable for father in node.fathers):
+        return set()
+
+    ret = set()
+    for pred in node.fathers:
+        ret = ret.union(pred.dominators)
+
+    for pred in node.fathers:
+        if pred.is_reachable:
+            ret = ret.intersection(pred.dominators)
     return ret
 
 
@@ -96,9 +95,8 @@ def compute_dominance_frontier(nodes: List["Node"]) -> None:
     for node in nodes:
         if len(node.fathers) >= 2:
             for father in node.fathers:
-                # Revert PR1984
-                # if not father.is_reachable:
-                #     continue
+                if not father.is_reachable:
+                    continue
                 runner = father
                 # Corner case: if there is a if without else
                 # we need to add update the conditional node

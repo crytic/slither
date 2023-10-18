@@ -1,4 +1,4 @@
-# [Slither, the smart contrat static analyzer](https://crytic.github.io/slither/slither.html)
+# [Slither, the smart contract static analyzer](https://crytic.github.io/slither/slither.html)
 
 <img src="https://raw.githubusercontent.com/crytic/slither/master/logo.png" alt="Slither Static Analysis Framework Logo" width="500" />
 
