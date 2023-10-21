@@ -48,6 +48,7 @@ from slither.utils.command_line import (
     JSON_OUTPUT_TYPES,
     DEFAULT_JSON_OUTPUT_TYPES,
     check_and_sanitize_markdown_root,
+    explain_wiki,
 )
 from slither.exceptions import SlitherException
 
@@ -278,46 +279,69 @@ def parse_filter_paths(args: argparse.Namespace) -> List[str]:
 def parse_args(
     detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
 ) -> argparse.Namespace:
-    usage = "slither target [flag]\n"
-    usage += "\ntarget can be:\n"
-    usage += "\t- file.sol // a Solidity file\n"
-    usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
-    usage += "\t- 0x.. // a contract on mainnet\n"
-    usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x[:-1] for x in SUPPORTED_NETWORK)}\n"
+    usage = "slither <command> [options]"
+    # usage += "\ntarget can be:\n"
+    # usage += "\t- file.sol // a Solidity file\n"
+    # usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
+    # usage += "\t- 0x.. // a contract on mainnet\n"
+    # usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x[:-1] for x in SUPPORTED_NETWORK)}\n"
 
-    parser = argparse.ArgumentParser(
-        description="For usage information, see https://github.com/crytic/slither/wiki/Usage",
+    global_parser = argparse.ArgumentParser(
+        description="For usage information, see https://github.com/crytic/slither/wiki/Usage",  # TODO this needs updating
         usage=usage,
     )
 
-    parser.add_argument("filename", help=argparse.SUPPRESS)
+    cryticparser.init(global_parser)
+    # Suppress help for crytic-compile unless --help-long is passed.
+    if "--help-long" not in sys.argv:
+        for group in global_parser._actions:
+            # Keep "slither [-h | --help".
+            if group.dest != "help":
+                group.help = argparse.SUPPRESS
 
-    cryticparser.init(parser)
-
-    parser.add_argument(
+    global_parser.add_argument(
+        "--help-long",
+        help="verbose help message for compilation options",
+        action="store_true",
+    )
+    global_parser.add_argument(
         "--version",
         help="displays the current version",
         version=require("slither-analyzer")[0].version,
         action="version",
     )
 
-    group_detector = parser.add_argument_group("Detectors")
-    group_printer = parser.add_argument_group("Printers")
-    group_checklist = parser.add_argument_group(
-        "Checklist (consider using https://github.com/crytic/slither-action)"
-    )
-    group_misc = parser.add_argument_group("Additional options")
-
-    group_detector.add_argument(
-        "--detect",
-        help="Comma-separated list of detectors, defaults to all, "
-        f"available detectors: {', '.join(d.ARGUMENT for d in detector_classes)}",
-        action="store",
-        dest="detectors_to_run",
-        default=defaults_flag_in_config["detectors_to_run"],
+    # create sub-parser
+    sub_parsers = global_parser.add_subparsers(
+        title="Commands", help="sub-command help", dest="subparser_name"
     )
 
-    group_printer.add_argument(
+    # group_detector = global_parser.add_argument_group("Detectors")
+    # group_printer = global_parser.add_argument_group("Printers")
+    # group_checklist = global_parser.add_argument_group(
+    #     "Checklist (consider using https://github.com/crytic/slither-action)"
+    # )
+    # group_misc = global_parser.add_argument_group("Additional options")
+    detector_parser = sub_parsers.add_parser(
+        "detect",
+        description="Find bugs and code quality issues.",
+        usage="slither detect <target>",
+        help="detectors help",
+    )
+
+    printers_parser = sub_parsers.add_parser(
+        "print",
+        description="Code summaries to aid understanding.",
+        usage="slither print <target>",
+        help="printers help",
+    )
+
+    # Put cfg and IR
+    debug_parser = sub_parsers.add_parser(
+        "debug", description="Developer tool.", usage="slither debug <target>", help="debug help"
+    )
+
+    printers_parser.add_argument(
         "--print",
         help="Comma-separated list of contract information printers, "
         f"available printers: {', '.join(d.ARGUMENT for d in printer_classes)}",
@@ -326,7 +350,7 @@ def parse_args(
         default=defaults_flag_in_config["printers_to_run"],
     )
 
-    group_detector.add_argument(
+    detector_parser.add_argument(
         "--list-detectors",
         help="List available detectors",
         action=ListDetectors,
@@ -334,65 +358,87 @@ def parse_args(
         default=False,
     )
 
-    group_printer.add_argument(
+    printers_parser.add_argument(
         "--list-printers",
         help="List available printers",
         action=ListPrinters,
         nargs=0,
         default=False,
     )
+    # TODO
+    # add `--explain`
+    detector_parser.add_argument(
+        "--explain",
+        help="Explain the detectors",
+        action=ExplainDetector,
+        nargs=1,
+        dest="explain",
+    )
 
-    group_detector.add_argument(
+    # TODO enum that lists all detectors if just slither detect is ran
+    # However, this is kind of noisy. Instead, can we try to detect nearby spellings?
+    # Maybe it should be `slither detect --list`?
+    detector_parser.add_argument(
+        "--detect",
+        help="Comma-separated list of detectors (default: all)",
+        # choices=[d.ARGUMENT for d in detector_classes],
+        action="store",
+        dest="detectors_to_run",
+        default=defaults_flag_in_config["detectors_to_run"],
+    )
+
+    detector_parser.add_argument(
         "--exclude",
         help="Comma-separated list of detectors that should be excluded",
         action="store",
+        # choices=[d.ARGUMENT for d in get_detectors_and_printers()[0]],
         dest="detectors_to_exclude",
         default=defaults_flag_in_config["detectors_to_exclude"],
     )
 
-    group_detector.add_argument(
+    detector_parser.add_argument(
         "--exclude-dependencies",
         help="Exclude results that are only related to dependencies",
         action="store_true",
         default=defaults_flag_in_config["exclude_dependencies"],
     )
 
-    group_detector.add_argument(
+    detector_parser.add_argument(
         "--exclude-optimization",
         help="Exclude optimization analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_optimization"],
     )
 
-    group_detector.add_argument(
+    detector_parser.add_argument(
         "--exclude-informational",
         help="Exclude informational impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_informational"],
     )
 
-    group_detector.add_argument(
+    detector_parser.add_argument(
         "--exclude-low",
         help="Exclude low impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_low"],
     )
 
-    group_detector.add_argument(
+    detector_parser.add_argument(
         "--exclude-medium",
         help="Exclude medium impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_medium"],
     )
 
-    group_detector.add_argument(
+    detector_parser.add_argument(
         "--exclude-high",
         help="Exclude high impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_high"],
     )
 
-    fail_on_group = group_detector.add_mutually_exclusive_group()
+    fail_on_group = detector_parser.add_mutually_exclusive_group()
     fail_on_group.add_argument(
         "--fail-pedantic",
         help="Fail if any findings are detected",
@@ -431,28 +477,28 @@ def parse_args(
     )
     fail_on_group.set_defaults(fail_on=FailOnLevel.PEDANTIC)
 
-    group_detector.add_argument(
+    detector_parser.add_argument(
         "--show-ignored-findings",
         help="Show all the findings",
         action="store_true",
         default=defaults_flag_in_config["show_ignored_findings"],
     )
 
-    group_checklist.add_argument(
+    detector_parser.add_argument(
         "--checklist",
         help="Generate a markdown page with the detector results",
         action="store_true",
         default=False,
     )
 
-    group_checklist.add_argument(
+    detector_parser.add_argument(
         "--checklist-limit",
         help="Limit the number of results per detector in the markdown file",
         action="store",
         default="",
     )
 
-    group_checklist.add_argument(
+    detector_parser.add_argument(
         "--markdown-root",
         type=check_and_sanitize_markdown_root,
         help="URL for markdown generation",
@@ -460,35 +506,36 @@ def parse_args(
         default="",
     )
 
-    group_misc.add_argument(
+    detector_parser.add_argument(
         "--json",
         help='Export the results as a JSON file ("--json -" to export to stdout)',
         action="store",
         default=defaults_flag_in_config["json"],
     )
 
-    group_misc.add_argument(
+    detector_parser.add_argument(
         "--sarif",
         help='Export the results as a SARIF JSON file ("--sarif -" to export to stdout)',
         action="store",
         default=defaults_flag_in_config["sarif"],
     )
 
-    group_misc.add_argument(
+    detector_parser.add_argument(
         "--sarif-input",
-        help="Sarif input (beta)",
+        help="Sarif input (beta)",  # TODO update help
         action="store",
         default=defaults_flag_in_config["sarif_input"],
     )
 
-    group_misc.add_argument(
+    detector_parser.add_argument(
         "--sarif-triage",
-        help="Sarif triage (beta)",
+        help="Sarif triage (beta)",  # TODO update help
         action="store",
         default=defaults_flag_in_config["sarif_triage"],
     )
 
-    group_misc.add_argument(
+    # TODO can we remove this?
+    detector_parser.add_argument(
         "--json-types",
         help="Comma-separated list of result types to output to JSON, defaults to "
         + f'{",".join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. '
@@ -497,36 +544,28 @@ def parse_args(
         default=defaults_flag_in_config["json-types"],
     )
 
-    group_misc.add_argument(
+    detector_parser.add_argument(
         "--zip",
         help="Export the results as a zipped JSON file",
         action="store",
         default=defaults_flag_in_config["zip"],
     )
 
-    group_misc.add_argument(
+    detector_parser.add_argument(
         "--zip-type",
         help=f'Zip compression type. One of {",".join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma',
         action="store",
         default=defaults_flag_in_config["zip_type"],
     )
 
-    group_misc.add_argument(
+    global_parser.add_argument(
         "--disable-color",
         help="Disable output colorization",
         action="store_true",
         default=defaults_flag_in_config["disable_color"],
     )
 
-    group_misc.add_argument(
-        "--filter-paths",
-        help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/)",
-        action="store",
-        dest="filter_paths",
-        default=defaults_flag_in_config["filter_paths"],
-    )
-
-    group_misc.add_argument(
+    detector_parser.add_argument(
         "--triage-mode",
         help="Run triage mode (save results in slither.db.json)",
         action="store_true",
@@ -534,55 +573,54 @@ def parse_args(
         default=False,
     )
 
-    group_misc.add_argument(
-        "--config-file",
-        help="Provide a config file (default: slither.config.json)",
-        action="store",
-        dest="config_file",
-        default=None,
-    )
-
-    group_misc.add_argument(
+    detector_parser.add_argument(
         "--change-line-prefix",
         help="Change the line prefix (default #) for the displayed source codes (i.e. file.sol#1).",
         action="store",
         dest="change_line_prefix",
-        default="#",
+        default="#",  # TODO change default to `:`
     )
 
-    group_misc.add_argument(
-        "--solc-ast",
-        help="Provide the contract as a json AST",
-        action="store_true",
-        default=False,
-    )
+    # TODO This can be removed as it's not used?
+    # detector_parser.add_argument(
+    #     "--solc-ast",
+    #     help="Provide the contract as a json AST",
+    #     action="store_true",
+    #     default=False,
+    # )
 
-    group_misc.add_argument(
+    # Delete?
+    detector_parser.add_argument(
         "--generate-patches",
         help="Generate patches (json output only)",
         action="store_true",
         default=False,
     )
 
-    group_misc.add_argument(
+    printers_parser.add_argument(
         "--no-fail",
         help="Do not fail in case of parsing (echidna mode only)",
         action="store_true",
         default=defaults_flag_in_config["no_fail"],
     )
 
-    codex.init_parser(parser)
+    codex.init_parser(sub_parsers)
 
-    # debugger command
-    parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
-
-    parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
-
-    parser.add_argument(
-        "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
+    # debugger command TODO this is not used?
+    global_parser.add_argument(
+        "--debug", help=argparse.SUPPRESS, action="store_true", default=False
     )
 
-    parser.add_argument(
+    global_parser.add_argument(
+        "--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False
+    )
+
+    # Remove and auto generate docsite
+    # global_parser.add_argument(
+    #     "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
+    # )
+
+    global_parser.add_argument(
         "--list-detectors-json",
         help=argparse.SUPPRESS,
         action=ListDetectorsJson,
@@ -590,21 +628,21 @@ def parse_args(
         default=False,
     )
 
-    parser.add_argument(
+    global_parser.add_argument(
         "--legacy-ast",
         help=argparse.SUPPRESS,
         action="store_true",
         default=defaults_flag_in_config["legacy_ast"],
     )
 
-    parser.add_argument(
+    global_parser.add_argument(
         "--skip-assembly",
         help=argparse.SUPPRESS,
         action="store_true",
         default=defaults_flag_in_config["skip_assembly"],
     )
 
-    parser.add_argument(
+    global_parser.add_argument(
         "--perf",
         help=argparse.SUPPRESS,
         action="store_true",
@@ -612,26 +650,52 @@ def parse_args(
     )
 
     # Disable the throw/catch on partial analyses
-    parser.add_argument(
+    global_parser.add_argument(
         "--disallow-partial", help=argparse.SUPPRESS, action="store_true", default=False
     )
 
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
+    if len(sys.argv) == 1 or "--help-long" in sys.argv:
+        global_parser.print_help(sys.stderr)
         sys.exit(1)
 
-    args = parser.parse_args()
+    # Global
+    global_parser.add_argument(
+        "--filter-paths",
+        help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/)",
+        action="store",
+        dest="filter_paths",
+        default=defaults_flag_in_config["filter_paths"],
+    )
+    global_parser.add_argument(
+        "--config-file",
+        help="Provide a config file (default: slither.config.json)",
+        action="store",
+        dest="config_file",
+        default=None,
+    )
+
+    global_parser.add_argument("filename", help=argparse.SUPPRESS)
+
+    args = global_parser.parse_args()
+
     read_config_file(args)
 
     args.filter_paths = parse_filter_paths(args)
 
-    # Verify our json-type output is valid
-    args.json_types = set(args.json_types.split(","))  # type:ignore
-    for json_type in args.json_types:
-        if json_type not in JSON_OUTPUT_TYPES:
-            raise Exception(f'Error: "{json_type}" is not a valid JSON result output type.')
+    # # Verify our json-type output is valid
+    # args.json_types = set(args.json_types.split(","))  # type:ignore
+    # for json_type in args.json_types:
+    #     if json_type not in JSON_OUTPUT_TYPES:
+    #         raise Exception(f'Error: "{json_type}" is not a valid JSON result output type.')
 
     return args
+
+
+class ExplainDetector(argparse.Action):  # pylint: disable=too-few-public-methods
+    def __call__(self, parser, namespace, values, option_string=None):
+        detectors, _ = get_detectors_and_printers()
+        explain_wiki(detectors, values[0])
+        parser.exit()
 
 
 class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -673,7 +737,7 @@ class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
         detectors, printers = get_detectors_and_printers()
         assert isinstance(values, str)
         output_to_markdown(detectors, printers, values)
-        parser.exit()
+        global_parser.exit()
 
 
 class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
@@ -687,7 +751,7 @@ class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
         detectors, _ = get_detectors_and_printers()
         assert isinstance(values, str)
         output_wiki(detectors, values)
-        parser.exit()
+        global_parser.exit()
 
 
 # endregion
@@ -748,25 +812,32 @@ def main_impl(
     # Set colorization option
     set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
 
-    # Define some variables for potential JSON output
-    json_results: Dict[str, Any] = {}
-    output_error = None
-    outputting_json = args.json is not None
-    outputting_json_stdout = args.json == "-"
-    outputting_sarif = args.sarif is not None
-    outputting_sarif_stdout = args.sarif == "-"
-    outputting_zip = args.zip is not None
-    if args.zip_type not in ZIP_TYPES_ACCEPTED:
-        to_log = f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
-        logger.error(to_log)
+    detector_classes = []
+    printer_classes = []
+    if args.subparser_name == "detect":
+        # Define some variables for potential JSON output
+        json_results: Dict[str, Any] = {}
+        output_error = None
+        outputting_json = args.json is not None
+        outputting_json_stdout = args.json == "-"
+        outputting_sarif = args.sarif is not None
+        outputting_sarif_stdout = args.sarif == "-"
+        outputting_zip = args.zip is not None
+        if args.zip_type not in ZIP_TYPES_ACCEPTED:
+            to_log = (
+                f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
+            )
+            logger.error(to_log)
 
-    # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
-    # output.
-    if outputting_json or outputting_sarif:
-        StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
+        # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
+        # output.
+        if outputting_json or outputting_sarif:
+            StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
 
-    printer_classes = choose_printers(args, all_printer_classes)
-    detector_classes = choose_detectors(args, all_detector_classes)
+        detector_classes = choose_detectors(args, all_detector_classes)
+
+    elif args.subparser_name == "print":
+        printer_classes = choose_printers(args, all_printer_classes)
 
     default_log = logging.INFO if not args.debug else logging.DEBUG
 
@@ -802,29 +873,30 @@ def main_impl(
     try:
         filename = args.filename
 
+        # TODO this does not work anymore?
         # Determine if we are handling ast from solc
-        if args.solc_ast or (filename.endswith(".json") and not is_supported(filename)):
-            globbed_filenames = glob.glob(filename, recursive=True)
-            filenames = glob.glob(os.path.join(filename, "*.json"))
-            if not filenames:
-                filenames = globbed_filenames
-            number_contracts = 0
+        # if args.solc_ast or (filename.endswith(".json") and not is_supported(filename)):
+        #     globbed_filenames = glob.glob(filename, recursive=True)
+        #     filenames = glob.glob(os.path.join(filename, "*.json"))
+        #     if not filenames:
+        #         filenames = globbed_filenames
+        #     number_contracts = 0
 
-            slither_instances = []
-            for filename in filenames:
-                (
-                    slither_instance,
-                    results_detectors_tmp,
-                    results_printers_tmp,
-                    number_contracts_tmp,
-                ) = process_single(filename, args, detector_classes, printer_classes)
-                number_contracts += number_contracts_tmp
-                results_detectors += results_detectors_tmp
-                results_printers += results_printers_tmp
-                slither_instances.append(slither_instance)
+        #     slither_instances = []
+        #     for filename in filenames:
+        #         (
+        #             slither_instance,
+        #             results_detectors_tmp,
+        #             results_printers_tmp,
+        #             number_contracts_tmp,
+        #         ) = process_single(filename, args, detector_classes, printer_classes)
+        #         number_contracts += number_contracts_tmp
+        #         results_detectors += results_detectors_tmp
+        #         results_printers += results_printers_tmp
+        #         slither_instances.append(slither_instance)
 
         # Rely on CryticCompile to discern the underlying type of compilations.
-        else:
+        if True:
             (
                 slither_instances,
                 results_detectors,
@@ -887,7 +959,9 @@ def main_impl(
         traceback.print_exc()
         logging.error(red("Error:"))
         logging.error(red(output_error))
-        logging.error("Please report an issue to https://github.com/crytic/slither/issues")
+        logging.error(
+            "Please run the command with `--disallow-partial` and report an issue to https://github.com/crytic/slither/issues."
+        )
 
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
