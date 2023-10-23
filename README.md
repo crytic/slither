@@ -46,7 +46,7 @@
 * Correctly parses 99.9% of all public Solidity code
 * Average execution time of less than 1 second per contract
 * Integrates with Github's code scanning in [CI](https://github.com/marketplace/actions/slither-action)
-* Support for Vyper
+* Support for Vyper smart contracts
 
 ## Usage
 
