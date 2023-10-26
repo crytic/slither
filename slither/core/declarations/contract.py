@@ -1337,8 +1337,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def is_upgradeable(self) -> bool:
         if self._is_upgradeable is None:
             self._is_upgradeable = False
-            if self.is_upgradeable_proxy:
-                return False
             initializable = self.file_scope.get_contract_from_name("Initializable")
             if initializable:
                 if initializable in self.inheritance:
