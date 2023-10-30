@@ -46,7 +46,7 @@
 * Correctly parses 99.9% of all public Solidity code
 * Average execution time of less than 1 second per contract
 * Integrates with Github's code scanning in [CI](https://github.com/marketplace/actions/slither-action)
-* Support for Vyper
+* Support for Vyper smart contracts
 
 ## Usage
 
@@ -73,14 +73,14 @@ If you're **not** going to use one of the [supported compilation frameworks](htt
 ### Using Pip
 
 ```console
-pip3 install slither-analyzer
+python3 -m pip install slither-analyzer
 ```
 
 ### Using Git
 
 ```bash
 git clone https://github.com/crytic/slither.git && cd slither
-python3 setup.py install
+python3 -m pip install .
 ```
 
 We recommend using a Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
