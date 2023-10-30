@@ -49,6 +49,7 @@ def _whitelisted_modifiers(f: Function) -> bool:
     #  https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/3dec82093ea4a490d63aab3e925fed4f692909e8/contracts/proxy/utils/UUPSUpgradeable.sol#L38-L42
     return "onlyProxy" not in [modifier.name for modifier in f.modifiers]
 
+
 def _initialize_functions(contract: Contract) -> List[Function]:
     return list(
         filter(
