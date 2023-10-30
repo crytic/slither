@@ -1106,14 +1106,13 @@ class FunctionSolc(CallerContextExpression):
         return node
 
     def _update_reachability(self, node: Node) -> None:
-        if node.is_reachable:
-            return
         worklist = [node]
         while worklist:
             current = worklist.pop()
-            current.set_is_reachable(True)
-            worklist.extend(current.sons)
-
+            # fix point
+            if not current.is_reachable:
+                current.set_is_reachable(True)
+                worklist.extend(current.sons)
 
     def _parse_cfg(self, cfg: Dict) -> None:
 
