@@ -114,6 +114,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "_abi_encode()": [],
     "slice()": [],
     "uint2str()": ["string"],
+    "send()": [],
 }
 
 
