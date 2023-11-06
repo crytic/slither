@@ -269,6 +269,8 @@ class SlitherCore(Context):
                     self._compute_offsets_from_thing(event)
             for enum in compilation_unit.enums_top_level:
                 self._compute_offsets_from_thing(enum)
+            for event in compilation_unit.events_top_level:
+                self._compute_offsets_from_thing(event)
             for function in compilation_unit.functions_top_level:
                 self._compute_offsets_from_thing(function)
             for st in compilation_unit.structures_top_level:

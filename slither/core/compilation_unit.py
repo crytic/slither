@@ -16,6 +16,7 @@ from slither.core.declarations import (
 )
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
@@ -57,6 +58,7 @@ class SlitherCompilationUnit(Context):
         self.contracts: List[Contract] = []
         self._structures_top_level: List[StructureTopLevel] = []
         self._enums_top_level: List[EnumTopLevel] = []
+        self._events_top_level: List[EventTopLevel] = []
         self._variables_top_level: List[TopLevelVariable] = []
         self._functions_top_level: List[FunctionTopLevel] = []
         self._using_for_top_level: List[UsingForTopLevel] = []
@@ -233,6 +235,10 @@ class SlitherCompilationUnit(Context):
     @property
     def enums_top_level(self) -> List[EnumTopLevel]:
         return self._enums_top_level
+
+    @property
+    def events_top_level(self) -> List[EventTopLevel]:
+        return self._events_top_level
 
     @property
     def variables_top_level(self) -> List[TopLevelVariable]:
