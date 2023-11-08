@@ -32,17 +32,16 @@ class MyDetector(AbstractDetector):
         """
         oracles = []
         for contract in contracts:
-            if "Oracle" in contract.name:
-                for function in contract.functions:
-                    if function.is_constructor:
-                        continue
-                    for var in function.state_variables_read:
-                        # print(var.name)
-                        # print(var.type)
-                        # print(type(var.type))
-                        # print("------------------")
-                        if (str(var.type) == "AggregatorV3Interface") and self.check_latestRoundData(function):
-                            oracles.append(Oracle(contract, function, var)) 
+            for function in contract.functions:
+                if function.is_constructor:
+                    continue
+                for var in function.state_variables_read:
+                    # print(var.name)
+                    # print(var.type)
+                    # print(type(var.type))
+                    # print("------------------")
+                    if (str(var.type) == "AggregatorV3Interface") and self.check_latestRoundData(function):
+                        oracles.append(Oracle(contract, function, var)) 
             # print(f.nodes)
         return oracles
 
@@ -50,13 +49,15 @@ class MyDetector(AbstractDetector):
         for functionCalled in function.high_level_calls: # Returns tuple (first contract, second function)
             if str(functionCalled[1].name) == "latestRoundData":
                 return True
+        return False
 
     def checks_for_timestamp(self, contract : Contract, function: FunctionContract) -> bool:
         """
         Detects timestamp usage
         """
         for var in function.variables_written:
-            if ("timestamp" in str(var.name)):
+            
+            if ("timestamp" in str(var.name)): #TODO add lowercasing
                 if function.is_reading_in_conditional_node(var) or function.is_reading_in_require_or_assert(var):
                     return True
         return False
