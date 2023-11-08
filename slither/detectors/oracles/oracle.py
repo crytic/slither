@@ -3,10 +3,11 @@ from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 
 class Oracle:
-    def __init__(self, _contract, _function, _var):
+    def __init__(self, _contract, _function, _interface_var, _line_of_call):
         self.contract = _contract
         self.function = _function
-        self.var = _var
+        self.interface_var = _interface_var
+        self.line_of_call = _line_of_call # can be get by node.source_mapping.lines[0]
 
 class MyDetector(AbstractDetector):
     """
@@ -35,39 +36,49 @@ class MyDetector(AbstractDetector):
             for function in contract.functions:
                 if function.is_constructor:
                     continue
+                found_latest_round,name_interface, line = self.latestRoundData(function)
                 for var in function.state_variables_read:
                     # print(var.name)
                     # print(var.type)
                     # print(type(var.type))
                     # print("------------------")
-                    if (str(var.type) == "AggregatorV3Interface") and self.check_latestRoundData(function):
-                        oracles.append(Oracle(contract, function, var)) 
+                    if (str(var.name) == str(name_interface)) and found_latest_round:
+                        oracles.append(Oracle(contract, function, var, line))
+                    # if (str(var.type) == "AggregatorV3Interface") and self.check_latestRoundData(function):
+                    #     oracles.append(Oracle(contract, function, var)) 
             # print(f.nodes)
         return oracles
 
-    def check_latestRoundData(self, function: FunctionContract) -> bool:
-        for functionCalled in function.high_level_calls: # Returns tuple (first contract, second function)
-            if str(functionCalled[1].name) == "latestRoundData":
-                return True
-        return False
+    def latestRoundData(self, function: FunctionContract) -> (bool, str,  int):
+        for functionCalled in function.external_calls_as_expressions: # Returns tuple (first contract, second function)
+            if ("latestRoundData" in str(functionCalled)):
+                return (True, str(functionCalled).split(".")[0],  functionCalled.source_mapping.lines[0]) # The external call is in format contract.function, so we split it and get the contract name
+        return (False, "", 0)
+    
+    def get_returned_variables_from_oracle(self, function: FunctionContract, oracle_call_line) -> list:
+        returned_vars = []
+        for var in function.variables_written:
+            if var.source_mapping.lines[0] == oracle_call_line:
+                returned_vars.append(var)
+        return returned_vars
 
-    def checks_for_timestamp(self, contract : Contract, function: FunctionContract) -> bool:
+    def checks_if_vars_in_condition(self, contract : Contract, function: FunctionContract, oracle_vars) -> bool:
         """
         Detects timestamp usage
         """
-        for var in function.variables_written:
-            
-            if ("timestamp" in str(var.name)): #TODO add lowercasing
-                if function.is_reading_in_conditional_node(var) or function.is_reading_in_require_or_assert(var):
+        for var in oracle_vars:
+              if function.is_reading_in_conditional_node(var) or function.is_reading_in_require_or_assert(var):
                     return True
-        return False
+              else:
+                return False
         
     def _detect(self):
         info = []
         oracles = self.chainlink_oracles(self.contracts)
         for oracle in oracles:
-            if(not self.checks_for_timestamp(oracle.contract, oracle.function)):
-                rep = "Oracle {} in contract {} does not check timestamp\n".format(oracle.function.name, oracle.contract.name)
+            oracle_vars = self.get_returned_variables_from_oracle(oracle.function, oracle.line_of_call)
+            if(not self.checks_if_vars_in_condition(oracle.contract, oracle.function, oracle_vars)):
+                rep = "Oracle {} in contract {} does not check the value of var\n".format(oracle.function.name, oracle.contract.name)
                 info.append(rep)
         res = self.generate_result(info)
 
