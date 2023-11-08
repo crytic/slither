@@ -64,7 +64,7 @@ class MyDetector(AbstractDetector):
 
     def checks_if_vars_in_condition(self, contract : Contract, function: FunctionContract, oracle_vars) -> bool:
         """
-        Detects timestamp usage
+        Detects if vars from oracles are in some condition
         """
         for var in oracle_vars:
               if function.is_reading_in_conditional_node(var) or function.is_reading_in_require_or_assert(var):
