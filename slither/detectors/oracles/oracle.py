@@ -8,6 +8,8 @@ class Oracle:
         self.function = _function
         self.interface_var = _interface_var
         self.line_of_call = _line_of_call # can be get by node.source_mapping.lines[0]
+        self.vars_in_condition = []
+        self.vars_not_in_condition = []
 
 class MyDetector(AbstractDetector):
     """
@@ -62,23 +64,27 @@ class MyDetector(AbstractDetector):
                 returned_vars.append(var)
         return returned_vars
 
-    def checks_if_vars_in_condition(self, contract : Contract, function: FunctionContract, oracle_vars) -> bool:
+    def checks_if_vars_in_condition(self, oracle: Oracle,  contract : Contract, function: FunctionContract, oracle_vars) -> bool:
         """
         Detects if vars from oracles are in some condition
         """
+        oracle.vars_in_condition = []
+        oracle.vars_not_in_condition = []
         for var in oracle_vars:
               if function.is_reading_in_conditional_node(var) or function.is_reading_in_require_or_assert(var):
-                    return True
+                    oracle.vars_in_condition.append(var)
               else:
-                return False
+                    oracle.vars_not_in_condition.append(var)
+
+                    
         
     def _detect(self):
         info = []
         oracles = self.chainlink_oracles(self.contracts)
         for oracle in oracles:
             oracle_vars = self.get_returned_variables_from_oracle(oracle.function, oracle.line_of_call)
-            if(not self.checks_if_vars_in_condition(oracle.contract, oracle.function, oracle_vars)):
-                rep = "Oracle {} in contract {} does not check the value of var\n".format(oracle.function.name, oracle.contract.name)
+            if(not self.checks_if_vars_in_condition(oracle, oracle.contract, oracle.function, oracle_vars)):
+                rep = "In contract {} a function {} uses oracle {} where the values of vars {} are not checked \n".format(oracle.contract.name, oracle.function.name, oracle.interface_var, [var.name for var in oracle.vars_not_in_condition] )
                 info.append(rep)
         res = self.generate_result(info)
 
