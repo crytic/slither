@@ -1,7 +1,7 @@
 from functools import partial
 import platform
 import sys
-
+import os
 
 class Colors:  # pylint: disable=too-few-public-methods
     COLORIZATION_ENABLED = True
@@ -77,6 +77,8 @@ def set_colorization_enabled(enabled: bool) -> None:
     else:
         # This is not windows, or colorization is being disabled, so we can adjust the state immediately.
         Colors.COLORIZATION_ENABLED = enabled
+        os.environ['DISABLE_MY_PRETTY_TABLE_COLOR'] = "false" if enabled else "true"
+
 
 
 green = partial(colorize, Colors.GREEN)

@@ -1,9 +1,10 @@
 from typing import List, Dict, Union
 
 from prettytable.colortable import ColorTable, Themes
-
+import os
 
 class MyPrettyTable:
+    
     def __init__(self, field_names: List[str], pretty_align: bool = True):  # TODO: True by default?
         self._field_names = field_names
         self._rows: List = []
@@ -15,12 +16,16 @@ class MyPrettyTable:
                 self._options["set_alignment"] += [(field_name, "r")]
         else:
             self._options["set_alignment"] = []
+        if os.getenv("DISABLE_MY_PRETTY_TABLE_COLOR")=="true": 
+            self.theme = Themes.DEFAULT 
+        else:
+            self.theme = Themes.OCEAN # keep ocean theme by default.
 
     def add_row(self, row: List[Union[str, List[str]]]) -> None:
         self._rows.append(row)
 
     def to_pretty_table(self) -> ColorTable:
-        table = ColorTable(self._field_names, theme=Themes.OCEAN)
+        table = ColorTable(self._field_names, theme=self.theme)
         for row in self._rows:
             table.add_row(row)
         if len(self._options["set_alignment"]):
