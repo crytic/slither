@@ -7,6 +7,7 @@ import argparse
 from crytic_compile import cryticparser
 
 from slither import Slither
+from slither.exceptions import SlitherError
 from slither.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo
 
 
@@ -129,6 +130,8 @@ def main() -> None:
 
     if args.contract_name:
         contracts = slither.get_contract_from_name(args.contract_name)
+        if len(contracts) == 0:
+            raise SlitherError(f"Contract {args.contract_name} not found.")
     else:
         contracts = slither.contracts
 
