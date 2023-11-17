@@ -274,6 +274,22 @@ If you have a `node_modules/` folder, it must be in the same directory as `contr
 run the compilation command for the framework you are using e.g `npx hardhat compile`. That must work successfully;
 otherwise, slither's compilation engine, crytic-compile, cannot generate the AST.
 
+* If `node_modules/` is not in your `contracts/` directory of your project, you will need to involve **remappings**. If a project has dependencies like OpenZeppelin or Chainlink, but you want to run Slither on a single `.sol` file or use [slither's tools](https://github.com/crytic/slither#tools) like `slither-check-erc`, you can add the `--solc-remaps @=node_modules/@` flag and/or configure `slither.config.json` in your project's root with the remapping. If `slither.config.json` remappings are setup the flag is no longer needed unless using [slither's tools](https://github.com/crytic/slither#tools). Foundry projects also require remappings if you want to analyze a specific `.sol` file that requires imports. Read more here: [Foundry Static Analysis Docs](https://book.getfoundry.sh/config/static-analyzers).
+
+slither.config.json:
+```json
+{
+    "solc_remaps": "@=node_modules/@"
+}
+```
+Explicit examples using hardhat:
+```bash
+slither contracts/MemeCoin.sol --solc-remaps @=node_modules/@
+```
+```bash
+slither-check-erc contracts/MemeCoin.sol MemeCoin --solc-remaps @=node_modules/@
+```
+
 ## License
 
 Slither is licensed and distributed under the AGPLv3 license. [Contact us](mailto:opensource@trailofbits.com) if you're looking for an exception to the terms.
