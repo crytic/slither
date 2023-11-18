@@ -77,6 +77,7 @@ def main() -> None:
     state_change = args.state_change
 
     for contract in slither.contracts:
+        
         if contract.name == contract_name:
             # get all contracts for target contract, drop interfaces
             contracts_inherited = [
@@ -90,8 +91,10 @@ def main() -> None:
                 print(
                     "contract.name == contract_name, function in contracts_inherited", function.name
                 )
+            
+            break
 
-        else:
+        if not contract_name:
             for function in contract.functions:
                 print("contract.name != contract_name", function.name)
 
