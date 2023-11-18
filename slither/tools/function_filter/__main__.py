@@ -5,7 +5,7 @@ from argparse import ArgumentParser, Namespace
 from crytic_compile import cryticparser
 from slither import Slither
 from slither.core.declarations import Function
-from slither.utils.colors import green, bold, blue
+from slither.utils.colors import green, blue, red, bold
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-function-filter")
@@ -51,6 +51,10 @@ def parse_args() -> Namespace:
     parser.add_argument(
         "--state-change", action="store_true", help="If set, filter functions that change state."
     )
+    
+    parser.add_argument(
+        "--read-only", action="store_true", help="If set, filter functions that do not change state."
+    )
 
     cryticparser.init(parser)
 
@@ -79,7 +83,12 @@ def filter_function(function: Function, args) -> bool:
 
     # Check if function potentially changes state
     if args.state_change:
-        if not function._view or not function._pure:
+        if function._view or function._pure:
+            return False
+        
+    # Check if function is read-only
+    if args.read_only:
+        if not (function._view or function._pure):
             return False
 
     # If none of the conditions have returned False, the function matches all provided criteria
@@ -147,7 +156,7 @@ def main() -> None:
             logger.info(blue(f"External Calls: {external_calls}"))
             logger.info(blue(f"Cyclomatic Complexity: {cyclomatic_complexity}\n"))
     else:
-        logger.info("No results found.")
+        logger.info(red("No functions matching flags found."))
 
 
 if __name__ == "__main__":
