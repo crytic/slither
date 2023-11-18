@@ -47,66 +47,102 @@ def parse_args() -> Namespace:
         help="If set, filter functions that make internal calls.",
     )
 
-    parser.add_argument(
-        "--state-change", action="store_true", help="If set, filter functions that change state."
-    )
+    # parser.add_argument(
+    #     "--state-change", action="store_true", help="If set, filter functions that change state."
+    # )
 
     cryticparser.init(parser)
 
     return parser.parse_args()
 
 
+def filter_function(function: Function, args) -> dict[str, str]:
+    summary = function.get_summary()
+
+    data = {
+        "contract_name": summary[0],
+        "function_sig": summary[1],
+        "visibility": summary[2],
+        "modifiers": summary[3],
+        "vars_read": summary[4],
+        "vars_written": summary[5],
+        "internal_calls": summary[6],
+        "external_calls": summary[7],
+        "cyclomatic_complexity": summary[8],
+        "flags" : []
+        # "flags": {
+        #     "visibility": False,
+        #     "modifiers": False,
+        #     "ext-calls": False,
+        #     "int-calls": False,
+        # },
+    }
+
+    # Check visibility
+    if args.visibility and function.visibility != args.visibility:
+        data["flags"].append(True)
+        # data["flags"]["visibility"] = True
+
+    # Check for modifiers
+    if args.modifiers:
+        if data["modifiers"] is not None:
+            data["flags"]["modifiers"] = True
+
+    # Check for external calls
+    if args.ext_calls:
+        if data["external_calls"] is not None:
+            data["flags"]["ext-calls"] = True
+
+    # Check for internal calls
+    if args.int_calls:
+        if data["internal_calls"] is not None:
+            data["flags"]["int-calls"] = True
+
+
 def main() -> None:
-    # ------------------------------
-    # FunctionSummarySelection.py
-    #       Usage: python3 function_summary_selection.py filename [options]
-    #       Example: python3 function_summary_selection.py contract.sol ----
-    # ------------------------------
     args = parse_args()
 
     # Perform slither analysis on the given filename
-    # args's empty
     slither = Slither(args.filename, **vars(args))
 
     # Access the arguments
     contract_name = args.contract_name
-    visibility = args.visibility
-    modifiers = args.modifiers
-    ext_calls = args.ext_calls
-    int_calls = args.int_calls
-    state_change = args.state_change
+    # Store list
+    args_list = [args.visibility, args.modifiers, args.ext_calls, args.int_calls]
+    filter_results = []
 
     for contract in slither.contracts:
-        
+        # Scan only target contract's functions (declared and inherited)
         if contract.name == contract_name:
-            # get all contracts for target contract, drop interfaces
+            # Find directly inherited contracts
             contracts_inherited = [
                 parent for parent in contract.immediate_inheritance if not parent.is_interface
             ]
 
+            # Iterate declared functions
             for function in contract.functions:
-                print("contract.name == contract_name, contract.functions", function.name)
+                # data = function_matches_criteria(function, args)
+                filter_results.append(filter_function(function, args))
 
+            # Iterate inherited functions
             for function in contracts_inherited:
-                print(
-                    "contract.name == contract_name, function in contracts_inherited", function.name
-                )
-            
-            break
+                filter_results.append(filter_function(function, args))
 
+        # Scan everything if no target contract is specified
         if not contract_name:
             for function in contract.functions:
-                print("contract.name != contract_name", function.name)
+                filter_results.append(filter_function(function, args))
 
-    # # Extract function summaries based on selected options
-    # function_summaries = summarize_functions(slither, args.options if args.options else range(1, 8))
-
-    # # Output the function summaries
-    # for function_summary in function_summaries:
-    #     print(green(function_summary))
-
-    print("\n")
-
+    for target in filter_results[:]:
+        # Check if any of the flags is False and its corresponding arg is set
+        if (args.visibility and not target["flags"]["visibility"]) or \
+           (args.modifiers and not target["flags"]["modifiers"]) or \
+           (args.ext_calls and not target["flags"]["ext-calls"]) or \
+           (args.int_calls and not target["flags"]["int-calls"]):
+            filter_results.remove(target)
+    
+    print(filter_results)
+    
 
 if __name__ == "__main__":
     main()
