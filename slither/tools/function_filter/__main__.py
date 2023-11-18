@@ -55,49 +55,28 @@ def parse_args() -> Namespace:
 
     return parser.parse_args()
 
-
-def filter_function(function: Function, args) -> dict[str, str]:
-    summary = function.get_summary()
-
-    data = {
-        "contract_name": summary[0],
-        "function_sig": summary[1],
-        "visibility": summary[2],
-        "modifiers": summary[3],
-        "vars_read": summary[4],
-        "vars_written": summary[5],
-        "internal_calls": summary[6],
-        "external_calls": summary[7],
-        "cyclomatic_complexity": summary[8],
-        "flags" : []
-        # "flags": {
-        #     "visibility": False,
-        #     "modifiers": False,
-        #     "ext-calls": False,
-        #     "int-calls": False,
-        # },
-    }
-
+def filter_function(function: Function, args) -> bool:
     # Check visibility
     if args.visibility and function.visibility != args.visibility:
-        data["flags"].append(True)
-        # data["flags"]["visibility"] = True
+        return False
 
     # Check for modifiers
     if args.modifiers:
-        if data["modifiers"] is not None:
-            data["flags"]["modifiers"] = True
+        if not function.modifiers():
+            return False
 
     # Check for external calls
     if args.ext_calls:
-        if data["external_calls"] is not None:
-            data["flags"]["ext-calls"] = True
+        if not function.high_level_calls():
+            return False
 
     # Check for internal calls
     if args.int_calls:
-        if data["internal_calls"] is not None:
-            data["flags"]["int-calls"] = True
+        if not function.internal_calls():
+            return False
 
+    # If none of the conditions have returned False, the function matches all provided criteria
+    return True
 
 def main() -> None:
     args = parse_args()
@@ -108,7 +87,6 @@ def main() -> None:
     # Access the arguments
     contract_name = args.contract_name
     # Store list
-    args_list = [args.visibility, args.modifiers, args.ext_calls, args.int_calls]
     filter_results = []
 
     for contract in slither.contracts:
@@ -121,27 +99,26 @@ def main() -> None:
 
             # Iterate declared functions
             for function in contract.functions:
-                # data = function_matches_criteria(function, args)
-                filter_results.append(filter_function(function, args))
+                if filter_function(function, args):
+                    filter_results.append(function.get_summary())
 
             # Iterate inherited functions
-            for function in contracts_inherited:
-                filter_results.append(filter_function(function, args))
+            for contracts in contracts_inherited:
+                for function in contracts.functions:
+                    if filter_function(function, args):
+                        filter_results.append(function.get_summary())
 
         # Scan everything if no target contract is specified
         if not contract_name:
             for function in contract.functions:
-                filter_results.append(filter_function(function, args))
-
-    for target in filter_results[:]:
-        # Check if any of the flags is False and its corresponding arg is set
-        if (args.visibility and not target["flags"]["visibility"]) or \
-           (args.modifiers and not target["flags"]["modifiers"]) or \
-           (args.ext_calls and not target["flags"]["ext-calls"]) or \
-           (args.int_calls and not target["flags"]["int-calls"]):
-            filter_results.remove(target)
+                if filter_function(function, args):
+                    filter_results.append(function.get_summary())
     
-    print(filter_results)
+    if filter_results:
+        for result in filter_results:
+            print(result)
+    else:
+        print("No results found.")
     
 
 if __name__ == "__main__":
