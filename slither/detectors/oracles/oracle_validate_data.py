@@ -34,25 +34,6 @@ class OracleDataCheck(OracleDetector):
 
  
 
-
-    def check_conditions_enough(self, oracle: Oracle) -> bool:
-        checks_not_enough = []
-        for var in oracle.vars_in_condition:
-            for node in oracle.function.nodes:
-                if node.is_conditional() and self.check_var_condition_match(var, node):
-                    # print(node.slithir_generation)
-                    self.check_condition(node)
-                    # for ir in node.irs:
-                    #     if isinstance(ir, Binary):
-                    #         print(ir.type)
-                    #         print(ir.variable_left)
-                    #         print(ir.variable_right)
-                    # print("-----------")
-
-        return checks_not_enough
-
-
-        return False
     def check_staleness(self, var: VarInCondition):
         for node in var.nodes:
             str_node = str(node)
@@ -75,8 +56,14 @@ class OracleDataCheck(OracleDetector):
         for node in var.nodes:
             for ir in node.irs:
                 if isinstance(ir, Binary):
-                    if ir.type in (BinaryType.GREATER, BinaryType.NOT_EQUAL):
+                    if ir.type in (BinaryType.GREATER):
                         if (ir.variable_right.value == 0):
+                            return True
+                    elif ir.type in (BinaryType.LESS):
+                        if (ir.variable_left.value == 0):
+                            return True
+                    elif ir.type in (BinaryType.NOT_EQUAL):
+                        if (ir.variable_left.value == 0 or ir.variable_right.value == 0):
                             return True
                         
 
