@@ -3,7 +3,14 @@ from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import expression
 from slither.slithir.operations import Binary, BinaryType
+from enum import Enum
 
+class OracleVarType(Enum):
+    ROUNDID = 0
+    ANSWER = 1
+    STARTEDAT = 2
+    UPDATEDAT = 3
+    ANSWEREDINROUND = 4
 
 class Oracle:
     def __init__(self, _contract, _function, _interface_var, _line_of_call):
@@ -13,14 +20,14 @@ class Oracle:
         self.line_of_call = _line_of_call  # can be get by node.source_mapping.lines[0]
         self.vars_in_condition = []
         self.vars_not_in_condition = []
-        self.possible_variables_names = [
-            "price",
-            "timestamp",
-            "updatedAt",
-            "answer",
-            "roundID",
-            "startedAt",
-        ]
+        # self.possible_variables_names = [
+        #     "price",
+        #     "timestamp",
+        #     "updatedAt",
+        #     "answer",
+        #     "roundID",
+        #     "startedAt",
+        # ]
 
 
 class MyDetector(AbstractDetector):
@@ -67,6 +74,47 @@ class MyDetector(AbstractDetector):
                     #     oracles.append(Oracle(contract, function, var))
             # print(f.nodes)
         return oracles
+    
+    def check_condition(self, node) -> bool:
+        for ir in node.irs:
+            if isinstance(ir, Binary):
+                if ir.type in (BinaryType.LESS, BinaryType.LESS_EQUAL):  # require(block.timestamp - updatedAt < b)
+                    if node.contains_require_or_assert():
+                        return
+                    elif (
+                        node.contains_conditional()
+                    ):  # (if block.timestamp - updatedAt > b) then fail
+                        return
+                elif ir.type in (BinaryType.GREATER, BinaryType.GREATER_EQUAL):
+                    pass
+
+        return False
+    
+    def check_staleness(self, var, function: FunctionContract):
+        pass
+    def check_price(self, var, function: FunctionContract):
+        pass
+
+    def naive_check(self, ordered_returned_vars):
+        checks = {}
+        for i in range(0,len(ordered_returned_vars)):
+            if i == OracleVarType.ROUNDID.value:
+                pass
+            elif i == OracleVarType.ANSWER.value:
+                pass
+            elif i == OracleVarType.STARTEDAT.value:
+                pass
+            elif i == OracleVarType.UPDATEDAT.value:
+                checks[3] = self.check_staleness(ordered_returned_vars[i])
+            else:
+                pass
+            
+    #          require(
+    #       answeredInRound >= roundID,
+    #       "Chainlink Price Stale"
+    #   );
+    #   require(price > 0, "Chainlink Malfunction");
+    #   require(updateTime != 0, "Incomplete round");
 
     def compare_chainlink_call(self, function: expression) -> bool:
         for call in self.ORACLE_CALLS:
@@ -154,20 +202,7 @@ class MyDetector(AbstractDetector):
                 return True
         return False
 
-    def check_condition(self, node) -> bool:
-        for ir in node.irs:
-            if isinstance(ir, Binary):
-                if ir.type in (BinaryType.LESS, BinaryType.LESS_EQUAL):  # require(block.timestamp - updatedAt < b)
-                    if node.contains_require_or_assert():
-                        return
-                    elif (
-                        node.contains_conditional()
-                    ):  # (if block.timestamp - updatedAt > b) then fail
-                        return
-                elif ir.type in (BinaryType.GREATER, BinaryType.GREATER_EQUAL):
-                    pass
 
-        return False
 
     def check_conditions_enough(self, oracle: Oracle) -> bool:
         checks_not_enough = []
