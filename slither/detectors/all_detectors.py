@@ -100,4 +100,4 @@ from .statements.return_bomb import ReturnBomb
 
 # my detector
 
-from .oracles.oracle import MyDetector
+from .oracles.oracle_validate_data import OracleDataCheck

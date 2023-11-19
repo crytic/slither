@@ -18,6 +18,7 @@ class Oracle:
         self.function = _function
         self.interface_var = _interface_var
         self.line_of_call = _line_of_call  # can be get by node.source_mapping.lines[0]
+        self.oracle_vars = []
         self.vars_in_condition = []
         self.vars_not_in_condition = []
         # self.possible_variables_names = [
@@ -29,8 +30,12 @@ class Oracle:
         #     "startedAt",
         # ]
 
+class VarInCondition():
+    def __init__(self, _var, _nodes):
+        self.var = _var
+        self.node = _nodes
 
-class MyDetector(AbstractDetector):
+class OracleDetector(AbstractDetector):
     """
     Documentation
     """
@@ -75,47 +80,6 @@ class MyDetector(AbstractDetector):
             # print(f.nodes)
         return oracles
     
-    def check_condition(self, node) -> bool:
-        for ir in node.irs:
-            if isinstance(ir, Binary):
-                if ir.type in (BinaryType.LESS, BinaryType.LESS_EQUAL):  # require(block.timestamp - updatedAt < b)
-                    if node.contains_require_or_assert():
-                        return
-                    elif (
-                        node.contains_conditional()
-                    ):  # (if block.timestamp - updatedAt > b) then fail
-                        return
-                elif ir.type in (BinaryType.GREATER, BinaryType.GREATER_EQUAL):
-                    pass
-
-        return False
-    
-    def check_staleness(self, var, function: FunctionContract):
-        pass
-    def check_price(self, var, function: FunctionContract):
-        pass
-
-    def naive_check(self, ordered_returned_vars):
-        checks = {}
-        for i in range(0,len(ordered_returned_vars)):
-            if i == OracleVarType.ROUNDID.value:
-                pass
-            elif i == OracleVarType.ANSWER.value:
-                pass
-            elif i == OracleVarType.STARTEDAT.value:
-                pass
-            elif i == OracleVarType.UPDATEDAT.value:
-                checks[3] = self.check_staleness(ordered_returned_vars[i])
-            else:
-                pass
-            
-    #          require(
-    #       answeredInRound >= roundID,
-    #       "Chainlink Price Stale"
-    #   );
-    #   require(price > 0, "Chainlink Malfunction");
-    #   require(updateTime != 0, "Incomplete round");
-
     def compare_chainlink_call(self, function: expression) -> bool:
         for call in self.ORACLE_CALLS:
             if call in str(function):
@@ -146,6 +110,50 @@ class MyDetector(AbstractDetector):
             ):  # We need to match line of var with line of oracle call
                 returned_vars.append(var)
         return returned_vars
+    
+    def check_var_condition_match(self, var, node) -> bool:
+        for (
+            var2
+        ) in (
+            node.variables_read
+        ):  # This iterates through all variables which are read in node, what means that they are used in condition
+            if var.name == var2.name:
+                return True
+        return False
+
+    
+    def map_condition_to_var(self, var, function: FunctionContract):
+        nodes = []
+        for node in function.nodes:
+            if node.is_conditional() and self.check_var_condition_match(var, node):
+                nodes.append(node)
+        return nodes
+
+    def vars_in_conditions(self, oracle: Oracle, oracle_vars) -> bool:
+        """
+        Detects if vars from oracles are in some condition
+        """
+        vars_in_condition = []
+        vars_not_in_condition = []
+
+        for var in oracle_vars:
+            if oracle.function.is_reading_in_conditional_node(
+                var
+            ) or oracle.function.is_reading_in_require_or_assert(
+                var
+            ):  # These two functions check if within the function some var is in require/assert of in if statement
+                nodes = self.map_condition_to_var(var, oracle.function)
+                # if len(nodes) > 0:
+                #     vars_in_condition.append(VarInCondition(var, nodes))
+            else:
+                if self.investigate_internal_call(oracle.function, var): #TODO i need to chnge this to check for taint analysis somehow
+                    vars_in_condition.append(var)
+                else:
+                    vars_not_in_condition.append(var)
+        oracle.vars_in_condition = vars_in_condition
+        oracle.vars_not_in_condition = vars_not_in_condition
+
+
 
     def investigate_internal_call(self, function: FunctionContract, var) -> bool:
         if function is None:
@@ -165,79 +173,30 @@ class MyDetector(AbstractDetector):
                     return True
         return False
 
-    def check_vars(self, oracle: Oracle, oracle_vars) -> bool:
-        """
-        Detects if vars from oracles are in some condition
-        """
-        vars_in_condition = []
-        vars_not_in_condition = []
-
-        for var in oracle_vars:
-            if oracle.function.is_reading_in_conditional_node(
-                var
-            ) or oracle.function.is_reading_in_require_or_assert(
-                var
-            ):  # These two functions check if within the function some var is in require/assert of in if statement
-                vars_in_condition.append(var)
-            else:
-                if self.investigate_internal_call(oracle.function, var):
-                    vars_in_condition.append(var)
-                else:
-                    vars_not_in_condition.append(var)
-        oracle.vars_in_condition = vars_in_condition
-        oracle.vars_not_in_condition = vars_not_in_condition
-        if (
-            len(oracle.vars_not_in_condition) > 0
-        ):  # If there are some vars which are not in condition, we return false, to indicate that there is a problem
-            return False
-        return True
-
-    def check_var_condition_match(self, var, node) -> bool:
-        for (
-            var2
-        ) in (
-            node.variables_read
-        ):  # This iterates through all variables which are read in node, what means that they are used in condition
-            if var.name == var2.name:
-                return True
-        return False
-
-
-
-    def check_conditions_enough(self, oracle: Oracle) -> bool:
-        checks_not_enough = []
-        for var in oracle.vars_in_condition:
-            for node in oracle.function.nodes:
-                if node.is_conditional() and self.check_var_condition_match(var, node):
-                    # print(node.slithir_generation)
-                    self.check_condition(node)
-                    # for ir in node.irs:
-                    #     if isinstance(ir, Binary):
-                    #         print(ir.type)
-                    #         print(ir.variable_left)
-                    #         print(ir.variable_right)
-                    # print("-----------")
-
-        return checks_not_enough
-
     def _detect(self):
         info = []
-        oracles = self.chainlink_oracles(self.contracts)
-        for oracle in oracles:
-            oracle_vars = self.get_returned_variables_from_oracle(
+        self.oracles = self.chainlink_oracles(self.contracts)
+        for oracle in self.oracles:
+            oracle.oracle_vars = self.get_returned_variables_from_oracle(
                 oracle.function, oracle.line_of_call
             )
-            if not self.check_vars(oracle, oracle_vars):
-                rep = "In contract {} a function {} uses oracle {} where the values of vars {} are not checked \n".format(
-                    oracle.contract.name,
-                    oracle.function.name,
-                    oracle.interface_var,
-                    [var.name for var in oracle.vars_not_in_condition],
-                )
-                info.append(rep)
-            if len(oracle.vars_in_condition) > 0:
-                for var in self.check_conditions_enough(oracle):
-                    info.append("Problem with {}", var.name)
-        res = self.generate_result(info)
+            self.vars_in_conditions(oracle, oracle.oracle_vars)
 
-        return [res]
+        # for oracle in oracles:
+        #     oracle_vars = self.get_returned_variables_from_oracle(
+        #         oracle.function, oracle.line_of_call
+        #     )
+        #     if not self.check_vars(oracle, oracle_vars):
+        #         rep = "In contract {} a function {} uses oracle {} where the values of vars {} are not checked \n".format(
+        #             oracle.contract.name,
+        #             oracle.function.name,
+        #             oracle.interface_var,
+        #             [var.name for var in oracle.vars_not_in_condition],
+        #         )
+        #         info.append(rep)
+        #     if len(oracle.vars_in_condition) > 0:
+        #         for var in self.check_conditions_enough(oracle):
+        #             info.append("Problem with {}", var.name)
+        # res = self.generate_result(info)
+
+        return []
