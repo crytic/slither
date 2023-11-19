@@ -37,6 +37,7 @@ class OracleDataCheck(OracleDetector):
     def check_staleness(self, var: VarInCondition):
         for node in var.nodes:
             str_node = str(node)
+            print(str_node)
             if "block.timestamp" in str_node: #TODO maybe try something like block.timestamp - updatedAt < b
                 return True
                     
@@ -52,17 +53,31 @@ class OracleDataCheck(OracleDetector):
             #             pass
         return False
     
-    def check_price(self, var: VarInCondition):
+
+    def check_RoundId(self, var: VarInCondition, var2: VarInCondition): # https://solodit.xyz/issues/chainlink-oracle-return-values-are-not-handled-property-halborn-savvy-defi-pdf
         for node in var.nodes:
             for ir in node.irs:
                 if isinstance(ir, Binary):
-                    if ir.type in (BinaryType.GREATER):
+                    if ir.type in (BinaryType.GREATER, BinaryType.GREATER_EQUAL):
+                        if ir.variable_right == var.var and ir.variable_left == var2.var:
+                            return True
+                    elif ir.type in (BinaryType.LESS, BinaryType.LESS_EQUAL):
+                        if (ir.variable_right == var2.var and ir.variable_left == var.var):
+                            return True
+                       
+        return False
+    
+    def check_price(self, var: VarInCondition): #TODO I need to divie require or IF
+        for node in var.nodes:
+            for ir in node.irs:
+                if isinstance(ir, Binary):
+                    if ir.type is (BinaryType.GREATER):
                         if (ir.variable_right.value == 0):
                             return True
-                    elif ir.type in (BinaryType.LESS):
+                    elif ir.type is (BinaryType.LESS):
                         if (ir.variable_left.value == 0):
                             return True
-                    elif ir.type in (BinaryType.NOT_EQUAL):
+                    elif ir.type is (BinaryType.NOT_EQUAL):
                         if (ir.variable_left.value == 0 or ir.variable_right.value == 0):
                             return True
                         
@@ -70,28 +85,30 @@ class OracleDataCheck(OracleDetector):
         return False
 
     def naive_check(self, ordered_returned_vars):
+        print([var.var.name for var in ordered_returned_vars])
         checks = {}
         for i in range(0,5):
             checks[i] = False
         for i in range(0,len(ordered_returned_vars)):
             if i == OracleVarType.ROUNDID.value:
-                pass
+                checks[0] = self.check_RoundId(ordered_returned_vars[i], ordered_returned_vars[-1])
             elif i == OracleVarType.ANSWER.value:
                 checks[1] = self.check_price(ordered_returned_vars[i])
-            elif i == OracleVarType.STARTEDAT.value:
-                pass
             elif i == OracleVarType.UPDATEDAT.value:
                 checks[3] = self.check_staleness(ordered_returned_vars[i])
-            else:
-                pass
+                print(checks[3])
+
         return checks
 
     def process_checks(self,checks):
         result = []
-        if checks[1] == False:
-            result.append("Price is not checked well!\n")
-        if checks[3] == False:
-            result.append("The price could be probably stale\n")
+        for check in checks:
+            if check[1] == False:
+                result.append("Price is not checked well!\n")
+            if check[3] == False:
+                result.append("The price could be probably stale!\n")
+            if check[0] == False:
+                result.append("RoundID is not checked well!\n")
         return result
             
     #          require(
@@ -102,11 +119,13 @@ class OracleDataCheck(OracleDetector):
     #   require(updateTime != 0, "Incomplete round");
 
     def process_checked_vars(self):
+        checks = []
         for oracle in self.oracles:
             return_vars_num = len(oracle.oracle_vars)
             if return_vars_num >=4:
-                checks = self.naive_check(oracle.oracle_vars)
+                checks.append(self.naive_check(oracle.oracle_vars))
         return self.process_checks(checks)
+    
     def process_not_checked_vars(self):
         result = []
         for oracle in self.oracles:

@@ -91,7 +91,6 @@ class OracleDetector(AbstractDetector):
                 var.source_mapping.lines[0] == oracle_call_line
             ):  # We need to match line of var with line of oracle call
                 written_vars.append(var)
-        
         for node in function.nodes:
             for var in written_vars:
                 if node.type is NodeType.VARIABLE and node.variable_declaration == var:
