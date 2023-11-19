@@ -4,9 +4,16 @@ from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import expression
 from slither.slithir.operations import Binary, BinaryType
 from enum import Enum
-from slither.detectors.oracles.oracle import OracleDetector, OracleVarType, Oracle
+from slither.detectors.oracles.oracle import OracleDetector, Oracle, VarInCondition
 from slither.detectors.operations.unused_return_values import UnusedReturnValues
 
+
+class OracleVarType(Enum):
+    ROUNDID = 0
+    ANSWER = 1
+    STARTEDAT = 2
+    UPDATEDAT = 3
+    ANSWEREDINROUND = 4
 
 class OracleDataCheck(OracleDetector):
     """
@@ -44,24 +51,37 @@ class OracleDataCheck(OracleDetector):
 
         return checks_not_enough
 
-    def check_condition(self, node) -> bool:
-        for ir in node.irs:
-            if isinstance(ir, Binary):
-                if ir.type in (BinaryType.LESS, BinaryType.LESS_EQUAL):  # require(block.timestamp - updatedAt < b)
-                    if node.contains_require_or_assert():
-                        return
-                    elif (
-                        node.contains_conditional()
-                    ):  # (if block.timestamp - updatedAt > b) then fail
-                        return
-                elif ir.type in (BinaryType.GREATER, BinaryType.GREATER_EQUAL):
-                    pass
 
         return False
-    def check_staleness(self, var, function: FunctionContract):
-        pass
-    def check_price(self, var, function: FunctionContract):
-        pass
+    def check_staleness(self, var: VarInCondition):
+        for node in var.nodes:
+            str_node = str(node)
+            if "block.timestamp" in str_node: #TODO maybe try something like block.timestamp - updatedAt < b
+                return True
+                    
+
+            # for ir in node.irs:
+            #     if isinstance(ir, Binary):
+            #         if ir.type in (BinaryType.LESS, BinaryType.LESS_EQUAL):
+            #             if node.contains_require_or_assert():
+            #                 pass
+            #             elif node.contains_conditional():
+            #                 pass
+            #         elif ir.type in (BinaryType.GREATER, BinaryType.GREATER_EQUAL):
+            #             pass
+        return False
+    
+    def check_price(self, var: VarInCondition):
+        for node in var.nodes:
+            for ir in node.irs:
+                if isinstance(ir, Binary):
+                    if ir.type in (BinaryType.GREATER, BinaryType.NOT_EQUAL):
+                        print(ir.variable_right)
+                        if (ir.variable_right.value == 0):
+                            return True
+                        
+
+        return False
 
     def naive_check(self, ordered_returned_vars):
         checks = {}
@@ -69,7 +89,8 @@ class OracleDataCheck(OracleDetector):
             if i == OracleVarType.ROUNDID.value:
                 pass
             elif i == OracleVarType.ANSWER.value:
-                pass
+                checks[1] = self.check_price(ordered_returned_vars[i])
+                print(checks[1])
             elif i == OracleVarType.STARTEDAT.value:
                 pass
             elif i == OracleVarType.UPDATEDAT.value:
@@ -107,6 +128,7 @@ class OracleDataCheck(OracleDetector):
         results = []
         super()._detect()
         not_checked_vars = self.process_not_checked_vars()
+        self.process_checked_vars()
         res = self.generate_result(not_checked_vars)
         results.append(res)
         return results

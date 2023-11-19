@@ -1,16 +1,11 @@
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.declarations.contract import Contract
+from slither.core.cfg.node import NodeType
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import expression
 from slither.slithir.operations import Binary, BinaryType
 from enum import Enum
 
-class OracleVarType(Enum):
-    ROUNDID = 0
-    ANSWER = 1
-    STARTEDAT = 2
-    UPDATEDAT = 3
-    ANSWEREDINROUND = 4
 
 class Oracle:
     def __init__(self, _contract, _function, _interface_var, _line_of_call):
@@ -33,24 +28,10 @@ class Oracle:
 class VarInCondition():
     def __init__(self, _var, _nodes):
         self.var = _var
-        self.node = _nodes
+        self.nodes = _nodes
 
 class OracleDetector(AbstractDetector):
-    """
-    Documentation
-    """
-
-    ARGUMENT = "mydetector"  # slither will launch the detector with slither.py --detect mydetector
-    HELP = "Help printed by slither"
-    IMPACT = DetectorClassification.HIGH
-    CONFIDENCE = DetectorClassification.HIGH
-
-    WIKI = "RUN"
-
-    WIKI_TITLE = "asda"
-    WIKI_DESCRIPTION = "asdsad"
-    WIKI_EXPLOIT_SCENARIO = "asdsad"
-    WIKI_RECOMMENDATION = "asdsad"
+ 
     # https://github.com/crytic/slither/wiki/Python-API
     # def detect_stale_price(Function):
     ORACLE_CALLS = [
@@ -99,7 +80,8 @@ class OracleDetector(AbstractDetector):
     def get_returned_variables_from_oracle(
         self, function: FunctionContract, oracle_call_line
     ) -> list:
-        returned_vars = []
+        written_vars = []
+        ordered_vars = []
         for (
             var
         ) in (
@@ -108,8 +90,15 @@ class OracleDetector(AbstractDetector):
             if (
                 var.source_mapping.lines[0] == oracle_call_line
             ):  # We need to match line of var with line of oracle call
-                returned_vars.append(var)
-        return returned_vars
+                written_vars.append(var)
+        
+        for node in function.nodes:
+            for var in written_vars:
+                if node.type is NodeType.VARIABLE and node.variable_declaration == var:
+                    if ordered_vars.count(var) == 0:
+                        ordered_vars.append(var)
+                        break
+        return ordered_vars
     
     def check_var_condition_match(self, var, node) -> bool:
         for (
@@ -129,29 +118,33 @@ class OracleDetector(AbstractDetector):
                 nodes.append(node)
         return nodes
 
-    def vars_in_conditions(self, oracle: Oracle, oracle_vars) -> bool:
+    def vars_in_conditions(self, oracle: Oracle) -> bool:
         """
         Detects if vars from oracles are in some condition
         """
         vars_in_condition = []
         vars_not_in_condition = []
+        oracle_vars = []
 
-        for var in oracle_vars:
+        for var in oracle.oracle_vars:
             if oracle.function.is_reading_in_conditional_node(
                 var
             ) or oracle.function.is_reading_in_require_or_assert(
                 var
             ):  # These two functions check if within the function some var is in require/assert of in if statement
                 nodes = self.map_condition_to_var(var, oracle.function)
-                # if len(nodes) > 0:
-                #     vars_in_condition.append(VarInCondition(var, nodes))
+                if len(nodes) > 0:
+                    vars_in_condition.append(VarInCondition(var, nodes))
+                    oracle_vars.append(VarInCondition(var, nodes))
             else:
+                oracle_vars.append(var)
                 if self.investigate_internal_call(oracle.function, var): #TODO i need to chnge this to check for taint analysis somehow
                     vars_in_condition.append(var)
                 else:
                     vars_not_in_condition.append(var)
         oracle.vars_in_condition = vars_in_condition
         oracle.vars_not_in_condition = vars_not_in_condition
+        oracle.oracle_vars = oracle_vars
 
 
 
@@ -180,7 +173,7 @@ class OracleDetector(AbstractDetector):
             oracle.oracle_vars = self.get_returned_variables_from_oracle(
                 oracle.function, oracle.line_of_call
             )
-            self.vars_in_conditions(oracle, oracle.oracle_vars)
+            self.vars_in_conditions(oracle)
 
         # for oracle in oracles:
         #     oracle_vars = self.get_returned_variables_from_oracle(
