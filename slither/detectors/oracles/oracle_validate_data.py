@@ -76,7 +76,6 @@ class OracleDataCheck(OracleDetector):
             for ir in node.irs:
                 if isinstance(ir, Binary):
                     if ir.type in (BinaryType.GREATER, BinaryType.NOT_EQUAL):
-                        print(ir.variable_right)
                         if (ir.variable_right.value == 0):
                             return True
                         
@@ -85,18 +84,28 @@ class OracleDataCheck(OracleDetector):
 
     def naive_check(self, ordered_returned_vars):
         checks = {}
+        for i in range(0,5):
+            checks[i] = False
         for i in range(0,len(ordered_returned_vars)):
             if i == OracleVarType.ROUNDID.value:
                 pass
             elif i == OracleVarType.ANSWER.value:
                 checks[1] = self.check_price(ordered_returned_vars[i])
-                print(checks[1])
             elif i == OracleVarType.STARTEDAT.value:
                 pass
             elif i == OracleVarType.UPDATEDAT.value:
                 checks[3] = self.check_staleness(ordered_returned_vars[i])
             else:
                 pass
+        return checks
+
+    def process_checks(self,checks):
+        result = []
+        if checks[1] == False:
+            result.append("Price is not checked well!\n")
+        if checks[3] == False:
+            result.append("The price could be probably stale\n")
+        return result
             
     #          require(
     #       answeredInRound >= roundID,
@@ -106,11 +115,11 @@ class OracleDataCheck(OracleDetector):
     #   require(updateTime != 0, "Incomplete round");
 
     def process_checked_vars(self):
-        result = []
         for oracle in self.oracles:
             return_vars_num = len(oracle.oracle_vars)
             if return_vars_num >=4:
-                self.naive_check(oracle.oracle_vars)
+                checks = self.naive_check(oracle.oracle_vars)
+        return self.process_checks(checks)
     def process_not_checked_vars(self):
         result = []
         for oracle in self.oracles:
@@ -130,5 +139,7 @@ class OracleDataCheck(OracleDetector):
         not_checked_vars = self.process_not_checked_vars()
         self.process_checked_vars()
         res = self.generate_result(not_checked_vars)
+        results.append(res)
+        res = self.generate_result(self.process_checked_vars())
         results.append(res)
         return results
