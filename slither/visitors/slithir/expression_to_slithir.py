@@ -588,9 +588,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
             # contract A { type MyInt is int}
             # contract B { function f() public{ A.MyInt test = A.MyInt.wrap(1);}}
             # The logic is handled by _post_call_expression
-            if expression.member_name in expr.file_scope.type_aliases:
-                set_val(expression, expr.file_scope.type_aliases[expression.member_name])
-                return
+            for sc in expr.file_scope.type_aliases.values():
+                if expression.member_name in sc:
+                    set_val(expression, sc[expression.member_name])
+                    return
             # Lookup errors referred to as member of contract e.g. Test.myError.selector
             if expression.member_name in expr.custom_errors_as_dict:
                 set_val(expression, expr.custom_errors_as_dict[expression.member_name])

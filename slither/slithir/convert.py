@@ -1717,7 +1717,7 @@ def convert_type_of_high_and_internal_level_call(
                     imported_scope = contract.compilation_unit.get_scope(import_statement.filename)
                     candidates += [
                         f
-                        for f in list(imported_scope.functions)
+                        for f in [f for sc in imported_scope.functions.values() for f in sc.values()]
                         if f.name == ir.function_name and len(f.parameters) == len(ir.arguments)
                     ]
 

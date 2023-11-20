@@ -80,6 +80,7 @@ def _find_variable_from_ref_declaration(
         if contract_candidate and contract_candidate.id == referenced_declaration:
             return contract_candidate
     for function_candidate in all_functions:
+        #print(f"{function_candidate.id} - {function_candidate.name} - {referenced_declaration}")
         if function_candidate.id == referenced_declaration and not function_candidate.is_shadowed:
             return function_candidate
     return None
@@ -125,22 +126,43 @@ def find_top_level(
     :return:
     :rtype:
     """
-    if var_name in scope.type_aliases:
-        return scope.type_aliases[var_name], False
+    for sc in scope.type_aliases.values():
+        if var_name in sc:
+            return sc[var_name], False
+    
+    #if var_name in scope.type_aliases:
+    #    return scope.type_aliases[var_name], False
 
-    if var_name in scope.structures:
-        return scope.structures[var_name], False
+    for sc in scope.structures.values():
+        if var_name in sc:
+            #print(f"searching {var_name} in {sc.keys()} - {sc}")
+            return sc[var_name], False
 
-    if var_name in scope.enums:
-        return scope.enums[var_name], False
+
+    #if var_name in scope.structures:
+    #    return scope.structures[var_name], False
+
+    for sc in scope.enums.values():
+        if var_name in sc:
+            #print(f"searching {var_name} in {sc.keys()} - {sc}")
+            return sc[var_name], False
+
+    #if var_name in scope.enums:
+    #    return scope.enums[var_name], False
 
     for import_directive in scope.imports:
         if import_directive.alias == var_name:
             new_val = SolidityImportPlaceHolder(import_directive)
             return new_val, True
 
-    if var_name in scope.variables:
-        return scope.variables[var_name], False
+    for sc in scope.variables.values():
+        if var_name in sc:
+            #print(f"searching {var_name} in {sc.keys()} - {sc}")
+            return sc[var_name], False
+
+
+    #if var_name in scope.variables:
+    #    return scope.variables[var_name], False
 
     # This path should be reached only after the top level custom error have been parsed
     # If not, slither will crash
@@ -151,9 +173,13 @@ def find_top_level(
     # IF more top level objects are added to Solidity, we have to be careful with the order of the lookup
     # in this function
     try:
-        for custom_error in scope.custom_errors:
-            if custom_error.solidity_signature == var_name:
-                return custom_error, False
+        #for custom_error in scope.custom_errors:
+        #    if custom_error.solidity_signature == var_name:
+        #        return custom_error, False
+        for sc in scope.custom_errors.values():
+            if var_name.split('(')[0] in sc:
+                return sc[var_name.split('(')[0]], False
+
     except ValueError:
         # This can happen as custom error sol signature might not have been built
         # when find_variable was called
@@ -396,9 +422,10 @@ def find_variable(
     # Reference looked are split between direct and all
     # Because functions are copied between contracts, two functions can have the same ref
     # So we need to first look with respect to the direct context
-
-    if var_name in current_scope.renaming:
-        var_name = current_scope.renaming[var_name]
+    #print(f"var name findvar {var_name}")
+    #if var_name in current_scope.renaming:
+    #    print(f"old {var_name} - new {current_scope.renaming[var_name][0]}")
+    #    var_name = current_scope.renaming[var_name][0]
 
     contract: Optional[Contract] = None
     contract_declarer: Optional[Contract] = None
@@ -445,14 +472,18 @@ def find_variable(
         return ret, False
 
     # Could refer to any enum
-    all_enumss = [c.enums_as_dict for c in current_scope.contracts.values()]
+    all_enumss = [c.enums_as_dict for sc in current_scope.contracts.values() for c in sc.values()]
     all_enums = {k: v for d in all_enumss for k, v in d.items()}
     if var_name in all_enums:
         return all_enums[var_name], False
 
-    contracts = current_scope.contracts
-    if var_name in contracts:
-        return contracts[var_name], False
+    #contracts = current_scope.contracts
+    #if var_name in contracts:
+    #    return contracts[var_name], False
+
+    for sc in current_scope.contracts.values():
+        if var_name in sc:
+            return sc[var_name], False
 
     if var_name in SOLIDITY_VARIABLES:
         return SolidityVariable(var_name), False
@@ -488,8 +519,8 @@ def find_variable(
 
     ret = _find_variable_from_ref_declaration(
         referenced_declaration,
-        list(current_scope.contracts.values()),
-        list(current_scope.functions),
+        list([c for sc in current_scope.contracts.values() for c in sc.values()]),
+        list([f for sc in current_scope.functions.values() for f in sc.values()]),
         None,
         None,
     )

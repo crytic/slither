@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import List, TYPE_CHECKING, Union, Dict, ValuesView
+from typing import List, TYPE_CHECKING, Union, Dict, ValuesView, Optional
 
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
@@ -49,6 +49,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     all_structures: ValuesView["Structure"],
     enums_direct_access: List["Enum"],
     all_enums: ValuesView["Enum"],
+    ref_id: Optional[str] = None
 ) -> Type:
     name_elementary = name.split(" ")[0]
     if "[" in name_elementary:
@@ -61,17 +62,65 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     # We first look for contract
     # To avoid collision
     # Ex: a structure with the name of a contract
+    name_split = name.split('.')
+    name_target = None
     name_contract = name
-    if name_contract.startswith("contract "):
-        name_contract = name_contract[len("contract ") :]
-    if name_contract.startswith("library "):
-        name_contract = name_contract[len("library ") :]
-    var_type = next((c for c in contracts_direct_access if c.name == name_contract), None)
+    if len(name_split) > 1:
+        name_contract = name_split[0]
+        name_target = name_split[1]
 
-    if not var_type:
-        var_type = next((st for st in structures_direct_access if st.name == name), None)
-    if not var_type:
-        var_type = next((e for e in enums_direct_access if e.name == name), None)
+    #if name_contract.startswith("contract "):
+    #    name_contract = name_contract[len("contract ") :]
+    #if name_contract.startswith("library "):
+    #    name_contract = name_contract[len("library ") :]
+    #print(f"contracts {[(c.name, c.id) for c in contracts_direct_access]}")
+    #var_type = next((c for c in contracts_direct_access if ref_id and c.id == ref_id or not ref_id and c.name == name_contract), None)
+    #var_type = next((c for c in contracts_direct_access if c.name == name_contract), None)
+    var_type = None
+    if not name_target:
+        for sc in contracts_direct_access.values():
+            if name_contract in sc:
+                var_type = sc[name_contract]
+        #print(f"var type {var_type} - {var_type.id if var_type else ''} - search {ref_id}")
+        if not var_type:
+            for sc in structures_direct_access.values():
+                if name in sc:
+                    var_type = sc[name]
+            #var_type = next((st for st in structures_direct_access if st.name == name), None)
+        if not var_type:
+            for sc in enums_direct_access.values():
+                if name in sc:
+                    var_type = sc[name]
+            #var_type = next((e for e in enums_direct_access if e.name == name), None)
+    else:
+        for sc in contracts_direct_access.values():
+            #print(f"fdadsa {name_contract} - {name_target} - {name}")
+            if name_contract in sc:
+                contract = sc[name_contract]
+                if var_type:
+                    break
+                for enum in contract.enums:
+                    if enum.name == name_target:
+                        var_type = enum
+                        break
+                for struct in contract.structures:
+                    if struct.name == name_target:
+                        var_type = struct
+                        break
+                for event in contract.events:
+                    if event.name == name_target:
+                        var_type = event
+                        break
+                for custom_error in contract.custom_errors:
+                    if custom_error.name == name_target:
+                        var_type = custom_error
+                        break
+                for type_alias in contract.type_aliases:
+                    if type_alias.name == name_target:
+                        var_type = type_alias
+                        break
+ 
+    """
     if not var_type:
         # any contract can refer to another contract's enum
         enum_name = name
@@ -94,19 +143,21 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         # all_structures = [c.structures for c in contracts]
         # all_structures = [item for sublist in all_structures for item in sublist]
         # all_structures += contract.slither.structures_top_level
-        var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
-        if not var_type:
-            var_type = next((st for st in all_structures if st.name == name_struct), None)
+        #for st in all_structures:
+        #    print(f"struct {st} - {name_struct}")
+        #var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
+        #if not var_type:
+        #    var_type = next((st for st in all_structures if st.name == name_struct), None)
         # case where struct xxx.xx[] where not well formed in the AST
-        if not var_type:
-            depth = 0
-            while name_struct.endswith("[]"):
-                name_struct = name_struct[0:-2]
-                depth += 1
-            var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
-            if var_type:
-                return ArrayType(UserDefinedType(var_type), Literal(depth, "uint256"))
-
+        #if not var_type:
+        #    depth = 0
+        #    while name_struct.endswith("[]"):
+        #        name_struct = name_struct[0:-2]
+        #        depth += 1
+        #    var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
+        #    if var_type:
+        #        return ArrayType(UserDefinedType(var_type), Literal(depth, "uint256"))
+    """
     if not var_type:
         var_type = next((f for f in functions_direct_access if f.name == name), None)
     if not var_type:
@@ -208,6 +259,7 @@ def _add_type_references(type_found: Type, src: str, sl: "SlitherCompilationUnit
 def parse_type(
     t: Union[Dict, UnknownType],
     caller_context: Union[CallerContextExpression, "SlitherCompilationUnitSolc"],
+    ref_id: Optional[str] = None
 ) -> Type:
     """
     caller_context can be a SlitherCompilationUnitSolc because we recursively call the function
@@ -253,16 +305,32 @@ def parse_type(
             sl = caller_context.underlying_function.compilation_unit
             next_context = caller_context.slither_parser
             renaming = caller_context.underlying_function.file_scope.renaming
-            type_aliases = caller_context.underlying_function.file_scope.type_aliases
-        structures_direct_access = sl.structures_top_level
-        all_structuress = [c.structures for c in sl.contracts]
-        all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += structures_direct_access
-        enums_direct_access += sl.enums_top_level
-        all_enumss = [c.enums for c in sl.contracts]
-        all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += enums_direct_access
-        contracts = sl.contracts
+            tp = {}
+            for sc in caller_context.underlying_function.file_scope.type_aliases.values():
+                for type_str, type_alias in sc.items():
+                    tp[type_str] = type_alias
+            type_aliases = tp
+        #structures_direct_access = sl.structures_top_level
+        #all_structuress = [c.structures for c in sl.contracts]
+        #all_structures = [item for sublist in all_structuress for item in sublist]
+        #all_structures += structures_direct_access
+        #enums_direct_access += sl.enums_top_level
+        #all_enumss = [c.enums for c in sl.contracts]
+        #all_enums = [item for sublist in all_enumss for item in sublist]
+        #all_enums += enums_direct_access
+        structures_direct_access = {"this": {}}
+        for struct in sl.structures_top_level:
+            structures_direct_access["this"][struct.name] = struct
+        all_structures = structures_direct_access
+        enums_direct_access = {"this": {}}
+        for enum in sl.enums_top_level:
+            enums_direct_access["this"][enum.name] = enum
+        all_enums = enums_direct_access
+        #contracts = sl.contracts
+        contracts = {"this": {}}        
+        for c in sl.contracts:
+            contracts["this"][c.name] = c
+
         functions = []
     elif isinstance(
         caller_context,
@@ -285,21 +353,36 @@ def parse_type(
 
         sl = caller_context.compilation_unit
         next_context = caller_context.slither_parser
-        structures_direct_access = list(scope.structures.values())
-        all_structuress = [c.structures for c in scope.contracts.values()]
-        all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += structures_direct_access
-
-        enums_direct_access = []
-        all_enumss = [c.enums for c in scope.contracts.values()]
-        all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += scope.enums.values()
-
-        contracts = scope.contracts.values()
-        functions = list(scope.functions)
+        structures_direct_access = scope.structures
+        structures_direct_access["this"] = {}
+        for sc in scope.contracts.values():
+            for c in sc.values():
+                for struct in c.structures:
+                    structures_direct_access["this"][struct.name] = struct
+        #structures_direct_access = list(s for sc in scope.structures.values() for s in sc.values())
+        #all_structuress = [c.structures for sc in scope.contracts.values() for c in sc.values()]
+        #all_structures = [item for sublist in all_structuress for item in sublist]
+        all_structures = structures_direct_access
+        enums_direct_access = scope.enums
+        enums_direct_access["this"] = {}
+        for sc in scope.contracts.values():
+            for c in sc.values():
+                for enum in c.enums:
+                    enums_direct_access["this"][enum.name] = enum
+        #all_enumss = [c.enums for sc in scope.contracts.values() for c in sc.values()]
+        #all_enums = [item for sublist in all_enumss for item in sublist]
+        #all_enums += scope.enums.values()
+        all_enums = enums_direct_access
+        #contracts = [c for sc in scope.contracts.values() for c in sc.values()]
+        contracts = scope.contracts
+        functions = [f for sc in scope.functions.values() for f in sc.values()]
 
         renaming = scope.renaming
-        type_aliases = scope.type_aliases
+        tp = {}
+        for sc in scope.type_aliases.values():
+            for type_str, type_alias in sc.items():
+                tp[type_str] = type_alias
+        type_aliases = tp
     elif isinstance(caller_context, (ContractSolc, FunctionSolc)):
         sl = caller_context.compilation_unit
         if isinstance(caller_context, FunctionSolc):
@@ -315,21 +398,36 @@ def parse_type(
             next_context = caller_context
             scope = caller_context.underlying_contract.file_scope
 
-        structures_direct_access = contract.structures
-        structures_direct_access += contract.file_scope.structures.values()
-        all_structuress = [c.structures for c in contract.file_scope.contracts.values()]
-        all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += contract.file_scope.structures.values()
-        enums_direct_access += contract.enums
-        enums_direct_access += contract.file_scope.enums.values()
-        all_enumss = [c.enums for c in contract.file_scope.contracts.values()]
-        all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += contract.file_scope.enums.values()
-        contracts = contract.file_scope.contracts.values()
+        structures_direct_access = scope.structures
+        structures_direct_access["this"] = {}
+        for struct in contract.structures:
+            structures_direct_access["this"][struct.name] = struct
+        #structures_direct_access = contract.structures
+        #structures_direct_access += [s for sc in scope.structures.values() for s in sc.values()]
+        #all_structuress = [c.structures for sc in contract.file_scope.contracts.values() for c in sc.values()]
+        #all_structures = [item for sublist in all_structuress for item in sublist]
+        #all_structures += [s for sc in scope.structures.values() for s in sc.values()]
+        all_structures = structures_direct_access
+        #enums_direct_access += contract.enums
+        # Should this be scope.enums ?
+        enums_direct_access = contract.file_scope.enums
+        enums_direct_access["this"] = {}
+        for enum in contract.enums:
+            enums_direct_access["this"][enum.name] = enum
+        #all_enumss = [c.enums for sc in contract.file_scope.contracts.values() for c in sc.values()]
+        #all_enums = [item for sublist in all_enumss for item in sublist]
+        #all_enums += [e for sc in contract.file_scope.enums.values() for e in sc.values()]
+        #contracts = [c for sc in contract.file_scope.contracts.values() for c in sc.values()]
+        all_enums = enums_direct_access
+        contracts = contract.file_scope.contracts
         functions = contract.functions + contract.modifiers
 
         renaming = scope.renaming
-        type_aliases = scope.type_aliases
+        tp = {}
+        for sc in scope.type_aliases.values():
+            for type_str, type_alias in sc.items():
+                tp[type_str] = type_alias
+        type_aliases = tp
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
 
@@ -341,8 +439,10 @@ def parse_type(
 
     if isinstance(t, UnknownType):
         name = t.name
-        if name in renaming:
-            name = renaming[name]
+        #import traceback
+        #traceback.print_stack()
+        #if name in renaming:
+        #    name = renaming[name][0]
         if name in type_aliases:
             return type_aliases[name]
         return _find_from_type_name(
@@ -353,6 +453,7 @@ def parse_type(
             all_structures,
             enums_direct_access,
             all_enums,
+            ref_id,
         )
 
     if t[key] == "ElementaryTypeName":
@@ -361,10 +462,13 @@ def parse_type(
         return ElementaryType(t["attributes"][key])
 
     if t[key] == "UserDefinedTypeName":
+        #import traceback
+        #traceback.print_stack()
         if is_compact_ast:
-            name = t["typeDescriptions"]["typeString"]
-            if name in renaming:
-                name = renaming[name]
+            #name = t["typeDescriptions"]["typeString"]
+            name = t["name"] if "name" in t else t["pathNode"]["name"]
+            #if name in renaming:
+                #name = renaming[name][0]
             if name in type_aliases:
                 _add_type_references(type_aliases[name], t["src"], sl)
                 return type_aliases[name]
@@ -376,6 +480,7 @@ def parse_type(
                 all_structures,
                 enums_direct_access,
                 all_enums,
+                t["pathNode"]["referencedDeclaration"] if "pathNode" in t else None
             )
             _add_type_references(type_found, t["src"], sl)
             return type_found
@@ -384,8 +489,8 @@ def parse_type(
         type_name_key = "type" if "type" in t["attributes"] else key
 
         name = t["attributes"][type_name_key]
-        if name in renaming:
-            name = renaming[name]
+        #if name in renaming:
+            #name = renaming[name][0]
         if name in type_aliases:
             _add_type_references(type_aliases[name], t["src"], sl)
             return type_aliases[name]
@@ -405,8 +510,8 @@ def parse_type(
     if t[key] == "IdentifierPath":
         if is_compact_ast:
             name = t["name"]
-            if name in renaming:
-                name = renaming[name]
+            #if name in renaming:
+                #name = renaming[name][0]
             if name in type_aliases:
                 return type_aliases[name]
             type_found = _find_from_type_name(

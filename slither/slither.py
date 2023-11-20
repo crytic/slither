@@ -49,7 +49,90 @@ def _update_file_scopes(candidates: ValuesView[FileScope]):
             break
         learned_something = False
 
+    for candidate in candidates:
+        candidate.structures = _apply_renaming(candidate.structures, candidate.renaming, candidates)
+        candidate.enums = _apply_renaming(candidate.enums, candidate.renaming, candidates)
+        candidate.custom_errors = _apply_renaming(candidate.custom_errors, candidate.renaming, candidates)
+        candidate.functions = _apply_renaming(candidate.functions, candidate.renaming, candidates)
+        candidate.variables = _apply_renaming(candidate.variables, candidate.renaming, candidates)
+        candidate.type_aliases = _apply_renaming(candidate.type_aliases, candidate.renaming, candidates)
+        candidate.contracts = _apply_renaming(candidate.contracts, candidate.renaming, candidates)
 
+def _apply_renaming(to_rename, renaming, candidates):
+    renamed_dict = {}
+    for scope, value in to_rename.items():
+        #print(f"in {candidate.filename.short} - {scope}")
+        for name, item in value.items():
+            #print(f"item {struct.name} - {struct.file_scope.filename.short}")
+            renamed = False
+            for local, (original, filename) in renaming.items():
+                #print(f"rename {local} - {original} - {name} - {scope} - {filename}")
+                if name == original and scope == filename:
+                    #del renamed_dict[scope][original]
+                    if scope not in renamed_dict:
+                        renamed_dict[scope] = {}
+                    renamed_dict[scope][local] = item
+                    renamed = True
+                    break
+                elif name == original and scope != filename:
+                    # Handle the following case
+                    # Test.sol
+                    # import {MyStruct as MyAStruct} from "./I.sol";
+                    # I.sol
+                    # import {MyStruct} from "./Lib2.sol";
+                    # Lib2.sol
+                    # struct MyStruct {
+                    #   uint a;
+                    # }
+                    # TODO should be recursive. In the example above if we add Lib3.sol
+                    # and Lib2.sol import from there it does not work.
+                    for candidate_inner in candidates:
+                        if candidate_inner.filename.short == filename:
+                            # Check the imports
+                            for import_ in candidate_inner.imports:
+                                if import_.filename == scope:
+                                    if scope not in renamed_dict:
+                                        renamed_dict[scope] = {}
+                                    renamed_dict[scope][local] = item
+                                    renamed = True
+                                    break
+                        if renamed:
+                            break
+            if not renamed:
+                if scope not in renamed_dict:
+                    renamed_dict[scope] = {}
+                renamed_dict[scope][name] = item
+    return renamed_dict
+
+"""
+    for candidate in candidates:
+        renamed_dict = {}
+        for scope, value in candidate.contracts.items():
+            for name, contract in value.items():
+                renamed = False
+                for local, (original, filename) in candidate.renaming.items():
+                    if name == original and scope == filename:
+                        #del renamed_dict[scope][original]
+                        if scope not in renamed_dict:
+                            renamed_dict[scope] = {}
+                        renamed_dict[scope][local] = contract
+                        renamed = True
+                        break
+                    #else:
+                    #    if scope not in renamed_dict:
+                    #        renamed_dict[scope] = {}
+                    #    renamed_dict[scope][original] = contract
+                if not renamed:
+                    if scope not in renamed_dict:
+                        renamed_dict[scope] = {}
+                    renamed_dict[scope][name] = contract
+
+        #print(f"-------bb-----{candidate.filename.short}")
+        #print(candidate.contracts)
+        candidate.contracts = renamed_dict    
+        #print("-------aa-----")
+        #print(candidate.contracts)
+"""
 class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
     def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
         """

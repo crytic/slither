@@ -23,36 +23,48 @@ def _dict_contain(d1: Dict, d2: Dict) -> bool:
     return all(item in d2_keys for item in d1.keys())
 
 
+def _dict_containn(d1: Dict, d2: Dict) -> bool:
+    """
+    Return true if d1 is included in d2
+    """
+    for sc, v in d1.items():
+        if sc not in d2:
+            return False
+        d2_k = d2[sc].keys()
+        if not all(item in d2_k for item in v.keys()):
+            return False
+    return True
+
+
 # pylint: disable=too-many-instance-attributes
 class FileScope:
     def __init__(self, filename: Filename) -> None:
         self.filename = filename
         self.accessible_scopes: List[FileScopeToImport] = []
-
-        self.contracts: Dict[str, Contract] = {}
-        # Custom error are a list instead of a dict
-        # Because we parse the function signature later on
-        # So we simplify the logic and have the scope fields all populated
-        self.custom_errors: Set[CustomErrorTopLevel] = set()
-        self.enums: Dict[str, EnumTopLevel] = {}
-        # Functions is a list instead of a dict
-        # Because we parse the function signature later on
-        # So we simplify the logic and have the scope fields all populated
-        self.functions: Set[FunctionTopLevel] = set()
+        # Dict[str, Dict[str, Contract]] --- Filename/Scope -> Name -> Contract
+        # quelli renaming avranno il corretto filename dove trovare l item corretto
+        # gli altri è univoco per forza tra i filename (edge case uno rinominato l altro no non univoco)
+        # dopo add_accesible_scopes applichi il renaming direttamente cosi original name diventa local name
+        # poi non ci pensi piu e.g. in find variable ecc
+        self.contracts: Dict[str, Dict[str, Contract]] = {}
+        self.custom_errors: Dict[str, Dict[str, CustomErrorTopLevel]] = {}
+        self.enums: Dict[str, Dict[str, EnumTopLevel]] = {}
+        self.functions: Dict[str, Dict[str, FunctionTopLevel]] = {}
         self.using_for_directives: Set[UsingForTopLevel] = set()
         self.imports: Set[Import] = set()
         self.pragmas: Set[Pragma] = set()
-        self.structures: Dict[str, StructureTopLevel] = {}
-        self.variables: Dict[str, TopLevelVariable] = {}
+        self.structures: Dict[str, Dict[str, StructureTopLevel]] = {}
+        self.variables: Dict[str, Dict[str, TopLevelVariable]] = {}
 
         # Renamed created by import
         # import A as B
         # local name -> original name (A -> B)
-        self.renaming: Dict[str, str] = {}
+        # local name -> (original name, filename) (A -> (B, I.sol))
+        self.renaming: Dict[str, Tuple[str, str]] = {}
 
         # User defined types
         # Name -> type alias
-        self.type_aliases: Dict[str, TypeAlias] = {}
+        self.type_aliases: Dict[str, Dict[str, TypeAlias]] = {}
 
     def add_accesible_scopes(self) -> bool:
         """
@@ -65,18 +77,26 @@ class FileScope:
         learn_something = False
 
         for new_scope in self.accessible_scopes:
-            if not _dict_contain(new_scope.contracts, self.contracts):
+            if not _dict_containn(new_scope.contracts, self.contracts):
+                #print(f"before {self.contracts}")
                 self.contracts.update(new_scope.contracts)
+                #print(f"after {self.contracts}")
                 learn_something = True
-            if not new_scope.custom_errors.issubset(self.custom_errors):
-                self.custom_errors |= new_scope.custom_errors
+            #if not new_scope.custom_errors.issubset(self.custom_errors):
+            #    self.custom_errors |= new_scope.custom_errors
+            #    learn_something = True
+            if not _dict_containn(new_scope.custom_errors, self.custom_errors):
+                self.custom_errors.update(new_scope.custom_errors)
                 learn_something = True
-            if not _dict_contain(new_scope.enums, self.enums):
+            if not _dict_containn(new_scope.enums, self.enums):
                 self.enums.update(new_scope.enums)
                 learn_something = True
-            if not new_scope.functions.issubset(self.functions):
-                self.functions |= new_scope.functions
+            if not _dict_containn(new_scope.functions, self.functions):
+                self.functions.update(new_scope.functions)
                 learn_something = True
+            #if not new_scope.functions.issubset(self.functions):
+            #    self.functions |= new_scope.functions
+            #    learn_something = True
             if not new_scope.using_for_directives.issubset(self.using_for_directives):
                 self.using_for_directives |= new_scope.using_for_directives
                 learn_something = True
@@ -86,16 +106,18 @@ class FileScope:
             if not new_scope.pragmas.issubset(self.pragmas):
                 self.pragmas |= new_scope.pragmas
                 learn_something = True
-            if not _dict_contain(new_scope.structures, self.structures):
+            if not _dict_containn(new_scope.structures, self.structures):
+                #print(f"before {self.contracts}")
                 self.structures.update(new_scope.structures)
+                #print(f"after {self.contracts}")
                 learn_something = True
-            if not _dict_contain(new_scope.variables, self.variables):
+            if not _dict_containn(new_scope.variables, self.variables):
                 self.variables.update(new_scope.variables)
                 learn_something = True
             if not _dict_contain(new_scope.renaming, self.renaming):
                 self.renaming.update(new_scope.renaming)
                 learn_something = True
-            if not _dict_contain(new_scope.type_aliases, self.type_aliases):
+            if not _dict_containn(new_scope.type_aliases, self.type_aliases):
                 self.type_aliases.update(new_scope.type_aliases)
                 learn_something = True
 
@@ -103,8 +125,14 @@ class FileScope:
 
     def get_contract_from_name(self, name: Union[str, Constant]) -> Optional[Contract]:
         if isinstance(name, Constant):
-            return self.contracts.get(name.name, None)
-        return self.contracts.get(name, None)
+            for s in self.contracts.values():
+                if name.name in s:
+                    return s[name.name]
+            return None
+        for s in self.contracts.values():
+            if name in s:
+                return s[name]
+        return None
 
     AbstractReturnType = TypeVar("AbstractReturnType")
 
@@ -245,15 +273,18 @@ class FileScopeToImport:
         self.items_to_import = items_to_import
     
     @property
-    def contracts(self) -> Dict[str, Contract]:
+    def contracts(self) -> Dict[str, Dict[str, Contract]]:
         if len(self.items_to_import) != 0:
             result = {}
-            for name, contract in self.filescope.contracts.items():
-                if name in self.items_to_import:
-                    result[name] = contract
+            for scope, elems in self.filescope.contracts.items():
+                for elem in elems:
+                    if elem in self.items_to_import:
+                        if not scope in result:
+                            result[scope] = {}
+                        result[scope][elem] = elems[elem]
             return result
         return self.filescope.contracts
-
+    """
     @property
     def custom_errors(self) -> Set[CustomErrorTopLevel]:
         if len(self.items_to_import) != 0:
@@ -263,7 +294,21 @@ class FileScopeToImport:
                     result.add(custom_error)
             return result
         return self.filescope.custom_errors
+    """
+    @property
+    def custom_errors(self) -> Dict[str, Dict[str, CustomErrorTopLevel]]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for scope, elems in self.filescope.custom_errors.items():
+                for elem in elems:
+                    if elem in self.items_to_import:
+                        if not scope in result:
+                            result[scope] = {}
+                        result[scope][elem] = elems[elem]
+            return result
+        return self.filescope.custom_errors
 
+    """
     @property
     def enums(self) -> Dict[str, EnumTopLevel]:
         if len(self.items_to_import) != 0:
@@ -273,7 +318,21 @@ class FileScopeToImport:
                     result[name] = enum
             return result
         return self.filescope.enums
+    """
 
+    @property
+    def enums(self) -> Dict[str, Dict[str, EnumTopLevel]]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for scope, elems in self.filescope.enums.items():
+                for elem in elems:
+                    if elem in self.items_to_import:
+                        if not scope in result:
+                            result[scope] = {}
+                        result[scope][elem] = elems[elem]
+            return result
+        return self.filescope.enums
+    """
     @property
     def functions(self) -> Set[FunctionTopLevel]:
         if len(self.items_to_import) != 0:
@@ -283,6 +342,21 @@ class FileScopeToImport:
                     result.add(function)
             return result
         return self.filescope.functions
+    """
+
+    @property
+    def functions(self) -> Dict[str, Dict[str, FunctionTopLevel]]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for scope, elems in self.filescope.functions.items():
+                for elem in elems:
+                    if elem in self.items_to_import:
+                        if not scope in result:
+                            result[scope] = {}
+                        result[scope][elem] = elems[elem]
+            return result
+        return self.filescope.functions
+
 
     @property
     def using_for_directives(self) -> Set[UsingForTopLevel]:
@@ -303,6 +377,7 @@ class FileScopeToImport:
         # TODO check it's correct
         return self.filescope.pragmas
 
+    """
     @property
     def structures(self) -> Dict[str, StructureTopLevel]:
         if len(self.items_to_import) != 0:
@@ -312,7 +387,20 @@ class FileScopeToImport:
                     result[name] = structure
             return result
         return self.filescope.structures
-
+    """
+    @property
+    def structures(self) -> Dict[str, Dict[str, StructureTopLevel]]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for scope, elems in self.filescope.structures.items():
+                for elem in elems:
+                    if elem in self.items_to_import:
+                        if not scope in result:
+                            result[scope] = {}
+                        result[scope][elem] = elems[elem]
+            return result
+        return self.filescope.structures
+    """
     @property
     def variables(self) -> Dict[str, TopLevelVariable]:
         if len(self.items_to_import) != 0:
@@ -322,13 +410,42 @@ class FileScopeToImport:
                     result[name] = variable
             return result
         return self.filescope.variables
+    """
+    @property
+    def variables(self) -> Dict[str, Dict[str, TopLevelVariable]]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for scope, elems in self.filescope.variables.items():
+                for elem in elems:
+                    if elem in self.items_to_import:
+                        if not scope in result:
+                            result[scope] = {}
+                        result[scope][elem] = elems[elem]
+            return result
+        return self.filescope.variables
+
 
     @property
     def renaming(self) -> Dict[str, str]:
         # TODO check it's correct
         return self.filescope.renaming
 
+    """
     @property
-    def type_aliases(self) -> Dict[str, TypeAlias]:
+    def type_aliases(self) -> Dict[str, Dict[str, TypeAlias]]:
         # TODO check it's correct
+        return self.filescope.type_aliases
+    """
+
+    @property
+    def type_aliases(self) -> Dict[str, Dict[str, TypeAlias]]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for scope, elems in self.filescope.type_aliases.items():
+                for elem in elems:
+                    if elem in self.items_to_import:
+                        if not scope in result:
+                            result[scope] = {}
+                        result[scope][elem] = elems[elem]
+            return result
         return self.filescope.type_aliases

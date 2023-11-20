@@ -122,7 +122,8 @@ def parse_call(
         type_return = attributes["type"]
 
     if type_conversion:
-        type_call = parse_type(UnknownType(type_return), caller_context)
+        #type_call = parse_type(UnknownType(type_return), caller_context, expression['expression']['referencedDeclaration'] if "expression" in expression and "referencedDeclaration" in expression['expression'] else None)
+        type_call = parse_type(UnknownType(type_return if 'name' not in attributes['expression'] else attributes['expression']['name']), caller_context)
         if caller_context.is_compact_ast:
             assert len(expression["arguments"]) == 1
             expression_to_parse = expression["arguments"][0]

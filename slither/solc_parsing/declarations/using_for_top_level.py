@@ -97,7 +97,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
     def _analyze_top_level_function(
         self, function_name: str, type_name: Union[TypeAliasTopLevel, UserDefinedType]
     ) -> None:
-        for tl_function in self._using_for.file_scope.functions:
+        for tl_function in [f for sc in self._using_for.file_scope.functions.values() for f in sc.values()]:
             # The library function is bound to the first parameter's type
             if (
                 tl_function.name == function_name
@@ -111,7 +111,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
     def _analyze_operator(
         self, operator: str, function_name: str, type_name: TypeAliasTopLevel
     ) -> None:
-        for tl_function in self._using_for.file_scope.functions:
+        for tl_function in [f for sc in self._using_for.file_scope.functions.values() for f in sc.values()]:
             # The library function is bound to the first parameter's type
             if (
                 tl_function.name == function_name
@@ -166,6 +166,7 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         self, scope: FileScope, type_name: UserDefinedType
     ) -> None:
         underlying = type_name.type
+        # TODO
         if isinstance(underlying, StructureTopLevel):
             for struct in scope.structures.values():
                 if struct == underlying:

@@ -294,7 +294,8 @@ class ContractSolc(CallerContextExpression):
         type_alias = TypeAliasContract(original_type, alias, self.underlying_contract)
         type_alias.set_offset(item["src"], self.compilation_unit)
         self._contract.type_aliases_as_dict[alias] = type_alias
-        self._contract.file_scope.type_aliases[alias_canonical] = type_alias
+        #self._contract.file_scope.type_aliases[alias_canonical] = type_alias
+        self._contract.file_scope.type_aliases[self._contract.file_scope.filename.short][alias_canonical] = type_alias
 
     def _parse_struct(self, struct: Dict) -> None:
 
@@ -421,11 +422,11 @@ class ContractSolc(CallerContextExpression):
             self.log_incorrect_parsing(f"Missing modifier {e}")
 
     def analyze_content_functions(self) -> None:
-        try:
-            for function_parser in self._functions_parser:
-                function_parser.analyze_content()
-        except (VariableNotFound, KeyError, ParsingError) as e:
-            self.log_incorrect_parsing(f"Missing function {e}")
+        # try:
+        for function_parser in self._functions_parser:
+            function_parser.analyze_content()
+        # except (VariableNotFound, KeyError, ParsingError) as e:
+        # self.log_incorrect_parsing(f"Missing function {e}")
 
     def analyze_params_modifiers(self) -> None:
         try:
@@ -596,41 +597,41 @@ class ContractSolc(CallerContextExpression):
             self.log_incorrect_parsing(f"Missing state variable {e}")
 
     def analyze_using_for(self) -> None:  # pylint: disable=too-many-branches
-        try:
-            for father in self._contract.inheritance:
-                self._contract.using_for.update(father.using_for)
-            if self.is_compact_ast:
-                for using_for in self._usingForNotParsed:
-                    if "typeName" in using_for and using_for["typeName"]:
-                        type_name: USING_FOR_KEY = parse_type(using_for["typeName"], self)
-                    else:
-                        type_name = "*"
-                    if type_name not in self._contract.using_for:
-                        self._contract.using_for[type_name] = []
+        # try:
+        for father in self._contract.inheritance:
+            self._contract.using_for.update(father.using_for)
+        if self.is_compact_ast:
+            for using_for in self._usingForNotParsed:
+                if "typeName" in using_for and using_for["typeName"]:
+                    type_name: USING_FOR_KEY = parse_type(using_for["typeName"], self)
+                else:
+                    type_name = "*"
+                if type_name not in self._contract.using_for:
+                    self._contract.using_for[type_name] = []
 
-                    if "libraryName" in using_for:
-                        self._contract.using_for[type_name].append(
-                            parse_type(using_for["libraryName"], self)
-                        )
-                    else:
-                        # We have a list of functions. A function can be topLevel or a library function
-                        self._analyze_function_list(using_for["functionList"], type_name)
-            else:
-                for using_for in self._usingForNotParsed:
-                    children = using_for[self.get_children()]
-                    assert children and len(children) <= 2
-                    if len(children) == 2:
-                        new = parse_type(children[0], self)
-                        old: USING_FOR_KEY = parse_type(children[1], self)
-                    else:
-                        new = parse_type(children[0], self)
-                        old = "*"
-                    if old not in self._contract.using_for:
-                        self._contract.using_for[old] = []
-                    self._contract.using_for[old].append(new)
-            self._usingForNotParsed = []
-        except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f"Missing using for {e}")
+                if "libraryName" in using_for:
+                    self._contract.using_for[type_name].append(
+                        parse_type(using_for["libraryName"], self)
+                    )
+                else:
+                    # We have a list of functions. A function can be topLevel or a library function
+                    self._analyze_function_list(using_for["functionList"], type_name)
+        else:
+            for using_for in self._usingForNotParsed:
+                children = using_for[self.get_children()]
+                assert children and len(children) <= 2
+                if len(children) == 2:
+                    new = parse_type(children[0], self)
+                    old: USING_FOR_KEY = parse_type(children[1], self)
+                else:
+                    new = parse_type(children[0], self)
+                    old = "*"
+                if old not in self._contract.using_for:
+                    self._contract.using_for[old] = []
+                self._contract.using_for[old].append(new)
+        self._usingForNotParsed = []
+        # except (VariableNotFound, KeyError) as e:
+        #    self.log_incorrect_parsing(f"Missing using for {e}")
 
     def _analyze_function_list(self, function_list: List, type_name: USING_FOR_KEY) -> None:
         for f in function_list:

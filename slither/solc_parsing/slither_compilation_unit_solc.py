@@ -54,14 +54,16 @@ def _handle_import_aliases(
     to_import = []
     for symbol_alias in symbol_aliases:
         if "foreign" in symbol_alias:
-            original_name = symbol_alias["foreign"]["name"]
-            to_import.append(original_name)
+            if isinstance(symbol_alias["foreign"], dict) and "name" in symbol_alias["foreign"]:
+                original_name = symbol_alias["foreign"]["name"]
+                to_import.append(original_name)
             if "local" in symbol_alias:
                 if isinstance(symbol_alias["foreign"], dict) and "name" in symbol_alias["foreign"]:
                     local_name = symbol_alias["local"]
                     import_directive.renaming[local_name] = original_name
                     # Assuming that two imports cannot collide in renaming
-                    scope.renaming[local_name] = original_name
+                    #scope.renaming[local_name] = original_name
+                    scope.renaming[local_name] = (original_name, import_directive.filename)
 
                 # This path should only be hit for the malformed AST of solc 0.5.12 where
                 # the foreign identifier cannot be found but is required to resolve the alias.
@@ -193,7 +195,11 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         scope = self.compilation_unit.get_scope(filename)
         enum = EnumTopLevel(name, canonicalName, values, scope)
-        scope.enums[name] = enum
+        if scope.filename.short not in scope.enums:
+            scope.enums[scope.filename.short] = {}
+        scope.enums[scope.filename.short][name] = enum
+
+        #scope.enums[name] = enum
         enum.set_offset(top_level_data["src"], self._compilation_unit)
         self._compilation_unit.enums_top_level.append(enum)
 
@@ -231,7 +237,9 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             if top_level_data[self.get_key()] == "ContractDefinition":
                 contract = Contract(self._compilation_unit, scope)
                 contract_parser = ContractSolc(self, contract, top_level_data)
-                scope.contracts[contract.name] = contract
+                if scope.filename.short not in scope.contracts:
+                    scope.contracts[scope.filename.short] = {}
+                scope.contracts[scope.filename.short][contract.name] = contract
                 if "src" in top_level_data:
                     contract.set_offset(top_level_data["src"], self._compilation_unit)
 
@@ -297,7 +305,11 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 st = StructureTopLevel(self.compilation_unit, scope)
                 st.set_offset(top_level_data["src"], self._compilation_unit)
                 st_parser = StructureTopLevelSolc(st, top_level_data, self)
-                scope.structures[st.name] = st
+                if scope.filename.short not in scope.structures:
+                    scope.structures[scope.filename.short] = {}
+                scope.structures[scope.filename.short][st.name] = st
+
+                #scope.structures[st.name] = st
 
                 self._compilation_unit.structures_top_level.append(st)
                 self._structures_top_level_parser.append(st_parser)
@@ -313,10 +325,17 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 self._compilation_unit.variables_top_level.append(var)
                 self._variables_top_level_parser.append(var_parser)
-                scope.variables[var.name] = var
+                if scope.filename.short not in scope.variables:
+                    scope.variables[scope.filename.short] = {}
+                scope.variables[scope.filename.short][var.name] = var
+
+                #scope.variables[var.name] = var
             elif top_level_data[self.get_key()] == "FunctionDefinition":
                 func = FunctionTopLevel(self._compilation_unit, scope)
-                scope.functions.add(func)
+                if scope.filename.short not in scope.functions:
+                    scope.functions[scope.filename.short] = {}
+                scope.functions[scope.filename.short][top_level_data["name"]] = func
+                #scope.functions.add(func)
                 func.set_offset(top_level_data["src"], self._compilation_unit)
                 func_parser = FunctionSolc(func, top_level_data, None, self)
 
@@ -329,7 +348,11 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 custom_error.set_offset(top_level_data["src"], self._compilation_unit)
 
                 custom_error_parser = CustomErrorSolc(custom_error, top_level_data, None, self)
-                scope.custom_errors.add(custom_error)
+                #scope.custom_errors.add(custom_error)
+                if scope.filename.short not in scope.custom_errors:
+                    scope.custom_errors[scope.filename.short] = {}
+                scope.custom_errors[scope.filename.short][custom_error.name] = custom_error
+
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
 
@@ -349,7 +372,9 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 type_alias = TypeAliasTopLevel(original_type, alias, scope)
                 type_alias.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.type_aliases[alias] = type_alias
-                scope.type_aliases[alias] = type_alias
+                if scope.filename.short not in scope.type_aliases:
+                    scope.type_aliases[scope.filename.short] = {}
+                scope.type_aliases[scope.filename.short][alias] = type_alias
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
@@ -438,10 +463,10 @@ Please rename it, this name is reserved for Slither's internals"""
             for i in contract_parser.linearized_base_contracts[1:]:
                 if i in contract_parser.remapping:
                     contract_name = contract_parser.remapping[i]
-                    if contract_name in contract_parser.underlying_contract.file_scope.renaming:
-                        contract_name = contract_parser.underlying_contract.file_scope.renaming[
-                            contract_name
-                        ]
+                    #if contract_name in contract_parser.underlying_contract.file_scope.renaming:
+                    #    contract_name = contract_parser.underlying_contract.file_scope.renaming[
+                    #        contract_name
+                    #    ][0]
                     target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
                         contract_name
                     )
@@ -750,23 +775,23 @@ Please rename it, this name is reserved for Slither's internals"""
             contract.add_constructor_variables()
 
             for func in contract.functions + contract.modifiers:
-                try:
-                    func.generate_slithir_and_analyze()
+                #try:
+                func.generate_slithir_and_analyze()
 
-                except AttributeError as e:
+                #except AttributeError as e:
                     # This can happens for example if there is a call to an interface
                     # And the interface is redefined due to contract's name reuse
                     # But the available version misses some functions
-                    self._underlying_contract_to_parser[contract].log_incorrect_parsing(
-                        f"Impossible to generate IR for {contract.name}.{func.name} ({func.source_mapping}):\n {e}"
-                    )
-                except Exception as e:
-                    func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
-                    logger.error(
-                        f"\nFailed to generate IR for {contract.name}.{func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{contract.name}.{func.name} ({func.source_mapping}):\n "
-                        f"{func_expressions}"
-                    )
-                    raise e
+                    #self._underlying_contract_to_parser[contract].log_incorrect_parsing(
+                    #    f"Impossible to generate IR for {contract.name}.{func.name} ({func.source_mapping}):\n {e}"
+                    #)
+                #except Exception as e:
+                #    func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                #    logger.error(
+                #        f"\nFailed to generate IR for {contract.name}.{func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{contract.name}.{func.name} ({func.source_mapping}):\n "
+                #        f"{func_expressions}"
+                #    )
+                #    raise e
             try:
                 contract.convert_expression_to_slithir_ssa()
             except Exception as e:
