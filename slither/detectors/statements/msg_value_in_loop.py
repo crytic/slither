@@ -8,6 +8,9 @@ from slither.detectors.abstract_detector import (
 from slither.slithir.operations import InternalCall
 from slither.core.declarations import SolidityVariableComposed, Contract
 from slither.utils.output import Output
+from slither.slithir.variables.constant import Constant
+from slither.core.variables import Variable
+from slither.core.expressions.literal import Literal
 
 
 def detect_msg_value_in_loop(contract: Contract) -> List[Node]:
@@ -37,6 +40,21 @@ def msg_value_in_loop(
 
     for ir in node.all_slithir_operations():
         if in_loop_counter > 0 and SolidityVariableComposed("msg.value") in ir.read:
+            # If we find a conditional expression with msg.value and is compared to 0 we don't report it
+            if ir.node.is_conditional() and SolidityVariableComposed("msg.value") in ir.read:
+                compared_to = (
+                    ir.read[1]
+                    if ir.read[0] == SolidityVariableComposed("msg.value")
+                    else ir.read[0]
+                )
+                if (
+                    isinstance(compared_to, Constant)
+                    and compared_to.value == 0
+                    or isinstance(compared_to, Variable)
+                    and isinstance(compared_to.expression, Literal)
+                    and str(compared_to.expression.value) == "0"
+                ):
+                    continue
             results.append(ir.node)
         if isinstance(ir, (InternalCall)):
             msg_value_in_loop(ir.function.entry_point, in_loop_counter, visited, results)
