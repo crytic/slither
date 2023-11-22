@@ -1,4 +1,3 @@
-import sys
 import logging
 from argparse import ArgumentParser, Namespace
 
@@ -18,8 +17,8 @@ def parse_args() -> Namespace:
     :return: Returns the arguments for the program.
     """
     parser: ArgumentParser = ArgumentParser(
-        description="FunctionSummarySelection",
-        usage="function_summary_selection.py filename [options]",
+        description="Return contract functions based on the provided criteria.",
+        usage="slither-function-filter filename [options]",
     )
 
     parser.add_argument(
@@ -27,7 +26,15 @@ def parse_args() -> Namespace:
     )
 
     parser.add_argument(
-        "--contract-name", type=str, help="If set, filter functions declared only in that contract."
+        "--contract-name",
+        type=str,
+        help="If set, filter functions declared and inherited in the specified contract.",
+    )
+
+    parser.add_argument(
+        "--declared-only",
+        action="store_true",
+        help="If set, filter functions only declared in the --contract-name.",
     )
 
     parser.add_argument("--visibility", type=str, help="Visibility of the functions.")
@@ -51,9 +58,11 @@ def parse_args() -> Namespace:
     parser.add_argument(
         "--state-change", action="store_true", help="If set, filter functions that change state."
     )
-    
+
     parser.add_argument(
-        "--read-only", action="store_true", help="If set, filter functions that do not change state."
+        "--read-only",
+        action="store_true",
+        help="If set, filter functions that do not change state.",
     )
 
     cryticparser.init(parser)
@@ -83,12 +92,12 @@ def filter_function(function: Function, args) -> bool:
 
     # Check if function potentially changes state
     if args.state_change:
-        if function._view or function._pure:
+        if function.view or function.pure:
             return False
-        
+
     # Check if function is read-only
     if args.read_only:
-        if not (function._view or function._pure):
+        if not (function.view or function.pure):
             return False
 
     # If none of the conditions have returned False, the function matches all provided criteria
@@ -109,22 +118,33 @@ def main() -> None:
     for contract in slither.contracts:
         # Scan only target contract's functions (declared and inherited)
         if contract_name:
+            # Match --contract-name with slither's contract object
             if contract.name == contract_name:
-                # Find directly inherited contracts
-                contracts_inherited = [
-                    parent for parent in contract.immediate_inheritance if not parent.is_interface
-                ]
-
-                # Iterate declared functions
-                for function in contract.functions:
-                    if filter_function(function, args):
-                        filter_results.append(function.get_summary())
-
-                # Iterate inherited functions
-                for contracts in contracts_inherited:
-                    for function in contracts.functions:
+                # Only target contract's declared functions are scanned
+                if args.declared_only:
+                    # Iterate declared functions
+                    for function in contract.functions:
                         if filter_function(function, args):
                             filter_results.append(function.get_summary())
+
+                # All functions (declared and inherited) are scanned
+                else:
+                    contracts_inherited = [
+                        parent
+                        for parent in contract.immediate_inheritance
+                        if not parent.is_interface
+                    ]
+
+                    # Iterate declared functions
+                    for function in contract.functions:
+                        if filter_function(function, args):
+                            filter_results.append(function.get_summary())
+
+                    # Iterate inherited functions
+                    for contracts in contracts_inherited:
+                        for function in contracts.functions:
+                            if filter_function(function, args):
+                                filter_results.append(function.get_summary())
 
         # Scan all contracts in the SourceMapping of filename provided
         else:
