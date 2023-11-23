@@ -116,35 +116,21 @@ def main() -> None:
     filter_results = []
 
     for contract in slither.contracts:
-        # Scan only target contract's functions (declared and inherited)
+        # Scan only target contract's functions (declared only or immediate inheritance)
         if contract_name:
             # Match --contract-name with slither's contract object
             if contract.name == contract_name:
                 # Only target contract's declared functions are scanned
                 if args.declared_only:
-                    # Iterate declared functions
-                    for function in contract.functions:
+                    for function in contract.functions_declared:
                         if filter_function(function, args):
                             filter_results.append(function.get_summary())
 
-                # All functions (declared and inherited) are scanned
+                # All functions (declared and inherited) of target contract are scanned
                 else:
-                    contracts_inherited = [
-                        parent
-                        for parent in contract.immediate_inheritance
-                        if not parent.is_interface
-                    ]
-
-                    # Iterate declared functions
                     for function in contract.functions:
                         if filter_function(function, args):
                             filter_results.append(function.get_summary())
-
-                    # Iterate inherited functions
-                    for contracts in contracts_inherited:
-                        for function in contracts.functions:
-                            if filter_function(function, args):
-                                filter_results.append(function.get_summary())
 
         # Scan all contracts in the SourceMapping of filename provided
         else:
