@@ -1679,6 +1679,11 @@ ALL_TESTS = [
         "return_bomb.sol",
         "0.8.20",
     ),
+    Test(
+        all_detectors.Ecrecover,
+        "ecrecover.sol",
+        "0.10.1",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
