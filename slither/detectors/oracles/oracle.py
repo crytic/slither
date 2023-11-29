@@ -4,14 +4,23 @@ from slither.core.cfg.node import NodeType
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.expressions import expression
 from slither.slithir.operations import Binary, BinaryType
+from slither.slithir.operations import HighLevelCall
 from enum import Enum
+# For debugging
+# import debugpy
 
+# # 5678 is the default attach port in the VS Code debug configurations. Unless a host and port are specified, host defaults to 127.0.0.1
+# debugpy.listen(5678)
+# print("Waiting for debugger attach")
+# debugpy.wait_for_client()
+# debugpy.breakpoint()
+# print('break on this line')
 
 class Oracle:
-    def __init__(self, _contract, _function, _interface_var, _line_of_call):
+    def __init__(self, _contract, _function, _ir_rep, _line_of_call):
         self.contract = _contract
         self.function = _function
-        self.interface_var = _interface_var
+        self.ir = _ir_rep
         self.line_of_call = _line_of_call  # can be get by node.source_mapping.lines[0]
         self.oracle_vars = []
         self.vars_in_condition = []
@@ -48,33 +57,52 @@ class OracleDetector(AbstractDetector):
             for function in contract.functions:
                 if function.is_constructor:
                     continue
-                found_latest_round, name_interface, line = self.check_chainlink_call(function)
-                for var in function.state_variables_read:
-                    # print(var.name)
-                    # print(var.type)
-                    # print(type(var.type))
-                    # print("------------------")
-                    if (str(var.name) == str(name_interface)) and found_latest_round:
-                        oracles.append(Oracle(contract, function, var, line))
-                    # if (str(var.type) == "AggregatorV3Interface") and self.check_latestRoundData(function):
-                    #     oracles.append(Oracle(contract, function, var))
-            # print(f.nodes)
+                found_latest_round, ir_rep, line = self.check_chainlink_call(function)
+                if found_latest_round:
+                    oracles.append(Oracle(contract, function, ir_rep, line))
         return oracles
     
-    def compare_chainlink_call(self, function: expression) -> bool:
+    def compare_chainlink_call(self, function) -> bool:
         for call in self.ORACLE_CALLS:
             if call in str(function):
                 return True
         return False
 
     def check_chainlink_call(self, function: FunctionContract) -> (bool, str, int):
-        for functionCalled in function.external_calls_as_expressions:
-            if self.compare_chainlink_call(functionCalled):
-                return (
-                    True,
-                    str(functionCalled).split(".", maxsplit=1)[0],
-                    functionCalled.source_mapping.lines[0],
-                )  # The external call is in format contract.function, so we split it and get the contract name
+        values_returned = []
+        nodes_origin = {}
+        for node in function.nodes:
+            for ir in node.irs:
+                if isinstance(ir,HighLevelCall):
+                    if(self.compare_chainlink_call(ir.function_name)):
+                        if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
+                            values_returned.append((ir.lvalue, None))
+                            nodes_origin[ir.lvalue] = ir
+                            if isinstance(ir.lvalue, TupleVariable):
+                                # we iterate the number of elements the tuple has
+                                # and add a (variable, index) in values_returned for each of them
+                                for index in range(len(ir.lvalue.type)):
+                                    values_returned.append((ir.lvalue, index))
+                    for read in ir.read:
+                        remove = (read, ir.index) if isinstance(ir, Unpack) else (read, None)
+                        if remove in values_returned:
+                            # this is needed to remove the tuple variable when the first time one of its element is used
+                            if remove[1] is not None and (remove[0], None) in values_returned:
+                                values_returned.remove((remove[0], None))
+                            values_returned.remove(remove)
+                    return (True, ir, node.source_mapping.lines[0])
+                        
+        # for functionCalled in function.external_calls_as_expressions:
+        #     if self.compare_chainlink_call(functionCalled):
+        #         # debugpy.breakpoint()
+        #         # print(functionCalled.source_mapping.filename.absolute) # Absolute path to file
+        #         # print("Mapping high level call", functionCalled)
+                
+        #         return (
+        #             True,
+        #             str(functionCalled).split(".", maxsplit=1)[0],
+        #             functionCalled.source_mapping.lines[0],
+        #         )  # The external call is in format contract.function, so we split it and get the contract name
         return (False, "", 0)
 
     def get_returned_variables_from_oracle(
