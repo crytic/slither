@@ -30,7 +30,7 @@ from typing import List
 # print('break on this line')
 
 class Oracle:
-    def __init__(self, _contract, _function, _node, _line_of_call, _returned_used_vars):
+    def __init__(self, _contract, _function, _node, _line_of_call, _returned_used_vars, _interface):
         self.contract = _contract
         self.function = _function
         self.node = _node
@@ -39,6 +39,7 @@ class Oracle:
         self.vars_in_condition = []
         self.vars_not_in_condition = []
         self.returned_vars_indexes = _returned_used_vars
+        self.interface = _interface
         # self.possible_variables_names = [
         #     "price",
         #     "timestamp",
@@ -74,11 +75,15 @@ class OracleDetector(AbstractDetector):
                 oracle_calls_in_function, oracle_returned_var_indexes, = self.check_chainlink_call(function) 
                 if oracle_calls_in_function:
                     for node in oracle_calls_in_function:
+                        interface = None
+                        for ir in node.irs:
+                            if isinstance(ir, HighLevelCall):
+                                interface = ir.destination
                         idxs = []
                         for idx in oracle_returned_var_indexes:
                             if idx[0] == node:
                                 idxs.append(idx[1])
-                        oracle = Oracle(contract, function, node, node.source_mapping.lines[0], idxs)
+                        oracle = Oracle(contract, function, node, node.source_mapping.lines[0], idxs, interface)
                         oracles.append(oracle)
         return oracles
     

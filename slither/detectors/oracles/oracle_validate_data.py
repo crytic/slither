@@ -148,13 +148,13 @@ class OracleDataCheck(OracleDetector):
                 continue
             if index == OracleVarType.ROUNDID.value:
                 if not self.check_RoundId(var, vars_order[OracleVarType.ANSWEREDINROUND.value]):
-                    problems.append("The RoundID is not checked\n") #TODO add more info
+                    problems.append("RoundID value is not checked correctly. It was returned by the oracle call {}, in the function {} of contract {}.\n".format(oracle.interface, oracle.function, oracle.node.source_mapping))
             elif index == OracleVarType.ANSWER.value:
                 if not self.check_price(var):
-                    problems.append("The price is not checked\n") #TODO add more info
+                    problems.append("Price value is not checked correctly. It was returned by the oracle call {}, in the function {} of contract {}.\n".format(oracle.interface, oracle.function, oracle.node.source_mapping))
             elif index == OracleVarType.UPDATEDAT.value:
                 if not self.check_staleness(var):
-                    problems.append("The staleness is not checked\n") #TODO add more info
+                    problems.append("UpdatedAt value is not checked correctly. It was returned by the oracle call {}, in the function {} of contract {}.\n".format(oracle.interface, oracle.function, oracle.node.source_mapping))
         return problems
         # checks = {}
         # for i in range(0,5):
