@@ -6,6 +6,19 @@ from slither.core.expressions import expression
 from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.operations import HighLevelCall
 from enum import Enum
+from slither.core.cfg.node import Node, NodeType
+from slither.core.declarations import Function
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operation
+from slither.slithir.variables import TupleVariable
+from typing import List
+
 # For debugging
 # import debugpy
 
@@ -17,7 +30,7 @@ from enum import Enum
 # print('break on this line')
 
 class Oracle:
-    def __init__(self, _contract, _function, _ir_rep, _line_of_call):
+    def __init__(self, _contract, _function, _ir_rep, _line_of_call, _returned_used_vars):
         self.contract = _contract
         self.function = _function
         self.ir = _ir_rep
@@ -25,6 +38,7 @@ class Oracle:
         self.oracle_vars = []
         self.vars_in_condition = []
         self.vars_not_in_condition = []
+        self.returned_vars_indexes = _returned_used_vars
         # self.possible_variables_names = [
         #     "price",
         #     "timestamp",
@@ -57,9 +71,17 @@ class OracleDetector(AbstractDetector):
             for function in contract.functions:
                 if function.is_constructor:
                     continue
-                found_latest_round, ir_rep, line = self.check_chainlink_call(function)
-                if found_latest_round:
-                    oracles.append(Oracle(contract, function, ir_rep, line))
+                oracle_calls_in_function, oracle_returned_var_indexes, = self.check_chainlink_call(function) 
+                if oracle_calls_in_function:
+                    print("ORacle calls", oracle_calls_in_function)
+                    print("Oracle returned var indexes", oracle_returned_var_indexes)
+                    for node in oracle_calls_in_function:
+                        idxs = []
+                        for idx in oracle_returned_var_indexes:
+                            if idx[0] == node:
+                                idxs.append(idx[1])
+                        oracle = Oracle(contract, function, node, node.source_mapping.lines[0], idxs)
+                        oracles.append(oracle)
         return oracles
     
     def compare_chainlink_call(self, function) -> bool:
@@ -67,26 +89,53 @@ class OracleDetector(AbstractDetector):
             if call in str(function):
                 return True
         return False
+    
+    def _is_instance(self, ir: Operation) -> bool:  # pylint: disable=no-self-use
+        return (
+            isinstance(ir, HighLevelCall)
+            and (
+                (
+                    isinstance(ir.function, Function)
+                    and self.compare_chainlink_call(ir.function.name)
+                )
+                # or not isinstance(ir.function, Function)
+            )
+            # or ir.node.type == NodeType.TRY
+            # and isinstance(ir, (Assignment, Unpack))
+        )
 
-    def check_chainlink_call(self, function: FunctionContract) -> (bool, str, int):
+
+    def check_chainlink_call(self, function: FunctionContract):
+        used_returned_vars = []
+        values_returned = []
+        nodes_origin = {}
+        oracle_calls = []
         for node in function.nodes:
             for ir in node.irs:
-                if isinstance(ir,HighLevelCall):
-                    if(self.compare_chainlink_call(ir.function_name)):
-                        return (True, ir, node.source_mapping.lines[0])
-                        
-        # for functionCalled in function.external_calls_as_expressions:
-        #     if self.compare_chainlink_call(functionCalled):
-        #         # debugpy.breakpoint()
-        #         # print(functionCalled.source_mapping.filename.absolute) # Absolute path to file
-        #         # print("Mapping high level call", functionCalled)
-                
-        #         return (
-        #             True,
-        #             str(functionCalled).split(".", maxsplit=1)[0],
-        #             functionCalled.source_mapping.lines[0],
-        #         )  # The external call is in format contract.function, so we split it and get the contract name
-        return (False, "", 0)
+                if self._is_instance(ir):
+                    oracle_calls.append(node)
+                    if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
+                        values_returned.append((ir.lvalue, None))
+                        nodes_origin[ir.lvalue] = ir
+                        if isinstance(ir.lvalue, TupleVariable):
+                            # we iterate the number of elements the tuple has
+                            # and add a (variable, index) in values_returned for each of them
+                            for index in range(len(ir.lvalue.type)):
+                                values_returned.append((ir.lvalue, index))
+                for read in ir.read:
+                    remove = (read, ir.index) if isinstance(ir, Unpack) else (read, None)
+                    if remove in values_returned:
+                        used_returned_vars.append(remove) # This is saying which element is used based on the index
+                        # this is needed to remove the tuple variable when the first time one of its element is used
+                        if remove[1] is not None and (remove[0], None) in values_returned:
+                            values_returned.remove((remove[0], None))
+                        values_returned.remove(remove)
+                    # if(self.compare_chainlink_call(ir.function_name)):
+                    #     return (True, ir, node.source_mapping.lines[0])
+        returned_vars_used_indexes = []
+        for (value, index) in used_returned_vars:
+            returned_vars_used_indexes.append((nodes_origin[value].node,index))                  
+        return oracle_calls, returned_vars_used_indexes
 
     def get_returned_variables_from_oracle(
         self, function: FunctionContract, oracle_call_line
@@ -184,7 +233,6 @@ class OracleDetector(AbstractDetector):
                 oracle.function, oracle.line_of_call
             )
             self.vars_in_conditions(oracle)
-
         # for oracle in oracles:
         #     oracle_vars = self.get_returned_variables_from_oracle(
         #         oracle.function, oracle.line_of_call
