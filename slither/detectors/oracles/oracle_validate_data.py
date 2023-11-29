@@ -9,6 +9,21 @@ from slither.detectors.operations.unused_return_values import UnusedReturnValues
 from slither.core.cfg.node import NodeType
 from slither.core.variables.state_variable import StateVariable
 
+from slither.core.cfg.node import Node, NodeType
+from slither.core.declarations import Function
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.variables.state_variable import StateVariable
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operation
+from slither.slithir.variables import TupleVariable
+from slither.detectors.operations.unused_return_values import UnusedReturnValues
+from typing import List
+
+
 
 class OracleVarType(Enum):
     ROUNDID = 0
@@ -103,15 +118,87 @@ class OracleDataCheck(OracleDetector):
         vars_order[OracleVarType.ANSWEREDINROUND] = None
         return vars_order
 
+    def _is_instance(self, ir: Operation) -> bool:  # pylint: disable=no-self-use
+        return (
+            isinstance(ir, HighLevelCall)
+            and (
+                (
+                    isinstance(ir.function, Function)
+                    and "latestRoundData" in ir.function.name
+                )
+                or not isinstance(ir.function, Function)
+            )
+            or ir.node.type == NodeType.TRY
+            and isinstance(ir, (Assignment, Unpack))
+        )
+
+
+    def detect_unused_return_values(
+        self, f: FunctionContract
+    ) -> List[Node]:  # pylint: disable=no-self-use
+        """
+            Return the nodes where the return value of a call is unused
+        Args:
+            f (Function)
+        Returns:
+            list(Node)
+        """
+        used_returned_vars = []
+        values_returned = []
+        nodes_origin = {}
+        # pylint: disable=too-many-nested-blocks
+        for n in f.nodes:
+            for ir in n.irs:
+                if self._is_instance(ir):
+                    # if a return value is stored in a state variable, it's ok
+                    if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
+                        values_returned.append((ir.lvalue, None))
+                        nodes_origin[ir.lvalue] = ir
+                        if isinstance(ir.lvalue, TupleVariable):
+                            # we iterate the number of elements the tuple has
+                            # and add a (variable, index) in values_returned for each of them
+                            for index in range(len(ir.lvalue.type)):
+                                values_returned.append((ir.lvalue, index))
+                for read in ir.read:
+                    remove = (read, ir.index) if isinstance(ir, Unpack) else (read, None)
+                    if remove in values_returned:
+                        used_returned_vars.append(remove) # This is saying which element is used based on the index
+                        # this is needed to remove the tuple variable when the first time one of its element is used
+                        if remove[1] is not None and (remove[0], None) in values_returned:
+                            values_returned.remove((remove[0], None))
+                        values_returned.remove(remove)
+        output = []
+        for (value, index) in used_returned_vars:
+            output.append((nodes_origin[value].node, index))
+        return output
+     
     def find_which_vars_are_used(self, oracle: Oracle):
         vars_order = self.generate_naive_order()
-        returned_types_of_high_call = oracle.ir.function.return_type
-        for i in oracle.ir.used:
-            if isinstance(i, StateVariable):
-                print(i.name)
-            if isinstance(i, Tup):
-                print(i.name)
-        # print()
+        # ir = oracle.ir
+      
+        # values_returned = []
+        # nodes_origin = {}
+        # # print(ir.lvalue)
+        # if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
+        #     values_returned.append((ir.lvalue, None))
+        #     nodes_origin[ir.lvalue] = ir
+        #     if isinstance(ir.lvalue, TupleVariable):
+        #         for index in range(len(ir.lvalue.type)):
+        #             values_returned.append((ir.lvalue, index))
+        # else:
+        #     print(ir.lvalue)
+                    
+        # for read in ir.read:
+        #     remove = (read, ir.index) if isinstance(ir, Unpack) else (read, None)
+        #     if remove in values_returned:
+        #                 # this is needed to remove the tuple variable when the first time one of its element is used
+        #         if remove[1] is not None and (remove[0], None) in values_returned:
+        #             values_returned.remove((remove[0], None))
+        #         values_returned.remove(remove)
+        # for node in [nodes_origin[value].node for (value, _) in values_returned]:
+            # print(node)
+            
+        
         types_of_used_vars = []
         for var in oracle.oracle_vars:
             if type(var) == VarInCondition:
@@ -190,7 +277,13 @@ class OracleDataCheck(OracleDetector):
         super()._detect()
         not_checked_vars = self.process_not_checked_vars()
         res = self.generate_result(not_checked_vars)
-        self.process_checked_vars()
+        for c in self.compilation_unit.contracts_derived:
+            for f in c.functions_and_modifiers:
+                unused_return = self.detect_unused_return_values(f)
+                if unused_return:
+                    for i in unused_return:
+                        print(i)
+        # self.process_checked_vars()
         # results.append(res)
         # res = self.generate_result(self.process_checked_vars())
         # results.append(res)

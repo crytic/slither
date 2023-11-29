@@ -69,28 +69,11 @@ class OracleDetector(AbstractDetector):
         return False
 
     def check_chainlink_call(self, function: FunctionContract) -> (bool, str, int):
-        values_returned = []
-        nodes_origin = {}
         for node in function.nodes:
             for ir in node.irs:
                 if isinstance(ir,HighLevelCall):
                     if(self.compare_chainlink_call(ir.function_name)):
-                        if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
-                            values_returned.append((ir.lvalue, None))
-                            nodes_origin[ir.lvalue] = ir
-                            if isinstance(ir.lvalue, TupleVariable):
-                                # we iterate the number of elements the tuple has
-                                # and add a (variable, index) in values_returned for each of them
-                                for index in range(len(ir.lvalue.type)):
-                                    values_returned.append((ir.lvalue, index))
-                    for read in ir.read:
-                        remove = (read, ir.index) if isinstance(ir, Unpack) else (read, None)
-                        if remove in values_returned:
-                            # this is needed to remove the tuple variable when the first time one of its element is used
-                            if remove[1] is not None and (remove[0], None) in values_returned:
-                                values_returned.remove((remove[0], None))
-                            values_returned.remove(remove)
-                    return (True, ir, node.source_mapping.lines[0])
+                        return (True, ir, node.source_mapping.lines[0])
                         
         # for functionCalled in function.external_calls_as_expressions:
         #     if self.compare_chainlink_call(functionCalled):
