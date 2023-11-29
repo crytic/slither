@@ -30,10 +30,10 @@ from typing import List
 # print('break on this line')
 
 class Oracle:
-    def __init__(self, _contract, _function, _ir_rep, _line_of_call, _returned_used_vars):
+    def __init__(self, _contract, _function, _node, _line_of_call, _returned_used_vars):
         self.contract = _contract
         self.function = _function
-        self.ir = _ir_rep
+        self.node = _node
         self.line_of_call = _line_of_call  # can be get by node.source_mapping.lines[0]
         self.oracle_vars = []
         self.vars_in_condition = []
@@ -73,8 +73,6 @@ class OracleDetector(AbstractDetector):
                     continue
                 oracle_calls_in_function, oracle_returned_var_indexes, = self.check_chainlink_call(function) 
                 if oracle_calls_in_function:
-                    print("ORacle calls", oracle_calls_in_function)
-                    print("Oracle returned var indexes", oracle_returned_var_indexes)
                     for node in oracle_calls_in_function:
                         idxs = []
                         for idx in oracle_returned_var_indexes:
@@ -130,8 +128,6 @@ class OracleDetector(AbstractDetector):
                         if remove[1] is not None and (remove[0], None) in values_returned:
                             values_returned.remove((remove[0], None))
                         values_returned.remove(remove)
-                    # if(self.compare_chainlink_call(ir.function_name)):
-                    #     return (True, ir, node.source_mapping.lines[0])
         returned_vars_used_indexes = []
         for (value, index) in used_returned_vars:
             returned_vars_used_indexes.append((nodes_origin[value].node,index))                  

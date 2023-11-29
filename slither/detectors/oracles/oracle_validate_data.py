@@ -51,6 +51,8 @@ class OracleDataCheck(OracleDetector):
  
 
     def check_staleness(self, var: VarInCondition):
+        if var is None:
+            return False
         for node in var.nodes:
             str_node = str(node)
             # print(str_node)
@@ -71,6 +73,8 @@ class OracleDataCheck(OracleDetector):
     
 
     def check_RoundId(self, var: VarInCondition, var2: VarInCondition): # https://solodit.xyz/issues/chainlink-oracle-return-values-are-not-handled-property-halborn-savvy-defi-pdf
+        if var is None or var2 is None:
+            return False
         for node in var.nodes:
             for ir in node.irs:
                 if isinstance(ir, Binary):
@@ -84,6 +88,8 @@ class OracleDataCheck(OracleDetector):
         return False
     
     def check_price(self, var: VarInCondition): #TODO I need to divie require or IF
+        if var is None:
+            return False
         look_for_revert = False
         for node in var.nodes: #TODO testing
             if look_for_revert:
@@ -110,63 +116,46 @@ class OracleDataCheck(OracleDetector):
     
     def generate_naive_order(self):
         vars_order = {}
-        vars_order[OracleVarType.ROUNDID] = None
-        vars_order[OracleVarType.ANSWER] = None
-        vars_order[OracleVarType.STARTEDAT] = None
-        vars_order[OracleVarType.UPDATEDAT] = None
-        vars_order[OracleVarType.ANSWEREDINROUND] = None
+        vars_order[OracleVarType.ROUNDID.value] = None
+        vars_order[OracleVarType.ANSWER.value] = None
+        vars_order[OracleVarType.STARTEDAT.value] = None
+        vars_order[OracleVarType.UPDATEDAT.value] = None
+        vars_order[OracleVarType.ANSWEREDINROUND.value] = None
         return vars_order
 
 
      
     def find_which_vars_are_used(self, oracle: Oracle):
         vars_order = self.generate_naive_order()
-        # ir = oracle.ir
-      
-        # values_returned = []
-        # nodes_origin = {}
-        # # print(ir.lvalue)
-        # if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
-        #     values_returned.append((ir.lvalue, None))
-        #     nodes_origin[ir.lvalue] = ir
-        #     if isinstance(ir.lvalue, TupleVariable):
-        #         for index in range(len(ir.lvalue.type)):
-        #             values_returned.append((ir.lvalue, index))
-        # else:
-        #     print(ir.lvalue)
-                    
-        # for read in ir.read:
-        #     remove = (read, ir.index) if isinstance(ir, Unpack) else (read, None)
-        #     if remove in values_returned:
-        #                 # this is needed to remove the tuple variable when the first time one of its element is used
-        #         if remove[1] is not None and (remove[0], None) in values_returned:
-        #             values_returned.remove((remove[0], None))
-        #         values_returned.remove(remove)
-        # for node in [nodes_origin[value].node for (value, _) in values_returned]:
-            # print(node)
-            
-        
-        types_of_used_vars = []
-        for var in oracle.oracle_vars:
-            if type(var) == VarInCondition:
-                types_of_used_vars.append(var.var.type)
-            else:     
-                types_of_used_vars.append(var.type)
-        for i in range(0,len(types_of_used_vars)):
-            if types_of_used_vars[i].name == "uint80" and i == 0:
-                    vars_order[OracleVarType.ROUNDID] = oracle.oracle_vars[i]
-            elif types_of_used_vars[i].name == "int256":
-                    vars_order[OracleVarType.ANSWER] = oracle.oracle_vars[i]
-            elif types_of_used_vars[i].name == "uint80" and i == len(types_of_used_vars) - 1:
-                    vars_order[OracleVarType.ANSWEREDINROUND] = oracle.oracle_vars[i]
-            
+        for i in range(len(oracle.oracle_vars)):
+            vars_order[oracle.returned_vars_indexes[i]] = oracle.oracle_vars[i]
+        return vars_order
 
-        
+
+    def is_needed_to_check_conditions(self, oracle, var):
+        if isinstance(var, VarInCondition):
+            var = var.var
+        if var in oracle.vars_not_in_condition:
+            return False
+        return True
 
 
     def naive_check(self, oracle: Oracle):
-        self.find_which_vars_are_used(oracle)
-        # print([var.var.name for var in ordered_returned_vars])
+        vars_order = self.find_which_vars_are_used(oracle)
+        problems = []
+        for (index, var) in vars_order.items():
+            if not self.is_needed_to_check_conditions(oracle, var):
+                continue
+            if index == OracleVarType.ROUNDID.value:
+                if not self.check_RoundId(var, vars_order[OracleVarType.ANSWEREDINROUND.value]):
+                    problems.append("The RoundID is not checked\n") #TODO add more info
+            elif index == OracleVarType.ANSWER.value:
+                if not self.check_price(var):
+                    problems.append("The price is not checked\n") #TODO add more info
+            elif index == OracleVarType.UPDATEDAT.value:
+                if not self.check_staleness(var):
+                    problems.append("The staleness is not checked\n") #TODO add more info
+        return problems
         # checks = {}
         # for i in range(0,5):
         #     checks[i] = False
@@ -182,17 +171,6 @@ class OracleDataCheck(OracleDetector):
         #         print(checks[3])
 
         # return checks
-
-    def process_checks(self,checks):
-        result = []
-        for check in checks:
-            if check[1] == False:
-                result.append("Price is not checked well!\n")
-            if check[3] == False:
-                result.append("The price could be probably stale!\n")
-            if check[0] == False:
-                result.append("RoundID is not checked well!\n")
-        return result
             
     #          require(
     #       answeredInRound >= roundID,
@@ -201,10 +179,6 @@ class OracleDataCheck(OracleDetector):
     #   require(price > 0, "Chainlink Malfunction");
     #   require(updateTime != 0, "Incomplete round");
 
-    def process_checked_vars(self):
-        checks = []
-        for oracle in self.oracles:
-            checks.append(self.naive_check(oracle))
         # return self.process_checks(checks)
     
     def process_not_checked_vars(self):
@@ -222,16 +196,14 @@ class OracleDataCheck(OracleDetector):
     def _detect(self):
         results = []
         super()._detect()
-        # not_checked_vars = self.process_not_checked_vars()
-        # res = self.generate_result(not_checked_vars)
-        # for c in self.compilation_unit.contracts_derived:
-        #     for f in c.functions_and_modifiers:
-        #         unused_return = self.detect_unused_return_values(f)
-        #         if unused_return:
-        #             for i in unused_return:
-        #                 print(i)
-        # self.process_checked_vars()
-        # results.append(res)
+        not_checked_vars = self.process_not_checked_vars()
+        res = self.generate_result(not_checked_vars)
+        results.append(res)
+        for oracle in self.oracles:
+            checked_vars = self.naive_check(oracle)
+            if len(checked_vars) > 0:
+                res = self.generate_result(checked_vars)
+                results.append(res)
         # res = self.generate_result(self.process_checked_vars())
         # results.append(res)
         return results
