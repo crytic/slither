@@ -21,6 +21,7 @@ from slither.detectors.abstract_detector import (
 from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operation
 from slither.slithir.variables import TupleVariable
 from typing import List
+from slither.slithir.variables.constant import Constant
 
 
 
@@ -108,17 +109,18 @@ class OracleDataCheck(OracleDetector):
                     look_for_revert = False
             for ir in node.irs:
                 if isinstance(ir, Binary):
-                    if ir.type is (BinaryType.GREATER):
-                        if (ir.variable_right.value == 0):
-                            return True
-                    elif ir.type is (BinaryType.LESS):
-                        if (ir.variable_left.value == 0):
-                            return True
-                    elif ir.type is (BinaryType.NOT_EQUAL):
-                        if (ir.variable_right.value == 0):
-                            return True
-                    else:
-                        look_for_revert = True
+                    if isinstance(ir.variable_right, Constant):
+                        if ir.type is (BinaryType.GREATER):
+                            if (ir.variable_right.value == 0):
+                                return True
+                        elif ir.type is (BinaryType.NOT_EQUAL):
+                            if (ir.variable_right.value == 0):
+                                return True
+                    if isinstance(ir.variable_left, Constant):        
+                        if ir.type is (BinaryType.LESS):
+                            if (ir.variable_left.value == 0):
+                                return True
+                    look_for_revert = True
                         
 
         return False
@@ -155,7 +157,7 @@ class OracleDataCheck(OracleDetector):
         for (index, var) in vars_order.items():
             if not self.is_needed_to_check_conditions(oracle, var):
                 continue
-            if index == OracleVarType.ROUNDID.value:
+            if index == OracleVarType.ROUNDID.value: #TODO this is maybe not so mandatory
                 if not self.check_RoundId(var, vars_order[OracleVarType.ANSWEREDINROUND.value]):
                     problems.append("RoundID value is not checked correctly. It was returned by the oracle call {}, in the function {} of contract {}.\n".format(oracle.interface, oracle.function, oracle.node.source_mapping))
             elif index == OracleVarType.ANSWER.value:
