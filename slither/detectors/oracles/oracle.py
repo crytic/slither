@@ -17,6 +17,7 @@ from slither.detectors.abstract_detector import (
 )
 from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operation
 from slither.slithir.variables import TupleVariable
+from slither.slithir.variables.reference import ReferenceVariable
 from typing import List
 
 # For debugging
@@ -80,9 +81,14 @@ class OracleDetector(AbstractDetector):
                             if isinstance(ir, HighLevelCall):
                                 interface = ir.destination
                         idxs = []
+                        # if referecne_variable_assigned and isinstance(interface, ReferenceVariable):
+                        #     break
+                        # if isinstance(interface, ReferenceVariable): 
+                        #     referecne_variable_assigned = True
                         for idx in oracle_returned_var_indexes:
                             if idx[0] == node:
                                 idxs.append(idx[1])
+                        # print(node, interface, contract)
                         oracle = Oracle(contract, function, node, node.source_mapping.lines[0], idxs, interface)
                         oracles.append(oracle)
         return oracles
@@ -135,7 +141,7 @@ class OracleDetector(AbstractDetector):
                         values_returned.remove(remove)
         returned_vars_used_indexes = []
         for (value, index) in used_returned_vars:
-            returned_vars_used_indexes.append((nodes_origin[value].node,index))                  
+            returned_vars_used_indexes.append((nodes_origin[value].node,index))                 
         return oracle_calls, returned_vars_used_indexes
 
     def get_returned_variables_from_oracle(

@@ -40,8 +40,8 @@ class OracleDataCheck(OracleDetector):
 
     ARGUMENT = "oracle"  # slither will launch the detector with slither.py --detect mydetector
     HELP = "Help printed by slither"
-    IMPACT = DetectorClassification.HIGH
-    CONFIDENCE = DetectorClassification.HIGH
+    IMPACT = DetectorClassification.MEDIUM
+    CONFIDENCE = DetectorClassification.MEDIUM
 
     WIKI = "RUN"
 
@@ -158,13 +158,13 @@ class OracleDataCheck(OracleDetector):
                 continue
             if index == OracleVarType.ROUNDID.value: #TODO this is maybe not so mandatory
                 if not self.check_RoundId(var, vars_order[OracleVarType.ANSWEREDINROUND.value]):
-                    problems.append("RoundID value is not checked correctly. It was returned by the oracle call {}, in the function {} of contract {}.\n".format(oracle.interface, oracle.function, oracle.node.source_mapping))
+                    problems.append("RoundID value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
             elif index == OracleVarType.ANSWER.value:
                 if not self.check_price(var, oracle):
-                    problems.append("Price value is not checked correctly. It was returned by the oracle call {}, in the function {} of contract {}.\n".format(oracle.interface, oracle.function, oracle.node.source_mapping))
+                    problems.append("Price value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
             elif index == OracleVarType.UPDATEDAT.value:
                 if not self.check_staleness(var):
-                    problems.append("UpdatedAt value is not checked correctly. It was returned by the oracle call {}, in the function {} of contract {}.\n".format(oracle.interface, oracle.function, oracle.node.source_mapping))
+                    problems.append("UpdatedAt value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
         return problems
     
     def process_not_checked_vars(self):
