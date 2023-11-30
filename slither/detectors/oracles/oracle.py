@@ -203,11 +203,13 @@ class OracleDetector(AbstractDetector):
                     vars_in_condition.append(VarInCondition(var, nodes))
                     oracle_vars.append(VarInCondition(var, nodes))
             else:
-                oracle_vars.append(var)
+                self.nodes = []
                 if self.investigate_internal_call(oracle.function, var): #TODO i need to chnge this to check for taint analysis somehow
-                    vars_in_condition.append(var)
+                    vars_in_condition.append(VarInCondition(var, self.nodes))
+                    oracle_vars.append(VarInCondition(var, self.nodes))
                 else:
                     vars_not_in_condition.append(var)
+                    oracle_vars.append(var)
         oracle.vars_in_condition = vars_in_condition
         oracle.vars_not_in_condition = vars_not_in_condition
         oracle.oracle_vars = oracle_vars
@@ -220,14 +222,18 @@ class OracleDetector(AbstractDetector):
 
         for functionCalled in function.internal_calls:
             if isinstance(functionCalled, FunctionContract):
-                for local_var in functionCalled.variables_read:
-                    if local_var.name == var.name:
-                        if functionCalled.is_reading_in_conditional_node(
-                            local_var
-                        ) or functionCalled.is_reading_in_require_or_assert(
-                            local_var
-                        ):  # These two functions check if within the function some var is in require/assert of in if statement
-                            return True
+                self.nodes = self.map_condition_to_var(var, functionCalled)
+                if len(self.nodes) > 0:
+                    return True
+                # for local_var in functionCalled.variables_read:
+                #     if local_var.name == var.name:
+
+                #         if functionCalled.is_reading_in_conditional_node(
+                #             local_var
+                #         ) or functionCalled.is_reading_in_require_or_assert(
+                #             local_var
+                #         ):  # These two functions check if within the function some var is in require/assert of in if statement
+                #             return True
                 if self.investigate_internal_call(functionCalled, var):
                     return True
         return False

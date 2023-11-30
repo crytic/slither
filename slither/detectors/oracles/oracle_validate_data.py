@@ -150,6 +150,26 @@ class OracleDataCheck(OracleDetector):
         return True
 
 
+    def is_sequencer(self, answer, startedAt):
+        if answer is None or startedAt is None:
+            return False
+        answer_checked = False
+        startedAt_checked = False
+
+        for node in answer.nodes:
+            for ir in node.irs:
+                if isinstance(ir, Binary):
+                    if ir.type is (BinaryType.EQUAL):
+                        if isinstance(ir.variable_right, Constant):
+                            if ir.variable_right.value == 1:
+                                answer_checked = True
+        startedAt_checked = self.check_staleness(startedAt)
+        print(answer_checked, startedAt_checked)
+            
+        return answer_checked and startedAt_checked
+
+
+
     def naive_check(self, oracle: Oracle):
         vars_order = self.find_which_vars_are_used(oracle)
         problems = []
@@ -165,6 +185,10 @@ class OracleDataCheck(OracleDetector):
             elif index == OracleVarType.UPDATEDAT.value:
                 if not self.check_staleness(var):
                     problems.append("UpdatedAt value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
+            elif index == OracleVarType.STARTEDAT.value:
+                if self.is_sequencer(vars_order[OracleVarType.ANSWER.value], var):
+                    problems = [] #TODO send some hook to another detector
+                    break
         return problems
     
     def process_not_checked_vars(self):
