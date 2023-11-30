@@ -19,6 +19,7 @@ from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operat
 from slither.slithir.variables import TupleVariable
 from slither.slithir.variables.reference import ReferenceVariable
 from typing import List
+from slither.analyses.data_dependency.data_dependency import is_tainted
 
 # For debugging
 # import debugpy
@@ -145,25 +146,17 @@ class OracleDetector(AbstractDetector):
         return oracle_calls, returned_vars_used_indexes
 
     def get_returned_variables_from_oracle(
-        self, function: FunctionContract, oracle_call_line
+        self, function: FunctionContract, oracle_call_line, node
     ) -> list:
         written_vars = []
         ordered_vars = []
-        for (
-            var
-        ) in (
-            function.variables_written
-        ):  # This iterates through list of variables which are written in function
-            if (
-                var.source_mapping.lines[0] == oracle_call_line
-            ):  # We need to match line of var with line of oracle call
-                written_vars.append(var)
-        for node in function.nodes:
-            for var in written_vars:
-                if node.type is NodeType.VARIABLE and node.variable_declaration == var:
-                    if ordered_vars.count(var) == 0:
+        for var in node.variables_written:
+            written_vars.append(var)
+        for exp in node.variables_written_as_expression:
+            for v in exp.expressions:
+                for var in written_vars:
+                    if (str(v) == str(var.name)):
                         ordered_vars.append(var)
-                        break
         return ordered_vars
     
     def check_var_condition_match(self, var, node) -> bool:
@@ -243,7 +236,7 @@ class OracleDetector(AbstractDetector):
         self.oracles = self.chainlink_oracles(self.contracts)
         for oracle in self.oracles:
             oracle.oracle_vars = self.get_returned_variables_from_oracle(
-                oracle.function, oracle.line_of_call
+                oracle.function, oracle.line_of_call, oracle.node
             )
             self.vars_in_conditions(oracle)
         # for oracle in oracles:

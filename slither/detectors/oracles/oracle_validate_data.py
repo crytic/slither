@@ -149,8 +149,7 @@ class OracleDataCheck(OracleDetector):
             return False
         return True
 
-
-    def is_sequencer(self, answer, startedAt):
+    def is_sequencer_check(self, answer, startedAt):
         if answer is None or startedAt is None:
             return False
         answer_checked = False
@@ -185,8 +184,8 @@ class OracleDataCheck(OracleDetector):
             elif index == OracleVarType.UPDATEDAT.value:
                 if not self.check_staleness(var):
                     problems.append("UpdatedAt value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
-            elif index == OracleVarType.STARTEDAT.value:
-                if self.is_sequencer(vars_order[OracleVarType.ANSWER.value], var):
+            elif index == OracleVarType.STARTEDAT.value and vars_order[OracleVarType.STARTEDAT.value] is not None:
+                if self.is_sequencer_check(vars_order[OracleVarType.ANSWER.value], var):
                     problems = [] #TODO send some hook to another detector
                     break
         return problems
