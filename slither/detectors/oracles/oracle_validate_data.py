@@ -5,7 +5,7 @@ from slither.core.expressions import expression
 from slither.slithir.operations import Binary, BinaryType
 from enum import Enum
 from slither.detectors.oracles.oracle import OracleDetector, Oracle, VarInCondition
-from slither.detectors.operations.unused_return_values import UnusedReturnValues
+from slither.slithir.operations.solidity_call import SolidityCall
 from slither.core.cfg.node import NodeType
 from slither.core.variables.state_variable import StateVariable
 
@@ -20,6 +20,7 @@ from slither.detectors.abstract_detector import (
 )
 from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operation
 from slither.slithir.variables import TupleVariable
+from slither.core.expressions.expression import Expression
 from typing import List
 from slither.slithir.variables.constant import Constant
 
@@ -77,13 +78,7 @@ class OracleDataCheck(OracleDetector):
     def check_RoundId(self, var: VarInCondition, var2: VarInCondition) -> bool: # https://solodit.xyz/issues/chainlink-oracle-return-values-are-not-handled-property-halborn-savvy-defi-pdf
         if var is None or var2 is None:
             return False
-        look_for_revert = False
         for node in var.nodes:
-            if look_for_revert:
-                if node.type == NodeType.THROW:
-                    return True
-                else:
-                    look_for_revert = False
             for ir in node.irs:
                 if isinstance(ir, Binary):
                     if ir.type in (BinaryType.GREATER, BinaryType.GREATER_EQUAL):
@@ -92,21 +87,24 @@ class OracleDataCheck(OracleDetector):
                     elif ir.type in (BinaryType.LESS, BinaryType.LESS_EQUAL):
                         if (ir.variable_right == var2.var and ir.variable_left == var.var):
                             return True
-                    else:
-                        look_for_revert = True
+            if self.check_revert(node):
+                return True
                        
         return False
     
-    def check_price(self, var: VarInCondition) -> bool: #TODO I need to divie require or IF
+    def check_revert(self, node: Node) -> bool:
+        for n in node.sons:
+            if n.type == NodeType.EXPRESSION:
+                for ir in n.irs:
+                    if isinstance(ir, SolidityCall):
+                        if "revert" in ir.function.name:
+                            return True
+        return False
+
+    def check_price(self, var: VarInCondition, oracle: Oracle) -> bool: #TODO I need to divie require or IF
         if var is None:
             return False
-        look_for_revert = False
         for node in var.nodes: #TODO testing
-            if look_for_revert:
-                if node.type == NodeType.THROW:
-                    return True
-                else:
-                    look_for_revert = False
             for ir in node.irs:
                 if isinstance(ir, Binary):
                     if isinstance(ir.variable_right, Constant):
@@ -120,7 +118,8 @@ class OracleDataCheck(OracleDetector):
                         if ir.type is (BinaryType.LESS):
                             if (ir.variable_left.value == 0):
                                 return True
-                    look_for_revert = True
+            if self.check_revert(node):
+                return True
                         
 
         return False
@@ -161,7 +160,7 @@ class OracleDataCheck(OracleDetector):
                 if not self.check_RoundId(var, vars_order[OracleVarType.ANSWEREDINROUND.value]):
                     problems.append("RoundID value is not checked correctly. It was returned by the oracle call {}, in the function {} of contract {}.\n".format(oracle.interface, oracle.function, oracle.node.source_mapping))
             elif index == OracleVarType.ANSWER.value:
-                if not self.check_price(var):
+                if not self.check_price(var, oracle):
                     problems.append("Price value is not checked correctly. It was returned by the oracle call {}, in the function {} of contract {}.\n".format(oracle.interface, oracle.function, oracle.node.source_mapping))
             elif index == OracleVarType.UPDATEDAT.value:
                 if not self.check_staleness(var):
