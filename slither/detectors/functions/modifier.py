@@ -89,7 +89,7 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
                     info: DETECTOR_INFO = [
                         "Modifier ",
                         mod,
-                        " does not always execute _; or revert \n",
+                        " does not always execute _; or revert\n",
                     ]
 
                     res = self.generate_result(info)
