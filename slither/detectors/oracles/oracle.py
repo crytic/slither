@@ -165,6 +165,8 @@ class OracleDetector(AbstractDetector):
         ) in (
             node.variables_read
         ):  # This iterates through all variables which are read in node, what means that they are used in condition
+            if var is None or var2 is None:
+                continue
             if var.name == var2.name:
                 return True
         return False
