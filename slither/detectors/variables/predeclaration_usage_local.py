@@ -36,7 +36,7 @@ class PredeclarationUsageLocal(AbstractDetector):
 ```solidity
 contract C {
     function f(uint z) public returns (uint) {
-        uint y = x + 9 + z; // 'z' is used pre-declaration
+        uint y = x + 9 + z; // 'x' is used pre-declaration
         uint x = 7;
 
         if (z % 2 == 0) {
