@@ -59,7 +59,7 @@ class OracleDataCheck(OracleDetector):
         for node in var.nodes:
             str_node = str(node)
             # print(str_node)
-            if "block.timesslitamp" in str_node: #TODO maybe try something like block.timestamp - updatedAt < b
+            if "block.timestamp" in str_node: #TODO maybe try something like block.timestamp - updatedAt < b
                 return True
                     
 
@@ -190,7 +190,7 @@ class OracleDataCheck(OracleDetector):
             # if index == OracleVarType.ROUNDID.value: #TODO this is maybe not so mandatory
             #     if not self.check_RoundId(var, vars_order[OracleVarType.ANSWEREDINROUND.value]):
             #         problems.append("RoundID value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
-            elif index == OracleVarType.ANSWER.value:
+            if index == OracleVarType.ANSWER.value:
                 if not self.check_price(var, oracle):
                     problems.append("Price value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
             elif index == OracleVarType.UPDATEDAT.value:
