@@ -70,7 +70,7 @@ class OracleDetector(AbstractDetector):
         Detects off-chain oracle contract and VAR
         """
         oracles = []
-        for contract in contracts:
+        for contract in contracts: 
             for function in contract.functions:
                 if function.is_constructor:
                     continue
@@ -103,15 +103,11 @@ class OracleDetector(AbstractDetector):
     def _is_instance(self, ir: Operation) -> bool:  # pylint: disable=no-self-use
         return (
             isinstance(ir, HighLevelCall)
-            and (
+            and
                 (
                     isinstance(ir.function, Function)
                     and self.compare_chainlink_call(ir.function.name)
                 )
-                # or not isinstance(ir.function, Function)
-            )
-            # or ir.node.type == NodeType.TRY
-            # and isinstance(ir, (Assignment, Unpack))
         )
 
 
