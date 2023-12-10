@@ -10,6 +10,7 @@ from slither.core.cfg.node import NodeType
 from slither.core.variables.state_variable import StateVariable
 
 from slither.core.cfg.node import Node, NodeType
+from slither.slithir.operations.return_operation import Return
 from slither.core.declarations import Function
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.state_variable import StateVariable
@@ -58,7 +59,7 @@ class OracleDataCheck(OracleDetector):
         for node in var.nodes:
             str_node = str(node)
             # print(str_node)
-            if "block.timestamp" in str_node: #TODO maybe try something like block.timestamp - updatedAt < b
+            if "block.timesslitamp" in str_node: #TODO maybe try something like block.timestamp - updatedAt < b
                 return True
                     
 
@@ -101,6 +102,15 @@ class OracleDataCheck(OracleDetector):
                             return True
         return False
 
+    def return_boolean(self, node: Node) -> bool:
+        for n in node.sons:
+            if n.type == NodeType.RETURN:
+                for ir in n.irs:
+                    if isinstance(ir, Return):
+                        for value in ir.values:
+                            print(value)
+
+                            
     def check_price(self, var: VarInCondition, oracle: Oracle) -> bool: #TODO I need to divie require or IF
         if var is None:
             return False
@@ -119,6 +129,8 @@ class OracleDataCheck(OracleDetector):
                             if (ir.variable_left.value == 0):
                                 return True
             if self.check_revert(node):
+                return True
+            elif self.return_boolean(node):
                 return True
                         
 
@@ -175,9 +187,9 @@ class OracleDataCheck(OracleDetector):
         for (index, var) in vars_order.items():
             if not self.is_needed_to_check_conditions(oracle, var):
                 continue
-            if index == OracleVarType.ROUNDID.value: #TODO this is maybe not so mandatory
-                if not self.check_RoundId(var, vars_order[OracleVarType.ANSWEREDINROUND.value]):
-                    problems.append("RoundID value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
+            # if index == OracleVarType.ROUNDID.value: #TODO this is maybe not so mandatory
+            #     if not self.check_RoundId(var, vars_order[OracleVarType.ANSWEREDINROUND.value]):
+            #         problems.append("RoundID value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
             elif index == OracleVarType.ANSWER.value:
                 if not self.check_price(var, oracle):
                     problems.append("Price value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
