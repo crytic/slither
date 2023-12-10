@@ -1,0 +1,3 @@
+
+Price value is not checked correctly. It was returned by the oracle call in the function getPriceUSD of contract test_data/oracle/0.8.20/oracle_data_check2.sol#55-61.
+
