@@ -1,8 +1,6 @@
 from typing import List, Type
-
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.utils.myprettytable import MyPrettyTable
-
 
 def output_mutators(mutators_classes: List[Type[AbstractMutator]]) -> None:
     mutators_list = []

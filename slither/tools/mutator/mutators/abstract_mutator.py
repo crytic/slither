@@ -4,9 +4,10 @@ from enum import Enum
 from typing import Optional, Dict
 
 from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.tools.doctor.utils import snip_section
 from slither.formatters.utils.patches import apply_patch, create_diff
 
-logger = logging.getLogger("Slither")
+logger = logging.getLogger("Slither-Mutate")
 
 
 class IncorrectMutatorInitialization(Exception):
@@ -68,13 +69,14 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
             )
 
     @abc.abstractmethod
-    def _mutate(self) -> Dict:
+    def _mutate(self, test_cmd: str, test_dir: str) -> Dict:
         """TODO Documentation"""
         return {}
 
-    def mutate(self) -> None:
-        all_patches = self._mutate()
-
+    def mutate(self, testing_command: str, testing_directory: str) -> int:
+        # call _mutate function from different mutators
+        (all_patches, valid_mutant_count) = self._mutate(testing_command, testing_directory)
+        
         if "patches" not in all_patches:
             logger.debug(f"No patches found by {self.NAME}")
             return
@@ -93,4 +95,11 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
             diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
             if not diff:
                 logger.info(f"Impossible to generate patch; empty {patches}")
+            # print the differences
             print(diff)
+        
+        return valid_mutant_count
+    
+    
+    
+    
