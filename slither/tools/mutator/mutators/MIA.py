@@ -11,47 +11,53 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
     HELP = '"if" construct around statement'
     FAULTCLASS = FaultClass.Checking
     FAULTNATURE = FaultNature.Missing
-    VALID_MUTANTS_COUNT = 1
+    VALID_MUTANTS_COUNT = 0
+    INVALID_MUTANTS_COUNT = 0
 
-    def _mutate(self, test_cmd: str, test_dir: str) -> Tuple[(Dict, int)]:
+    def _mutate(self, test_cmd: str, test_dir: str, contract_name: str) -> Tuple[(Dict, int, int)]:
 
         result: Dict = {}
         
         for contract in self.slither.contracts:
-            if not contract.is_library:
-                if not contract.is_interface:
-                    for function in contract.functions_declared + list(contract.modifiers_declared):
-                        for node in function.nodes:
-                            if node.contains_if():
-                                # print(node.expression)
-                                # Retrieve the file
-                                in_file = contract.source_mapping.filename.absolute
-                                # Retrieve the source code
-                                in_file_str = contract.compilation_unit.core.source_code[in_file]
+            # if not contract.is_library:
+            #     if not contract.is_interface:
+            if contract_name == str(contract.name):
+                for function in contract.functions_declared + list(contract.modifiers_declared):
+                    for node in function.nodes:
+                        if node.contains_if():
+                            # print(node.expression)
+                            # Retrieve the file
+                            in_file = contract.source_mapping.filename.absolute
+                            # Retrieve the source code
+                            in_file_str = contract.compilation_unit.core.source_code[in_file]
 
-                                # Get the string
-                                start = node.source_mapping.start
-                                stop = start + node.source_mapping.length
-                                # old_str = in_file_str[start:stop]
-                                old_str = str(node.expression)
-                                line_no = node.source_mapping.lines
-                                print(line_no)
-                                # Replace the expression with true
-                                new_str = "true"
-
-                                replace_string_in_source_file_specific_line(in_file, old_str, new_str, line_no[0])
+                            # Get the string
+                            start = node.source_mapping.start
+                            stop = start + node.source_mapping.length
+                            # old_str = in_file_str[start:stop]
+                            old_str = str(node.expression)
+                            line_no = node.source_mapping.lines
+                            # Replace the expression with true
+                            new_str = "true"
+                            print(line_no[0])
+                            replace_string_in_source_file_specific_line(in_file, old_str, new_str, line_no[0])
+                            
+                            # compile and run tests 
+                            if compile_generated_mutant(in_file):
+                                if run_test_suite(test_cmd, test_dir):
+                                    # generate the mutant and patch
+                                    create_mutant_file(in_file, self.VALID_MUTANTS_COUNT, self.NAME)
+                                    create_patch(result, in_file, start, stop, old_str, new_str)
+                                    self.VALID_MUTANTS_COUNT = self.VALID_MUTANTS_COUNT + 1
+                                else:
+                                    self.INVALID_MUTANTS_COUNT = self.INVALID_MUTANTS_COUNT + 1
+                            else:
+                                self.INVALID_MUTANTS_COUNT = self.INVALID_MUTANTS_COUNT + 1
+        print(self.INVALID_MUTANTS_COUNT)
+                                         
                                 
-                                # compile and run tests 
-                                if compile_generated_mutant(in_file):
-                                    if run_test_suite(test_cmd, test_dir):
-                                        # print(True)
-                                        # generate the mutant and patch
-                                        create_mutant_file(in_file, self.VALID_MUTANTS_COUNT, self.NAME)
-                                        create_patch(result, in_file, start, stop, old_str, new_str)
-                                        
-                                
 
-        return (result, self.VALID_MUTANTS_COUNT)
+        return (result, self.VALID_MUTANTS_COUNT, self.INVALID_MUTANTS_COUNT)
 
     
 

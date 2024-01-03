@@ -1,7 +1,7 @@
 import abc
 import logging
 from enum import Enum
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
 
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.tools.doctor.utils import snip_section
@@ -73,9 +73,9 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
         """TODO Documentation"""
         return {}
 
-    def mutate(self, testing_command: str, testing_directory: str) -> int:
+    def mutate(self, testing_command: str, testing_directory: str, contract_name: str) -> Tuple[(int, int)]:
         # call _mutate function from different mutators
-        (all_patches, valid_mutant_count) = self._mutate(testing_command, testing_directory)
+        (all_patches, valid_mutant_count, invalid_mutant_count) = self._mutate(testing_command, testing_directory, contract_name)
         
         if "patches" not in all_patches:
             logger.debug(f"No patches found by {self.NAME}")
@@ -98,7 +98,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
             # print the differences
             print(diff)
         
-        return valid_mutant_count
+        return (valid_mutant_count, invalid_mutant_count)
     
     
     

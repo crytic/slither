@@ -1,4 +1,5 @@
 import logging
+import re
 
 logger = logging.getLogger("Slither-Mutate")
 
@@ -8,7 +9,7 @@ def replace_string_in_source_file(file_path: str, old_string: str, new_string: s
         # Read the content of the Solidity file
         with open(file_path, 'r') as file:
             content = file.read()
-
+        
         # Perform the string replacement
         modified_content = content.replace(old_string, new_string)
 
@@ -28,8 +29,12 @@ def replace_string_in_source_file_specific_line(file_path: str, old_string: str,
             lines = file.readlines()
 
         if 1 <= line_number <= len(lines):
+            # remove the spaces in the string 
+            line = lines[line_number - 1].replace(" ", "")
+            old_string = old_string.replace(" ", "")
+
             # Replace the old string with the new string on the specified line
-            lines[line_number - 1] = lines[line_number - 1].replace(old_string, new_string)
+            lines[line_number - 1] = line.replace(old_string.strip(), new_string)
 
             # Write the modified content back to the file
             with open(file_path, 'w') as file:
