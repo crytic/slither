@@ -11,32 +11,34 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
     HELP = "variable initialization using a value"
     FAULTCLASS = FaultClass.Assignement
     FAULTNATURE = FaultNature.Missing
-    VALID_MUTANTS_COUNT = 1
+    VALID_MUTANTS_COUNT = 0
+    INVALID_MUTANTS_COUNT = 0
 
-    def _mutate(self, test_cmd: str, test_dir: str) -> Tuple[(Dict, int)]:
+    def _mutate(self, test_cmd: str, test_dir: str, contract_name: str) -> Tuple[(Dict, int, int)]:
 
         result: Dict = {}
         variable: Variable
 
         for contract in self.slither.contracts:
-            if not contract.is_library:
-                if not contract.is_interface:
-                    # Create fault for state variables declaration
-                    for variable in contract.state_variables_declared:
-                        if variable.initialized:
-                            # Cannot remove the initialization of constant variables
-                            if variable.is_constant:
-                                continue
+            # if not contract.is_library:
+            #     if not contract.is_interface:
+            if contract_name == str(contract.name):
+                # Create fault for state variables declaration
+                for variable in contract.state_variables_declared:
+                    if variable.initialized:
+                        # Cannot remove the initialization of constant variables
+                        if variable.is_constant:
+                            continue
 
-                            if isinstance(variable.expression, Literal):
-                                if(remove_assignement(variable, contract, result, test_cmd, test_dir)):
-                                    create_mutant_file(contract.source_mapping.filename.absolute, self.VALID_MUTANTS_COUNT, self.NAME)
-                                
+                        if isinstance(variable.expression, Literal):
+                            if(remove_assignement(variable, contract, result, test_cmd, test_dir)):
+                                create_mutant_file(contract.source_mapping.filename.absolute, self.VALID_MUTANTS_COUNT, self.NAME)
+                            
 
-                    for function in contract.functions_declared + list(contract.modifiers_declared):
-                        for variable in function.local_variables:
-                            if variable.initialized and isinstance(variable.expression, Literal):
-                                if(remove_assignement(variable, contract, result, test_cmd, test_dir)):
-                                    create_mutant_file(contract.source_mapping.filename.absolute, self.VALID_MUTANTS_COUNT, self.NAME)
-                        
-        return (result, self.VALID_MUTANTS_COUNT)
+                for function in contract.functions_declared + list(contract.modifiers_declared):
+                    for variable in function.local_variables:
+                        if variable.initialized and isinstance(variable.expression, Literal):
+                            if(remove_assignement(variable, contract, result, test_cmd, test_dir)):
+                                create_mutant_file(contract.source_mapping.filename.absolute, self.VALID_MUTANTS_COUNT, self.NAME)
+                    
+        return (result, self.VALID_MUTANTS_COUNT, self.INVALID_MUTANTS_COUNT)

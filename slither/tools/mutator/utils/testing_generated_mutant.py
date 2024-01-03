@@ -20,11 +20,14 @@ def run_test_suite(cmd: str, dir: str) -> bool:
         # os.chdir(dir)
 
         result = subprocess.run(cmd.split(' '), check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+        # result = subprocess.run(cmd.split(' '), check=True)
+        print(result.stdout)
         if not result.stderr:
             return True
     except subprocess.CalledProcessError as e:
-        logger.error(f"Error executing 'forge test': {e}")
+        print(e.output)
+        logger.error(f"Error executing '{cmd}': {e}")
+        
         return False
     except Exception as e:
         logger.error(f"An unexpected error occurred: {e}")

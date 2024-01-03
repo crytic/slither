@@ -36,6 +36,7 @@ def transfer_and_delete(files_dict: Dict) -> None:
 
 #function to create new mutant file
 def create_mutant_file(file: str, count: int, rule: str) -> None:
+    
     try:
         directory, filename = os.path.split(file)
         # Read content from the duplicated file
@@ -44,16 +45,19 @@ def create_mutant_file(file: str, count: int, rule: str) -> None:
 
         # Write content to the original file
         mutant_name = filename.split('.')[0]
-        with open("mutation_campaign/" + mutant_name + '_' + rule + '_' + str(count) + '.sol', 'w') as mutant_file:
+        # create folder for each contract
+        os.makedirs("mutation_campaign/" + mutant_name, exist_ok=True)
+        with open("mutation_campaign/" + mutant_name + '/' + rule + '_' + str(count) + '.sol', 'w') as mutant_file:
             mutant_file.write(content)
 
     except Exception as e:
         logger.error(f"Error creating mutant: {e}")
 
 # function to get the contracts list
-def get_sol_file_list(codebase: str, ignore_paths: List[str]) -> List[str]:
+def get_sol_file_list(codebase: str, ignore_paths: List[str] | None) -> List[str]:
     sol_file_list = []
-
+    if ignore_paths == None:
+        ignore_paths = []
     # if input is contract file
     if os.path.isfile(codebase):
         return [codebase]
