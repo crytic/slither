@@ -49,7 +49,7 @@ class SequencerCheck(OracleDetector):
         output = []
         super()._detect()
         if len(self.oracles) > 0:
-            results.append("The application uses an oracle, if you deploy on second layer as an Arbitrum, you should check if the sequencer is active.")
+            results.append("The application uses an oracle, if you deploy on second layer as Arbitrum, you should check if the sequencer is active.")
             res = self.generate_result(results)
             output.append(res)
         return output
