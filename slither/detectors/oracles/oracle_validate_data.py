@@ -56,7 +56,7 @@ class OracleDataCheck(OracleDetector):
     def check_staleness(self, var: VarInCondition) -> bool:
         if var is None:
             return False
-        for node in var.nodes:
+        for node in var.nodes_with_var:
             str_node = str(node)
             # print(str_node)
             if "block.timestamp" in str_node: #TODO maybe try something like block.timestamp - updatedAt < b
@@ -79,7 +79,7 @@ class OracleDataCheck(OracleDetector):
     def check_RoundId(self, var: VarInCondition, var2: VarInCondition) -> bool: # https://solodit.xyz/issues/chainlink-oracle-return-values-are-not-handled-property-halborn-savvy-defi-pdf
         if var is None or var2 is None:
             return False
-        for node in var.nodes:
+        for node in var.nodes_with_var:
             for ir in node.irs:
                 if isinstance(ir, Binary):
                     if ir.type in (BinaryType.GREATER, BinaryType.GREATER_EQUAL):
@@ -114,7 +114,7 @@ class OracleDataCheck(OracleDetector):
     def check_price(self, var: VarInCondition, oracle: Oracle) -> bool: #TODO I need to divie require or IF
         if var is None:
             return False
-        for node in var.nodes: #TODO testing
+        for node in var.nodes_with_var: #TODO testing
             for ir in node.irs:
                 if isinstance(ir, Binary):
                     if isinstance(ir.variable_right, Constant):

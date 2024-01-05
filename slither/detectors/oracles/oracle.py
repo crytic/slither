@@ -15,7 +15,7 @@ from slither.detectors.abstract_detector import (
     DetectorClassification,
     DETECTOR_INFO,
 )
-from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operation
+from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operation, InternalCall
 from slither.slithir.variables import TupleVariable
 from slither.slithir.variables.reference import ReferenceVariable
 from typing import List
@@ -54,7 +54,7 @@ class Oracle:
 class VarInCondition():
     def __init__(self, _var, _nodes):
         self.var = _var
-        self.nodes = _nodes
+        self.nodes_with_var = _nodes
 
 class OracleDetector(AbstractDetector):
  
@@ -141,9 +141,7 @@ class OracleDetector(AbstractDetector):
             returned_vars_used_indexes.append((nodes_origin[value].node,index))                 
         return oracle_calls, returned_vars_used_indexes
 
-    def get_returned_variables_from_oracle(
-        self, function: FunctionContract, oracle_call_line, node
-    ) -> list:
+    def get_returned_variables_from_oracle(self, node) -> list:
         written_vars = []
         ordered_vars = []
         for var in node.variables_written:
@@ -162,7 +160,7 @@ class OracleDetector(AbstractDetector):
             node.variables_read
         ):  # This iterates through all variables which are read in node, what means that they are used in condition
             if var is None or var2 is None:
-                continue
+                return False
             if var.name == var2.name:
                 return True
         return False
@@ -194,10 +192,10 @@ class OracleDetector(AbstractDetector):
                     vars_in_condition.append(VarInCondition(var, nodes))
                     oracle_vars.append(VarInCondition(var, nodes))
             else:
-                self.nodes = []
+                self.nodes_with_var = []
                 if self.investigate_internal_call(oracle.function, var): #TODO i need to chnge this to check for taint analysis somehow
-                    vars_in_condition.append(VarInCondition(var, self.nodes))
-                    oracle_vars.append(VarInCondition(var, self.nodes))
+                    vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
+                    oracle_vars.append(VarInCondition(var, self.nodes_with_var))
                 else:
                     vars_not_in_condition.append(var)
                     oracle_vars.append(var)
@@ -211,22 +209,37 @@ class OracleDetector(AbstractDetector):
         if function is None:
             return False
 
-        for functionCalled in function.internal_calls:
-            if isinstance(functionCalled, FunctionContract):
-                self.nodes = self.map_condition_to_var(var, functionCalled)
-                if len(self.nodes) > 0:
-                    return True
-                # for local_var in functionCalled.variables_read:
-                #     if local_var.name == var.name:
+        for node in function.nodes:
+            for ir in node.irs:
+                if isinstance(ir, InternalCall):
+                    for node2 in ir.function.nodes:
+                        if node2.is_conditional():
+                            print(node)
+                                    # return True
+                            # return True
+                        # if self.check_var_condition_match(var, node2):
+                        #     print(node2)
+                        #     self.nodes_with_var.append(node2)
+                        #     return True
+                    # if self.investigate_internal_call(node.function, var):
+                    #     return True
+        # for functionCalled in function.internal_calls:
+        #     if isinstance(functionCalled, FunctionContract):
+        #         print("functionCalled", functionCalled)
+        #         self.nodes_with_var = self.map_condition_to_var(var, functionCalled)
+        #         if len(self.nodes_with_var) > 0:
+        #             return True
+        #         # for local_var in functionCalled.variables_read:
+        #         #     if local_var.name == var.name:
 
-                #         if functionCalled.is_reading_in_conditional_node(
-                #             local_var
-                #         ) or functionCalled.is_reading_in_require_or_assert(
-                #             local_var
-                #         ):  # These two functions check if within the function some var is in require/assert of in if statement
-                #             return True
-                if self.investigate_internal_call(functionCalled, var):
-                    return True
+        #         #         if functionCalled.is_reading_in_conditional_node(
+        #         #             local_var
+        #         #         ) or functionCalled.is_reading_in_require_or_assert(
+        #         #             local_var
+        #         #         ):  # These two functions check if within the function some var is in require/assert of in if statement
+        #         #             return True
+        #         if self.investigate_internal_call(functionCalled, var):
+        #             return True
         return False
 
     def _detect(self):
@@ -234,7 +247,7 @@ class OracleDetector(AbstractDetector):
         self.oracles = self.chainlink_oracles(self.contracts)
         for oracle in self.oracles:
             oracle.oracle_vars = self.get_returned_variables_from_oracle(
-                oracle.function, oracle.line_of_call, oracle.node
+                oracle.node
             )
             self.vars_in_conditions(oracle)
         # for oracle in oracles:
