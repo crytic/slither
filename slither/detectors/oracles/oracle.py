@@ -195,7 +195,6 @@ class OracleDetector(AbstractDetector):
             ) or oracle.function.is_reading_in_require_or_assert(
                 var
             ):  # These two functions check if within the function some var is in require/assert of in if statement
-
                 self.nodes_with_var = self.map_condition_to_var(var, oracle.function)
                 for node in self.nodes_with_var:
                     for ir in node.irs:
@@ -208,7 +207,7 @@ class OracleDetector(AbstractDetector):
             else:
                 if self.investigate_internal_call(
                     oracle.function, var
-                ):  # TODO i need to chnge this to check for taint analysis somehow
+                ):
                     vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
                 else:
@@ -235,10 +234,10 @@ class OracleDetector(AbstractDetector):
     def investigate_internal_call(self, function: FunctionContract, var) -> bool:
         if function is None:
             return False
-
+        
         original_var_as_param = self.map_param_to_var(var, function)
         if original_var_as_param is None:
-            return False
+            original_var_as_param = var
 
         if function.is_reading_in_conditional_node(
             original_var_as_param
