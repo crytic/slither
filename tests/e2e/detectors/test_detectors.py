@@ -1682,6 +1682,9 @@ ALL_TESTS = [
     ##TODO My tests for oracle
     Test(all_detectors.OracleDataCheck, "oracle_data_check1.sol", "0.8.20"),
     Test(all_detectors.OracleDataCheck, "oracle_data_check2.sol", "0.8.20"),
+    Test(all_detectors.OracleDataCheck, "oracle_data_check_price_in_double_internal_fc.sol", "0.8.20"),
+    Test(all_detectors.OracleDataCheck, "oracle_data_check_price_in_internal_fc.sol", "0.8.20"),
+    Test(all_detectors.OracleDataCheck, "oracle_non_revert.sol", "0.8.20"),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"

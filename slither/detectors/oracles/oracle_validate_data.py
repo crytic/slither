@@ -106,8 +106,7 @@ class OracleDataCheck(OracleDetector):
             if n.type == NodeType.RETURN:
                 for ir in n.irs:
                     if isinstance(ir, Return):
-                        for value in ir.values:
-                            print(value)
+                        return True
 
     def check_price(
         self, var: VarInCondition, oracle: Oracle
@@ -128,11 +127,12 @@ class OracleDataCheck(OracleDetector):
                         if ir.type is (BinaryType.LESS):
                             if ir.variable_left.value == 0:
                                 return True
-            if self.check_revert(node):
-                return True
-            elif self.return_boolean(node):
-                return True
+                    if self.check_revert(node):
+                        return True
+                    elif self.return_boolean(node):
+                        return True
 
+                       
         return False
 
     def generate_naive_order(self):

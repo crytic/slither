@@ -39,8 +39,15 @@ contract StableOracleDAI {
         );
     }
 
-    function price_check(int price) internal pure returns (bool) {
-        if (price > 0) {
+    function price_check(int price1) internal pure returns (bool) {
+        if (price_check2(price1)) {
+            return true;
+        }
+        return false;
+    }
+
+    function price_check2(int price2) internal pure returns (bool) {
+        if (price2 > 0) {
             return true;
         }
         return false;
