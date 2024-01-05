@@ -19,7 +19,7 @@ from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operat
 from slither.slithir.variables import TupleVariable
 from slither.slithir.variables.reference import ReferenceVariable
 from typing import List
-from slither.analyses.data_dependency.data_dependency import is_tainted
+from slither.analyses.data_dependency.data_dependency import is_tainted, get_dependencies
 
 # For debugging
 # import debugpy
@@ -172,6 +172,10 @@ class OracleDetector(AbstractDetector):
             if node.is_conditional() and self.check_var_condition_match(var, node):
                 nodes.append(node)
         return nodes
+    
+    def var_in_function(self, var, function: FunctionContract):
+        
+        return False
 
     def vars_in_conditions(self, oracle: Oracle) -> bool:
         """
@@ -182,47 +186,65 @@ class OracleDetector(AbstractDetector):
         oracle_vars = []
 
         for var in oracle.oracle_vars:
+            self.nodes_with_var = []
             if oracle.function.is_reading_in_conditional_node(
                 var
             ) or oracle.function.is_reading_in_require_or_assert(
                 var
             ):  # These two functions check if within the function some var is in require/assert of in if statement
-                nodes = self.map_condition_to_var(var, oracle.function)
-                if len(nodes) > 0:
-                    vars_in_condition.append(VarInCondition(var, nodes))
-                    oracle_vars.append(VarInCondition(var, nodes))
+               
+                self.nodes_with_var = self.map_condition_to_var(var, oracle.function)
+                for node in self.nodes_with_var:
+                    for ir in node.irs:
+                        if isinstance(ir, InternalCall):
+                            self.investigate_internal_call(ir.function, var)
+                            
+                if len(self.nodes_with_var) > 0:
+                    vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
+                    oracle_vars.append(VarInCondition(var, self.nodes_with_var))
             else:
-                self.nodes_with_var = []
                 if self.investigate_internal_call(oracle.function, var): #TODO i need to chnge this to check for taint analysis somehow
                     vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
                 else:
                     vars_not_in_condition.append(var)
                     oracle_vars.append(var)
+
         oracle.vars_in_condition = vars_in_condition
         oracle.vars_not_in_condition = vars_not_in_condition
         oracle.oracle_vars = oracle_vars
 
 
+    def map_param_to_var(self, var, function: FunctionContract):
+        for param in function.parameters:
+            origin_vars = get_dependencies(param, function)
+            for var2 in origin_vars:
+                if var2 == var:
+                    return param
 
     def investigate_internal_call(self, function: FunctionContract, var) -> bool:
         if function is None:
             return False
 
-        for node in function.nodes:
-            for ir in node.irs:
-                if isinstance(ir, InternalCall):
-                    for node2 in ir.function.nodes:
-                        if node2.is_conditional():
-                            print(node)
-                                    # return True
-                            # return True
-                        # if self.check_var_condition_match(var, node2):
-                        #     print(node2)
-                        #     self.nodes_with_var.append(node2)
-                        #     return True
-                    # if self.investigate_internal_call(node.function, var):
-                    #     return True
+        original_var_as_param = self.map_param_to_var(var, function)
+        if original_var_as_param is None:
+            return False
+        
+        
+        if function.is_reading_in_conditional_node(original_var_as_param) or function.is_reading_in_require_or_assert(original_var_as_param):
+            for node in function.nodes:
+                if node.is_conditional() and self.check_var_condition_match(original_var_as_param, node):
+                    self.nodes_with_var.append(node)
+            if len(self.nodes_with_var) > 0:
+                return True
+        else:
+            for node in function.nodes:
+                for ir in node.irs:
+                    if isinstance(ir, InternalCall):
+                        if self.investigate_internal_call(ir.function, var):
+                            return True
+        
+                   
         # for functionCalled in function.internal_calls:
         #     if isinstance(functionCalled, FunctionContract):
         #         print("functionCalled", functionCalled)
