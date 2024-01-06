@@ -4,6 +4,7 @@ import logging
 import sys
 from typing import Type, List, Any, Dict, Tuple
 import os
+import shutil
 
 from crytic_compile import cryticparser
 
@@ -12,11 +13,11 @@ from slither.tools.mutator.mutators import all_mutators
 from .mutators.abstract_mutator import AbstractMutator
 from .utils.command_line import output_mutators
 from .utils.file_handling import transfer_and_delete, backup_source_file, get_sol_file_list
+from slither.utils.colors import yellow, magenta
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-Mutate")
 logger.setLevel(logging.INFO)
-
 
 ###################################################################################
 ###################################################################################
@@ -52,12 +53,17 @@ def parse_args() -> argparse.Namespace:
         help="Directory of tests"
     )
 
-    # parameter to ignore the interfaces, libraries
+    # argument to ignore the interfaces, libraries
     parser.add_argument(
         "--ignore-dirs",
         help="Directories to ignore"
     )
 
+    # to_do: add time out argument
+    parser.add_argument(
+        "--timeout",
+        help="Set timeout for test command"
+    )
     # Initiate all the crytic config cli options
     cryticparser.init(parser)
 
@@ -90,7 +96,6 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 ###################################################################################
 ###################################################################################
 
-
 def main() -> None:
     args = parse_args()
     # print(os.path.isdir(args.codebase)) # provided file/folder
@@ -98,19 +103,29 @@ def main() -> None:
     # arguments
     test_command: str = args.test_cmd
     test_directory: str = args.test_dir
-    paths_to_ignore: List[str] | None = args.ignore_dirs
+    paths_to_ignore: str | None = args.ignore_dirs
+    timeout: int = args.timeout
+    
+    print(magenta(f"Starting Mutation Campaign in '{args.codebase} \n"))
+
+    if paths_to_ignore:
+        paths_to_ignore_list = paths_to_ignore.strip('][').split(',')
+        print(magenta(f"Ignored paths - {', '.join(paths_to_ignore_list)} \n"))
+    else:
+        paths_to_ignore_list = []
 
     # get all the contracts as a list from given codebase 
-    sol_file_list: List[str] = get_sol_file_list(args.codebase, paths_to_ignore)
+    sol_file_list: List[str] = get_sol_file_list(args.codebase, paths_to_ignore_list)
 
-    print("Starting Mutation Campaign in", args.codebase, "\n")
+    # folder where backup files and valid mutants created
+    output_folder = os.getcwd() + "/mutation_campaign"
+    if os.path.exists(output_folder):
+        shutil.rmtree(output_folder)
+
     for filename in sol_file_list:
         contract_name = os.path.split(filename)[1].split('.sol')[0]
         # slither object
         sl = Slither(filename, **vars(args))
-            
-        # folder where backup files and valid mutants created
-        output_folder = os.getcwd() + "/mutation_campaign"
 
         # create a backup files 
         files_dict = backup_source_file(sl.source_code, output_folder)
@@ -129,9 +144,9 @@ def main() -> None:
                 #     print(i.name)
                 for M in _get_mutators():
                     m = M(compilation_unit_of_main_file)
-                    v_count, i_count = m.mutate(test_command, test_directory, contract_name)
-                    if v_count != None and i_count != None:
-                        total_count = total_count + v_count + i_count
+                    count_valid, count_invalid = m.mutate(test_command, test_directory, contract_name)
+                    v_count += count_valid
+                    total_count += count_valid + count_invalid
         except Exception as e:
             logger.error(e)
 
@@ -143,10 +158,9 @@ def main() -> None:
         # transfer and delete the backup files
         transfer_and_delete(files_dict)
     
-        
         # output
-        print(f"Done mutating, '{filename}'. Valid mutant count: '{v_count}' and Total mutant count '{total_count}'.\n")
+        print(yellow(f"Done mutating, '{filename}'. Valid mutant count: '{v_count}' and Total mutant count '{total_count}'.\n"))
 
-    print("Finished Mutation Campaign in", args.codebase, "\n")
+    print(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
 # endregion
  

@@ -4,9 +4,10 @@ import logging
 
 logger = logging.getLogger("Slither-Mutate")
 
+duplicated_files = {}
+
 # function to backup the source file 
 def backup_source_file(source_code: Dict, output_folder: str) -> Dict:
-    duplicated_files = {}
     os.makedirs(output_folder, exist_ok=True)
     
     for file_path, content in source_code.items():
@@ -23,7 +24,8 @@ def backup_source_file(source_code: Dict, output_folder: str) -> Dict:
 # function to transfer the original content to the sol file after campaign
 def transfer_and_delete(files_dict: Dict) -> None:
     try:
-        for item, value in files_dict.items(): 
+        files_dict_copy = files_dict.copy()
+        for item, value in files_dict_copy.items(): 
             with open(value, 'r') as duplicated_file:
                 content = duplicated_file.read()
 
@@ -31,6 +33,10 @@ def transfer_and_delete(files_dict: Dict) -> None:
                 original_file.write(content)
 
             os.remove(value)
+
+            # delete elements from the global dict
+            del duplicated_files[item]
+        
     except Exception as e:
         logger.error(f"Error transferring content: {e}")
 
@@ -45,13 +51,35 @@ def create_mutant_file(file: str, count: int, rule: str) -> None:
 
         # Write content to the original file
         mutant_name = filename.split('.')[0]
+
         # create folder for each contract
         os.makedirs("mutation_campaign/" + mutant_name, exist_ok=True)
-        with open("mutation_campaign/" + mutant_name + '/' + rule + '_' + str(count) + '.sol', 'w') as mutant_file:
+        with open("mutation_campaign/" + mutant_name + '/' + mutant_name + '_' + rule + '_' + str(count) + '.sol', 'w') as mutant_file:
             mutant_file.write(content)
+
+        # reset the file
+        with open(duplicated_files[file], 'r') as duplicated_file:
+            duplicate_content = duplicated_file.read()
+
+        with open(file, 'w') as source_file:
+            source_file.write(duplicate_content)
 
     except Exception as e:
         logger.error(f"Error creating mutant: {e}")
+
+# function to reset the file
+def reset_file(file: str) -> None:
+    try:
+        # directory, filename = os.path.split(file)
+        # reset the file
+        with open(duplicated_files[file], 'r') as duplicated_file:
+            duplicate_content = duplicated_file.read()
+
+        with open(file, 'w') as source_file:
+            source_file.write(duplicate_content)
+
+    except Exception as e:
+        logger.error(f"Error resetting file: {e}")
 
 # function to get the contracts list
 def get_sol_file_list(codebase: str, ignore_paths: List[str] | None) -> List[str]:
