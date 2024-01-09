@@ -3,6 +3,7 @@ from slither.core.cfg.node import NodeType
 from slither.formatters.utils.patches import create_patch
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
 import re
+from slither.core.variables.variable import Variable
 
 solidity_rules = [
     "abi\.encode\( ==> abi.encodePacked(",
@@ -38,7 +39,8 @@ solidity_rules = [
     "(u?)int32 ==> \\1int16",
     "(u?)int64 ==> \\1int32",
     "(u?)int128 ==> \\1int64",
-    "(u?)int256 ==> \\1int128"   
+    "(u?)int256 ==> \\1int128"
+    "while ==> if",   
 ]
 
 
@@ -51,40 +53,36 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
     def _mutate(self) -> Dict:
 
         result: Dict = {}
-        contract = self.contract
-        # Retrieve the file
-        in_file = contract.source_mapping.filename.absolute
-        # Retrieve the source code
-        in_file_str = contract.compilation_unit.core.source_code[in_file]
+        variable: Variable
 
-        for function in contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared:
             for node in function.nodes:
                 if node.type != NodeType.ENTRYPOINT:
                     # Get the string
                     start = node.source_mapping.start
                     stop = start + node.source_mapping.length
-                    old_str = in_file_str[start:stop] 
+                    old_str = self.in_file_str[start:stop] 
                     line_no = node.source_mapping.lines
                     for value in solidity_rules:
                         left_value = value.split(" ==> ")[0]
                         right_value = value.split(" ==> ")[1]
                         if re.search(re.compile(left_value), old_str) != None:
                             new_str = re.sub(re.compile(left_value), right_value, old_str)
-                            create_patch(result, in_file, start, stop, old_str, new_str, line_no[0])
+                            create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
 
-        for variable in contract.state_variables_declared:
+        for variable in self.contract.state_variables_declared:
             node = variable.node_initialization
             if node:
                 start = node.source_mapping.start
                 stop = start + node.source_mapping.length
-                old_str = in_file_str[start:stop] 
+                old_str = self.in_file_str[start:stop] 
                 line_no = node.source_mapping.lines
                 for value in solidity_rules:
                     left_value = value.split(" ==> ")[0]
                     right_value = value.split(" ==> ")[1]
                     if re.search(re.compile(left_value), old_str) != None:
                         new_str = re.sub(re.compile(left_value), right_value, old_str)
-                        create_patch(result, in_file, start, stop, old_str, new_str, line_no[0])
+                        create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
         return result
 
     

@@ -59,11 +59,18 @@ def parse_args() -> argparse.Namespace:
         help="Directories to ignore"
     )
 
-    # to_do: add time out argument
+    # time out argument
     parser.add_argument(
         "--timeout",
-        help="Set timeout for test command"
+        help="Set timeout for test command (by deafult 30 seconds)"
     )
+
+    # output directory argument
+    parser.add_argument(
+        "--output-dir",
+        help="Output Directory (by default it is 'mutation_campaign')"
+    )
+
     # Initiate all the crytic config cli options
     cryticparser.init(parser)
 
@@ -98,13 +105,13 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 
 def main() -> None:
     args = parse_args()
-    # print(os.path.isdir(args.codebase)) # provided file/folder
 
     # arguments
     test_command: str = args.test_cmd
     test_directory: str = args.test_dir
     paths_to_ignore: str | None = args.ignore_dirs
-    timeout: int = args.timeout
+    output_dir: str | None = args.output_dir
+    timeout: int | None = args.timeout
     
     print(magenta(f"Starting Mutation Campaign in '{args.codebase} \n"))
 
@@ -118,33 +125,33 @@ def main() -> None:
     sol_file_list: List[str] = get_sol_file_list(args.codebase, paths_to_ignore_list)
 
     # folder where backup files and valid mutants created
-    output_folder = os.getcwd() + "/mutation_campaign"
+    if output_dir == None:
+        output_dir = "/mutation_campaign"
+    output_folder = os.getcwd() + output_dir
     if os.path.exists(output_folder):
         shutil.rmtree(output_folder)
+
+    # set default timeout
+    if timeout == None:
+        timeout = 30
 
     for filename in sol_file_list:
         contract_name = os.path.split(filename)[1].split('.sol')[0]
         # slither object
         sl = Slither(filename, **vars(args))
-
         # create a backup files 
         files_dict = backup_source_file(sl.source_code, output_folder)
-
         # total count of mutants
         total_count = 0
-
         # count of valid mutants
         v_count = 0
 
         # mutation
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
-            # compilation_unit_of_main_file = sl.compilation_units[-1]
-                # for i in compilation_unit_of_main_file.contracts:
-                #     print(i.name)
                 for M in _get_mutators():
-                    m = M(compilation_unit_of_main_file)
-                    count_valid, count_invalid = m.mutate(test_command, test_directory, contract_name)
+                    m = M(compilation_unit_of_main_file, int(timeout), test_command, test_directory, contract_name)
+                    count_valid, count_invalid = m.mutate()
                     v_count += count_valid
                     total_count += count_valid + count_invalid
         except Exception as e:
