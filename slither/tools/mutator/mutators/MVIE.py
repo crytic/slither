@@ -1,9 +1,8 @@
 from typing import Dict
-
 from slither.core.expressions import Literal
 from slither.core.variables.variable import Variable
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
-from slither.tools.mutator.utils.generic_patching import remove_assignement
+from slither.formatters.utils.patches import create_patch
 
 class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MVIE"
@@ -12,24 +11,52 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
-
         result: Dict = {}
         variable: Variable
-        contract = self.contract
 
         # Create fault for state variables declaration
-        for variable in contract.state_variables_declared:
+        for variable in self.contract.state_variables_declared:
             if variable.initialized:
                 # Cannot remove the initialization of constant variables
                 if variable.is_constant:
                     continue
 
                 if not isinstance(variable.expression, Literal):
-                    remove_assignement(variable, contract, result)
+                    # Get the string
+                    start = variable.source_mapping.start
+                    stop = variable.expression.source_mapping.start
+                    old_str = self.in_file_str[start:stop]
 
-        for function in contract.functions_declared + list(contract.modifiers_declared):
+                    new_str = old_str[: old_str.find("=")]
+                    line_no = [0]
+                    create_patch(
+                        result,
+                        self.in_file,
+                        start,
+                        stop + variable.expression.source_mapping.length,
+                        old_str,
+                        new_str,
+                        line_no
+                    )
+
+        for function in self.contract.functions_and_modifiers_declared:
             for variable in function.local_variables:
                 if variable.initialized and not isinstance(variable.expression, Literal):
-                    remove_assignement(variable, contract, result)
+                    # Get the string
+                    start = variable.source_mapping.start
+                    stop = variable.expression.source_mapping.start
+                    old_str = self.in_file_str[start:stop]
+
+                    new_str = old_str[: old_str.find("=")]
+                    line_no = [0]
+                    create_patch(
+                        result,
+                        self.in_file,
+                        start,
+                        stop + variable.expression.source_mapping.length,
+                        old_str,
+                        new_str,
+                        line_no
+                    )
 
         return result

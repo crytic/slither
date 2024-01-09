@@ -38,12 +38,15 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
     INVALID_MUTANTS_COUNT = 0
 
     def __init__(
-        self, compilation_unit: SlitherCompilationUnit, rate: int = 10, seed: Optional[int] = None
+        self, compilation_unit: SlitherCompilationUnit, timeout: int, testing_command: str, testing_directory: str, contract_name: str, rate: int = 10, seed: Optional[int] = None
     ):
         self.compilation_unit = compilation_unit
         self.slither = compilation_unit.core
         self.seed = seed
         self.rate = rate
+        self.test_command = testing_command
+        self.test_directory = testing_directory
+        self.timeout = timeout
 
         if not self.NAME:
             raise IncorrectMutatorInitialization(
@@ -69,18 +72,23 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
             raise IncorrectMutatorInitialization(
                 f"rate must be between 0 and 100 {self.__class__.__name__}"
             )
+        
+        # identify the main contract, ignore the imports
+        for contract in self.slither.contracts:
+            if contract_name == str(contract.name): # limitation: what if the contract name is not same as file name
+                # contract
+                self.contract = contract
+                # Retrieve the file
+                self.in_file = self.contract.source_mapping.filename.absolute
+                # Retrieve the source code
+                self.in_file_str = self.contract.compilation_unit.core.source_code[self.in_file]
 
     @abc.abstractmethod
     def _mutate(self, test_cmd: str, test_dir: str) -> Dict:
         """TODO Documentation"""
         return {}
 
-    def mutate(self, testing_command: str, testing_directory: str, contract_name: str) -> Tuple[int, int]:
-        # identify the main contract, ignore the imports
-        for contract in self.slither.contracts:
-            if contract_name == str(contract.name):
-                self.contract = contract
-
+    def mutate(self) -> Tuple[int, int]:
         # call _mutate function from different mutators
         (all_patches) = self._mutate()
 
@@ -98,9 +106,8 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
             #     logger.error(f"Impossible to generate patch; patches collisions: {patches}")
             #     continue
             for patch in patches:
-                # print(patch)
                 # test the patch
-                flag = test_patch(file, patch, testing_command, self.VALID_MUTANTS_COUNT, self.NAME)
+                flag = test_patch(file, patch, self.test_command, self.VALID_MUTANTS_COUNT, self.NAME, self.timeout)
                 # count the valid and invalid mutants
                 if not flag:
                     self.INVALID_MUTANTS_COUNT += 1

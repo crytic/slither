@@ -38,14 +38,12 @@ def run_test_suite(cmd: str, dir: str) -> bool:
         logger.error(f"An unexpected error occurred: {e}")
         return False
     
-def run_test_cmd(cmd: str, dir: str) -> bool:
+def run_test_cmd(cmd: str, dir: str, timeout: int) -> bool:
     start = time.time()
-
     # starting new process
     P = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
-
     try:
-        # checking whether the process is completed or not for 30 seconds
+        # checking whether the process is completed or not within 30 seconds(default)
         while P.poll() is None and (time.time() - start) < timeout:
             time.sleep(0.05)
     finally:
@@ -58,21 +56,20 @@ def run_test_cmd(cmd: str, dir: str) -> bool:
             time.sleep(0.05)
         # indicates whether the command executed sucessfully or not
         r = P.returncode
-
+    
     # if r is 0 then it is valid mutant because tests didn't fail
     return True if r == 0 else False
 
-def test_patch(file: str, patch: Dict, command: str, index: int, generator_name: str) -> bool:
+def test_patch(file: str, patch: Dict, command: str, index: int, generator_name: str, timeout: int) -> bool:
     with open(file, 'r') as filepath:
         content = filepath.read()
     # Perform the replacement based on the index values
     replaced_content = content[:patch['start']] + patch['new_string'] + content[patch['end']:]
-    
     # Write the modified content back to the file
     with open(file, 'w') as filepath:
         filepath.write(replaced_content)
     if(compile_generated_mutant(file)):
-        if(run_test_cmd(command, file)):
+        if(run_test_cmd(command, file, timeout)):
             create_mutant_file(file, index, generator_name)
             logger.info(green(f"String '{patch['old_string']}' replaced with '{patch['new_string']}' at line no. '{patch['line_number']}' in '{file}' ---> VALID\n"))
             return True
