@@ -1,7 +1,8 @@
 from typing import Dict
 from slither.slithir.operations import Binary, BinaryType
 from slither.formatters.utils.patches import create_patch
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
+from slither.core.expressions.unary_operation import UnaryOperation
 
 arithmetic_operators = [
     BinaryType.ADDITION,
@@ -14,7 +15,6 @@ arithmetic_operators = [
 class AOR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "AOR"
     HELP = "Arithmetic operator replacement"
-    FAULTCLASS = FaultClass.Checking
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
@@ -22,8 +22,14 @@ class AOR(AbstractMutator):  # pylint: disable=too-few-public-methods
 
         for function in self.contract.functions_and_modifiers_declared:
             for node in function.nodes:
+                try:
+                    ir_expression = node.expression
+                except:
+                    continue
                 for ir in node.irs:
                     if isinstance(ir, Binary) and ir.type in arithmetic_operators:
+                        if isinstance(ir_expression, UnaryOperation):
+                            continue
                         alternative_ops = arithmetic_operators[:]
                         alternative_ops.remove(ir.type)
                         for op in alternative_ops:

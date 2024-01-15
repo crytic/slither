@@ -1,7 +1,6 @@
 from typing import Dict
-from slither.slithir.operations import Binary, BinaryType
 from slither.formatters.utils.patches import create_patch
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 from slither.core.expressions.assignment_operation import AssignmentOperationType, AssignmentOperation
 
 assignment_operators = [
@@ -21,7 +20,6 @@ assignment_operators = [
 class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "ASOR"
     HELP = "Assignment Operator Replacement"
-    FAULTCLASS = FaultClass.Checking
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
@@ -38,7 +36,7 @@ class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                             alternative_ops.remove(ir.expression.type)
                         except:
                             continue
-                        for op in assignment_operators:
+                        for op in alternative_ops:
                             if op != ir.expression:
                                 start = node.source_mapping.start
                                 stop = start + node.source_mapping.length

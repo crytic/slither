@@ -1,17 +1,19 @@
 from typing import Dict
 from slither.slithir.operations import Binary, BinaryType
 from slither.formatters.utils.patches import create_patch
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 
 bitwise_operators = [
     BinaryType.AND,
-    BinaryType.OR
+    BinaryType.OR,
+    BinaryType.LEFT_SHIFT,
+    BinaryType.RIGHT_SHIFT,
+    BinaryType.CARET
 ]
 
 class BOR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "BOR"
     HELP = "Bitwise Operator Replacement"
-    FAULTCLASS = FaultClass.Checking
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
