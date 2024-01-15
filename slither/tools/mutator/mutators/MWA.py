@@ -1,13 +1,12 @@
 from typing import Dict
 from slither.core.cfg.node import NodeType
 from slither.formatters.utils.patches import create_patch
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
 
 class MWA(AbstractMutator):  # pylint: disable=too-few-public-methods
-    NAME = "MIA"
+    NAME = "MWA"
     HELP = '"while" construct around statement'
-    FAULTCLASS = FaultClass.Checking
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
@@ -25,10 +24,4 @@ class MWA(AbstractMutator):  # pylint: disable=too-few-public-methods
                     if not isinstance(node.expression, UnaryOperation):
                         new_str = str(UnaryOperationType.BANG) + '(' + old_str + ')'
                         create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])                    
-        return result
-
-    
-
-# limitations - won't work if it is tenary operation
-        
-    
+        return result    

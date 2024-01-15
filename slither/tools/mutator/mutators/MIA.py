@@ -1,13 +1,12 @@
 from typing import Dict
 from slither.core.cfg.node import NodeType
 from slither.formatters.utils.patches import create_patch
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
 
 class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MIA"
     HELP = '"if" construct around statement'
-    FAULTCLASS = FaultClass.Checking
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
@@ -17,8 +16,8 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
             for node in function.nodes:
                 if node.type == NodeType.IF:
                     # Get the string
-                    start = node.source_mapping.start
-                    stop = start + node.source_mapping.length
+                    start = node.expression.source_mapping.start
+                    stop = start + node.expression.source_mapping.length
                     old_str = self.in_file_str[start:stop]
                     line_no = node.source_mapping.lines
 
@@ -27,15 +26,10 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
                         new_str = value
                         create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
                     
-                    # print(node.expression)
                     if not isinstance(node.expression, UnaryOperation):
                         new_str = str(UnaryOperationType.BANG) + '(' + old_str + ')'
                         create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+
+                    print(node.expression)
                                          
-        return result
-
-    
-
-# limitations - won't work if it is tenary operation
-        
-    
+        return result    

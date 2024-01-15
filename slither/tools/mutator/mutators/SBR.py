@@ -1,7 +1,7 @@
 from typing import Dict
 from slither.core.cfg.node import NodeType
 from slither.formatters.utils.patches import create_patch
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 import re
 from slither.core.variables.variable import Variable
 
@@ -39,15 +39,14 @@ solidity_rules = [
     "(u?)int32 ==> \\1int16",
     "(u?)int64 ==> \\1int32",
     "(u?)int128 ==> \\1int64",
-    "(u?)int256 ==> \\1int128"
-    "while ==> if",   
+    "(u?)int256 ==> \\1int128",
+    "while ==> if",  
 ]
 
 
 class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "SBR"
-    HELP = 'Solidity Based Replacements'
-    FAULTCLASS = FaultClass.Checking
+    HELP = 'Solidity Based Replacement'
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:

@@ -2,12 +2,10 @@ import argparse
 import inspect
 import logging
 import sys
-from typing import Type, List, Any, Dict, Tuple
 import os
 import shutil
-
+from typing import Type, List, Any
 from crytic_compile import cryticparser
-
 from slither import Slither
 from slither.tools.mutator.mutators import all_mutators
 from .mutators.abstract_mutator import AbstractMutator
@@ -62,13 +60,27 @@ def parse_args() -> argparse.Namespace:
     # time out argument
     parser.add_argument(
         "--timeout",
-        help="Set timeout for test command (by deafult 30 seconds)"
+        help="Set timeout for test command (by default 30 seconds)"
     )
 
     # output directory argument
     parser.add_argument(
         "--output-dir",
-        help="Output Directory (by default it is 'mutation_campaign')"
+        help="Output Directory (by default 'mutation_campaign')"
+    )
+
+    # to print just all the mutants
+    parser.add_argument(
+        "--verbose",
+        help="output all mutants generated",
+        action="store_true",
+        default=False,
+    )
+
+    # select list of mutators to run
+    parser.add_argument(
+        "--mutators-to-run",
+        help="mutant generators to run",
     )
 
     # Initiate all the crytic config cli options
@@ -80,12 +92,13 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
-
-def _get_mutators() -> List[Type[AbstractMutator]]:
+def _get_mutators(mutators_list: List[str] | None) -> List[Type[AbstractMutator]]:
     detectors_ = [getattr(all_mutators, name) for name in dir(all_mutators)]
-    detectors = [c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractMutator)]
+    if not mutators_list is None:
+        detectors = [c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractMutator) and str(c.NAME) in mutators_list ]
+    else:
+        detectors = [c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractMutator) ]
     return detectors
-
 
 class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(
@@ -105,13 +118,15 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 
 def main() -> None:
     args = parse_args()
-
     # arguments
     test_command: str = args.test_cmd
     test_directory: str = args.test_dir
     paths_to_ignore: str | None = args.ignore_dirs
     output_dir: str | None = args.output_dir
     timeout: int | None = args.timeout
+    solc_remappings: str | None = args.solc_remaps
+    verbose: bool = args.verbose
+    mutators_to_run: List[str] | None = args.mutators_to_run 
     
     print(magenta(f"Starting Mutation Campaign in '{args.codebase} \n"))
 
@@ -137,6 +152,7 @@ def main() -> None:
 
     for filename in sol_file_list:
         contract_name = os.path.split(filename)[1].split('.sol')[0]
+        # TODO: user provides contract name
         # slither object
         sl = Slither(filename, **vars(args))
         # create a backup files 
@@ -149,11 +165,13 @@ def main() -> None:
         # mutation
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
-                for M in _get_mutators():
-                    m = M(compilation_unit_of_main_file, int(timeout), test_command, test_directory, contract_name)
-                    count_valid, count_invalid = m.mutate()
-                    v_count += count_valid
-                    total_count += count_valid + count_invalid
+                for M in _get_mutators(mutators_to_run):
+                    m = M(compilation_unit_of_main_file, int(timeout), test_command, test_directory, contract_name, solc_remappings, verbose, output_folder)
+                    # check whether the contract instance exists or not
+                    if m.get_exist_flag():
+                        count_valid, count_invalid = m.mutate()
+                        v_count += count_valid
+                        total_count += count_valid + count_invalid
         except Exception as e:
             logger.error(e)
 

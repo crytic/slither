@@ -1,13 +1,12 @@
 from typing import Dict
 from slither.core.expressions import Literal
 from slither.core.variables.variable import Variable
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature, FaultClass
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 from slither.formatters.utils.patches import create_patch
 
 class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MVIE"
     HELP = "variable initialization using an expression"
-    FAULTCLASS = FaultClass.Assignement
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
@@ -28,7 +27,7 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
                     old_str = self.in_file_str[start:stop]
 
                     new_str = old_str[: old_str.find("=")]
-                    line_no = [0]
+                    line_no = variable.node_initialization.source_mapping.lines
                     create_patch(
                         result,
                         self.in_file,
@@ -36,7 +35,7 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
                         stop + variable.expression.source_mapping.length,
                         old_str,
                         new_str,
-                        line_no
+                        line_no[0]
                     )
 
         for function in self.contract.functions_and_modifiers_declared:
@@ -48,7 +47,7 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
                     old_str = self.in_file_str[start:stop]
 
                     new_str = old_str[: old_str.find("=")]
-                    line_no = [0]
+                    line_no = variable.source_mapping.lines
                     create_patch(
                         result,
                         self.in_file,
@@ -56,7 +55,7 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
                         stop + variable.expression.source_mapping.length,
                         old_str,
                         new_str,
-                        line_no
+                        line_no[0]
                     )
 
         return result
