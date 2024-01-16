@@ -97,7 +97,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
         return self.contract_exist
     
     @abc.abstractmethod
-    def _mutate(self, test_cmd: str, test_dir: str) -> Dict:
+    def _mutate(self) -> Dict:
         """TODO Documentation"""
         return {}
 

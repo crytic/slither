@@ -16,33 +16,14 @@ def compile_generated_mutant(file_path: str, mappings: str) -> bool:
         crytic_compile.CryticCompile(file_path, solc_remaps=mappings)
         return True
     except:  # pylint: disable=broad-except
-        # logger.error("Error Crytic Compile")
         return False
-
-# function to run the tests
-# def run_test_suite(cmd: str, dir: str) -> bool:
-#     try:
-#         # Change to the foundry folder
-#         # os.chdir(dir)
-
-#         result = subprocess.run(cmd.split(' '), check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-#         # result = subprocess.run(cmd.split(' '), check=True)
-#         if not result.stderr:
-#             return True
-#     except subprocess.CalledProcessError as e:
-#         logger.error(f"Error executing '{cmd}': {e}")
-        
-#         return False
-#     except Exception as e:
-#         logger.error(f"An unexpected error occurred: {e}")
-#         return False
     
 def run_test_cmd(cmd: str, dir: str, timeout: int) -> bool:
     # add --fail-fast for foundry tests, to exit after first failure
-    if "forge test" in cmd and not "--fail-fast" in cmd :
+    if "forge test" in cmd and not "--fail-fast" in cmd:
         cmd += " --fail-fast"
     # add --bail for hardhat and truffle tests, to exit after first failure
-    elif not "--bail" in cmd:
+    elif "hardhat test" in cmd or "truffle test" and not "--bail" in cmd:
         cmd += " --bail"
 
     start = time.time()
