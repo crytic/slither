@@ -165,6 +165,7 @@ def main() -> None:
         # mutation
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
+                # TODO
                 for M in _get_mutators(mutators_to_run):
                     m = M(compilation_unit_of_main_file, int(timeout), test_command, test_directory, contract_name, solc_remappings, verbose, output_folder)
                     # check whether the contract instance exists or not
