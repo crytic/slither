@@ -1,6 +1,6 @@
 from typing import Dict
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
-from slither.formatters.utils.patches import create_patch
+from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 
 unary_operators = [
@@ -36,16 +36,16 @@ class UOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                                 variable_read = node.variables_read[0]
                                 new_str = str(variable_read) + str(op)
                                 if new_str != old_str and str(op) != '-':
-                                    create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                                    create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
                                 new_str = str(op) + str(variable_read)
-                                create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                                create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
                         else:
                             if node.expression.type != op:
                                 variable_read = node.variables_read[0]
                                 new_str = str(op) + str(variable_read)
                                 if new_str != old_str and str(op) != '-':
-                                    create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                                    create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
                                 new_str = str(variable_read) + str(op)
-                                create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                                create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
                 
         return result

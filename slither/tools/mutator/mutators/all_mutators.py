@@ -12,6 +12,5 @@ from slither.tools.mutator.mutators.LIR import LIR # severity medium
 from slither.tools.mutator.mutators.FHR import FHR # severity medium
 from slither.tools.mutator.mutators.MIA import MIA # severity medium
 from slither.tools.mutator.mutators.ROR import ROR # severity medium
-from slither.tools.mutator.mutators.RCR import RCR # severity high
-
-
+from slither.tools.mutator.mutators.RR import RR # severity high
+from slither.tools.mutator.mutators.CR import CR # severity high

@@ -2,7 +2,7 @@ from typing import Dict
 from slither.core.expressions import Literal
 from slither.core.variables.variable import Variable
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
-from slither.formatters.utils.patches import create_patch
+from slither.tools.mutator.utils.patch import create_patch_with_line
 
 class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MVIE"
@@ -28,7 +28,7 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
 
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.node_initialization.source_mapping.lines
-                    create_patch(
+                    create_patch_with_line(
                         result,
                         self.in_file,
                         start,
@@ -48,7 +48,7 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
 
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.source_mapping.lines
-                    create_patch(
+                    create_patch_with_line(
                         result,
                         self.in_file,
                         start,

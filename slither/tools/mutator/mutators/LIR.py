@@ -2,7 +2,7 @@ from typing import Dict
 from slither.core.expressions import Literal
 from slither.core.variables.variable import Variable
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
-from slither.formatters.utils.patches import create_patch
+from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.core.solidity_types import ElementaryType
 
 literal_replacements = []
@@ -41,7 +41,7 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                         old_value = old_str[old_str.find("=")+1:].strip()
                         if old_value != value:
                             new_str = f"{old_str.split('=')[0]}= {value}"
-                            create_patch(
+                            create_patch_with_line(
                                 result,
                                 self.in_file,
                                 start,
@@ -69,7 +69,7 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                         old_value = old_str[old_str.find("=")+1:].strip()
                         if old_value != new_value:
                             new_str = f"{old_str.split('=')[0]}= {new_value}"
-                            create_patch(
+                            create_patch_with_line(
                                 result,
                                 self.in_file,
                                 start,

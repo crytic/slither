@@ -1,12 +1,12 @@
 from typing import Dict
 from slither.core.cfg.node import NodeType
-from slither.formatters.utils.patches import create_patch
+from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 
 
-class RCR(AbstractMutator):  # pylint: disable=too-few-public-methods
-    NAME = "RCR"
-    HELP = 'Revert and Comment Replacement'
+class CR(AbstractMutator):  # pylint: disable=too-few-public-methods
+    NAME = "CR"
+    HELP = 'Comment Replacement'
     FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
@@ -20,12 +20,8 @@ class RCR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     stop = start + node.source_mapping.length
                     old_str = self.in_file_str[start:stop] 
                     line_no = node.source_mapping.lines
-                    if old_str != 'revert()':
-                        new_str = 'revert()'
-                        create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-
                     new_str = "//" + old_str
-                    create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                    create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
 
         return result
 

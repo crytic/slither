@@ -1,6 +1,6 @@
 from typing import Dict
 from slither.core.cfg.node import NodeType
-from slither.formatters.utils.patches import create_patch
+from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 import re
 from slither.core.variables.variable import Variable
@@ -67,7 +67,7 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
                         right_value = value.split(" ==> ")[1]
                         if re.search(re.compile(left_value), old_str) != None:
                             new_str = re.sub(re.compile(left_value), right_value, old_str)
-                            create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                            create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
 
         for variable in self.contract.state_variables_declared:
             node = variable.node_initialization
@@ -81,7 +81,7 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     right_value = value.split(" ==> ")[1]
                     if re.search(re.compile(left_value), old_str) != None:
                         new_str = re.sub(re.compile(left_value), right_value, old_str)
-                        create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                        create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
         return result
 
     

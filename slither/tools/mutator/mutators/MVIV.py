@@ -1,9 +1,8 @@
 from typing import Dict
-
 from slither.core.expressions import Literal
 from slither.core.variables.variable import Variable
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
-from slither.formatters.utils.patches import create_patch
+from slither.tools.mutator.utils.patch import create_patch_with_line
 
 class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MVIV"
@@ -28,7 +27,7 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                     old_str = self.in_file_str[start:stop]
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.node_initialization.source_mapping.lines
-                    create_patch(
+                    create_patch_with_line(
                         result,
                         self.in_file,
                         start,
@@ -46,7 +45,7 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                     old_str = self.in_file_str[start:stop]
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.source_mapping.lines
-                    create_patch(
+                    create_patch_with_line(
                         result,
                         self.in_file,
                         start,

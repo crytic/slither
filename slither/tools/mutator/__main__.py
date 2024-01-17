@@ -83,6 +83,20 @@ def parse_args() -> argparse.Namespace:
         help="mutant generators to run",
     )
 
+    # list of contract names you want to mutate
+    parser.add_argument(
+        "--contract-names",
+        help="list of contract names you want to mutate",
+    )
+
+    # flag to run full mutation based revert mutator output
+    parser.add_argument(
+        "--quick",
+        help="to stop full mutation if revert mutator passes",
+        action="store_true",
+        default=False,
+    )
+
     # Initiate all the crytic config cli options
     cryticparser.init(parser)
 
@@ -118,6 +132,7 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 
 def main() -> None:
     args = parse_args()
+
     # arguments
     test_command: str = args.test_cmd
     test_directory: str = args.test_dir
@@ -127,6 +142,8 @@ def main() -> None:
     solc_remappings: str | None = args.solc_remaps
     verbose: bool = args.verbose
     mutators_to_run: List[str] | None = args.mutators_to_run 
+    contract_names: List[str] | None = args.contract_names
+    quick_flag: bool = args.quick
     
     print(magenta(f"Starting Mutation Campaign in '{args.codebase} \n"))
 
@@ -150,6 +167,13 @@ def main() -> None:
     if timeout == None:
         timeout = 30
 
+    # setting RR mutator as first mutator
+    mutators_list = _get_mutators(mutators_to_run)
+    for M in mutators_list:
+        if M.NAME == "RR":
+            mutators_list.remove(M)
+            mutators_list.insert(0, M)
+
     for filename in sol_file_list:
         contract_name = os.path.split(filename)[1].split('.sol')[0]
         # TODO: user provides contract name
@@ -165,14 +189,16 @@ def main() -> None:
         # mutation
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
-                # TODO
-                for M in _get_mutators(mutators_to_run):
+                for M in mutators_list:
                     m = M(compilation_unit_of_main_file, int(timeout), test_command, test_directory, contract_name, solc_remappings, verbose, output_folder)
                     # check whether the contract instance exists or not
                     if m.get_exist_flag():
                         count_valid, count_invalid = m.mutate()
                         v_count += count_valid
                         total_count += count_valid + count_invalid
+                        if quick_flag:
+                            if str(m.NAME) == 'RR' and v_count > 0:
+                                break
         except Exception as e:
             logger.error(e)
 
