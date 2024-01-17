@@ -1,6 +1,6 @@
 from typing import Dict
 from slither.core.cfg.node import NodeType
-from slither.formatters.utils.patches import create_patch
+from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
 
@@ -24,11 +24,11 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
                     # Replace the expression with true and false
                     for value in ["true", "false"]:
                         new_str = value
-                        create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                        create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
                     
                     if not isinstance(node.expression, UnaryOperation):
                         new_str = str(UnaryOperationType.BANG) + '(' + old_str + ')'
-                        create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                        create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
 
                     print(node.expression)
                                          

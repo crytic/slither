@@ -4,7 +4,7 @@ import os
 import logging
 import time
 import signal
-from typing import List, Dict
+from typing import Dict
 from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_file
 from slither.utils.colors import green, red
 

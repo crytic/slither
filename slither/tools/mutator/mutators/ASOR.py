@@ -1,5 +1,5 @@
 from typing import Dict
-from slither.formatters.utils.patches import create_patch
+from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 from slither.core.expressions.assignment_operation import AssignmentOperationType, AssignmentOperation
 
@@ -44,5 +44,5 @@ class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                                 line_no = node.source_mapping.lines
                                 # Replace the expression with true
                                 new_str = f"{old_str.split(str(ir.expression.type))[0]}{op}{old_str.split(str(ir.expression.type))[1]}"
-                                create_patch(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                                create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
         return result
