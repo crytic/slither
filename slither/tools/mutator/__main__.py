@@ -176,7 +176,6 @@ def main() -> None:
 
     for filename in sol_file_list:
         contract_name = os.path.split(filename)[1].split('.sol')[0]
-        # TODO: user provides contract name
         # slither object
         sl = Slither(filename, **vars(args))
         # create a backup files 
@@ -189,10 +188,17 @@ def main() -> None:
         # mutation
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
-                for M in mutators_list:
-                    m = M(compilation_unit_of_main_file, int(timeout), test_command, test_directory, contract_name, solc_remappings, verbose, output_folder)
-                    # check whether the contract instance exists or not
-                    if m.get_exist_flag():
+                contract_instance = ''
+                for contract in compilation_unit_of_main_file.contracts:
+                    if contract_names != None and contract.name in contract_names:
+                        contract_instance = contract
+                    elif str(contract.name).lower() == contract_name.lower():
+                        contract_instance = contract
+                if contract_instance == '':
+                    logger.error("Can't find the contract")
+                else:
+                    for M in mutators_list:
+                        m = M(compilation_unit_of_main_file, int(timeout), test_command, test_directory, contract_instance, solc_remappings, verbose, output_folder)
                         count_valid, count_invalid = m.mutate()
                         v_count += count_valid
                         total_count += count_valid + count_invalid
