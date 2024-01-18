@@ -7,6 +7,7 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.tools.mutator.utils.testing_generated_mutant import test_patch
 from slither.utils.colors import yellow
+from slither.core.declarations import Contract
 
 logger = logging.getLogger("Slither-Mutate")
 
@@ -36,7 +37,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
         timeout: int, 
         testing_command: str, 
         testing_directory: str, 
-        contract_name: str, 
+        contract_instance: Contract, 
         solc_remappings: str | None, 
         verbose: bool,
         output_folder: str,
@@ -50,10 +51,12 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
         self.test_command = testing_command
         self.test_directory = testing_directory
         self.timeout = timeout
-        self.contract_exist = False
         self.solc_remappings = solc_remappings
         self.verbose = verbose
         self.output_folder = output_folder
+        self.contract = contract_instance
+        self.in_file = self.contract.source_mapping.filename.absolute
+        self.in_file_str = self.contract.compilation_unit.core.source_code[self.in_file]
 
         if not self.NAME:
             raise IncorrectMutatorInitialization(
@@ -74,27 +77,6 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
             raise IncorrectMutatorInitialization(
                 f"rate must be between 0 and 100 {self.__class__.__name__}"
             )
-        
-        # identify the main contract, ignore the imports
-        for contract in self.slither.contracts:
-            # !limitation: what if the contract name is not same as file name
-            # !limitation: multi contract
-            if contract_name.lower() == str(contract.name).lower(): 
-                # contract
-                self.contract = contract
-                # Retrieve the file
-                self.in_file = self.contract.source_mapping.filename.absolute
-                # Retrieve the source code
-                self.in_file_str = self.contract.compilation_unit.core.source_code[self.in_file]
-                # flag contract existence
-                self.contract_exist = True
-
-        if not self.contract_exist:
-            self.contract_exist = False
-            logger.error(f"Contract name is not matching with the File name ({contract_name}). Please refer 'https://docs.soliditylang.org/en/latest/style-guide.html#contract-and-library-names')")
-                
-    def get_exist_flag(self) -> bool:
-        return self.contract_exist
     
     @abc.abstractmethod
     def _mutate(self) -> Dict:

@@ -3,8 +3,6 @@ from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
 import re
 
-# INFO: low severity
-
 function_header_replacements = [
     "pure ==> view",
     "view ==> pure",

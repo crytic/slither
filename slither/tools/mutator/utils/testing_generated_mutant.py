@@ -9,7 +9,7 @@ from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_
 from slither.utils.colors import green, red
 
 logger = logging.getLogger("Slither-Mutate")
-
+# dont_mutate_line = {}
 # function to compile the generated mutant
 def compile_generated_mutant(file_path: str, mappings: str) -> bool:
     try:
@@ -58,6 +58,8 @@ def test_patch(file: str, patch: Dict, command: str, index: int, generator_name:
         if(run_test_cmd(command, file, timeout)):
             create_mutant_file(file, index, generator_name)
             logger.info(green(f"String '{patch['old_string']}' replaced with '{patch['new_string']}' at line no. '{patch['line_number']}' ---> VALID\n"))
+            # if generator_name == 'RR':
+            #     dont_mutate_line[patch['line_number']] = True
             return True
         
     reset_file(file)
