@@ -169,10 +169,17 @@ def main() -> None:
 
     # setting RR mutator as first mutator
     mutators_list = _get_mutators(mutators_to_run)
-    for M in mutators_list:
+    
+    CR_RR_list = []
+    duplicate_list = mutators_list.copy()
+    for M in duplicate_list:
         if M.NAME == "RR":
             mutators_list.remove(M)
-            mutators_list.insert(0, M)
+            CR_RR_list.insert(0,M)
+        elif M.NAME == "CR":
+            mutators_list.remove(M) 
+            CR_RR_list.insert(1,M)
+    mutators_list = CR_RR_list + mutators_list
 
     for filename in sol_file_list:
         contract_name = os.path.split(filename)[1].split('.sol')[0]
@@ -185,6 +192,7 @@ def main() -> None:
         # count of valid mutants
         v_count = 0
 
+        dont_mutate_lines = []
         # mutation
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
@@ -198,13 +206,13 @@ def main() -> None:
                     logger.error("Can't find the contract")
                 else:
                     for M in mutators_list:
-                        m = M(compilation_unit_of_main_file, int(timeout), test_command, test_directory, contract_instance, solc_remappings, verbose, output_folder)
-                        count_valid, count_invalid = m.mutate()
+                        m = M(compilation_unit_of_main_file, int(timeout), test_command, test_directory, contract_instance, solc_remappings, verbose, output_folder, dont_mutate_lines)
+                        (count_valid, count_invalid, lines_list) = m.mutate()
                         v_count += count_valid
                         total_count += count_valid + count_invalid
-                        if quick_flag:
-                            if str(m.NAME) == 'RR' and v_count > 0:
-                                break
+                        dont_mutate_lines = lines_list
+                        if not quick_flag:
+                            dont_mutate_lines = []
         except Exception as e:
             logger.error(e)
 

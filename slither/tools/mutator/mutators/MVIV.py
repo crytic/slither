@@ -27,15 +27,16 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                     old_str = self.in_file_str[start:stop]
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.node_initialization.source_mapping.lines
-                    create_patch_with_line(
-                        result,
-                        self.in_file,
-                        start,
-                        stop + variable.expression.source_mapping.length,
-                        old_str,
-                        new_str,
-                        line_no[0]
-                    )
+                    if not line_no[0] in self.dont_mutate_line:
+                        create_patch_with_line(
+                            result,
+                            self.in_file,
+                            start,
+                            stop + variable.expression.source_mapping.length,
+                            old_str,
+                            new_str,
+                            line_no[0]
+                        )
 
         for function in self.contract.functions_and_modifiers_declared:
             for variable in function.local_variables:
@@ -45,14 +46,15 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                     old_str = self.in_file_str[start:stop]
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.source_mapping.lines
-                    create_patch_with_line(
-                        result,
-                        self.in_file,
-                        start,
-                        stop + variable.expression.source_mapping.length,
-                        old_str,
-                        new_str,
-                        line_no[0]
-                    )
+                    if not line_no[0] in self.dont_mutate_line:
+                        create_patch_with_line(
+                            result,
+                            self.in_file,
+                            start,
+                            stop + variable.expression.source_mapping.length,
+                            old_str,
+                            new_str,
+                            line_no[0]
+                        )
 
         return result
