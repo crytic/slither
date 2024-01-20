@@ -20,16 +20,14 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
                     stop = start + node.expression.source_mapping.length
                     old_str = self.in_file_str[start:stop]
                     line_no = node.source_mapping.lines
+                    if not line_no[0] in self.dont_mutate_line:
+                        # Replace the expression with true and false
+                        for value in ["true", "false"]:
+                            new_str = value
+                            create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                        
+                        if not isinstance(node.expression, UnaryOperation):
+                            new_str = str(UnaryOperationType.BANG) + '(' + old_str + ')'
+                            create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
 
-                    # Replace the expression with true and false
-                    for value in ["true", "false"]:
-                        new_str = value
-                        create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-                    
-                    if not isinstance(node.expression, UnaryOperation):
-                        new_str = str(UnaryOperationType.BANG) + '(' + old_str + ')'
-                        create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-
-                    print(node.expression)
-                                         
         return result    

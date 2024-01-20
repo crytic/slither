@@ -29,23 +29,24 @@ class UOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                 stop = start + node.source_mapping.length
                 old_str = self.in_file_str[start:stop]
                 line_no = node.source_mapping.lines
-                if isinstance(ir_expression, UnaryOperation) and ir_expression.type in unary_operators:
-                    for op in unary_operators:
-                        if not node.expression.is_prefix:
-                            if node.expression.type != op:
-                                variable_read = node.variables_read[0]
-                                new_str = str(variable_read) + str(op)
-                                if new_str != old_str and str(op) != '-':
+                if not line_no[0] in self.dont_mutate_line:
+                    if isinstance(ir_expression, UnaryOperation) and ir_expression.type in unary_operators:
+                        for op in unary_operators:
+                            if not node.expression.is_prefix:
+                                if node.expression.type != op:
+                                    variable_read = node.variables_read[0]
+                                    new_str = str(variable_read) + str(op)
+                                    if new_str != old_str and str(op) != '-':
+                                        create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                                    new_str = str(op) + str(variable_read)
                                     create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-                                new_str = str(op) + str(variable_read)
-                                create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-                        else:
-                            if node.expression.type != op:
-                                variable_read = node.variables_read[0]
-                                new_str = str(op) + str(variable_read)
-                                if new_str != old_str and str(op) != '-':
+                            else:
+                                if node.expression.type != op:
+                                    variable_read = node.variables_read[0]
+                                    new_str = str(op) + str(variable_read)
+                                    if new_str != old_str and str(op) != '-':
+                                        create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                                    new_str = str(variable_read) + str(op)
                                     create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-                                new_str = str(variable_read) + str(op)
-                                create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-                
+                    
         return result

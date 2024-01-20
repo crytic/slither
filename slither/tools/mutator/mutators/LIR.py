@@ -36,20 +36,20 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     stop = start + variable.source_mapping.length
                     old_str = self.in_file_str[start:stop]
                     line_no = variable.node_initialization.source_mapping.lines
-                    # line_no = [0] 
-                    for value in literal_replacements:
-                        old_value = old_str[old_str.find("=")+1:].strip()
-                        if old_value != value:
-                            new_str = f"{old_str.split('=')[0]}= {value}"
-                            create_patch_with_line(
-                                result,
-                                self.in_file,
-                                start,
-                                stop,
-                                old_str,
-                                new_str,
-                                line_no[0]
-                            )
+                    if not line_no[0] in self.dont_mutate_line:
+                        for value in literal_replacements:
+                            old_value = old_str[old_str.find("=")+1:].strip()
+                            if old_value != value:
+                                new_str = f"{old_str.split('=')[0]}= {value}"
+                                create_patch_with_line(
+                                    result,
+                                    self.in_file,
+                                    start,
+                                    stop,
+                                    old_str,
+                                    new_str,
+                                    line_no[0]
+                                )
 
         for function in self.contract.functions_and_modifiers_declared:
             for variable in function.local_variables:
@@ -65,18 +65,19 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     stop = start + variable.source_mapping.length
                     old_str = self.in_file_str[start:stop]
                     line_no = variable.source_mapping.lines
-                    for new_value in literal_replacements:
-                        old_value = old_str[old_str.find("=")+1:].strip()
-                        if old_value != new_value:
-                            new_str = f"{old_str.split('=')[0]}= {new_value}"
-                            create_patch_with_line(
-                                result,
-                                self.in_file,
-                                start,
-                                stop,
-                                old_str,
-                                new_str,
-                                line_no[0]
-                            )
+                    if not line_no[0] in self.dont_mutate_line:
+                        for new_value in literal_replacements:
+                            old_value = old_str[old_str.find("=")+1:].strip()
+                            if old_value != new_value:
+                                new_str = f"{old_str.split('=')[0]}= {new_value}"
+                                create_patch_with_line(
+                                    result,
+                                    self.in_file,
+                                    start,
+                                    stop,
+                                    old_str,
+                                    new_str,
+                                    line_no[0]
+                                )
 
         return result

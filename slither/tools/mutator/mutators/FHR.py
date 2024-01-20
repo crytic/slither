@@ -24,11 +24,12 @@ class FHR(AbstractMutator):  # pylint: disable=too-few-public-methods
             stop = start + function.source_mapping.content.find('{')
             old_str = self.in_file_str[start:stop]
             line_no = function.source_mapping.lines
-            for value in function_header_replacements:
-                left_value = value.split(" ==> ")[0]
-                right_value = value.split(" ==> ")[1]
-                if re.search(re.compile(left_value), old_str) != None:
-                    new_str = re.sub(re.compile(left_value), right_value, old_str)
-                    create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+            if not line_no[0] in self.dont_mutate_line:
+                for value in function_header_replacements:
+                    left_value = value.split(" ==> ")[0]
+                    right_value = value.split(" ==> ")[1]
+                    if re.search(re.compile(left_value), old_str) != None:
+                        new_str = re.sub(re.compile(left_value), right_value, old_str)
+                        create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
                                          
         return result    

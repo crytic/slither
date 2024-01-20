@@ -20,8 +20,9 @@ class CR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     stop = start + node.source_mapping.length
                     old_str = self.in_file_str[start:stop] 
                     line_no = node.source_mapping.lines
-                    new_str = "//" + old_str
-                    create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                    if not line_no[0] in self.dont_mutate_line:
+                        new_str = "//" + old_str
+                        create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
 
         return result
 

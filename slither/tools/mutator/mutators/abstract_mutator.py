@@ -1,7 +1,7 @@
 import abc
 import logging
 from enum import Enum
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, List
 from slither.core.compilation_unit import SlitherCompilationUnit
 # from slither.tools.doctor.utils import snip_section
 from slither.formatters.utils.patches import apply_patch, create_diff
@@ -41,6 +41,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
         solc_remappings: str | None, 
         verbose: bool,
         output_folder: str,
+        dont_mutate_line: List[int],
         rate: int = 10, 
         seed: Optional[int] = None
     ) -> None:
@@ -57,6 +58,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
         self.contract = contract_instance
         self.in_file = self.contract.source_mapping.filename.absolute
         self.in_file_str = self.contract.compilation_unit.core.source_code[self.in_file]
+        self.dont_mutate_line = dont_mutate_line
 
         if not self.NAME:
             raise IncorrectMutatorInitialization(
@@ -83,13 +85,12 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
         """TODO Documentation"""
         return {}
 
-    def mutate(self) -> Tuple[int, int]:
+    def mutate(self) -> Tuple[int, int, List[int]]:
         # call _mutate function from different mutators
         (all_patches) = self._mutate()
-
         if "patches" not in all_patches:
             logger.debug(f"No patches found by {self.NAME}")
-            return (0,0)
+            return (0,0,self.dont_mutate_line)
         
         for file in all_patches["patches"]:
             original_txt = self.slither.source_code[file].encode("utf8")
@@ -99,6 +100,8 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
             for patch in patches:
                 # test the patch
                 flag = test_patch(file, patch, self.test_command, self.VALID_MUTANTS_COUNT, self.NAME, self.timeout, self.solc_remappings, self.verbose)
+                if (self.NAME == 'RR' or self.NAME == 'CR') and flag:
+                    self.dont_mutate_line.append(patch['line_number'])
                 # count the valid and invalid mutants
                 if not flag:
                     self.INVALID_MUTANTS_COUNT += 1
@@ -112,8 +115,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
                 # add valid mutant patches to a output file
                 with open(self.output_folder + "/patches_file.txt", 'a') as patches_file:
                     patches_file.write(diff + '\n')
-        
-        return (self.VALID_MUTANTS_COUNT, self.INVALID_MUTANTS_COUNT)
+        return (self.VALID_MUTANTS_COUNT, self.INVALID_MUTANTS_COUNT, self.dont_mutate_line)
     
     
     
