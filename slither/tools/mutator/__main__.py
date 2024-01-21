@@ -41,14 +41,14 @@ def parse_args() -> argparse.Namespace:
 
     # argument to add the test command
     parser.add_argument(
-        "--test-cmd",
-        help="Command line needed to run the tests for your project"
+        "test-cmd",
+        help="Command to run the tests for your project"
     )
 
     # argument to add the test directory - containing all the tests
     parser.add_argument(
         "--test-dir",
-        help="Directory of tests"
+        help="Tests directory"
     )
 
     # argument to ignore the interfaces, libraries
@@ -66,7 +66,7 @@ def parse_args() -> argparse.Namespace:
     # output directory argument
     parser.add_argument(
         "--output-dir",
-        help="Output Directory (by default 'mutation_campaign')"
+        help="Name of output directory (by default 'mutation_campaign')"
     )
 
     # to print just all the mutants
@@ -170,6 +170,7 @@ def main() -> None:
     # setting RR mutator as first mutator
     mutators_list = _get_mutators(mutators_to_run)
     
+    # insert RR and CR in front of the list
     CR_RR_list = []
     duplicate_list = mutators_list.copy()
     for M in duplicate_list:
@@ -191,8 +192,9 @@ def main() -> None:
         total_count = 0
         # count of valid mutants
         v_count = 0
-
+        # lines those need not be mutated (taken from RR and CR)
         dont_mutate_lines = []
+
         # mutation
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
