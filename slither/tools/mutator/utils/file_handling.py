@@ -105,5 +105,3 @@ def get_sol_file_list(codebase: str, ignore_paths: List[str] | None) -> List[str
                     sol_file_list.append(i)
 
     return sol_file_list 
-
-# TODO: create a function to delete the commands from the sol file

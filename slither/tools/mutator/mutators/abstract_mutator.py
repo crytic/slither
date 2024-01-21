@@ -3,7 +3,6 @@ import logging
 from enum import Enum
 from typing import Optional, Dict, Tuple, List
 from slither.core.compilation_unit import SlitherCompilationUnit
-# from slither.tools.doctor.utils import snip_section
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.tools.mutator.utils.testing_generated_mutant import test_patch
 from slither.utils.colors import yellow
@@ -100,6 +99,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
             for patch in patches:
                 # test the patch
                 flag = test_patch(file, patch, self.test_command, self.VALID_MUTANTS_COUNT, self.NAME, self.timeout, self.solc_remappings, self.verbose)
+                # if RR or CR and valid mutant, add line no.
                 if (self.NAME == 'RR' or self.NAME == 'CR') and flag:
                     self.dont_mutate_line.append(patch['line_number'])
                 # count the valid and invalid mutants
