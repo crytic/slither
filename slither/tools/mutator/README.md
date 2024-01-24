@@ -6,6 +6,8 @@
 
 `slither-mutate <codebase> --test-cmd <test-command> <options>`
 
+To view the list of mutators available `slither-mutate --list-mutators`
+
 ### CLI Interface
 
 ```

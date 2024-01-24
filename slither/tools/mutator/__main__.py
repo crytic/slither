@@ -118,7 +118,7 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(
         self, parser: Any, *args: Any, **kwargs: Any
     ) -> None:  # pylint: disable=signature-differs
-        checks = _get_mutators()
+        checks = _get_mutators(None)
         output_mutators(checks)
         parser.exit()
 
