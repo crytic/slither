@@ -1,6 +1,5 @@
 import abc
 import logging
-from enum import Enum
 from typing import Optional, Dict, Tuple, List
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
@@ -12,22 +11,10 @@ logger = logging.getLogger("Slither-Mutate")
 
 class IncorrectMutatorInitialization(Exception):
     pass
-
-class FaultNature(Enum):
-    Missing = 0
-    Wrong = 1
-    Extraneous = 2
-    Undefined = 100
-
-    # not executed - can be detected by replacing with revert
-    # has no effect - can be detected by removing a line / comment
-    # can have valid mutant  
-    # can't have valid mutant
     
 class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-methods
     NAME = ""
     HELP = ""
-    FAULTNATURE = FaultNature.Undefined
     VALID_MUTANTS_COUNT = 0
     INVALID_MUTANTS_COUNT = 0
 
@@ -67,11 +54,6 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
         if not self.HELP:
             raise IncorrectMutatorInitialization(
                 f"HELP is not initialized {self.__class__.__name__}"
-            )
-
-        if self.FAULTNATURE == FaultNature.Undefined:
-            raise IncorrectMutatorInitialization(
-                f"FAULTNATURE is not initialized {self.__class__.__name__}"
             )
 
         if rate < 0 or rate > 100:
@@ -116,7 +98,3 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
                 with open(self.output_folder + "/patches_file.txt", 'a') as patches_file:
                     patches_file.write(diff + '\n')
         return (self.VALID_MUTANTS_COUNT, self.INVALID_MUTANTS_COUNT, self.dont_mutate_line)
-    
-    
-    
-    

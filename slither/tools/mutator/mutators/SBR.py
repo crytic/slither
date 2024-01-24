@@ -1,7 +1,7 @@
 from typing import Dict
 from slither.core.cfg.node import NodeType
 from slither.tools.mutator.utils.patch import create_patch_with_line
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 import re
 from slither.core.variables.variable import Variable
 
@@ -47,7 +47,6 @@ solidity_rules = [
 class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "SBR"
     HELP = 'Solidity Based Replacement'
-    FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
 

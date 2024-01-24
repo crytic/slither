@@ -1,7 +1,7 @@
 from typing import Dict
 from slither.slithir.operations import Binary, BinaryType
 from slither.tools.mutator.utils.patch import create_patch_with_line
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 
 relational_operators = [
     BinaryType.LESS,
@@ -15,7 +15,6 @@ relational_operators = [
 class ROR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "ROR"
     HELP = "Relational Operator Replacement"
-    FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
         result: Dict = {}

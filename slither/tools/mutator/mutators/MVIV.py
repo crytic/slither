@@ -1,13 +1,12 @@
 from typing import Dict
 from slither.core.expressions import Literal
 from slither.core.variables.variable import Variable
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.tools.mutator.utils.patch import create_patch_with_line
 
 class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MVIV"
     HELP = "variable initialization using a value"
-    FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
         result: Dict = {}

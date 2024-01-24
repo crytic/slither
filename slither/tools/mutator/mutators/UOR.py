@@ -1,7 +1,7 @@
 from typing import Dict
 from slither.core.expressions.unary_operation import UnaryOperationType, UnaryOperation
 from slither.tools.mutator.utils.patch import create_patch_with_line
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 
 unary_operators = [
     UnaryOperationType.PLUSPLUS_PRE,
@@ -14,7 +14,6 @@ unary_operators = [
 class UOR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "UOR"
     HELP = "Unary Operator Replacement"
-    FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
         result: Dict = {}

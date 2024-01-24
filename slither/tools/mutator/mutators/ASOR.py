@@ -1,6 +1,6 @@
 from typing import Dict
 from slither.tools.mutator.utils.patch import create_patch_with_line
-from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator, FaultNature
+from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.core.expressions.assignment_operation import AssignmentOperationType, AssignmentOperation
 
 assignment_operators = [
@@ -20,7 +20,6 @@ assignment_operators = [
 class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "ASOR"
     HELP = "Assignment Operator Replacement"
-    FAULTNATURE = FaultNature.Missing
 
     def _mutate(self) -> Dict:
         result: Dict = {}
