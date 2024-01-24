@@ -26,7 +26,7 @@ logger.setLevel(logging.INFO)
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Experimental smart contract mutator. Based on https://arxiv.org/abs/2006.11597",
-        usage="slither-mutate target",
+        usage="slither-mutate <codebase> --test-cmd <test command> <options>",
     )
 
     parser.add_argument("codebase", help="Codebase to analyze (.sol file, truffle directory, ...)")
@@ -41,7 +41,7 @@ def parse_args() -> argparse.Namespace:
 
     # argument to add the test command
     parser.add_argument(
-        "test-cmd",
+        "--test-cmd",
         help="Command to run the tests for your project"
     )
 
