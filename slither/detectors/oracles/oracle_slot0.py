@@ -21,7 +21,7 @@ class OracleSlot0(AbstractDetector):
     WIKI_DESCRIPTION = "Slot0 is vulnerable to price manipulation as it gets price at the current moment. TWAP should be used instead."
     WIKI_EXPLOIT_SCENARIO = "asdsad"
     WIKI_RECOMMENDATION = "asdsad"
-    
+
     oracles = []
 
     def detect_slot0(self, contracts: Contract):
@@ -35,8 +35,14 @@ class OracleSlot0(AbstractDetector):
                     continue
                 for functionCalled in function.external_calls_as_expressions:
                     if "slot0" in str(functionCalled):
-                        self.oracles.append(Oracle(contract, function, str(functionCalled).split(".", maxsplit=1)[0], functionCalled.source_mapping.lines[0]))
-
+                        self.oracles.append(
+                            Oracle(
+                                contract,
+                                function,
+                                str(functionCalled).split(".", maxsplit=1)[0],
+                                functionCalled.source_mapping.lines[0],
+                            )
+                        )
 
     def _detect(self):
         results = []
@@ -44,7 +50,12 @@ class OracleSlot0(AbstractDetector):
         # for oracle in self.oracles:
         #     print(oracle.contract.name, oracle.function.name)
         for oracle in self.oracles:
-            results.append("Slot0 usage found in contract " + oracle.contract.name + " in function " + oracle.function.name)
+            results.append(
+                "Slot0 usage found in contract "
+                + oracle.contract.name
+                + " in function "
+                + oracle.function.name
+            )
             results.append("\n")
         res = self.generate_result(results)
         output = []

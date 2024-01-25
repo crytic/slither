@@ -1,0 +1,4 @@
+In contract `OracleWithoutChecks` a function `getPriceUSD` uses oracle where the values of vars ['price'] are not checked. This can potentially lead to a problem! 
+
+UpdatedAt value is not checked correctly. It was returned by the oracle call in the function getPriceUSD of contract test_data/oracle/0.8.20/oracle_data_check1.sol#46.
+
