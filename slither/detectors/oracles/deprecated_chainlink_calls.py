@@ -1,6 +1,5 @@
 from slither.core.declarations.contract import Contract
-from slither.detectors.abstract_detector import (AbstractDetector,
-                                                 DetectorClassification)
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import HighLevelCall
 
 

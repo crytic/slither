@@ -1,10 +1,9 @@
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.core.declarations.contract import Contract
-from slither.core.cfg.node import NodeType
-from slither.core.declarations.function_contract import FunctionContract
+from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.detectors.oracles.oracle import Oracle
 
 
+# TODO: Not ready for publishing
 class OracleSlot0(AbstractDetector):
     """
     Documentation

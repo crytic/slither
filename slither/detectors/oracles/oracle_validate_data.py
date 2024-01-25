@@ -1,28 +1,14 @@
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.declarations.contract import Contract
-from slither.core.declarations.function_contract import FunctionContract
-from slither.core.expressions import expression
-from slither.slithir.operations import Binary, BinaryType
 from enum import Enum
-from slither.detectors.oracles.oracle import OracleDetector, Oracle, VarInCondition
-from slither.slithir.operations.solidity_call import SolidityCall
-from slither.core.cfg.node import NodeType
-from slither.core.variables.state_variable import StateVariable
 
 from slither.core.cfg.node import Node, NodeType
-from slither.slithir.operations.return_operation import Return
-from slither.core.declarations import Function
-from slither.core.declarations.function_contract import FunctionContract
-from slither.core.variables.state_variable import StateVariable
-from slither.detectors.abstract_detector import (
-    AbstractDetector,
-    DetectorClassification,
-    DETECTOR_INFO,
+from slither.detectors.abstract_detector import DetectorClassification
+from slither.detectors.oracles.oracle import Oracle, OracleDetector, VarInCondition
+from slither.slithir.operations import (
+    Binary,
+    BinaryType,
 )
-from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operation
-from slither.slithir.variables import TupleVariable
-from slither.core.expressions.expression import Expression
-from typing import List
+from slither.slithir.operations.return_operation import Return
+from slither.slithir.operations.solidity_call import SolidityCall
 from slither.slithir.variables.constant import Constant
 
 
@@ -39,43 +25,32 @@ class OracleDataCheck(OracleDetector):
     Documentation
     """
 
-    ARGUMENT = "oracle"  # slither will launch the detector with slither.py --detect mydetector
-    HELP = "Help printed by slither"
+    ARGUMENT = "oracle-data-validation"  # slither will launch the detector with slither.py --detect mydetector
+    HELP = "Oracle vulnerabilities"
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "RUN"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#oracle-data-validation"
 
-    WIKI_TITLE = "asda"
-    WIKI_DESCRIPTION = "asdsad"
-    WIKI_EXPLOIT_SCENARIO = "asdsad"
-    WIKI_RECOMMENDATION = "asdsad"
+    WIKI_TITLE = "Oracle data validation"
+    WIKI_DESCRIPTION = "The detection of not correct validation of oracle data."
+    WIKI_EXPLOIT_SCENARIO = "---"
+    WIKI_RECOMMENDATION = "Validate the data returned by the oracle. For more information visit https://docs.chain.link/data-feeds/api-reference"
 
+    # This function checks if the updatedAt value is validated.
     def check_staleness(self, var: VarInCondition) -> bool:
         if var is None:
             return False
         for node in var.nodes_with_var:
             str_node = str(node)
-            # print(str_node)
-            if (
-                "block.timestamp" in str_node
-            ):  # TODO maybe try something like block.timestamp - updatedAt < b
+            # This is temporarily check which will be improved in the future. Mostly we are looking for block.timestamp and trust the developer that he is using it correctly
+            if "block.timestamp" in str_node:
                 return True
-
-            # for ir in node.irs:
-            #     if isinstance(ir, Binary):
-            #         if ir.type in (BinaryType.LESS, BinaryType.LESS_EQUAL):
-            #             if node.contains_require_or_assert():
-            #                 pass
-            #             elif node.contains_conditional():
-            #                 pass
-            #         elif ir.type in (BinaryType.GREATER, BinaryType.GREATER_EQUAL):
-            #             pass
         return False
 
-    def check_RoundId(
-        self, var: VarInCondition, var2: VarInCondition
-    ) -> bool:  # https://solodit.xyz/issues/chainlink-oracle-return-values-are-not-handled-property-halborn-savvy-defi-pdf
+    # This function checks if the RoundId value is validated in connection with answeredInRound value
+    # But this last variable was deprecated. We left this function for possible future use.
+    def check_RoundId(self, var: VarInCondition, var2: VarInCondition) -> bool:
         if var is None or var2 is None:
             return False
         for node in var.nodes_with_var:
@@ -88,6 +63,8 @@ class OracleDataCheck(OracleDetector):
                         if ir.variable_right == var2.var and ir.variable_left == var.var:
                             return True
             if self.check_revert(node):
+                return True
+            elif self.return_boolean(node):
                 return True
 
         return False
@@ -108,12 +85,11 @@ class OracleDataCheck(OracleDetector):
                     if isinstance(ir, Return):
                         return True
 
-    def check_price(
-        self, var: VarInCondition, oracle: Oracle
-    ) -> bool:  # TODO I need to divie require or IF
+    # This functions validates checks of price value
+    def check_price(self, var: VarInCondition, oracle: Oracle) -> bool:
         if var is None:
             return False
-        for node in var.nodes_with_var:  # TODO testing
+        for node in var.nodes_with_var:
             for ir in node.irs:
                 if isinstance(ir, Binary):
                     if isinstance(ir.variable_right, Constant):
@@ -127,12 +103,12 @@ class OracleDataCheck(OracleDetector):
                         if ir.type is (BinaryType.LESS):
                             if ir.variable_left.value == 0:
                                 return True
+                    # If the conditions does not match we are looking for revert or return node
                     if self.check_revert(node):
                         return True
                     elif self.return_boolean(node):
                         return True
 
-                       
         return False
 
     def generate_naive_order(self):
@@ -181,42 +157,36 @@ class OracleDataCheck(OracleDetector):
         for (index, var) in vars_order.items():
             if not self.is_needed_to_check_conditions(oracle, var):
                 continue
-            # if index == OracleVarType.ROUNDID.value: #TODO this is maybe not so mandatory
+            # if index == OracleVarType.ROUNDID.value: # Commented due to deprecation of AnsweredInRound
             #     if not self.check_RoundId(var, vars_order[OracleVarType.ANSWEREDINROUND.value]):
             #         problems.append("RoundID value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
             if index == OracleVarType.ANSWER.value:
                 if not self.check_price(var, oracle):
                     problems.append(
-                        "Price value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format(
-                            oracle.function, oracle.node.source_mapping
-                        )
+                        f"The price value is validated incorrectly. This value is returned by Chainlink oracle call {oracle.contract}.{oracle.interface}.{oracle.oracle_api} ({oracle.node.source_mapping}).\n"
                     )
             elif index == OracleVarType.UPDATEDAT.value:
                 if not self.check_staleness(var):
                     problems.append(
-                        "UpdatedAt value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format(
-                            oracle.function, oracle.node.source_mapping
-                        )
+                        f"The price can be stale due to incorrect validation of updatedAt value. This value is returned by Chainlink oracle call {oracle.contract}.{oracle.interface}.{oracle.oracle_api} ({oracle.node.source_mapping}).\n"
                     )
             elif (
                 index == OracleVarType.STARTEDAT.value
                 and vars_order[OracleVarType.STARTEDAT.value] is not None
             ):
+                # If the startedAt is not None. We are checking if the oracle is a sequencer to ignore incorrect results.
                 if self.is_sequencer_check(vars_order[OracleVarType.ANSWER.value], var):
-                    problems = []  # TODO send some hook to another detector
+                    problems = []
                     break
         return problems
 
+    # This function is necessary even though there is a detector for unused return values because the variable can be used but will not be validated in conditional statements
     def process_not_checked_vars(self):
         result = []
         for oracle in self.oracles:
             if len(oracle.vars_not_in_condition) > 0:
                 result.append(
-                    "In contract `{}` a function `{}` uses oracle where the values of vars {} are not checked. This can potentially lead to a problem! \n".format(
-                        oracle.contract.name,
-                        oracle.function.name,
-                        [var.name for var in oracle.vars_not_in_condition],
-                    )
+                    f"The oracle {oracle.contract}.{oracle.interface} ({oracle.node.source_mapping}) returns the variables {[var.name for var in oracle.vars_not_in_condition]} which are not validated. It can potentially lead to unexpected behaviour.\n"
                 )
         return result
 
@@ -224,13 +194,12 @@ class OracleDataCheck(OracleDetector):
         results = []
         super()._detect()
         not_checked_vars = self.process_not_checked_vars()
-        res = self.generate_result(not_checked_vars)
-        results.append(res)
+        if len(not_checked_vars) > 0:
+            res = self.generate_result(not_checked_vars)
+            results.append(res)
         for oracle in self.oracles:
             checked_vars = self.naive_check(oracle)
             if len(checked_vars) > 0:
                 res = self.generate_result(checked_vars)
                 results.append(res)
-        # res = self.generate_result(self.process_checked_vars())
-        # results.append(res)
         return results

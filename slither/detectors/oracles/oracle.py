@@ -9,7 +9,16 @@ from slither.slithir.variables import TupleVariable
 
 
 class Oracle:
-    def __init__(self, _contract, _function, _node, _line_of_call, _returned_used_vars, _interface):
+    def __init__(
+        self,
+        _contract,
+        _function,
+        _node,
+        _line_of_call,
+        _returned_used_vars,
+        _interface,
+        _oracle_api,
+    ):
         self.contract = _contract
         self.function = _function
         self.node = _node
@@ -19,6 +28,7 @@ class Oracle:
         self.vars_not_in_condition = []
         self.returned_vars_indexes = _returned_used_vars
         self.interface = _interface
+        self.oracle_api = _oracle_api
 
 
 class VarInCondition:  # This class was created to store variable and all conditional nodes where it is used
@@ -50,15 +60,23 @@ class OracleDetector(AbstractDetector):
                 if oracle_calls_in_function:
                     for node in oracle_calls_in_function:
                         interface = None
+                        oracle_api = None
                         for ir in node.irs:
                             if isinstance(ir, HighLevelCall):
                                 interface = ir.destination
+                                oracle_api = ir.function.name
                         idxs = []
                         for idx in oracle_returned_var_indexes:
                             if idx[0] == node:
                                 idxs.append(idx[1])
                         oracle = Oracle(
-                            contract, function, node, node.source_mapping.lines[0], idxs, interface
+                            contract,
+                            function,
+                            node,
+                            node.source_mapping.lines[0],
+                            idxs,
+                            interface,
+                            oracle_api,
                         )
                         oracles.append(oracle)
         return oracles

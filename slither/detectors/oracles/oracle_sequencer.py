@@ -28,7 +28,7 @@ class SequencerCheck(OracleDetector):
         if len(self.oracles) > 0:
             for oracle in self.oracles:
                 results.append(
-                    f"Oracle call to {oracle.interface} ({oracle.node.source_mapping}) is used. Additional checks for sequencer lifeness should be implemented if deployed on the second layer.\n"
+                    f"Oracle call to {oracle.contract}.{oracle.interface} ({oracle.node.source_mapping}) is used. Additional checks for sequencer lifeness should be implemented if deployed on the second layer.\n"
                 )
             res = self.generate_result(results)
             output.append(res)
