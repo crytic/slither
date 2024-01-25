@@ -97,9 +97,6 @@ from .assembly.return_instead_of_leave import ReturnInsteadOfLeave
 from .operations.incorrect_exp import IncorrectOperatorExponentiation
 from .statements.tautological_compare import TautologicalCompare
 from .statements.return_bomb import ReturnBomb
-
-# my detector
-
 from .oracles.oracle_data_validation import OracleDataCheck
 from .oracles.oracle_sequencer import SequencerCheck
 from .oracles.deprecated_chainlink_calls import DeprecatedChainlinkCall
