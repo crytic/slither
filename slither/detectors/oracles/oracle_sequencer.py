@@ -32,24 +32,25 @@ class SequencerCheck(OracleDetector):
     Documentation
     """
 
-    ARGUMENT = "sequencer"  # slither will launch the detector with slither.py --detect mydetector
-    HELP = "Help printed by slither"
+    ARGUMENT = "oracle-sequencer"  # slither will launch the detector with slither.py --detect mydetector
+    HELP = "Oracle vulnerabilities"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.INFORMATIONAL
 
-    WIKI = "RUN"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#oracle-sequencer"
 
-    WIKI_TITLE = "asda"
-    WIKI_DESCRIPTION = "asdsad"
-    WIKI_EXPLOIT_SCENARIO = "asdsad"
-    WIKI_RECOMMENDATION = "asdsad"
+    WIKI_TITLE = "Oracle Sequencer"
+    WIKI_DESCRIPTION = "Detection of oracle sequencer."
+    WIKI_EXPLOIT_SCENARIO = "---"
+    WIKI_RECOMMENDATION = "If you deploy contracts on the second layer as Arbitrum, you should perform an additional check if the sequencer is active. For more information visit https://docs.chain.link/data-feeds/l2-sequencer-feeds#available-networks"
 
     def _detect(self):
         results = []
         output = []
         super()._detect()
         if len(self.oracles) > 0:
-            results.append("The application uses an oracle, if you deploy on second layer as Arbitrum, you should check if the sequencer is active.")
+            for oracle in self.oracles:
+                results.append(f"Oracle call to {oracle.interface} ({oracle.node.source_mapping}) is used. Additional checks for sequencer lifeness should be implemented if deployed on the second layer.\n")
             res = self.generate_result(results)
             output.append(res)
         return output
