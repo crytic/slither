@@ -11,29 +11,31 @@ class DeprecatedChainlinkCalls(AbstractDetector):
     Documentation
     """
 
-    ARGUMENT = "deprecated_chainlink_call"  # slither will launch the detector with slither.py --detect mydetector
-    HELP = "Help printed by slither"
+    ARGUMENT = "deprecated_chainlink_call" 
+    HELP = "Oracle vulnerabilities"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "RUN"
-
-    WIKI_TITLE = "asda"
-    WIKI_DESCRIPTION = "Slot0 is vulnerable to price manipulation as it gets price at the current moment. TWAP should be used instead."
-    WIKI_EXPLOIT_SCENARIO = "asdsad"
-    WIKI_RECOMMENDATION = "asdsad"
+    WIKI = "TODO: Will be added later."
+    WIKI_TITLE = "Oracle vulnerabilities"
+    WIKI_DESCRIPTION = "Detection of deprecated Chainlink calls."
+    WIKI_RECOMMENDATION = "Do not use deprecated Chainlink calls. Visit https://docs.chain.link/data-feeds/api-reference/ for more information."
+    WIKI_EXPLOIT_SCENARIO = ""
 
     DEPRECATED_CHAINLINK_CALLS = ["getAnswer", "getTimestamp", "latestAnswer", "latestRound", "latestTimestamp"]
 
     def find_usage_of_deprecated_chainlink_calls(self, contracts : Contract):
+        """
+        Find usage of deprecated Chainlink calls in the contracts.
+        """
         results = []
         for contract in contracts:
             for function in contract.functions:
                 for node in function.nodes:
                     for ir in node.irs:
-                        if isinstance(ir, HighLevelCall): # TODO ADd interface check
+                        if isinstance(ir, HighLevelCall):
                             if ir.function.name in self.DEPRECATED_CHAINLINK_CALLS and str(ir.destination.type) == "AggregatorV3Interface":
-                                results.append(f"Deprecated Chainlink call {ir.function.name} found in {node.source_mapping}")
+                                results.append(f"Deprecated Chainlink call {ir.destination}.{ir.function.name} used ({node.source_mapping}).\n")
         return results
 
     def _detect(self):
