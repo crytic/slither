@@ -11,12 +11,12 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "LIR"
     HELP = "Literal Interger Replacement"
 
-    def _mutate(self) -> Dict:
+    def _mutate(self) -> Dict: # pylint: disable=too-many-branches
         result: Dict = {}
         variable: Variable
 
         # Create fault for state variables declaration
-        for variable in self.contract.state_variables_declared:
+        for variable in self.contract.state_variables_declared: # pylint: disable=too-many-nested-blocks
             if variable.initialized:
                 # Cannot remove the initialization of constant variables
                 if variable.is_constant:
@@ -50,7 +50,7 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                                     line_no[0]
                                 )
 
-        for function in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared: # pylint: disable=too-many-nested-blocks
             for variable in function.local_variables:
                 if variable.initialized and isinstance(variable.expression, Literal):
                     if isinstance(variable.type, ElementaryType):
@@ -78,5 +78,4 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                                     new_str,
                                     line_no[0]
                                 )
-
         return result

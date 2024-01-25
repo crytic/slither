@@ -24,7 +24,7 @@ class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
     def _mutate(self) -> Dict:
         result: Dict = {}
 
-        for function in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared: # pylint: disable=too-many-nested-blocks
             for node in function.nodes:
                 for ir in node.irs:
                     if isinstance(ir.expression, AssignmentOperation) and ir.expression.type in assignment_operators:
@@ -33,7 +33,7 @@ class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                         alternative_ops = assignment_operators[:]
                         try:
                             alternative_ops.remove(ir.expression.type)
-                        except:
+                        except: # pylint: disable=bare-except
                             continue
                         for op in alternative_ops:
                             if op != ir.expression:

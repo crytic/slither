@@ -1,7 +1,8 @@
 from typing import Dict
+import re
 from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
-import re
+
 
 function_header_replacements = [
     "pure ==> view",
@@ -16,9 +17,8 @@ class FHR(AbstractMutator):  # pylint: disable=too-few-public-methods
 
     def _mutate(self) -> Dict:
         result: Dict = {}
-        
-        for function in self.contract.functions_and_modifiers_declared: 
-            # function_header = function.source_mapping.content.split('{')[0]
+
+        for function in self.contract.functions_and_modifiers_declared:
             start = function.source_mapping.start
             stop = start + function.source_mapping.content.find('{')
             old_str = self.in_file_str[start:stop]
@@ -27,8 +27,7 @@ class FHR(AbstractMutator):  # pylint: disable=too-few-public-methods
                 for value in function_header_replacements:
                     left_value = value.split(" ==> ")[0]
                     right_value = value.split(" ==> ")[1]
-                    if re.search(re.compile(left_value), old_str) != None:
+                    if re.search(re.compile(left_value), old_str) is not None:
                         new_str = re.sub(re.compile(left_value), right_value, old_str)
                         create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-                                         
-        return result    
+        return result

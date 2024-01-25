@@ -1,6 +1,6 @@
 # Slither-mutate
 
-`slither-mutate` is a mutation testing tool for solidity based smart contracts. 
+`slither-mutate` is a mutation testing tool for solidity based smart contracts.
 
 ## Usage
 
@@ -10,9 +10,9 @@ To view the list of mutators available `slither-mutate --list-mutators`
 
 ### CLI Interface
 
-```
+```shell
 positional arguments:
-  codebase              Codebase to analyze (.sol file, truffle directory, ...)
+  codebase              Codebase to analyze (.sol file, project directory, ...)
 
 options:
   -h, --help            show this help message and exit

@@ -55,5 +55,4 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                             new_str,
                             line_no[0]
                         )
-
         return result

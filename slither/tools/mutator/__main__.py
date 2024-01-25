@@ -4,14 +4,14 @@ import logging
 import sys
 import os
 import shutil
-from typing import Type, List, Any
+from typing import Type, List, Any, Optional
 from crytic_compile import cryticparser
 from slither import Slither
 from slither.tools.mutator.mutators import all_mutators
+from slither.utils.colors import yellow, magenta
 from .mutators.abstract_mutator import AbstractMutator
 from .utils.command_line import output_mutators
 from .utils.file_handling import transfer_and_delete, backup_source_file, get_sol_file_list
-from slither.utils.colors import yellow, magenta
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-Mutate")
@@ -24,12 +24,16 @@ logger.setLevel(logging.INFO)
 ###################################################################################
 
 def parse_args() -> argparse.Namespace:
+    """
+    Parse the underlying arguments for the program.
+    Returns: The arguments for the program.
+    """
     parser = argparse.ArgumentParser(
         description="Experimental smart contract mutator. Based on https://arxiv.org/abs/2006.11597",
         usage="slither-mutate <codebase> --test-cmd <test command> <options>",
     )
 
-    parser.add_argument("codebase", help="Codebase to analyze (.sol file, truffle directory, ...)")
+    parser.add_argument("codebase", help="Codebase to analyze (.sol file, project directory, ...)")
 
     parser.add_argument(
         "--list-mutators",
@@ -108,7 +112,7 @@ def parse_args() -> argparse.Namespace:
 
 def _get_mutators(mutators_list: List[str] | None) -> List[Type[AbstractMutator]]:
     detectors_ = [getattr(all_mutators, name) for name in dir(all_mutators)]
-    if not mutators_list is None:
+    if mutators_list is not None:
         detectors = [c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractMutator) and str(c.NAME) in mutators_list ]
     else:
         detectors = [c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractMutator) ]
@@ -122,7 +126,6 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
         output_mutators(checks)
         parser.exit()
 
-
 # endregion
 ###################################################################################
 ###################################################################################
@@ -130,46 +133,46 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 ###################################################################################
 ###################################################################################
 
-def main() -> None:
+def main() -> None: # pylint: disable=too-many-statements,too-many-branches,too-many-locals
     args = parse_args()
 
     # arguments
     test_command: str = args.test_cmd
-    test_directory: str = args.test_dir
-    paths_to_ignore: str | None = args.ignore_dirs
-    output_dir: str | None = args.output_dir
-    timeout: int | None = args.timeout
-    solc_remappings: str | None = args.solc_remaps
-    verbose: bool = args.verbose
-    mutators_to_run: List[str] | None = args.mutators_to_run 
-    contract_names: List[str] | None = args.contract_names
-    quick_flag: bool = args.quick
-    
-    print(magenta(f"Starting Mutation Campaign in '{args.codebase} \n"))
+    test_directory: Optional[str] = args.test_dir
+    paths_to_ignore: Optional[str] = args.ignore_dirs
+    output_dir: Optional[str] = args.output_dir
+    timeout: Optional[int] = args.timeout
+    solc_remappings: Optional[str] = args.solc_remaps
+    verbose: Optional[bool] = args.verbose
+    mutators_to_run: Optional[List[str]] = args.mutators_to_run
+    contract_names: Optional[List[str]] = args.contract_names
+    quick_flag: Optional[bool] = args.quick
+
+    logger.info(magenta(f"Starting Mutation Campaign in '{args.codebase} \n"))
 
     if paths_to_ignore:
         paths_to_ignore_list = paths_to_ignore.strip('][').split(',')
-        print(magenta(f"Ignored paths - {', '.join(paths_to_ignore_list)} \n"))
+        logger.info(magenta(f"Ignored paths - {', '.join(paths_to_ignore_list)} \n"))
     else:
         paths_to_ignore_list = []
 
-    # get all the contracts as a list from given codebase 
+    # get all the contracts as a list from given codebase
     sol_file_list: List[str] = get_sol_file_list(args.codebase, paths_to_ignore_list)
 
     # folder where backup files and valid mutants created
-    if output_dir == None:
+    if output_dir is None:
         output_dir = "/mutation_campaign"
     output_folder = os.getcwd() + output_dir
     if os.path.exists(output_folder):
         shutil.rmtree(output_folder)
 
     # set default timeout
-    if timeout == None:
+    if timeout is None:
         timeout = 30
 
     # setting RR mutator as first mutator
     mutators_list = _get_mutators(mutators_to_run)
-    
+
     # insert RR and CR in front of the list
     CR_RR_list = []
     duplicate_list = mutators_list.copy()
@@ -178,15 +181,15 @@ def main() -> None:
             mutators_list.remove(M)
             CR_RR_list.insert(0,M)
         elif M.NAME == "CR":
-            mutators_list.remove(M) 
+            mutators_list.remove(M)
             CR_RR_list.insert(1,M)
     mutators_list = CR_RR_list + mutators_list
 
-    for filename in sol_file_list:
+    for filename in sol_file_list: # pylint: disable=too-many-nested-blocks
         contract_name = os.path.split(filename)[1].split('.sol')[0]
         # slither object
         sl = Slither(filename, **vars(args))
-        # create a backup files 
+        # create a backup files
         files_dict = backup_source_file(sl.source_code, output_folder)
         # total count of mutants
         total_count = 0
@@ -200,7 +203,7 @@ def main() -> None:
             for compilation_unit_of_main_file in sl.compilation_units:
                 contract_instance = ''
                 for contract in compilation_unit_of_main_file.contracts:
-                    if contract_names != None and contract.name in contract_names:
+                    if contract_names is not None and contract.name in contract_names:
                         contract_instance = contract
                     elif str(contract.name).lower() == contract_name.lower():
                         contract_instance = contract
@@ -215,20 +218,19 @@ def main() -> None:
                         dont_mutate_lines = lines_list
                         if not quick_flag:
                             dont_mutate_lines = []
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-except
             logger.error(e)
 
         except KeyboardInterrupt:
             # transfer and delete the backup files if interrupted
             logger.error("\nExecution interrupted by user (Ctrl + C). Cleaning up...")
             transfer_and_delete(files_dict)
-        
+
         # transfer and delete the backup files
         transfer_and_delete(files_dict)
-    
-        # output
-        print(yellow(f"Done mutating, '{filename}'. Valid mutant count: '{v_count}' and Total mutant count '{total_count}'.\n"))
 
-    print(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
+        # output
+        logger.info(yellow(f"Done mutating, '{filename}'. Valid mutant count: '{v_count}' and Total mutant count '{total_count}'.\n"))
+
+    logger.info(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
 # endregion
- 

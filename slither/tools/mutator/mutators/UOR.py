@@ -18,11 +18,11 @@ class UOR(AbstractMutator):  # pylint: disable=too-few-public-methods
     def _mutate(self) -> Dict:
         result: Dict = {}
 
-        for function in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared: # pylint: disable=too-many-nested-blocks
             for node in function.nodes:
                 try:
                     ir_expression = node.expression
-                except:
+                except: # pylint: disable=bare-except
                     continue
                 start = node.source_mapping.start
                 stop = start + node.source_mapping.length
@@ -47,5 +47,4 @@ class UOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                                         create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
                                     new_str = str(variable_read) + str(op)
                                     create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-                    
         return result
