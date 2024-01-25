@@ -14,9 +14,9 @@ class DeprecatedChainlinkCall(AbstractDetector):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-chainlink-call"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-chainlink-call"
     WIKI_TITLE = "Deprecated Chainlink call"
-    WIKI_DESCRIPTION = "Detect deprecated Chainlink call."
+    WIKI_DESCRIPTION = "Detection of deprecated Chainlink call."
     WIKI_RECOMMENDATION = "Do not use deprecated Chainlink calls. Visit https://docs.chain.link/data-feeds/api-reference/ for active API calls."
     WIKI_EXPLOIT_SCENARIO = "---"
 
