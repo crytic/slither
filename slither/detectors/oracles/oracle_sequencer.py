@@ -19,7 +19,6 @@ class SequencerCheck(OracleDetector):
 
     WIKI_TITLE = "Oracle Sequencer"
     WIKI_DESCRIPTION = "Detection of oracle sequencer."
-    WIKI_EXPLOIT_SCENARIO = "---"
     WIKI_RECOMMENDATION = "If you deploy contracts on the second layer as Arbitrum, you should perform an additional check if the sequencer is active. For more information visit https://docs.chain.link/data-feeds/l2-sequencer-feeds#available-networks"
 
     def _detect(self):
