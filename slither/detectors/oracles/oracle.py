@@ -1,35 +1,11 @@
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.declarations.contract import Contract
-from slither.core.cfg.node import NodeType
-from slither.core.declarations.function_contract import FunctionContract
-from slither.core.expressions import expression
-from slither.slithir.operations import Binary, BinaryType
-from slither.slithir.operations import HighLevelCall
-from enum import Enum
-from slither.core.cfg.node import Node, NodeType
+from slither.analyses.data_dependency.data_dependency import get_dependencies
 from slither.core.declarations import Function
+from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.state_variable import StateVariable
-from slither.detectors.abstract_detector import (
-    AbstractDetector,
-    DetectorClassification,
-    DETECTOR_INFO,
-)
-from slither.slithir.operations import HighLevelCall, Assignment, Unpack, Operation, InternalCall
+from slither.detectors.abstract_detector import AbstractDetector
+from slither.slithir.operations import HighLevelCall, InternalCall, Operation, Unpack
 from slither.slithir.variables import TupleVariable
-from slither.slithir.variables.reference import ReferenceVariable
-from typing import List
-from slither.analyses.data_dependency.data_dependency import is_tainted, get_dependencies
-
-# For debugging
-# import debugpy
-
-# # 5678 is the default attach port in the VS Code debug configurations. Unless a host and port are specified, host defaults to 127.0.0.1
-# debugpy.listen(5678)
-# print("Waiting for debugger attach")
-# debugpy.wait_for_client()
-# debugpy.breakpoint()
-# print('break on this line')
 
 
 class Oracle:
@@ -43,17 +19,9 @@ class Oracle:
         self.vars_not_in_condition = []
         self.returned_vars_indexes = _returned_used_vars
         self.interface = _interface
-        # self.possible_variables_names = [
-        #     "price",
-        #     "timestamp",
-        #     "updatedAt",
-        #     "answer",
-        #     "roundID",
-        #     "startedAt",
-        # ]
 
 
-class VarInCondition:
+class VarInCondition:  # This class was created to store variable and all conditional nodes where it is used
     def __init__(self, _var, _nodes):
         self.var = _var
         self.nodes_with_var = _nodes
@@ -61,12 +29,10 @@ class VarInCondition:
 
 class OracleDetector(AbstractDetector):
 
-    # https://github.com/crytic/slither/wiki/Python-API
-    # def detect_stale_price(Function):
     ORACLE_CALLS = [
         "latestRoundData",
         "getRoundData",
-    ]  # Calls i found which are generally used to get data from oracles, based on docs. Mostly it is lastestRoundData
+    ]  # Chainlink oracle calls -> The most used
 
     def chainlink_oracles(self, contracts: Contract) -> list[Oracle]:
         """
@@ -88,14 +54,9 @@ class OracleDetector(AbstractDetector):
                             if isinstance(ir, HighLevelCall):
                                 interface = ir.destination
                         idxs = []
-                        # if referecne_variable_assigned and isinstance(interface, ReferenceVariable):
-                        #     break
-                        # if isinstance(interface, ReferenceVariable):
-                        #     referecne_variable_assigned = True
                         for idx in oracle_returned_var_indexes:
                             if idx[0] == node:
                                 idxs.append(idx[1])
-                        # print(node, interface, contract)
                         oracle = Oracle(
                             contract, function, node, node.source_mapping.lines[0], idxs, interface
                         )
@@ -108,11 +69,15 @@ class OracleDetector(AbstractDetector):
                 return True
         return False
 
-    def _is_instance(self, ir: Operation) -> bool:  # pylint: disable=no-self-use
+    def _is_instance(self, ir: Operation) -> bool:
         return isinstance(ir, HighLevelCall) and (
-            isinstance(ir.function, Function) and self.compare_chainlink_call(ir.function.name)
+            isinstance(ir.function, Function)
+            and self.compare_chainlink_call(
+                ir.function.name
+            )  # Check if the function is a chainlink call
         )
 
+    # This function was inspired by detector unused return values
     def check_chainlink_call(self, function: FunctionContract):
         used_returned_vars = []
         values_returned = []
@@ -180,10 +145,8 @@ class OracleDetector(AbstractDetector):
 
         return False
 
+    # Check if the vars occurs in require/assert statement or in conditional node
     def vars_in_conditions(self, oracle: Oracle) -> bool:
-        """
-        Detects if vars from oracles are in some condition
-        """
         vars_in_condition = []
         vars_not_in_condition = []
         oracle_vars = []
@@ -192,9 +155,7 @@ class OracleDetector(AbstractDetector):
             self.nodes_with_var = []
             if oracle.function.is_reading_in_conditional_node(
                 var
-            ) or oracle.function.is_reading_in_require_or_assert(
-                var
-            ):  # These two functions check if within the function some var is in require/assert of in if statement
+            ) or oracle.function.is_reading_in_require_or_assert(var):
                 self.nodes_with_var = self.map_condition_to_var(var, oracle.function)
                 for node in self.nodes_with_var:
                     for ir in node.irs:
@@ -205,9 +166,7 @@ class OracleDetector(AbstractDetector):
                     vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
             else:
-                if self.investigate_internal_call(
-                    oracle.function, var
-                ):
+                if self.investigate_internal_call(oracle.function, var):
                     vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
                 else:
@@ -231,10 +190,11 @@ class OracleDetector(AbstractDetector):
                 return True
         return False
 
+    # This function interates through all internal calls in function and checks if the var is used in condition any of them
     def investigate_internal_call(self, function: FunctionContract, var) -> bool:
         if function is None:
             return False
-        
+
         original_var_as_param = self.map_param_to_var(var, function)
         if original_var_as_param is None:
             original_var_as_param = var
@@ -262,45 +222,8 @@ class OracleDetector(AbstractDetector):
                         return True
         return False
 
-        # for functionCalled in function.internal_calls:
-        #     if isinstance(functionCalled, FunctionContract):
-        #         print("functionCalled", functionCalled)
-        #         self.nodes_with_var = self.map_condition_to_var(var, functionCalled)
-        #         if len(self.nodes_with_var) > 0:
-        #             return True
-        #         # for local_var in functionCalled.variables_read:
-        #         #     if local_var.name == var.name:
-
-        #         #         if functionCalled.is_reading_in_conditional_node(
-        #         #             local_var
-        #         #         ) or functionCalled.is_reading_in_require_or_assert(
-        #         #             local_var
-        #         #         ):  # These two functions check if within the function some var is in require/assert of in if statement
-        #         #             return True
-        #         if self.investigate_internal_call(functionCalled, var):
-        #             return True
-
     def _detect(self):
-        info = []
         self.oracles = self.chainlink_oracles(self.contracts)
         for oracle in self.oracles:
             oracle.oracle_vars = self.get_returned_variables_from_oracle(oracle.node)
             self.vars_in_conditions(oracle)
-        # for oracle in oracles:
-        #     oracle_vars = self.get_returned_variables_from_oracle(
-        #         oracle.function, oracle.line_of_call
-        #     )
-        #     if not self.check_vars(oracle, oracle_vars):
-        #         rep = "In contract {} a function {} uses oracle {} where the values of vars {} are not checked \n".format(
-        #             oracle.contract.name,
-        #             oracle.function.name,
-        #             oracle.interface_var,
-        #             [var.name for var in oracle.vars_not_in_condition],
-        #         )
-        #         info.append(rep)
-        #     if len(oracle.vars_in_condition) > 0:
-        #         for var in self.check_conditions_enough(oracle):
-        #             info.append("Problem with {}", var.name)
-        # res = self.generate_result(info)
-
-        return []
