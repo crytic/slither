@@ -1,8 +1,8 @@
 from typing import Dict
+import re
 from slither.core.cfg.node import NodeType
 from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
-import re
 from slither.core.variables.variable import Variable
 
 solidity_rules = [
@@ -43,19 +43,17 @@ solidity_rules = [
     "while ==> if",  
 ]
 
-
 class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "SBR"
     HELP = 'Solidity Based Replacement'
 
     def _mutate(self) -> Dict:
-
         result: Dict = {}
         variable: Variable
 
-        for function in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared: # pylint: disable=too-many-nested-blocks
             for node in function.nodes:
-                if node.type != NodeType.ENTRYPOINT and node.type != NodeType.ENDIF and node.type != NodeType.ENDLOOP:
+                if node.type not in (NodeType.ENTRYPOINT, NodeType.ENDIF, NodeType.ENDLOOP):
                     # Get the string
                     start = node.source_mapping.start
                     stop = start + node.source_mapping.length
@@ -65,11 +63,11 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
                         for value in solidity_rules:
                             left_value = value.split(" ==> ")[0]
                             right_value = value.split(" ==> ")[1]
-                            if re.search(re.compile(left_value), old_str) != None:
+                            if re.search(re.compile(left_value), old_str) is not None:
                                 new_str = re.sub(re.compile(left_value), right_value, old_str)
                                 create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
 
-        for variable in self.contract.state_variables_declared:
+        for variable in self.contract.state_variables_declared: # pylint: disable=too-many-nested-blocks
             node = variable.node_initialization
             if node:
                 start = node.source_mapping.start
@@ -80,13 +78,7 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     for value in solidity_rules:
                         left_value = value.split(" ==> ")[0]
                         right_value = value.split(" ==> ")[1]
-                        if re.search(re.compile(left_value), old_str) != None:
+                        if re.search(re.compile(left_value), old_str) is not None:
                             new_str = re.sub(re.compile(left_value), right_value, old_str)
                             create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
         return result
-
-    
-
-    
-        
-    

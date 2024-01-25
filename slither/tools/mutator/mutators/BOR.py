@@ -18,7 +18,7 @@ class BOR(AbstractMutator):  # pylint: disable=too-few-public-methods
     def _mutate(self) -> Dict:
         result: Dict = {}
 
-        for function in self.contract.functions_and_modifiers_declared:
+        for function in self.contract.functions_and_modifiers_declared: # pylint: disable=too-many-nested-blocks
             for node in function.nodes:
                 for ir in node.irs:
                     if isinstance(ir, Binary) and ir.type in bitwise_operators:

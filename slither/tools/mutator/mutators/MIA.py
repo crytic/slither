@@ -10,7 +10,6 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
 
     def _mutate(self) -> Dict:
         result: Dict = {}
-        
         for function in self.contract.functions_and_modifiers_declared:
             for node in function.nodes:
                 if node.type == NodeType.IF:
@@ -24,9 +23,9 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
                         for value in ["true", "false"]:
                             new_str = value
                             create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-                        
+
                         if not isinstance(node.expression, UnaryOperation):
                             new_str = str(UnaryOperationType.BANG) + '(' + old_str + ')'
                             create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
-
-        return result    
+        return result
+   

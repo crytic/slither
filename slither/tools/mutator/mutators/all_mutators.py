@@ -3,7 +3,7 @@ from slither.tools.mutator.mutators.MVIV import MVIV # severity low
 from slither.tools.mutator.mutators.MVIE import MVIE # severity low
 from slither.tools.mutator.mutators.LOR import LOR # severity medium
 from slither.tools.mutator.mutators.UOR import UOR # severity medium
-from slither.tools.mutator.mutators.SBR import SBR # severity medium   
+from slither.tools.mutator.mutators.SBR import SBR # severity medium
 from slither.tools.mutator.mutators.AOR import AOR # severity medium
 from slither.tools.mutator.mutators.BOR import BOR # severity medium
 from slither.tools.mutator.mutators.ASOR import ASOR # severity medium

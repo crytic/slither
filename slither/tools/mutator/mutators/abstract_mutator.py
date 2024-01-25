@@ -11,24 +11,24 @@ logger = logging.getLogger("Slither-Mutate")
 
 class IncorrectMutatorInitialization(Exception):
     pass
-    
+
 class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-methods
     NAME = ""
     HELP = ""
     VALID_MUTANTS_COUNT = 0
     INVALID_MUTANTS_COUNT = 0
 
-    def __init__(
-        self, compilation_unit: SlitherCompilationUnit, 
-        timeout: int, 
-        testing_command: str, 
-        testing_directory: str, 
-        contract_instance: Contract, 
-        solc_remappings: str | None, 
+    def __init__( # pylint: disable=too-many-arguments
+        self, compilation_unit: SlitherCompilationUnit,
+        timeout: int,
+        testing_command: str,
+        testing_directory: str,
+        contract_instance: Contract,
+        solc_remappings: str | None,
         verbose: bool,
         output_folder: str,
         dont_mutate_line: List[int],
-        rate: int = 10, 
+        rate: int = 10,
         seed: Optional[int] = None
     ) -> None:
         self.compilation_unit = compilation_unit
@@ -60,7 +60,7 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
             raise IncorrectMutatorInitialization(
                 f"rate must be between 0 and 100 {self.__class__.__name__}"
             )
-    
+
     @abc.abstractmethod
     def _mutate(self) -> Dict:
         """TODO Documentation"""
@@ -70,19 +70,19 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
         # call _mutate function from different mutators
         (all_patches) = self._mutate()
         if "patches" not in all_patches:
-            logger.debug(f"No patches found by {self.NAME}")
+            logger.debug("No patches found by %s", self.NAME)
             return (0,0,self.dont_mutate_line)
-        
+
         for file in all_patches["patches"]:
             original_txt = self.slither.source_code[file].encode("utf8")
             patches = all_patches["patches"][file]
             patches.sort(key=lambda x: x["start"])
-            print(yellow(f"Mutating {file} with {self.NAME} \n"))
+            logger.info(yellow(f"Mutating {file} with {self.NAME} \n"))
             for patch in patches:
                 # test the patch
                 flag = test_patch(file, patch, self.test_command, self.VALID_MUTANTS_COUNT, self.NAME, self.timeout, self.solc_remappings, self.verbose)
                 # if RR or CR and valid mutant, add line no.
-                if (self.NAME == 'RR' or self.NAME == 'CR') and flag:
+                if self.NAME in ('RR', 'CR') and flag:
                     self.dont_mutate_line.append(patch['line_number'])
                 # count the valid and invalid mutants
                 if not flag:
