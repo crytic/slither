@@ -133,7 +133,7 @@ def detect_divide_before_multiply(
     results: List[Tuple[FunctionContract, List[Node]]] = []
 
     # Loop for each function and modifier.
-    for function in contract.functions_declared:
+    for function in contract.functions_declared + contract.modifiers_declared:
         if not function.entry_point:
             continue
 
