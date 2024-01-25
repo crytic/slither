@@ -31,8 +31,8 @@ class DeprecatedChainlinkCalls(AbstractDetector):
             for function in contract.functions:
                 for node in function.nodes:
                     for ir in node.irs:
-                        if isinstance(ir, HighLevelCall):
-                            if ir.function.name in self.DEPRECATED_CHAINLINK_CALLS:
+                        if isinstance(ir, HighLevelCall): # TODO ADd interface check
+                            if ir.function.name in self.DEPRECATED_CHAINLINK_CALLS and str(ir.destination.type) == "AggregatorV3Interface":
                                 results.append(f"Deprecated Chainlink call {ir.function.name} found in {node.source_mapping}")
         return results
 
@@ -42,4 +42,3 @@ class DeprecatedChainlinkCalls(AbstractDetector):
             res = self.generate_result(results)
             return [res]
         return []
-
