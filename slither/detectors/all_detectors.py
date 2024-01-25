@@ -102,4 +102,4 @@ from .statements.return_bomb import ReturnBomb
 
 from .oracles.oracle_validate_data import OracleDataCheck
 from .oracles.oracle_sequencer import SequencerCheck
-from .oracles.deprecated_chainlink_calls import DeprecatedChainlinkCalls
+from .oracles.deprecated_chainlink_calls import DeprecatedChainlinkCall
