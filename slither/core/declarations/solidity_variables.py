@@ -45,7 +45,6 @@ SOLIDITY_VARIABLES_COMPOSED = {
 }
 
 SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
-
     "blobhash(uint256)": ["bytes32"],
     "gasleft()": ["uint256"],
     "assert(bool)": [],
