@@ -1,5 +1,13 @@
-from slither.slithir.operations import HighLevelCall, InternalCall, Operation, Unpack
+from slither.slithir.operations import HighLevelCall, Operation
 from slither.core.declarations import Function
+from slither.core.cfg.node import Node, NodeType
+from slither.slithir.operations.return_operation import Return
+from slither.slithir.operations.solidity_call import SolidityCall
+
+class VarInCondition:  # This class was created to store variable and all conditional nodes where it is used
+    def __init__(self, _var, _nodes):
+        self.var = _var
+        self.nodes_with_var = _nodes
 
 class Oracle:
     def __init__(
@@ -44,4 +52,24 @@ class Oracle:
         self.returned_vars_indexes = _returned_vars_indexes
         self.interface = _interface
         self.oracle_api = _oracle_api
-        
+
+    # Data validation helpful functions
+    def naive_data_validation(self):
+        return []
+    
+    def check_revert(self, node: Node) -> bool:
+        for n in node.sons:
+            if n.type == NodeType.EXPRESSION:
+                for ir in n.irs:
+                    if isinstance(ir, SolidityCall):
+                        if "revert" in ir.function.name:
+                            return True
+        return False
+
+    def return_boolean(self, node: Node) -> bool:
+        for n in node.sons:
+            if n.type == NodeType.RETURN:
+                for ir in n.irs:
+                    if isinstance(ir, Return):
+                        return True        
+    

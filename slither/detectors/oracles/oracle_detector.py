@@ -6,7 +6,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.slithir.operations import HighLevelCall, InternalCall, Operation, Unpack
 from slither.slithir.variables import TupleVariable
-from slither.detectors.oracles.supported_oracles.oracle import Oracle
+from slither.detectors.oracles.supported_oracles.oracle import Oracle, VarInCondition
 from slither.detectors.oracles.supported_oracles.chainlink_oracle import ChainlinkOracle
 from enum import Enum
 
@@ -15,10 +15,7 @@ class SupportedOracles(Enum):
     TELLOR = 1
 
 
-class VarInCondition:  # This class was created to store variable and all conditional nodes where it is used
-    def __init__(self, _var, _nodes):
-        self.var = _var
-        self.nodes_with_var = _nodes
+
 
 
 class OracleDetector(AbstractDetector):
