@@ -6,29 +6,29 @@ from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.core.variables.variable import Variable
 
 solidity_rules = [
-    "abi\.encode\( ==> abi.encodePacked(",
-    "abi\.encodePacked\( ==> abi.encode(",
-    "\.call([({]) ==> .delegatecall\\1",
-    "\.call([({]) ==> .staticcall\\1",
-    "\.delegatecall([({]) ==> .call\\1",
-    "\.delegatecall([({]) ==> .staticcall\\1",
-    "\.staticcall([({]) ==> .delegatecall\\1",
-    "\.staticcall([({]) ==> .call\\1",
+    "abi\\.encode\\( ==> abi.encodePacked(",
+    "abi\\.encodePacked\\( ==> abi.encode(",
+    "\\.call([({]) ==> .delegatecall\\1",
+    "\\.call([({]) ==> .staticcall\\1",
+    "\\.delegatecall([({]) ==> .call\\1",
+    "\\.delegatecall([({]) ==> .staticcall\\1",
+    "\\.staticcall([({]) ==> .delegatecall\\1",
+    "\\.staticcall([({]) ==> .call\\1",
     "^now$ ==> 0",
     "block.timestamp ==> 0",
     "msg.value ==> 0",
     "msg.value ==> 1",
-    "(\s)(wei|gwei) ==> \\1ether",
-    "(\s)(ether|gwei) ==> \\1wei",
-    "(\s)(wei|ether) ==> \\1gwei",
-    "(\s)(minutes|days|hours|weeks) ==> \\1seconds",
-    "(\s)(seconds|days|hours|weeks) ==> \\1minutes",
-    "(\s)(seconds|minutes|hours|weeks) ==> \\1days",
-    "(\s)(seconds|minutes|days|weeks) ==> \\1hours",
-    "(\s)(seconds|minutes|days|hours) ==> \\1weeks",
-    "(\s)(memory) ==> \\1storage",
-    "(\s)(storage) ==> \\1memory",
-    "(\s)(constant) ==> \\1immutable",
+    "(\\s)(wei|gwei) ==> \\1ether",
+    "(\\s)(ether|gwei) ==> \\1wei",
+    "(\\s)(wei|ether) ==> \\1gwei",
+    "(\\s)(minutes|days|hours|weeks) ==> \\1seconds",
+    "(\\s)(seconds|days|hours|weeks) ==> \\1minutes",
+    "(\\s)(seconds|minutes|hours|weeks) ==> \\1days",
+    "(\\s)(seconds|minutes|days|weeks) ==> \\1hours",
+    "(\\s)(seconds|minutes|days|hours) ==> \\1weeks",
+    "(\\s)(memory) ==> \\1storage",
+    "(\\s)(storage) ==> \\1memory",
+    "(\\s)(constant) ==> \\1immutable",
     "addmod ==> mulmod",
     "mulmod ==> addmod",
     "msg.sender ==> tx.origin",
@@ -40,45 +40,74 @@ solidity_rules = [
     "(u?)int64 ==> \\1int32",
     "(u?)int128 ==> \\1int64",
     "(u?)int256 ==> \\1int128",
-    "while ==> if",  
+    "while ==> if",
 ]
+
 
 class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "SBR"
-    HELP = 'Solidity Based Replacement'
+    HELP = "Solidity Based Replacement"
 
     def _mutate(self) -> Dict:
         result: Dict = {}
         variable: Variable
 
-        for function in self.contract.functions_and_modifiers_declared: # pylint: disable=too-many-nested-blocks
+        for (  # pylint: disable=too-many-nested-blocks
+            function
+        ) in self.contract.functions_and_modifiers_declared:
             for node in function.nodes:
-                if node.type not in (NodeType.ENTRYPOINT, NodeType.ENDIF, NodeType.ENDLOOP):
+                if node.type not in (
+                    NodeType.ENTRYPOINT,
+                    NodeType.ENDIF,
+                    NodeType.ENDLOOP,
+                ):
                     # Get the string
                     start = node.source_mapping.start
                     stop = start + node.source_mapping.length
-                    old_str = self.in_file_str[start:stop] 
+                    old_str = self.in_file_str[start:stop]
                     line_no = node.source_mapping.lines
                     if not line_no[0] in self.dont_mutate_line:
                         for value in solidity_rules:
-                            left_value = value.split(" ==> ")[0]
+                            left_value = value.split(" ==> ", maxsplit=1)[0]
                             right_value = value.split(" ==> ")[1]
                             if re.search(re.compile(left_value), old_str) is not None:
-                                new_str = re.sub(re.compile(left_value), right_value, old_str)
-                                create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                                new_str = re.sub(
+                                    re.compile(left_value), right_value, old_str
+                                )
+                                create_patch_with_line(
+                                    result,
+                                    self.in_file,
+                                    start,
+                                    stop,
+                                    old_str,
+                                    new_str,
+                                    line_no[0],
+                                )
 
-        for variable in self.contract.state_variables_declared: # pylint: disable=too-many-nested-blocks
+        for (  # pylint: disable=too-many-nested-blocks
+            variable
+        ) in self.contract.state_variables_declared:
             node = variable.node_initialization
             if node:
                 start = node.source_mapping.start
                 stop = start + node.source_mapping.length
-                old_str = self.in_file_str[start:stop] 
+                old_str = self.in_file_str[start:stop]
                 line_no = node.source_mapping.lines
                 if not line_no[0] in self.dont_mutate_line:
                     for value in solidity_rules:
-                        left_value = value.split(" ==> ")[0]
+                        left_value = value.split(" ==> ", maxsplit=1)[0]
                         right_value = value.split(" ==> ")[1]
                         if re.search(re.compile(left_value), old_str) is not None:
-                            new_str = re.sub(re.compile(left_value), right_value, old_str)
-                            create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                            new_str = re.sub(
+                                re.compile(left_value), right_value, old_str
+                            )
+                            create_patch_with_line(
+                                result,
+                                self.in_file,
+                                start,
+                                stop,
+                                old_str,
+                                new_str,
+                                line_no[0],
+                            )
         return result
