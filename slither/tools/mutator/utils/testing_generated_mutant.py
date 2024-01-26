@@ -40,9 +40,7 @@ def run_test_cmd(cmd: str, test_dir: str, timeout: int) -> bool:
     start = time.time()
 
     # starting new process
-    with subprocess.Popen(
-        [cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    ) as P:
+    with subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as P:
         try:
             # checking whether the process is completed or not within 30 seconds(default)
             while P.poll() is None and (time.time() - start) < timeout:
@@ -78,9 +76,7 @@ def test_patch(  # pylint: disable=too-many-arguments
     with open(file, "r", encoding="utf-8") as filepath:
         content = filepath.read()
     # Perform the replacement based on the index values
-    replaced_content = (
-        content[: patch["start"]] + patch["new_string"] + content[patch["end"] :]
-    )
+    replaced_content = (content[: patch["start"]] + patch["new_string"] + content[patch["end"] :])
     # Write the modified content back to the file
     with open(file, "w", encoding="utf-8") as filepath:
         filepath.write(replaced_content)

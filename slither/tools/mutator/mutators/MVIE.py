@@ -40,9 +40,7 @@ class MVIE(AbstractMutator):  # pylint: disable=too-few-public-methods
 
         for function in self.contract.functions_and_modifiers_declared:
             for variable in function.local_variables:
-                if variable.initialized and not isinstance(
-                    variable.expression, Literal
-                ):
+                if variable.initialized and not isinstance(variable.expression, Literal):
                     # Get the string
                     start = variable.source_mapping.start
                     stop = variable.expression.source_mapping.start

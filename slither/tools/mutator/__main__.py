@@ -38,9 +38,7 @@ def parse_args() -> argparse.Namespace:
         usage="slither-mutate <codebase> --test-cmd <test command> <options>",
     )
 
-    parser.add_argument(
-        "codebase", help="Codebase to analyze (.sol file, project directory, ...)"
-    )
+    parser.add_argument("codebase", help="Codebase to analyze (.sol file, project directory, ...)")
 
     parser.add_argument(
         "--list-mutators",
@@ -60,9 +58,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--ignore-dirs", help="Directories to ignore")
 
     # time out argument
-    parser.add_argument(
-        "--timeout", help="Set timeout for test command (by default 30 seconds)"
-    )
+    parser.add_argument("--timeout", help="Set timeout for test command (by default 30 seconds)")
 
     # output directory argument
     parser.add_argument(
@@ -118,11 +114,7 @@ def _get_mutators(mutators_list: List[str] | None) -> List[Type[AbstractMutator]
             and str(c.NAME) in mutators_list
         ]
     else:
-        detectors = [
-            c
-            for c in detectors_
-            if inspect.isclass(c) and issubclass(c, AbstractMutator)
-        ]
+        detectors = [c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractMutator)]
     return detectors
 
 
@@ -143,9 +135,7 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 ###################################################################################
 
 
-def main() -> (
-    None
-):  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
+def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
     args = parse_args()
 
     # arguments

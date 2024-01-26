@@ -27,12 +27,8 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
 
                 if isinstance(variable.expression, Literal):
                     if isinstance(variable.type, ElementaryType):
-                        literal_replacements.append(
-                            variable.type.min
-                        )  # append data type min value
-                        literal_replacements.append(
-                            variable.type.max
-                        )  # append data type max value
+                        literal_replacements.append(variable.type.min)  # append data type min value
+                        literal_replacements.append(variable.type.max)  # append data type max value
                         if str(variable.type).startswith("uint"):
                             literal_replacements.append("1")
                         elif str(variable.type).startswith("uint"):

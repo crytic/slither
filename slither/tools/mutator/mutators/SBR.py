@@ -71,9 +71,7 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
                             left_value = value.split(" ==> ", maxsplit=1)[0]
                             right_value = value.split(" ==> ")[1]
                             if re.search(re.compile(left_value), old_str) is not None:
-                                new_str = re.sub(
-                                    re.compile(left_value), right_value, old_str
-                                )
+                                new_str = re.sub(re.compile(left_value), right_value, old_str)
                                 create_patch_with_line(
                                     result,
                                     self.in_file,
@@ -98,9 +96,7 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
                         left_value = value.split(" ==> ", maxsplit=1)[0]
                         right_value = value.split(" ==> ")[1]
                         if re.search(re.compile(left_value), old_str) is not None:
-                            new_str = re.sub(
-                                re.compile(left_value), right_value, old_str
-                            )
+                            new_str = re.sub(re.compile(left_value), right_value, old_str)
                             create_patch_with_line(
                                 result,
                                 self.in_file,

@@ -104,9 +104,7 @@ class AbstractMutator(
                     continue
                 self.VALID_MUTANTS_COUNT += 1
                 patched_txt, _ = apply_patch(original_txt, patch, 0)
-                diff = create_diff(
-                    self.compilation_unit, original_txt, patched_txt, file
-                )
+                diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
                 if not diff:
                     logger.info(f"Impossible to generate patch; empty {patches}")
 
