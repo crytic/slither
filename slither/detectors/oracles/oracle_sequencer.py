@@ -1,5 +1,5 @@
 from slither.detectors.abstract_detector import DetectorClassification
-from slither.detectors.oracles.oracle import OracleDetector
+from slither.detectors.oracles.oracle_detector import OracleDetector
 
 
 class SequencerCheck(OracleDetector):

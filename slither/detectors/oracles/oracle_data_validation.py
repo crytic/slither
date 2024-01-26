@@ -2,7 +2,7 @@ from enum import Enum
 
 from slither.core.cfg.node import Node, NodeType
 from slither.detectors.abstract_detector import DetectorClassification
-from slither.detectors.oracles.oracle import Oracle, OracleDetector, VarInCondition
+from slither.detectors.oracles.oracle_detector import Oracle, OracleDetector, VarInCondition
 from slither.slithir.operations import (
     Binary,
     BinaryType,
