@@ -21,7 +21,7 @@ SOLIDITY_VARIABLES = {
 }
 
 SOLIDITY_VARIABLES_COMPOSED = {
-    "block.basefee": "uint",
+    "block.basefee": "uint256",
     "block.blobbasefee": "uint256",
     "block.coinbase": "address",
     "block.difficulty": "uint256",
