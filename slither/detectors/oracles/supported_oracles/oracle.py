@@ -1,4 +1,5 @@
 from slither.slithir.operations import HighLevelCall, InternalCall, Operation, Unpack
+from slither.core.declarations import Function
 
 class Oracle:
     def __init__(

@@ -6,6 +6,7 @@ from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.slithir.operations import HighLevelCall, InternalCall, Operation, Unpack
 from slither.slithir.variables import TupleVariable
+from slither.detectors.oracles.supported_oracles.oracle import Oracle
 from slither.detectors.oracles.supported_oracles.chainlink_oracle import ChainlinkOracle
 from enum import Enum
 
