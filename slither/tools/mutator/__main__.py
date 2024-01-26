@@ -11,7 +11,11 @@ from slither.tools.mutator.mutators import all_mutators
 from slither.utils.colors import yellow, magenta
 from .mutators.abstract_mutator import AbstractMutator
 from .utils.command_line import output_mutators
-from .utils.file_handling import transfer_and_delete, backup_source_file, get_sol_file_list
+from .utils.file_handling import (
+    transfer_and_delete,
+    backup_source_file,
+    get_sol_file_list,
+)
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-Mutate")
@@ -23,6 +27,7 @@ logger.setLevel(logging.INFO)
 ###################################################################################
 ###################################################################################
 
+
 def parse_args() -> argparse.Namespace:
     """
     Parse the underlying arguments for the program.
@@ -33,7 +38,9 @@ def parse_args() -> argparse.Namespace:
         usage="slither-mutate <codebase> --test-cmd <test command> <options>",
     )
 
-    parser.add_argument("codebase", help="Codebase to analyze (.sol file, project directory, ...)")
+    parser.add_argument(
+        "codebase", help="Codebase to analyze (.sol file, project directory, ...)"
+    )
 
     parser.add_argument(
         "--list-mutators",
@@ -44,33 +51,22 @@ def parse_args() -> argparse.Namespace:
     )
 
     # argument to add the test command
-    parser.add_argument(
-        "--test-cmd",
-        help="Command to run the tests for your project"
-    )
+    parser.add_argument("--test-cmd", help="Command to run the tests for your project")
 
     # argument to add the test directory - containing all the tests
-    parser.add_argument(
-        "--test-dir",
-        help="Tests directory"
-    )
+    parser.add_argument("--test-dir", help="Tests directory")
 
     # argument to ignore the interfaces, libraries
-    parser.add_argument(
-        "--ignore-dirs",
-        help="Directories to ignore"
-    )
+    parser.add_argument("--ignore-dirs", help="Directories to ignore")
 
     # time out argument
     parser.add_argument(
-        "--timeout",
-        help="Set timeout for test command (by default 30 seconds)"
+        "--timeout", help="Set timeout for test command (by default 30 seconds)"
     )
 
     # output directory argument
     parser.add_argument(
-        "--output-dir",
-        help="Name of output directory (by default 'mutation_campaign')"
+        "--output-dir", help="Name of output directory (by default 'mutation_campaign')"
     )
 
     # to print just all the mutants
@@ -110,13 +106,25 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
+
 def _get_mutators(mutators_list: List[str] | None) -> List[Type[AbstractMutator]]:
     detectors_ = [getattr(all_mutators, name) for name in dir(all_mutators)]
     if mutators_list is not None:
-        detectors = [c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractMutator) and str(c.NAME) in mutators_list ]
+        detectors = [
+            c
+            for c in detectors_
+            if inspect.isclass(c)
+            and issubclass(c, AbstractMutator)
+            and str(c.NAME) in mutators_list
+        ]
     else:
-        detectors = [c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractMutator) ]
+        detectors = [
+            c
+            for c in detectors_
+            if inspect.isclass(c) and issubclass(c, AbstractMutator)
+        ]
     return detectors
+
 
 class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(
@@ -126,6 +134,7 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
         output_mutators(checks)
         parser.exit()
 
+
 # endregion
 ###################################################################################
 ###################################################################################
@@ -133,7 +142,10 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 ###################################################################################
 ###################################################################################
 
-def main() -> None: # pylint: disable=too-many-statements,too-many-branches,too-many-locals
+
+def main() -> (
+    None
+):  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
     args = parse_args()
 
     # arguments
@@ -151,7 +163,7 @@ def main() -> None: # pylint: disable=too-many-statements,too-many-branches,too-
     logger.info(magenta(f"Starting Mutation Campaign in '{args.codebase} \n"))
 
     if paths_to_ignore:
-        paths_to_ignore_list = paths_to_ignore.strip('][').split(',')
+        paths_to_ignore_list = paths_to_ignore.strip("][").split(",")
         logger.info(magenta(f"Ignored paths - {', '.join(paths_to_ignore_list)} \n"))
     else:
         paths_to_ignore_list = []
@@ -179,14 +191,14 @@ def main() -> None: # pylint: disable=too-many-statements,too-many-branches,too-
     for M in duplicate_list:
         if M.NAME == "RR":
             mutators_list.remove(M)
-            CR_RR_list.insert(0,M)
+            CR_RR_list.insert(0, M)
         elif M.NAME == "CR":
             mutators_list.remove(M)
-            CR_RR_list.insert(1,M)
+            CR_RR_list.insert(1, M)
     mutators_list = CR_RR_list + mutators_list
 
-    for filename in sol_file_list: # pylint: disable=too-many-nested-blocks
-        contract_name = os.path.split(filename)[1].split('.sol')[0]
+    for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
+        contract_name = os.path.split(filename)[1].split(".sol")[0]
         # slither object
         sl = Slither(filename, **vars(args))
         # create a backup files
@@ -201,24 +213,34 @@ def main() -> None: # pylint: disable=too-many-statements,too-many-branches,too-
         # mutation
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
-                contract_instance = ''
+                contract_instance = ""
                 for contract in compilation_unit_of_main_file.contracts:
                     if contract_names is not None and contract.name in contract_names:
                         contract_instance = contract
                     elif str(contract.name).lower() == contract_name.lower():
                         contract_instance = contract
-                if contract_instance == '':
+                if contract_instance == "":
                     logger.error("Can't find the contract")
                 else:
                     for M in mutators_list:
-                        m = M(compilation_unit_of_main_file, int(timeout), test_command, test_directory, contract_instance, solc_remappings, verbose, output_folder, dont_mutate_lines)
+                        m = M(
+                            compilation_unit_of_main_file,
+                            int(timeout),
+                            test_command,
+                            test_directory,
+                            contract_instance,
+                            solc_remappings,
+                            verbose,
+                            output_folder,
+                            dont_mutate_lines,
+                        )
                         (count_valid, count_invalid, lines_list) = m.mutate()
                         v_count += count_valid
                         total_count += count_valid + count_invalid
                         dont_mutate_lines = lines_list
                         if not quick_flag:
                             dont_mutate_lines = []
-        except Exception as e: # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
             logger.error(e)
 
         except KeyboardInterrupt:
@@ -230,7 +252,13 @@ def main() -> None: # pylint: disable=too-many-statements,too-many-branches,too-
         transfer_and_delete(files_dict)
 
         # output
-        logger.info(yellow(f"Done mutating, '{filename}'. Valid mutant count: '{v_count}' and Total mutant count '{total_count}'.\n"))
+        logger.info(
+            yellow(
+                f"Done mutating, '{filename}'. Valid mutant count: '{v_count}' and Total mutant count '{total_count}'.\n"
+            )
+        )
 
     logger.info(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
+
+
 # endregion

@@ -4,6 +4,7 @@ from slither.core.variables.variable import Variable
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 from slither.tools.mutator.utils.patch import create_patch_with_line
 
+
 class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "MVIV"
     HELP = "variable initialization using a value"
@@ -34,7 +35,7 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                             stop + variable.expression.source_mapping.length,
                             old_str,
                             new_str,
-                            line_no[0]
+                            line_no[0],
                         )
 
         for function in self.contract.functions_and_modifiers_declared:
@@ -53,6 +54,6 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                             stop + variable.expression.source_mapping.length,
                             old_str,
                             new_str,
-                            line_no[0]
+                            line_no[0],
                         )
         return result

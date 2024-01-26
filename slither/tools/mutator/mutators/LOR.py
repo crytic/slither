@@ -8,6 +8,7 @@ logical_operators = [
     BinaryType.ANDAND,
 ]
 
+
 class LOR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "LOR"
     HELP = "Logical Operator Replacement"
@@ -15,7 +16,9 @@ class LOR(AbstractMutator):  # pylint: disable=too-few-public-methods
     def _mutate(self) -> Dict:
         result: Dict = {}
 
-        for function in self.contract.functions_and_modifiers_declared: # pylint: disable=too-many-nested-blocks
+        for (  # pylint: disable=too-many-nested-blocks
+            function
+        ) in self.contract.functions_and_modifiers_declared:
             for node in function.nodes:
                 for ir in node.irs:
                     if isinstance(ir, Binary) and ir.type in logical_operators:
@@ -31,5 +34,13 @@ class LOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                             if not line_no[0] in self.dont_mutate_line:
                                 # Replace the expression with true
                                 new_str = f"{old_str.split(ir.type.value)[0]} {op.value} {old_str.split(ir.type.value)[1]}"
-                                create_patch_with_line(result, self.in_file, start, stop, old_str, new_str, line_no[0])
+                                create_patch_with_line(
+                                    result,
+                                    self.in_file,
+                                    start,
+                                    stop,
+                                    old_str,
+                                    new_str,
+                                    line_no[0],
+                                )
         return result
