@@ -76,7 +76,7 @@ def test_patch(  # pylint: disable=too-many-arguments
     with open(file, "r", encoding="utf-8") as filepath:
         content = filepath.read()
     # Perform the replacement based on the index values
-    replaced_content = (content[: patch["start"]] + patch["new_string"] + content[patch["end"] :])
+    replaced_content = content[: patch["start"]] + patch["new_string"] + content[patch["end"] :]
     # Write the modified content back to the file
     with open(file, "w", encoding="utf-8") as filepath:
         filepath.write(replaced_content)
