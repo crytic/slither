@@ -196,7 +196,11 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         # total count of mutants
         total_count = 0
         # count of valid mutants
-        v_count = 0
+        valid_count = 0
+        # count of valid revert mutants
+        RR_count = 0
+        # count of valid comment mutants
+        CR_count = 0
         # lines those need not be mutated (taken from RR and CR)
         dont_mutate_lines = []
 
@@ -212,6 +216,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                 if contract_instance == "":
                     logger.error("Can't find the contract")
                 else:
+                    logger.info(yellow(f"\nMutating contract {contract_instance}"))
                     for M in mutators_list:
                         m = M(
                             compilation_unit_of_main_file,
@@ -224,8 +229,10 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                             output_folder,
                             dont_mutate_lines,
                         )
-                        (count_valid, count_invalid, lines_list) = m.mutate()
-                        v_count += count_valid
+                        (count_invalid, count_valid, count_valid_rr, count_valid_cr, lines_list) = m.mutate()
+                        valid_count += count_valid
+                        RR_count += count_valid_rr
+                        CR_count += count_valid_cr
                         total_count += count_valid + count_invalid
                         dont_mutate_lines = lines_list
                         if not quick_flag:
@@ -244,7 +251,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         # output
         logger.info(
             yellow(
-                f"Done mutating, '{filename}'. Valid mutant count: '{v_count}' and Total mutant count '{total_count}'.\n"
+                f"Done mutating, '{filename}'. Total mutants: {total_count}, Total Valid: '{valid_count}', Valid reverts: {RR_count}, Valid comments: {CR_count}.\n"
             )
         )
 

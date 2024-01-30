@@ -83,18 +83,18 @@ def test_patch(  # pylint: disable=too-many-arguments
     if compile_generated_mutant(file, mappings):
         if run_test_cmd(command, file, timeout):
             create_mutant_file(file, index, generator_name)
-            print(
+            logger.info(
                 green(
-                    f"String '{patch['old_string']}' replaced with '{patch['new_string']}' at line no. '{patch['line_number']}' ---> VALID"
+                    f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> VALID"
                 )
             )
             return True
 
     reset_file(file)
     if verbose:
-        print(
+        logger.info(
             red(
-                f"String '{patch['old_string']}' replaced with '{patch['new_string']}' at line no. '{patch['line_number']}' ---> INVALID"
+                f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> INVALID"
             )
         )
     return False

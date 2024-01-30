@@ -19,8 +19,10 @@ class AbstractMutator(
 ):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     NAME = ""
     HELP = ""
-    VALID_MUTANTS_COUNT = 0
     INVALID_MUTANTS_COUNT = 0
+    VALID_MUTANTS_COUNT = 0
+    VALID_RR_MUTANTS_COUNT = 0
+    VALID_CR_MUTANTS_COUNT = 0
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -71,7 +73,7 @@ class AbstractMutator(
         """TODO Documentation"""
         return {}
 
-    def mutate(self) -> Tuple[int, int, List[int]]:
+    def mutate(self) -> Tuple[int, int, int, int, List[int]]:
         # call _mutate function from different mutators
         (all_patches) = self._mutate()
         if "patches" not in all_patches:
@@ -97,11 +99,18 @@ class AbstractMutator(
                 )
                 # if RR or CR and valid mutant, add line no.
                 if self.NAME in ("RR", "CR") and flag:
+                    if self.NAME == 'RR':
+                        self.VALID_RR_MUTANTS_COUNT += 1
+                    if self.NAME == 'CR':
+                        self.VALID_CR_MUTANTS_COUNT += 1
+                    logger.info(yellow("Severe mutant is valid, skipping further mutations"))
                     self.dont_mutate_line.append(patch["line_number"])
+
                 # count the valid and invalid mutants
                 if not flag:
                     self.INVALID_MUTANTS_COUNT += 1
                     continue
+                logger.info(yellow("Severe mutant is invalid, continuing further mutations"))
                 self.VALID_MUTANTS_COUNT += 1
                 patched_txt, _ = apply_patch(original_txt, patch, 0)
                 diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
@@ -113,8 +122,11 @@ class AbstractMutator(
                     self.output_folder + "/patches_file.txt", "a", encoding="utf8"
                 ) as patches_file:
                     patches_file.write(diff + "\n")
+        # logger.info(yellow(f"{self.VALID_MUTANTS_COUNT} valid mutants, {self.INVALID_MUTANTS_COUNT} invalid mutants"))
         return (
-            self.VALID_MUTANTS_COUNT,
             self.INVALID_MUTANTS_COUNT,
-            self.dont_mutate_line,
+            self.VALID_MUTANTS_COUNT,
+            self.VALID_RR_MUTANTS_COUNT,
+            self.VALID_CR_MUTANTS_COUNT,
+            self.dont_mutate_line
         )
