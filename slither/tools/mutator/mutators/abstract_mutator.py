@@ -23,6 +23,10 @@ class AbstractMutator(
     VALID_MUTANTS_COUNT = 0
     VALID_RR_MUTANTS_COUNT = 0
     VALID_CR_MUTANTS_COUNT = 0
+    # total revert/comment/tweak mutants that were generated and compiled
+    total_mutant_counts = [0, 0, 0]
+    # total valid revert/comment/tweak mutants
+    valid_mutant_counts = [0, 0, 0]
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -73,12 +77,12 @@ class AbstractMutator(
         """TODO Documentation"""
         return {}
 
-    def mutate(self) -> Tuple[int, int, int, int, List[int]]:
+    def mutate(self) -> Tuple[List[int], List[int], List[int]]:
         # call _mutate function from different mutators
         (all_patches) = self._mutate()
         if "patches" not in all_patches:
             logger.debug("No patches found by %s", self.NAME)
-            return (0, 0, self.dont_mutate_line)
+            return ([0,0,0], [0,0,0], self.dont_mutate_line)
 
         for file in all_patches["patches"]:
             original_txt = self.slither.source_code[file].encode("utf8")
@@ -87,7 +91,8 @@ class AbstractMutator(
             logger.info(yellow(f"Mutating {file} with {self.NAME} \n"))
             for patch in patches:
                 # test the patch
-                flag = test_patch(
+
+                patchIsValid = test_patch(
                     file,
                     patch,
                     self.test_command,
@@ -97,36 +102,41 @@ class AbstractMutator(
                     self.solc_remappings,
                     self.verbose,
                 )
-                # if RR or CR and valid mutant, add line no.
-                if self.NAME in ("RR", "CR") and flag:
+
+                # count the valid mutants, flag RR/CR mutants to skip further mutations
+                if patchIsValid == 0:
                     if self.NAME == 'RR':
-                        self.VALID_RR_MUTANTS_COUNT += 1
-                    if self.NAME == 'CR':
-                        self.VALID_CR_MUTANTS_COUNT += 1
-                    logger.info(yellow("Severe mutant is valid, skipping further mutations"))
-                    self.dont_mutate_line.append(patch["line_number"])
+                        self.valid_mutant_counts[0] += 1
+                        self.dont_mutate_line.append(patch['line_number'])
+                    elif self.NAME == 'CR':
+                        self.valid_mutant_counts[1] += 1
+                        self.dont_mutate_line.append(patch['line_number'])
+                    else:
+                        self.valid_mutant_counts[2] += 1
 
-                # count the valid and invalid mutants
-                if not flag:
-                    self.INVALID_MUTANTS_COUNT += 1
-                    continue
-                logger.info(yellow("Severe mutant is invalid, continuing further mutations"))
-                self.VALID_MUTANTS_COUNT += 1
-                patched_txt, _ = apply_patch(original_txt, patch, 0)
-                diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
-                if not diff:
-                    logger.info(f"Impossible to generate patch; empty {patches}")
+                    patched_txt,_ = apply_patch(original_txt, patch, 0)
+                    diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
+                    if not diff:
+                        logger.info(f"Impossible to generate patch; empty {patches}")
 
-                # add valid mutant patches to a output file
-                with open(
-                    self.output_folder + "/patches_file.txt", "a", encoding="utf8"
-                ) as patches_file:
-                    patches_file.write(diff + "\n")
+                    # add valid mutant patches to a output file
+                    with open(
+                        self.output_folder + "/patches_file.txt", "a", encoding="utf8"
+                    ) as patches_file:
+                        patches_file.write(diff + "\n")
+
+                # count the total number of mutants that we were able to compile
+                if patchIsValid != 2:
+                    if self.NAME == 'RR':
+                        self.total_mutant_counts[0] += 1
+                    elif self.NAME == 'CR':
+                        self.total_mutant_counts[1] += 1
+                    else:
+                        self.total_mutant_counts[2] += 1
         # logger.info(yellow(f"{self.VALID_MUTANTS_COUNT} valid mutants, {self.INVALID_MUTANTS_COUNT} invalid mutants"))
+
         return (
-            self.INVALID_MUTANTS_COUNT,
-            self.VALID_MUTANTS_COUNT,
-            self.VALID_RR_MUTANTS_COUNT,
-            self.VALID_CR_MUTANTS_COUNT,
+            self.total_mutant_counts,
+            self.valid_mutant_counts,
             self.dont_mutate_line
         )
