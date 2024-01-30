@@ -193,50 +193,56 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         sl = Slither(filename, **vars(args))
         # create a backup files
         files_dict = backup_source_file(sl.source_code, output_folder)
-        # total count of mutants
-        total_count = 0
-        # count of valid mutants
-        valid_count = 0
-        # count of valid revert mutants
-        RR_count = 0
-        # count of valid comment mutants
-        CR_count = 0
+        # total revert/comment/tweak mutants that were generated and compiled
+        total_mutant_counts = [0, 0, 0]
+        # total valid revert/comment/tweak mutants
+        valid_mutant_counts = [0, 0, 0]
         # lines those need not be mutated (taken from RR and CR)
         dont_mutate_lines = []
 
         # mutation
+        contract_instance = ''
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
-                contract_instance = ""
                 for contract in compilation_unit_of_main_file.contracts:
                     if contract_names is not None and contract.name in contract_names:
                         contract_instance = contract
+                    elif contract_names is not None and contract.name not in contract_names:
+                        contract_instance = "SLITHER_SKIP_MUTATIONS"
                     elif str(contract.name).lower() == contract_name.lower():
                         contract_instance = contract
-                if contract_instance == "":
-                    logger.error("Can't find the contract")
-                else:
-                    logger.info(yellow(f"\nMutating contract {contract_instance}"))
-                    for M in mutators_list:
-                        m = M(
-                            compilation_unit_of_main_file,
-                            int(timeout),
-                            test_command,
-                            test_directory,
-                            contract_instance,
-                            solc_remappings,
-                            verbose,
-                            output_folder,
-                            dont_mutate_lines,
-                        )
-                        (count_invalid, count_valid, count_valid_rr, count_valid_cr, lines_list) = m.mutate()
-                        valid_count += count_valid
-                        RR_count += count_valid_rr
-                        CR_count += count_valid_cr
-                        total_count += count_valid + count_invalid
-                        dont_mutate_lines = lines_list
-                        if not quick_flag:
-                            dont_mutate_lines = []
+
+                if contract_instance == '':
+                    logger.info(f"Cannot find contracts in file {filename}, try specifying them with --contract-names")
+                    continue
+
+                if contract_instance == 'SLITHER_SKIP_MUTATIONS':
+                    logger.debug(f"Skipping mutations in {filename}")
+                    continue
+
+                logger.info(yellow(f"Mutating contract {contract_instance}"))
+                for M in mutators_list:
+                    m = M(
+                        compilation_unit_of_main_file,
+                        int(timeout),
+                        test_command,
+                        test_directory,
+                        contract_instance,
+                        solc_remappings,
+                        verbose,
+                        output_folder,
+                        dont_mutate_lines,
+                    )
+                    (total_counts, valid_counts, lines_list) = m.mutate()
+                    total_mutant_counts[0] += total_counts[0]
+                    total_mutant_counts[1] += total_counts[1]
+                    total_mutant_counts[2] += total_counts[2]
+                    valid_mutant_counts[0] += valid_counts[0]
+                    valid_mutant_counts[1] += valid_counts[1]
+                    valid_mutant_counts[2] += valid_counts[2]
+                    dont_mutate_lines = lines_list
+                    if not quick_flag:
+                        dont_mutate_lines = []
         except Exception as e:  # pylint: disable=broad-except
             logger.error(e)
 
@@ -245,17 +251,24 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
             logger.error("\nExecution interrupted by user (Ctrl + C). Cleaning up...")
             transfer_and_delete(files_dict)
 
-        # transfer and delete the backup files
-        transfer_and_delete(files_dict)
+        if not contract_instance == 'SLITHER_SKIP_MUTATIONS':
+            # transfer and delete the backup files
+            transfer_and_delete(files_dict)
+            # output
+            print(yellow(f"Done mutating {filename}."))
+            if total_mutant_counts[0] > 0:
+                print(yellow(f"Revert mutants: {valid_mutant_counts[0]} valid of {total_mutant_counts[0]} ({100 * valid_mutant_counts[0]/total_mutant_counts[0]}%)"))
+            else:
+                print(yellow("Zero Revert mutants analyzed"))
 
-        # output
-        logger.info(
-            yellow(
-                f"Done mutating, '{filename}'. Total mutants: {total_count}, Total Valid: '{valid_count}', Valid reverts: {RR_count}, Valid comments: {CR_count}.\n"
-            )
-        )
+            if total_mutant_counts[1] > 0:
+                print(yellow(f"Comment mutants: {valid_mutant_counts[1]} valid of {total_mutant_counts[1]} ({100 * valid_mutant_counts[1]/total_mutant_counts[1]}%)"))
+            else:
+                print(yellow("Zero Comment mutants analyzed"))
 
-    logger.info(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
-
+            if total_mutant_counts[2] > 0:
+                print(yellow(f"Tweak mutants: {valid_mutant_counts[2]} valid of {total_mutant_counts[2]} ({100 * valid_mutant_counts[2]/total_mutant_counts[2]}%)"))
+            else:
+                print(yellow("Zero Tweak mutants analyzed"))
 
 # endregion
