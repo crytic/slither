@@ -85,7 +85,7 @@ def test_patch(  # pylint: disable=too-many-arguments
             create_mutant_file(file, index, generator_name)
             print(
                 green(
-                    f"String '{patch['old_string']}' replaced with '{patch['new_string']}' at line no. '{patch['line_number']}' ---> VALID\n"
+                    f"String '{patch['old_string']}' replaced with '{patch['new_string']}' at line no. '{patch['line_number']}' ---> VALID"
                 )
             )
             return True
@@ -94,7 +94,7 @@ def test_patch(  # pylint: disable=too-many-arguments
     if verbose:
         print(
             red(
-                f"String '{patch['old_string']}' replaced with '{patch['new_string']}' at line no. '{patch['line_number']}' ---> INVALID\n"
+                f"String '{patch['old_string']}' replaced with '{patch['new_string']}' at line no. '{patch['line_number']}' ---> INVALID"
             )
         )
     return False
