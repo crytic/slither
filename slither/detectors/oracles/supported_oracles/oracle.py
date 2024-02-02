@@ -57,6 +57,13 @@ class Oracle:
     def naive_data_validation(self):
         return []
     
+    def check_price(self, var: VarInCondition) -> bool:
+        return True
+    
+    def check_staleness(self, var: VarInCondition) -> bool:
+        return True
+    
+    
     def check_revert(self, node: Node) -> bool:
         for n in node.sons:
             if n.type == NodeType.EXPRESSION:

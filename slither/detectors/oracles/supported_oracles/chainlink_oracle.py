@@ -57,7 +57,7 @@ class ChainlinkOracle(Oracle):
 
 
     # This functions validates checks of price value
-    def check_price(self, var: VarInCondition, oracle: Oracle) -> bool:
+    def check_price(self, var: VarInCondition) -> bool:
         if var is None:
             return False
         for node in var.nodes_with_var:
@@ -91,16 +91,16 @@ class ChainlinkOracle(Oracle):
         vars_order[ChainlinkVars.ANSWEREDINROUND.value] = None
         return vars_order
 
-    def find_which_vars_are_used(self, oracle: Oracle):
+    def find_which_vars_are_used(self):
         vars_order = self.generate_naive_order()
-        for i in range(len(oracle.oracle_vars)):
-            vars_order[oracle.returned_vars_indexes[i]] = oracle.oracle_vars[i]
+        for i in range(len(self.oracle_vars)):
+            vars_order[self.returned_vars_indexes[i]] = self.oracle_vars[i]
         return vars_order
 
-    def is_needed_to_check_conditions(self, oracle, var):
+    def is_needed_to_check_conditions(self, var):
         if isinstance(var, VarInCondition):
             var = var.var
-        if var in oracle.vars_not_in_condition:
+        if var in self.vars_not_in_condition:
             return False
         return True
 
@@ -123,24 +123,23 @@ class ChainlinkOracle(Oracle):
         return answer_checked and startedAt_checked
 
     def naive_data_validation(self):
-        oracle = self
-        vars_order = self.find_which_vars_are_used(oracle)
+        vars_order = self.find_which_vars_are_used()
         problems = []
         for (index, var) in vars_order.items():
-            if not self.is_needed_to_check_conditions(oracle, var):
+            if not self.is_needed_to_check_conditions(var):
                 continue
             # if index == ChainlinkVars.ROUNDID.value: # Commented due to deprecation of AnsweredInRound
             #     if not self.check_RoundId(var, vars_order[ChainlinkVars.ANSWEREDINROUND.value]):
             #         problems.append("RoundID value is not checked correctly. It was returned by the oracle call in the function {} of contract {}.\n".format( oracle.function, oracle.node.source_mapping))
             if index == ChainlinkVars.ANSWER.value:
-                if not self.check_price(var, oracle):
+                if not self.check_price(var):
                     problems.append(
-                        f"The price value is validated incorrectly. This value is returned by Chainlink oracle call {oracle.contract}.{oracle.interface}.{oracle.oracle_api} ({oracle.node.source_mapping}).\n"
+                        f"The price value is validated incorrectly. This value is returned by Chainlink oracle call {self.contract}.{self.interface}.{self.oracle_api} ({self.node.source_mapping}).\n"
                     )
             elif index == ChainlinkVars.UPDATEDAT.value:
                 if not self.check_staleness(var):
                     problems.append(
-                        f"The price can be stale due to incorrect validation of updatedAt value. This value is returned by Chainlink oracle call {oracle.contract}.{oracle.interface}.{oracle.oracle_api} ({oracle.node.source_mapping}).\n"
+                        f"The price can be stale due to incorrect validation of updatedAt value. This value is returned by Chainlink oracle call {self.contract}.{self.interface}.{self.oracle_api} ({self.node.source_mapping}).\n"
                     )
             elif (
                 index == ChainlinkVars.STARTEDAT.value
