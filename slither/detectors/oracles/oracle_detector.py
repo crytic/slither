@@ -1,5 +1,4 @@
 from slither.analyses.data_dependency.data_dependency import get_dependencies
-from slither.core.declarations import Function
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.variables.state_variable import StateVariable
@@ -8,18 +7,10 @@ from slither.slithir.operations import HighLevelCall, InternalCall, Operation, U
 from slither.slithir.variables import TupleVariable
 from slither.detectors.oracles.supported_oracles.oracle import Oracle, VarInCondition
 from slither.detectors.oracles.supported_oracles.chainlink_oracle import ChainlinkOracle
-from enum import Enum
-
-class SupportedOracles(Enum):
-    CHAINLINK = 0
-    TELLOR = 1
-
-
-
+from slither.detectors.oracles.supported_oracles.help_functions import is_internal_call
 
 
 class OracleDetector(AbstractDetector):
-
     def find_oracles(self, contracts: Contract) -> list[Oracle]:
         """
         Detects off-chain oracle contract and VAR
@@ -49,12 +40,10 @@ class OracleDetector(AbstractDetector):
                         oracles.append(oracle)
         return oracles
 
-
     def generate_oracle(self, ir: Operation) -> Oracle:
         if ChainlinkOracle().is_instance_of(ir):
             return ChainlinkOracle()
         return None
-   
 
     # This function was inspired by detector unused return values
     def oracle_call(self, function: FunctionContract):
@@ -122,7 +111,6 @@ class OracleDetector(AbstractDetector):
                 nodes.append(node)
         return nodes
 
-
     # Check if the vars occurs in require/assert statement or in conditional node
     def vars_in_conditions(self, oracle: Oracle) -> bool:
         vars_in_condition = []
@@ -161,12 +149,7 @@ class OracleDetector(AbstractDetector):
             for var2 in origin_vars:
                 if var2 == var:
                     return param
-
-    def is_internal_call(self, node):
-        for ir in node.irs:
-            if isinstance(ir, InternalCall):
-                return True
-        return False
+        return None
 
     # This function interates through all internal calls in function and checks if the var is used in condition any of them
     def investigate_internal_call(self, function: FunctionContract, var) -> bool:
@@ -185,7 +168,7 @@ class OracleDetector(AbstractDetector):
                 if (
                     node.is_conditional()
                     and self.check_var_condition_match(original_var_as_param, node)
-                    and not self.is_internal_call(node)
+                    and not is_internal_call(node)
                 ):
                     conditions.append(node)
             if len(conditions) > 0:

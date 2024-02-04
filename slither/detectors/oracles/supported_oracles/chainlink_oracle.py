@@ -6,9 +6,15 @@ from slither.slithir.operations import (
 )
 
 from slither.slithir.variables.constant import Constant
+from slither.detectors.oracles.supported_oracles.help_functions import check_revert, return_boolean
 
 
-CHAINLINK_ORACLE_CALLS = ["latestRoundData","getRoundData",] 
+CHAINLINK_ORACLE_CALLS = [
+    "latestRoundData",
+    "getRoundData",
+]
+
+
 class ChainlinkVars(Enum):
     ROUNDID = 0
     ANSWER = 1
@@ -21,7 +27,6 @@ class ChainlinkOracle(Oracle):
     def __init__(self):
         super().__init__(CHAINLINK_ORACLE_CALLS)
         self.oracle_type = "Chainlink"
-
 
     # This function checks if the updatedAt value is validated.
     def check_staleness(self, var: VarInCondition) -> bool:
@@ -48,13 +53,9 @@ class ChainlinkOracle(Oracle):
                     elif ir.type in (BinaryType.LESS, BinaryType.LESS_EQUAL):
                         if ir.variable_right == var2.var and ir.variable_left == var.var:
                             return True
-            if self.check_revert(node):
-                return True
-            elif self.return_boolean(node):
-                return True
+            return check_revert(node) or return_boolean(node)
 
         return False
-
 
     # This functions validates checks of price value
     def check_price(self, var: VarInCondition) -> bool:
@@ -75,10 +76,7 @@ class ChainlinkOracle(Oracle):
                             if ir.variable_left.value == 0:
                                 return True
                     # If the conditions does not match we are looking for revert or return node
-                    if self.check_revert(node):
-                        return True
-                    elif self.return_boolean(node):
-                        return True
+                    return check_revert(node) or return_boolean(node)
 
         return False
 
