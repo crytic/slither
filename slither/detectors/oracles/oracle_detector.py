@@ -147,6 +147,9 @@ class OracleDetector(AbstractDetector):
                 if self.investigate_internal_call(oracle.function, var):
                     vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
+                elif self.investigate_on_return(oracle.function, var):
+                    vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
+                    oracle_vars.append(VarInCondition(var, self.nodes_with_var))
                 else:
                     vars_not_in_condition.append(var)
                     oracle_vars.append(var)
@@ -166,6 +169,13 @@ class OracleDetector(AbstractDetector):
         for ir in node.irs:
             if isinstance(ir, InternalCall):
                 return True
+        return False
+    
+    # Function which will check if the variable were returned and are checked in different part of the code
+    def investigate_on_return(self, function: FunctionContract, var) -> bool:
+        for value in function.return_values:
+            if var == value:
+                return print("asd")
         return False
 
     # This function interates through all internal calls in function and checks if the var is used in condition any of them
