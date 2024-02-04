@@ -1,3 +1,4 @@
+from typing import List
 from slither.analyses.data_dependency.data_dependency import get_dependencies
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
@@ -11,7 +12,7 @@ from slither.detectors.oracles.supported_oracles.help_functions import is_intern
 
 
 class OracleDetector(AbstractDetector):
-    def find_oracles(self, contracts: Contract) -> list[Oracle]:
+    def find_oracles(self, contracts: Contract) -> List[Oracle]:
         """
         Detects off-chain oracle contract and VAR
         """
