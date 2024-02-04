@@ -1,6 +1,6 @@
 from slither.core.declarations.contract import Contract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.detectors.oracles.oracle import Oracle
+from slither.detectors.oracles.oracle_detector import Oracle
 
 
 # TODO: Not ready for publishing

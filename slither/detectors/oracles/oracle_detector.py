@@ -6,45 +6,21 @@ from slither.core.variables.state_variable import StateVariable
 from slither.detectors.abstract_detector import AbstractDetector
 from slither.slithir.operations import HighLevelCall, InternalCall, Operation, Unpack
 from slither.slithir.variables import TupleVariable
+from slither.detectors.oracles.supported_oracles.oracle import Oracle, VarInCondition
+from slither.detectors.oracles.supported_oracles.chainlink_oracle import ChainlinkOracle
+from enum import Enum
+
+class SupportedOracles(Enum):
+    CHAINLINK = 0
+    TELLOR = 1
 
 
-class Oracle:
-    def __init__(
-        self,
-        _contract,
-        _function,
-        _node,
-        _line_of_call,
-        _returned_used_vars,
-        _interface,
-        _oracle_api,
-    ):
-        self.contract = _contract
-        self.function = _function
-        self.node = _node
-        self.line_of_call = _line_of_call  # can be get by node.source_mapping.lines[0]
-        self.oracle_vars = []
-        self.vars_in_condition = []
-        self.vars_not_in_condition = []
-        self.returned_vars_indexes = _returned_used_vars
-        self.interface = _interface
-        self.oracle_api = _oracle_api
 
-
-class VarInCondition:  # This class was created to store variable and all conditional nodes where it is used
-    def __init__(self, _var, _nodes):
-        self.var = _var
-        self.nodes_with_var = _nodes
 
 
 class OracleDetector(AbstractDetector):
 
-    ORACLE_CALLS = [
-        "latestRoundData",
-        "getRoundData",
-    ]  # Chainlink oracle calls -> The most used
-
-    def chainlink_oracles(self, contracts: Contract) -> list[Oracle]:
+    def find_oracles(self, contracts: Contract) -> list[Oracle]:
         """
         Detects off-chain oracle contract and VAR
         """
@@ -54,57 +30,44 @@ class OracleDetector(AbstractDetector):
                 if function.is_constructor:
                     continue
                 (
-                    oracle_calls_in_function,
+                    returned_oracles,
                     oracle_returned_var_indexes,
-                ) = self.check_chainlink_call(function)
-                if oracle_calls_in_function:
-                    for node in oracle_calls_in_function:
+                ) = self.oracle_call(function)
+                if returned_oracles:
+                    for oracle in returned_oracles:
                         interface = None
                         oracle_api = None
-                        for ir in node.irs:
+                        for ir in oracle.node.irs:
                             if isinstance(ir, HighLevelCall):
                                 interface = ir.destination
                                 oracle_api = ir.function.name
                         idxs = []
                         for idx in oracle_returned_var_indexes:
-                            if idx[0] == node:
+                            if idx[0] == oracle.node:
                                 idxs.append(idx[1])
-                        oracle = Oracle(
-                            contract,
-                            function,
-                            node,
-                            node.source_mapping.lines[0],
-                            idxs,
-                            interface,
-                            oracle_api,
-                        )
+                        oracle.set_data(contract, function, idxs, interface, oracle_api)
                         oracles.append(oracle)
         return oracles
 
-    def compare_chainlink_call(self, function) -> bool:
-        for call in self.ORACLE_CALLS:
-            if call in str(function):
-                return True
-        return False
 
-    def _is_instance(self, ir: Operation) -> bool:
-        return isinstance(ir, HighLevelCall) and (
-            isinstance(ir.function, Function)
-            and self.compare_chainlink_call(
-                ir.function.name
-            )  # Check if the function is a chainlink call
-        )
+    def generate_oracle(self, ir: Operation) -> Oracle:
+        if ChainlinkOracle().is_instance_of(ir):
+            return ChainlinkOracle()
+        return None
+   
 
     # This function was inspired by detector unused return values
-    def check_chainlink_call(self, function: FunctionContract):
+    def oracle_call(self, function: FunctionContract):
         used_returned_vars = []
         values_returned = []
         nodes_origin = {}
-        oracle_calls = []
+        oracles = []
         for node in function.nodes:
             for ir in node.irs:
-                if self._is_instance(ir):
-                    oracle_calls.append(node)
+                oracle = self.generate_oracle(ir)
+                if oracle:
+                    oracle.set_node(node)
+                    oracles.append(oracle)
                     if ir.lvalue and not isinstance(ir.lvalue, StateVariable):
                         values_returned.append((ir.lvalue, None))
                         nodes_origin[ir.lvalue] = ir
@@ -126,7 +89,7 @@ class OracleDetector(AbstractDetector):
         returned_vars_used_indexes = []
         for (value, index) in used_returned_vars:
             returned_vars_used_indexes.append((nodes_origin[value].node, index))
-        return oracle_calls, returned_vars_used_indexes
+        return oracles, returned_vars_used_indexes
 
     def get_returned_variables_from_oracle(self, node) -> list:
         written_vars = []
@@ -159,9 +122,6 @@ class OracleDetector(AbstractDetector):
                 nodes.append(node)
         return nodes
 
-    def var_in_function(self, var, function: FunctionContract):
-
-        return False
 
     # Check if the vars occurs in require/assert statement or in conditional node
     def vars_in_conditions(self, oracle: Oracle) -> bool:
@@ -241,7 +201,7 @@ class OracleDetector(AbstractDetector):
         return False
 
     def _detect(self):
-        self.oracles = self.chainlink_oracles(self.contracts)
+        self.oracles = self.find_oracles(self.contracts)
         for oracle in self.oracles:
             oracle.oracle_vars = self.get_returned_variables_from_oracle(oracle.node)
             self.vars_in_conditions(oracle)
