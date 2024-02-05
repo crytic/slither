@@ -6,7 +6,7 @@ import signal
 from typing import Dict
 import crytic_compile
 from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_file
-from slither.utils.colors import green, red
+from slither.utils.colors import green, red, yellow
 
 logger = logging.getLogger("Slither-Mutate")
 
@@ -84,17 +84,27 @@ def test_patch(  # pylint: disable=too-many-arguments
         if run_test_cmd(command, file, timeout):
             create_mutant_file(file, index, generator_name)
             logger.info(
-                green(
+                red(
                     f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> VALID"
                 )
             )
-            return True
+            reset_file(file)
+            return 0 # valid
+    else:
+        if verbose:
+            logger.info(
+                yellow(
+                    f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> COMPILATION FAILURE"
+                )
+            )
+        reset_file(file)
+        return 2 # compile failure
 
-    reset_file(file)
     if verbose:
         logger.info(
-            red(
+            green(
                 f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> INVALID"
             )
         )
-    return False
+    reset_file(file)
+    return 1 # invalid
