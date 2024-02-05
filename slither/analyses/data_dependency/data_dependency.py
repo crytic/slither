@@ -418,10 +418,8 @@ def add_dependency(lvalue: Variable, function: Function, ir: Operation, is_prote
         if not is_protected:
             function.context[KEY_SSA_UNPROTECTED][lvalue] = set()
     read: Union[List[Union[LVALUE, SolidityVariableComposed]], List[SlithIRVariable]]
-    if isinstance(ir, Index):
+    if isinstance(ir, Index) and not isinstance(lvalue, ReferenceVariable):
         read = [ir.variable_left]
-        if isinstance(lvalue, ReferenceVariable):
-            read.append(ir.variable_right)
     elif isinstance(ir, InternalCall) and ir.function:
         read = ir.function.return_values_ssa
     else:
