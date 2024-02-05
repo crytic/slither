@@ -140,5 +140,7 @@ print(f"{ref} is dependent of {mapping_var}: {is_dependent(ref, mapping_var, con
 assert is_dependent(ref, mapping_var, contract)
 print(f"{ref} is dependent of {msgsender}: {is_dependent(ref, msgsender, contract)}")
 assert is_dependent(ref, msgsender, contract)
-print(f"{mapping_var} is dependent of {msgsender}: {is_dependent(mapping_var, msgsender, contract)}")
+print(
+    f"{mapping_var} is dependent of {msgsender}: {is_dependent(mapping_var, msgsender, contract)}"
+)
 assert not is_dependent(mapping_var, msgsender, contract)
