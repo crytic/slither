@@ -47,7 +47,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@v1.8.11
 
       - name: sign
-        uses: sigstore/gh-action-sigstore-python@v2.1.0
+        uses: sigstore/gh-action-sigstore-python@v2.1.1
         with:
           inputs: ./dist/*.tar.gz ./dist/*.whl
           release-signing-artifacts: true
