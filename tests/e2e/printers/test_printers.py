@@ -31,9 +31,8 @@ def test_inheritance_printer(solc_binary_path) -> None:
     slither = Slither(compilation)
     printer = PrinterInheritanceGraph(slither=slither, logger=None)
 
-    content = ""
-    for contract in slither.contracts:
-        content += printer._summary(contract)
+    output = printer.output('test_printer.dot')
+    content = output.elements[0]['name']['content']
 
     pattern = re.compile(r"(?:c\d+_)?(\w+ -> )(?:c\d+_)(\w+)")
     matches = re.findall(pattern, content)
