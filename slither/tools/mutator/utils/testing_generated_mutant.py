@@ -6,7 +6,7 @@ import signal
 from typing import Dict
 import crytic_compile
 from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_file
-from slither.utils.colors import green, red #, yellow
+from slither.utils.colors import green, red, yellow
 
 logger = logging.getLogger("Slither-Mutate")
 
@@ -58,7 +58,7 @@ def run_test_cmd(cmd: str, test_dir: str, timeout: int) -> bool:
     # if r is 0 then it is valid mutant because tests didn't fail
     return r == 0
 
-
+# return 0 if valid, 1 if invalid, and 2 if compilation fails
 def test_patch(  # pylint: disable=too-many-arguments
     file: str,
     patch: Dict,
@@ -91,13 +91,13 @@ def test_patch(  # pylint: disable=too-many-arguments
             reset_file(file)
             return 0 # valid
     else:
-        # too noisy
-        # if verbose:
-        #     logger.info(
-        #         yellow(
-        #             f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> COMPILATION FAILURE"
-        #         )
-        #     )
+        if verbose:
+            logger.info(
+                yellow(
+                    f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> COMPILATION FAILURE"
+                )
+            )
+
         reset_file(file)
         return 2 # compile failure
 
@@ -107,5 +107,6 @@ def test_patch(  # pylint: disable=too-many-arguments
                 f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> INVALID"
             )
         )
+
     reset_file(file)
     return 1 # invalid

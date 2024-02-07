@@ -234,15 +234,35 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                         dont_mutate_lines,
                     )
                     (total_counts, valid_counts, lines_list) = m.mutate()
-                    total_mutant_counts[0] += total_counts[0]
-                    total_mutant_counts[1] += total_counts[1]
-                    total_mutant_counts[2] += total_counts[2]
-                    valid_mutant_counts[0] += valid_counts[0]
-                    valid_mutant_counts[1] += valid_counts[1]
-                    valid_mutant_counts[2] += valid_counts[2]
+
+                    logger.info(f"Mutator {m.NAME} has completed")
+                    logger.info(f"Found {valid_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)")
+                    logger.info(f"Found {valid_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)")
+                    logger.info(f"Found {valid_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)")
+                    logger.info("Setting these values ")
+
+                    if m.NAME == "RR":
+                        total_mutant_counts[0] += total_counts[0]
+                        valid_mutant_counts[0] += valid_counts[0]
+                    elif m.NAME == "CR":
+                        total_mutant_counts[1] += total_counts[1]
+                        valid_mutant_counts[1] += valid_counts[1]
+                    else:
+                        total_mutant_counts[2] += total_counts[2]
+                        valid_mutant_counts[2] += valid_counts[2]
+
                     dont_mutate_lines = lines_list
                     if not quick_flag:
                         dont_mutate_lines = []
+
+                # Reset mutant counts before moving on to the next file
+                # TODO: is this logic in the right place..?
+                total_mutant_counts[0] = 0
+                total_mutant_counts[1] = 0
+                total_mutant_counts[2] = 0
+                valid_mutant_counts[0] = 0
+                valid_mutant_counts[1] = 0
+                valid_mutant_counts[2] = 0
 
         except Exception as e:  # pylint: disable=broad-except
             logger.error(e)
@@ -271,14 +291,6 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                 print(yellow(f"Tweak mutants: {valid_mutant_counts[2]} valid of {total_mutant_counts[2]} ({100 * valid_mutant_counts[2]/total_mutant_counts[2]}%)"))
             else:
                 print(yellow("Zero Tweak mutants analyzed"))
-
-            # Reset mutant counts before moving on to the next file
-            total_mutant_counts[0] = 0
-            total_mutant_counts[1] = 0
-            total_mutant_counts[2] = 0
-            valid_mutant_counts[0] = 0
-            valid_mutant_counts[1] = 0
-            valid_mutant_counts[2] = 0
 
     print(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
 
