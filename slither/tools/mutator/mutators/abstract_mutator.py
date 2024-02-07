@@ -133,7 +133,6 @@ class AbstractMutator(
                         self.total_mutant_counts[1] += 1
                     else:
                         self.total_mutant_counts[2] += 1
-        # logger.info(yellow(f"{self.VALID_MUTANTS_COUNT} valid mutants, {self.INVALID_MUTANTS_COUNT} invalid mutants"))
 
         return (
             self.total_mutant_counts,
