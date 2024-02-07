@@ -188,7 +188,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     mutators_list = CR_RR_list + mutators_list
 
     for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
-        contract_name = os.path.split(filename)[1].split(".sol")[0]
+        file_name = os.path.split(filename)[1].split(".sol")[0]
         # slither object
         sl = Slither(filename, **vars(args))
         # create a backup files
@@ -201,33 +201,39 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         dont_mutate_lines = []
 
         # mutation
-        contract_instance = ''
+        target_contract = ""
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
                 for contract in compilation_unit_of_main_file.contracts:
                     if contract_names is not None and contract.name in contract_names:
-                        contract_instance = contract
+                        target_contract = contract
                     elif contract_names is not None and contract.name not in contract_names:
-                        contract_instance = "SLITHER_SKIP_MUTATIONS"
-                    elif str(contract.name).lower() == contract_name.lower():
-                        contract_instance = contract
-
-                if contract_instance == '':
-                    logger.info(f"Cannot find contracts in file {filename}, try specifying them with --contract-names")
+                        target_contract = "SLITHER_SKIP_MUTATIONS"
+                    elif contract.name.lower() == file_name.lower():
+                        target_contract = contract
+                if target_contract == "":
+                    logger.info(
+                        f"Cannot find contracts in file {filename}, try specifying them with --contract-names"
+                    )
                     continue
-
-                if contract_instance == 'SLITHER_SKIP_MUTATIONS':
+                if target_contract == "SLITHER_SKIP_MUTATIONS":
                     logger.debug(f"Skipping mutations in {filename}")
                     continue
 
-                logger.info(yellow(f"Mutating contract {contract_instance}"))
+                # TODO: find a more specific way to omit interfaces
+                # Ideally, we wouldn't depend on naming conventions
+                if target_contract.name.startswith("I"):
+                    logger.debug(f"Skipping mutations on interface {filename}")
+                    continue
+
+                logger.info(yellow(f"Mutating contract {target_contract}"))
                 for M in mutators_list:
                     m = M(
                         compilation_unit_of_main_file,
                         int(timeout),
                         test_command,
                         test_directory,
-                        contract_instance,
+                        target_contract,
                         solc_remappings,
                         verbose,
                         output_folder,
@@ -270,7 +276,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
             logger.error("\nExecution interrupted by user (Ctrl + C). Cleaning up...")
             transfer_and_delete(files_dict)
 
-        if not contract_instance == 'SLITHER_SKIP_MUTATIONS':
+        if not target_contract == 'SLITHER_SKIP_MUTATIONS':
             # transfer and delete the backup files
             transfer_and_delete(files_dict)
             # output
