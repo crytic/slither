@@ -235,34 +235,32 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                     )
                     (total_counts, valid_counts, lines_list) = m.mutate()
 
-                    logger.info(f"Mutator {m.NAME} has completed")
-                    logger.info(f"Found {valid_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)")
-                    logger.info(f"Found {valid_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)")
-                    logger.info(f"Found {valid_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)")
-                    logger.info("Setting these values ")
-
                     if m.NAME == "RR":
                         total_mutant_counts[0] += total_counts[0]
                         valid_mutant_counts[0] += valid_counts[0]
+                        logger.info(f"Mutator {m.NAME} found {valid_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)")
                     elif m.NAME == "CR":
                         total_mutant_counts[1] += total_counts[1]
                         valid_mutant_counts[1] += valid_counts[1]
+                        logger.info(f"Mutator {m.NAME} found {valid_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)")
                     else:
                         total_mutant_counts[2] += total_counts[2]
                         valid_mutant_counts[2] += valid_counts[2]
+                        logger.info(f"Mutator {m.NAME} found {valid_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)")
 
                     dont_mutate_lines = lines_list
                     if not quick_flag:
                         dont_mutate_lines = []
 
-                # Reset mutant counts before moving on to the next file
-                # TODO: is this logic in the right place..?
-                total_mutant_counts[0] = 0
-                total_mutant_counts[1] = 0
-                total_mutant_counts[2] = 0
-                valid_mutant_counts[0] = 0
-                valid_mutant_counts[1] = 0
-                valid_mutant_counts[2] = 0
+            # Reset mutant counts before moving on to the next file
+            # TODO: is this logic in the right place..?
+            logger.info("Reseting mutant counts to zero")
+            total_mutant_counts[0] = 0
+            total_mutant_counts[1] = 0
+            total_mutant_counts[2] = 0
+            valid_mutant_counts[0] = 0
+            valid_mutant_counts[1] = 0
+            valid_mutant_counts[2] = 0
 
         except Exception as e:  # pylint: disable=broad-except
             logger.error(e)
