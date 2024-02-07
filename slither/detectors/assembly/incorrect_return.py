@@ -39,7 +39,7 @@ class IncorrectReturn(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-assembly-return"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-return-in-assembly"
 
     WIKI_TITLE = "Incorrect return in assembly"
     WIKI_DESCRIPTION = "Detect if `return` in an assembly block halts unexpectedly the execution."
