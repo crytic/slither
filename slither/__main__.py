@@ -528,10 +528,18 @@ def parse_args(
 
     group_misc.add_argument(
         "--triage-mode",
-        help="Run triage mode (save results in slither.db.json)",
+        help="Run triage mode (save results in triage database)",
         action="store_true",
         dest="triage_mode",
         default=False,
+    )
+
+    group_misc.add_argument(
+        "--triage-database",
+        help="File path to the triage database (default: slither.db.json)",
+        action="store",
+        dest="triage_database",
+        default=defaults_flag_in_config["triage_database"],
     )
 
     group_misc.add_argument(
