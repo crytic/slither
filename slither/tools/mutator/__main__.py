@@ -243,6 +243,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                     dont_mutate_lines = lines_list
                     if not quick_flag:
                         dont_mutate_lines = []
+
         except Exception as e:  # pylint: disable=broad-except
             logger.error(e)
 
@@ -270,5 +271,15 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                 print(yellow(f"Tweak mutants: {valid_mutant_counts[2]} valid of {total_mutant_counts[2]} ({100 * valid_mutant_counts[2]/total_mutant_counts[2]}%)"))
             else:
                 print(yellow("Zero Tweak mutants analyzed"))
+
+            # Reset mutant counts before moving on to the next file
+            total_mutant_counts[0] = 0
+            total_mutant_counts[1] = 0
+            total_mutant_counts[2] = 0
+            valid_mutant_counts[0] = 0
+            valid_mutant_counts[1] = 0
+            valid_mutant_counts[2] = 0
+
+    print(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
 
 # endregion
