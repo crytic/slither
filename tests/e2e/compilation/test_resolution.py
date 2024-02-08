@@ -57,6 +57,6 @@ def test_contract_function_parameter(solc_binary_path) -> None:
     function = contract.functions[0]
     parameters = function.parameters
 
-    assert (parameters[0].name == 'param1')
-    assert (parameters[1].name == '')
-    assert (parameters[2].name == 'param3')
+    assert parameters[0].name == "param1"
+    assert parameters[1].name == ""
+    assert parameters[2].name == "param3"
