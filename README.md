@@ -134,7 +134,7 @@ Num | Detector | What it Detects | Impact | Confidence
 23 | `incorrect-return` | [If a `return` is incorrectly used in assembly mode.](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-return-in-assembly) | High | Medium
 24 | `msg-value-loop` | [msg.value inside a loop](https://github.com/crytic/slither/wiki/Detector-Documentation/#msgvalue-inside-a-loop) | High | Medium
 25 | `reentrancy-eth` | [Reentrancy vulnerabilities (theft of ethers)](https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities) | High | Medium
-26 | `return-leave` | [If a `return` is used instead of a `leave`.](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-return-in-assembly) | High | Medium
+26 | `return-leave` | [If a `return` is used instead of a `leave`.](https://github.com/crytic/slither/wiki/Detector-Documentation#return-instead-of-leave-in-assembly) | High | Medium
 27 | `storage-array` | [Signed storage integer array compiler bug](https://github.com/crytic/slither/wiki/Detector-Documentation#storage-signed-integer-array) | High | Medium
 28 | `unchecked-transfer` | [Unchecked tokens transfer](https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-transfer) | High | Medium
 29 | `weak-prng` | [Weak PRNG](https://github.com/crytic/slither/wiki/Detector-Documentation#weak-PRNG) | High | Medium
