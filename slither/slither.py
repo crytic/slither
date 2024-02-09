@@ -145,6 +145,9 @@ class Slither(
 
     def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:
 
+        # Used in inheritance-graph printer
+        self.exclude_interfaces = kwargs.get("exclude_interfaces", False)
+
         for parser in self._parsers:
             try:
                 parser.parse_contracts()
