@@ -1,12 +1,5 @@
-from enum import Enum
-
-
 from slither.detectors.abstract_detector import DetectorClassification
-from slither.detectors.oracles.oracle_detector import Oracle, OracleDetector, VarInCondition
-
-
-
-
+from slither.detectors.oracles.oracle_detector import OracleDetector
 
 
 class OracleDataCheck(OracleDetector):
@@ -25,8 +18,6 @@ class OracleDataCheck(OracleDetector):
     WIKI_DESCRIPTION = "The detection of not correct validation of oracle data."
     WIKI_EXPLOIT_SCENARIO = "---"
     WIKI_RECOMMENDATION = "Validate the data returned by the oracle. For more information visit https://docs.chain.link/data-feeds/api-reference"
-
-
 
     # This function is necessary even though there is a detector for unused return values because the variable can be used but will not be validated in conditional statements
     def process_not_checked_vars(self):

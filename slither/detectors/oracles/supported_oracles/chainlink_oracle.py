@@ -6,9 +6,15 @@ from slither.slithir.operations import (
 )
 
 from slither.slithir.variables.constant import Constant
+from slither.detectors.oracles.supported_oracles.help_functions import check_revert, return_boolean
 
 
-CHAINLINK_ORACLE_CALLS = ["latestRoundData","getRoundData",] 
+CHAINLINK_ORACLE_CALLS = [
+    "latestRoundData",
+    "getRoundData",
+]
+
+
 class ChainlinkVars(Enum):
     ROUNDID = 0
     ANSWER = 1
@@ -22,21 +28,10 @@ class ChainlinkOracle(Oracle):
         super().__init__(CHAINLINK_ORACLE_CALLS)
         self.oracle_type = "Chainlink"
 
-
-    # This function checks if the updatedAt value is validated.
-    def check_staleness(self, var: VarInCondition) -> bool:
-        if var is None:
-            return False
-        for node in var.nodes_with_var:
-            str_node = str(node)
-            # This is temporarily check which will be improved in the future. Mostly we are looking for block.timestamp and trust the developer that he is using it correctly
-            if "block.timestamp" in str_node:
-                return True
-        return False
-
     # This function checks if the RoundId value is validated in connection with answeredInRound value
     # But this last variable was deprecated. We left this function for possible future use.
-    def check_RoundId(self, var: VarInCondition, var2: VarInCondition) -> bool:
+    @staticmethod
+    def check_RoundId(var: VarInCondition, var2: VarInCondition) -> bool:
         if var is None or var2 is None:
             return False
         for node in var.nodes_with_var:
@@ -48,41 +43,12 @@ class ChainlinkOracle(Oracle):
                     elif ir.type in (BinaryType.LESS, BinaryType.LESS_EQUAL):
                         if ir.variable_right == var2.var and ir.variable_left == var.var:
                             return True
-            if self.check_revert(node):
-                return True
-            elif self.return_boolean(node):
-                return True
+            return check_revert(node) or return_boolean(node)
 
         return False
 
-
-    # This functions validates checks of price value
-    def check_price(self, var: VarInCondition) -> bool:
-        if var is None:
-            return False
-        for node in var.nodes_with_var:
-            for ir in node.irs:
-                if isinstance(ir, Binary):
-                    if isinstance(ir.variable_right, Constant):
-                        if ir.type is (BinaryType.GREATER):
-                            if ir.variable_right.value == 0:
-                                return True
-                        elif ir.type is (BinaryType.NOT_EQUAL):
-                            if ir.variable_right.value == 0:
-                                return True
-                    if isinstance(ir.variable_left, Constant):
-                        if ir.type is (BinaryType.LESS):
-                            if ir.variable_left.value == 0:
-                                return True
-                    # If the conditions does not match we are looking for revert or return node
-                    if self.check_revert(node):
-                        return True
-                    elif self.return_boolean(node):
-                        return True
-
-        return False
-
-    def generate_naive_order(self):
+    @staticmethod
+    def generate_naive_order():
         vars_order = {}
         vars_order[ChainlinkVars.ROUNDID.value] = None
         vars_order[ChainlinkVars.ANSWER.value] = None
@@ -93,7 +59,7 @@ class ChainlinkOracle(Oracle):
 
     def find_which_vars_are_used(self):
         vars_order = self.generate_naive_order()
-        for i in range(len(self.oracle_vars)):
+        for i in range(len(self.oracle_vars)):  # pylint: disable=consider-using-enumerate
             vars_order[self.returned_vars_indexes[i]] = self.oracle_vars[i]
         return vars_order
 
@@ -104,6 +70,14 @@ class ChainlinkOracle(Oracle):
             return False
         return True
 
+    @staticmethod
+    def price_check_for_liveness(ir: Binary) -> bool:
+        if ir.type is (BinaryType.EQUAL):
+            if isinstance(ir.variable_right, Constant):
+                if ir.variable_right.value == 1:
+                    return True
+        return False
+
     def is_sequencer_check(self, answer, startedAt):
         if answer is None or startedAt is None:
             return False
@@ -113,10 +87,8 @@ class ChainlinkOracle(Oracle):
         for node in answer.nodes:
             for ir in node.irs:
                 if isinstance(ir, Binary):
-                    if ir.type is (BinaryType.EQUAL):
-                        if isinstance(ir.variable_right, Constant):
-                            if ir.variable_right.value == 1:
-                                answer_checked = True
+                    if self.price_check_for_liveness(ir):
+                        answer_checked = True
         startedAt_checked = self.check_staleness(startedAt)
         print(answer_checked, startedAt_checked)
 
