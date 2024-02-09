@@ -27,6 +27,18 @@ class DeprecatedChainlinkCall(AbstractDetector):
         "latestTimestamp",
     ]
 
+    def is_old_chainlink_call(self, ir) -> bool:
+        """
+        Check if the given operation is an old Chainlink call.
+        """
+        if isinstance(ir, HighLevelCall):
+            if (
+                ir.function.name in self.DEPRECATED_CHAINLINK_CALLS
+                and str(ir.destination.type) == "AggregatorV3Interface"
+            ):
+                return True
+        return False
+
     def find_usage_of_deprecated_chainlink_calls(self, contracts: Contract):
         """
         Find usage of deprecated Chainlink calls in the contracts.
@@ -36,14 +48,10 @@ class DeprecatedChainlinkCall(AbstractDetector):
             for function in contract.functions:
                 for node in function.nodes:
                     for ir in node.irs:
-                        if isinstance(ir, HighLevelCall):
-                            if (
-                                ir.function.name in self.DEPRECATED_CHAINLINK_CALLS
-                                and str(ir.destination.type) == "AggregatorV3Interface"
-                            ):
-                                results.append(
-                                    f"Deprecated Chainlink call {ir.destination}.{ir.function.name} used ({node.source_mapping}).\n"
-                                )
+                        if self.is_old_chainlink_call(ir):
+                            results.append(
+                                f"Deprecated Chainlink call {ir.destination}.{ir.function.name} used ({node.source_mapping}).\n"
+                            )
         return results
 
     def _detect(self):

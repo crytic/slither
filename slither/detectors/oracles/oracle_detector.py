@@ -12,6 +12,68 @@ from slither.detectors.oracles.supported_oracles.help_functions import is_intern
 
 
 class OracleDetector(AbstractDetector):
+    def __init__(self, compilation_unit, slither, logger):
+        super().__init__(compilation_unit, slither, logger)
+        self.oracles = []
+        self.nodes_with_var = []
+
+    # If the node is high level call, return the interface and the function name
+    @staticmethod
+    def obtain_interface_and_api(node) -> (str, str):
+        for ir in node.irs:
+            if isinstance(ir, HighLevelCall):
+                return ir.destination, ir.function.name
+        return None, None
+
+    @staticmethod
+    def generate_oracle(ir: Operation) -> Oracle:
+        if ChainlinkOracle().is_instance_of(ir):
+            return ChainlinkOracle()
+        return None
+
+    @staticmethod
+    def get_returned_variables_from_oracle(node) -> list:
+        written_vars = []
+        ordered_vars = []
+        for var in node.variables_written:
+            written_vars.append(var)
+        for exp in node.variables_written_as_expression:
+            for v in exp.expressions:
+                for var in written_vars:
+                    if str(v) == str(var.name):
+                        ordered_vars.append(var)
+        return ordered_vars
+
+    @staticmethod
+    def check_var_condition_match(var, node) -> bool:
+        for (
+            var2
+        ) in (
+            node.variables_read
+        ):  # This iterates through all variables which are read in node, what means that they are used in condition
+            if var is None or var2 is None:
+                return False
+            if var.name == var2.name:
+                return True
+        return False
+
+    @staticmethod
+    def map_param_to_var(var, function: FunctionContract):
+        for param in function.parameters:
+            origin_vars = get_dependencies(param, function)
+            for var2 in origin_vars:
+                if var2 == var:
+                    return param
+        return None
+
+    @staticmethod
+    def match_index_to_node(indexes, node):
+        idxs = []
+        for idx in indexes:
+            if idx[0] == node:
+                idxs.append(idx[1])
+        return idxs
+
     def find_oracles(self, contracts: Contract) -> List[Oracle]:
         """
         Detects off-chain oracle contract and VAR
@@ -27,24 +89,11 @@ class OracleDetector(AbstractDetector):
                 ) = self.oracle_call(function)
                 if returned_oracles:
                     for oracle in returned_oracles:
-                        interface = None
-                        oracle_api = None
-                        for ir in oracle.node.irs:
-                            if isinstance(ir, HighLevelCall):
-                                interface = ir.destination
-                                oracle_api = ir.function.name
-                        idxs = []
-                        for idx in oracle_returned_var_indexes:
-                            if idx[0] == oracle.node:
-                                idxs.append(idx[1])
+                        (interface, oracle_api) = self.obtain_interface_and_api(oracle.node)
+                        idxs = self.match_index_to_node(oracle_returned_var_indexes, oracle.node)
                         oracle.set_data(contract, function, idxs, interface, oracle_api)
                         oracles.append(oracle)
         return oracles
-
-    def generate_oracle(self, ir: Operation) -> Oracle:
-        if ChainlinkOracle().is_instance_of(ir):
-            return ChainlinkOracle()
-        return None
 
     # This function was inspired by detector unused return values
     def oracle_call(self, function: FunctionContract):
@@ -52,7 +101,7 @@ class OracleDetector(AbstractDetector):
         values_returned = []
         nodes_origin = {}
         oracles = []
-        for node in function.nodes:
+        for node in function.nodes:  # pylint: disable=too-many-nested-blocks
             for ir in node.irs:
                 oracle = self.generate_oracle(ir)
                 if oracle:
@@ -80,30 +129,6 @@ class OracleDetector(AbstractDetector):
         for (value, index) in used_returned_vars:
             returned_vars_used_indexes.append((nodes_origin[value].node, index))
         return oracles, returned_vars_used_indexes
-
-    def get_returned_variables_from_oracle(self, node) -> list:
-        written_vars = []
-        ordered_vars = []
-        for var in node.variables_written:
-            written_vars.append(var)
-        for exp in node.variables_written_as_expression:
-            for v in exp.expressions:
-                for var in written_vars:
-                    if str(v) == str(var.name):
-                        ordered_vars.append(var)
-        return ordered_vars
-
-    def check_var_condition_match(self, var, node) -> bool:
-        for (
-            var2
-        ) in (
-            node.variables_read
-        ):  # This iterates through all variables which are read in node, what means that they are used in condition
-            if var is None or var2 is None:
-                return False
-            if var.name == var2.name:
-                return True
-        return False
 
     def map_condition_to_var(self, var, function: FunctionContract):
         nodes = []
@@ -143,14 +168,6 @@ class OracleDetector(AbstractDetector):
         oracle.vars_in_condition = vars_in_condition
         oracle.vars_not_in_condition = vars_not_in_condition
         oracle.oracle_vars = oracle_vars
-
-    def map_param_to_var(self, var, function: FunctionContract):
-        for param in function.parameters:
-            origin_vars = get_dependencies(param, function)
-            for var2 in origin_vars:
-                if var2 == var:
-                    return param
-        return None
 
     # This function interates through all internal calls in function and checks if the var is used in condition any of them
     def investigate_internal_call(self, function: FunctionContract, var) -> bool:

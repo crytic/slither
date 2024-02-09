@@ -4,6 +4,8 @@ from slither.slithir.operations import InternalCall
 from slither.slithir.operations.solidity_call import SolidityCall
 
 # Helpfull functions
+
+# Check if the node's sons contain a revert statement
 def check_revert(node: Node) -> bool:
     for n in node.sons:
         if n.type == NodeType.EXPRESSION:
@@ -14,6 +16,7 @@ def check_revert(node: Node) -> bool:
     return False
 
 
+# Check if the node's sons contain a return statement
 def return_boolean(node: Node) -> bool:
     for n in node.sons:
         if n.type == NodeType.RETURN:
@@ -23,7 +26,8 @@ def return_boolean(node: Node) -> bool:
     return False
 
 
-def is_internal_call(node):
+# Check if the node is an internal call
+def is_internal_call(node) -> bool:
     for ir in node.irs:
         if isinstance(ir, InternalCall):
             return True
