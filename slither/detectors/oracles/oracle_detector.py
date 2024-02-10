@@ -9,6 +9,8 @@ from slither.slithir.variables import TupleVariable
 from slither.detectors.oracles.supported_oracles.oracle import Oracle, VarInCondition
 from slither.detectors.oracles.supported_oracles.chainlink_oracle import ChainlinkOracle
 from slither.detectors.oracles.supported_oracles.help_functions import is_internal_call
+from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
+from slither.core.expressions.tuple_expression import TupleExpression
 
 
 class OracleDetector(AbstractDetector):
@@ -38,10 +40,13 @@ class OracleDetector(AbstractDetector):
         for var in node.variables_written:
             written_vars.append(var)
         for exp in node.variables_written_as_expression:
-            for v in exp.expressions:
-                for var in written_vars:
-                    if str(v) == str(var.name):
-                        ordered_vars.append(var)
+            if isinstance(exp, TupleExpression):
+                for v in exp.expressions:
+                    for var in written_vars:
+                        if str(v) == str(var.name):
+                            ordered_vars.append(var)
+        if len(ordered_vars) == 0:
+            ordered_vars = written_vars
         return ordered_vars
 
     @staticmethod
@@ -142,8 +147,10 @@ class OracleDetector(AbstractDetector):
         vars_in_condition = []
         vars_not_in_condition = []
         oracle_vars = []
-
+        print("Vars in condition")
         for var in oracle.oracle_vars:
+            print(var)
+            print(oracle.function)
             self.nodes_with_var = []
             if oracle.function.is_reading_in_conditional_node(
                 var
@@ -161,9 +168,8 @@ class OracleDetector(AbstractDetector):
                 if self.investigate_internal_call(oracle.function, var):
                     vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
-                elif self.investigate_on_return(oracle.function, var):
-                    vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
-                    oracle_vars.append(VarInCondition(var, self.nodes_with_var))
+                elif self.investigate_on_return(oracle, var):
+                    return True
                 else:
                     vars_not_in_condition.append(var)
                     oracle_vars.append(var)
@@ -171,11 +177,39 @@ class OracleDetector(AbstractDetector):
         oracle.vars_in_condition = vars_in_condition
         oracle.vars_not_in_condition = vars_not_in_condition
         oracle.oracle_vars = oracle_vars
+        return True
 
-    def investigate_on_return(self, function: FunctionContract, var) -> bool:
-        for value in function.return_values:
-            if var == value:
-                return print("asd")
+
+    def checks_performed_out_of_original_function(self, oracle):
+        node_of_call = None
+        function_of_call = None
+        for function in oracle.contract.functions:
+            for node in function.nodes:
+                for ir in node.irs:
+                    if isinstance(ir, InternalCall):
+                        if (ir.function == oracle.function):
+                            node_of_call = node
+                            print(node)
+                            function_of_call = function
+                            print(function)
+                            break
+        if node_of_call is None:
+            return False
+        
+        oracle.set_function(function_of_call)
+        oracle.set_node(node_of_call)
+        oracle.oracle_vars = self.get_returned_variables_from_oracle(node_of_call)
+        self.vars_in_conditions(oracle)
+        return True
+        
+
+                        
+                        
+    def investigate_on_return(self, oracle, var) -> bool:
+        print("I am here")
+        for value in oracle.function.return_values:
+            if is_dependent(value, var, oracle.node):
+                return self.checks_performed_out_of_original_function(oracle)        
         return False
 
     # This function interates through all internal calls in function and checks if the var is used in condition any of them

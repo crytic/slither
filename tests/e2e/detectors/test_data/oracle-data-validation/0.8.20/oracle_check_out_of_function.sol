@@ -45,7 +45,7 @@ contract ChainlinkETHUSDPriceConsumer {
         );
     }
 
-    function obtainValidatedPrice() {
+    function obtainValidatedPrice() public view returns (int) {
         int price = getLatestPrice();
         require(price > 0, "Price is not valid");
         return price;

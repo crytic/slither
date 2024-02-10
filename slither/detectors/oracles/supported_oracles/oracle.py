@@ -39,6 +39,9 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
     def set_node(self, _node):
         self.node = _node
 
+    def set_function(self, _function):
+        self.function = _function
+
     def compare_call(self, function) -> bool:
         for call in self.calls:
             if call in str(function):
@@ -51,6 +54,7 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         self.returned_vars_indexes = _returned_vars_indexes
         self.interface = _interface
         self.oracle_api = _oracle_api
+    
 
     # Data validation functions
     def naive_data_validation(self):
