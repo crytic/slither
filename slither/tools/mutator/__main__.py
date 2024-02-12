@@ -245,14 +245,17 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                         total_mutant_counts[0] += total_counts[0]
                         valid_mutant_counts[0] += valid_counts[0]
                         logger.info(f"Mutator {m.NAME} found {valid_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)")
+                        logger.info(f"Running total: found {valid_mutant_counts[0]} uncaught revert mutants (out of {total_mutant_counts[0]} that compile)")
                     elif m.NAME == "CR":
                         total_mutant_counts[1] += total_counts[1]
                         valid_mutant_counts[1] += valid_counts[1]
                         logger.info(f"Mutator {m.NAME} found {valid_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)")
+                        logger.info(f"Running total: found {valid_mutant_counts[1]} uncaught comment mutants (out of {total_mutant_counts[1]} that compile)")
                     else:
                         total_mutant_counts[2] += total_counts[2]
                         valid_mutant_counts[2] += valid_counts[2]
                         logger.info(f"Mutator {m.NAME} found {valid_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)")
+                        logger.info(f"Running total: found {valid_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)")
 
                     dont_mutate_lines = lines_list
                     if not quick_flag:

@@ -19,13 +19,6 @@ class AbstractMutator(
 ):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     NAME = ""
     HELP = ""
-    VALID_MUTANTS_COUNT = 0
-    VALID_RR_MUTANTS_COUNT = 0
-    VALID_CR_MUTANTS_COUNT = 0
-    # total revert/comment/tweak mutants that were generated and compiled
-    total_mutant_counts = [0, 0, 0]
-    # total valid revert/comment/tweak mutants
-    valid_mutant_counts = [0, 0, 0]
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -55,6 +48,10 @@ class AbstractMutator(
         self.in_file = self.contract.source_mapping.filename.absolute
         self.in_file_str = self.contract.compilation_unit.core.source_code[self.in_file]
         self.dont_mutate_line = dont_mutate_line
+        # total revert/comment/tweak mutants that were generated and compiled
+        self.total_mutant_counts = [0, 0, 0]
+        # total valid revert/comment/tweak mutants
+        self.valid_mutant_counts = [0, 0, 0]
 
         if not self.NAME:
             raise IncorrectMutatorInitialization(
