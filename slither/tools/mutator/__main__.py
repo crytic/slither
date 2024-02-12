@@ -276,25 +276,36 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
             logger.error("\nExecution interrupted by user (Ctrl + C). Cleaning up...")
             transfer_and_delete(files_dict)
 
-        if not target_contract == 'SLITHER_SKIP_MUTATIONS':
-            # transfer and delete the backup files
-            transfer_and_delete(files_dict)
-            # output
-            print(yellow(f"Done mutating {filename}."))
-            if total_mutant_counts[0] > 0:
-                print(yellow(f"Revert mutants: {valid_mutant_counts[0]} valid of {total_mutant_counts[0]} ({100 * valid_mutant_counts[0]/total_mutant_counts[0]}%)"))
-            else:
-                print(yellow("Zero Revert mutants analyzed"))
+        # transfer and delete the backup files
+        transfer_and_delete(files_dict)
+        # output
+        print(yellow(f"Done mutating {filename}."))
+        if total_mutant_counts[0] > 0:
+            print(
+                yellow(
+                    f"Revert mutants: {valid_mutant_counts[0]} valid of {total_mutant_counts[0]} ({100 * valid_mutant_counts[0]/total_mutant_counts[0]}%)"
+                )
+            )
+        else:
+            print(yellow("Zero Revert mutants analyzed"))
 
-            if total_mutant_counts[1] > 0:
-                print(yellow(f"Comment mutants: {valid_mutant_counts[1]} valid of {total_mutant_counts[1]} ({100 * valid_mutant_counts[1]/total_mutant_counts[1]}%)"))
-            else:
-                print(yellow("Zero Comment mutants analyzed"))
+        if total_mutant_counts[1] > 0:
+            print(
+                yellow(
+                    f"Comment mutants: {valid_mutant_counts[1]} valid of {total_mutant_counts[1]} ({100 * valid_mutant_counts[1]/total_mutant_counts[1]}%)"
+                )
+            )
+        else:
+            print(yellow("Zero Comment mutants analyzed"))
 
-            if total_mutant_counts[2] > 0:
-                print(yellow(f"Tweak mutants: {valid_mutant_counts[2]} valid of {total_mutant_counts[2]} ({100 * valid_mutant_counts[2]/total_mutant_counts[2]}%)"))
-            else:
-                print(yellow("Zero Tweak mutants analyzed"))
+        if total_mutant_counts[2] > 0:
+            print(
+                yellow(
+                    f"Tweak mutants: {valid_mutant_counts[2]} valid of {total_mutant_counts[2]} ({100 * valid_mutant_counts[2]/total_mutant_counts[2]}%)"
+                )
+            )
+        else:
+            print(yellow("Zero Tweak mutants analyzed"))
 
     print(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
 
