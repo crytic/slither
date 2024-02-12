@@ -63,7 +63,6 @@ def test_patch(  # pylint: disable=too-many-arguments
     file: str,
     patch: Dict,
     command: str,
-    index: int,
     generator_name: str,
     timeout: int,
     mappings: str | None,
@@ -82,7 +81,7 @@ def test_patch(  # pylint: disable=too-many-arguments
         filepath.write(replaced_content)
     if compile_generated_mutant(file, mappings):
         if run_test_cmd(command, file, timeout):
-            create_mutant_file(file, index, generator_name)
+            create_mutant_file(file, generator_name)
             logger.info(
                 red(
                     f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> VALID"

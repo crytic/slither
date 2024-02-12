@@ -1,4 +1,5 @@
 import os
+import traceback
 from typing import Dict, List
 import logging
 
@@ -46,9 +47,13 @@ def transfer_and_delete(files_dict: Dict) -> None:
         logger.error(f"Error transferring content: {e}")
 
 
-def create_mutant_file(file: str, count: int, rule: str) -> None:
+global_counter = {}
+
+def create_mutant_file(file: str, rule: str) -> None:
     """function to create new mutant file"""
     try:
+        if rule not in global_counter:
+            global_counter[rule] = 0
         _, filename = os.path.split(file)
         # Read content from the duplicated file
         with open(file, "r", encoding="utf8") as source_file:
@@ -67,12 +72,13 @@ def create_mutant_file(file: str, count: int, rule: str) -> None:
             + "_"
             + rule
             + "_"
-            + str(count)
+            + str(global_counter[rule])
             + ".sol",
             "w",
             encoding="utf8",
         ) as mutant_file:
             mutant_file.write(content)
+        global_counter[rule] += 1
 
         # reset the file
         with open(duplicated_files[file], "r", encoding="utf8") as duplicated_file:
@@ -83,6 +89,8 @@ def create_mutant_file(file: str, count: int, rule: str) -> None:
 
     except Exception as e:  # pylint: disable=broad-except
         logger.error(f"Error creating mutant: {e}")
+        traceback_str = traceback.format_exc()
+        logger.error(traceback_str)  # Log the stack trace
 
 
 def reset_file(file: str) -> None:

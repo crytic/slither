@@ -19,7 +19,6 @@ class AbstractMutator(
 ):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     NAME = ""
     HELP = ""
-    INVALID_MUTANTS_COUNT = 0
     VALID_MUTANTS_COUNT = 0
     VALID_RR_MUTANTS_COUNT = 0
     VALID_CR_MUTANTS_COUNT = 0
@@ -82,9 +81,8 @@ class AbstractMutator(
         (all_patches) = self._mutate()
         if "patches" not in all_patches:
             logger.debug("No patches found by %s", self.NAME)
-            return ([0,0,0], [0,0,0], self.dont_mutate_line)
-
-        for file in all_patches["patches"]:
+            return ([0, 0, 0], [0, 0, 0], self.dont_mutate_line)
+        for file in all_patches["patches"]: # Note: This should only loop over a single file
             original_txt = self.slither.source_code[file].encode("utf8")
             patches = all_patches["patches"][file]
             patches.sort(key=lambda x: x["start"])
@@ -96,7 +94,6 @@ class AbstractMutator(
                     file,
                     patch,
                     self.test_command,
-                    self.VALID_MUTANTS_COUNT,
                     self.NAME,
                     self.timeout,
                     self.solc_remappings,
