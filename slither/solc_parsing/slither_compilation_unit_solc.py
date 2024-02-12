@@ -417,6 +417,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 f"No contracts were found in {self._compilation_unit.core.filename}, check the correct compilation"
             )
         if self._parsed:
+            # pylint: disable=broad-exception-raised
             raise Exception("Contract analysis can be run only once!")
 
         # First we save all the contracts in a dict

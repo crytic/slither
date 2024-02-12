@@ -23,6 +23,7 @@ class GanacheInstance:
 def fixture_ganache() -> Generator[GanacheInstance, None, None]:
     """Fixture that runs ganache"""
     if not shutil.which("ganache"):
+        # pylint: disable=broad-exception-raised
         raise Exception(
             "ganache was not found in PATH, you can install it with `npm install -g ganache`"
         )
