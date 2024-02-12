@@ -29,7 +29,9 @@ def fixture_ganache() -> Generator[GanacheInstance, None, None]:
 
     # Address #1 when ganache is run with `--wallet.seed test`, it starts with 1000 ETH
     eth_address = "0xae17D2dD99e07CA3bF2571CCAcEAA9e2Aefc2Dc6"
-    eth_privkey = "0xe48ba530a63326818e116be262fd39ae6dcddd89da4b1f578be8afd4e8894b8d"
+    eth_privkey = (
+        "0xe48ba530a63326818e116be262fd39ae6dcddd89da4b1f578be8afd4e8894b8d"  # gitleaks:allow
+    )
     eth = int(1e18 * 1e6)
     port = 8545
     with subprocess.Popen(
