@@ -1,5 +1,5 @@
 [tool.black]
-target-version = ["py38", "py39", "py310", "py311", "py312"]
+target-version = ["py36"]
 line-length = 100
 [tool.pylint.messages_control]
 disable = """
