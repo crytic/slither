@@ -237,7 +237,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                     logger.debug(f"Skipping mutations on interface {filename}")
                     continue
 
-                logger.info(yellow(f"Mutating contract {target_contract}"))
+                logger.info(yellow(f"\nMutating contract {target_contract}"))
                 for M in mutators_list:
                     m = M(
                         compilation_unit_of_main_file,
@@ -256,16 +256,16 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                     if m.NAME == "RR":
                         total_mutant_counts[0] += total_counts[0]
                         valid_mutant_counts[0] += valid_counts[0]
-                        logger.info(f"Mutator {m.NAME} found {valid_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)")
+                        logger.info(yellow(f"Mutator {m.NAME} found {valid_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)"))
                     elif m.NAME == "CR":
                         total_mutant_counts[1] += total_counts[1]
                         valid_mutant_counts[1] += valid_counts[1]
-                        logger.info(f"Mutator {m.NAME} found {valid_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)")
+                        logger.info(yellow(f"Mutator {m.NAME} found {valid_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)"))
                     else:
                         total_mutant_counts[2] += total_counts[2]
                         valid_mutant_counts[2] += valid_counts[2]
-                        logger.info(f"Mutator {m.NAME} found {valid_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)")
-                        logger.info(f"Running total: found {valid_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)")
+                        logger.info(yellow(f"Mutator {m.NAME} found {valid_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)"))
+                        logger.info(yellow(f"Running total: found {valid_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)"))
 
                     dont_mutate_lines = lines_list
                     if not quick_flag:
@@ -282,36 +282,37 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         # transfer and delete the backup files
         transfer_and_delete(files_dict)
         # output
-        print(yellow(f"Done mutating {filename}."))
+        logger.info(yellow(f"Done mutating {target_contract}."))
         if total_mutant_counts[0] > 0:
-            print(
+            logger.info(
                 yellow(
                     f"Revert mutants: {valid_mutant_counts[0]} valid of {total_mutant_counts[0]} ({100 * valid_mutant_counts[0]/total_mutant_counts[0]}%)"
                 )
             )
         else:
-            print(yellow("Zero Revert mutants analyzed"))
+            logger.info(yellow("Zero Revert mutants analyzed"))
 
         if total_mutant_counts[1] > 0:
-            print(
+            logger.info(
                 yellow(
                     f"Comment mutants: {valid_mutant_counts[1]} valid of {total_mutant_counts[1]} ({100 * valid_mutant_counts[1]/total_mutant_counts[1]}%)"
                 )
             )
         else:
-            print(yellow("Zero Comment mutants analyzed"))
+            logger.info(yellow("Zero Comment mutants analyzed"))
 
         if total_mutant_counts[2] > 0:
-            print(
+            logger.info(
                 yellow(
                     f"Tweak mutants: {valid_mutant_counts[2]} valid of {total_mutant_counts[2]} ({100 * valid_mutant_counts[2]/total_mutant_counts[2]}%)"
                 )
             )
         else:
-            print(yellow("Zero Tweak mutants analyzed"))
+            logger.info(yellow("Zero Tweak mutants analyzed"))
 
         # Reset mutant counts before moving on to the next file
-        logger.info("Reseting mutant counts to zero")
+        if very_verbose:
+            logger.info(yellow("Reseting mutant counts to zero"))
         total_mutant_counts[0] = 0
         total_mutant_counts[1] = 0
         total_mutant_counts[2] = 0
@@ -319,6 +320,6 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         valid_mutant_counts[1] = 0
         valid_mutant_counts[2] = 0
 
-    print(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
+    logger.info(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
 
 # endregion
