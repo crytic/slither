@@ -34,7 +34,6 @@ class Call(Operation):
     def arguments(self, v: List[Variable]) -> None:
         self._arguments = v
 
-    # pylint: disable=no-self-use
     def can_reenter(self, _callstack: Optional[List[Union[Function, Variable]]] = None) -> bool:
         """
         Must be called after slithIR analysis pass
@@ -42,7 +41,7 @@ class Call(Operation):
         """
         return False
 
-    def can_send_eth(self) -> bool:  # pylint: disable=no-self-use
+    def can_send_eth(self) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool
