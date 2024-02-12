@@ -67,7 +67,8 @@ def test_patch(  # pylint: disable=too-many-arguments
     timeout: int,
     mappings: str | None,
     verbose: bool,
-) -> bool:
+    very_verbose: bool,
+) -> int:
     """
     function to verify the validity of each patch
     returns: valid or invalid patch
@@ -90,7 +91,7 @@ def test_patch(  # pylint: disable=too-many-arguments
             reset_file(file)
             return 0 # valid
     else:
-        if verbose:
+        if very_verbose:
             logger.info(
                 yellow(
                     f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> COMPILATION FAILURE"

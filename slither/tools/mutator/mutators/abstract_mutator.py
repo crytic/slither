@@ -29,6 +29,7 @@ class AbstractMutator(
         contract_instance: Contract,
         solc_remappings: str | None,
         verbose: bool,
+        very_verbose: bool,
         output_folder: str,
         dont_mutate_line: List[int],
         rate: int = 10,
@@ -43,6 +44,7 @@ class AbstractMutator(
         self.timeout = timeout
         self.solc_remappings = solc_remappings
         self.verbose = verbose
+        self.very_verbose = very_verbose
         self.output_folder = output_folder
         self.contract = contract_instance
         self.in_file = self.contract.source_mapping.filename.absolute
@@ -95,6 +97,7 @@ class AbstractMutator(
                     self.timeout,
                     self.solc_remappings,
                     self.verbose,
+                    self.very_verbose,
                 )
 
                 # count the valid mutants, flag RR/CR mutants to skip further mutations
@@ -128,7 +131,7 @@ class AbstractMutator(
                     else:
                         self.total_mutant_counts[2] += 1
 
-                if self.verbose:
+                if self.very_verbose:
                     if self.NAME == "RR":
                         logger.info(f"Found {self.valid_mutant_counts[0]} uncaught revert mutants so far (out of {self.total_mutant_counts[0]} that compile)")
                     elif self.NAME == "CR":

@@ -67,8 +67,18 @@ def parse_args() -> argparse.Namespace:
 
     # to print just all the mutants
     parser.add_argument(
+        "-v",
         "--verbose",
-        help="output all mutants generated",
+        help="log mutants that are caught as well as those that are uncaught",
+        action="store_true",
+        default=False,
+    )
+
+    # to print just all the mutants
+    parser.add_argument(
+        "-vv",
+        "--very-verbose",
+        help="log mutants that are caught, uncaught, and fail to compile. And more!",
         action="store_true",
         default=False,
     )
@@ -146,6 +156,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     timeout: Optional[int] = args.timeout
     solc_remappings: Optional[str] = args.solc_remaps
     verbose: Optional[bool] = args.verbose
+    very_verbose: Optional[bool] = args.very_verbose
     mutators_to_run: Optional[List[str]] = args.mutators_to_run
     contract_names: Optional[List[str]] = args.contract_names
     quick_flag: Optional[bool] = args.quick
@@ -236,6 +247,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                         target_contract,
                         solc_remappings,
                         verbose,
+                        very_verbose,
                         output_folder,
                         dont_mutate_lines,
                     )
@@ -245,12 +257,10 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                         total_mutant_counts[0] += total_counts[0]
                         valid_mutant_counts[0] += valid_counts[0]
                         logger.info(f"Mutator {m.NAME} found {valid_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)")
-                        logger.info(f"Running total: found {valid_mutant_counts[0]} uncaught revert mutants (out of {total_mutant_counts[0]} that compile)")
                     elif m.NAME == "CR":
                         total_mutant_counts[1] += total_counts[1]
                         valid_mutant_counts[1] += valid_counts[1]
                         logger.info(f"Mutator {m.NAME} found {valid_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)")
-                        logger.info(f"Running total: found {valid_mutant_counts[1]} uncaught comment mutants (out of {total_mutant_counts[1]} that compile)")
                     else:
                         total_mutant_counts[2] += total_counts[2]
                         valid_mutant_counts[2] += valid_counts[2]
@@ -260,16 +270,6 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                     dont_mutate_lines = lines_list
                     if not quick_flag:
                         dont_mutate_lines = []
-
-            # Reset mutant counts before moving on to the next file
-            # TODO: is this logic in the right place..?
-            logger.info("Reseting mutant counts to zero")
-            total_mutant_counts[0] = 0
-            total_mutant_counts[1] = 0
-            total_mutant_counts[2] = 0
-            valid_mutant_counts[0] = 0
-            valid_mutant_counts[1] = 0
-            valid_mutant_counts[2] = 0
 
         except Exception as e:  # pylint: disable=broad-except
             logger.error(e)
@@ -309,6 +309,15 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
             )
         else:
             print(yellow("Zero Tweak mutants analyzed"))
+
+        # Reset mutant counts before moving on to the next file
+        logger.info("Reseting mutant counts to zero")
+        total_mutant_counts[0] = 0
+        total_mutant_counts[1] = 0
+        total_mutant_counts[2] = 0
+        valid_mutant_counts[0] = 0
+        valid_mutant_counts[1] = 0
+        valid_mutant_counts[2] = 0
 
     print(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
 
