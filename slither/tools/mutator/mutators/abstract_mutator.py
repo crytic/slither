@@ -52,8 +52,8 @@ class AbstractMutator(
         self.dont_mutate_line = dont_mutate_line
         # total revert/comment/tweak mutants that were generated and compiled
         self.total_mutant_counts = [0, 0, 0]
-        # total valid revert/comment/tweak mutants
-        self.valid_mutant_counts = [0, 0, 0]
+        # total uncaught revert/comment/tweak mutants
+        self.uncaught_mutant_counts = [0, 0, 0]
 
         if not self.NAME:
             raise IncorrectMutatorInitialization(
@@ -88,8 +88,7 @@ class AbstractMutator(
             logger.info(yellow(f"Mutating {file} with {self.NAME} \n"))
             for patch in patches:
                 # test the patch
-
-                patchIsValid = test_patch(
+                patchWasCaught = test_patch(
                     file,
                     patch,
                     self.test_command,
@@ -100,16 +99,16 @@ class AbstractMutator(
                     self.very_verbose,
                 )
 
-                # count the valid mutants, flag RR/CR mutants to skip further mutations
-                if patchIsValid == 0:
-                    if self.NAME == 'RR':
-                        self.valid_mutant_counts[0] += 1
-                        self.dont_mutate_line.append(patch['line_number'])
-                    elif self.NAME == 'CR':
-                        self.valid_mutant_counts[1] += 1
-                        self.dont_mutate_line.append(patch['line_number'])
+                # count the uncaught mutants, flag RR/CR mutants to skip further mutations
+                if patchWasCaught == 0:
+                    if self.NAME == "RR":
+                        self.uncaught_mutant_counts[0] += 1
+                        self.dont_mutate_line.append(patch["line_number"])
+                    elif self.NAME == "CR":
+                        self.uncaught_mutant_counts[1] += 1
+                        self.dont_mutate_line.append(patch["line_number"])
                     else:
-                        self.valid_mutant_counts[2] += 1
+                        self.uncaught_mutant_counts[2] += 1
 
                     patched_txt,_ = apply_patch(original_txt, patch, 0)
                     diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
@@ -121,10 +120,10 @@ class AbstractMutator(
                         self.output_folder + "/patches_file.txt", "a", encoding="utf8"
                     ) as patches_file:
                         patches_file.write(diff + "\n")
-
                 # count the total number of mutants that we were able to compile
-                if patchIsValid != 2:
-                    if self.NAME == 'RR':
+                if patchWasCaught != 2:
+                    if self.NAME == "RR":
+
                         self.total_mutant_counts[0] += 1
                     elif self.NAME == 'CR':
                         self.total_mutant_counts[1] += 1
@@ -133,20 +132,14 @@ class AbstractMutator(
 
                 if self.very_verbose:
                     if self.NAME == "RR":
-                        logger.info(f"Found {self.valid_mutant_counts[0]} uncaught revert mutants so far (out of {self.total_mutant_counts[0]} that compile)")
+                        logger.info(f"Found {self.uncaught_mutant_counts[0]} uncaught revert mutants so far (out of {self.total_mutant_counts[0]} that compile)")
                     elif self.NAME == "CR":
-                        logger.info(f"Found {self.valid_mutant_counts[1]} uncaught comment mutants so far (out of {self.total_mutant_counts[1]} that compile)")
+                        logger.info(f"Found {self.uncaught_mutant_counts[1]} uncaught comment mutants so far (out of {self.total_mutant_counts[1]} that compile)")
                     else:
-                        logger.info(f"Found {self.valid_mutant_counts[2]} uncaught tweak mutants so far (out of {self.total_mutant_counts[2]} that compile)")
-
-            if self.verbose:
-                logger.info(f"Done mutating file {file}")
-                logger.info(f"Found {self.valid_mutant_counts[0]} uncaught revert mutants (out of {self.total_mutant_counts[0]} that compile)")
-                logger.info(f"Found {self.valid_mutant_counts[1]} uncaught comment mutants (out of {self.total_mutant_counts[1]} that compile)")
-                logger.info(f"Found {self.valid_mutant_counts[2]} uncaught tweak mutants (out of {self.total_mutant_counts[2]} that compile)")
+                        logger.info(f"Found {self.uncaught_mutant_counts[2]} uncaught tweak mutants so far (out of {self.total_mutant_counts[2]} that compile)")
 
         return (
             self.total_mutant_counts,
-            self.valid_mutant_counts,
+            self.uncaught_mutant_counts,
             self.dont_mutate_line
         )

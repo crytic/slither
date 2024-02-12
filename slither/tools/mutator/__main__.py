@@ -8,7 +8,7 @@ from typing import Type, List, Any, Optional
 from crytic_compile import cryticparser
 from slither import Slither
 from slither.tools.mutator.mutators import all_mutators
-from slither.utils.colors import yellow, magenta
+from slither.utils.colors import blue, magenta
 from .mutators.abstract_mutator import AbstractMutator
 from .utils.command_line import output_mutators
 from .utils.file_handling import (
@@ -161,18 +161,18 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     contract_names: Optional[List[str]] = args.contract_names
     quick_flag: Optional[bool] = args.quick
 
-    logger.info(magenta(f"Starting Mutation Campaign in '{args.codebase} \n"))
+    logger.info(blue(f"Starting Mutation Campaign in '{args.codebase}"))
 
     if paths_to_ignore:
         paths_to_ignore_list = paths_to_ignore.strip("][").split(",")
-        logger.info(magenta(f"Ignored paths - {', '.join(paths_to_ignore_list)} \n"))
+        logger.info(blue(f"Ignored paths - {', '.join(paths_to_ignore_list)}"))
     else:
         paths_to_ignore_list = []
 
     # get all the contracts as a list from given codebase
     sol_file_list: List[str] = get_sol_file_list(args.codebase, paths_to_ignore_list)
 
-    # folder where backup files and valid mutants created
+    # folder where backup files and uncaught mutants are saved
     if output_dir is None:
         output_dir = "/mutation_campaign"
     output_folder = os.getcwd() + output_dir
@@ -206,8 +206,8 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         files_dict = backup_source_file(sl.source_code, output_folder)
         # total revert/comment/tweak mutants that were generated and compiled
         total_mutant_counts = [0, 0, 0]
-        # total valid revert/comment/tweak mutants
-        valid_mutant_counts = [0, 0, 0]
+        # total uncaught revert/comment/tweak mutants
+        uncaught_mutant_counts = [0, 0, 0]
         # lines those need not be mutated (taken from RR and CR)
         dont_mutate_lines = []
 
@@ -237,7 +237,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                     logger.debug(f"Skipping mutations on interface {filename}")
                     continue
 
-                logger.info(yellow(f"\nMutating contract {target_contract}"))
+                logger.info(blue(f"Mutating contract {target_contract}"))
                 for M in mutators_list:
                     m = M(
                         compilation_unit_of_main_file,
@@ -251,21 +251,24 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                         output_folder,
                         dont_mutate_lines,
                     )
-                    (total_counts, valid_counts, lines_list) = m.mutate()
+                    (total_counts, uncaught_counts, lines_list) = m.mutate()
 
                     if m.NAME == "RR":
                         total_mutant_counts[0] += total_counts[0]
-                        valid_mutant_counts[0] += valid_counts[0]
-                        logger.info(yellow(f"Mutator {m.NAME} found {valid_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)"))
+                        uncaught_mutant_counts[0] += uncaught_counts[0]
+                        if verbose:
+                            logger.info(magenta(f"Mutator {m.NAME} found {uncaught_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)"))
                     elif m.NAME == "CR":
                         total_mutant_counts[1] += total_counts[1]
-                        valid_mutant_counts[1] += valid_counts[1]
-                        logger.info(yellow(f"Mutator {m.NAME} found {valid_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)"))
+                        uncaught_mutant_counts[1] += uncaught_counts[1]
+                        if verbose:
+                            logger.info(magenta(f"Mutator {m.NAME} found {uncaught_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)"))
                     else:
                         total_mutant_counts[2] += total_counts[2]
-                        valid_mutant_counts[2] += valid_counts[2]
-                        logger.info(yellow(f"Mutator {m.NAME} found {valid_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)"))
-                        logger.info(yellow(f"Running total: found {valid_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)"))
+                        uncaught_mutant_counts[2] += uncaught_counts[2]
+                        if verbose:
+                            logger.info(magenta(f"Mutator {m.NAME} found {uncaught_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)"))
+                            logger.info(magenta(f"Running total: found {uncaught_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)"))
 
                     dont_mutate_lines = lines_list
                     if not quick_flag:
@@ -281,45 +284,46 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
 
         # transfer and delete the backup files
         transfer_and_delete(files_dict)
-        # output
-        logger.info(yellow(f"Done mutating {target_contract}."))
+
+        # log results for this file
+        logger.info(blue(f"Done mutating {target_contract}."))
         if total_mutant_counts[0] > 0:
             logger.info(
-                yellow(
-                    f"Revert mutants: {valid_mutant_counts[0]} valid of {total_mutant_counts[0]} ({100 * valid_mutant_counts[0]/total_mutant_counts[0]}%)"
+                magenta(
+                    f"Revert mutants: {uncaught_mutant_counts[0]} uncaught of {total_mutant_counts[0]} ({100 * uncaught_mutant_counts[0]/total_mutant_counts[0]}%)"
                 )
             )
         else:
-            logger.info(yellow("Zero Revert mutants analyzed"))
+            logger.info(magenta("Zero Revert mutants analyzed"))
 
         if total_mutant_counts[1] > 0:
             logger.info(
-                yellow(
-                    f"Comment mutants: {valid_mutant_counts[1]} valid of {total_mutant_counts[1]} ({100 * valid_mutant_counts[1]/total_mutant_counts[1]}%)"
+                magenta(
+                    f"Comment mutants: {uncaught_mutant_counts[1]} uncaught of {total_mutant_counts[1]} ({100 * uncaught_mutant_counts[1]/total_mutant_counts[1]}%)"
                 )
             )
         else:
-            logger.info(yellow("Zero Comment mutants analyzed"))
+            logger.info(magenta("Zero Comment mutants analyzed"))
 
         if total_mutant_counts[2] > 0:
             logger.info(
-                yellow(
-                    f"Tweak mutants: {valid_mutant_counts[2]} valid of {total_mutant_counts[2]} ({100 * valid_mutant_counts[2]/total_mutant_counts[2]}%)"
+                magenta(
+                    f"Tweak mutants: {uncaught_mutant_counts[2]} uncaught of {total_mutant_counts[2]} ({100 * uncaught_mutant_counts[2]/total_mutant_counts[2]}%)\n"
                 )
             )
         else:
-            logger.info(yellow("Zero Tweak mutants analyzed"))
+            logger.info(magenta("Zero Tweak mutants analyzed\n"))
 
         # Reset mutant counts before moving on to the next file
         if very_verbose:
-            logger.info(yellow("Reseting mutant counts to zero"))
+            logger.info(blue("Reseting mutant counts to zero"))
         total_mutant_counts[0] = 0
         total_mutant_counts[1] = 0
         total_mutant_counts[2] = 0
-        valid_mutant_counts[0] = 0
-        valid_mutant_counts[1] = 0
-        valid_mutant_counts[2] = 0
+        uncaught_mutant_counts[0] = 0
+        uncaught_mutant_counts[1] = 0
+        uncaught_mutant_counts[2] = 0
 
-    logger.info(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
+    logger.info(blue(f"Finished Mutation Campaign in '{args.codebase}' \n"))
 
 # endregion

@@ -55,10 +55,10 @@ def run_test_cmd(cmd: str, test_dir: str, timeout: int) -> bool:
             # indicates whether the command executed sucessfully or not
             r = P.returncode
 
-    # if r is 0 then it is valid mutant because tests didn't fail
+    # if result is 0 then it is an uncaught mutant because tests didn't fail
     return r == 0
 
-# return 0 if valid, 1 if invalid, and 2 if compilation fails
+# return 0 if uncaught, 1 if caught, and 2 if compilation fails
 def test_patch(  # pylint: disable=too-many-arguments
     file: str,
     patch: Dict,
@@ -70,8 +70,8 @@ def test_patch(  # pylint: disable=too-many-arguments
     very_verbose: bool,
 ) -> int:
     """
-    function to verify the validity of each patch
-    returns: valid or invalid patch
+    function to verify whether each patch is caught by tests
+    returns: 0 (uncaught), 1 (caught), or 2 (compilation failure)
     """
     with open(file, "r", encoding="utf-8") as filepath:
         content = filepath.read()
@@ -85,11 +85,11 @@ def test_patch(  # pylint: disable=too-many-arguments
             create_mutant_file(file, generator_name)
             logger.info(
                 red(
-                    f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> VALID"
+                    f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> UNCAUGHT"
                 )
             )
             reset_file(file)
-            return 0 # valid
+            return 0 # uncaught
     else:
         if very_verbose:
             logger.info(
@@ -104,9 +104,9 @@ def test_patch(  # pylint: disable=too-many-arguments
     if verbose:
         logger.info(
             green(
-                f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> INVALID"
+                f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> CAUGHT"
             )
         )
 
     reset_file(file)
-    return 1 # invalid
+    return 1 # caught
