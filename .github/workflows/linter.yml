@@ -58,6 +58,7 @@ jobs:
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_ISORT: false
           VALIDATE_JSON: false
+          VALIDATE_JAVASCRIPT_ES: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_PYTHON_FLAKE8: false
           VALIDATE_DOCKERFILE: false
@@ -65,7 +66,8 @@ jobs:
           VALIDATE_EDITORCONFIG: false
           VALIDATE_JSCPD: false
           VALIDATE_PYTHON_MYPY: false
-          # Until we upgrade the super linter for actionlintÒ
-          VALIDATE_GITHUB_ACTIONS: false
+          VALIDATE_CHECKOV: false
+          # TODO: consider enabling
+          VALIDATE_SHELL_SHFMT: false
           SHELLCHECK_OPTS: "-e SC1090"
           FILTER_REGEX_EXCLUDE: .*tests/.*.(json|zip|sol)
