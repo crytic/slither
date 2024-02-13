@@ -7,7 +7,7 @@
 [![Slither - Read the Docs](https://img.shields.io/badge/Slither-Read_the_Docs-2ea44f)](https://crytic.github.io/slither/slither.html)
 [![Slither - Wiki](https://img.shields.io/badge/Slither-Wiki-2ea44f)](https://github.com/crytic/slither/wiki/SlithIR)
 
-> Join the Empire Hacking Slack  
+> Join the Empire Hacking Slack
 >
 > [![Slack Status](https://slack.empirehacking.nyc/badge.svg)](https://slack.empirehacking.nyc/)
 > > <sub><i>- Discussions and Support </i></sub>
@@ -46,7 +46,7 @@
 * Correctly parses 99.9% of all public Solidity code
 * Average execution time of less than 1 second per contract
 * Integrates with Github's code scanning in [CI](https://github.com/marketplace/actions/slither-action)
-* Support for Vyper
+* Support for Vyper smart contracts
 
 ## Usage
 
@@ -73,14 +73,14 @@ If you're **not** going to use one of the [supported compilation frameworks](htt
 ### Using Pip
 
 ```console
-pip3 install slither-analyzer
+python3 -m pip install slither-analyzer
 ```
 
 ### Using Git
 
 ```bash
 git clone https://github.com/crytic/slither.git && cd slither
-python3 setup.py install
+python3 -m pip install .
 ```
 
 We recommend using a Python virtual environment, as detailed in the [Developer Installation Instructions](https://github.com/trailofbits/slither/wiki/Developer-installation), if you prefer to install Slither via git.
@@ -131,10 +131,10 @@ Num | Detector | What it Detects | Impact | Confidence
 20 | `controlled-delegatecall` | [Controlled delegatecall destination](https://github.com/crytic/slither/wiki/Detector-Documentation#controlled-delegatecall) | High | Medium
 21 | `delegatecall-loop` | [Payable functions using `delegatecall` inside a loop](https://github.com/crytic/slither/wiki/Detector-Documentation/#payable-functions-using-delegatecall-inside-a-loop) | High | Medium
 22 | `incorrect-exp` | [Incorrect exponentiation](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-exponentiation) | High | Medium
-23 | `incorrect-return` | [If a `return` is incorrectly used in assembly mode.](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-assembly-return) | High | Medium
+23 | `incorrect-return` | [If a `return` is incorrectly used in assembly mode.](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-return-in-assembly) | High | Medium
 24 | `msg-value-loop` | [msg.value inside a loop](https://github.com/crytic/slither/wiki/Detector-Documentation/#msgvalue-inside-a-loop) | High | Medium
 25 | `reentrancy-eth` | [Reentrancy vulnerabilities (theft of ethers)](https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities) | High | Medium
-26 | `return-leave` | [If a `return` is used instead of a `leave`.](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-assembly-return) | High | Medium
+26 | `return-leave` | [If a `return` is used instead of a `leave`.](https://github.com/crytic/slither/wiki/Detector-Documentation#return-instead-of-leave-in-assembly) | High | Medium
 27 | `storage-array` | [Signed storage integer array compiler bug](https://github.com/crytic/slither/wiki/Detector-Documentation#storage-signed-integer-array) | High | Medium
 28 | `unchecked-transfer` | [Unchecked tokens transfer](https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-transfer) | High | Medium
 29 | `weak-prng` | [Weak PRNG](https://github.com/crytic/slither/wiki/Detector-Documentation#weak-PRNG) | High | Medium
