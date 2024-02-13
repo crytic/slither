@@ -456,9 +456,12 @@ Please rename it, this name is reserved for Slither's internals"""
             # Resolve immediate base contracts
             for i in contract_parser.baseContracts:
                 if i in contract_parser.remapping:
+                    contract_name = contract_parser.remapping[i]
+                    if contract_name in contract_parser.underlying_contract.file_scope.renaming:
+                        contract_name = contract_parser.underlying_contract.file_scope.renaming[contract_name]
                     fathers.append(
                         contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                            contract_parser.remapping[i]
+                            contract_name
                         )
                         # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
                     )
