@@ -74,6 +74,7 @@ class AbstractMutator(
         """TODO Documentation"""
         return {}
 
+    # pylint: disable=too-many-branches
     def mutate(self) -> Tuple[List[int], List[int], List[int]]:
         # call _mutate function from different mutators
         (all_patches) = self._mutate()
