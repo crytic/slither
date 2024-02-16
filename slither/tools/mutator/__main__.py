@@ -9,6 +9,7 @@ from crytic_compile import cryticparser
 from slither import Slither
 from slither.tools.mutator.mutators import all_mutators
 from slither.utils.colors import blue, magenta
+from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from .mutators.abstract_mutator import AbstractMutator
 from .utils.command_line import output_mutators
 from .utils.file_handling import (
@@ -199,6 +200,12 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
             mutators_list.remove(M)
             CR_RR_list.insert(1, M)
     mutators_list = CR_RR_list + mutators_list
+
+    if not run_test_cmd(test_command, "", timeout):
+        logger.error(red("Test suite fails before mutation, aborting"))
+        return
+    else:
+        logger.info(green("Test suite passes, commencing mutation campaign"))
 
     for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
         file_name = os.path.split(filename)[1].split(".sol")[0]
