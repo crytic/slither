@@ -4,7 +4,7 @@ import subprocess
 from typing import Dict
 import crytic_compile
 from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_file
-from slither.utils.colors import green, red
+from slither.utils.colors import green, red, yellow
 
 logger = logging.getLogger("Slither-Mutate")
 
@@ -21,13 +21,12 @@ def compile_generated_mutant(file_path: str, mappings: str) -> bool:
         return False
 
 
-def run_test_cmd(cmd: str, test_dir: str, timeout: int) -> bool:
+def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None) -> bool:
     """
     function to run codebase tests
     returns: boolean whether the tests passed or not
     """
-    # future purpose
-    _ = test_dir
+
     # add --fail-fast for foundry tests, to exit after first failure
     if "forge test" in cmd and "--fail-fast" not in cmd:
         cmd += " --fail-fast"
@@ -51,7 +50,11 @@ def run_test_cmd(cmd: str, test_dir: str, timeout: int) -> bool:
         result = None  # or set result to a default value
 
     except KeyboardInterrupt:
-        logger.info("Ctrl-C received. Exiting.")
+        logger.info("Ctrl-C received")
+        if target_file is not None:
+            logger.info("Restoring original files")
+            reset_file(target_file)
+        logger.info("Exiting")
         sys.exit(1)
 
     # if result is 0 then it is an uncaught mutant because tests didn't fail
@@ -84,7 +87,7 @@ def test_patch(  # pylint: disable=too-many-arguments
     with open(file, "w", encoding="utf-8") as filepath:
         filepath.write(replaced_content)
     if compile_generated_mutant(file, mappings):
-        if run_test_cmd(command, file, timeout):
+        if run_test_cmd(command, timeout, file):
             create_mutant_file(file, generator_name)
             logger.info(
                 red(
