@@ -34,13 +34,17 @@ def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None) -> bool
     elif "hardhat test" in cmd or "truffle test" in cmd and "--bail" not in cmd:
         cmd += " --bail"
 
+    if timeout == 0:
+        # add --forrce to ensure all contracts are recompiled w/out using cache
+        cmd += " --force"
+
     try:
         result = subprocess.run(
             cmd,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout,
+            timeout=timeout if timeout != 0 else None,
             check=False  # True: Raises a CalledProcessError if the return code is non-zero
         )
 

@@ -204,7 +204,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
 
     # run and time tests, abort if they're broken
     start_time = time.time()
-    if not run_test_cmd(test_command, "", 600): # use a very long timeout this first time
+    if not run_test_cmd(test_command, "", 0): # no timeout during the first run
         logger.error(red("Test suite fails before mutation, aborting"))
         return
 
