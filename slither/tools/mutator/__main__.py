@@ -99,8 +99,8 @@ def parse_args() -> argparse.Namespace:
 
     # flag to run full mutation based revert mutator output
     parser.add_argument(
-        "--quick",
-        help="to stop full mutation if revert mutator passes",
+        "--comprehensive",
+        help="continue testing minor mutations if severe mutants are uncaught",
         action="store_true",
         default=False,
     )
@@ -161,7 +161,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     very_verbose: Optional[bool] = args.very_verbose
     mutators_to_run: Optional[List[str]] = args.mutators_to_run
     contract_names: Optional[List[str]] = args.contract_names
-    quick_flag: Optional[bool] = args.quick
+    comprehensive_flag: Optional[bool] = args.comprehensive
 
     logger.info(blue(f"Starting Mutation Campaign in '{args.codebase}"))
 
@@ -294,7 +294,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                             logger.info(magenta(f"Running total: found {uncaught_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)"))
 
                     dont_mutate_lines = lines_list
-                    if not quick_flag:
+                    if comprehensive_flag:
                         dont_mutate_lines = []
 
         except Exception as e:  # pylint: disable=broad-except
