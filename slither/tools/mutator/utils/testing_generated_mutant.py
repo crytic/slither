@@ -69,8 +69,8 @@ def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None, verbose
 
     # If tests fail in verbose-mode, print both stdout and stderr for easier debugging
     if verbose:
-        logger.info(yellow(result.stdout.decode('utf-8')))
-        logger.info(red(result.stderr.decode('utf-8')))
+        logger.info(yellow(result.stdout.decode("utf-8")))
+        logger.info(red(result.stderr.decode("utf-8")))
 
     return False
 

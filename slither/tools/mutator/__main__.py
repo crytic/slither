@@ -381,7 +381,9 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     else:
         elapsed_string = f"{seconds} {'second' if seconds == 1 else 'seconds'}"
 
-    logger.info(blue(f"Finished mutation testing assessment of '{args.codebase}' in {elapsed_string}\n"))
+    logger.info(
+        blue(f"Finished mutation testing assessment of '{args.codebase}' in {elapsed_string}\n")
+    )
 
 
 # endregion
