@@ -4,7 +4,6 @@ from typing import Optional, Dict, Tuple, List
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.tools.mutator.utils.testing_generated_mutant import test_patch
-from slither.utils.colors import yellow
 from slither.core.declarations import Contract
 
 logger = logging.getLogger("Slither-Mutate")
@@ -81,11 +80,11 @@ class AbstractMutator(
         if "patches" not in all_patches:
             logger.debug("No patches found by %s", self.NAME)
             return ([0, 0, 0], [0, 0, 0], self.dont_mutate_line)
+
         for file in all_patches["patches"]: # Note: This should only loop over a single file
             original_txt = self.slither.source_code[file].encode("utf8")
             patches = all_patches["patches"][file]
             patches.sort(key=lambda x: x["start"])
-            logger.info(yellow(f"Mutating {file} with {self.NAME} \n"))
             for patch in patches:
                 # test the patch
                 patchWasCaught = test_patch(
@@ -110,22 +109,22 @@ class AbstractMutator(
                     else:
                         self.uncaught_mutant_counts[2] += 1
 
-                    patched_txt,_ = apply_patch(original_txt, patch, 0)
+                    patched_txt, _ = apply_patch(original_txt, patch, 0)
                     diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
                     if not diff:
                         logger.info(f"Impossible to generate patch; empty {patches}")
 
-                    # add valid mutant patches to a output file
+                    # add uncaught mutant patches to a output file
                     with open(
                         self.output_folder + "/patches_file.txt", "a", encoding="utf8"
                     ) as patches_file:
                         patches_file.write(diff + "\n")
+
                 # count the total number of mutants that we were able to compile
                 if patchWasCaught != 2:
                     if self.NAME == "RR":
-
                         self.total_mutant_counts[0] += 1
-                    elif self.NAME == 'CR':
+                    elif self.NAME == "CR":
                         self.total_mutant_counts[1] += 1
                     else:
                         self.total_mutant_counts[2] += 1

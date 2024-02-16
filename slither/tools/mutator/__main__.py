@@ -8,9 +8,9 @@ import time
 from typing import Type, List, Any, Optional
 from crytic_compile import cryticparser
 from slither import Slither
+from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from slither.tools.mutator.mutators import all_mutators
 from slither.utils.colors import blue, green, magenta, red
-from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from .mutators.abstract_mutator import AbstractMutator
 from .utils.command_line import output_mutators
 from .utils.file_handling import (
@@ -181,12 +181,6 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     if os.path.exists(output_folder):
         shutil.rmtree(output_folder)
 
-    # set default timeout
-    if timeout is None:
-        timeout = 30
-    else:
-        timeout = int(timeout)
-
     # setting RR mutator as first mutator
     mutators_list = _get_mutators(mutators_to_run)
 
@@ -202,12 +196,13 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
             CR_RR_list.insert(1, M)
     mutators_list = CR_RR_list + mutators_list
 
+    logger.info(blue("Timing tests.."))
+
     # run and time tests, abort if they're broken
     start_time = time.time()
-    if not run_test_cmd(test_command, "", 0): # no timeout during the first run
+    if not run_test_cmd(test_command, None, None): # no timeout or target_file during the first run
         logger.error(red("Test suite fails before mutation, aborting"))
         return
-
     elapsed_time = round(time.time() - start_time)
 
     # set default timeout
@@ -218,6 +213,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         timeout = int(timeout)
         if timeout < elapsed_time:
             logger.info(red(f"Provided timeout {timeout} is too short for tests that run in {elapsed_time} seconds"))
+            return
 
     logger.info(green(f"Test suite passes in {elapsed_time} seconds, commencing mutation campaign with a timeout of {timeout} seconds\n"))
 
@@ -245,11 +241,13 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                         target_contract = "SLITHER_SKIP_MUTATIONS"
                     elif contract.name.lower() == file_name.lower():
                         target_contract = contract
+
                 if target_contract == "":
                     logger.info(
                         f"Cannot find contracts in file {filename}, try specifying them with --contract-names"
                     )
                     continue
+
                 if target_contract == "SLITHER_SKIP_MUTATIONS":
                     logger.debug(f"Skipping mutations in {filename}")
                     continue
@@ -348,5 +346,6 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         uncaught_mutant_counts[2] = 0
 
     logger.info(blue(f"Finished Mutation Campaign in '{args.codebase}' \n"))
+
 
 # endregion

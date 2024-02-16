@@ -34,8 +34,8 @@ def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None) -> bool
     elif "hardhat test" in cmd or "truffle test" in cmd and "--bail" not in cmd:
         cmd += " --bail"
 
-    if timeout == 0:
-        # add --forrce to ensure all contracts are recompiled w/out using cache
+    if timeout is None:
+        # if no timeout, ensure all contracts are recompiled w/out using any cache
         cmd += " --force"
 
     try:
@@ -44,7 +44,7 @@ def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None) -> bool
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=timeout if timeout != 0 else None,
+            timeout=timeout,
             check=False  # True: Raises a CalledProcessError if the return code is non-zero
         )
 
@@ -54,7 +54,7 @@ def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None) -> bool
         result = None  # or set result to a default value
 
     except KeyboardInterrupt:
-        logger.info("Ctrl-C received")
+        logger.info(yellow("Ctrl-C received"))
         if target_file is not None:
             logger.info("Restoring original files")
             reset_file(target_file)
