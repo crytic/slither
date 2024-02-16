@@ -1,8 +1,6 @@
 import logging
-# import os
-# import signal
+import sys
 import subprocess
-import time
 from typing import Dict
 import crytic_compile
 from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_file
@@ -37,28 +35,31 @@ def run_test_cmd(cmd: str, test_dir: str, timeout: int) -> bool:
     elif "hardhat test" in cmd or "truffle test" in cmd and "--bail" not in cmd:
         cmd += " --bail"
 
-    start = time.time()
+    try:
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout,
+            check=False  # True: Raises a CalledProcessError if the return code is non-zero
+        )
 
-    # starting new process
-    with subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as P:
-        try:
-            # checking whether the process is completed or not within 30 seconds(default)
-            while P.poll() is None and (time.time() - start) < timeout:
-                time.sleep(0.05)
-        finally:
-            if P.poll() is None:
-                # Timeout, treat this as a test failure
-                logger.error(f"Tests took too long, consider increasing the timeout value of {timeout}")
-                r = 1
-                # # sends a SIGTERM signal to process group - bascially killing the process
-                # os.killpg(os.getpgid(P.pid), signal.SIGTERM)
-                # # Avoid any weird race conditions from grabbing the return code
-                # time.sleep(0.05)
-            # indicates whether the command executed sucessfully or not
-            r = P.returncode
+    except subprocess.TimeoutExpired:
+        # Timeout, treat this as a test failure
+        logger.info("Tests took too long, consider increasing the timeout")
+        result = None  # or set result to a default value
+
+    except KeyboardInterrupt:
+        logger.info("Ctrl-C received. Exiting.")
+        sys.exit(1)
 
     # if result is 0 then it is an uncaught mutant because tests didn't fail
-    return r == 0
+    if result:
+        code = result.returncode
+        return code == 0
+
+    return False
 
 # return 0 if uncaught, 1 if caught, and 2 if compilation fails
 def test_patch(  # pylint: disable=too-many-arguments
