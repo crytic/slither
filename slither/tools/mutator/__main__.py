@@ -1,14 +1,15 @@
 import argparse
 import inspect
 import logging
-import sys
 import os
 import shutil
+import sys
+import time
 from typing import Type, List, Any, Optional
 from crytic_compile import cryticparser
 from slither import Slither
 from slither.tools.mutator.mutators import all_mutators
-from slither.utils.colors import blue, magenta
+from slither.utils.colors import blue, green, magenta, red
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from .mutators.abstract_mutator import AbstractMutator
 from .utils.command_line import output_mutators
@@ -201,11 +202,24 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
             CR_RR_list.insert(1, M)
     mutators_list = CR_RR_list + mutators_list
 
-    if not run_test_cmd(test_command, "", timeout):
+    # run and time tests, abort if they're broken
+    start_time = time.time()
+    if not run_test_cmd(test_command, "", 600): # use a very long timeout this first time
         logger.error(red("Test suite fails before mutation, aborting"))
         return
+
+    elapsed_time = round(time.time() - start_time)
+
+    # set default timeout
+    # default to twice as long as it usually takes to run the test suite
+    if timeout is None:
+        timeout = int(elapsed_time * 2)
     else:
-        logger.info(green("Test suite passes, commencing mutation campaign"))
+        timeout = int(timeout)
+        if timeout < elapsed_time:
+            logger.info(red(f"Provided timeout {timeout} is too short for tests that run in {elapsed_time} seconds"))
+
+    logger.info(green(f"Test suite passes in {elapsed_time} seconds, commencing mutation campaign with a timeout of {timeout} seconds\n"))
 
     for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
         file_name = os.path.split(filename)[1].split(".sol")[0]
