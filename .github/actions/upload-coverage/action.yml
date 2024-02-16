@@ -15,7 +15,7 @@ runs:
     # This method has the limitation of 1 coverage file per run, limiting some coverage between online/offline tests.
     - run: |
         COVERAGE_UUID=$(python3 -c "import uuid; print(uuid.uuid4())")
-        echo "COVERAGE_UUID=${COVERAGE_UUID}" >> $GITHUB_OUTPUT
+        echo "COVERAGE_UUID=${COVERAGE_UUID}" >> "$GITHUB_OUTPUT"
         if [ -f .coverage ]; then
           mv .coverage .coverage.${COVERAGE_UUID}
         fi
@@ -23,7 +23,7 @@ runs:
       shell: bash
     - uses: actions/upload-artifact@v4
       with:
-        name: coverage-data
+        name: coverage-data-${{ steps.coverage-uuid.outputs.COVERAGE_UUID }}
         path: |
           .coverage.*
           *.lcov

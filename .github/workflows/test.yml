@@ -111,7 +111,8 @@ jobs:
       - name: download coverage data
         uses: actions/download-artifact@v4
         with:
-          name: coverage-data
+          pattern: coverage-data-*
+          merge-multiple: true
 
       - name: combine coverage data
         id: combinecoverage
