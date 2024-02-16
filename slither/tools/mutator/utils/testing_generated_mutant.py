@@ -1,12 +1,12 @@
-import subprocess
-import os
 import logging
+# import os
+# import signal
+import subprocess
 import time
-import signal
 from typing import Dict
 import crytic_compile
 from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_file
-from slither.utils.colors import green, red, yellow
+from slither.utils.colors import green, red
 
 logger = logging.getLogger("Slither-Mutate")
 
@@ -47,11 +47,13 @@ def run_test_cmd(cmd: str, test_dir: str, timeout: int) -> bool:
                 time.sleep(0.05)
         finally:
             if P.poll() is None:
-                logger.error("HAD TO TERMINATE ANALYSIS (TIMEOUT OR EXCEPTION)")
-                # sends a SIGTERM signal to process group - bascially killing the process
-                os.killpg(os.getpgid(P.pid), signal.SIGTERM)
-                # Avoid any weird race conditions from grabbing the return code
-                time.sleep(0.05)
+                # Timeout, treat this as a test failure
+                logger.error(f"Tests took too long, consider increasing the timeout value of {timeout}")
+                r = 1
+                # # sends a SIGTERM signal to process group - bascially killing the process
+                # os.killpg(os.getpgid(P.pid), signal.SIGTERM)
+                # # Avoid any weird race conditions from grabbing the return code
+                # time.sleep(0.05)
             # indicates whether the command executed sucessfully or not
             r = P.returncode
 
