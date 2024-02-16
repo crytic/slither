@@ -45,7 +45,7 @@ def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None) -> bool
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             timeout=timeout,
-            check=False  # True: Raises a CalledProcessError if the return code is non-zero
+            check=False,  # True: Raises a CalledProcessError if the return code is non-zero
         )
 
     except subprocess.TimeoutExpired:
@@ -67,6 +67,7 @@ def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None) -> bool
         return code == 0
 
     return False
+
 
 # return 0 if uncaught, 1 if caught, and 2 if compilation fails
 def test_patch(  # pylint: disable=too-many-arguments
@@ -99,7 +100,7 @@ def test_patch(  # pylint: disable=too-many-arguments
                 )
             )
             reset_file(file)
-            return 0 # uncaught
+            return 0  # uncaught
     else:
         if very_verbose:
             logger.info(
@@ -109,7 +110,7 @@ def test_patch(  # pylint: disable=too-many-arguments
             )
 
         reset_file(file)
-        return 2 # compile failure
+        return 2  # compile failure
 
     if verbose:
         logger.info(
@@ -119,4 +120,4 @@ def test_patch(  # pylint: disable=too-many-arguments
         )
 
     reset_file(file)
-    return 1 # caught
+    return 1  # caught

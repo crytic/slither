@@ -81,7 +81,7 @@ class AbstractMutator(
             logger.debug("No patches found by %s", self.NAME)
             return ([0, 0, 0], [0, 0, 0], self.dont_mutate_line)
 
-        for file in all_patches["patches"]: # Note: This should only loop over a single file
+        for file in all_patches["patches"]:  # Note: This should only loop over a single file
             original_txt = self.slither.source_code[file].encode("utf8")
             patches = all_patches["patches"][file]
             patches.sort(key=lambda x: x["start"])
@@ -131,14 +131,16 @@ class AbstractMutator(
 
                 if self.very_verbose:
                     if self.NAME == "RR":
-                        logger.info(f"Found {self.uncaught_mutant_counts[0]} uncaught revert mutants so far (out of {self.total_mutant_counts[0]} that compile)")
+                        logger.info(
+                            f"Found {self.uncaught_mutant_counts[0]} uncaught revert mutants so far (out of {self.total_mutant_counts[0]} that compile)"
+                        )
                     elif self.NAME == "CR":
-                        logger.info(f"Found {self.uncaught_mutant_counts[1]} uncaught comment mutants so far (out of {self.total_mutant_counts[1]} that compile)")
+                        logger.info(
+                            f"Found {self.uncaught_mutant_counts[1]} uncaught comment mutants so far (out of {self.total_mutant_counts[1]} that compile)"
+                        )
                     else:
-                        logger.info(f"Found {self.uncaught_mutant_counts[2]} uncaught tweak mutants so far (out of {self.total_mutant_counts[2]} that compile)")
+                        logger.info(
+                            f"Found {self.uncaught_mutant_counts[2]} uncaught tweak mutants so far (out of {self.total_mutant_counts[2]} that compile)"
+                        )
 
-        return (
-            self.total_mutant_counts,
-            self.uncaught_mutant_counts,
-            self.dont_mutate_line
-        )
+        return (self.total_mutant_counts, self.uncaught_mutant_counts, self.dont_mutate_line)

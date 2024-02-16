@@ -49,6 +49,7 @@ def transfer_and_delete(files_dict: Dict) -> None:
 
 global_counter = {}
 
+
 def create_mutant_file(file: str, rule: str) -> None:
     """function to create new mutant file"""
     try:

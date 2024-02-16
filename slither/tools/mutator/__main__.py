@@ -200,7 +200,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
 
     # run and time tests, abort if they're broken
     start_time = time.time()
-    if not run_test_cmd(test_command, None, None): # no timeout or target_file during the first run
+    if not run_test_cmd(test_command, None, None):  # no timeout or target_file during the first run
         logger.error(red("Test suite fails before mutation, aborting"))
         return
     elapsed_time = round(time.time() - start_time)
@@ -212,10 +212,18 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     else:
         timeout = int(timeout)
         if timeout < elapsed_time:
-            logger.info(red(f"Provided timeout {timeout} is too short for tests that run in {elapsed_time} seconds"))
+            logger.info(
+                red(
+                    f"Provided timeout {timeout} is too short for tests that run in {elapsed_time} seconds"
+                )
+            )
             return
 
-    logger.info(green(f"Test suite passes in {elapsed_time} seconds, commencing mutation campaign with a timeout of {timeout} seconds\n"))
+    logger.info(
+        green(
+            f"Test suite passes in {elapsed_time} seconds, commencing mutation campaign with a timeout of {timeout} seconds\n"
+        )
+    )
 
     for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
         file_name = os.path.split(filename)[1].split(".sol")[0]
@@ -278,18 +286,34 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                         total_mutant_counts[0] += total_counts[0]
                         uncaught_mutant_counts[0] += uncaught_counts[0]
                         if verbose:
-                            logger.info(magenta(f"Mutator {m.NAME} found {uncaught_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)"))
+                            logger.info(
+                                magenta(
+                                    f"Mutator {m.NAME} found {uncaught_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)"
+                                )
+                            )
                     elif m.NAME == "CR":
                         total_mutant_counts[1] += total_counts[1]
                         uncaught_mutant_counts[1] += uncaught_counts[1]
                         if verbose:
-                            logger.info(magenta(f"Mutator {m.NAME} found {uncaught_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)"))
+                            logger.info(
+                                magenta(
+                                    f"Mutator {m.NAME} found {uncaught_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)"
+                                )
+                            )
                     else:
                         total_mutant_counts[2] += total_counts[2]
                         uncaught_mutant_counts[2] += uncaught_counts[2]
                         if verbose:
-                            logger.info(magenta(f"Mutator {m.NAME} found {uncaught_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)"))
-                            logger.info(magenta(f"Running total: found {uncaught_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)"))
+                            logger.info(
+                                magenta(
+                                    f"Mutator {m.NAME} found {uncaught_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)"
+                                )
+                            )
+                            logger.info(
+                                magenta(
+                                    f"Running total: found {uncaught_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)"
+                                )
+                            )
 
                     dont_mutate_lines = lines_list
                     if comprehensive_flag:
