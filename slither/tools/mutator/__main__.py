@@ -370,7 +370,18 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         uncaught_mutant_counts[1] = 0
         uncaught_mutant_counts[2] = 0
 
-    logger.info(blue(f"Finished Mutation Campaign in '{args.codebase}' \n"))
+    # Print the total time elapsed in a human-readable time format
+    elapsed_time = round(time.time() - start_time)
+    hours, remainder = divmod(elapsed_time, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if hours > 0:
+        elapsed_string = f"{hours} {'hour' if hours == 1 else 'hours'}"
+    elif minutes > 0:
+        elapsed_string = f"{minutes} {'minute' if minutes == 1 else 'minutes'}"
+    else:
+        elapsed_string = f"{seconds} {'second' if seconds == 1 else 'seconds'}"
+
+    logger.info(blue(f"Finished mutation testing assessment of '{args.codebase}' in {elapsed_string}\n"))
 
 
 # endregion
