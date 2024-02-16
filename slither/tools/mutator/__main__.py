@@ -182,6 +182,8 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     # set default timeout
     if timeout is None:
         timeout = 30
+    else:
+        timeout = int(timeout)
 
     # setting RR mutator as first mutator
     mutators_list = _get_mutators(mutators_to_run)
