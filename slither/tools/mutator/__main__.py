@@ -163,7 +163,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     contract_names: Optional[List[str]] = args.contract_names
     comprehensive_flag: Optional[bool] = args.comprehensive
 
-    logger.info(blue(f"Starting Mutation Campaign in '{args.codebase}"))
+    logger.info(blue(f"Starting mutation campaign in {args.codebase}"))
 
     if paths_to_ignore:
         paths_to_ignore_list = paths_to_ignore.strip("][").split(",")
@@ -200,8 +200,9 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
 
     # run and time tests, abort if they're broken
     start_time = time.time()
-    if not run_test_cmd(test_command, None, None):  # no timeout or target_file during the first run
-        logger.error(red("Test suite fails before mutation, aborting"))
+    # no timeout or target_file during the first run, but be verbose on failure
+    if not run_test_cmd(test_command, None, None, True):
+        logger.error(red("Test suite fails with mutations, aborting"))
         return
     elapsed_time = round(time.time() - start_time)
 

@@ -21,7 +21,7 @@ def compile_generated_mutant(file_path: str, mappings: str) -> bool:
         return False
 
 
-def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None) -> bool:
+def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None, verbose: bool) -> bool:
     """
     function to run codebase tests
     returns: boolean whether the tests passed or not
@@ -64,7 +64,13 @@ def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None) -> bool
     # if result is 0 then it is an uncaught mutant because tests didn't fail
     if result:
         code = result.returncode
-        return code == 0
+        if code == 0:
+            return True
+
+    # If tests fail in verbose-mode, print both stdout and stderr for easier debugging
+    if verbose:
+        logger.info(yellow(result.stdout.decode('utf-8')))
+        logger.info(red(result.stderr.decode('utf-8')))
 
     return False
 
@@ -92,7 +98,7 @@ def test_patch(  # pylint: disable=too-many-arguments
     with open(file, "w", encoding="utf-8") as filepath:
         filepath.write(replaced_content)
     if compile_generated_mutant(file, mappings):
-        if run_test_cmd(command, timeout, file):
+        if run_test_cmd(command, timeout, file, False):
             create_mutant_file(file, generator_name)
             logger.info(
                 red(
