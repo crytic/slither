@@ -115,16 +115,8 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
     def _check(self) -> List[Output]:
         contract1 = self._contract1()
         contract2 = self._contract2()
-        order1 = [
-            variable
-            for variable in contract1.state_variables_ordered
-            if not (variable.is_constant or variable.is_immutable)
-        ]
-        order2 = [
-            variable
-            for variable in contract2.state_variables_ordered
-            if not (variable.is_constant or variable.is_immutable)
-        ]
+        order1 = [variable for variable in contract1.stored_state_variables_ordered]
+        order2 = [variable for variable in contract2.stored_state_variables_ordered]
 
         results: List[Output] = []
         for idx, _ in enumerate(order1):
@@ -244,16 +236,8 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
     def _check(self) -> List[Output]:
         contract1 = self._contract1()
         contract2 = self._contract2()
-        order1 = [
-            variable
-            for variable in contract1.state_variables_ordered
-            if not (variable.is_constant or variable.is_immutable)
-        ]
-        order2 = [
-            variable
-            for variable in contract2.state_variables_ordered
-            if not (variable.is_constant or variable.is_immutable)
-        ]
+        order1 = [variable for variable in contract1.stored_state_variables_ordered]
+        order2 = [variable for variable in contract2.stored_state_variables_ordered]
 
         results = []
 
