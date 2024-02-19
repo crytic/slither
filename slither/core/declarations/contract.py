@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from slither.utils.type_helpers import LibraryCallType, HighLevelCallType, InternalCallType
     from slither.core.declarations import (
         Enum,
-        Event,
+        EventContract,
         Modifier,
         EnumContract,
         StructureContract,
@@ -73,7 +73,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         self._enums: Dict[str, "EnumContract"] = {}
         self._structures: Dict[str, "StructureContract"] = {}
-        self._events: Dict[str, "Event"] = {}
+        self._events: Dict[str, "EventContract"] = {}
         # map accessible variable from name -> variable
         # do not contain private variables inherited from contract
         self._variables: Dict[str, "StateVariable"] = {}
@@ -278,28 +278,28 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def events(self) -> List["Event"]:
+    def events(self) -> List["EventContract"]:
         """
         list(Event): List of the events
         """
         return list(self._events.values())
 
     @property
-    def events_inherited(self) -> List["Event"]:
+    def events_inherited(self) -> List["EventContract"]:
         """
         list(Event): List of the inherited events
         """
         return [e for e in self.events if e.contract != self]
 
     @property
-    def events_declared(self) -> List["Event"]:
+    def events_declared(self) -> List["EventContract"]:
         """
         list(Event): List of the events declared within the contract (not inherited)
         """
         return [e for e in self.events if e.contract == self]
 
     @property
-    def events_as_dict(self) -> Dict[str, "Event"]:
+    def events_as_dict(self) -> Dict[str, "EventContract"]:
         return self._events
 
     # endregion

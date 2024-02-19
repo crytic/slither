@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - name: Install dependencies
@@ -67,11 +67,11 @@ jobs:
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@v24
+        uses: cachix/install-nix-action@v25
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
-        uses: cachix/cachix-action@v12
+        uses: cachix/cachix-action@v14
         with:
           name: dapp
 
