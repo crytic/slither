@@ -4,6 +4,7 @@ import sys
 
 from crytic_compile import cryticparser
 from crytic_compile.utils.zip import ZIP_TYPES_ACCEPTED
+import shtab
 
 from slither import Slither
 from slither.tools.flattening.flattening import (
@@ -28,6 +29,8 @@ def parse_args() -> argparse.Namespace:
         usage="slither-flat filename",
     )
 
+    shtab.add_argument_to(parser)
+
     parser.add_argument("filename", help="The filename of the contract or project to analyze.")
 
     parser.add_argument("--contract", help="Flatten one contract.", default=None)
@@ -44,27 +47,28 @@ def parse_args() -> argparse.Namespace:
         "--dir",
         help=f"Export directory (default: {DEFAULT_EXPORT_PATH}).",
         default=None,
-    )
+    ).complete = shtab.DIRECTORY
 
     group_export.add_argument(
         "--json",
         help='Export the results as a JSON file ("--json -" to export to stdout)',
         action="store",
         default=None,
-    )
+    ).complete = shtab.FILE
 
     parser.add_argument(
         "--zip",
         help="Export all the files to a zip file",
         action="store",
         default=None,
-    )
+    ).complete = shtab.FILE
 
     parser.add_argument(
         "--zip-type",
         help=f"Zip compression type. One of {','.join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma",
         action="store",
         default=None,
+        choices=list(ZIP_TYPES_ACCEPTED.keys()),
     )
 
     group_patching = parser.add_argument_group("Patching options")

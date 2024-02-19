@@ -3,6 +3,7 @@ import logging
 import uuid
 from typing import Optional, Dict, List
 from crytic_compile import cryticparser
+import shtab
 from slither import Slither
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Function
@@ -25,6 +26,8 @@ def parse_args() -> argparse.Namespace:
         description="Auto-generate NatSpec documentation for every function using OpenAI Codex.",
         usage="slither-documentation filename",
     )
+
+    shtab.add_argument_to(parser)
 
     parser.add_argument("project", help="The target directory/Solidity file.")
 

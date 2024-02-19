@@ -3,6 +3,7 @@ import logging
 import sys
 
 from crytic_compile import cryticparser
+import shtab
 
 from slither.tools.doctor.utils import report_section
 from slither.tools.doctor.checks import ALL_CHECKS
@@ -17,6 +18,8 @@ def parse_args() -> argparse.Namespace:
         description="Troubleshoot running Slither on your project",
         usage="slither-doctor project",
     )
+
+    shtab.add_argument_to(parser)
 
     parser.add_argument("project", help="The codebase to be tested.")
 
