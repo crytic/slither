@@ -8,7 +8,7 @@ from slither.utils.command_line import defaults_flag_in_config
 logger = logging.getLogger("Slither")
 
 
-def init_parser(parser: ArgumentParser, always_enable_codex: bool = False) -> None:
+def init_parser(sub_parser: ArgumentParser, always_enable_codex: bool = False) -> None:
     """
     Init the cli arg with codex features
 
@@ -19,7 +19,7 @@ def init_parser(parser: ArgumentParser, always_enable_codex: bool = False) -> No
     Returns:
 
     """
-    group_codex = parser.add_argument_group("Codex (https://beta.openai.com/docs/guides/code)")
+    group_codex = sub_parser.add_parser("codex", help="Codex (https://beta.openai.com/docs/guides/code)")
 
     if not always_enable_codex:
         group_codex.add_argument(
