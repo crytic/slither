@@ -70,24 +70,24 @@ The function will return 6 bytes starting from offset 5, instead of returning a 
         results: List[Output] = []
         for c in self.contracts:
             for f in c.functions_and_modifiers_declared:
+                if f.contains_assembly:
+                    for node in f.nodes:
+                        if node.sons:
+                            for function_called in node.internal_calls:
+                                if isinstance(function_called, Function):
+                                    found = _assembly_node(function_called)
+                                    if found:
 
-                for node in f.nodes:
-                    if node.sons:
-                        for function_called in node.internal_calls:
-                            if isinstance(function_called, Function):
-                                found = _assembly_node(function_called)
-                                if found:
+                                        info: DETECTOR_INFO = [
+                                            f,
+                                            " calls ",
+                                            function_called,
+                                            " which halt the execution ",
+                                            found.node,
+                                            "\n",
+                                        ]
+                                        json = self.generate_result(info)
 
-                                    info: DETECTOR_INFO = [
-                                        f,
-                                        " calls ",
-                                        function_called,
-                                        " which halt the execution ",
-                                        found.node,
-                                        "\n",
-                                    ]
-                                    json = self.generate_result(info)
-
-                                    results.append(json)
+                                        results.append(json)
 
         return results
