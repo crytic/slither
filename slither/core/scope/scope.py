@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Optional, Union, Set, TypeVar, Callable, Tuple
+from typing import List, Any, Dict, Optional, Union, Set, TypeVar, Callable
 
 from crytic_compile import CompilationUnit
 from crytic_compile.source_unit import SourceUnit
@@ -244,11 +244,12 @@ class FileScope:
 
     # endregion
 
+
 class FileScopeToImport:
     def __init__(self, filescope: FileScope, items_to_import: List[str]) -> None:
         self.filescope = filescope
         self.items_to_import = items_to_import
-    
+
     @property
     def contracts(self) -> Dict[str, Contract]:
         if len(self.items_to_import) != 0:
@@ -280,6 +281,16 @@ class FileScopeToImport:
         return self.filescope.enums
 
     @property
+    def events(self) -> Dict[str, EventTopLevel]:
+        if len(self.items_to_import) != 0:
+            result = {}
+            for name, event in self.filescope.events.items():
+                if name in self.items_to_import:
+                    result[name] = event
+            return result
+        return self.filescope.events
+
+    @property
     def functions(self) -> Set[FunctionTopLevel]:
         if len(self.items_to_import) != 0:
             result = set()
@@ -295,7 +306,7 @@ class FileScopeToImport:
         if len(self.items_to_import) == 0:
             return self.filescope.using_for_directives
         return set()
-        
+
     @property
     def imports(self) -> Set[Import]:
         # TODO check it's correct
