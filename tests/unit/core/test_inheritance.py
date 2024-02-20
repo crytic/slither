@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from slither import Slither
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
+from slither import Slither
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data" / "inheritance_with_renaming"
 
