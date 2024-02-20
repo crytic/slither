@@ -268,8 +268,8 @@ def choose_printers(
 ###################################################################################
 
 
-def parse_filter_paths(args: argparse.Namespace, filter: bool) -> List[str]:
-    paths = args.filter_paths if filter else args.include_paths
+def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]:
+    paths = args.filter_paths if filter_path else args.include_paths
     if paths:
         return paths.split(",")
     return []
