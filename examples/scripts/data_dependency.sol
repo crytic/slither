@@ -115,3 +115,13 @@ contract PropagateThroughReturnValue {
     return (var_state);
   }
 }
+
+contract Index {
+    mapping(address => uint) public mapping_var;
+    uint public ref;
+
+    function set() external {
+        ref = mapping_var[msg.sender];
+    }
+
+}
