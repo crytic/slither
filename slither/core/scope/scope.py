@@ -341,10 +341,20 @@ class FileScopeToImport:
 
     @property
     def renaming(self) -> Dict[str, str]:
-        # TODO check it's correct
+        if len(self.items_to_import) != 0:
+            result = {}
+            for name, rename in self.filescope.renaming.items():
+                if name in self.items_to_import:
+                    result[name] = rename
+            return result
         return self.filescope.renaming
 
     @property
     def type_aliases(self) -> Dict[str, TypeAlias]:
-        # TODO check it's correct
+        if len(self.items_to_import) != 0:
+            result = {}
+            for name, type_alias in self.filescope.type_aliases.items():
+                if name in self.items_to_import:
+                    result[name] = type_alias
+            return result
         return self.filescope.type_aliases
