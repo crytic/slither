@@ -448,6 +448,7 @@ ALL_TESTS = [
     Test("using-for-functions-list-3-0.8.0.sol", ["0.8.15"]),
     Test("using-for-functions-list-4-0.8.0.sol", ["0.8.15"]),
     Test("using-for-global-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-this-contract.sol", ["0.8.15"]),
     Test("library_event-0.8.16.sol", ["0.8.16"]),
     Test("top-level-struct-0.8.0.sol", ["0.8.0"]),
     Test("yul-top-level-0.8.0.sol", ["0.8.0"]),
@@ -459,8 +460,10 @@ ALL_TESTS = [
         ["0.6.9", "0.7.6", "0.8.16"],
     ),
     Test("user_defined_operators-0.8.19.sol", ["0.8.19"]),
+    Test("aliasing/main.sol", ["0.8.19"]),
     Test("type-aliases.sol", ["0.8.19"]),
     Test("enum-max-min.sol", ["0.8.19"]),
+    Test("event-top-level.sol", ["0.8.22"]),
 ]
 # create the output folder if needed
 try:

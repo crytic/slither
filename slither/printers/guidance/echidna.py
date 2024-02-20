@@ -4,7 +4,7 @@ from typing import Dict, List, Set, Tuple, NamedTuple, Union
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
-from slither.core.declarations import Enum, Function
+from slither.core.declarations import Enum, Function, Contract
 from slither.core.declarations.solidity_variables import (
     SolidityVariableComposed,
     SolidityFunction,
@@ -43,9 +43,9 @@ def _get_name(f: Union[Function, Variable]) -> str:
     return f.solidity_signature
 
 
-def _extract_payable(slither: SlitherCore) -> Dict[str, List[str]]:
+def _extract_payable(contracts: List[Contract]) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
-    for contract in slither.contracts:
+    for contract in contracts:
         payable_functions = [_get_name(f) for f in contract.functions_entry_points if f.payable]
         if payable_functions:
             ret[contract.name] = payable_functions
@@ -53,10 +53,10 @@ def _extract_payable(slither: SlitherCore) -> Dict[str, List[str]]:
 
 
 def _extract_solidity_variable_usage(
-    slither: SlitherCore, sol_var: SolidityVariable
+    contracts: List[Contract], sol_var: SolidityVariable
 ) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
-    for contract in slither.contracts:
+    for contract in contracts:
         functions_using_sol_var = []
         for f in contract.functions_entry_points:
             for v in f.all_solidity_variables_read():
@@ -114,9 +114,9 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
     return True
 
 
-def _extract_constant_functions(slither: SlitherCore) -> Dict[str, List[str]]:
+def _extract_constant_functions(contracts: List[Contract]) -> Dict[str, List[str]]:
     ret: Dict[str, List[str]] = {}
-    for contract in slither.contracts:
+    for contract in contracts:
         cst_functions = [_get_name(f) for f in contract.functions_entry_points if _is_constant(f)]
         cst_functions += [
             v.solidity_signature for v in contract.state_variables if v.visibility in ["public"]
@@ -126,24 +126,29 @@ def _extract_constant_functions(slither: SlitherCore) -> Dict[str, List[str]]:
     return ret
 
 
-def _extract_assert(slither: SlitherCore) -> Dict[str, Dict[str, List[Dict]]]:
+def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]]]:
     """
     Return the list of contract -> function name -> List(source mapping of the assert))
 
     Args:
-        slither:
+        contracts: list of contracts
 
     Returns:
 
     """
     ret: Dict[str, Dict[str, List[Dict]]] = {}
-    for contract in slither.contracts:
-        functions_using_assert: Dict[str, List[Dict]] = defaultdict(list)
+    for contract in contracts:
+        functions_using_assert = []  # Dict[str, List[Dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
-            for node in f.all_nodes():
-                if SolidityFunction("assert(bool)") in node.solidity_calls and node.source_mapping:
-                    func_name = _get_name(f)
-                    functions_using_assert[func_name].append(node.source_mapping.to_json())
+            for v in f.all_solidity_calls():
+                if v == SolidityFunction("assert(bool)"):
+                    functions_using_assert.append(_get_name(f))
+                    break
+            # Revert https://github.com/crytic/slither/pull/2105 until format is supported by echidna.
+            # for node in f.all_nodes():
+            #     if SolidityFunction("assert(bool)") in node.solidity_calls and node.source_mapping:
+            #         func_name = _get_name(f)
+            #         functions_using_assert[func_name].append(node.source_mapping.to_json())
         if functions_using_assert:
             ret[contract.name] = functions_using_assert
     return ret
@@ -238,13 +243,13 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
 
 
 def _extract_constants(
-    slither: SlitherCore,
+    contracts: List[Contract],
 ) -> Tuple[Dict[str, Dict[str, List]], Dict[str, Dict[str, Dict]]]:
     # contract -> function -> [ {"value": value, "type": type} ]
     ret_cst_used: Dict[str, Dict[str, List[ConstantValue]]] = defaultdict(dict)
     # contract -> function -> binary_operand -> [ {"value": value, "type": type ]
     ret_cst_used_in_binary: Dict[str, Dict[str, Dict[str, List[ConstantValue]]]] = defaultdict(dict)
-    for contract in slither.contracts:
+    for contract in contracts:
         for function in contract.functions_entry_points:
             all_cst_used: List = []
             all_cst_used_in_binary: Dict = defaultdict(list)
@@ -270,11 +275,11 @@ def _extract_constants(
 
 
 def _extract_function_relations(
-    slither: SlitherCore,
+    contracts: List[Contract],
 ) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
     # contract -> function -> [functions]
     ret: Dict[str, Dict[str, Dict[str, List[str]]]] = defaultdict(dict)
-    for contract in slither.contracts:
+    for contract in contracts:
         ret[contract.name] = defaultdict(dict)
         written = {
             _get_name(function): function.all_state_variables_written()
@@ -298,14 +303,14 @@ def _extract_function_relations(
     return ret
 
 
-def _have_external_calls(slither: SlitherCore) -> Dict[str, List[str]]:
+def _have_external_calls(contracts: List[Contract]) -> Dict[str, List[str]]:
     """
     Detect the functions with external calls
     :param slither:
     :return:
     """
     ret: Dict[str, List[str]] = defaultdict(list)
-    for contract in slither.contracts:
+    for contract in contracts:
         for function in contract.functions_entry_points:
             if function.all_high_level_calls() or function.all_low_level_calls():
                 ret[contract.name].append(_get_name(function))
@@ -314,14 +319,14 @@ def _have_external_calls(slither: SlitherCore) -> Dict[str, List[str]]:
     return ret
 
 
-def _use_balance(slither: SlitherCore) -> Dict[str, List[str]]:
+def _use_balance(contracts: List[Contract]) -> Dict[str, List[str]]:
     """
     Detect the functions with external calls
     :param slither:
     :return:
     """
     ret: Dict[str, List[str]] = defaultdict(list)
-    for contract in slither.contracts:
+    for contract in contracts:
         for function in contract.functions_entry_points:
             for ir in function.all_slithir_operations():
                 if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
@@ -333,25 +338,25 @@ def _use_balance(slither: SlitherCore) -> Dict[str, List[str]]:
     return ret
 
 
-def _with_fallback(slither: SlitherCore) -> Set[str]:
+def _with_fallback(contracts: List[Contract]) -> Set[str]:
     ret: Set[str] = set()
-    for contract in slither.contracts:
+    for contract in contracts:
         for function in contract.functions_entry_points:
             if function.is_fallback:
                 ret.add(contract.name)
     return ret
 
 
-def _with_receive(slither: SlitherCore) -> Set[str]:
+def _with_receive(contracts: List[Contract]) -> Set[str]:
     ret: Set[str] = set()
-    for contract in slither.contracts:
+    for contract in contracts:
         for function in contract.functions_entry_points:
             if function.is_receive:
                 ret.add(contract.name)
     return ret
 
 
-def _call_a_parameter(slither: SlitherCore) -> Dict[str, List[Dict]]:
+def _call_a_parameter(slither: SlitherCore, contracts: List[Contract]) -> Dict[str, List[Dict]]:
     """
     Detect the functions with external calls
     :param slither:
@@ -359,7 +364,7 @@ def _call_a_parameter(slither: SlitherCore) -> Dict[str, List[Dict]]:
     """
     # contract -> [ (function, idx, interface_called) ]
     ret: Dict[str, List[Dict]] = defaultdict(list)
-    for contract in slither.contracts:  # pylint: disable=too-many-nested-blocks
+    for contract in contracts:  # pylint: disable=too-many-nested-blocks
         for function in contract.functions_entry_points:
             try:
                 for ir in function.all_slithir_operations():
@@ -405,40 +410,40 @@ class Echidna(AbstractPrinter):
             _filename(string)
         """
 
-        payable = _extract_payable(self.slither)
+        contracts = self.slither.contracts
+
+        payable = _extract_payable(contracts)
         timestamp = _extract_solidity_variable_usage(
-            self.slither, SolidityVariableComposed("block.timestamp")
+            contracts, SolidityVariableComposed("block.timestamp")
         )
         block_number = _extract_solidity_variable_usage(
-            self.slither, SolidityVariableComposed("block.number")
+            contracts, SolidityVariableComposed("block.number")
         )
         msg_sender = _extract_solidity_variable_usage(
-            self.slither, SolidityVariableComposed("msg.sender")
+            contracts, SolidityVariableComposed("msg.sender")
         )
-        msg_gas = _extract_solidity_variable_usage(
-            self.slither, SolidityVariableComposed("msg.gas")
-        )
-        assert_usage = _extract_assert(self.slither)
-        cst_functions = _extract_constant_functions(self.slither)
-        (cst_used, cst_used_in_binary) = _extract_constants(self.slither)
+        msg_gas = _extract_solidity_variable_usage(contracts, SolidityVariableComposed("msg.gas"))
+        assert_usage = _extract_assert(contracts)
+        cst_functions = _extract_constant_functions(contracts)
+        (cst_used, cst_used_in_binary) = _extract_constants(contracts)
 
-        functions_relations = _extract_function_relations(self.slither)
+        functions_relations = _extract_function_relations(contracts)
 
         constructors = {
             contract.name: contract.constructor.full_name
-            for contract in self.slither.contracts
+            for contract in contracts
             if contract.constructor
         }
 
-        external_calls = _have_external_calls(self.slither)
+        external_calls = _have_external_calls(contracts)
 
-        call_parameters = _call_a_parameter(self.slither)
+        # call_parameters = _call_a_parameter(self.slither, contracts)
 
-        use_balance = _use_balance(self.slither)
+        use_balance = _use_balance(contracts)
 
-        with_fallback = list(_with_fallback(self.slither))
+        with_fallback = list(_with_fallback(contracts))
 
-        with_receive = list(_with_receive(self.slither))
+        with_receive = list(_with_receive(contracts))
 
         d = {
             "payable": payable,
@@ -453,7 +458,7 @@ class Echidna(AbstractPrinter):
             "functions_relations": functions_relations,
             "constructors": constructors,
             "have_external_calls": external_calls,
-            "call_a_parameter": call_parameters,
+            # "call_a_parameter": call_parameters,
             "use_balance": use_balance,
             "solc_versions": [unit.solc_version for unit in self.slither.compilation_units],
             "with_fallback": with_fallback,

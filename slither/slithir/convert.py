@@ -630,6 +630,17 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                     if new_ir:
                         return new_ir
 
+                # convert library function when used with "this"
+                if (
+                    isinstance(t, ElementaryType)
+                    and t.name == "address"
+                    and ir.destination.name == "this"
+                    and UserDefinedType(node_function.contract) in using_for
+                ):
+                    new_ir = convert_to_library_or_top_level(ir, node, using_for)
+                    if new_ir:
+                        return new_ir
+
                 if isinstance(t, UserDefinedType):
                     # UserdefinedType
                     t_type = t.type
@@ -1561,6 +1572,18 @@ def convert_to_library_or_top_level(
 
     if "*" in using_for:
         new_ir = look_for_library_or_top_level(contract, ir, using_for, "*")
+        if new_ir:
+            return new_ir
+
+    if (
+        isinstance(t, ElementaryType)
+        and t.name == "address"
+        and ir.destination.name == "this"
+        and UserDefinedType(node.function.contract) in using_for
+    ):
+        new_ir = look_for_library_or_top_level(
+            contract, ir, using_for, UserDefinedType(node.function.contract)
+        )
         if new_ir:
             return new_ir
 

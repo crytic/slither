@@ -10,6 +10,7 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
 from slither.core.declarations.pragma_directive import Pragma
@@ -23,6 +24,7 @@ from slither.solc_parsing.declarations.caller_context import CallerContextExpres
 from slither.solc_parsing.declarations.contract import ContractSolc
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
+from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
 from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
@@ -351,6 +353,15 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.type_aliases[alias] = type_alias
                 scope.type_aliases[alias] = type_alias
 
+            elif top_level_data[self.get_key()] == "EventDefinition":
+                event = EventTopLevel(scope)
+                event.set_offset(top_level_data["src"], self._compilation_unit)
+
+                event_parser = EventSolc(event, top_level_data, self)  # type: ignore
+                event_parser.analyze()  # type: ignore
+                scope.events[event.full_name] = event
+                self._compilation_unit.events_top_level.append(event)
+
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
 
@@ -541,8 +552,8 @@ Please rename it, this name is reserved for Slither's internals"""
         if not self._parsed:
             raise SlitherException("Parse the contract before running analyses")
         self._convert_to_slithir()
-
-        compute_dependency(self._compilation_unit)
+        if not self._compilation_unit.core.skip_data_dependency:
+            compute_dependency(self._compilation_unit)
         self._compilation_unit.compute_storage_layout()
         self._analyzed = True
 

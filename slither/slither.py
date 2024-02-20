@@ -50,7 +50,9 @@ def _update_file_scopes(candidates: ValuesView[FileScope]):
         learned_something = False
 
 
-class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
+class Slither(
+    SlitherCore
+):  # pylint: disable=too-many-instance-attributes,too-many-locals,too-many-statements
     def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
         """
         Args:
@@ -133,7 +135,14 @@ class Slither(SlitherCore):  # pylint: disable=too-many-instance-attributes
         self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
 
         triage_mode = kwargs.get("triage_mode", False)
+        triage_database = kwargs.get("triage_database", "slither.db.json")
         self._triage_mode = triage_mode
+        self._previous_results_filename = triage_database
+
+        printers_to_run = kwargs.get("printers_to_run", "")
+        if printers_to_run == "echidna":
+            self.skip_data_dependency = True
+
         self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
 
     def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:

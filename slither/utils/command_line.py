@@ -70,6 +70,7 @@ defaults_flag_in_config = {
     "no_fail": False,
     "sarif_input": "export.sarif",
     "sarif_triage": "export.sarif.sarifexplorer",
+    "triage_database": "slither.db.json",
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
 

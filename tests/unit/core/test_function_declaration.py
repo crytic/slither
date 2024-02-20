@@ -324,6 +324,9 @@ def withdraw():
 @external
 @nonreentrant("lock")
 def withdraw_locked():
+    self.withdraw_locked_internal()
+@internal
+def withdraw_locked_internal():
     raw_call(msg.sender, b"", value= self.balances[msg.sender])
 @payable
 @external
@@ -376,9 +379,13 @@ def __default__():
         assert not f.is_empty
 
         f = functions["withdraw_locked()"]
-        assert not f.is_reentrant
+        assert f.is_reentrant is False
         assert f.is_implemented
         assert not f.is_empty
+
+        f = functions["withdraw_locked_internal()"]
+        assert f.is_reentrant is False
+        assert f.visibility == "internal"
 
         var = contract.get_state_variable_from_name("balances")
         assert var
