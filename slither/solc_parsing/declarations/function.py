@@ -281,7 +281,7 @@ class FunctionSolc(CallerContextExpression):
 
         if self.is_compact_ast:
             body = self._functionNotParsed.get("body", None)
-            return_ast = self._functionNotParsed.get("returnParameters", None)
+            return_params = self._functionNotParsed.get("returnParameters", None)
 
             if body and body[self.get_key()] == "Block":
                 self._function.is_implemented = True
@@ -292,7 +292,7 @@ class FunctionSolc(CallerContextExpression):
 
         else:
             children = self._functionNotParsed[self.get_children("children")]
-            return_ast = children[1]
+            return_params = children[1]
             self._function.is_implemented = False
             for child in children[2:]:
                 if child[self.get_key()] == "Block":
@@ -318,8 +318,8 @@ class FunctionSolc(CallerContextExpression):
 
         self._remove_alone_endif()
 
-        if return_ast:
-            self._fix_implicit_return(return_ast)
+        if return_params:
+            self._fix_implicit_return(return_params)
 
         if self._function.entry_point:
             self._update_reachability(self._function.entry_point)
@@ -1352,29 +1352,41 @@ class FunctionSolc(CallerContextExpression):
                     )
                 )
 
-    def _fix_implicit_return(self, cfg: dict) -> None:
-        if (
-            len(self.underlying_function.returns) == 0
-            or not any(ret.name != "" for ret in self.underlying_function.returns)
-            or not self._function.is_implemented
-        ):
+    def _fix_implicit_return(self, return_params: Dict) -> None:
+        """
+        Creates an artificial return node iff a function has a named return variable declared in its signature.
+        Finds all leaf nodes in the CFG which are not return nodes, and links them to the artificial return node.
+        """
+        does_not_have_return_params = len(self.underlying_function.returns) == 0
+        does_not_have_named_returns = all(
+            ret.name == "" for ret in self.underlying_function.returns
+        )
+        not_implemented = not self._function.is_implemented
+
+        if does_not_have_return_params or does_not_have_named_returns or not_implemented:
             return
-        return_node = self._new_node(NodeType.RETURN, cfg["src"], self.underlying_function)
+
+        return_node = self._new_node(
+            NodeType.RETURN, return_params["src"], self.underlying_function
+        )
         for node, node_solc in self._node_to_nodesolc.items():
             if len(node.sons) == 0 and node.type not in [NodeType.RETURN, NodeType.THROW]:
                 link_underlying_nodes(node_solc, return_node)
+
         for _, yul_block in self._node_to_yulobject.items():
             for yul_node in yul_block.nodes:
                 node = yul_node.underlying_node
                 if len(node.sons) == 0 and node.type not in [NodeType.RETURN, NodeType.THROW]:
                     link_underlying_nodes(yul_node, return_node)
+
         if self.is_compact_ast:
-            self._add_return_exp_compact(return_node, cfg)
+            self._add_return_exp_compact(return_node, return_params)
         else:
-            self._add_return_exp_legacy(return_node, cfg)
+            self._add_return_exp_legacy(return_node, return_params)
+
         return_node.analyze_expressions(self)
 
-    def _add_return_exp_compact(self, return_node: NodeSolc, cfg: dict) -> None:
+    def _add_return_exp_compact(self, return_node: NodeSolc, return_params: Dict) -> None:
         if len(self.underlying_function.returns) == 1:
             return_arg = self.underlying_function.returns[0]
             if return_arg.name != "":
@@ -1402,12 +1414,13 @@ class FunctionSolc(CallerContextExpression):
                 "isPure": False,
                 "lValueRequested": False,
                 "nodeType": "TupleExpression",
-                "src": cfg["src"],
+                "src": return_params["src"],
                 "typeDescriptions": {},
             }
             type_ids = []
             type_strs = []
             for return_arg in self.underlying_function.returns:
+                # For each named return variable, we add an identifier to the tuple.
                 if return_arg.name != "":
                     (refId, refSrc, refType) = next(
                         (ret["id"], ret["src"], ret["typeDescriptions"])
@@ -1432,7 +1445,7 @@ class FunctionSolc(CallerContextExpression):
             expression["typeDescriptions"]["typeString"] = "tuple(" + ",".join(type_strs) + ")"
             return_node.add_unparsed_expression(expression)
 
-    def _add_return_exp_legacy(self, return_node: NodeSolc, cfg: dict) -> None:
+    def _add_return_exp_legacy(self, return_node: NodeSolc, return_params: Dict) -> None:
         if len(self.underlying_function.returns) == 1:
             return_arg = self.underlying_function.returns[0]
             if return_arg.name != "":
@@ -1452,9 +1465,10 @@ class FunctionSolc(CallerContextExpression):
             expression = {
                 "children": [],
                 "name": "TupleExpression",
-                "src": cfg["src"],
+                "src": return_params["src"],
             }
             for return_arg in self.underlying_function.returns:
+                # For each named return variable, we add an identifier to the tuple.
                 if return_arg.name != "":
                     (refSrc, refType) = next(
                         (ret["src"], ret["attributes"]["type"])
