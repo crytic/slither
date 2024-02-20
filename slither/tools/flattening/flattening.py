@@ -77,6 +77,7 @@ class Flattening:
 
         self._get_source_code_top_level(compilation_unit.structures_top_level)
         self._get_source_code_top_level(compilation_unit.enums_top_level)
+        self._get_source_code_top_level(compilation_unit.events_top_level)
         self._get_source_code_top_level(compilation_unit.custom_errors)
         self._get_source_code_top_level(compilation_unit.variables_top_level)
         self._get_source_code_top_level(compilation_unit.functions_top_level)
