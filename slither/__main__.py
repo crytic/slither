@@ -279,7 +279,7 @@ def parse_filter_paths(args: argparse.Namespace) -> List[str]:
 def parse_args(
     detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
 ) -> argparse.Namespace:
-    usage = "slither target [flag]\n"
+    usage = "slither target [options]\n"
     usage += "\ntarget can be:\n"
     usage += "\t- file.sol // a Solidity file\n"
     usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
@@ -293,7 +293,7 @@ def parse_args(
 
     shtab.add_argument_to(parser)
 
-    parser.add_argument("filename", help=argparse.SUPPRESS)
+    parser.add_argument("filename", metavar="target", help="File or project target, see above")
 
     cryticparser.init(parser)
 

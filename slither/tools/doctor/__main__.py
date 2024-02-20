@@ -30,11 +30,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    # log on stdout to keep output in order
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True)
-
     args = parse_args()
     kwargs = vars(args)
+
+    # log on stdout to keep output in order
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True)
 
     for check in ALL_CHECKS:
         with report_section(check.title):
