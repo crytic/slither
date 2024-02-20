@@ -437,6 +437,33 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return list(self._variables.values())
 
     @property
+    def stored_state_variables(self) -> List["StateVariable"]:
+        """
+        Returns state variables with storage locations, excluding private variables from inherited contracts.
+        Use stored_state_variables_ordered to access variables with storage locations in their declaration order.
+
+        This implementation filters out state variables if they are constant or immutable. It will be
+        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
+
+        Returns:
+            List[StateVariable]: A list of state variables with storage locations.
+        """
+        return [variable for variable in self.state_variables if variable.is_stored]
+
+    @property
+    def stored_state_variables_ordered(self) -> List["StateVariable"]:
+        """
+        list(StateVariable): List of the state variables with storage locations by order of declaration.
+
+        This implementation filters out state variables if they are constant or immutable. It will be
+        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
+
+        Returns:
+            List[StateVariable]: A list of state variables with storage locations ordered by declaration.
+        """
+        return [variable for variable in self.state_variables_ordered if variable.is_stored]
+
+    @property
     def state_variables_entry_points(self) -> List["StateVariable"]:
         """
         list(StateVariable): List of the state variables that are public.
