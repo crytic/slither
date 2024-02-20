@@ -4,13 +4,13 @@ import re
 import sys
 from pathlib import Path
 from typing import List, Dict, Tuple
-from packaging.version import parse as parse_version
-import pytest
-from deepdiff import DeepDiff
-from solc_select.solc_select import install_artifacts as install_solc_versions
-from solc_select.solc_select import installed_versions as get_installed_solc_versions
+
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
+from deepdiff import DeepDiff
+from packaging.version import parse as parse_version
+from solc_select.solc_select import install_artifacts as install_solc_versions
+from solc_select.solc_select import installed_versions as get_installed_solc_versions
 
 from slither import Slither
 from slither.printers.guidance.echidna import Echidna
@@ -308,6 +308,7 @@ ALL_TESTS = [
     Test("units_and_global_variables-0.8.0.sol", VERSIONS_08),
     Test("units_and_global_variables-0.8.4.sol", make_version(8, 4, 6)),
     Test("units_and_global_variables-0.8.7.sol", make_version(8, 7, 9)),
+    Test("global_variables-0.8.18.sol", make_version(8, 18, 18)),
     Test(
         "push-all.sol",
         ALL_VERSIONS,
@@ -447,12 +448,22 @@ ALL_TESTS = [
     Test("using-for-functions-list-3-0.8.0.sol", ["0.8.15"]),
     Test("using-for-functions-list-4-0.8.0.sol", ["0.8.15"]),
     Test("using-for-global-0.8.0.sol", ["0.8.15"]),
+    Test("using-for-this-contract.sol", ["0.8.15"]),
     Test("library_event-0.8.16.sol", ["0.8.16"]),
     Test("top-level-struct-0.8.0.sol", ["0.8.0"]),
     Test("yul-top-level-0.8.0.sol", ["0.8.0"]),
     Test("complex_imports/import_aliases_issue_1319/test.sol", ["0.5.12"]),
     Test("yul-state-constant-access.sol", ["0.8.16"]),
     Test("negate-unary-element.sol", ["0.8.16"]),
+    Test(
+        "assembly-functions.sol",
+        ["0.6.9", "0.7.6", "0.8.16"],
+    ),
+    Test("user_defined_operators-0.8.19.sol", ["0.8.19"]),
+    Test("aliasing/main.sol", ["0.8.19"]),
+    Test("type-aliases.sol", ["0.8.19"]),
+    Test("enum-max-min.sol", ["0.8.19"]),
+    Test("event-top-level.sol", ["0.8.22"]),
 ]
 # create the output folder if needed
 try:
@@ -495,12 +506,9 @@ class TestASTParsing:
 
         actual = generate_output(sl)
 
-        try:
-            with open(expected, "r", encoding="utf8") as f:
-                expected = json.load(f)
-        except OSError:
-            pytest.xfail("the file for this test was not generated")
-            raise
+        assert os.path.isfile(expected), f"Expected file {expected} does not exist"
+        with open(expected, "r", encoding="utf8") as f:
+            expected = json.load(f)
 
         diff = DeepDiff(expected, actual, ignore_order=True, verbose_level=2, view="tree")
         if diff:

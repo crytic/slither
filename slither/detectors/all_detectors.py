@@ -89,5 +89,11 @@ from .functions.protected_variable import ProtectedVariables
 from .functions.permit_domain_signature_collision import DomainSeparatorCollision
 from .functions.codex import Codex
 from .functions.cyclomatic_complexity import CyclomaticComplexity
+from .operations.cache_array_length import CacheArrayLength
 from .statements.incorrect_using_for import IncorrectUsingFor
 from .operations.encode_packed import EncodePackedCollision
+from .assembly.incorrect_return import IncorrectReturn
+from .assembly.return_instead_of_leave import ReturnInsteadOfLeave
+from .operations.incorrect_exp import IncorrectOperatorExponentiation
+from .statements.tautological_compare import TautologicalCompare
+from .statements.return_bomb import ReturnBomb

@@ -21,6 +21,7 @@ from slither.core.declarations.top_level import TopLevel
 from slither.core.source_mapping.source_mapping import SourceMapping, Source
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
+from slither.utils.sarif import read_triage_info
 from slither.utils.source_mapping import get_definition, get_references, get_implementation
 
 logger = logging.getLogger("Slither")
@@ -48,6 +49,10 @@ class SlitherCore(Context):
         self._source_code_to_line: Optional[Dict[str, List[str]]] = None
 
         self._previous_results_filename: str = "slither.db.json"
+
+        # TODO: add cli flag to set these variables
+        self.sarif_input: str = "export.sarif"
+        self.sarif_triage: str = "export.sarif.sarifexplorer"
         self._results_to_hide: List = []
         self._previous_results: List = []
         # From triaged result
@@ -95,6 +100,8 @@ class SlitherCore(Context):
         # Use by the echidna printer
         # If true, partial analysis is allowed
         self.no_fail = False
+
+        self.skip_data_dependency = False
 
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
@@ -262,6 +269,8 @@ class SlitherCore(Context):
                     self._compute_offsets_from_thing(event)
             for enum in compilation_unit.enums_top_level:
                 self._compute_offsets_from_thing(enum)
+            for event in compilation_unit.events_top_level:
+                self._compute_offsets_from_thing(event)
             for function in compilation_unit.functions_top_level:
                 self._compute_offsets_from_thing(function)
             for st in compilation_unit.structures_top_level:
@@ -444,6 +453,8 @@ class SlitherCore(Context):
         return True
 
     def load_previous_results(self) -> None:
+        self.load_previous_results_from_sarif()
+
         filename = self._previous_results_filename
         try:
             if os.path.isfile(filename):
@@ -453,8 +464,23 @@ class SlitherCore(Context):
                         for r in self._previous_results:
                             if "id" in r:
                                 self._previous_results_ids.add(r["id"])
+
         except json.decoder.JSONDecodeError:
             logger.error(red(f"Impossible to decode {filename}. Consider removing the file"))
+
+    def load_previous_results_from_sarif(self) -> None:
+        sarif = pathlib.Path(self.sarif_input)
+        triage = pathlib.Path(self.sarif_triage)
+
+        if not sarif.exists():
+            return
+        if not triage.exists():
+            return
+
+        triaged = read_triage_info(sarif, triage)
+
+        for id_triaged in triaged:
+            self._previous_results_ids.add(id_triaged)
 
     def write_results_to_hide(self) -> None:
         if not self._results_to_hide:

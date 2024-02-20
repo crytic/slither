@@ -1,0 +1,62 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+uint256(x) & uint256(self.roles[self]) != 0
+
+IRs:
+TMP_10 = CONVERT x to uint256
+REF_4(in.Roles) -> roles[self]
+TMP_11 = CONVERT REF_4 to uint256
+TMP_12(uint256) = TMP_10 & TMP_11
+TMP_13(bool) = TMP_12 != 0
+CONDITION TMP_13"];
+1->3[label="True"];
+1->2[label="False"];
+2[label="Node Type: END_IF 2
+"];
+2->4;
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+True
+
+IRs:
+RETURN True"];
+3->2;
+4[label="Node Type: IF 4
+
+EXPRESSION:
+uint256(x) & uint256(self.roles[self]) == 0
+
+IRs:
+TMP_14 = CONVERT x to uint256
+REF_5(in.Roles) -> roles[self]
+TMP_15 = CONVERT REF_5 to uint256
+TMP_16(uint256) = TMP_14 & TMP_15
+TMP_17(bool) = TMP_16 == 0
+CONDITION TMP_17"];
+4->6[label="True"];
+4->5[label="False"];
+5[label="Node Type: END_IF 5
+"];
+5->7;
+6[label="Node Type: RETURN 6
+
+EXPRESSION:
+False
+
+IRs:
+RETURN False"];
+6->5;
+7[label="Node Type: RETURN 7
+
+EXPRESSION:
+False
+
+IRs:
+RETURN False"];
+}

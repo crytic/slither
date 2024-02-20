@@ -4,6 +4,7 @@ from slither.core.declarations import Contract
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.type_alias import TypeAlias
 from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.solidity_types.array_type import ArrayType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
@@ -21,10 +22,10 @@ class TypeConversion(OperationWithLValue):
         super().__init__()
         assert is_valid_rvalue(variable) or isinstance(variable, Contract)
         assert is_valid_lvalue(result)
-        assert isinstance(variable_type, (TypeAlias, UserDefinedType, ElementaryType))
+        assert isinstance(variable_type, (TypeAlias, UserDefinedType, ElementaryType, ArrayType))
 
         self._variable = variable
-        self._type: Union[TypeAlias, UserDefinedType, ElementaryType] = variable_type
+        self._type: Union[TypeAlias, UserDefinedType, ElementaryType, ArrayType] = variable_type
         self._lvalue = result
 
     @property

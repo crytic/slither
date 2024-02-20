@@ -7,6 +7,7 @@ from crytic_compile.utils.naming import Filename
 from slither.core.declarations import Contract, Import, Pragma
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
@@ -35,6 +36,7 @@ class FileScope:
         # So we simplify the logic and have the scope fields all populated
         self.custom_errors: Set[CustomErrorTopLevel] = set()
         self.enums: Dict[str, EnumTopLevel] = {}
+        self.events: Dict[str, EventTopLevel] = {}
         # Functions is a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
@@ -52,9 +54,9 @@ class FileScope:
 
         # User defined types
         # Name -> type alias
-        self.user_defined_types: Dict[str, TypeAlias] = {}
+        self.type_aliases: Dict[str, TypeAlias] = {}
 
-    def add_accesible_scopes(self) -> bool:
+    def add_accesible_scopes(self) -> bool:  # pylint: disable=too-many-branches
         """
         Add information from accessible scopes. Return true if new information was obtained
 
@@ -73,6 +75,9 @@ class FileScope:
                 learn_something = True
             if not _dict_contain(new_scope.enums, self.enums):
                 self.enums.update(new_scope.enums)
+                learn_something = True
+            if not _dict_contain(new_scope.events, self.events):
+                self.events.update(new_scope.events)
                 learn_something = True
             if not new_scope.functions.issubset(self.functions):
                 self.functions |= new_scope.functions
@@ -95,8 +100,8 @@ class FileScope:
             if not _dict_contain(new_scope.renaming, self.renaming):
                 self.renaming.update(new_scope.renaming)
                 learn_something = True
-            if not _dict_contain(new_scope.user_defined_types, self.user_defined_types):
-                self.user_defined_types.update(new_scope.user_defined_types)
+            if not _dict_contain(new_scope.type_aliases, self.type_aliases):
+                self.type_aliases.update(new_scope.type_aliases)
                 learn_something = True
 
         return learn_something

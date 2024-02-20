@@ -26,6 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
+        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.11"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11"]') }}
         type: ["cli",
                "dapp",
                "data_dependency",
@@ -52,11 +53,11 @@ jobs:
           - os: windows-2022
             type: truffle
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v3
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
           pip install ".[test]"
@@ -66,11 +67,11 @@ jobs:
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@v20
+        uses: cachix/install-nix-action@v25
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
-        uses: cachix/cachix-action@v10
+        uses: cachix/cachix-action@v14
         with:
           name: dapp
 

@@ -1,0 +1,9 @@
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+MAX_BANDS = 10
+
+IRs:
+MAX_BANDS(uint256) := 10(uint256)"];
+}

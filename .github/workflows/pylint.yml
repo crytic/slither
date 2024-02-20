@@ -9,6 +9,8 @@ defaults:
 on:
   pull_request:
     branches: [master, dev]
+    paths:
+      - "**/*.py"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,13 +23,13 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
       - name: Set up Python 3.8
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
 
@@ -35,6 +37,10 @@ jobs:
         run: |
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
+
+      - name: Register pylint problem matcher
+        run: |
+          echo "::add-matcher::.github/workflows/matchers/pylint.json"
 
       - name: Pylint
         uses: super-linter/super-linter/slim@v4.9.2

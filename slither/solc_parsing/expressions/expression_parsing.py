@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Union, Dict, TYPE_CHECKING
+from typing import Union, Dict, TYPE_CHECKING, List, Any
 
 import slither.core.expressions.type_conversion
 from slither.core.declarations.solidity_variables import (
@@ -175,11 +175,12 @@ def parse_call(
         called = parse_expression(children[0], caller_context)
         arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
-    if isinstance(called, SuperCallExpression):
+    if isinstance(called, SuperIdentifier):
         sp = SuperCallExpression(called, arguments, type_return)
         sp.set_offset(expression["src"], caller_context.compilation_unit)
         return sp
-    call_expression = CallExpression(called, arguments, type_return)
+    names = expression["names"] if "names" in expression and len(expression["names"]) > 0 else None
+    call_expression = CallExpression(called, arguments, type_return, names=names)
     call_expression.set_offset(src, caller_context.compilation_unit)
 
     # Only available if the syntax {gas:, value:} was used
@@ -236,6 +237,24 @@ if TYPE_CHECKING:
     pass
 
 
+def _user_defined_op_call(
+    caller_context: CallerContextExpression, src, function_id: int, args: List[Any], type_call: str
+) -> CallExpression:
+    var, was_created = find_variable(None, caller_context, function_id)
+
+    if was_created:
+        var.set_offset(src, caller_context.compilation_unit)
+
+    identifier = Identifier(var)
+    identifier.set_offset(src, caller_context.compilation_unit)
+
+    var.references.append(identifier.source_mapping)
+
+    call = CallExpression(identifier, args, type_call)
+    call.set_offset(src, caller_context.compilation_unit)
+    return call
+
+
 def parse_expression(expression: Dict, caller_context: CallerContextExpression) -> "Expression":
     # pylint: disable=too-many-nested-blocks,too-many-statements
     """
@@ -274,16 +293,24 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
     if name == "UnaryOperation":
         if is_compact_ast:
             attributes = expression
-        else:
-            attributes = expression["attributes"]
-        assert "prefix" in attributes
-        operation_type = UnaryOperationType.get_type(attributes["operator"], attributes["prefix"])
-
-        if is_compact_ast:
             expression = parse_expression(expression["subExpression"], caller_context)
         else:
+            attributes = expression["attributes"]
             assert len(expression["children"]) == 1
             expression = parse_expression(expression["children"][0], caller_context)
+        assert "prefix" in attributes
+
+        # Use of user defined operation
+        if "function" in attributes:
+            return _user_defined_op_call(
+                caller_context,
+                src,
+                attributes["function"],
+                [expression],
+                attributes["typeDescriptions"]["typeString"],
+            )
+
+        operation_type = UnaryOperationType.get_type(attributes["operator"], attributes["prefix"])
         unary_op = UnaryOperation(expression, operation_type)
         unary_op.set_offset(src, caller_context.compilation_unit)
         return unary_op
@@ -291,17 +318,25 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
     if name == "BinaryOperation":
         if is_compact_ast:
             attributes = expression
-        else:
-            attributes = expression["attributes"]
-        operation_type = BinaryOperationType.get_type(attributes["operator"])
-
-        if is_compact_ast:
             left_expression = parse_expression(expression["leftExpression"], caller_context)
             right_expression = parse_expression(expression["rightExpression"], caller_context)
         else:
             assert len(expression["children"]) == 2
+            attributes = expression["attributes"]
             left_expression = parse_expression(expression["children"][0], caller_context)
             right_expression = parse_expression(expression["children"][1], caller_context)
+
+        # Use of user defined operation
+        if "function" in attributes:
+            return _user_defined_op_call(
+                caller_context,
+                src,
+                attributes["function"],
+                [left_expression, right_expression],
+                attributes["typeDescriptions"]["typeString"],
+            )
+
+        operation_type = BinaryOperationType.get_type(attributes["operator"])
         binary_op = BinaryOperation(left_expression, right_expression, operation_type)
         binary_op.set_offset(src, caller_context.compilation_unit)
         return binary_op
@@ -433,6 +468,8 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 type_candidate = ElementaryType("uint256")
             else:
                 type_candidate = ElementaryType("string")
+        elif type_candidate.startswith("rational_const "):
+            type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("int_const "):
             type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("bool"):
@@ -450,13 +487,18 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         t = None
 
+        referenced_declaration = None
         if caller_context.is_compact_ast:
             value = expression["name"]
             t = expression["typeDescriptions"]["typeString"]
+            if "referencedDeclaration" in expression:
+                referenced_declaration = expression["referencedDeclaration"]
         else:
             value = expression["attributes"]["value"]
             if "type" in expression["attributes"]:
                 t = expression["attributes"]["type"]
+            if "referencedDeclaration" in expression["attributes"]:
+                referenced_declaration = expression["attributes"]["referencedDeclaration"]
 
         if t:
             found = re.findall(r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
@@ -465,10 +507,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 value = value + "(" + found[0] + ")"
                 value = filter_name(value)
 
-        if "referencedDeclaration" in expression:
-            referenced_declaration = expression["referencedDeclaration"]
-        else:
-            referenced_declaration = None
         var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)

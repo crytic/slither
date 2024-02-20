@@ -51,6 +51,7 @@ evm_opcodes = [
     "TIMESTAMP",
     "NUMBER",
     "DIFFICULTY",
+    "PREVRANDAO",
     "GASLIMIT",
     "CHAINID",
     "SELFBALANCE",
@@ -168,6 +169,7 @@ builtins = [
     )
 ] + yul_funcs
 
+# "identifier": [input_count, output_count]
 function_args = {
     "byte": [2, 1],
     "addmod": [3, 1],
@@ -221,6 +223,7 @@ function_args = {
     "timestamp": [0, 1],
     "number": [0, 1],
     "difficulty": [0, 1],
+    "prevrandao": [0, 1],
     "gaslimit": [0, 1],
 }
 

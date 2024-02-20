@@ -10,7 +10,7 @@ from slither.slithir.operations import (
 )
 
 
-def test_with_explicit_return(slither_from_source) -> None:
+def test_with_explicit_return(slither_from_solidity_source) -> None:
     source = """
         contract Contract {
             function foo(int x) public returns (int y) {
@@ -23,7 +23,7 @@ def test_with_explicit_return(slither_from_source) -> None:
         }
         """
     for legacy in [True, False]:
-        with slither_from_source(source, legacy=legacy) as slither:
+        with slither_from_solidity_source(source, legacy=legacy) as slither:
             c: Contract = slither.get_contract_from_name("Contract")[0]
             f: Function = c.functions[0]
             node_if: Node = f.nodes[1]
@@ -41,7 +41,7 @@ def test_with_explicit_return(slither_from_source) -> None:
             assert node_ret.irs[0].values[0] == f.get_local_variable_from_name("y")
 
 
-def test_return_multiple_with_struct(slither_from_source) -> None:
+def test_return_multiple_with_struct(slither_from_solidity_source) -> None:
     source = """
         struct St {
             uint256 value;
@@ -55,7 +55,7 @@ def test_return_multiple_with_struct(slither_from_source) -> None:
         }
         """
     for legacy in [True, False]:
-        with slither_from_source(source, legacy=legacy) as slither:
+        with slither_from_solidity_source(source, legacy=legacy) as slither:
             c: Contract = slither.get_contract_from_name("Contract")[0]
             f: Function = c.functions[0]
             assert len(f.nodes) == 4
@@ -66,7 +66,7 @@ def test_return_multiple_with_struct(slither_from_source) -> None:
             assert node.irs[0].values[1] == f.get_local_variable_from_name("z")
 
 
-def test_nested_ifs_with_loop_legacy(slither_from_source) -> None:
+def test_nested_ifs_with_loop_legacy(slither_from_solidity_source) -> None:
     source = """
         contract Contract {
             function foo(uint a) public returns (uint x) {
@@ -89,7 +89,7 @@ def test_nested_ifs_with_loop_legacy(slither_from_source) -> None:
             }
         }
         """
-    with slither_from_source(source, solc_version="0.4.1", legacy=True) as slither:
+    with slither_from_solidity_source(source, solc_version="0.4.1", legacy=True) as slither:
         c: Contract = slither.get_contract_from_name("Contract")[0]
         f: Function = c.functions[0]
         node_if = f.nodes[2]
@@ -108,7 +108,7 @@ def test_nested_ifs_with_loop_legacy(slither_from_source) -> None:
         assert len(node_throw.sons) == 0
 
 
-def test_nested_ifs_with_loop_compact(slither_from_source) -> None:
+def test_nested_ifs_with_loop_compact(slither_from_solidity_source) -> None:
     source = """
         contract Contract {
             function foo(uint a) public returns (uint x) {
@@ -132,7 +132,7 @@ def test_nested_ifs_with_loop_compact(slither_from_source) -> None:
             }
         }
         """
-    with slither_from_source(source, solc_version="0.8.0", legacy=False) as slither:
+    with slither_from_solidity_source(source, solc_version="0.8.0", legacy=False) as slither:
         c: Contract = slither.get_contract_from_name("Contract")[0]
         f: Function = c.functions[0]
         node_if = f.nodes[2]
@@ -149,7 +149,7 @@ def test_nested_ifs_with_loop_compact(slither_from_source) -> None:
 
 
 @pytest.mark.xfail  # Explicit returns inside assembly are currently not parsed as return nodes
-def test_assembly_switch_cases(slither_from_source):
+def test_assembly_switch_cases(slither_from_solidity_source):
     source = """
         contract Contract {
             function foo(uint a) public returns (uint x) {
@@ -165,7 +165,7 @@ def test_assembly_switch_cases(slither_from_source):
         }
         """
     for legacy in [True, False]:
-        with slither_from_source(source, solc_version="0.8.0", legacy=legacy) as slither:
+        with slither_from_solidity_source(source, solc_version="0.8.0", legacy=legacy) as slither:
             c: Contract = slither.get_contract_from_name("Contract")[0]
             f = c.functions[0]
             if legacy:
@@ -185,7 +185,7 @@ def test_assembly_switch_cases(slither_from_source):
                 assert len(node_explicit.sons) == 0
 
 
-def test_issue_1846_ternary_in_ternary(slither_from_source):
+def test_issue_1846_ternary_in_ternary(slither_from_solidity_source):
     source = """
         contract Contract {
             function foo(uint x) public returns (uint y) {
@@ -194,7 +194,7 @@ def test_issue_1846_ternary_in_ternary(slither_from_source):
         }
         """
     for legacy in [True, False]:
-        with slither_from_source(source, legacy=legacy) as slither:
+        with slither_from_solidity_source(source, legacy=legacy) as slither:
             c: Contract = slither.get_contract_from_name("Contract")[0]
             f = c.functions[0]
             node_end_if = f.nodes[3]

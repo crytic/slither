@@ -7,7 +7,8 @@ import argparse
 from crytic_compile import cryticparser
 
 from slither import Slither
-from slither.tools.read_storage.read_storage import SlitherReadStorage
+from slither.exceptions import SlitherError
+from slither.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo
 
 
 def parse_args() -> argparse.Namespace:
@@ -104,6 +105,12 @@ def parse_args() -> argparse.Namespace:
         default="latest",
     )
 
+    parser.add_argument(
+        "--unstructured",
+        action="store_true",
+        help="Include unstructured storage slots",
+    )
+
     cryticparser.init(parser)
 
     return parser.parse_args()
@@ -123,25 +130,25 @@ def main() -> None:
 
     if args.contract_name:
         contracts = slither.get_contract_from_name(args.contract_name)
+        if len(contracts) == 0:
+            raise SlitherError(f"Contract {args.contract_name} not found.")
     else:
         contracts = slither.contracts
 
-    srs = SlitherReadStorage(contracts, args.max_depth)
-
-    try:
-        srs.block = int(args.block)
-    except ValueError:
-        srs.block = str(args.block or "latest")
-
+    rpc_info = None
     if args.rpc_url:
-        # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
-        address = target[target.find(":") + 1 :]
-        # Default to implementation address unless a storage address is given.
-        if not args.storage_address:
-            args.storage_address = address
-        srs.storage_address = args.storage_address
+        valid = ["latest", "earliest", "pending", "safe", "finalized"]
+        block = args.block if args.block in valid else int(args.block)
+        rpc_info = RpcInfo(args.rpc_url, block)
 
-        srs.rpc = args.rpc_url
+    srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
+    srs.unstructured = bool(args.unstructured)
+    # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
+    address = target[target.find(":") + 1 :]
+    # Default to implementation address unless a storage address is given.
+    if not args.storage_address:
+        args.storage_address = address
+    srs.storage_address = args.storage_address
 
     if args.variable_name:
         # Use a lambda func to only return variables that have same name as target.

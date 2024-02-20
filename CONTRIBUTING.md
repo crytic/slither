@@ -81,7 +81,7 @@ For each new detector, at least one regression tests must be present.
 
 1. Create a folder in `tests/e2e/detectors/test_data` with the detector's argument name.
 2. Create a test contract in `tests/e2e/detectors/test_data/<detector_name>/`.
-3. Update `ALL_TEST` in `tests/e2e/detectors/test_detectors.py`
+3. Update `ALL_TESTS` in `tests/e2e/detectors/test_detectors.py`.
 4. Run `python tests/e2e/detectors/test_detectors.py --compile` to create a zip file of the compilation artifacts.
 5. `pytest tests/e2e/detectors/test_detectors.py --insta update-new`. This will generate a snapshot of the detector output in `tests/e2e/detectors/snapshots/`. If updating an existing detector, run `pytest tests/e2e/detectors/test_detectors.py --insta review` and accept or reject the updates.
 6. Run `pytest tests/e2e/detectors/test_detectors.py` to ensure everything worked. Then, add and commit the files to git.
@@ -96,9 +96,10 @@ For each new detector, at least one regression tests must be present.
 #### Adding parsing tests
 
 1. Create a test in `tests/e2e/solc_parsing/`
-2. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --compile`. This will compile the artifact in `tests/e2e/solc_parsing/compile`. Add the compiled artifact to git.
-3. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/e2e/solc_parsing/expected_json`. Add the generated files to git.
-4. Run `pytest tests/e2e/solc_parsing/test_ast_parsing.py` and check that everything worked.
+2. Update `ALL_TESTS` in `tests/e2e/solc_parsing/test_ast_parsing.py`.
+3. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --compile`. This will compile the artifact in `tests/e2e/solc_parsing/compile`. Add the compiled artifact to git.
+4. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/e2e/solc_parsing/expected_json`. Add the generated files to git.
+5. Run `pytest tests/e2e/solc_parsing/test_ast_parsing.py` and check that everything worked.
 
 > ##### Helpful commands for parsing tests
 >
@@ -106,7 +107,7 @@ For each new detector, at least one regression tests must be present.
 > - To run tests for a specific test case, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k user_defined_value_type`  (the filename is the argument).
 > - To run tests for a specific version, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k 0.8.12`.
 > - To run tests for a specific compiler json format, run `pytest tests/e2e/solc_parsing/test_ast_parsing.py -k legacy` (can be legacy or compact).
-> - The IDs of tests can be inspected using ``pytest tests/e2e/solc_parsing/test_ast_parsing.py --collect-only`.
+> - The IDs of tests can be inspected using `pytest tests/e2e/solc_parsing/test_ast_parsing.py --collect-only`.
 
 ### Synchronization with crytic-compile
 

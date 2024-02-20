@@ -1,4 +1,5 @@
 import math
+from enum import Enum
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
 from crytic_compile import CompilationUnit, CryticCompile
@@ -15,6 +16,7 @@ from slither.core.declarations import (
 )
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
@@ -29,6 +31,20 @@ if TYPE_CHECKING:
     from slither.core.slither_core import SlitherCore
 
 
+class Language(Enum):
+    SOLIDITY = "solidity"
+    VYPER = "vyper"
+
+    @staticmethod
+    def from_str(label: str):
+        if label == "solc":
+            return Language.SOLIDITY
+        if label == "vyper":
+            return Language.VYPER
+
+        raise ValueError(f"Unknown language: {label}")
+
+
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCompilationUnit(Context):
     def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit) -> None:
@@ -36,18 +52,20 @@ class SlitherCompilationUnit(Context):
 
         self._core = core
         self._crytic_compile_compilation_unit = crytic_compilation_unit
+        self._language = Language.from_str(crytic_compilation_unit.compiler_version.compiler)
 
         # Top level object
         self.contracts: List[Contract] = []
         self._structures_top_level: List[StructureTopLevel] = []
         self._enums_top_level: List[EnumTopLevel] = []
+        self._events_top_level: List[EventTopLevel] = []
         self._variables_top_level: List[TopLevelVariable] = []
         self._functions_top_level: List[FunctionTopLevel] = []
         self._using_for_top_level: List[UsingForTopLevel] = []
         self._pragma_directives: List[Pragma] = []
         self._import_directives: List[Import] = []
         self._custom_errors: List[CustomErrorTopLevel] = []
-        self._user_defined_value_types: Dict[str, TypeAliasTopLevel] = {}
+        self._type_aliases: Dict[str, TypeAliasTopLevel] = {}
 
         self._all_functions: Set[Function] = set()
         self._all_modifiers: Set[Modifier] = set()
@@ -81,6 +99,17 @@ class SlitherCompilationUnit(Context):
     # region Compiler
     ###################################################################################
     ###################################################################################
+    @property
+    def language(self) -> Language:
+        return self._language
+
+    @property
+    def is_vyper(self) -> bool:
+        return self._language == Language.VYPER
+
+    @property
+    def is_solidity(self) -> bool:
+        return self._language == Language.SOLIDITY
 
     @property
     def compiler_version(self) -> CompilerVersion:
@@ -166,6 +195,10 @@ class SlitherCompilationUnit(Context):
         return self.functions + list(self.modifiers)
 
     def propagate_function_calls(self) -> None:
+        """This info is used to compute the rvalues of Phi operations in `fix_phi` and ultimately
+        is responsible for the `read` property of Phi operations which is vital to
+        propagating taints inter-procedurally
+        """
         for f in self.functions_and_modifiers:
             for node in f.nodes:
                 for ir in node.irs_ssa:
@@ -204,6 +237,10 @@ class SlitherCompilationUnit(Context):
         return self._enums_top_level
 
     @property
+    def events_top_level(self) -> List[EventTopLevel]:
+        return self._events_top_level
+
+    @property
     def variables_top_level(self) -> List[TopLevelVariable]:
         return self._variables_top_level
 
@@ -220,8 +257,8 @@ class SlitherCompilationUnit(Context):
         return self._custom_errors
 
     @property
-    def user_defined_value_types(self) -> Dict[str, TypeAliasTopLevel]:
-        return self._user_defined_value_types
+    def type_aliases(self) -> Dict[str, TypeAliasTopLevel]:
+        return self._type_aliases
 
     # endregion
     ###################################################################################
@@ -259,6 +296,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     def compute_storage_layout(self) -> None:
+        assert self.is_solidity
         for contract in self.contracts_derived:
             self._storage_layouts[contract.name] = {}
 
