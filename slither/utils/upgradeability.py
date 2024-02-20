@@ -81,8 +81,8 @@ def compare(
         tainted-contracts: list[TaintedExternalContract]
     """
 
-    order_vars1 = [v for v in v1.stored_state_variables_ordered]
-    order_vars2 = [v for v in v2.stored_state_variables_ordered]
+    order_vars1 = v1.stored_state_variables_ordered
+    order_vars2 = v2.stored_state_variables_ordered
     func_sigs1 = [function.solidity_signature for function in v1.functions]
     func_sigs2 = [function.solidity_signature for function in v2.functions]
 
@@ -300,8 +300,8 @@ def get_missing_vars(v1: Contract, v2: Contract) -> List[StateVariable]:
         List of StateVariables from v1 missing in v2
     """
     results = []
-    order_vars1 = [v for v in v1.stored_state_variables_ordered]
-    order_vars2 = [v for v in v2.stored_state_variables_ordered]
+    order_vars1 = v1.stored_state_variables_ordered
+    order_vars2 = v2.stored_state_variables_ordered
     if len(order_vars2) < len(order_vars1):
         for variable in order_vars1:
             if variable.name not in [v.name for v in order_vars2]:
