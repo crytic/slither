@@ -21,7 +21,8 @@ SOLIDITY_VARIABLES = {
 }
 
 SOLIDITY_VARIABLES_COMPOSED = {
-    "block.basefee": "uint",
+    "block.basefee": "uint256",
+    "block.blobbasefee": "uint256",
     "block.coinbase": "address",
     "block.difficulty": "uint256",
     "block.prevrandao": "uint256",
@@ -44,6 +45,7 @@ SOLIDITY_VARIABLES_COMPOSED = {
 }
 
 SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
+    "blobhash(uint256)": ["bytes32"],
     "gasleft()": ["uint256"],
     "assert(bool)": [],
     "require(bool)": [],

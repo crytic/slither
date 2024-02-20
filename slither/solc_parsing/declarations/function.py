@@ -1002,7 +1002,9 @@ class FunctionSolc(CallerContextExpression):
                 if "operations" in statement:
                     asm_node.underlying_node.add_inline_asm(statement["operations"])
                 link_underlying_nodes(node, asm_node)
-                node = asm_node
+                end_assembly = self._new_node(NodeType.ENDASSEMBLY, statement["src"], scope)
+                link_underlying_nodes(asm_node, end_assembly)
+                node = end_assembly
         elif name == "DoWhileStatement":
             node = self._parse_dowhile(statement, node, scope)
         # For Continue / Break / Return / Throw
