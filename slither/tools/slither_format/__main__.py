@@ -77,8 +77,8 @@ def parse_args() -> argparse.Namespace:
 
     group_detector.add_argument(
         "--exclude",
-        help="Comma-separated list of detectors to exclude,"
-        "available detectors: {', '.join(d for d in available_detectors)}",
+        help="Comma-separated list of detectors to exclude, "
+        f"available detectors: {', '.join(d for d in available_detectors)}",
         action="store",
         dest="detectors_to_exclude",
         default="all",
