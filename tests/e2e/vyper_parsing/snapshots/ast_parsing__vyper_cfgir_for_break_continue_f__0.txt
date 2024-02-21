@@ -1,0 +1,164 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: BEGIN_LOOP 1
+"];
+1->3;
+2[label="Node Type: END_LOOP 2
+"];
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+counter_var = 0
+
+IRs:
+counter_var(uint256) := 0(uint256)"];
+3->4;
+4[label="Node Type: IF_LOOP 4
+
+EXPRESSION:
+counter_var <= 100
+
+IRs:
+TMP_0(bool) = counter_var <= 100
+CONDITION TMP_0"];
+4->6[label="True"];
+4->2[label="False"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+counter_var += 1
+
+IRs:
+counter_var(uint256) = counter_var (c)+ 1"];
+5->4;
+6[label="Node Type: NEW VARIABLE 6
+
+EXPRESSION:
+i = counter_var
+
+IRs:
+i(uint256) := counter_var(uint256)"];
+6->7;
+7[label="Node Type: IF 7
+
+EXPRESSION:
+i > 100
+
+IRs:
+TMP_1(bool) = i > 100
+CONDITION TMP_1"];
+7->9[label="True"];
+7->8[label="False"];
+8[label="Node Type: END_IF 8
+"];
+8->10;
+9[label="Node Type: BREAK 9
+"];
+9->2;
+10[label="Node Type: IF 10
+
+EXPRESSION:
+i < 3
+
+IRs:
+TMP_2(bool) = i < 3
+CONDITION TMP_2"];
+10->12[label="True"];
+10->11[label="False"];
+11[label="Node Type: END_IF 11
+"];
+11->13;
+12[label="Node Type: CONTINUE 12
+"];
+12->5;
+13[label="Node Type: NEW VARIABLE 13
+
+EXPRESSION:
+x = 10
+
+IRs:
+x(uint256) := 10(uint256)"];
+13->14;
+14[label="Node Type: BEGIN_LOOP 14
+"];
+14->16;
+15[label="Node Type: END_LOOP 15
+"];
+15->5;
+16[label="Node Type: NEW VARIABLE 16
+
+EXPRESSION:
+counter_var_scope_0 = 0
+
+IRs:
+counter_var_scope_0(uint256) := 0(uint256)"];
+16->17;
+17[label="Node Type: IF_LOOP 17
+
+EXPRESSION:
+counter_var <= 10
+
+IRs:
+TMP_3(bool) = counter_var <= 10
+CONDITION TMP_3"];
+17->19[label="True"];
+17->15[label="False"];
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+counter_var += 1
+
+IRs:
+counter_var(uint256) = counter_var (c)+ 1"];
+18->17;
+19[label="Node Type: NEW VARIABLE 19
+
+EXPRESSION:
+j = counter_var
+
+IRs:
+j(uint256) := counter_var(uint256)"];
+19->20;
+20[label="Node Type: IF 20
+
+EXPRESSION:
+j > 10
+
+IRs:
+TMP_4(bool) = j > 10
+CONDITION TMP_4"];
+20->22[label="True"];
+20->21[label="False"];
+21[label="Node Type: END_IF 21
+"];
+21->23;
+22[label="Node Type: CONTINUE 22
+"];
+22->18;
+23[label="Node Type: IF 23
+
+EXPRESSION:
+j < 3
+
+IRs:
+TMP_5(bool) = j < 3
+CONDITION TMP_5"];
+23->25[label="True"];
+23->24[label="False"];
+24[label="Node Type: END_IF 24
+"];
+24->26;
+25[label="Node Type: BREAK 25
+"];
+25->15;
+26[label="Node Type: EXPRESSION 26
+
+EXPRESSION:
+x -= 1
+
+IRs:
+x(uint256) = x (c)- 1"];
+26->18;
+}

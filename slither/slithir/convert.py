@@ -114,8 +114,8 @@ def convert_expression(expression: Expression, node: "Node") -> List[Operation]:
 
     visitor = ExpressionToSlithIR(expression, node)
     result = visitor.result()
-
-    result = apply_ir_heuristics(result, node)
+    is_solidity = node.compilation_unit.is_solidity
+    result = apply_ir_heuristics(result, node, is_solidity)
 
     if result:
         if node.type in [NodeType.IF, NodeType.IFLOOP]:
@@ -385,6 +385,70 @@ def integrate_value_gas(result: List[Operation]) -> List[Operation]:
 ###################################################################################
 
 
+def get_declared_param_names(
+    ins: Union[
+        NewStructure,
+        NewContract,
+        InternalCall,
+        LibraryCall,
+        HighLevelCall,
+        InternalDynamicCall,
+        EventCall,
+    ]
+) -> Optional[List[str]]:
+    """
+    Given a call operation, return the list of parameter names, in the order
+    listed in the function declaration.
+    #### Parameters
+    ins -
+        The call instruction
+    #### Possible Returns
+    List[str] -
+        A list of the parameters in declaration order
+    None -
+        Workaround: Unable to obtain list of parameters in declaration order
+    """
+    if isinstance(ins, NewStructure):
+        return [x.name for x in ins.structure.elems_ordered if not isinstance(x.type, MappingType)]
+    if isinstance(ins, (InternalCall, LibraryCall, HighLevelCall)):
+        if isinstance(ins.function, Function):
+            return [p.name for p in ins.function.parameters]
+        return None
+    if isinstance(ins, InternalDynamicCall):
+        return [p.name for p in ins.function_type.params]
+
+    assert isinstance(ins, (EventCall, NewContract))
+    return None
+
+
+def reorder_arguments(
+    args: List[Variable], call_names: List[str], decl_names: List[str]
+) -> List[Variable]:
+    """
+    Reorder named struct constructor arguments so that they match struct declaration ordering rather
+    than call ordering
+    E.g. for `struct S { int x; int y; }` we reorder `S({y : 2, x : 3})` to `S(3, 2)`
+    #### Parameters
+    args -
+        Arguments to constructor call, in call order
+    names -
+        Parameter names in call order
+    decl_names -
+        Parameter names in declaration order
+    #### Returns
+    Reordered arguments to constructor call, now in declaration order
+    """
+    assert len(args) == len(call_names)
+    assert len(call_names) == len(decl_names)
+
+    args_ret = []
+    for n in decl_names:
+        ind = call_names.index(n)
+        args_ret.append(args[ind])
+
+    return args_ret
+
+
 def propagate_type_and_convert_call(result: List[Operation], node: "Node") -> List[Operation]:
     """
     Propagate the types variables and convert tmp call to real call operation
@@ -433,6 +497,23 @@ def propagate_type_and_convert_call(result: List[Operation], node: "Node") -> Li
                 ins.call_value = calls_value[ins.call_id]
             if ins.call_id in calls_gas and isinstance(ins, (HighLevelCall, InternalDynamicCall)):
                 ins.call_gas = calls_gas[ins.call_id]
+
+        if isinstance(ins, Call) and (ins.names is not None):
+            assert isinstance(
+                ins,
+                (
+                    NewStructure,
+                    NewContract,
+                    InternalCall,
+                    LibraryCall,
+                    HighLevelCall,
+                    InternalDynamicCall,
+                    EventCall,
+                ),
+            )
+            decl_param_names = get_declared_param_names(ins)
+            if decl_param_names is not None:
+                call_data = reorder_arguments(call_data, ins.names, decl_param_names)
 
         if isinstance(ins, (Call, NewContract, NewStructure)):
             # We might have stored some arguments for libraries
@@ -549,6 +630,17 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                     if new_ir:
                         return new_ir
 
+                # convert library function when used with "this"
+                if (
+                    isinstance(t, ElementaryType)
+                    and t.name == "address"
+                    and ir.destination.name == "this"
+                    and UserDefinedType(node_function.contract) in using_for
+                ):
+                    new_ir = convert_to_library_or_top_level(ir, node, using_for)
+                    if new_ir:
+                        return new_ir
+
                 if isinstance(t, UserDefinedType):
                     # UserdefinedType
                     t_type = t.type
@@ -576,7 +668,9 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                 if isinstance(t, ArrayType) or (
                     isinstance(t, ElementaryType) and t.type == "bytes"
                 ):
-                    if ir.function_name == "push" and len(ir.arguments) <= 1:
+                    # Solidity uses push
+                    # Vyper uses append
+                    if ir.function_name in ["push", "append"] and len(ir.arguments) <= 1:
                         return convert_to_push(ir, node)
                     if ir.function_name == "pop" and len(ir.arguments) == 0:
                         return convert_to_pop(ir, node)
@@ -855,7 +949,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         if isinstance(ins.ori.variable_left, Contract):
             st = ins.ori.variable_left.get_structure_from_name(ins.ori.variable_right)
             if st:
-                op = NewStructure(st, ins.lvalue)
+                op = NewStructure(st, ins.lvalue, names=ins.names)
                 op.set_expression(ins.expression)
                 op.call_id = ins.call_id
                 return op
@@ -892,6 +986,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
                 ins.nbr_arguments,
                 ins.lvalue,
                 ins.type_call,
+                names=ins.names,
             )
             libcall.set_expression(ins.expression)
             libcall.call_id = ins.call_id
@@ -950,6 +1045,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
                     len(lib_func.parameters),
                     ins.lvalue,
                     "d",
+                    names=ins.names,
                 )
                 lib_call.set_expression(ins.expression)
                 lib_call.set_node(ins.node)
@@ -1031,6 +1127,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
             ins.nbr_arguments,
             ins.lvalue,
             ins.type_call,
+            names=ins.names,
         )
         msgcall.call_id = ins.call_id
 
@@ -1082,7 +1179,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         return n
 
     if isinstance(ins.called, Structure):
-        op = NewStructure(ins.called, ins.lvalue)
+        op = NewStructure(ins.called, ins.lvalue, names=ins.names)
         op.set_expression(ins.expression)
         op.call_id = ins.call_id
         op.set_expression(ins.expression)
@@ -1106,7 +1203,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         if len(ins.called.constructor.parameters) != ins.nbr_arguments:
             return Nop()
         internalcall = InternalCall(
-            ins.called.constructor, ins.nbr_arguments, ins.lvalue, ins.type_call
+            ins.called.constructor, ins.nbr_arguments, ins.lvalue, ins.type_call, ins.names
         )
         internalcall.call_id = ins.call_id
         internalcall.set_expression(ins.expression)
@@ -1131,6 +1228,7 @@ def can_be_low_level(ir: HighLevelCall) -> bool:
         "delegatecall",
         "callcode",
         "staticcall",
+        "raw_call",
     ]
 
 
@@ -1159,13 +1257,14 @@ def convert_to_low_level(
         ir.set_node(prev_ir.node)
         ir.lvalue.set_type(ElementaryType("bool"))
         return ir
-    if ir.function_name in ["call", "delegatecall", "callcode", "staticcall"]:
+    if ir.function_name in ["call", "delegatecall", "callcode", "staticcall", "raw_call"]:
         new_ir = LowLevelCall(
             ir.destination, ir.function_name, ir.nbr_arguments, ir.lvalue, ir.type_call
         )
         new_ir.call_gas = ir.call_gas
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
+        # TODO fix this for Vyper
         if ir.node.compilation_unit.solc_version >= "0.5":
             new_ir.lvalue.set_type([ElementaryType("bool"), ElementaryType("bytes")])
         else:
@@ -1210,7 +1309,12 @@ def convert_to_solidity_func(
         and len(new_ir.arguments) == 2
         and isinstance(new_ir.arguments[1], list)
     ):
-        types = list(new_ir.arguments[1])
+        types = []
+        for arg_type in new_ir.arguments[1]:
+            decode_type = arg_type
+            if isinstance(decode_type, (Structure, Enum, Contract)):
+                decode_type = UserDefinedType(decode_type)
+            types.append(decode_type)
         new_ir.lvalue.set_type(types)
     # abi.decode where the type to decode is a singleton
     # abi.decode(a, (uint))
@@ -1440,6 +1544,7 @@ def look_for_library_or_top_level(
                 ir.nbr_arguments,
                 ir.lvalue,
                 ir.type_call,
+                names=ir.names,
             )
             lib_call.set_expression(ir.expression)
             lib_call.set_node(ir.node)
@@ -1467,6 +1572,18 @@ def convert_to_library_or_top_level(
 
     if "*" in using_for:
         new_ir = look_for_library_or_top_level(contract, ir, using_for, "*")
+        if new_ir:
+            return new_ir
+
+    if (
+        isinstance(t, ElementaryType)
+        and t.name == "address"
+        and ir.destination.name == "this"
+        and UserDefinedType(node.function.contract) in using_for
+    ):
+        new_ir = look_for_library_or_top_level(
+            contract, ir, using_for, UserDefinedType(node.function.contract)
+        )
         if new_ir:
             return new_ir
 
@@ -1857,7 +1974,7 @@ def convert_constant_types(irs: List[Operation]) -> None:
                     if isinstance(ir.lvalue.type.type, ElementaryType):
                         if ir.lvalue.type.type.type in ElementaryTypeInt:
                             for r in ir.read:
-                                if r.type.type not in ElementaryTypeInt:
+                                if r.type.type.type not in ElementaryTypeInt:
                                     r.set_type(ElementaryType(ir.lvalue.type.type.type))
                                     was_changed = True
 
@@ -1906,7 +2023,7 @@ def _find_source_mapping_references(irs: List[Operation]) -> None:
 ###################################################################################
 
 
-def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Operation]:
+def apply_ir_heuristics(irs: List[Operation], node: "Node", is_solidity: bool) -> List[Operation]:
     """
     Apply a set of heuristic to improve slithIR
     """
@@ -1916,8 +2033,11 @@ def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Operation]:
     irs = propagate_type_and_convert_call(irs, node)
     irs = remove_unused(irs)
     find_references_origin(irs)
-    convert_constant_types(irs)
-    convert_delete(irs)
+
+    # These are heuristics that are only applied to Solidity
+    if is_solidity:
+        convert_constant_types(irs)
+        convert_delete(irs)
 
     _find_source_mapping_references(irs)
 

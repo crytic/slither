@@ -315,6 +315,9 @@ class FunctionSolc(CallerContextExpression):
 
         self._remove_alone_endif()
 
+        if self._function.entry_point:
+            self._update_reachability(self._function.entry_point)
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -983,7 +986,9 @@ class FunctionSolc(CallerContextExpression):
                 # technically, entrypoint and exitpoint are YulNodes and we should be returning a NodeSolc here
                 # but they both expose an underlying_node so oh well
                 link_underlying_nodes(node, entrypoint)
-                node = exitpoint
+                end_assembly = self._new_node(NodeType.ENDASSEMBLY, statement["src"], scope)
+                link_underlying_nodes(exitpoint, end_assembly)
+                node = end_assembly
             else:
                 asm_node = self._new_node(NodeType.ASSEMBLY, statement["src"], scope)
                 self._function.contains_assembly = True
@@ -991,7 +996,9 @@ class FunctionSolc(CallerContextExpression):
                 if "operations" in statement:
                     asm_node.underlying_node.add_inline_asm(statement["operations"])
                 link_underlying_nodes(node, asm_node)
-                node = asm_node
+                end_assembly = self._new_node(NodeType.ENDASSEMBLY, statement["src"], scope)
+                link_underlying_nodes(asm_node, end_assembly)
+                node = end_assembly
         elif name == "DoWhileStatement":
             node = self._parse_dowhile(statement, node, scope)
         # For Continue / Break / Return / Throw
@@ -1099,6 +1106,15 @@ class FunctionSolc(CallerContextExpression):
         for statement in statements:
             node = self._parse_statement(statement, node, new_scope)
         return node
+
+    def _update_reachability(self, node: Node) -> None:
+        worklist = [node]
+        while worklist:
+            current = worklist.pop()
+            # fix point
+            if not current.is_reachable:
+                current.set_is_reachable(True)
+                worklist.extend(current.sons)
 
     def _parse_cfg(self, cfg: Dict) -> None:
 

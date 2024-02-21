@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from slither.utils.type_helpers import LibraryCallType, HighLevelCallType, InternalCallType
     from slither.core.declarations import (
         Enum,
-        Event,
+        EventContract,
         Modifier,
         EnumContract,
         StructureContract,
@@ -73,11 +73,13 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         self._enums: Dict[str, "EnumContract"] = {}
         self._structures: Dict[str, "StructureContract"] = {}
-        self._events: Dict[str, "Event"] = {}
+        self._events: Dict[str, "EventContract"] = {}
         # map accessible variable from name -> variable
         # do not contain private variables inherited from contract
         self._variables: Dict[str, "StateVariable"] = {}
         self._variables_ordered: List["StateVariable"] = []
+        # Reference id -> variable declaration (only available for compact AST)
+        self._state_variables_by_ref_id: Dict[int, "StateVariable"] = {}
         self._modifiers: Dict[str, "Modifier"] = {}
         self._functions: Dict[str, "FunctionContract"] = {}
         self._linearizedBaseContracts: List[int] = []
@@ -138,7 +140,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def id(self) -> int:
         """Unique id."""
-        assert self._id
+        assert self._id is not None
         return self._id
 
     @id.setter
@@ -276,28 +278,28 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def events(self) -> List["Event"]:
+    def events(self) -> List["EventContract"]:
         """
         list(Event): List of the events
         """
         return list(self._events.values())
 
     @property
-    def events_inherited(self) -> List["Event"]:
+    def events_inherited(self) -> List["EventContract"]:
         """
         list(Event): List of the inherited events
         """
         return [e for e in self.events if e.contract != self]
 
     @property
-    def events_declared(self) -> List["Event"]:
+    def events_declared(self) -> List["EventContract"]:
         """
         list(Event): List of the events declared within the contract (not inherited)
         """
         return [e for e in self.events if e.contract == self]
 
     @property
-    def events_as_dict(self) -> Dict[str, "Event"]:
+    def events_as_dict(self) -> Dict[str, "EventContract"]:
         return self._events
 
     # endregion
@@ -404,6 +406,12 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     # region Variables
     ###################################################################################
     ###################################################################################
+    @property
+    def state_variables_by_ref_id(self) -> Dict[int, "StateVariable"]:
+        """
+        Returns the state variables by reference id (only available for compact AST).
+        """
+        return self._state_variables_by_ref_id
 
     @property
     def variables(self) -> List["StateVariable"]:
@@ -427,6 +435,33 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         list(StateVariable): List of the state variables.
         """
         return list(self._variables.values())
+
+    @property
+    def stored_state_variables(self) -> List["StateVariable"]:
+        """
+        Returns state variables with storage locations, excluding private variables from inherited contracts.
+        Use stored_state_variables_ordered to access variables with storage locations in their declaration order.
+
+        This implementation filters out state variables if they are constant or immutable. It will be
+        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
+
+        Returns:
+            List[StateVariable]: A list of state variables with storage locations.
+        """
+        return [variable for variable in self.state_variables if variable.is_stored]
+
+    @property
+    def stored_state_variables_ordered(self) -> List["StateVariable"]:
+        """
+        list(StateVariable): List of the state variables with storage locations by order of declaration.
+
+        This implementation filters out state variables if they are constant or immutable. It will be
+        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
+
+        Returns:
+            List[StateVariable]: A list of state variables with storage locations ordered by declaration.
+        """
+        return [variable for variable in self.state_variables_ordered if variable.is_stored]
 
     @property
     def state_variables_entry_points(self) -> List["StateVariable"]:

@@ -31,7 +31,7 @@ class DeprecatedStandards(AbstractDetector):
     HELP = "Deprecated Solidity Standards"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
-
+    LANGUAGE = "solidity"
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards"
 
     WIKI_TITLE = "Deprecated standards"

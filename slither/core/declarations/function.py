@@ -137,6 +137,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._parameters: List["LocalVariable"] = []
         self._parameters_ssa: List["LocalIRVariable"] = []
         self._parameters_src: SourceMapping = SourceMapping()
+        # This is used for vyper calls with default arguments
+        self._default_args_as_expressions: List["Expression"] = []
         self._returns: List["LocalVariable"] = []
         self._returns_ssa: List["LocalIRVariable"] = []
         self._returns_src: SourceMapping = SourceMapping()
@@ -217,8 +219,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
 
-        # Assume we are analyzing Solidity by default
-        self.function_language: FunctionLanguage = FunctionLanguage.Solidity
+        self.function_language: FunctionLanguage = (
+            FunctionLanguage.Solidity if compilation_unit.is_solidity else FunctionLanguage.Vyper
+        )
 
         self._id: Optional[str] = None
 
@@ -238,7 +241,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._name == "" and self._function_type == FunctionType.CONSTRUCTOR:
             return "constructor"
-        if self._function_type == FunctionType.FALLBACK:
+        if self._name == "" and self._function_type == FunctionType.FALLBACK:
             return "fallback"
         if self._function_type == FunctionType.RECEIVE:
             return "receive"
@@ -985,14 +988,15 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         (str, list(str), list(str)): Function signature as
         (name, list parameters type, list return values type)
         """
-        if self._signature is None:
-            signature = (
-                self.name,
-                [str(x.type) for x in self.parameters],
-                [str(x.type) for x in self.returns],
-            )
-            self._signature = signature
-        return self._signature
+        # FIXME memoizing this function is not working properly for vyper
+        # if self._signature is None:
+        return (
+            self.name,
+            [str(x.type) for x in self.parameters],
+            [str(x.type) for x in self.returns],
+        )
+        #     self._signature = signature
+        # return self._signature
 
     @property
     def signature_str(self) -> str:
@@ -1496,8 +1500,13 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         Determine if the function can be re-entered
         """
+        reentrancy_modifier = "nonReentrant"
+
+        if self.function_language == FunctionLanguage.Vyper:
+            reentrancy_modifier = "nonreentrant(lock)"
+
         # TODO: compare with hash of known nonReentrant modifier instead of the name
-        if "nonReentrant" in [m.name for m in self.modifiers]:
+        if reentrancy_modifier in [m.name for m in self.modifiers]:
             return False
 
         if self.visibility in ["public", "external"]:
@@ -1509,7 +1518,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         ]
         if not all_entry_points:
             return True
-        return not all(("nonReentrant" in [m.name for m in f.modifiers] for f in all_entry_points))
+        return not all(
+            (reentrancy_modifier in [m.name for m in f.modifiers] for f in all_entry_points)
+        )
 
     # endregion
     ###################################################################################
@@ -1756,6 +1767,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
 
     def generate_slithir_and_analyze(self) -> None:
+
         for node in self.nodes:
             node.slithir_generation()
 

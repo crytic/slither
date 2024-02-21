@@ -4,7 +4,7 @@ from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set, Sequenc
 
 from slither.core.declarations import (
     Modifier,
-    Event,
+    EventContract,
     EnumContract,
     StructureContract,
     Function,
@@ -319,7 +319,7 @@ class ContractSolc(CallerContextExpression):
         ce.set_contract(self._contract)
         ce.set_offset(custom_error["src"], self.compilation_unit)
 
-        ce_parser = CustomErrorSolc(ce, custom_error, self._slither_parser)
+        ce_parser = CustomErrorSolc(ce, custom_error, self, self._slither_parser)
         self._contract.custom_errors_as_dict[ce.name] = ce
         self._custom_errors_parser.append(ce_parser)
 
@@ -357,6 +357,8 @@ class ContractSolc(CallerContextExpression):
             self._variables_parser.append(var_parser)
 
             assert var.name
+            if var_parser.reference_id is not None:
+                self._contract.state_variables_by_ref_id[var_parser.reference_id] = var
             self._contract.variables_as_dict[var.name] = var
             self._contract.add_variables_ordered([var])
 
@@ -745,12 +747,12 @@ class ContractSolc(CallerContextExpression):
                 self._contract.events_as_dict.update(father.events_as_dict)
 
             for event_to_parse in self._eventsNotParsed:
-                event = Event()
+                event = EventContract()
                 event.set_contract(self._contract)
                 event.set_offset(event_to_parse["src"], self._contract.compilation_unit)
 
-                event_parser = EventSolc(event, event_to_parse, self)  # type: ignore
-                event_parser.analyze(self)  # type: ignore
+                event_parser = EventSolc(event, event_to_parse, self._slither_parser)  # type: ignore
+                event_parser.analyze()  # type: ignore
                 self._contract.events_as_dict[event.full_name] = event
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing event {e}")

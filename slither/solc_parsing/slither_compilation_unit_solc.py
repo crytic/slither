@@ -10,6 +10,7 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
 from slither.core.declarations.pragma_directive import Pragma
@@ -23,6 +24,7 @@ from slither.solc_parsing.declarations.caller_context import CallerContextExpres
 from slither.solc_parsing.declarations.contract import ContractSolc
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
+from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
 from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
@@ -75,9 +77,12 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
         super().__init__()
 
+        self._compilation_unit: SlitherCompilationUnit = compilation_unit
+
         self._contracts_by_id: Dict[int, ContractSolc] = {}
         self._parsed = False
         self._analyzed = False
+        self._is_compact_ast = False
 
         self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = {}
         self._structures_top_level_parser: List[StructureTopLevelSolc] = []
@@ -85,11 +90,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
         self._functions_top_level_parser: List[FunctionSolc] = []
         self._using_for_top_level_parser: List[UsingForTopLevelSolc] = []
-
-        self._is_compact_ast = False
-        # self._core: SlitherCore = core
-        self._compilation_unit = compilation_unit
-
         self._all_functions_and_modifier_parser: List[FunctionSolc] = []
 
         self._top_level_contracts_counter = 0
@@ -145,14 +145,14 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             data_loaded = json.loads(json_data)
             # Truffle AST
             if "ast" in data_loaded:
-                self.parse_top_level_from_loaded_json(data_loaded["ast"], data_loaded["sourcePath"])
+                self.parse_top_level_items(data_loaded["ast"], data_loaded["sourcePath"])
                 return True
             # solc AST, where the non-json text was removed
             if "attributes" in data_loaded:
                 filename = data_loaded["attributes"]["absolutePath"]
             else:
                 filename = data_loaded["absolutePath"]
-            self.parse_top_level_from_loaded_json(data_loaded, filename)
+            self.parse_top_level_items(data_loaded, filename)
             return True
         except ValueError:
 
@@ -163,7 +163,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 json_data = json_data[first:last]
 
                 data_loaded = json.loads(json_data)
-                self.parse_top_level_from_loaded_json(data_loaded, filename)
+                self.parse_top_level_items(data_loaded, filename)
                 return True
             return False
 
@@ -197,7 +197,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._compilation_unit.enums_top_level.append(enum)
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
-    def parse_top_level_from_loaded_json(self, data_loaded: Dict, filename: str) -> None:
+    def parse_top_level_items(self, data_loaded: Dict, filename: str) -> None:
         if not data_loaded or data_loaded is None:
             logger.error(
                 "crytic-compile returned an empty AST. "
@@ -326,7 +326,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
                 custom_error.set_offset(top_level_data["src"], self._compilation_unit)
 
-                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, self)
+                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, None, self)
                 scope.custom_errors.add(custom_error)
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
@@ -348,6 +348,15 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 type_alias.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.type_aliases[alias] = type_alias
                 scope.type_aliases[alias] = type_alias
+
+            elif top_level_data[self.get_key()] == "EventDefinition":
+                event = EventTopLevel(scope)
+                event.set_offset(top_level_data["src"], self._compilation_unit)
+
+                event_parser = EventSolc(event, top_level_data, self)  # type: ignore
+                event_parser.analyze()  # type: ignore
+                scope.events[event.full_name] = event
+                self._compilation_unit.events_top_level.append(event)
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
@@ -405,7 +414,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def parse_contracts(self) -> None:  # pylint: disable=too-many-statements,too-many-branches
         if not self._underlying_contract_to_parser:
             logger.info(
-                f"No contract were found in {self._compilation_unit.core.filename}, check the correct compilation"
+                f"No contracts were found in {self._compilation_unit.core.filename}, check the correct compilation"
             )
         if self._parsed:
             raise Exception("Contract analysis can be run only once!")
@@ -423,61 +432,56 @@ Please rename it, this name is reserved for Slither's internals"""
             self._contracts_by_id[contract.id] = contract
             self._compilation_unit.contracts.append(contract)
 
+        def resolve_remapping_and_renaming(contract_parser: ContractSolc, want: str) -> Contract:
+            contract_name = contract_parser.remapping[want]
+            if contract_name in contract_parser.underlying_contract.file_scope.renaming:
+                contract_name = contract_parser.underlying_contract.file_scope.renaming[
+                    contract_name
+                ]
+            target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
+                contract_name
+            )
+            if target == contract_parser.underlying_contract:
+                raise InheritanceResolutionError(
+                    "Could not resolve contract inheritance. This is likely caused by an import renaming that collides with existing names (see https://github.com/crytic/slither/issues/1758)."
+                    f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name."
+                )
+            assert target, f"Contract {contract_name} not found"
+            return target
+
         # Update of the inheritance
         for contract_parser in self._underlying_contract_to_parser.values():
-            # remove the first elem in linearizedBaseContracts as it is the contract itself
             ancestors = []
             fathers = []
             father_constructors = []
-            # try:
-            # Resolve linearized base contracts.
             missing_inheritance = None
 
+            # Resolve linearized base contracts.
+            # Remove the first elem in linearizedBaseContracts as it is the contract itself.
             for i in contract_parser.linearized_base_contracts[1:]:
                 if i in contract_parser.remapping:
-                    contract_name = contract_parser.remapping[i]
-                    if contract_name in contract_parser.underlying_contract.file_scope.renaming:
-                        contract_name = contract_parser.underlying_contract.file_scope.renaming[
-                            contract_name
-                        ]
-                    target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                        contract_name
-                    )
-                    if target == contract_parser.underlying_contract:
-                        raise InheritanceResolutionError(
-                            "Could not resolve contract inheritance. This is likely caused by an import renaming that collides with existing names (see https://github.com/crytic/slither/issues/1758)."
-                            f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name."
-                        )
-                    assert target, f"Contract {contract_name} not found"
+                    target = resolve_remapping_and_renaming(contract_parser, i)
                     ancestors.append(target)
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
                 else:
                     missing_inheritance = i
 
-            # Resolve immediate base contracts
+            # Resolve immediate base contracts.
             for i in contract_parser.baseContracts:
                 if i in contract_parser.remapping:
-                    fathers.append(
-                        contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                            contract_parser.remapping[i]
-                        )
-                        # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
-                    )
+                    target = resolve_remapping_and_renaming(contract_parser, i)
+                    fathers.append(target)
                 elif i in self._contracts_by_id:
                     fathers.append(self._contracts_by_id[i])
                 else:
                     missing_inheritance = i
 
-            # Resolve immediate base constructor calls
+            # Resolve immediate base constructor calls.
             for i in contract_parser.baseConstructorContractsCalled:
                 if i in contract_parser.remapping:
-                    father_constructors.append(
-                        contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                            contract_parser.remapping[i]
-                        )
-                        # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
-                    )
+                    target = resolve_remapping_and_renaming(contract_parser, i)
+                    father_constructors.append(target)
                 elif i in self._contracts_by_id:
                     father_constructors.append(self._contracts_by_id[i])
                 else:
@@ -539,8 +543,8 @@ Please rename it, this name is reserved for Slither's internals"""
         if not self._parsed:
             raise SlitherException("Parse the contract before running analyses")
         self._convert_to_slithir()
-
-        compute_dependency(self._compilation_unit)
+        if not self._compilation_unit.core.skip_data_dependency:
+            compute_dependency(self._compilation_unit)
         self._compilation_unit.compute_storage_layout()
         self._analyzed = True
 
