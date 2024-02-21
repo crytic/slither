@@ -242,6 +242,15 @@ class FunctionSolc(CallerContextExpression):
         if "payable" in attributes:
             self._function.payable = attributes["payable"]
 
+        if "baseFunctions" in attributes:
+            overrides = []
+            for o in attributes["baseFunctions"]:
+                overrides.append(o)
+            self._function.overrides = overrides
+
+        if "virtual" in attributes:
+            self._function.virtual = attributes["virtual"]
+
     def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
