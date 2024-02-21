@@ -207,8 +207,6 @@ class FunctionSolc(CallerContextExpression):
         else:
             attributes = self._functionNotParsed["attributes"]
 
-        if "payable" in attributes:
-            self._function.payable = attributes["payable"]
         if "stateMutability" in attributes:
             if attributes["stateMutability"] == "payable":
                 self._function.payable = True
