@@ -302,10 +302,7 @@ class SlitherCompilationUnit(Context):
 
             slot = 0
             offset = 0
-            for var in contract.state_variables_ordered:
-                if var.is_constant or var.is_immutable:
-                    continue
-
+            for var in contract.stored_state_variables_ordered:
                 assert var.type
                 size, new_slot = var.type.storage_size
 
