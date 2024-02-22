@@ -134,6 +134,9 @@ def find_top_level(
     if var_name in scope.enums:
         return scope.enums[var_name], False
 
+    if var_name in scope.events:
+        return scope.events[var_name], False
+
     for import_directive in scope.imports:
         if import_directive.alias == var_name:
             new_val = SolidityImportPlaceHolder(import_directive)
