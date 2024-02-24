@@ -24,6 +24,7 @@ def is_boolean(ir) -> bool:
                 return True
     return False
 
+
 # Check if the node's sons contain a return statement
 def return_boolean(node: Node) -> bool:
     for n in node.sons:

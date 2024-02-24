@@ -205,7 +205,7 @@ class OracleDetector(AbstractDetector):
                     oracle.oracle_vars = [var]
                     break
             self.vars_in_conditions(oracle)
-            if type(oracle.oracle_vars[0]) == VarInCondition:
+            if isinstance(oracle.oracle_vars[0], VarInCondition):
                 nodes.extend(oracle.oracle_vars[0].nodes_with_var)
             i += 1
 
