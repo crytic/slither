@@ -205,7 +205,8 @@ class OracleDetector(AbstractDetector):
                     oracle.oracle_vars = [var]
                     break
             self.vars_in_conditions(oracle)
-            nodes.extend(oracle.oracle_vars[0].nodes_with_var)
+            if type(oracle.oracle_vars[0]) == VarInCondition:
+                nodes.extend(oracle.oracle_vars[0].nodes_with_var)
             i += 1
 
         # Return back original node and function after recursion to let developer know on which line the oracle is used
