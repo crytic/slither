@@ -111,7 +111,7 @@ class ChainlinkOracle(Oracle):
                     problems.append(
                         f"The price can be stale due to incorrect validation of updatedAt value. This value is returned by Chainlink oracle call {self.contract}.{self.interface}.{self.oracle_api} ({self.node.source_mapping}).\n"
                     )
-               
+
             elif (
                 index == ChainlinkVars.STARTEDAT.value
                 and vars_order[ChainlinkVars.STARTEDAT.value] is not None
@@ -121,5 +121,7 @@ class ChainlinkOracle(Oracle):
                     problems = []
                     break
         if self.out_of_function_checks:
-            problems.append("One or all of the variables are not checked within the function where the call to the oracle was performed.\n")
+            problems.append(
+                "One or all of the variables are not checked within the function where the call to the oracle was performed.\n"
+            )
         return problems

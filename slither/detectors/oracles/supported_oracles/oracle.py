@@ -26,7 +26,7 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         self.returned_vars_indexes = None
         self.interface = None
         self.oracle_api = None
-    
+
     def get_calls(self):
         return self.calls
 
@@ -53,12 +53,10 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         self.returned_vars_indexes = _returned_vars_indexes
         self.interface = _interface
         self.oracle_api = _oracle_api
-    
 
     # Data validation functions
     def naive_data_validation(self):
         return self
-    
 
     @staticmethod
     def check_greater_zero(ir: Operation) -> bool:
