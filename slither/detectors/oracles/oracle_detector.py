@@ -168,7 +168,7 @@ class OracleDetector(AbstractDetector):
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
                 elif nodes := self.investigate_on_return(oracle, var):
                     oracle_vars.append(VarInCondition(var, nodes))
-                    oracle.out_of_function_checks = True
+                    oracle.out_of_function_checks.append((var, nodes))
                 else:
                     vars_not_in_condition.append(var)
                     oracle_vars.append(var)

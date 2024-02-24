@@ -120,8 +120,8 @@ class ChainlinkOracle(Oracle):
                 if self.is_sequencer_check(vars_order[ChainlinkVars.ANSWER.value], var):
                     problems = []
                     break
-        if self.out_of_function_checks:
+        for tup in self.out_of_function_checks:
             problems.append(
-                "One or all of the variables are not checked within the function where the call to the oracle was performed.\n"
+                f"The variation of {tup[0]} is checked on the lines {[str(node.source_mapping) for node in tup[1]]}. Not in the original function where the Oracle call is performed.\n"
             )
         return problems
