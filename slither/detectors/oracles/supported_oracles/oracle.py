@@ -6,6 +6,7 @@ from slither.slithir.operations import (
 )
 from slither.detectors.oracles.supported_oracles.help_functions import check_revert, return_boolean
 from slither.slithir.variables.constant import Constant
+from slither.core.cfg.node import recheable
 
 # This class was created to store variable and all conditional nodes where it is used
 class VarInCondition:  # pylint: disable=too-few-public-methods
@@ -72,8 +73,12 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
 
     @staticmethod
     def timestamp_in_node(node) -> bool:
-        if "block.timestamp" in str(node):
-            return True
+        all_nodes = [node]
+        if (node.fathers):
+            all_nodes.extend(node.fathers)
+        for var in all_nodes:
+            if "block.timestamp" in str(var):
+                return True
         return False
 
     # This function checks if the timestamp value is validated.

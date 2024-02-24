@@ -174,7 +174,7 @@ class OracleDetector(AbstractDetector):
                     oracle_vars.append(var)
 
         # oracle.vars_in_condition = vars_in_condition
-        oracle.vars_not_in_condition.extend(vars_not_in_condition)
+        oracle.vars_not_in_condition = vars_not_in_condition
         oracle.oracle_vars = oracle_vars
         return True
 
