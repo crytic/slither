@@ -9,6 +9,8 @@ from slither.slithir.variables import TupleVariable
 from slither.detectors.oracles.supported_oracles.oracle import Oracle, VarInCondition
 from slither.detectors.oracles.supported_oracles.chainlink_oracle import ChainlinkOracle
 from slither.detectors.oracles.supported_oracles.help_functions import is_internal_call
+from slither.analyses.data_dependency.data_dependency import is_dependent
+from slither.core.expressions.tuple_expression import TupleExpression
 
 
 class OracleDetector(AbstractDetector):
@@ -38,10 +40,13 @@ class OracleDetector(AbstractDetector):
         for var in node.variables_written:
             written_vars.append(var)
         for exp in node.variables_written_as_expression:
-            for v in exp.expressions:
-                for var in written_vars:
-                    if str(v) == str(var.name):
-                        ordered_vars.append(var)
+            if isinstance(exp, TupleExpression):
+                for v in exp.expressions:
+                    for var in written_vars:
+                        if str(v) == str(var.name):
+                            ordered_vars.append(var)
+        if len(ordered_vars) == 0:
+            ordered_vars = written_vars
         return ordered_vars
 
     @staticmethod
@@ -138,11 +143,11 @@ class OracleDetector(AbstractDetector):
         return nodes
 
     # Check if the vars occurs in require/assert statement or in conditional node
-    def vars_in_conditions(self, oracle: Oracle) -> bool:
-        vars_in_condition = []
+    def vars_in_conditions(self, oracle: Oracle):
+        # vars_in_condition = []
         vars_not_in_condition = []
         oracle_vars = []
-
+        nodes = []
         for var in oracle.oracle_vars:
             self.nodes_with_var = []
             if oracle.function.is_reading_in_conditional_node(
@@ -155,19 +160,76 @@ class OracleDetector(AbstractDetector):
                             self.investigate_internal_call(ir.function, var)
 
                 if len(self.nodes_with_var) > 0:
-                    vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
+                    # vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
             else:
                 if self.investigate_internal_call(oracle.function, var):
-                    vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
+                    # vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
+                elif nodes := self.investigate_on_return(oracle, var):
+                    oracle_vars.append(VarInCondition(var, nodes))
+                    oracle.out_of_function_checks = True
                 else:
                     vars_not_in_condition.append(var)
                     oracle_vars.append(var)
 
-        oracle.vars_in_condition = vars_in_condition
-        oracle.vars_not_in_condition = vars_not_in_condition
+        # oracle.vars_in_condition = vars_in_condition
+        oracle.vars_not_in_condition.extend(vars_not_in_condition)
         oracle.oracle_vars = oracle_vars
+        return True
+
+    def checks_performed_out_of_original_function(self, oracle, returned_var):
+        nodes_of_call = []
+        functions_of_call = []
+        original_function = oracle.function
+        original_node = oracle.node
+        for contract in self.contracts:
+            for function in contract.functions:
+                if function == oracle.function:
+                    continue
+                nodes, functions = self.find_if_original_function_called(oracle, function)
+                if nodes and functions:
+                    nodes_of_call.extend(nodes)
+                    functions_of_call.extend(functions)
+        if not nodes_of_call or not functions_of_call:
+            return []
+
+        i = 0
+        nodes = []
+        for node in nodes_of_call:
+            oracle.set_function(functions_of_call[i])
+            oracle.set_node(node)
+            new_vars = self.get_returned_variables_from_oracle(node)
+            for var in new_vars:
+                if is_dependent(var, returned_var, node):
+                    oracle.oracle_vars = [var]
+                    break
+            self.vars_in_conditions(oracle)
+            nodes.extend(oracle.oracle_vars[0].nodes_with_var)
+            i += 1
+
+        # Return back original node and function after recursion to let developer know on which line the oracle is used
+        oracle.set_function(original_function)
+        oracle.set_node(original_node)
+        return nodes
+
+    @staticmethod
+    def find_if_original_function_called(oracle, function):
+        nodes_of_call = []
+        functions_of_call = []
+        for node in function.nodes:
+            for ir in node.irs:
+                if isinstance(ir, (InternalCall, HighLevelCall)):
+                    if ir.function == oracle.function:
+                        nodes_of_call.append(node)
+                        functions_of_call.append(function)
+        return nodes_of_call, functions_of_call
+
+    def investigate_on_return(self, oracle, var) -> bool:
+        for value in oracle.function.return_values:
+            if is_dependent(value, var, oracle.node):
+                return self.checks_performed_out_of_original_function(oracle, value)
+        return False
 
     # This function interates through all internal calls in function and checks if the var is used in condition any of them
     def investigate_internal_call(self, function: FunctionContract, var) -> bool:

@@ -1686,6 +1686,7 @@ ALL_TESTS = [
     ),
     Test(all_detectors.OracleDataCheck, "oracle_data_check_price_in_internal_fc.sol", "0.8.20"),
     Test(all_detectors.OracleDataCheck, "oracle_non_revert.sol", "0.8.20"),
+    Test(all_detectors.OracleDataCheck, "oracle_check_out_of_function.sol", "0.8.20"),
     Test(all_detectors.DeprecatedChainlinkCall, "oracle_deprecated_call.sol", "0.8.20"),
 ]
 
