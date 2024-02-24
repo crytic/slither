@@ -28,8 +28,8 @@ class OracleDetector(AbstractDetector):
         return None, None
 
     @staticmethod
-    def generate_oracle(ir: Operation, oracle_type=None) -> Oracle:
-        if ChainlinkOracle().is_instance_of(ir) or oracle_type == "Chainlink":
+    def generate_oracle(ir: Operation) -> Oracle:
+        if ChainlinkOracle().is_instance_of(ir):
             return ChainlinkOracle()
         return None
     
@@ -169,6 +169,7 @@ class OracleDetector(AbstractDetector):
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
                 elif nodes := self.investigate_on_return(oracle, var):
                     oracle_vars.append(VarInCondition(var, nodes))
+                    oracle.out_of_function_checks = True
                 else:
                     vars_not_in_condition.append(var)
                     oracle_vars.append(var)

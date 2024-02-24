@@ -20,13 +20,12 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         self.contract = None
         self.function = None
         self.node = None
+        self.out_of_function_checks = False
         self.oracle_vars = []
-        # self.vars_in_condition = []
         self.vars_not_in_condition = []
         self.returned_vars_indexes = None
         self.interface = None
         self.oracle_api = None
-        self.oracle_type = None
     
     def get_calls(self):
         return self.calls
@@ -59,6 +58,7 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
     # Data validation functions
     def naive_data_validation(self):
         return self
+    
 
     @staticmethod
     def check_greater_zero(ir: Operation) -> bool:
@@ -93,12 +93,14 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
     def check_price(self, var: VarInCondition) -> bool:
         if var is None:
             return False
+        different_behavior = False
         for node in var.nodes_with_var:
             for ir in node.irs:
                 if isinstance(ir, Binary):
                     if self.check_greater_zero(ir):
                         return True
                     # If the conditions does not match we are looking for revert or return node
-                    return check_revert(node) or return_boolean(node)
+            if not different_behavior:
+                different_behavior = check_revert(node) or return_boolean(node)
 
-        return False
+        return different_behavior

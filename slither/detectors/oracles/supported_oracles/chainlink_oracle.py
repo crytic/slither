@@ -26,7 +26,6 @@ class ChainlinkVars(Enum):
 class ChainlinkOracle(Oracle):
     def __init__(self):
         super().__init__(CHAINLINK_ORACLE_CALLS)
-        self.oracle_type = "Chainlink"
 
     # This function checks if the RoundId value is validated in connection with answeredInRound value
     # But this last variable was deprecated. We left this function for possible future use.
@@ -90,7 +89,6 @@ class ChainlinkOracle(Oracle):
                     if self.price_check_for_liveness(ir):
                         answer_checked = True
         startedAt_checked = self.check_staleness(startedAt)
-        print(answer_checked, startedAt_checked)
 
         return answer_checked and startedAt_checked
 
@@ -113,6 +111,7 @@ class ChainlinkOracle(Oracle):
                     problems.append(
                         f"The price can be stale due to incorrect validation of updatedAt value. This value is returned by Chainlink oracle call {self.contract}.{self.interface}.{self.oracle_api} ({self.node.source_mapping}).\n"
                     )
+               
             elif (
                 index == ChainlinkVars.STARTEDAT.value
                 and vars_order[ChainlinkVars.STARTEDAT.value] is not None
@@ -121,4 +120,6 @@ class ChainlinkOracle(Oracle):
                 if self.is_sequencer_check(vars_order[ChainlinkVars.ANSWER.value], var):
                     problems = []
                     break
+        if self.out_of_function_checks:
+            problems.append("One or all of the variables are not checked within the function where the call to the oracle was performed.\n")
         return problems
