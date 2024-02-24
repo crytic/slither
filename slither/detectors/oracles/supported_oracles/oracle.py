@@ -27,7 +27,7 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         self.interface = None
         self.oracle_api = None
         self.oracle_type = None
-
+    
     def get_calls(self):
         return self.calls
 
