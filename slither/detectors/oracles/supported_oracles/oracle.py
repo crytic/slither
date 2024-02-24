@@ -80,12 +80,15 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
     def check_staleness(self, var: VarInCondition) -> bool:
         if var is None:
             return False
+        different_behavior = False
         for node in var.nodes_with_var:
             # This is temporarily check which will be improved in the future. Mostly we are looking for block.timestamp and trust the developer that he is using it correctly
             if self.timestamp_in_node(node):
                 return True
+        if not different_behavior:
+            different_behavior = check_revert(node) or return_boolean(node)
 
-        return False
+        return different_behavior
 
     # This functions validates checks of price value
     def check_price(self, var: VarInCondition) -> bool:
