@@ -122,6 +122,6 @@ class ChainlinkOracle(Oracle):
                     break
         for tup in self.out_of_function_checks:
             problems.append(
-                f"The variation of {tup[0]} is checked on the lines {[str(node.source_mapping) for node in tup[1]]}. Not in the original function where the Oracle call is performed.\n"
+                f"The variation of {tup[0]} is checked on the lines {[str(node.source_mapping) for node in tup[1][::5]]}. Not in the original function where the Oracle call is performed.\n"
             )
         return problems
