@@ -98,12 +98,23 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
         if self.key not in node.context:
             node.context[self.key] = fathers_context
 
-        # analyze node
-        for ir in node.irs:
+        # include ops from internal function calls
+        internal_ops = []
+        for internal_call in node.internal_calls:
+            if isinstance(internal_call, Function):
+                internal_ops += internal_call.all_slithir_operations()
+
+        # analyze node for retryable tickets
+        for ir in node.irs + internal_ops:
             if (
                 isinstance(ir, HighLevelCall)
                 and isinstance(ir.function, Function)
-                and ir.function.name == "createRetryableTicket"
+                and ir.function.name
+                in [
+                    "createRetryableTicket",
+                    "outboundTransferCustomRefund",
+                    "unsafeCreateRetryableTicket",
+                ]
             ):
                 node.context[self.key].append(node)
 

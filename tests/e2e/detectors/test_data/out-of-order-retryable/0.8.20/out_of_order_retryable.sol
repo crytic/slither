@@ -79,4 +79,27 @@ function bad2() external {
                0,
                "");
 }
+function bad3() external {
+        Y(msg.sender).createRetryableTicket(
+               address(1),
+               0,
+               0,
+               address(0),
+               address(0),
+               0,
+               0,
+               "");
+     good2();
+}  
+function good2() internal {
+             Y(msg.sender).createRetryableTicket(
+               address(2),
+               0,
+               0,
+               address(0),
+               address(0),
+               0,
+               0,
+               "");
+}
 }
