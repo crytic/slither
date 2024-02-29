@@ -34,7 +34,7 @@ def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None, verbose
     elif "hardhat test" in cmd or "truffle test" in cmd and "--bail" not in cmd:
         cmd += " --bail"
 
-    if timeout is None:
+    if timeout is None and "hardhat" not in cmd: # hardhat doesn't support --force flag on tests
         # if no timeout, ensure all contracts are recompiled w/out using any cache
         cmd += " --force"
 
