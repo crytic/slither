@@ -90,7 +90,11 @@ function bad3() external {
                0,
                "");
      good2();
-}  
+} 
+function bad4() external {
+     good2();
+     good2();
+}
 function good2() internal {
              Y(msg.sender).createRetryableTicket(
                address(2),
