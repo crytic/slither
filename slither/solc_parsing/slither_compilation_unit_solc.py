@@ -10,6 +10,7 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Contract
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.import_directive import Import
 from slither.core.declarations.pragma_directive import Pragma
@@ -23,6 +24,7 @@ from slither.solc_parsing.declarations.caller_context import CallerContextExpres
 from slither.solc_parsing.declarations.contract import ContractSolc
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
+from slither.solc_parsing.declarations.event import EventSolc
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
 from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
@@ -347,6 +349,15 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.type_aliases[alias] = type_alias
                 scope.type_aliases[alias] = type_alias
 
+            elif top_level_data[self.get_key()] == "EventDefinition":
+                event = EventTopLevel(scope)
+                event.set_offset(top_level_data["src"], self._compilation_unit)
+
+                event_parser = EventSolc(event, top_level_data, self)  # type: ignore
+                event_parser.analyze()  # type: ignore
+                scope.events[event.full_name] = event
+                self._compilation_unit.events_top_level.append(event)
+
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
 
@@ -421,61 +432,67 @@ Please rename it, this name is reserved for Slither's internals"""
             self._contracts_by_id[contract.id] = contract
             self._compilation_unit.contracts.append(contract)
 
+        def resolve_remapping_and_renaming(contract_parser: ContractSolc, want: str) -> Contract:
+            contract_name = contract_parser.remapping[want]
+            target = None
+            # For contracts that are imported and aliased e.g. 'import {A as B} from "./C.sol"',
+            # we look through the imports's (`Import`) renaming to find the original contract name
+            # and then look up the original contract in the import path's scope (`FileScope`).
+            for import_ in contract_parser.underlying_contract.file_scope.imports:
+                if contract_name in import_.renaming:
+                    target = self.compilation_unit.get_scope(
+                        import_.filename
+                    ).get_contract_from_name(import_.renaming[contract_name])
+
+            # Fallback to the current file scope if the contract is not found in the import path's scope.
+            # It is assumed that it isn't possible to defined a contract with the same name as "aliased" names.
+            if target is None:
+                target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
+                    contract_name
+                )
+
+            if target == contract_parser.underlying_contract:
+                raise InheritanceResolutionError(
+                    "Could not resolve contract inheritance. This is likely caused by an import renaming that collides with existing names (see https://github.com/crytic/slither/issues/1758)."
+                    f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name as a workaround."
+                    "\n Please share the source code that caused this error here: https://github.com/crytic/slither/issues/"
+                )
+            assert target, f"Contract {contract_name} not found"
+            return target
+
         # Update of the inheritance
         for contract_parser in self._underlying_contract_to_parser.values():
-            # remove the first elem in linearizedBaseContracts as it is the contract itself
             ancestors = []
             fathers = []
             father_constructors = []
-            # try:
-            # Resolve linearized base contracts.
             missing_inheritance = None
 
+            # Resolve linearized base contracts.
+            # Remove the first elem in linearizedBaseContracts as it is the contract itself.
             for i in contract_parser.linearized_base_contracts[1:]:
                 if i in contract_parser.remapping:
-                    contract_name = contract_parser.remapping[i]
-                    if contract_name in contract_parser.underlying_contract.file_scope.renaming:
-                        contract_name = contract_parser.underlying_contract.file_scope.renaming[
-                            contract_name
-                        ]
-                    target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                        contract_name
-                    )
-                    if target == contract_parser.underlying_contract:
-                        raise InheritanceResolutionError(
-                            "Could not resolve contract inheritance. This is likely caused by an import renaming that collides with existing names (see https://github.com/crytic/slither/issues/1758)."
-                            f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name."
-                        )
-                    assert target, f"Contract {contract_name} not found"
+                    target = resolve_remapping_and_renaming(contract_parser, i)
                     ancestors.append(target)
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
                 else:
                     missing_inheritance = i
 
-            # Resolve immediate base contracts
+            # Resolve immediate base contracts.
             for i in contract_parser.baseContracts:
                 if i in contract_parser.remapping:
-                    fathers.append(
-                        contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                            contract_parser.remapping[i]
-                        )
-                        # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
-                    )
+                    target = resolve_remapping_and_renaming(contract_parser, i)
+                    fathers.append(target)
                 elif i in self._contracts_by_id:
                     fathers.append(self._contracts_by_id[i])
                 else:
                     missing_inheritance = i
 
-            # Resolve immediate base constructor calls
+            # Resolve immediate base constructor calls.
             for i in contract_parser.baseConstructorContractsCalled:
                 if i in contract_parser.remapping:
-                    father_constructors.append(
-                        contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                            contract_parser.remapping[i]
-                        )
-                        # self._compilation_unit.get_contract_from_name(contract_parser.remapping[i])
-                    )
+                    target = resolve_remapping_and_renaming(contract_parser, i)
+                    father_constructors.append(target)
                 elif i in self._contracts_by_id:
                     father_constructors.append(self._contracts_by_id[i])
                 else:

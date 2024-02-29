@@ -268,9 +268,10 @@ def choose_printers(
 ###################################################################################
 
 
-def parse_filter_paths(args: argparse.Namespace) -> List[str]:
-    if args.filter_paths:
-        return args.filter_paths.split(",")
+def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]:
+    paths = args.filter_paths if filter_path else args.include_paths
+    if paths:
+        return paths.split(",")
     return []
 
 
@@ -307,6 +308,7 @@ def parse_args(
         "Checklist (consider using https://github.com/crytic/slither-action)"
     )
     group_misc = parser.add_argument_group("Additional options")
+    group_filters = parser.add_mutually_exclusive_group()
 
     group_detector.add_argument(
         "--detect",
@@ -519,19 +521,19 @@ def parse_args(
     )
 
     group_misc.add_argument(
-        "--filter-paths",
-        help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/)",
-        action="store",
-        dest="filter_paths",
-        default=defaults_flag_in_config["filter_paths"],
-    )
-
-    group_misc.add_argument(
         "--triage-mode",
-        help="Run triage mode (save results in slither.db.json)",
+        help="Run triage mode (save results in triage database)",
         action="store_true",
         dest="triage_mode",
         default=False,
+    )
+
+    group_misc.add_argument(
+        "--triage-database",
+        help="File path to the triage database (default: slither.db.json)",
+        action="store",
+        dest="triage_database",
+        default=defaults_flag_in_config["triage_database"],
     )
 
     group_misc.add_argument(
@@ -569,6 +571,22 @@ def parse_args(
         help="Do not fail in case of parsing (echidna mode only)",
         action="store_true",
         default=defaults_flag_in_config["no_fail"],
+    )
+
+    group_filters.add_argument(
+        "--filter-paths",
+        help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/)",
+        action="store",
+        dest="filter_paths",
+        default=defaults_flag_in_config["filter_paths"],
+    )
+
+    group_filters.add_argument(
+        "--include-paths",
+        help="Regex filter to include detector results matching file path e.g. (src/|contracts/). Opposite of --filter-paths",
+        action="store",
+        dest="include_paths",
+        default=defaults_flag_in_config["include_paths"],
     )
 
     codex.init_parser(parser)
@@ -623,7 +641,8 @@ def parse_args(
     args = parser.parse_args()
     read_config_file(args)
 
-    args.filter_paths = parse_filter_paths(args)
+    args.filter_paths = parse_filter_paths(args, True)
+    args.include_paths = parse_filter_paths(args, False)
 
     # Verify our json-type output is valid
     args.json_types = set(args.json_types.split(","))  # type:ignore
