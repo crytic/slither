@@ -583,7 +583,7 @@ def parse_args(
 
     group_filters.add_argument(
         "--include-paths",
-        help="Regex filter to include detector results matching file path e.g. (mocks/|test/)",
+        help="Regex filter to include detector results matching file path e.g. (src/|contracts/). Opposite of --filter-paths",
         action="store",
         dest="include_paths",
         default=defaults_flag_in_config["include_paths"],
