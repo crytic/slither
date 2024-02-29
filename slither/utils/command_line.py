@@ -60,6 +60,7 @@ defaults_flag_in_config = {
     "json-types": ",".join(DEFAULT_JSON_OUTPUT_TYPES),
     "disable_color": False,
     "filter_paths": None,
+    "include_paths": None,
     "generate_patches": False,
     # debug command
     "skip_assembly": False,
