@@ -1,4 +1,6 @@
-Pragma version>=0.7.0<=0.7.6 (tests/e2e/detectors/test_data/solc-version/0.7.6/dynamic_2.sol#1) is too complex
+Version constraint >=0.7.0<=0.7.6 is too complex.
+ It is used by:
+	- tests/e2e/detectors/test_data/solc-version/0.7.6/dynamic_2.sol#1
 
-solc-0.7.6 is not recommended for deployment
+solc-0.7.6 is an outdated solc version. Use a more recent version (at least 0.8.0), if possible.
 
