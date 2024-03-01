@@ -80,11 +80,11 @@ jobs:
         # Only run coverage on ubuntu-latest.
         run: |
           if [ ${{ matrix.os }} = "ubuntu-latest" ]; then
-            TEST_ARGS="--cov=slither --cov-append"
+            TEST_ARGS=(--cov=slither --cov-append)
           elif [ ${{ matrix.os }} = "windows-2022" ]; then
-            TEST_ARGS=""
+            TEST_ARGS=()
           fi
-          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" $TEST_ARGS
+          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
 
 
       - name: Upload coverage
@@ -119,5 +119,5 @@ jobs:
         run: |
           set +e
           python -m coverage combine
-          echo "## python coverage" >> $GITHUB_STEP_SUMMARY
-          python -m coverage report -m --format=markdown >> $GITHUB_STEP_SUMMARY
+          echo "## python coverage" >> "$GITHUB_STEP_SUMMARY"
+          python -m coverage report -m --format=markdown >> "$GITHUB_STEP_SUMMARY"

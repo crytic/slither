@@ -727,7 +727,7 @@ class ContractSolc(CallerContextExpression):
         new_enum.set_offset(enum["src"], self._contract.compilation_unit)
         self._contract.enums_as_dict[canonicalName] = new_enum
 
-    def _analyze_struct(self, struct: StructureContractSolc) -> None:  # pylint: disable=no-self-use
+    def _analyze_struct(self, struct: StructureContractSolc) -> None:
         struct.analyze()
 
     def analyze_structs(self) -> None:

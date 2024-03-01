@@ -434,7 +434,7 @@ class FunctionSolc(CallerContextExpression):
 
         return node_endWhile
 
-    def _parse_for_compact_ast(  # pylint: disable=no-self-use
+    def _parse_for_compact_ast(
         self, statement: Dict
     ) -> Tuple[Optional[Dict], Optional[Dict], Optional[Dict], Dict]:
         body = statement["body"]
@@ -643,7 +643,6 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(node_condition, node_endDoWhile)
         return node_endDoWhile
 
-    # pylint: disable=no-self-use
     def _construct_try_expression(self, externalCall: Dict, parameters_list: Dict) -> Dict:
         # if the parameters are more than 1 we make the leftHandSide of the Assignment node
         # a TupleExpression otherwise an Identifier
