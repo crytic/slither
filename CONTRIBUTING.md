@@ -63,7 +63,7 @@ To automatically reformat the code:
 
 - `make reformat`
 
-We use pylint `2.13.4`, black `22.3.0`.
+We use pylint `3.0.3`, black `22.3.0`.
 
 ### Testing
 
