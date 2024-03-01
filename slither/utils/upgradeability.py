@@ -60,7 +60,6 @@ def compare(
     List[Function],
     List[Function],
     List[Function],
-    List[TaintedExternalContract],
 ]:
     """
     Compares two versions of a contract. Most useful for upgradeable (logic) contracts,
@@ -392,7 +391,7 @@ def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
         try:
             delegate = next(var for var in dependencies if isinstance(var, StateVariable))
         except StopIteration:
-            # TODO: Handle cases where get_dependencies doesn't return any state variables.
+            # TODO: Handle case where get_dependencies does not return any state variables.
             return delegate
     return delegate
 

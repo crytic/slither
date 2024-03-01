@@ -132,6 +132,10 @@ class Slither(
         for p in filter_paths:
             self.add_path_to_filter(p)
 
+        include_paths = kwargs.get("include_paths", [])
+        for p in include_paths:
+            self.add_path_to_include(p)
+
         self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
 
         triage_mode = kwargs.get("triage_mode", False)

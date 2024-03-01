@@ -435,17 +435,28 @@ Please rename it, this name is reserved for Slither's internals"""
 
         def resolve_remapping_and_renaming(contract_parser: ContractSolc, want: str) -> Contract:
             contract_name = contract_parser.remapping[want]
-            if contract_name in contract_parser.underlying_contract.file_scope.renaming:
-                contract_name = contract_parser.underlying_contract.file_scope.renaming[
+            target = None
+            # For contracts that are imported and aliased e.g. 'import {A as B} from "./C.sol"',
+            # we look through the imports's (`Import`) renaming to find the original contract name
+            # and then look up the original contract in the import path's scope (`FileScope`).
+            for import_ in contract_parser.underlying_contract.file_scope.imports:
+                if contract_name in import_.renaming:
+                    target = self.compilation_unit.get_scope(
+                        import_.filename
+                    ).get_contract_from_name(import_.renaming[contract_name])
+
+            # Fallback to the current file scope if the contract is not found in the import path's scope.
+            # It is assumed that it isn't possible to defined a contract with the same name as "aliased" names.
+            if target is None:
+                target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
                     contract_name
-                ]
-            target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
-                contract_name
-            )
+                )
+
             if target == contract_parser.underlying_contract:
                 raise InheritanceResolutionError(
                     "Could not resolve contract inheritance. This is likely caused by an import renaming that collides with existing names (see https://github.com/crytic/slither/issues/1758)."
-                    f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name."
+                    f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name as a workaround."
+                    "\n Please share the source code that caused this error here: https://github.com/crytic/slither/issues/"
                 )
             assert target, f"Contract {contract_name} not found"
             return target
