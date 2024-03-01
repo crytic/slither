@@ -1165,16 +1165,38 @@ class FunctionSolc(CallerContextExpression):
 
         return None
 
-    def _find_start_loop(self, node: Node, visited: List[Node]) -> Optional[Node]:
+    def _find_if_loop(self, node: Node, visited: List[Node], skip_if_loop: int) -> Optional[Node]:
         if node in visited:
             return None
 
+        # If skip_if_loop is not 0 it means we are in a nested situation
+        # and we have to skip the closer n loop headers.
+        # If in the fathers there is an EXPRESSION node it's a for loop
+        # and it's the index increment expression
+        if node.type == NodeType.IFLOOP:
+            if skip_if_loop == 0:
+                for father in node.fathers:
+                    if father.type == NodeType.EXPRESSION:
+                        return father
+                return node
+
+        # skip_if_loop works as explained above.
+        # This handle when a for loop doesn't have a condition
+        # e.g. for (;;) {}
+        # and decrement skip_if_loop since we are out of the nested loop
         if node.type == NodeType.STARTLOOP:
-            return node
+            if skip_if_loop == 0:
+                return node
+            skip_if_loop -= 1
+
+        # If we find an ENDLOOP means we are in a nested loop
+        # we increment skip_if_loop counter
+        if node.type == NodeType.ENDLOOP:
+            skip_if_loop += 1
 
         visited = visited + [node]
         for father in node.fathers:
-            ret = self._find_start_loop(father, visited)
+            ret = self._find_if_loop(father, visited, skip_if_loop)
             if ret:
                 return ret
 
@@ -1197,15 +1219,15 @@ class FunctionSolc(CallerContextExpression):
         end_node.add_father(node)
 
     def _fix_continue_node(self, node: Node) -> None:
-        start_node = self._find_start_loop(node, [])
+        if_loop_node = self._find_if_loop(node, [], 0)
 
-        if not start_node:
+        if not if_loop_node:
             raise ParsingError(f"Continue in no-loop context {node.node_id}")
 
         for son in node.sons:
             son.remove_father(node)
-        node.set_sons([start_node])
-        start_node.add_father(node)
+        node.set_sons([if_loop_node])
+        if_loop_node.add_father(node)
 
     def _fix_try(self, node: Node) -> None:
         end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
