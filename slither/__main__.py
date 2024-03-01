@@ -10,9 +10,9 @@ import os
 import pstats
 import sys
 import traceback
+from importlib import metadata
 from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
 
-from pkg_resources import iter_entry_points, require
 
 from crytic_compile import cryticparser, CryticCompile
 from crytic_compile.platform.standard import generate_standard_export
@@ -166,7 +166,14 @@ def get_detectors_and_printers() -> Tuple[
     printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
-    for entry_point in iter_entry_points(group="slither_analyzer.plugin", name=None):
+    if sys.version_info >= (3, 10):
+        entry_points = metadata.entry_points(group="slither_analyzer.plugin")
+    else:
+        from pkg_resources import iter_entry_points  # pylint: disable=import-outside-toplevel
+
+        entry_points = iter_entry_points(group="slither_analyzer.plugin", name=None)
+
+    for entry_point in entry_points:
         make_plugin = entry_point.load()
 
         plugin_detectors, plugin_printers = make_plugin()
@@ -298,7 +305,7 @@ def parse_args(
     parser.add_argument(
         "--version",
         help="displays the current version",
-        version=require("slither-analyzer")[0].version,
+        version=metadata.version("slither-analyzer"),
         action="version",
     )
 
