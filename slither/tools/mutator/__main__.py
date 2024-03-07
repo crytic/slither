@@ -5,6 +5,7 @@ import os
 import shutil
 import sys
 import time
+from pathlib import Path
 from typing import Type, List, Any, Optional
 from crytic_compile import cryticparser
 from slither import Slither
@@ -172,13 +173,14 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         paths_to_ignore_list = []
 
     # get all the contracts as a list from given codebase
-    sol_file_list: List[str] = get_sol_file_list(args.codebase, paths_to_ignore_list)
+    sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
 
     # folder where backup files and uncaught mutants are saved
     if output_dir is None:
         output_dir = "/mutation_campaign"
-    output_folder = os.getcwd() + output_dir
-    if os.path.exists(output_folder):
+
+    output_folder = Path(output_dir).resolve()
+    if output_folder.is_dir():
         shutil.rmtree(output_folder)
 
     # setting RR mutator as first mutator
@@ -322,6 +324,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
 
         except Exception as e:  # pylint: disable=broad-except
             logger.error(e)
+            transfer_and_delete(files_dict)
 
         except KeyboardInterrupt:
             # transfer and delete the backup files if interrupted

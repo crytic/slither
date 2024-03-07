@@ -1,89 +1,77 @@
 import os
 import traceback
-from typing import Dict, List
+from typing import Dict, List, Union
 import logging
+from pathlib import Path
+import hashlib
 
 logger = logging.getLogger("Slither-Mutate")
 
-duplicated_files = {}
+HashedPath = str
+backuped_files: Dict[str, HashedPath] = {}
 
 
-def backup_source_file(source_code: Dict, output_folder: str) -> Dict:
+def backup_source_file(source_code: Dict, output_folder: Path) -> Dict[str, HashedPath]:
     """
     function to backup the source file
     returns: dictionary of duplicated files
     """
-    os.makedirs(output_folder, exist_ok=True)
-
+    output_folder.mkdir(exist_ok=True, parents=True)
     for file_path, content in source_code.items():
-        directory, filename = os.path.split(file_path)
-        new_filename = f"{output_folder}/backup_{filename}"
-        new_file_path = os.path.join(directory, new_filename)
+        path_hash = hashlib.md5(bytes(file_path, "utf8")).hexdigest()
+        (output_folder / path_hash).write_text(content, encoding="utf8")
 
-        with open(new_file_path, "w", encoding="utf8") as new_file:
-            new_file.write(content)
-        duplicated_files[file_path] = new_file_path
+        backuped_files[file_path] = (output_folder / path_hash).as_posix()
 
-    return duplicated_files
+    return backuped_files
 
 
-def transfer_and_delete(files_dict: Dict) -> None:
+def transfer_and_delete(files_dict: Dict[str, HashedPath]) -> None:
     """function to transfer the original content to the sol file after campaign"""
     try:
         files_dict_copy = files_dict.copy()
-        for item, value in files_dict_copy.items():
-            with open(value, "r", encoding="utf8") as duplicated_file:
+        for original_path, hashed_path in files_dict_copy.items():
+            with open(hashed_path, "r", encoding="utf8") as duplicated_file:
                 content = duplicated_file.read()
 
-            with open(item, "w", encoding="utf8") as original_file:
+            with open(original_path, "w", encoding="utf8") as original_file:
                 original_file.write(content)
 
-            os.remove(value)
+            os.remove(hashed_path)
 
             # delete elements from the global dict
-            del duplicated_files[item]
+            del backuped_files[original_path]
 
-    except Exception as e:  # pylint: disable=broad-except
-        logger.error(f"Error transferring content: {e}")
+    except FileNotFoundError as e:  # pylint: disable=broad-except
+        logger.error(f"Error transferring content: %s", e)
 
 
 global_counter = {}
 
 
-def create_mutant_file(file: str, rule: str) -> None:
+def create_mutant_file(output_folder: Path, file: str, rule: str) -> None:
     """function to create new mutant file"""
     try:
         if rule not in global_counter:
             global_counter[rule] = 0
-        _, filename = os.path.split(file)
+
+        file_path = Path(file)
         # Read content from the duplicated file
-        with open(file, "r", encoding="utf8") as source_file:
-            content = source_file.read()
+        content = file_path.read_text(encoding="utf8")
 
         # Write content to the original file
-        mutant_name = filename.split(".")[0]
-
+        mutant_name = file_path.stem
         # create folder for each contract
-        os.makedirs("mutation_campaign/" + mutant_name, exist_ok=True)
-        with open(
-            "mutation_campaign/"
-            + mutant_name
-            + "/"
-            + mutant_name
-            + "_"
-            + rule
-            + "_"
-            + str(global_counter[rule])
-            + ".sol",
-            "w",
-            encoding="utf8",
-        ) as mutant_file:
+        mutation_dir = output_folder / mutant_name
+        mutation_dir.mkdir(parents=True, exist_ok=True)
+
+        mutation_filename = f"{mutant_name}_{rule}_{global_counter[rule]}.sol"
+        with (mutation_dir / mutation_filename).open("w", encoding="utf8") as mutant_file:
             mutant_file.write(content)
         global_counter[rule] += 1
 
         # reset the file
-        with open(duplicated_files[file], "r", encoding="utf8") as duplicated_file:
-            duplicate_content = duplicated_file.read()
+        duplicate_content = Path(backuped_files[file]).read_text("utf&")
 
         with open(file, "w", encoding="utf8") as source_file:
             source_file.write(duplicate_content)
@@ -99,17 +87,17 @@ def reset_file(file: str) -> None:
     try:
         # directory, filename = os.path.split(file)
         # reset the file
-        with open(duplicated_files[file], "r", encoding="utf8") as duplicated_file:
+        with open(backuped_files[file], "r", encoding="utf8") as duplicated_file:
             duplicate_content = duplicated_file.read()
 
         with open(file, "w", encoding="utf8") as source_file:
             source_file.write(duplicate_content)
 
     except Exception as e:  # pylint: disable=broad-except
-        logger.error(f"Error resetting file: {e}")
+        logger.error(f"Error resetting file: %s", e)
 
 
-def get_sol_file_list(codebase: str, ignore_paths: List[str] | None) -> List[str]:
+def get_sol_file_list(codebase: Path, ignore_paths: Union[List[str], None]) -> List[str]:
     """
     function to get the contracts list
     returns: list of .sol files
@@ -119,21 +107,13 @@ def get_sol_file_list(codebase: str, ignore_paths: List[str] | None) -> List[str
         ignore_paths = []
 
     # if input is contract file
-    if os.path.isfile(codebase):
-        return [codebase]
+    if codebase.is_file():
+        return [codebase.as_posix()]
 
     # if input is folder
-    if os.path.isdir(codebase):
-        directory = os.path.abspath(codebase)
-        for file in os.listdir(directory):
-            filename = os.path.join(directory, file)
-            if os.path.isfile(filename):
-                sol_file_list.append(filename)
-            elif os.path.isdir(filename):
-                _, dirname = os.path.split(filename)
-                if dirname in ignore_paths:
-                    continue
-                for i in get_sol_file_list(filename, ignore_paths):
-                    sol_file_list.append(i)
+    if codebase.is_dir():
+        for file_name in codebase.rglob("*"):
+            if not any(part in ignore_paths for part in file_name.parts):
+                sol_file_list.append(file_name.as_posix())
 
     return sol_file_list

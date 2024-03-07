@@ -1,6 +1,8 @@
 import logging
 import sys
 import subprocess
+import tempfile
+from pathlib import Path
 from typing import Dict
 import crytic_compile
 from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_file
@@ -97,15 +99,19 @@ def test_patch(  # pylint: disable=too-many-arguments
     # Write the modified content back to the file
     with open(file, "w", encoding="utf-8") as filepath:
         filepath.write(replaced_content)
+
     if compile_generated_mutant(file, mappings):
         if run_test_cmd(command, timeout, file, False):
-            create_mutant_file(file, generator_name)
-            logger.info(
-                red(
-                    f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> UNCAUGHT"
+
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                create_mutant_file(Path(tmpdirname), file, generator_name)
+                logger.info(
+                    red(
+                        f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> UNCAUGHT"
+                    )
                 )
-            )
-            reset_file(file)
+                reset_file(file)
+
             return 0  # uncaught
     else:
         if very_verbose:
