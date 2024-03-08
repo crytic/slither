@@ -117,7 +117,9 @@ class AbstractMutator(
                         logger.info(f"Impossible to generate patch; empty {patches}")
 
                     # add uncaught mutant patches to a output file
-                    with (self.output_folder / "patches_files.txt").open("a", encoding="utf8") as patches_file:
+                    with (self.output_folder / "patches_files.txt").open(
+                        "a", encoding="utf8"
+                    ) as patches_file:
                         patches_file.write(diff + "\n")
 
                 # count the total number of mutants that we were able to compile
