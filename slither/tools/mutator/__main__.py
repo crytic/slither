@@ -177,7 +177,7 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
 
     # folder where backup files and uncaught mutants are saved
     if output_dir is None:
-        output_dir = "/mutation_campaign"
+        output_dir = "./mutation_campaign"
 
     output_folder = Path(output_dir).resolve()
     if output_folder.is_dir():
