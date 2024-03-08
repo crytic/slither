@@ -1,9 +1,8 @@
 import logging
 import sys
 import subprocess
-import tempfile
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Union
 import crytic_compile
 from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_file
 from slither.utils.colors import green, red, yellow
@@ -79,12 +78,13 @@ def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None, verbose
 
 # return 0 if uncaught, 1 if caught, and 2 if compilation fails
 def test_patch(  # pylint: disable=too-many-arguments
+    output_folder: Path,
     file: str,
     patch: Dict,
     command: str,
     generator_name: str,
     timeout: int,
-    mappings: str | None,
+    mappings: Union[str, None],
     verbose: bool,
     very_verbose: bool,
 ) -> int:
@@ -103,14 +103,13 @@ def test_patch(  # pylint: disable=too-many-arguments
     if compile_generated_mutant(file, mappings):
         if run_test_cmd(command, timeout, file, False):
 
-            with tempfile.TemporaryDirectory() as tmpdirname:
-                create_mutant_file(Path(tmpdirname), file, generator_name)
-                logger.info(
-                    red(
-                        f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> UNCAUGHT"
-                    )
+            create_mutant_file(output_folder, file, generator_name)
+            logger.info(
+                red(
+                    f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> UNCAUGHT"
                 )
-                reset_file(file)
+            )
+            reset_file(file)
 
             return 0  # uncaught
     else:

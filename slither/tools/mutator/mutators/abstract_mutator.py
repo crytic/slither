@@ -90,6 +90,7 @@ class AbstractMutator(
             for patch in patches:
                 # test the patch
                 patchWasCaught = test_patch(
+                    self.output_folder,
                     file,
                     patch,
                     self.test_command,
