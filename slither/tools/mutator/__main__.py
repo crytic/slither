@@ -161,7 +161,6 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     verbose: Optional[bool] = args.verbose
     very_verbose: Optional[bool] = args.very_verbose
     mutators_to_run: Optional[List[str]] = args.mutators_to_run
-    contract_names: Optional[List[str]] = args.contract_names
     comprehensive_flag: Optional[bool] = args.comprehensive
 
     logger.info(blue(f"Starting mutation campaign in {args.codebase}"))
@@ -171,6 +170,10 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         logger.info(blue(f"Ignored paths - {', '.join(paths_to_ignore_list)}"))
     else:
         paths_to_ignore_list = []
+
+    contract_names: List[str] = []
+    if args.contract_names:
+        contract_names = args.contract_names.split(",")
 
     # get all the contracts as a list from given codebase
     sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
@@ -242,16 +245,16 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         dont_mutate_lines = []
 
         # mutation
-        target_contract = ""
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
+                target_contract = "SLITHER_SKIP_MUTATIONS" if contract_names else ""
                 for contract in compilation_unit_of_main_file.contracts:
-                    if contract_names is not None and contract.name in contract_names:
+                    if contract.name in contract_names:
                         target_contract = contract
-                    elif contract_names is not None and contract.name not in contract_names:
-                        target_contract = "SLITHER_SKIP_MUTATIONS"
-                    elif contract.name.lower() == file_name.lower():
+                        break
+                    elif not contract_names and contract.name.lower() == file_name.lower():
                         target_contract = contract
+                        break
 
                 if target_contract == "":
                     logger.info(
