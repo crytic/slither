@@ -148,7 +148,7 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 ###################################################################################
 
 
-def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
+def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
     args = parse_args()
 
     # arguments
@@ -231,6 +231,9 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         )
     )
 
+    # Keep a list of all already mutated contracts so we don't mutate them twice
+    mutated_contracts: List[str] = []
+
     for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
         file_name = os.path.split(filename)[1].split(".sol")[0]
         # slither object
@@ -245,11 +248,11 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         dont_mutate_lines = []
 
         # mutation
+        target_contract = "SLITHER_SKIP_MUTATIONS" if contract_names else ""
         try:
             for compilation_unit_of_main_file in sl.compilation_units:
-                target_contract = "SLITHER_SKIP_MUTATIONS" if contract_names else ""
                 for contract in compilation_unit_of_main_file.contracts:
-                    if contract.name in contract_names:
+                    if contract.name in contract_names and contract.name not in mutated_contracts:
                         target_contract = contract
                         break
                     elif not contract_names and contract.name.lower() == file_name.lower():
@@ -272,6 +275,8 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
                     logger.debug(f"Skipping mutations on interface {filename}")
                     continue
 
+                # Add our target to the mutation list
+                mutated_contracts.append(target_contract.name)
                 logger.info(blue(f"Mutating contract {target_contract}"))
                 for M in mutators_list:
                     m = M(
