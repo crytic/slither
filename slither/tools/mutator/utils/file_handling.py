@@ -70,7 +70,7 @@ def create_mutant_file(output_folder: Path, file: str, rule: str) -> None:
         global_counter[rule] += 1
 
         # reset the file
-        duplicate_content = Path(backuped_files[file]).read_text("utf&")
+        duplicate_content = Path(backuped_files[file]).read_text("utf8")
 
         with open(file, "w", encoding="utf8") as source_file:
             source_file.write(duplicate_content)
