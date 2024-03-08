@@ -1,4 +1,3 @@
-import os
 import traceback
 from typing import Dict, List, Union
 import logging
@@ -37,7 +36,7 @@ def transfer_and_delete(files_dict: Dict[str, HashedPath]) -> None:
             with open(original_path, "w", encoding="utf8") as original_file:
                 original_file.write(content)
 
-            os.remove(hashed_path)
+            Path(hashed_path).unlink()
 
             # delete elements from the global dict
             del backuped_files[original_path]
@@ -85,7 +84,6 @@ def create_mutant_file(output_folder: Path, file: str, rule: str) -> None:
 def reset_file(file: str) -> None:
     """function to reset the file"""
     try:
-        # directory, filename = os.path.split(file)
         # reset the file
         with open(backuped_files[file], "r", encoding="utf8") as duplicated_file:
             duplicate_content = duplicated_file.read()
