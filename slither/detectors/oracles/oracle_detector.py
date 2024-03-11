@@ -169,6 +169,9 @@ class OracleDetector(AbstractDetector):
                 elif nodes := self.investigate_on_return(oracle, var):
                     oracle_vars.append(VarInCondition(var, nodes))
                     oracle.out_of_function_checks.append((var, nodes))
+                # except RecursionError:
+                #     vars_not_in_condition.append(var)
+                #     oracle_vars.append(var)
                 else:
                     vars_not_in_condition.append(var)
                     oracle_vars.append(var)
@@ -227,9 +230,12 @@ class OracleDetector(AbstractDetector):
         return nodes_of_call, functions_of_call
 
     def investigate_on_return(self, oracle, var) -> bool:
-        for value in oracle.function.return_values:
-            if is_dependent(value, var, oracle.node):
-                return self.checks_performed_out_of_original_function(oracle, value)
+        try:
+            for value in oracle.function.return_values:
+                if is_dependent(value, var, oracle.node):
+                    return self.checks_performed_out_of_original_function(oracle, value)
+        except RecursionError:
+            return False
         return False
 
     # This function interates through all internal calls in function and checks if the var is used in condition any of them
@@ -237,32 +243,35 @@ class OracleDetector(AbstractDetector):
         if function is None:
             return False
 
-        original_var_as_param = self.map_param_to_var(var, function)
-        if original_var_as_param is None:
-            original_var_as_param = var
+        try:
+            original_var_as_param = self.map_param_to_var(var, function)
+            if original_var_as_param is None:
+                original_var_as_param = var
 
-        if function.is_reading_in_conditional_node(
-            original_var_as_param
-        ) or function.is_reading_in_require_or_assert(original_var_as_param):
-            conditions = []
+            if function.is_reading_in_conditional_node(
+                original_var_as_param
+            ) or function.is_reading_in_require_or_assert(original_var_as_param):
+                conditions = []
+                for node in function.nodes:
+                    if (
+                        node.is_conditional()
+                        and self.check_var_condition_match(original_var_as_param, node)
+                        and not is_internal_call(node)
+                    ):
+                        conditions.append(node)
+                if len(conditions) > 0:
+                    for cond in conditions:
+                        self.nodes_with_var.append(cond)
+                    return True
+
             for node in function.nodes:
-                if (
-                    node.is_conditional()
-                    and self.check_var_condition_match(original_var_as_param, node)
-                    and not is_internal_call(node)
-                ):
-                    conditions.append(node)
-            if len(conditions) > 0:
-                for cond in conditions:
-                    self.nodes_with_var.append(cond)
-                return True
-
-        for node in function.nodes:
-            for ir in node.irs:
-                if isinstance(ir, InternalCall):
-                    if self.investigate_internal_call(ir.function, original_var_as_param):
-                        return True
-        return False
+                for ir in node.irs:
+                    if isinstance(ir, InternalCall):
+                        if self.investigate_internal_call(ir.function, original_var_as_param):
+                            return True
+            return False
+        except RecursionError:
+            return False
 
     def _detect(self):
         self.oracles = self.find_oracles(self.contracts)

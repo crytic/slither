@@ -32,7 +32,9 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
 
     def is_instance_of(self, ir: Operation) -> bool:
         return isinstance(ir, HighLevelCall) and (
-            isinstance(ir.function, Function) and self.compare_call(ir.function.name)
+            isinstance(ir.function, Function)
+            and self.compare_call(ir.function.name)
+            # add interface
         )
 
     def set_node(self, _node):
