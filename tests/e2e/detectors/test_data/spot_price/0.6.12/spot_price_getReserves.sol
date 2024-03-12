@@ -197,9 +197,7 @@ contract YaxisVotePower is IVoteProxy {
         (uint256 _yaxReserves, , ) = yaxisEthUniswapV2Pair.getReserves();
         uint256 _supply = yaxisEthUniswapV2Pair.totalSupply();
         _supply = _supply == 0 ? 1e18 : _supply;
-        uint256 _lpStakingYax = _yaxReserves.mul(_stakeAmount).div(_supply).add(
-            rewardsYaxisEth.earned(_voter)
-        );
+        uint256 _lpStakingYax = (_yaxReserves * _stakeAmount) / _supply;
         uint256 _rewardsYaxisAmount = rewardsYaxis.balanceOf(_voter).add(
             rewardsYaxis.earned(_voter)
         );

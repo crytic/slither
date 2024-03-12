@@ -8,6 +8,11 @@ from slither.slithir.operations import HighLevelCall, InternalCall, Operation, U
 from slither.slithir.variables.variable import Variable
 from slither.core.cfg.node import Node
 from slither.detectors.abstract_detector import DetectorClassification
+from slither.slithir.operations import (
+    Binary,
+    BinaryType,
+)
+
 
 
 class SpotPriceUsage():
@@ -30,8 +35,8 @@ class SpotPriceDetector(AbstractDetector):
 
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#oracle-sequencer"
 
-    WIKI_TITLE = "Oracle Sequencer"
-    WIKI_DESCRIPTION = "Detection of oracle sequencer."
+    WIKI_TITLE = "Oracle Spot prices"
+    WIKI_DESCRIPTION = "Detection of spot price usage"
     WIKI_RECOMMENDATION = "If you deploy contracts on the second layer as Arbitrum, you should perform an additional check if the sequencer is active. For more information visit https://docs.chain.link/data-feeds/l2-sequencer-feeds#available-networks"
 
 
@@ -56,18 +61,32 @@ class SpotPriceDetector(AbstractDetector):
                 elif interface_name is None:
                     if ir.function.name == function_name:
                         return True
+
             
         return False
+
+    def get_argument_of_high_level_call(self, ir: Operation) -> List[Variable]:
+        if isinstance(ir, HighLevelCall):
+            return ir.arguments
+        return []
         
-    # def balance_of_usage(self, node_of_pair, ir: Operation) -> bool:
-    #     if isinstance(ir, HighLevelCall):
-    #         if "ERC20" in ir.destination and ir.function.name == "balanceOf":
-    #             if (ir.arguments[0] == node_of_pair):
-    #                 return True
-    #     return False
+    def balance_of_spot_price(self, function) -> bool:
+        print(function)
+        first_node = None
+        second_node = None
+        first_arguments = []
+        for node in function.nodes:
+            for ir in node.irs:
+                if self.instance_of_call(ir, "balanceOf", None):
+                    print("Here")
+                    arguments = self.get_argument_of_high_level_call(ir)
+                    if first_node is not None and arguments[0] == first_arguments[0]:
+                        second_node = node
+                        return first_node, second_node
+                    first_arguments = arguments
+                    first_node = node
+        return first_node, second_node
     
-    # def uniswap_v2_pair(self, node: Node) -> bool:
-    #     print(node)
     def wanted_intersting_node_call(self, function: FunctionContract, function_name, interface_name) -> Node:
         for node in function.nodes:
             for ir in node.irs:
@@ -107,13 +126,39 @@ class SpotPriceDetector(AbstractDetector):
 
                 if node_fork.node is not None:
                     spot_price_usage.append(node_fork)
+
+                node1, node2 = self.balance_of_spot_price(function)
+                if node1 is not None and node2 is not None:
+                    spot_price_usage.append(SpotPriceUsage([node1,node2], "BalanceOF"))
+
         return spot_price_usage
+    
+    def detect_arithmetic_operations(self, node: Node) -> bool:
+        for ir in node.irs:
+            if isinstance(ir, Binary):
+                if ir.type in (BinaryType.ADDITION, BinaryType.SUBTRACTION, BinaryType.MULTIPLICATION, BinaryType.DIVISION):
+                    return True
+        return False
+
+    def are_calculations_made_with_spot_data(self, node: Node) -> bool:
+        if not isinstance(node, list):
+            node = [node]
+
+        while node:            
+            variables = node[0].variables_written
+            for n in node[0].function.nodes:
+                if n == node[0]:
+                    continue
+                for var in variables:
+                    if var in n.variables_read:
+                        if self.detect_arithmetic_operations(n):
+                            return True, n
+            node.pop()
+        return False, None
         
     def generate_informative_messages(self, spot_price_classes):
         messages = []
         for spot_price in spot_price_classes:
-            print(spot_price.node)
-            print(spot_price.interface)
             if spot_price.interface == "IUniswapV3Pool":
                 messages.append(
                     f"Spot price usage detected in Uniswap V3 at {spot_price.node.source_mapping}\n"
@@ -122,17 +167,30 @@ class SpotPriceDetector(AbstractDetector):
                 messages.append(
                     f"Spot price usage detected in Uniswap V2 at {spot_price.node.source_mapping}\n"
                 )
-            else:
+            elif spot_price.interface == "Fork":
                 messages.append(
                     f"Spot price usage detected in Uniswap Fork at {spot_price.node.source_mapping}\n"
                 )
+            elif spot_price.interface == "BalanceOF":
+                messages.append(
+                    f"Spot price usage detected at {spot_price.node[0].source_mapping} and {spot_price.node[1].source_mapping}. It seems like trying to obtain data through balanceOf method.\n"
+                )
         return messages
+    
+    def generate_calc_messages(self, node):
+        return f"Calculations are made with spot price data in {node.source_mapping}\n"
 
     def _detect(self):
         results = []
         spot_price_usage = self.detect_spot_price_usage()
         if spot_price_usage:
             messages = self.generate_informative_messages(spot_price_usage)
+
+            for spot_price in spot_price_usage:
+                true, node = self.are_calculations_made_with_spot_data(spot_price.node)
+                if node is not None:
+                    self.IMPACT = DetectorClassification.HIGH
+                    messages.append(self.generate_calc_messages(node))
             res = self.generate_result(messages)
             results.append(res)
         return results
