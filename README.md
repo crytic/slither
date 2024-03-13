@@ -306,6 +306,6 @@ Title | Usage | Authors | Venue | Code
 [Smart Contract Parallel Execution with Fine-Grained State Accesses](https://personal.ntu.edu.sg/yi_li/files/Qi2023SCP.pdf) | Use Slither to build state access graphs | Xiaodong Qi, Jiao Jiao, Yi Li | International Conference on Distributed Computing Systems (ICDCS), 2023  |
 [Bad Apples: Understanding the Centralized Security Risks in Decentralized Ecosystems](https://diaowenrui.github.io/paper/www23-yan.pdf) | Implement an internal analysis on top of Slither | Kailun Yan , Jilian Zhang , Xiangyu Liu , Wenrui Diao , Shanqing Guo | ACM Web Conference April 2023 |
 [Identifying Vulnerabilities in Smart Contracts using Interval Analysis](https://arxiv.org/pdf/2309.13805.pdf) | Create 4 detectors on top of Slither | Ştefan-Claudiu Susan, Andrei Arusoaie | FROM 2023 |
-Storage State Analysis and Extraction of Ethereum Blockchain Smart Contracts (no pdf in open access) | Rely on Slither's CFG and AST | Maha Ayub , Tania Saleem , Muhammad Janjua , Talha Ahmad | TOSEM 2023 | [SmartMuv](https://github.com/WaizKhan7/SmartMuv)
+Storage State Analysis and Extraction of Ethereum Blockchain Smart Contracts (no PDF in open access) | Rely on Slither's CFG and AST | Maha Ayub , Tania Saleem , Muhammad Janjua , Talha Ahmad | TOSEM 2023 | [SmartMuv](https://github.com/WaizKhan7/SmartMuv)
 
 If you are using Slither on an academic work, consider applying to the [Crytic $10k Research Prize](https://blog.trailofbits.com/2019/11/13/announcing-the-crytic-10k-research-prize/).
