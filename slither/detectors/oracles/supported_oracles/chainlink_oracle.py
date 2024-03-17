@@ -83,7 +83,7 @@ class ChainlinkOracle(Oracle):
         answer_checked = False
         startedAt_checked = False
 
-        for node in answer.nodes:
+        for node in answer.nodes_with_var:
             for ir in node.irs:
                 if isinstance(ir, Binary):
                     if self.price_check_for_liveness(ir):
