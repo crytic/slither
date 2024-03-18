@@ -235,7 +235,7 @@ class OracleDetector(AbstractDetector):
         for value in oracle.function.return_values:
             if is_dependent(value, var, oracle.node):
                 return self.checks_performed_out_of_original_function(oracle, value)
-            
+
         return False
 
     # This function interates through all internal calls in function and checks if the var is used in condition any of them
@@ -271,7 +271,7 @@ class OracleDetector(AbstractDetector):
                     if self.investigate_internal_call(ir.function, original_var_as_param, function):
                         return True
         return False
-        
+
     def _detect(self):
         self.oracles = self.find_oracles(self.contracts)
         for oracle in self.oracles:
