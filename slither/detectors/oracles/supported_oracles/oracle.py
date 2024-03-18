@@ -20,7 +20,7 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         self.contract = None
         self.function = None
         self.node = None
-        self.out_of_function_checks = False
+        self.out_of_function_checks = []
         self.oracle_vars = []
         self.vars_not_in_condition = []
         self.returned_vars_indexes = None
@@ -32,7 +32,9 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
 
     def is_instance_of(self, ir: Operation) -> bool:
         return isinstance(ir, HighLevelCall) and (
-            isinstance(ir.function, Function) and self.compare_call(ir.function.name)
+            isinstance(ir.function, Function)
+            and self.compare_call(ir.function.name)
+            # add interface
         )
 
     def set_node(self, _node):
@@ -72,8 +74,12 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
 
     @staticmethod
     def timestamp_in_node(node) -> bool:
-        if "block.timestamp" in str(node):
-            return True
+        all_nodes = [node]
+        if node.fathers:
+            all_nodes.extend(node.fathers)
+        for var in all_nodes:
+            if "block.timestamp" in str(var):
+                return True
         return False
 
     # This function checks if the timestamp value is validated.
