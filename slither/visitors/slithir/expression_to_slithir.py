@@ -210,12 +210,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 for idx, _ in enumerate(left):
                     if not left[idx] is None:
                         index = idx
-                        # The following test is probably always true?
-                        if (
-                            isinstance(left[idx], LocalVariableInitFromTuple)
-                            and left[idx].tuple_index is not None
-                        ):
-                            index = left[idx].tuple_index
                         operation = Unpack(left[idx], right, index)
                         operation.set_expression(expression)
                         self._result.append(operation)
