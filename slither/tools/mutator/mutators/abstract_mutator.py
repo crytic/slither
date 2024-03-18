@@ -1,5 +1,6 @@
 import abc
 import logging
+from pathlib import Path
 from typing import Optional, Dict, Tuple, List
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
@@ -29,7 +30,7 @@ class AbstractMutator(
         solc_remappings: str | None,
         verbose: bool,
         very_verbose: bool,
-        output_folder: str,
+        output_folder: Path,
         dont_mutate_line: List[int],
         rate: int = 10,
         seed: Optional[int] = None,
@@ -89,6 +90,7 @@ class AbstractMutator(
             for patch in patches:
                 # test the patch
                 patchWasCaught = test_patch(
+                    self.output_folder,
                     file,
                     patch,
                     self.test_command,
@@ -116,8 +118,8 @@ class AbstractMutator(
                         logger.info(f"Impossible to generate patch; empty {patches}")
 
                     # add uncaught mutant patches to a output file
-                    with open(
-                        self.output_folder + "/patches_file.txt", "a", encoding="utf8"
+                    with (self.output_folder / "patches_files.txt").open(
+                        "a", encoding="utf8"
                     ) as patches_file:
                         patches_file.write(diff + "\n")
 
