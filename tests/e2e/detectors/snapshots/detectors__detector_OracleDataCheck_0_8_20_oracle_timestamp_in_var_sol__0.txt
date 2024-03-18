@@ -1,0 +1,2 @@
+The oracle ChainlinkETHUSDPriceConsumer.priceFeed (tests/e2e/detectors/test_data/oracle-data-validation/0.8.20/oracle_timestamp_in_var.sol#51) returns the variables ['price'] which are not validated. It can potentially lead to unexpected behaviour.
+

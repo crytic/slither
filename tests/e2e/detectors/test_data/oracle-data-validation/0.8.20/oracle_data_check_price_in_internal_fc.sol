@@ -49,9 +49,6 @@ contract StableOracleDAI {
     function getPriceUSD() external view returns (uint256) {
         uint256 wethPriceUSD = 1;
         uint256 DAIWethPrice = 1;
-
-        // chainlink price data is 8 decimals for WETH/USD, so multiply by 10 decimals to get 18 decimal fractional
-        //(uint80 roundID, int256 price, uint256 startedAt, uint256 timeStamp, uint80 answeredInRound) = priceFeedDAIETH.latestRoundData();
         (
             uint80 roundID,
             int256 price,

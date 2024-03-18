@@ -20,24 +20,28 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         self.contract = None
         self.function = None
         self.node = None
+        self.out_of_function_checks = []
         self.oracle_vars = []
-        self.vars_in_condition = []
         self.vars_not_in_condition = []
         self.returned_vars_indexes = None
         self.interface = None
         self.oracle_api = None
-        self.oracle_type = None
 
     def get_calls(self):
         return self.calls
 
     def is_instance_of(self, ir: Operation) -> bool:
         return isinstance(ir, HighLevelCall) and (
-            isinstance(ir.function, Function) and self.compare_call(ir.function.name)
+            isinstance(ir.function, Function)
+            and self.compare_call(ir.function.name)
+            # add interface
         )
 
     def set_node(self, _node):
         self.node = _node
+
+    def set_function(self, _function):
+        self.function = _function
 
     def compare_call(self, function) -> bool:
         for call in self.calls:
@@ -70,31 +74,40 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
 
     @staticmethod
     def timestamp_in_node(node) -> bool:
-        if "block.timestamp" in str(node):
-            return True
+        all_nodes = [node]
+        if node.fathers:
+            all_nodes.extend(node.fathers)
+        for var in all_nodes:
+            if "block.timestamp" in str(var):
+                return True
         return False
 
     # This function checks if the timestamp value is validated.
     def check_staleness(self, var: VarInCondition) -> bool:
         if var is None:
             return False
+        different_behavior = False
         for node in var.nodes_with_var:
             # This is temporarily check which will be improved in the future. Mostly we are looking for block.timestamp and trust the developer that he is using it correctly
             if self.timestamp_in_node(node):
                 return True
+            if not different_behavior:
+                different_behavior = check_revert(node) or return_boolean(node)
 
-        return False
+        return different_behavior
 
     # This functions validates checks of price value
     def check_price(self, var: VarInCondition) -> bool:
         if var is None:
             return False
+        different_behavior = False
         for node in var.nodes_with_var:
             for ir in node.irs:
                 if isinstance(ir, Binary):
                     if self.check_greater_zero(ir):
                         return True
                     # If the conditions does not match we are looking for revert or return node
-                    return check_revert(node) or return_boolean(node)
+            if not different_behavior:
+                different_behavior = check_revert(node) or return_boolean(node)
 
-        return False
+        return different_behavior
