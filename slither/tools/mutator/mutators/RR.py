@@ -24,7 +24,7 @@ class RR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     old_str = self.in_file_str[start:stop]
                     line_no = node.source_mapping.lines
                     if not line_no[0] in self.dont_mutate_line:
-                        if old_str != "revert()":
+                        if not old_str.lstrip().startswith("revert"):
                             new_str = "revert()"
                             create_patch_with_line(
                                 result,
