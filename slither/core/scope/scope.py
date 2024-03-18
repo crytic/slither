@@ -36,11 +36,11 @@ class FileScope:
         # So we simplify the logic and have the scope fields all populated
         self.custom_errors: Set[CustomErrorTopLevel] = set()
         self.enums: Dict[str, EnumTopLevel] = {}
-        self.events: Dict[str, EventTopLevel] = {}
         # Functions is a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
         self.functions: Set[FunctionTopLevel] = set()
+        self.events: Set[EventTopLevel] = set()
         self.using_for_directives: Set[UsingForTopLevel] = set()
         self.imports: Set[Import] = set()
         self.pragmas: Set[Pragma] = set()
@@ -76,8 +76,8 @@ class FileScope:
             if not _dict_contain(new_scope.enums, self.enums):
                 self.enums.update(new_scope.enums)
                 learn_something = True
-            if not _dict_contain(new_scope.events, self.events):
-                self.events.update(new_scope.events)
+            if not new_scope.events.issubset(self.events):
+                self.events |= new_scope.events
                 learn_something = True
             if not new_scope.functions.issubset(self.functions):
                 self.functions |= new_scope.functions

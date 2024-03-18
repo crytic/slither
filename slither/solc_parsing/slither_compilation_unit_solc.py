@@ -24,7 +24,7 @@ from slither.solc_parsing.declarations.caller_context import CallerContextExpres
 from slither.solc_parsing.declarations.contract import ContractSolc
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
-from slither.solc_parsing.declarations.event import EventSolc
+from slither.solc_parsing.declarations.event_top_level import EventTopLevelSolc
 from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
 from slither.solc_parsing.declarations.using_for_top_level import UsingForTopLevelSolc
 from slither.solc_parsing.exceptions import VariableNotFound
@@ -90,6 +90,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
         self._functions_top_level_parser: List[FunctionSolc] = []
         self._using_for_top_level_parser: List[UsingForTopLevelSolc] = []
+        self._events_top_level_parser: List[EventTopLevelSolc] = []
         self._all_functions_and_modifier_parser: List[FunctionSolc] = []
 
         self._top_level_contracts_counter = 0
@@ -353,9 +354,9 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 event = EventTopLevel(scope)
                 event.set_offset(top_level_data["src"], self._compilation_unit)
 
-                event_parser = EventSolc(event, top_level_data, self)  # type: ignore
-                event_parser.analyze()  # type: ignore
-                scope.events[event.full_name] = event
+                event_parser = EventTopLevelSolc(event, top_level_data, self)  # type: ignore
+                self._events_top_level_parser.append(event_parser)
+                scope.events.add(event)
                 self._compilation_unit.events_top_level.append(event)
 
             else:
@@ -612,6 +613,7 @@ Please rename it, this name is reserved for Slither's internals"""
 
         self._analyze_top_level_variables()
         self._analyze_top_level_structures()
+        self._analyze_top_level_events()
 
         # Start with the contracts without inheritance
         # Analyze a contract only if all its fathers
@@ -721,6 +723,13 @@ Please rename it, this name is reserved for Slither's internals"""
                 var.analyze(var)
         except (VariableNotFound, KeyError) as e:
             raise SlitherException(f"Missing {e} during variable analyze") from e
+
+    def _analyze_top_level_events(self) -> None:
+        try:
+            for event in self._events_top_level_parser:
+                event.analyze()
+        except (VariableNotFound, KeyError) as e:
+            raise SlitherException(f"Missing event {e} during top level event analyze") from e
 
     def _analyze_params_top_level_function(self) -> None:
         for func_parser in self._functions_top_level_parser:

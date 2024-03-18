@@ -16,7 +16,7 @@ from slither.core.solidity_types import ElementaryType, TypeAliasContract
 from slither.core.variables.state_variable import StateVariable
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
-from slither.solc_parsing.declarations.event import EventSolc
+from slither.solc_parsing.declarations.event_contract import EventContractSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.modifier import ModifierSolc
 from slither.solc_parsing.declarations.structure_contract import StructureContractSolc
@@ -751,7 +751,7 @@ class ContractSolc(CallerContextExpression):
                 event.set_contract(self._contract)
                 event.set_offset(event_to_parse["src"], self._contract.compilation_unit)
 
-                event_parser = EventSolc(event, event_to_parse, self._slither_parser)  # type: ignore
+                event_parser = EventContractSolc(event, event_to_parse, self)  # type: ignore
                 event_parser.analyze()  # type: ignore
                 self._contract.events_as_dict[event.full_name] = event
         except (VariableNotFound, KeyError) as e:
