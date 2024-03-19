@@ -1,0 +1,15 @@
+import "./Initializable.sol";
+
+contract AnyInitializer is Initializable {
+    address payable owner;
+
+    function anyName() external initializer {
+        require(owner == address(0));
+        owner = payable(msg.sender);
+    }
+
+    function kill() external {
+        require(msg.sender == owner);
+        selfdestruct(owner);
+    }
+}

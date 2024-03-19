@@ -1,8 +1,12 @@
-contract Initializable{
+contract Initializable {
     uint8 private _initialized;
     bool private _initializing;
 
     modifier initializer() {
+        _;
+    }
+
+    modifier reinitializer(uint64 version) {
         _;
     }
 
