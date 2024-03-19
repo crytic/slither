@@ -4,7 +4,7 @@ from slither.solc_parsing.variables.variable_declaration import VariableDeclarat
 from slither.core.variables.structure_variable import StructureVariable
 
 
-class StructureVariableSolc(VariableDeclarationSolc):
+class StructureVariableSolc(VariableDeclarationSolc[StructureVariable]):
     def __init__(self, variable: StructureVariable, variable_data: Dict):
         super().__init__(variable, variable_data)
 
