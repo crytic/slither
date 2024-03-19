@@ -6,6 +6,7 @@ import os
 import shutil
 from typing import Type, List, Any, Optional
 from crytic_compile import cryticparser
+import shtab
 from slither import Slither
 from slither.tools.mutator.mutators import all_mutators
 from slither.utils.colors import yellow, magenta
@@ -38,6 +39,8 @@ def parse_args() -> argparse.Namespace:
         usage="slither-mutate <codebase> --test-cmd <test command> <options>",
     )
 
+    shtab.add_argument_to(parser)
+
     parser.add_argument("codebase", help="Codebase to analyze (.sol file, project directory, ...)")
 
     parser.add_argument(
@@ -63,7 +66,7 @@ def parse_args() -> argparse.Namespace:
     # output directory argument
     parser.add_argument(
         "--output-dir", help="Name of output directory (by default 'mutation_campaign')"
-    )
+    ).complete = shtab.DIRECTORY
 
     # to print just all the mutants
     parser.add_argument(
