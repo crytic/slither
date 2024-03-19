@@ -29,7 +29,7 @@ class FunctionTopLevel(Function, TopLevel):
     @property
     def using_for_complete(self) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
         """
-        Dict[Union[str, Type], List[Type]]: Dict of merged local using for directive with top level directive
+        Dict[Union[str, Type], List[Type]]: Dict of top level directive
         """
 
         def _merge_using_for(

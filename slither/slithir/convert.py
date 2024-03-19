@@ -1211,7 +1211,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         internalcall.set_expression(ins.expression)
         return internalcall
 
-    raise Exception(f"Not extracted {type(ins.called)} {ins}")
+    raise Exception(f"Not extracted {type(ins.called)} {ins}") # pylint: disable=bad-option-value
 
 
 # endregion
