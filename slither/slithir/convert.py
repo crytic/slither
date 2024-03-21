@@ -2014,6 +2014,9 @@ def _find_source_mapping_references(irs: List[Operation]) -> None:
         if isinstance(ir, NewContract):
             ir.contract_created.references.append(ir.expression.source_mapping)
 
+        if isinstance(ir, HighLevelCall):
+            ir.function.references.append(ir.expression.source_mapping)
+
 
 # endregion
 ###################################################################################
