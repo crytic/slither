@@ -260,6 +260,9 @@ class SlitherCore(Context):
                     for variable in modifier.local_variables:
                         self._compute_offsets_from_thing(variable)
 
+                for var in contract.state_variables:
+                    self._compute_offsets_from_thing(var)
+
                 for st in contract.structures:
                     self._compute_offsets_from_thing(st)
 
