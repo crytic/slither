@@ -1,4 +1,5 @@
 from pathlib import Path
+import pytest
 
 from slither import Slither
 from slither.core.declarations import Function, CustomErrorTopLevel, EventTopLevel
@@ -8,9 +9,9 @@ from slither.core.variables.top_level_variable import TopLevelVariable
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 SRC_MAPPING_TEST_ROOT = Path(TEST_DATA_DIR, "src_mapping")
 
-
-def test_source_mapping_inheritance(solc_binary_path):
-    solc_path = solc_binary_path("0.6.12")
+@pytest.mark.parametrize("solc_version", ["0.6.12", "0.8.7", "0.8.8"])
+def test_source_mapping_inheritance(solc_binary_path, solc_version):
+    solc_path = solc_binary_path(solc_version)
     file = Path(SRC_MAPPING_TEST_ROOT, "inheritance.sol").as_posix()
     slither = Slither(file, solc=solc_path)
 
