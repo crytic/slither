@@ -126,6 +126,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._pure: bool = False
         self._payable: bool = False
         self._visibility: Optional[str] = None
+        self._virtual: bool = False
+        self._overrides: Optional[List[int]] = None
 
         self._is_implemented: Optional[bool] = None
         self._is_empty: Optional[bool] = None
@@ -440,6 +442,44 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     @payable.setter
     def payable(self, p: bool):
         self._payable = p
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Virtual
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def virtual(self) -> bool:
+        """
+        Note for Solidity < 0.6.0 it will always be false
+        bool: True if the function is virtual
+        """
+        return self._virtual
+
+    @virtual.setter
+    def virtual(self, v: bool):
+        self._virtual = v
+
+    @property
+    def override(self) -> bool:
+        """
+        Note for Solidity < 0.6.0 it will always be false
+        bool: True if the function overrides a base function
+        """
+        return self._overrides is not None
+
+    @property
+    def overrides(self) -> Optional[List[int]]:
+        """
+        Optional[List[int]]: List of the overridden functions id
+        """
+        return self._overrides
+
+    @overrides.setter
+    def overrides(self, o: List[Tuple[str, str]]):
+        self._overrides = o
 
     # endregion
     ###################################################################################

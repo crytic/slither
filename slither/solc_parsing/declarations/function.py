@@ -208,8 +208,6 @@ class FunctionSolc(CallerContextExpression):
         else:
             attributes = self._functionNotParsed["attributes"]
 
-        if "payable" in attributes:
-            self._function.payable = attributes["payable"]
         if "stateMutability" in attributes:
             if attributes["stateMutability"] == "payable":
                 self._function.payable = True
@@ -242,6 +240,15 @@ class FunctionSolc(CallerContextExpression):
 
         if "payable" in attributes:
             self._function.payable = attributes["payable"]
+
+        if "baseFunctions" in attributes:
+            overrides = []
+            for o in attributes["baseFunctions"]:
+                overrides.append(o)
+            self._function.overrides = overrides
+
+        if "virtual" in attributes:
+            self._function.virtual = attributes["virtual"]
 
     def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
