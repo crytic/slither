@@ -124,57 +124,57 @@ def test_references_user_defined_types_when_casting(solc_binary_path):
 
 def test_source_mapping_top_level_defs(solc_binary_path):
     solc_path = solc_binary_path("0.8.24")
-    file = Path(SRC_MAPPING_TEST_ROOT, "inheritance.sol").as_posix()
+    file = Path(SRC_MAPPING_TEST_ROOT, "TopLevelReferences.sol").as_posix()
     slither = Slither(file, solc=solc_path)
 
-    # Check if T is at the offset 312
-    types = slither.offset_to_objects(file, 312)
+    # Check if T is at the offset 5
+    types = slither.offset_to_objects(file, 5)
     assert len(types) == 1
     type_ = types.pop()
     assert isinstance(type_, TypeAliasTopLevel)
     assert type_.name == "T"
 
-    assert {(x.start, x.end) for x in slither.offset_to_references(file, 312)} == {
-        (355, 356),
-        (367, 368),
-        (441, 442),
-        (447, 448),
-        (470, 471),
+    assert {(x.start, x.end) for x in slither.offset_to_references(file, 5)} == {
+        (48, 49),
+        (60, 61),
+        (134, 135),
+        (140, 141),
+        (163, 164),
     }
 
-    # Check if U is at the offset 340
-    constants = slither.offset_to_objects(file, 340)
+    # Check if U is at the offset 33
+    constants = slither.offset_to_objects(file, 33)
     assert len(constants) == 1
     constant = constants.pop()
     assert isinstance(constant, TopLevelVariable)
     assert constant.name == "U"
-    assert {(x.start, x.end) for x in slither.offset_to_references(file, 340)} == {(454, 455)}
+    assert {(x.start, x.end) for x in slither.offset_to_references(file, 33)} == {(147, 148)}
 
-    # Check if V is at the offset 353
-    errors = slither.offset_to_objects(file, 353)
+    # Check if V is at the offset 46
+    errors = slither.offset_to_objects(file, 46)
     assert len(errors) == 1
     error = errors.pop()
     assert isinstance(error, CustomErrorTopLevel)
     assert error.name == "V"
-    assert {(x.start, x.end) for x in slither.offset_to_references(file, 353)} == {(509, 510)}
+    assert {(x.start, x.end) for x in slither.offset_to_references(file, 46)} == {(202, 203)}
 
-    # Check if W is at the offset 365
-    events = slither.offset_to_objects(file, 365)
+    # Check if W is at the offset 58
+    events = slither.offset_to_objects(file, 58)
     assert len(events) == 1
     event = events.pop()
     assert isinstance(event, EventTopLevel)
     assert event.name == "W"
-    assert {(x.start, x.end) for x in slither.offset_to_references(file, 365)} == {(538, 539)}
+    assert {(x.start, x.end) for x in slither.offset_to_references(file, 58)} == {(231, 232)}
 
-    # Check if X is at the offset 394
-    types = slither.offset_to_objects(file, 394)
+    # Check if X is at the offset 87
+    types = slither.offset_to_objects(file, 87)
     assert len(types) == 1
     type_ = types.pop()
     assert isinstance(type_, TypeAliasContract)
     assert type_.name == "X"
-    assert {(x.start, x.end) for x in slither.offset_to_references(file, 394)} == {
-        (552, 553),
-        (558, 559),
+    assert {(x.start, x.end) for x in slither.offset_to_references(file, 87)} == {
+        (245, 246),
+        (251, 252),
     }
 
 
