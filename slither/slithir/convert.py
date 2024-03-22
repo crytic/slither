@@ -1209,7 +1209,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         internalcall.set_expression(ins.expression)
         return internalcall
 
-    raise Exception(f"Not extracted {type(ins.called)} {ins}")
+    raise SlithIRError(f"Not extracted {type(ins.called)} {ins}")
 
 
 # endregion
@@ -2013,6 +2013,9 @@ def _find_source_mapping_references(irs: List[Operation]) -> None:
 
         if isinstance(ir, NewContract):
             ir.contract_created.references.append(ir.expression.source_mapping)
+
+        if isinstance(ir, HighLevelCall):
+            ir.function.references.append(ir.expression.source_mapping)
 
 
 # endregion
