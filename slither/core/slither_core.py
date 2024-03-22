@@ -271,6 +271,10 @@ class SlitherCore(Context):
 
                 for event in contract.events:
                     self._compute_offsets_from_thing(event)
+
+                for typ in contract.type_aliases:
+                    self._compute_offsets_from_thing(typ)
+
             for enum in compilation_unit.enums_top_level:
                 self._compute_offsets_from_thing(enum)
             for event in compilation_unit.events_top_level:
@@ -279,6 +283,14 @@ class SlitherCore(Context):
                 self._compute_offsets_from_thing(function)
             for st in compilation_unit.structures_top_level:
                 self._compute_offsets_from_thing(st)
+            for var in compilation_unit.variables_top_level:
+                self._compute_offsets_from_thing(var)
+            for typ in compilation_unit.type_aliases.values():
+                self._compute_offsets_from_thing(typ)
+            for err in compilation_unit.custom_errors:
+                self._compute_offsets_from_thing(err)
+            for event in compilation_unit.events_top_level:
+                self._compute_offsets_from_thing(event)
             for import_directive in compilation_unit.import_directives:
                 self._compute_offsets_from_thing(import_directive)
             for pragma in compilation_unit.pragma_directives:
