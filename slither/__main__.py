@@ -180,12 +180,12 @@ def get_detectors_and_printers() -> Tuple[
 
         detector = None
         if not all(issubclass(detector, AbstractDetector) for detector in plugin_detectors):
-            raise Exception(
+            raise ValueError(
                 f"Error when loading plugin {entry_point}, {detector} is not a detector"
             )
         printer = None
         if not all(issubclass(printer, AbstractPrinter) for printer in plugin_printers):
-            raise Exception(f"Error when loading plugin {entry_point}, {printer} is not a printer")
+            raise ValueError(f"Error when loading plugin {entry_point}, {printer} is not a printer")
 
         # We convert those to lists in case someone returns a tuple
         detectors += list(plugin_detectors)
@@ -215,7 +215,7 @@ def choose_detectors(
             if detector in detectors:
                 detectors_to_run.append(detectors[detector])
             else:
-                raise Exception(f"Error: {detector} is not a detector")
+                raise ValueError(f"Error: {detector} is not a detector")
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
@@ -263,7 +263,7 @@ def choose_printers(
         if printer in printers:
             printers_to_run.append(printers[printer])
         else:
-            raise Exception(f"Error: {printer} is not a printer")
+            raise ValueError(f"Error: {printer} is not a printer")
     return printers_to_run
 
 
@@ -655,7 +655,7 @@ def parse_args(
     args.json_types = set(args.json_types.split(","))  # type:ignore
     for json_type in args.json_types:
         if json_type not in JSON_OUTPUT_TYPES:
-            raise Exception(f'Error: "{json_type}" is not a valid JSON result output type.')
+            raise ValueError(f'Error: "{json_type}" is not a valid JSON result output type.')
 
     return args
 
