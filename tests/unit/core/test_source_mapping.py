@@ -122,7 +122,7 @@ def test_references_user_defined_types_when_casting(solc_binary_path):
     assert lines == [12, 18]
 
 
-def test_source_mapping_inheritance(solc_binary_path):
+def test_source_mapping_top_level_defs(solc_binary_path):
     solc_path = solc_binary_path("0.8.24")
     file = Path(SRC_MAPPING_TEST_ROOT, "inheritance.sol").as_posix()
     slither = Slither(file, solc=solc_path)

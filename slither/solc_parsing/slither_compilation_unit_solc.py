@@ -480,13 +480,13 @@ Please rename it, this name is reserved for Slither's internals"""
                     missing_inheritance = i
 
             # Resolve immediate base contracts and attach references.
-            for (id, src) in contract_parser.baseContracts:
-                if id in contract_parser.remapping:
-                    target = resolve_remapping_and_renaming(contract_parser, id)
+            for (i, src) in contract_parser.baseContracts:
+                if i in contract_parser.remapping:
+                    target = resolve_remapping_and_renaming(contract_parser, i)
                     fathers.append(target)
                     target.add_reference_from_raw_source(src, self.compilation_unit)
-                elif id in self._contracts_by_id:
-                    target = self._contracts_by_id[id]
+                elif i in self._contracts_by_id:
+                    target = self._contracts_by_id[i]
                     fathers.append(target)
                     target.add_reference_from_raw_source(src, self.compilation_unit)
                 else:
