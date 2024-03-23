@@ -79,7 +79,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         self._compilation_unit: SlitherCompilationUnit = compilation_unit
 
-        self._contracts_by_id: Dict[int, ContractSolc] = {}
+        self._contracts_by_id: Dict[int, Contract] = {}
         self._parsed = False
         self._analyzed = False
         self._is_compact_ast = False

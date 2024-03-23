@@ -240,10 +240,17 @@ class FunctionSolc(CallerContextExpression):
         if "payable" in attributes:
             self._function.payable = attributes["payable"]
 
-        if "baseFunctions" in attributes:
+        if "overrides" in attributes and isinstance(attributes["overrides"], dict):
             overrides = []
-            for o in attributes["baseFunctions"]:
-                overrides.append(o)
+            for override in attributes["overrides"].get("overrides", []):
+                refId = override["referencedDeclaration"]
+                overridden_contract = self.slither_parser._contracts_by_id.get(refId, None)
+
+                if overridden_contract:
+                    overridden_contract.add_reference_from_raw_source(
+                        override["src"], self.compilation_unit
+                    )
+                    overrides.append(overridden_contract)
             self._function.overrides = overrides
 
         if "virtual" in attributes:

@@ -127,7 +127,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._payable: bool = False
         self._visibility: Optional[str] = None
         self._virtual: bool = False
-        self._overrides: Optional[List[int]] = None
+        self._overrides: List["Contract"] = []
 
         self._is_implemented: Optional[bool] = None
         self._is_empty: Optional[bool] = None
@@ -463,22 +463,22 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._virtual = v
 
     @property
-    def override(self) -> bool:
+    def is_overriden(self) -> bool:
         """
         Note for Solidity < 0.6.0 it will always be false
         bool: True if the function overrides a base function
         """
-        return self._overrides is not None
+        return len(self._overrides) > 0
 
     @property
-    def overrides(self) -> Optional[List[int]]:
+    def overrides(self) -> List["Contract"]:
         """
-        Optional[List[int]]: List of the overridden functions id
+        List["Contract"]: List of which parent contracts' functions definitions are overridden
         """
         return self._overrides
 
     @overrides.setter
-    def overrides(self, o: List[Tuple[str, str]]):
+    def overrides(self, o: List["Contract"]):
         self._overrides = o
 
     # endregion
