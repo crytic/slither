@@ -227,6 +227,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         # To be improved with a parsing of the documentation
         self.has_documentation: bool = False
+        self._comments: Optional[str] = None
 
     ###################################################################################
     ###################################################################################
@@ -362,6 +363,20 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     @id.setter
     def id(self, new_id: str):
         self._id = new_id
+
+    @property
+    def comments(self) -> Optional[str]:
+        """
+        Return the comments associated with the function.
+
+        Returns:
+            the comment as a string
+        """
+        return self._comments
+
+    @comments.setter
+    def comments(self, comments: str):
+        self._comments = comments
 
     @property
     @abstractmethod
