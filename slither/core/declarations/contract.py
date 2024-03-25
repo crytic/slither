@@ -894,7 +894,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def get_function_from_canonical_name(self, canonical_name: str) -> Optional["Function"]:
         """
-            Return a function from a a canonical name (contract.signature())
+            Return a function from a canonical name (contract.signature())
         Args:
             canonical_name (str): canonical name of the function (without return statement)
         Returns:
