@@ -16,6 +16,7 @@ def test_builtins():
     m: address = tx.origin
     n: uint256 = tx.gasprice
     x: uint256 = self.balance
+    send(msg.sender, x)
 
 @external
 def c(x: uint256):

@@ -10,9 +10,9 @@ import os
 import pstats
 import sys
 import traceback
+from importlib import metadata
 from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
 
-from pkg_resources import iter_entry_points, require
 
 from crytic_compile import cryticparser, CryticCompile
 from crytic_compile.platform.standard import generate_standard_export
@@ -166,19 +166,26 @@ def get_detectors_and_printers() -> Tuple[
     printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
-    for entry_point in iter_entry_points(group="slither_analyzer.plugin", name=None):
+    if sys.version_info >= (3, 10):
+        entry_points = metadata.entry_points(group="slither_analyzer.plugin")
+    else:
+        from pkg_resources import iter_entry_points  # pylint: disable=import-outside-toplevel
+
+        entry_points = iter_entry_points(group="slither_analyzer.plugin", name=None)
+
+    for entry_point in entry_points:
         make_plugin = entry_point.load()
 
         plugin_detectors, plugin_printers = make_plugin()
 
         detector = None
         if not all(issubclass(detector, AbstractDetector) for detector in plugin_detectors):
-            raise Exception(
+            raise ValueError(
                 f"Error when loading plugin {entry_point}, {detector} is not a detector"
             )
         printer = None
         if not all(issubclass(printer, AbstractPrinter) for printer in plugin_printers):
-            raise Exception(f"Error when loading plugin {entry_point}, {printer} is not a printer")
+            raise ValueError(f"Error when loading plugin {entry_point}, {printer} is not a printer")
 
         # We convert those to lists in case someone returns a tuple
         detectors += list(plugin_detectors)
@@ -208,7 +215,7 @@ def choose_detectors(
             if detector in detectors:
                 detectors_to_run.append(detectors[detector])
             else:
-                raise Exception(f"Error: {detector} is not a detector")
+                raise ValueError(f"Error: {detector} is not a detector")
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
@@ -256,7 +263,7 @@ def choose_printers(
         if printer in printers:
             printers_to_run.append(printers[printer])
         else:
-            raise Exception(f"Error: {printer} is not a printer")
+            raise ValueError(f"Error: {printer} is not a printer")
     return printers_to_run
 
 
@@ -298,7 +305,7 @@ def parse_args(
     parser.add_argument(
         "--version",
         help="displays the current version",
-        version=require("slither-analyzer")[0].version,
+        version=metadata.version("slither-analyzer"),
         action="version",
     )
 
@@ -648,7 +655,7 @@ def parse_args(
     args.json_types = set(args.json_types.split(","))  # type:ignore
     for json_type in args.json_types:
         if json_type not in JSON_OUTPUT_TYPES:
-            raise Exception(f'Error: "{json_type}" is not a valid JSON result output type.')
+            raise ValueError(f'Error: "{json_type}" is not a valid JSON result output type.')
 
     return args
 
