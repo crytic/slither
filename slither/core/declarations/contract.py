@@ -9,9 +9,8 @@ from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, 
 from crytic_compile.platform import Type as PlatformType
 
 from slither.core.cfg.scope import Scope
-from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
-
+from slither.utils.using_for import USING_FOR, _merge_using_for
 from slither.core.declarations.function import Function, FunctionType, FunctionLanguage
 from slither.utils.erc import (
     ERC20_signatures,
@@ -50,9 +49,6 @@ if TYPE_CHECKING:
 
 LOGGER = logging.getLogger("Contract")
 
-USING_FOR_KEY = Union[str, Type]
-USING_FOR_ITEM = List[Union[Type, Function]]
-
 
 class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     """
@@ -87,8 +83,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._type_aliases: Dict[str, "TypeAliasContract"] = {}
 
         # The only str is "*"
-        self._using_for: Dict[USING_FOR_KEY, USING_FOR_ITEM] = {}
-        self._using_for_complete: Optional[Dict[USING_FOR_KEY, USING_FOR_ITEM]] = None
+        self._using_for: USING_FOR = {}
+        self._using_for_complete: Optional[USING_FOR] = None
         self._kind: Optional[str] = None
         self._is_interface: bool = False
         self._is_library: bool = False
@@ -310,23 +306,14 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def using_for(self) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
+    def using_for(self) -> USING_FOR:
         return self._using_for
 
     @property
-    def using_for_complete(self) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
+    def using_for_complete(self) -> USING_FOR:
         """
-        Dict[Union[str, Type], List[Type]]: Dict of merged local using for directive with top level directive
+        USING_FOR: Dict of merged local using for directive with top level directive
         """
-
-        def _merge_using_for(
-            uf1: Dict[USING_FOR_KEY, USING_FOR_ITEM], uf2: Dict[USING_FOR_KEY, USING_FOR_ITEM]
-        ) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
-            result = {**uf1, **uf2}
-            for key, value in result.items():
-                if key in uf1 and key in uf2:
-                    result[key] = value + uf1[key]
-            return result
 
         if self._using_for_complete is None:
             result = self.using_for
