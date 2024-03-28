@@ -79,7 +79,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         self._compilation_unit: SlitherCompilationUnit = compilation_unit
 
-        self._contracts_by_id: Dict[int, ContractSolc] = {}
+        self._contracts_by_id: Dict[int, Contract] = {}
         self._parsed = False
         self._analyzed = False
         self._is_compact_ast = False
@@ -113,6 +113,10 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     @property
     def slither_parser(self) -> "SlitherCompilationUnitSolc":
         return self
+
+    @property
+    def contracts_by_id(self) -> Dict[int, Contract]:
+        return self._contracts_by_id
 
     ###################################################################################
     ###################################################################################
@@ -480,13 +484,16 @@ Please rename it, this name is reserved for Slither's internals"""
                 else:
                     missing_inheritance = i
 
-            # Resolve immediate base contracts.
-            for i in contract_parser.baseContracts:
+            # Resolve immediate base contracts and attach references.
+            for (i, src) in contract_parser.baseContracts:
                 if i in contract_parser.remapping:
                     target = resolve_remapping_and_renaming(contract_parser, i)
                     fathers.append(target)
+                    target.add_reference_from_raw_source(src, self.compilation_unit)
                 elif i in self._contracts_by_id:
-                    fathers.append(self._contracts_by_id[i])
+                    target = self._contracts_by_id[i]
+                    fathers.append(target)
+                    target.add_reference_from_raw_source(src, self.compilation_unit)
                 else:
                     missing_inheritance = i
 

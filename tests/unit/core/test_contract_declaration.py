@@ -11,26 +11,36 @@ CONTRACT_DECL_TEST_ROOT = Path(TEST_DATA_DIR, "contract_declaration")
 def test_abstract_contract(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.0")
     slither = Slither(Path(CONTRACT_DECL_TEST_ROOT, "abstract.sol").as_posix(), solc=solc_path)
-    assert not slither.contracts[0].is_fully_implemented
+    explicit_abstract = slither.contracts[0]
+    assert not explicit_abstract.is_fully_implemented
+    assert explicit_abstract.is_abstract
 
     solc_path = solc_binary_path("0.5.0")
     slither = Slither(
         Path(CONTRACT_DECL_TEST_ROOT, "implicit_abstract.sol").as_posix(), solc=solc_path
     )
-    assert not slither.contracts[0].is_fully_implemented
+    implicit_abstract = slither.get_contract_from_name("ImplicitAbstract")[0]
+    assert not implicit_abstract.is_fully_implemented
+    # This only is expected to work for newer versions of Solidity
+    assert not implicit_abstract.is_abstract
 
     slither = Slither(
         Path(CONTRACT_DECL_TEST_ROOT, "implicit_abstract.sol").as_posix(),
         solc_force_legacy_json=True,
         solc=solc_path,
     )
-    assert not slither.contracts[0].is_fully_implemented
+    implicit_abstract = slither.get_contract_from_name("ImplicitAbstract")[0]
+    assert not implicit_abstract.is_fully_implemented
+    # This only is expected to work for newer versions of Solidity
+    assert not implicit_abstract.is_abstract
 
 
 def test_concrete_contract(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.0")
     slither = Slither(Path(CONTRACT_DECL_TEST_ROOT, "concrete.sol").as_posix(), solc=solc_path)
-    assert slither.contracts[0].is_fully_implemented
+    concrete = slither.get_contract_from_name("Concrete")[0]
+    assert concrete.is_fully_implemented
+    assert not concrete.is_abstract
 
     solc_path = solc_binary_path("0.5.0")
     slither = Slither(
@@ -38,7 +48,9 @@ def test_concrete_contract(solc_binary_path) -> None:
         solc_force_legacy_json=True,
         solc=solc_path,
     )
-    assert slither.contracts[0].is_fully_implemented
+    concrete_old = slither.get_contract_from_name("ConcreteOld")[0]
+    assert concrete_old.is_fully_implemented
+    assert not concrete_old.is_abstract
 
 
 def test_private_variable(solc_binary_path) -> None:
