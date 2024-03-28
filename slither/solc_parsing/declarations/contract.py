@@ -175,6 +175,9 @@ class ContractSolc(CallerContextExpression):
         self._contract.is_fully_implemented = attributes["fullyImplemented"]
         self._linearized_base_contracts = attributes["linearizedBaseContracts"]
 
+        if "abstract" in attributes:
+            self._contract.is_abstract = attributes["abstract"]
+
         # Parse base contract information
         self._parse_base_contract_info()
 
