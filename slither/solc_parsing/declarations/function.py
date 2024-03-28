@@ -262,7 +262,7 @@ class FunctionSolc(CallerContextExpression):
         if "overrides" in attributes and isinstance(attributes["overrides"], dict):
             for override in attributes["overrides"].get("overrides", []):
                 refId = override["referencedDeclaration"]
-                overridden_contract = self.slither_parser._contracts_by_id.get(refId, None)
+                overridden_contract = self.slither_parser.contracts_by_id.get(refId, None)
                 if overridden_contract:
                     overridden_contract.add_reference_from_raw_source(
                         override["src"], self.compilation_unit

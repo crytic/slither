@@ -451,17 +451,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     ###################################################################################
 
     @property
-    def is_implemented(self) -> bool:
-        """
-        bool: True if the function is implemented
-        """
-        return self._is_implemented
-
-    @is_implemented.setter
-    def is_implemented(self, is_implemented: bool):
-        self._is_implemented = is_implemented
-
-    @property
     def is_virtual(self) -> bool:
         """
         Note for Solidity < 0.6.0 it will always be false

@@ -55,6 +55,18 @@ def test_overrides(solc_binary_path) -> None:
         ["Y.myVirtualFunction()", "X.myVirtualFunction()"]
     )
 
+    k = slither.get_contract_from_name("K")[0]
+    k_virtual_func = k.get_function_from_full_name("a()")
+    assert not k_virtual_func.is_virtual
+    assert k_virtual_func.is_override
+    assert len(k_virtual_func.overrides) == 1
+
+    i = slither.get_contract_from_name("I")[0]
+    i_virtual_func = i.get_function_from_full_name("a()")
+    assert i_virtual_func.is_virtual
+    assert not i_virtual_func.is_override
+    assert len(i_virtual_func.overrides) == 0
+    assert len(i_virtual_func.overridden_by) == 1
 
 def test_virtual_override_references_and_implementations(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.15")

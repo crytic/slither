@@ -56,3 +56,10 @@ contract A2 is Test2 {
     }
 }
 
+abstract contract I {
+ function a() public virtual {}
+}
+contract J is I {}
+contract K is J {
+ function a() public override {}
+}
