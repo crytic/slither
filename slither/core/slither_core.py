@@ -208,7 +208,7 @@ class SlitherCore(Context):
 
         for offset in range(definition.start, definition.end + 1):
             if (
-                isinstance(thing, TopLevel)
+                isinstance(thing, (TopLevel, Contract))
                 or (
                     isinstance(thing, FunctionContract)
                     and thing.contract_declarer == thing.contract

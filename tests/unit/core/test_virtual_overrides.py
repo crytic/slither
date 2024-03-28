@@ -5,6 +5,7 @@ TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
 
 def test_overrides(solc_binary_path) -> None:
+    # pylint: disable=too-many-statements,too-many-locals
     solc_path = solc_binary_path("0.8.15")
     slither = Slither(Path(TEST_DATA_DIR, "virtual_overrides.sol").as_posix(), solc=solc_path)
 
