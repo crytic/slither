@@ -15,8 +15,8 @@ def test_overrides(solc_binary_path) -> None:
     x = test.get_functions_overridden_by(test_virtual_func)
     assert len(x) == 0
     x = test_virtual_func.overridden_by
-    assert len(x) == 3, [i.canonical_name for i in x]
-    assert set([i.canonical_name for i in x]) == set(
+    assert len(x) == 5
+    assert set(i.canonical_name for i in x) == set(
         ["A.myVirtualFunction()", "C.myVirtualFunction()", "X.myVirtualFunction()"]
     )
 
@@ -25,17 +25,26 @@ def test_overrides(solc_binary_path) -> None:
     assert a_virtual_func.is_virtual
     assert a_virtual_func.is_override
     x = a.get_functions_overridden_by(a_virtual_func)
-    assert len(x) == 1
-    assert x[0].canonical_name == "Test.myVirtualFunction()"
+    assert len(x) == 2
+    assert set(i.canonical_name for i in x) == set(["Test.myVirtualFunction()"])
 
     b = slither.get_contract_from_name("B")[0]
     b_virtual_func = b.get_function_from_full_name("myVirtualFunction()")
     assert not b_virtual_func.is_virtual
     assert b_virtual_func.is_override
     x = b.get_functions_overridden_by(b_virtual_func)
-    assert len(x) == 1
-    assert x[0].canonical_name == "A.myVirtualFunction()"
+    assert len(x) == 2
+    assert set(i.canonical_name for i in x) == set(["A.myVirtualFunction()"])
     assert len(b_virtual_func.overridden_by) == 0
+
+    c = slither.get_contract_from_name("C")[0]
+    c_virtual_func = c.get_function_from_full_name("myVirtualFunction()")
+    assert not c_virtual_func.is_virtual
+    assert c_virtual_func.is_override
+    x = c.get_functions_overridden_by(c_virtual_func)
+    assert len(x) == 2
+    # C should not override B as they are distinct leaves in the inheritance tree
+    assert set(i.canonical_name for i in x) == set(["Test.myVirtualFunction()"])
 
     y = slither.get_contract_from_name("Y")[0]
     y_virtual_func = y.get_function_from_full_name("myVirtualFunction()")
@@ -50,8 +59,8 @@ def test_overrides(solc_binary_path) -> None:
     assert z_virtual_func.is_virtual
     assert z_virtual_func.is_override
     x = z.get_functions_overridden_by(z_virtual_func)
-    assert len(x) == 2
-    assert set([i.canonical_name for i in x]) == set(
+    assert len(x) == 4
+    assert set(i.canonical_name for i in x) == set(
         ["Y.myVirtualFunction()", "X.myVirtualFunction()"]
     )
 
@@ -59,14 +68,19 @@ def test_overrides(solc_binary_path) -> None:
     k_virtual_func = k.get_function_from_full_name("a()")
     assert not k_virtual_func.is_virtual
     assert k_virtual_func.is_override
-    assert len(k_virtual_func.overrides) == 1
+    assert len(k_virtual_func.overrides) == 3
+    x = k_virtual_func.overrides
+    assert set(i.canonical_name for i in x) == set(["I.a()"])
 
     i = slither.get_contract_from_name("I")[0]
     i_virtual_func = i.get_function_from_full_name("a()")
     assert i_virtual_func.is_virtual
     assert not i_virtual_func.is_override
     assert len(i_virtual_func.overrides) == 0
-    assert len(i_virtual_func.overridden_by) == 1
+    x = i_virtual_func.overridden_by
+    assert len(x) == 1
+    assert x[0].canonical_name == "K.a()"
+
 
 def test_virtual_override_references_and_implementations(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.15")

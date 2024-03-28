@@ -473,7 +473,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     @property
     def overridden_by(self) -> List["FunctionContract"]:
         """
-        List["FunctionContract"]: List offunctions in child contracts that override this function
+        List["FunctionContract"]: List of functions in child contracts that override this function
+        This may include distinct instances of the same function due to inheritance
         """
         return self._overridden_by
 
@@ -481,6 +482,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def overrides(self) -> List["FunctionContract"]:
         """
         List["FunctionContract"]: List of functions in parent contracts that this function overrides
+        This may include distinct instances of the same function due to inheritance
         """
         return self._overrides
 

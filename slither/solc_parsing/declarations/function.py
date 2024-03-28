@@ -242,23 +242,21 @@ class FunctionSolc(CallerContextExpression):
             self._function.payable = attributes["payable"]
 
         if "baseFunctions" in attributes:
-            overrides_ids = []
-            for o_id in attributes["baseFunctions"]:
-                overrides_ids.append(o_id)
+            overrides_ids = attributes["baseFunctions"]
             if len(overrides_ids) > 0:
-                found = 0
-                for c in self.contract_parser.underlying_contract.immediate_inheritance:
-                    for f in c.functions_declared:
-                        if f.id in overrides_ids:
+                for f_id in overrides_ids:
+                    funcs = self.slither_parser.functions_by_id[f_id]
+                    for f in funcs:
+                        # Do not consider leaf contracts as overrides.
+                        # B is A { function a() override {} } and C is A { function a() override {} } override A.a(), not each other.
+                        if (
+                            f.contract == self._function.contract
+                            or f.contract in self._function.contract.inheritance
+                        ):
                             self._function.overrides.append(f)
                             f.overridden_by.append(self._function)
-                            found += 1
-                            # Search next parent if already found overridden func in this parent
-                            continue
-                    # Stop searching if we found all the overrides
-                    if len(overrides_ids) == found:
-                        break
 
+        # Attaches reference to override specifier e.g. X is referenced by `function a() override(X)`
         if "overrides" in attributes and isinstance(attributes["overrides"], dict):
             for override in attributes["overrides"].get("overrides", []):
                 refId = override["referencedDeclaration"]
