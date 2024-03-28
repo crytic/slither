@@ -33,8 +33,12 @@ def test_source_mapping_inheritance(solc_binary_path, solc_version):
     assert {(x.start, x.end) for x in slither.offset_to_definitions(file, 27)} == {(26, 28)}
     # Only one reference for A.f(), in A.test()
     assert {(x.start, x.end) for x in slither.offset_to_references(file, 27)} == {(92, 93)}
-    # Only one implementation for A.f(), in A.test()
-    assert {(x.start, x.end) for x in slither.offset_to_implementations(file, 27)} == {(17, 53)}
+    # Three overridden implementation of A.f(), in A.test()
+    assert {(x.start, x.end) for x in slither.offset_to_implementations(file, 27)} == {
+        (17, 53),
+        (129, 166),
+        (193, 230),
+    }
 
     # Check if C.f() is at the offset 203
     functions = slither.offset_to_objects(file, 203)
@@ -62,11 +66,9 @@ def test_source_mapping_inheritance(solc_binary_path, solc_version):
         assert isinstance(function, Function)
         assert function.canonical_name in ["A.f()", "B.f()", "C.f()"]
 
-    # There are three definitions possible (in A, B or C)
+    # There is one definition in the lexical scope of A
     assert {(x.start, x.end) for x in slither.offset_to_definitions(file, 93)} == {
         (26, 28),
-        (202, 204),
-        (138, 140),
     }
 
     # There are two references possible (in A.test() or C.test2() )

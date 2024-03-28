@@ -113,6 +113,10 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def slither_parser(self) -> "SlitherCompilationUnitSolc":
         return self
 
+    @property
+    def contracts_by_id(self) -> Dict[int, Contract]:
+        return self._contracts_by_id
+
     ###################################################################################
     ###################################################################################
     # region AST
