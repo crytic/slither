@@ -22,7 +22,7 @@ from slither.core.source_mapping.source_mapping import SourceMapping, Source
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
 from slither.utils.sarif import read_triage_info
-from slither.utils.source_mapping import get_definition, get_references, get_implementation
+from slither.utils.source_mapping import get_definition, get_references, get_all_implementations
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -204,41 +204,53 @@ class SlitherCore(Context):
     def _compute_offsets_from_thing(self, thing: SourceMapping):
         definition = get_definition(thing, self.crytic_compile)
         references = get_references(thing)
-        implementation = get_implementation(thing)
+        implementations = get_all_implementations(thing, self.contracts)
 
         for offset in range(definition.start, definition.end + 1):
-
             if (
-                isinstance(thing, TopLevel)
+                isinstance(thing, (TopLevel, Contract))
                 or (
                     isinstance(thing, FunctionContract)
                     and thing.contract_declarer == thing.contract
                 )
                 or (isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract))
             ):
+
                 self._offset_to_objects[definition.filename][offset].add(thing)
 
             self._offset_to_definitions[definition.filename][offset].add(definition)
-            self._offset_to_implementations[definition.filename][offset].add(implementation)
+            self._offset_to_implementations[definition.filename][offset].update(implementations)
             self._offset_to_references[definition.filename][offset] |= set(references)
 
         for ref in references:
             for offset in range(ref.start, ref.end + 1):
-
+                is_declared_function = (
+                    isinstance(thing, FunctionContract)
+                    and thing.contract_declarer == thing.contract
+                )
                 if (
                     isinstance(thing, TopLevel)
-                    or (
-                        isinstance(thing, FunctionContract)
-                        and thing.contract_declarer == thing.contract
-                    )
+                    or is_declared_function
                     or (
                         isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract)
                     )
                 ):
                     self._offset_to_objects[definition.filename][offset].add(thing)
 
-                self._offset_to_definitions[ref.filename][offset].add(definition)
-                self._offset_to_implementations[ref.filename][offset].add(implementation)
+                if is_declared_function:
+                    # Only show the nearest lexical definition for declared contract-level functions
+                    if (
+                        thing.contract.source_mapping.start
+                        < offset
+                        < thing.contract.source_mapping.end
+                    ):
+
+                        self._offset_to_definitions[ref.filename][offset].add(definition)
+
+                else:
+                    self._offset_to_definitions[ref.filename][offset].add(definition)
+
+                self._offset_to_implementations[ref.filename][offset].update(implementations)
                 self._offset_to_references[ref.filename][offset] |= set(references)
 
     def _compute_offsets_to_ref_impl_decl(self):  # pylint: disable=too-many-branches
@@ -251,14 +263,17 @@ class SlitherCore(Context):
             for contract in compilation_unit.contracts:
                 self._compute_offsets_from_thing(contract)
 
-                for function in contract.functions:
+                for function in contract.functions_declared:
                     self._compute_offsets_from_thing(function)
                     for variable in function.local_variables:
                         self._compute_offsets_from_thing(variable)
-                for modifier in contract.modifiers:
+                for modifier in contract.modifiers_declared:
                     self._compute_offsets_from_thing(modifier)
                     for variable in modifier.local_variables:
                         self._compute_offsets_from_thing(variable)
+
+                for var in contract.state_variables:
+                    self._compute_offsets_from_thing(var)
 
                 for st in contract.structures:
                     self._compute_offsets_from_thing(st)
@@ -268,6 +283,10 @@ class SlitherCore(Context):
 
                 for event in contract.events:
                     self._compute_offsets_from_thing(event)
+
+                for typ in contract.type_aliases:
+                    self._compute_offsets_from_thing(typ)
+
             for enum in compilation_unit.enums_top_level:
                 self._compute_offsets_from_thing(enum)
             for event in compilation_unit.events_top_level:
@@ -276,6 +295,14 @@ class SlitherCore(Context):
                 self._compute_offsets_from_thing(function)
             for st in compilation_unit.structures_top_level:
                 self._compute_offsets_from_thing(st)
+            for var in compilation_unit.variables_top_level:
+                self._compute_offsets_from_thing(var)
+            for typ in compilation_unit.type_aliases.values():
+                self._compute_offsets_from_thing(typ)
+            for err in compilation_unit.custom_errors:
+                self._compute_offsets_from_thing(err)
+            for event in compilation_unit.events_top_level:
+                self._compute_offsets_from_thing(event)
             for import_directive in compilation_unit.import_directives:
                 self._compute_offsets_from_thing(import_directive)
             for pragma in compilation_unit.pragma_directives:
