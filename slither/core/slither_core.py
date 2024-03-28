@@ -22,7 +22,7 @@ from slither.core.source_mapping.source_mapping import SourceMapping, Source
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
 from slither.utils.sarif import read_triage_info
-from slither.utils.source_mapping import get_definition, get_references, get_implementation
+from slither.utils.source_mapping import get_definition, get_references, get_all_implementations
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -202,36 +202,11 @@ class SlitherCore(Context):
         return self._offset_to_objects[filename][offset]
 
     def _compute_offsets_from_thing(self, thing: SourceMapping):
-
         definition = get_definition(thing, self.crytic_compile)
-
         references = get_references(thing)
-        implementations = set()
-
-        # Abstract contracts and interfaces are implemented by their children
-        if isinstance(thing, Contract):
-            is_interface = thing.is_interface
-            is_implicitly_abstract = not thing.is_fully_implemented
-            is_explicitly_abstract = thing.is_abstract
-            if is_interface or is_implicitly_abstract or is_explicitly_abstract:
-
-                for contract in self.contracts:
-                    if thing in contract.immediate_inheritance:
-                        implementations.add(contract.source_mapping)
-
-        # Parent's virtual functions may be overridden by children
-        elif isinstance(thing, FunctionContract):
-            for over in thing.overridden_by:
-                implementations.add(over.source_mapping)
-            # Only show implemented virtual functions
-            if not thing.is_virtual or thing.is_implemented:
-                implementations.add(get_implementation(thing))
-
-        else:
-            implementations.add(get_implementation(thing))
+        implementations = get_all_implementations(thing, self.contracts)
 
         for offset in range(definition.start, definition.end + 1):
-
             if (
                 isinstance(thing, TopLevel)
                 or (
@@ -265,8 +240,9 @@ class SlitherCore(Context):
                 if is_declared_function:
                     # Only show the nearest lexical definition for declared contract-level functions
                     if (
-                        offset > thing.contract.source_mapping.start
-                        and offset < thing.contract.source_mapping.end
+                        thing.contract.source_mapping.start
+                        < offset
+                        < thing.contract.source_mapping.end
                     ):
 
                         self._offset_to_definitions[ref.filename][offset].add(definition)
