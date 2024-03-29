@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 bugs_by_version = {
     "0.1.0": [
         "DirtyBytesArrayToStorage",
