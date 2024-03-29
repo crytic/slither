@@ -26,6 +26,7 @@ from slither.slithir.operations import (
     InternalCall,
     Index,
     InitArray,
+    NewArray,
 )
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import (
@@ -1131,8 +1132,62 @@ def test_issue_2016(slither_from_solidity_source):
         f = c.functions[0]
         operations = f.slithir_operations
         new_op = operations[0]
+        assert isinstance(new_op, NewArray)
         lvalue = new_op.lvalue
         lvalue_type = lvalue.type
         assert isinstance(lvalue_type, ArrayType)
         assert lvalue_type.type == ElementaryType("int256")
         assert lvalue_type.is_dynamic
+
+
+def test_issue_2210(slither_from_solidity_source):
+    source = """
+    contract C {
+    function f (int x) public returns(int) {
+        int h = 1;
+        int k = 5;
+        int[5] memory arr = [x, C.x, C.y, h - k, h + k];
+    }
+    int x= 4;
+    int y = 5;
+    }
+    """
+    with slither_from_solidity_source(source) as slither:
+        c = slither.get_contract_from_name("C")[0]
+        f = c.functions[0]
+        operations = f.slithir_operations
+        new_op = operations[6]
+        assert isinstance(new_op, InitArray)
+        lvalue = new_op.lvalue
+        lvalue_type = lvalue.type
+        assert isinstance(lvalue_type, ArrayType)
+        assert lvalue_type.type == ElementaryType("int256")
+        assert not lvalue_type.is_dynamic
+
+    source2 = """
+    contract X {
+        function _toInts(uint256[] memory a) private pure returns (int256[] memory casted) {
+            /// @solidity memory-safe-assembly
+            assembly {
+                casted := a
+            }
+        }
+    }
+    """
+    with slither_from_solidity_source(source2) as slither:
+        x = slither.get_contract_from_name("X")[0]
+        f2 = x.functions[0]
+        operations = f2.slithir_operations
+        new_op2 = operations[0]
+        assert isinstance(new_op2, Assignment)
+
+        lvalue = new_op2.lvalue
+        lvalue_type = lvalue.type
+        assert isinstance(lvalue_type, ArrayType)
+        assert lvalue_type.type == ElementaryType("int256")
+        assert lvalue_type.is_dynamic
+
+        rvalue_type = new_op2.rvalue.type
+        assert isinstance(rvalue_type, ArrayType)
+        assert rvalue_type.type == ElementaryType("uint256")
+        assert rvalue_type.is_dynamic
