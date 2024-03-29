@@ -132,10 +132,16 @@ class Slither(
         for p in filter_paths:
             self.add_path_to_filter(p)
 
+        include_paths = kwargs.get("include_paths", [])
+        for p in include_paths:
+            self.add_path_to_include(p)
+
         self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
 
         triage_mode = kwargs.get("triage_mode", False)
+        triage_database = kwargs.get("triage_database", "slither.db.json")
         self._triage_mode = triage_mode
+        self._previous_results_filename = triage_database
 
         printers_to_run = kwargs.get("printers_to_run", "")
         if printers_to_run == "echidna":

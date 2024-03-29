@@ -25,7 +25,7 @@ def _is_valid_type(v: StateVariable) -> bool:
 
 
 def _valid_candidate(v: StateVariable) -> bool:
-    return _is_valid_type(v) and not (v.is_constant or v.is_immutable)
+    return _is_valid_type(v)
 
 
 def _is_constant_var(v: Variable) -> bool:
@@ -92,7 +92,7 @@ class UnchangedStateVariables:
             variables = []
             functions = []
 
-            variables.append(c.state_variables)
+            variables.append(c.stored_state_variables)
             functions.append(c.all_functions_called)
 
             valid_candidates: Set[StateVariable] = {

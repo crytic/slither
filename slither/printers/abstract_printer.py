@@ -20,7 +20,7 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
 
     WIKI = ""
 
-    def __init__(self, slither: "Slither", logger: Logger) -> None:
+    def __init__(self, slither: "Slither", logger: Optional[Logger]) -> None:
         self.slither = slither
         self.contracts = slither.contracts
         self.filename = slither.filename

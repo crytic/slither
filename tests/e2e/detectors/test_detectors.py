@@ -1679,6 +1679,11 @@ ALL_TESTS = [
         "return_bomb.sol",
         "0.8.20",
     ),
+    Test(
+        all_detectors.OutOfOrderRetryable,
+        "out_of_order_retryable.sol",
+        "0.8.20",
+    ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"

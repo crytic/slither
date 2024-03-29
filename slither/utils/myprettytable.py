@@ -1,6 +1,9 @@
 from typing import List, Dict, Union
 
+from prettytable import PrettyTable
 from prettytable.colortable import ColorTable, Themes
+
+from slither.utils.colors import Colors
 
 
 class MyPrettyTable:
@@ -19,8 +22,12 @@ class MyPrettyTable:
     def add_row(self, row: List[Union[str, List[str]]]) -> None:
         self._rows.append(row)
 
-    def to_pretty_table(self) -> ColorTable:
-        table = ColorTable(self._field_names, theme=Themes.OCEAN)
+    def to_pretty_table(self) -> PrettyTable:
+        if Colors.COLORIZATION_ENABLED:
+            table = ColorTable(self._field_names, theme=Themes.OCEAN)
+        else:
+            table = PrettyTable(self._field_names)
+
         for row in self._rows:
             table.add_row(row)
         if len(self._options["set_alignment"]):

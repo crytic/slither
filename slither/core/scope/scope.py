@@ -7,6 +7,7 @@ from crytic_compile.utils.naming import Filename
 from slither.core.declarations import Contract, Import, Pragma
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
@@ -39,6 +40,7 @@ class FileScope:
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
         self.functions: Set[FunctionTopLevel] = set()
+        self.events: Set[EventTopLevel] = set()
         self.using_for_directives: Set[UsingForTopLevel] = set()
         self.imports: Set[Import] = set()
         self.pragmas: Set[Pragma] = set()
@@ -54,7 +56,7 @@ class FileScope:
         # Name -> type alias
         self.type_aliases: Dict[str, TypeAlias] = {}
 
-    def add_accesible_scopes(self) -> bool:
+    def add_accesible_scopes(self) -> bool:  # pylint: disable=too-many-branches
         """
         Add information from accessible scopes. Return true if new information was obtained
 
@@ -73,6 +75,9 @@ class FileScope:
                 learn_something = True
             if not _dict_contain(new_scope.enums, self.enums):
                 self.enums.update(new_scope.enums)
+                learn_something = True
+            if not new_scope.events.issubset(self.events):
+                self.events |= new_scope.events
                 learn_something = True
             if not new_scope.functions.issubset(self.functions):
                 self.functions |= new_scope.functions

@@ -37,7 +37,7 @@ if TYPE_CHECKING:
         HighLevelCallType,
         LibraryCallType,
     )
-    from slither.core.declarations import Contract
+    from slither.core.declarations import Contract, FunctionContract
     from slither.core.cfg.node import Node, NodeType
     from slither.core.variables.variable import Variable
     from slither.slithir.variables.variable import SlithIRVariable
@@ -46,7 +46,6 @@ if TYPE_CHECKING:
     from slither.slithir.operations import Operation
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.core.scope.scope import FileScope
-    from slither.slithir.variables.state_variable import StateIRVariable
 
 LOGGER = logging.getLogger("Function")
 ReacheableNode = namedtuple("ReacheableNode", ["node", "ir"])
@@ -126,6 +125,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._pure: bool = False
         self._payable: bool = False
         self._visibility: Optional[str] = None
+        self._virtual: bool = False
+        self._overrides: List["FunctionContract"] = []
+        self._overridden_by: List["FunctionContract"] = []
 
         self._is_implemented: Optional[bool] = None
         self._is_empty: Optional[bool] = None
@@ -440,6 +442,49 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     @payable.setter
     def payable(self, p: bool):
         self._payable = p
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region Virtual
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def is_virtual(self) -> bool:
+        """
+        Note for Solidity < 0.6.0 it will always be false
+        bool: True if the function is virtual
+        """
+        return self._virtual
+
+    @is_virtual.setter
+    def is_virtual(self, v: bool):
+        self._virtual = v
+
+    @property
+    def is_override(self) -> bool:
+        """
+        Note for Solidity < 0.6.0 it will always be false
+        bool: True if the function overrides a base function
+        """
+        return len(self._overrides) > 0
+
+    @property
+    def overridden_by(self) -> List["FunctionContract"]:
+        """
+        List["FunctionContract"]: List of functions in child contracts that override this function
+        This may include distinct instances of the same function due to inheritance
+        """
+        return self._overridden_by
+
+    @property
+    def overrides(self) -> List["FunctionContract"]:
+        """
+        List["FunctionContract"]: List of functions in parent contracts that this function overrides
+        This may include distinct instances of the same function due to inheritance
+        """
+        return self._overrides
 
     # endregion
     ###################################################################################
