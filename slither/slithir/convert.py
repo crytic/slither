@@ -1922,35 +1922,18 @@ def convert_constant_types(irs: List[Operation]) -> None:
     while was_changed:
         was_changed = False
         for ir in irs:
-            if isinstance(ir, Assignment):
-                if isinstance(ir.lvalue.type, ElementaryType):
-                    if ir.lvalue.type.type in ElementaryTypeInt:
-                        if isinstance(ir.rvalue, Function):
-                            continue
-                        if isinstance(ir.rvalue, TupleVariable):
-                            # TODO: fix missing Unpack conversion
-                            continue
-                        if isinstance(ir.rvalue.type, TypeAlias):
-                            ir.rvalue.set_type(ElementaryType(ir.lvalue.type.name))
+            if isinstance(ir, (Assignment, Binary)):
+                if isinstance(ir.lvalue.type, ElementaryType) and ir.lvalue.type.type in ElementaryTypeInt:
+                    for r in ir.read:
+                        if isinstance(r, Constant) and r.type.type not in ElementaryTypeInt:
+                            r.set_type(ElementaryType(ir.lvalue.type.type))
                             was_changed = True
-                        elif ir.rvalue.type.type not in ElementaryTypeInt:
-                            ir.rvalue.set_type(ElementaryType(ir.lvalue.type.type))
-                            was_changed = True
-            if isinstance(ir, Binary):
-                if isinstance(ir.lvalue.type, ElementaryType):
-                    if ir.lvalue.type.type in ElementaryTypeInt:
-                        for r in ir.read:
-                            if r.type.type not in ElementaryTypeInt:
-                                r.set_type(ElementaryType(ir.lvalue.type.type))
-                                was_changed = True
+
             if isinstance(ir, (HighLevelCall, InternalCall)):
                 func = ir.function
                 if isinstance(func, StateVariable):
                     types = export_nested_types_from_variable(func)
                 else:
-                    if func is None:
-                        # TODO: add  POP instruction
-                        break
                     types = [p.type for p in func.parameters]
                 assert len(types) == len(ir.arguments)
                 for idx, arg in enumerate(ir.arguments):
@@ -1960,6 +1943,7 @@ def convert_constant_types(irs: List[Operation]) -> None:
                             if arg.type.type not in ElementaryTypeInt:
                                 arg.set_type(ElementaryType(t.type))
                                 was_changed = True
+                                
             if isinstance(ir, NewStructure):
                 st = ir.structure
                 for idx, arg in enumerate(ir.arguments):
@@ -1969,14 +1953,18 @@ def convert_constant_types(irs: List[Operation]) -> None:
                             if arg.type.type not in ElementaryTypeInt:
                                 arg.set_type(ElementaryType(e.type.type))
                                 was_changed = True
+
+            def is_elementary_array(t):
+                return isinstance(t, ArrayType) and isinstance(t.type, ElementaryType)
+            
             if isinstance(ir, InitArray):
-                if isinstance(ir.lvalue.type, ArrayType):
-                    if isinstance(ir.lvalue.type.type, ElementaryType):
+                if is_elementary_array(ir.lvalue.type):
                         if ir.lvalue.type.type.type in ElementaryTypeInt:
                             for r in ir.read:
-                                if r.type.type.type not in ElementaryTypeInt:
-                                    r.set_type(ElementaryType(ir.lvalue.type.type.type))
-                                    was_changed = True
+                                if isinstance(r, Constant) and is_elementary_array(r.type):
+                                    if r.type.type.type not in ElementaryTypeInt:
+                                        r.set_type(ElementaryType(ir.lvalue.type.type.type))
+                                        was_changed = True
 
 
 # endregion

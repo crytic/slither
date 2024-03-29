@@ -233,15 +233,16 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, None)
         else:
-            # Init of array, like
-            # uint8[2] var = [1,2];
+            # For `InitArray`, the rhs is a list or singleton of `TupleExpression` elements.
+            # Init of array e.g. uint8[2] var = [1,2];
             if isinstance(right, list):
                 operation = InitArray(right, left)
                 operation.set_expression(expression)
                 self._result.append(operation)
                 set_val(expression, left)
-            elif isinstance(left.type, ArrayType):
-                # Special case for init of array, when the right has only one element
+
+            # Special case for init of array, when the right has only one element e.g. arr = [1];
+            elif isinstance(left.type, ArrayType) and not isinstance(right.type, ArrayType):
                 operation = InitArray([right], left)
                 operation.set_expression(expression)
                 self._result.append(operation)
@@ -276,6 +277,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
 
             else:
+
                 operation = convert_assignment(
                     left, right, expression.type, expression.expression_return_type
                 )
