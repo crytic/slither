@@ -2,27 +2,26 @@ import re
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 
 
-class KValueError(AbstractDetector):
+class AMMKValueError(AbstractDetector):
     """
-    Module detecting multiple constructors in the same contract.
-    (This was possible prior to Solidity 0.4.23, using old and new constructor schemes).
+    Module detecting potential errors in K-value calculation in Automated Market Makers (AMMs).
     """
 
-    ARGUMENT = "k-value-error"
-    HELP = "Multiple constructor schemes"
+    ARGUMENT = "amm-k-value-error"
+    HELP = "Potential K-value calculation errors"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
     WIKI = " "
 
-    WIKI_TITLE = "Multiple constructor schemes"
+    WIKI_TITLE = "AMM K-Value Error"
     WIKI_DESCRIPTION = (
-        "Detect multiple constructor definitions in the same contract (using new and old schemes)."
+        ""
     )
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """"""
-    WIKI_RECOMMENDATION = "Only declare one constructor, preferably using the new scheme `constructor(...)` instead of `function <contractName>(...)`."
+    WIKI_RECOMMENDATION = "Ensure correct calculation of the K-value in Automated Market Makers (AMMs) to avoid potential trading issues."
 
     def _detect(self):
         """

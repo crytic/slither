@@ -36,25 +36,23 @@ from slither.detectors.functions.modifier_utils import ModifierUtil
             
 class CentralizedRiskInfo(AbstractDetector):
     """
-    Detector for modifiers that return a default value
+    Detector for centralized risk in smart contracts.
     """
 
     ARGUMENT = "centralized-risk-informational"
-    HELP = "Modifiers that can return the default value"
+    HELP = "Detects modifiers that may introduce centralized risk."
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
     WIKI = " "
 
-    WIKI_TITLE = "Centralized Risk"
-    WIKI_DESCRIPTION = "aaa"
+    WIKI_TITLE = "Centralized Risk With function change state"
+    WIKI_DESCRIPTION = "This detector identifies potential instances of centralized risk in smart contracts."
 
     # region wiki_exploit_scenario
-    WIKI_EXPLOIT_SCENARIO = """
-If the condition in `myModif` is false, the execution of `get()` will return 0."""
+    WIKI_EXPLOIT_SCENARIO = """Consider a scenario where a smart contract has a function that allows a user to change the state of the contract. If the function is not properly secured, an attacker could exploit the contract by changing the state of the contract in a way that benefits them. This could lead to a loss of funds or other negative outcomes for the contract owner and users. By identifying potential instances of centralized risk in smart contracts, developers can take steps to secure their contracts and protect against potential exploits."""
     # endregion wiki_exploit_scenario
 
-    WIKI_RECOMMENDATION = "All the paths in a modifier must execute `_` or revert."
-
+    WIKI_RECOMMENDATION = ""
     def _detect(self):
         '''
         This function is used to detect the centralized risk in the contract

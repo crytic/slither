@@ -42,24 +42,14 @@ class DeFiActionNested(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = " http:// "
+    WIKI = "http://"
 
-    WIKI_TITLE = "Arbitrary `from` in transferFrom used with permit"
+    WIKI_TITLE = "DeFi Action Nesting"
     WIKI_DESCRIPTION = (
-        "Detect when `msg.sender` is not used as `from` in transferFrom and permit is used."
+        "This detector identifies instances where DeFi actions are nested, specifically focusing on scenarios where `msg.sender` is not used as `from` in transferFrom while also utilizing a permit function."
     )
     WIKI_EXPLOIT_SCENARIO = """
-```solidity
-    function bad(address from, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s, address to) public {
-        erc20.permit(from, address(this), value, deadline, v, r, s);
-        erc20.transferFrom(from, to, value);
-    }
-```
-If an ERC20 token does not implement permit and has a fallback function e.g. WETH, transferFrom allows an attacker to transfer all tokens approved for this contract."""
-
-    WIKI_RECOMMENDATION = """
-Ensure that the underlying ERC20 token correctly implements a permit function.
-"""
+    }"""
     ERC20_FUNCTION = [
     "transferFrom",
     "safeTransferFrom",

@@ -36,24 +36,23 @@ from slither.detectors.functions.modifier_utils import ModifierUtil
             
 class CentralizedRiskLOW(AbstractDetector):
     """
-    Detector for modifiers that return a default value
+    Detector for centralized risk in smart contracts with low impact and high confidence.
     """
 
     ARGUMENT = "centralized-risk-low"
-    HELP = "Modifiers that can return the default value"
+    HELP = "Detects modifiers that may introduce centralized risk by returning a default value."
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
     WIKI = " "
 
-    WIKI_TITLE = "Centralized Risk"
-    WIKI_DESCRIPTION = "aaa"
+    WIKI_TITLE = "Centralized Risk with function read key state"
+    WIKI_DESCRIPTION = "The Centralized Risk detector identifies patterns in smart contracts that introduce centralized risk, potentially affecting the decentralization and security of the system."
 
     # region wiki_exploit_scenario
-    WIKI_EXPLOIT_SCENARIO = """
-If the condition in `myModif` is false, the execution of `get()` will return 0."""
+    WIKI_EXPLOIT_SCENARIO = """"""
     # endregion wiki_exploit_scenario
 
-    WIKI_RECOMMENDATION = "All the paths in a modifier must execute `_` or revert."
+    WIKI_RECOMMENDATION = ""
 
     def _detect(self):
         '''

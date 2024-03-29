@@ -47,15 +47,15 @@ class CentralizedRiskOther(AbstractDetector):
     CONFIDENCE = DetectorClassification.HIGH
     WIKI = " "
 
-    WIKI_TITLE = "Centralized Risk"
+    WIKI_TITLE = "Centralized Risk with function transfer and transferFrom"
     WIKI_DESCRIPTION = "aaa"
 
     # region wiki_exploit_scenario
-    WIKI_EXPLOIT_SCENARIO = """
-If the condition in `myModif` is false, the execution of `get()` will return 0."""
+    WIKI_EXPLOIT_SCENARIO = """"""
     # endregion wiki_exploit_scenario
 
-    WIKI_RECOMMENDATION = "All the paths in a modifier must execute `_` or revert."
+    WIKI_RECOMMENDATION = ""
+
 
     def _detect(self):
         results = []
