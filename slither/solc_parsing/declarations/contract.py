@@ -9,7 +9,7 @@ from slither.core.declarations import (
     StructureContract,
     Function,
 )
-from slither.core.declarations.contract import Contract, USING_FOR_KEY
+from slither.core.declarations.contract import Contract
 from slither.core.declarations.custom_error_contract import CustomErrorContract
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.solidity_types import ElementaryType, TypeAliasContract
@@ -23,6 +23,7 @@ from slither.solc_parsing.declarations.structure_contract import StructureContra
 from slither.solc_parsing.exceptions import ParsingError, VariableNotFound
 from slither.solc_parsing.solidity_types.type_parsing import parse_type
 from slither.solc_parsing.variables.state_variable import StateVariableSolc
+from slither.utils.using_for import USING_FOR_KEY
 
 LOGGER = logging.getLogger("ContractSolcParsing")
 

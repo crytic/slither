@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Any, List, TYPE_CHECKING, Union, Optional, Dict
+from typing import Any, List, TYPE_CHECKING, Union, Optional
 
 # pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
 from slither.core.declarations import (
@@ -13,7 +13,6 @@ from slither.core.declarations import (
     SolidityVariableComposed,
     Structure,
 )
-from slither.core.declarations.contract import USING_FOR_KEY, USING_FOR_ITEM
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
@@ -84,6 +83,7 @@ from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVari
 from slither.slithir.variables import TupleVariable
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
+from slither.utils.using_for import USING_FOR
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 
 if TYPE_CHECKING:
@@ -594,11 +594,13 @@ def _convert_type_contract(ir: Member) -> Assignment:
 def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
-    using_for: Dict[USING_FOR_KEY, USING_FOR_ITEM] = (
-        node_function.contract.using_for_complete
-        if isinstance(node_function, FunctionContract)
-        else {}
-    )
+
+    using_for: USING_FOR = {}
+    if isinstance(node_function, FunctionContract):
+        using_for = node_function.contract.using_for_complete
+    elif isinstance(node_function, FunctionTopLevel):
+        using_for = node_function.using_for_complete
+
     if isinstance(ir, OperationWithLValue) and ir.lvalue:
         # Force assignment in case of missing previous correct type
         if not ir.lvalue.type:
@@ -1531,9 +1533,10 @@ def look_for_library_or_top_level(
                     internalcall.lvalue = None
                 return internalcall
 
+        lib_contract = None
         if isinstance(destination, FunctionContract) and destination.contract.is_library:
             lib_contract = destination.contract
-        else:
+        elif not isinstance(destination, FunctionTopLevel):
             lib_contract = contract.file_scope.get_contract_from_name(str(destination))
         if lib_contract:
             lib_call = LibraryCall(
@@ -1561,7 +1564,9 @@ def convert_to_library_or_top_level(
     # We use contract_declarer, because Solidity resolve the library
     # before resolving the inheritance.
     # Though we could use .contract as libraries cannot be shadowed
-    contract = node.function.contract_declarer
+    contract = (
+        node.function.contract_declarer if isinstance(node.function, FunctionContract) else None
+    )
     t = ir.destination.type
     if t in using_for:
         new_ir = look_for_library_or_top_level(contract, ir, using_for, t)
