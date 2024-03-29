@@ -1139,6 +1139,7 @@ def test_issue_2016(slither_from_solidity_source):
         assert lvalue_type.type == ElementaryType("int256")
         assert lvalue_type.is_dynamic
 
+
 def test_issue_2210(slither_from_solidity_source):
     source = """
     contract C {
@@ -1162,7 +1163,7 @@ def test_issue_2210(slither_from_solidity_source):
         assert isinstance(lvalue_type, ArrayType)
         assert lvalue_type.type == ElementaryType("int256")
         assert not lvalue_type.is_dynamic
-    
+
     source2 = """
     contract X {
         function _toInts(uint256[] memory a) private pure returns (int256[] memory casted) {
@@ -1185,7 +1186,7 @@ def test_issue_2210(slither_from_solidity_source):
         assert isinstance(lvalue_type, ArrayType)
         assert lvalue_type.type == ElementaryType("int256")
         assert lvalue_type.is_dynamic
-        
+
         rvalue_type = new_op2.rvalue.type
         assert isinstance(rvalue_type, ArrayType)
         assert rvalue_type.type == ElementaryType("uint256")

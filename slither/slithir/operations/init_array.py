@@ -3,7 +3,6 @@ from slither.slithir.operations.lvalue import OperationWithLValue
 from slither.slithir.utils.utils import is_valid_rvalue, RVALUE
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
-from slither.slithir.utils.utils import RVALUE
 
 
 class InitArray(OperationWithLValue):

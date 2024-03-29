@@ -1923,7 +1923,10 @@ def convert_constant_types(irs: List[Operation]) -> None:
         was_changed = False
         for ir in irs:
             if isinstance(ir, (Assignment, Binary)):
-                if isinstance(ir.lvalue.type, ElementaryType) and ir.lvalue.type.type in ElementaryTypeInt:
+                if (
+                    isinstance(ir.lvalue.type, ElementaryType)
+                    and ir.lvalue.type.type in ElementaryTypeInt
+                ):
                     for r in ir.read:
                         if isinstance(r, Constant) and r.type.type not in ElementaryTypeInt:
                             r.set_type(ElementaryType(ir.lvalue.type.type))
@@ -1943,7 +1946,7 @@ def convert_constant_types(irs: List[Operation]) -> None:
                             if arg.type.type not in ElementaryTypeInt:
                                 arg.set_type(ElementaryType(t.type))
                                 was_changed = True
-                                
+
             if isinstance(ir, NewStructure):
                 st = ir.structure
                 for idx, arg in enumerate(ir.arguments):
@@ -1956,15 +1959,15 @@ def convert_constant_types(irs: List[Operation]) -> None:
 
             def is_elementary_array(t):
                 return isinstance(t, ArrayType) and isinstance(t.type, ElementaryType)
-            
+
             if isinstance(ir, InitArray):
                 if is_elementary_array(ir.lvalue.type):
-                        if ir.lvalue.type.type.type in ElementaryTypeInt:
-                            for r in ir.read:
-                                if isinstance(r, Constant) and is_elementary_array(r.type):
-                                    if r.type.type.type not in ElementaryTypeInt:
-                                        r.set_type(ElementaryType(ir.lvalue.type.type.type))
-                                        was_changed = True
+                    if ir.lvalue.type.type.type in ElementaryTypeInt:
+                        for r in ir.read:
+                            if isinstance(r, Constant) and is_elementary_array(r.type):
+                                if r.type.type.type not in ElementaryTypeInt:
+                                    r.set_type(ElementaryType(ir.lvalue.type.type.type))
+                                    was_changed = True
 
 
 # endregion

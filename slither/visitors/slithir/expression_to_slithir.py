@@ -438,7 +438,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, val)
 
     def _post_conditional_expression(self, expression: ConditionalExpression) -> None:
-        raise Exception(f"Ternary operator are not convertible to SlithIR {expression}")
+        raise SlithIRError(f"Ternary operator are not convertible to SlithIR {expression}")
 
     def _post_elementary_type_name_expression(
         self,
