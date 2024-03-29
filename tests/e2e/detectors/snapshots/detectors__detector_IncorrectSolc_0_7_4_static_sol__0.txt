@@ -1,4 +1,4 @@
-Version constraint 0.7.4 contain known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+Version constraint 0.7.4 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
 	- FullInlinerNonExpressionSplitArgumentEvaluationOrder
 	- MissingSideEffectsOnSelectorAccess
 	- AbiReencodingHeadOverflowWithStaticArrayCleanup

@@ -1,6 +1,6 @@
 solc-0.7.6 is an outdated solc version. Use a more recent version (at least 0.8.0), if possible.
 
-Version constraint ^0.7.4 contain known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+Version constraint ^0.7.4 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
 	- FullInlinerNonExpressionSplitArgumentEvaluationOrder
 	- MissingSideEffectsOnSelectorAccess
 	- AbiReencodingHeadOverflowWithStaticArrayCleanup

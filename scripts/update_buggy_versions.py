@@ -17,9 +17,11 @@ def organize_data(json_data):
 
 
 if __name__ == "__main__":
-    url = "https://raw.githubusercontent.com/ethereum/solidity/develop/docs/bugs_by_version.json"
-    json_data = retrieve_json(url)
-    version_bugs = organize_data(json_data)
+    bug_list_url = (
+        "https://raw.githubusercontent.com/ethereum/solidity/develop/docs/bugs_by_version.json"
+    )
+    bug_data = retrieve_json(bug_list_url)
+    bugs_by_version = organize_data(bug_data)
 
-    with open(Path.cwd() / Path("slither/utils/buggy_versions.py"), "w") as file:
-        file.write(f"bugs_by_version = {version_bugs}")
+    with open(Path.cwd() / Path("slither/utils/buggy_versions.py"), "w", encoding="utf-8") as file:
+        file.write(f"bugs_by_version = {bugs_by_version}")

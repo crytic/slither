@@ -1583,6 +1583,7 @@ bugs_by_version = {
     "0.8.22": ["VerbatimInvalidDeduplication"],
     "0.8.23": [],
     "0.8.24": [],
+    "0.8.25": [],
     "0.8.3": [
         "FullInlinerNonExpressionSplitArgumentEvaluationOrder",
         "MissingSideEffectsOnSelectorAccess",

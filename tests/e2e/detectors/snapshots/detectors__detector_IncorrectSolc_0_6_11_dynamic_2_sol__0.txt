@@ -1,4 +1,4 @@
-Version constraint >=0.6.0<0.7.0 contain known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+Version constraint >=0.6.0<0.7.0 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
 	- AbiReencodingHeadOverflowWithStaticArrayCleanup
 	- DirtyBytesArrayToStorage
 	- NestedCalldataArrayAbiReencodingSizeValidation

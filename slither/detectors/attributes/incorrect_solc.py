@@ -60,7 +60,7 @@ Consider using the latest version of Solidity for testing."""
     LESS_THAN_TXT = "uses lesser than"
 
     BUGGY_VERSION_TXT = (
-        "contain known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
+        "contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
     )
 
     # Indicates the allowed versions. Must be formatted in increasing order.
