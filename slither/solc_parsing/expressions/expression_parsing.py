@@ -175,11 +175,12 @@ def parse_call(
         called = parse_expression(children[0], caller_context)
         arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
-    if isinstance(called, SuperCallExpression):
+    if isinstance(called, SuperIdentifier):
         sp = SuperCallExpression(called, arguments, type_return)
         sp.set_offset(expression["src"], caller_context.compilation_unit)
         return sp
-    call_expression = CallExpression(called, arguments, type_return)
+    names = expression["names"] if "names" in expression and len(expression["names"]) > 0 else None
+    call_expression = CallExpression(called, arguments, type_return, names=names)
     call_expression.set_offset(src, caller_context.compilation_unit)
 
     # Only available if the syntax {gas:, value:} was used
@@ -486,13 +487,18 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         t = None
 
+        referenced_declaration = None
         if caller_context.is_compact_ast:
             value = expression["name"]
             t = expression["typeDescriptions"]["typeString"]
+            if "referencedDeclaration" in expression:
+                referenced_declaration = expression["referencedDeclaration"]
         else:
             value = expression["attributes"]["value"]
             if "type" in expression["attributes"]:
                 t = expression["attributes"]["type"]
+            if "referencedDeclaration" in expression["attributes"]:
+                referenced_declaration = expression["attributes"]["referencedDeclaration"]
 
         if t:
             found = re.findall(r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
@@ -501,10 +507,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 value = value + "(" + found[0] + ")"
                 value = filter_name(value)
 
-        if "referencedDeclaration" in expression:
-            referenced_declaration = expression["referencedDeclaration"]
-        else:
-            referenced_declaration = None
         var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)
@@ -612,20 +614,9 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         assert type_name[caller_context.get_key()] == "UserDefinedTypeName"
 
-        if is_compact_ast:
-
-            # Changed introduced in Solidity 0.8
-            # see https://github.com/crytic/slither/issues/794
-
-            # TODO explore more the changes introduced in 0.8 and the usage of pathNode/IdentifierPath
-            if "name" not in type_name:
-                assert "pathNode" in type_name and "name" in type_name["pathNode"]
-                contract_name = type_name["pathNode"]["name"]
-            else:
-                contract_name = type_name["name"]
-        else:
-            contract_name = type_name["attributes"]["name"]
-        new = NewContract(contract_name)
+        contract_type = parse_type(type_name, caller_context)
+        assert isinstance(contract_type, UserDefinedType)
+        new = NewContract(contract_type)
         new.set_offset(src, caller_context.compilation_unit)
         return new
 

@@ -115,3 +115,12 @@ contract PropagateThroughReturnValue {
     return (var_state);
   }
 }
+
+contract SimpleModifier {
+    address owner;
+    modifier baz {
+        bool intermediate = msg.sender == owner;
+        require(intermediate);
+        _;
+    }
+}

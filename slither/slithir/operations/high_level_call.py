@@ -28,11 +28,18 @@ class HighLevelCall(Call, OperationWithLValue):
         nbr_arguments: int,
         result: Optional[Union[TemporaryVariable, TupleVariable, TemporaryVariableSSA]],
         type_call: str,
+        names: Optional[List[str]] = None,
     ) -> None:
+        """
+        #### Parameters
+        names -
+            For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+            Otherwise, None.
+        """
         assert isinstance(function_name, Constant)
         assert is_valid_lvalue(result) or result is None
         self._check_destination(destination)
-        super().__init__()
+        super().__init__(names=names)
         # Contract is only possible for library call, which inherits from highlevelcall
         self._destination: Union[Variable, SolidityVariable, Contract] = destination  # type: ignore
         self._function_name = function_name
@@ -47,7 +54,6 @@ class HighLevelCall(Call, OperationWithLValue):
 
     # Development function, to be removed once the code is stable
     # It is overridden by LibraryCall
-    # pylint: disable=no-self-use
     def _check_destination(self, destination: Union[Variable, SolidityVariable, Contract]) -> None:
         assert isinstance(destination, (Variable, SolidityVariable))
 

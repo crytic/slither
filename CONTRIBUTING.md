@@ -6,7 +6,7 @@ If you're unsure where to start, we recommend our [`good first issue`](https://g
 
 ## Bug reports and feature suggestions
 
-Bug reports and feature suggestions can be submitted to our issue tracker. For bug reports, attaching the contract that caused the bug will help us in debugging and resolving the issue quickly. If you find a security vulnerability, do not open an issue; email opensource@trailofbits.com instead.
+Bug reports and feature suggestions can be submitted to our issue tracker. For bug reports, attaching the contract that caused the bug will help us in debugging and resolving the issue quickly. If you find a security vulnerability, do not open an issue; email <opensource@trailofbits.com> instead.
 
 ## Questions
 
@@ -14,7 +14,7 @@ Questions can be submitted to the "Discussions" page, and you may also join our 
 
 ## Code
 
-Slither uses the pull request contribution model. Please make an account on Github, fork this repo, and submit code contributions via pull request. For more documentation, look [here](https://guides.github.com/activities/forking/).
+Slither uses the pull request contribution model. Please make an account on GitHub, fork this repository, and submit code contributions via pull request. For more documentation, look [here](https://guides.github.com/activities/forking/).
 
 Some pull request guidelines:
 
@@ -63,7 +63,7 @@ To automatically reformat the code:
 
 - `make reformat`
 
-We use pylint `2.13.4`, black `22.3.0`.
+We use pylint `3.0.3`, black `22.3.0`.
 
 ### Testing
 
@@ -82,7 +82,7 @@ For each new detector, at least one regression tests must be present.
 1. Create a folder in `tests/e2e/detectors/test_data` with the detector's argument name.
 2. Create a test contract in `tests/e2e/detectors/test_data/<detector_name>/`.
 3. Update `ALL_TESTS` in `tests/e2e/detectors/test_detectors.py`.
-4. Run `python tests/e2e/detectors/test_detectors.py --compile` to create a zip file of the compilation artifacts.
+4. Run `python tests/e2e/detectors/test_detectors.py --compile` to create a ZIP file of the compilation artifacts.
 5. `pytest tests/e2e/detectors/test_detectors.py --insta update-new`. This will generate a snapshot of the detector output in `tests/e2e/detectors/snapshots/`. If updating an existing detector, run `pytest tests/e2e/detectors/test_detectors.py --insta review` and accept or reject the updates.
 6. Run `pytest tests/e2e/detectors/test_detectors.py` to ensure everything worked. Then, add and commit the files to git.
 
@@ -96,8 +96,8 @@ For each new detector, at least one regression tests must be present.
 #### Adding parsing tests
 
 1. Create a test in `tests/e2e/solc_parsing/`
-2. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --compile`. This will compile the artifact in `tests/e2e/solc_parsing/compile`. Add the compiled artifact to git.
-3. Update `ALL_TESTS` in `tests/e2e/solc_parsing/test_ast_parsing.py`.
+2. Update `ALL_TESTS` in `tests/e2e/solc_parsing/test_ast_parsing.py`.
+3. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --compile`. This will compile the artifact in `tests/e2e/solc_parsing/compile`. Add the compiled artifact to git.
 4. Run `python tests/e2e/solc_parsing/test_ast_parsing.py --generate`. This will generate the json artifacts in `tests/e2e/solc_parsing/expected_json`. Add the generated files to git.
 5. Run `pytest tests/e2e/solc_parsing/test_ast_parsing.py` and check that everything worked.
 

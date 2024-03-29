@@ -8,6 +8,7 @@ from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.output import Output
+from slither.core.cfg.node import NodeType
 
 
 class ShiftParameterMixup(AbstractDetector):
@@ -45,8 +46,18 @@ The shift statement will right-shift the constant 8 by `a` bits"""
 
     def _check_function(self, f: FunctionContract) -> List[Output]:
         results = []
+        in_assembly = False
 
         for node in f.nodes:
+            if node.type == NodeType.ASSEMBLY:
+                in_assembly = True
+                continue
+            if node.type == NodeType.ENDASSEMBLY:
+                in_assembly = False
+                continue
+            if not in_assembly:
+                continue
+
             for ir in node.irs:
                 if isinstance(ir, Binary) and ir.type in [
                     BinaryType.LEFT_SHIFT,

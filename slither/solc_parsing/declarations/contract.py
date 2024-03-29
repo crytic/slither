@@ -1,10 +1,10 @@
 import logging
 import re
-from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set, Sequence
+from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set, Sequence, Tuple
 
 from slither.core.declarations import (
     Modifier,
-    Event,
+    EventContract,
     EnumContract,
     StructureContract,
     Function,
@@ -16,7 +16,7 @@ from slither.core.solidity_types import ElementaryType, TypeAliasContract
 from slither.core.variables.state_variable import StateVariable
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
-from slither.solc_parsing.declarations.event import EventSolc
+from slither.solc_parsing.declarations.event_contract import EventContractSolc
 from slither.solc_parsing.declarations.function import FunctionSolc
 from slither.solc_parsing.declarations.modifier import ModifierSolc
 from slither.solc_parsing.declarations.structure_contract import StructureContractSolc
@@ -64,7 +64,8 @@ class ContractSolc(CallerContextExpression):
         # use to remap inheritance id
         self._remapping: Dict[str, str] = {}
 
-        self.baseContracts: List[str] = []
+        # (referencedDeclaration, offset)
+        self.baseContracts: List[Tuple[int, str]] = []
         self.baseConstructorContractsCalled: List[str] = []
         self._linearized_base_contracts: List[int]
 
@@ -174,6 +175,9 @@ class ContractSolc(CallerContextExpression):
         self._contract.is_fully_implemented = attributes["fullyImplemented"]
         self._linearized_base_contracts = attributes["linearizedBaseContracts"]
 
+        if "abstract" in attributes:
+            self._contract.is_abstract = attributes["abstract"]
+
         # Parse base contract information
         self._parse_base_contract_info()
 
@@ -201,7 +205,9 @@ class ContractSolc(CallerContextExpression):
 
                     # Obtain our contract reference and add it to our base contract list
                     referencedDeclaration = base_contract["baseName"]["referencedDeclaration"]
-                    self.baseContracts.append(referencedDeclaration)
+                    self.baseContracts.append(
+                        (referencedDeclaration, base_contract["baseName"]["src"])
+                    )
 
                     # If we have defined arguments in our arguments object, this is a constructor invocation.
                     # (note: 'arguments' can be [], which is not the same as None. [] implies a constructor was
@@ -233,7 +239,10 @@ class ContractSolc(CallerContextExpression):
                     referencedDeclaration = base_contract_items[0]["attributes"][
                         "referencedDeclaration"
                     ]
-                    self.baseContracts.append(referencedDeclaration)
+
+                    self.baseContracts.append(
+                        (referencedDeclaration, base_contract_items[0]["src"])
+                    )
 
                     # If we have an 'attributes'->'arguments' which is None, this is not a constructor call.
                     if (
@@ -291,10 +300,10 @@ class ContractSolc(CallerContextExpression):
         alias = item["name"]
         alias_canonical = self._contract.name + "." + item["name"]
 
-        user_defined_type = TypeAliasContract(original_type, alias, self.underlying_contract)
-        user_defined_type.set_offset(item["src"], self.compilation_unit)
-        self._contract.file_scope.user_defined_types[alias] = user_defined_type
-        self._contract.file_scope.user_defined_types[alias_canonical] = user_defined_type
+        type_alias = TypeAliasContract(original_type, alias, self.underlying_contract)
+        type_alias.set_offset(item["src"], self.compilation_unit)
+        self._contract.type_aliases_as_dict[alias] = type_alias
+        self._contract.file_scope.type_aliases[alias_canonical] = type_alias
 
     def _parse_struct(self, struct: Dict) -> None:
 
@@ -319,7 +328,7 @@ class ContractSolc(CallerContextExpression):
         ce.set_contract(self._contract)
         ce.set_offset(custom_error["src"], self.compilation_unit)
 
-        ce_parser = CustomErrorSolc(ce, custom_error, self._slither_parser)
+        ce_parser = CustomErrorSolc(ce, custom_error, self, self._slither_parser)
         self._contract.custom_errors_as_dict[ce.name] = ce
         self._custom_errors_parser.append(ce_parser)
 
@@ -357,6 +366,8 @@ class ContractSolc(CallerContextExpression):
             self._variables_parser.append(var_parser)
 
             assert var.name
+            if var_parser.reference_id is not None:
+                self._contract.state_variables_by_ref_id[var_parser.reference_id] = var
             self._contract.variables_as_dict[var.name] = var
             self._contract.add_variables_ordered([var])
 
@@ -725,7 +736,7 @@ class ContractSolc(CallerContextExpression):
         new_enum.set_offset(enum["src"], self._contract.compilation_unit)
         self._contract.enums_as_dict[canonicalName] = new_enum
 
-    def _analyze_struct(self, struct: StructureContractSolc) -> None:  # pylint: disable=no-self-use
+    def _analyze_struct(self, struct: StructureContractSolc) -> None:
         struct.analyze()
 
     def analyze_structs(self) -> None:
@@ -745,12 +756,12 @@ class ContractSolc(CallerContextExpression):
                 self._contract.events_as_dict.update(father.events_as_dict)
 
             for event_to_parse in self._eventsNotParsed:
-                event = Event()
+                event = EventContract()
                 event.set_contract(self._contract)
                 event.set_offset(event_to_parse["src"], self._contract.compilation_unit)
 
-                event_parser = EventSolc(event, event_to_parse, self)  # type: ignore
-                event_parser.analyze(self)  # type: ignore
+                event_parser = EventContractSolc(event, event_to_parse, self)  # type: ignore
+                event_parser.analyze()  # type: ignore
                 self._contract.events_as_dict[event.full_name] = event
         except (VariableNotFound, KeyError) as e:
             self.log_incorrect_parsing(f"Missing event {e}")

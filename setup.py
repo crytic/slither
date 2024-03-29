@@ -5,18 +5,18 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="slither-analyzer",
-    description="Slither is a Solidity static analysis framework written in Python 3.",
+    description="Slither is a Solidity and Vyper static analysis framework written in Python 3.",
     url="https://github.com/crytic/slither",
     author="Trail of Bits",
-    version="0.9.3",
+    version="0.10.0",
     packages=find_packages(),
     python_requires=">=3.8",
     install_requires=[
         "packaging",
         "prettytable>=3.3.0",
         "pycryptodome>=3.4.6",
-        # "crytic-compile>=0.3.1,<0.4.0",
-        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@dev#egg=crytic-compile",
+        # "crytic-compile>=0.3.5,<0.4.0",
+        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
         "web3>=6.0.0",
         "eth-abi>=4.0.0",
         "eth-typing>=3.0.0",
@@ -25,7 +25,7 @@ setup(
     extras_require={
         "lint": [
             "black==22.3.0",
-            "pylint==2.13.4",
+            "pylint==3.0.3",
         ],
         "test": [
             "pytest",
@@ -36,7 +36,6 @@ setup(
             "coverage[toml]",
             "filelock",
             "pytest-insta",
-            "solc-select@git+https://github.com/crytic/solc-select.git@query-artifact-path#egg=solc-select",
         ],
         "doc": [
             "pdoc",

@@ -11,6 +11,7 @@ from slither.core.declarations.solidity_variables import (
     SolidityFunction,
 )
 from slither.core.expressions.expression import Expression
+from slither.core.expressions import CallExpression, Identifier, AssignmentOperation
 from slither.core.solidity_types import ElementaryType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
@@ -74,6 +75,7 @@ class NodeType(Enum):
     IF = "IF"
     VARIABLE = "NEW VARIABLE"  # Variable declaration
     ASSEMBLY = "INLINE ASM"
+    ENDASSEMBLY = "END INLINE ASM"
     IFLOOP = "IF_LOOP"
 
     # Nodes where control flow merges
@@ -193,6 +195,8 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         self.file_scope: "FileScope" = file_scope
         self._function: Optional["Function"] = None
 
+        self._is_reachable: bool = False
+
     ###################################################################################
     ###################################################################################
     # region General's properties
@@ -233,6 +237,13 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def function(self) -> "Function":
         return self._function
+
+    @property
+    def is_reachable(self) -> bool:
+        return self._is_reachable
+
+    def set_is_reachable(self, new_is_reachable: bool) -> None:
+        self._is_reachable = new_is_reachable
 
     # endregion
     ###################################################################################
@@ -888,6 +899,21 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
                 # TODO: consider removing dependancy of solidity_call to internal_call
                 self._solidity_calls.append(ir.function)
                 self._internal_calls.append(ir.function)
+            if (
+                isinstance(ir, SolidityCall)
+                and ir.function == SolidityFunction("sstore(uint256,uint256)")
+                and isinstance(ir.node.expression, CallExpression)
+                and isinstance(ir.node.expression.arguments[0], Identifier)
+            ):
+                self._vars_written.append(ir.arguments[0])
+            if (
+                isinstance(ir, SolidityCall)
+                and ir.function == SolidityFunction("sload(uint256)")
+                and isinstance(ir.node.expression, AssignmentOperation)
+                and isinstance(ir.node.expression.expression_right, CallExpression)
+                and isinstance(ir.node.expression.expression_right.arguments[0], Identifier)
+            ):
+                self._vars_read.append(ir.arguments[0])
             if isinstance(ir, LowLevelCall):
                 assert isinstance(ir.destination, (Variable, SolidityVariable))
                 self._low_level_calls.append((ir.destination, str(ir.function_name.value)))

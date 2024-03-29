@@ -321,6 +321,10 @@ class YulBlock(YulScope):
     def function(self) -> Function:
         return self._parent_func
 
+    @property
+    def nodes(self) -> List[YulNode]:
+        return self._nodes
+
     def new_node(self, node_type: NodeType, src: Union[str, Dict]) -> YulNode:
         if self._parent_func:
             node = self._parent_func.new_node(node_type, src, self.node_scope)
@@ -748,7 +752,7 @@ def parse_yul_function_call(root: YulScope, node: YulNode, ast: Dict) -> Optiona
 def _check_for_state_variable_name(root: YulScope, potential_name: str) -> Optional[Identifier]:
     root_function = root.function
     if isinstance(root_function, FunctionContract):
-        var = root_function.contract.get_state_variable_from_name(potential_name)
+        var = root_function.contract_declarer.get_state_variable_from_name(potential_name)
         if var:
             return Identifier(var)
     return None

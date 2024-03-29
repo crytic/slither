@@ -25,11 +25,11 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
         type: ["unit", "integration", "tool"]
-        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.11"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11"]') }}
+        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
           cache: "pip"
@@ -40,7 +40,7 @@ jobs:
           pip install ".[test]"
 
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '16'
           cache: 'npm'
@@ -57,18 +57,34 @@ jobs:
             npm install hardhat
             popd || exit
           fi
-
+      - name: Install Vyper
+        run: |
+          INSTALLDIR="$RUNNER_TEMP/vyper-install"
+          if [[ "$RUNNER_OS" = "Windows" ]]; then
+              URL="https://github.com/vyperlang/vyper/releases/download/v0.3.7/vyper.0.3.7+commit.6020b8bb.windows.exe"
+              FILENAME="vyper.exe"
+          elif [[ "$RUNNER_OS" = "Linux" ]]; then
+              URL="https://github.com/vyperlang/vyper/releases/download/v0.3.7/vyper.0.3.7+commit.6020b8bb.linux"
+              FILENAME="vyper"
+          else
+              echo "Unknown OS"
+              exit 1
+          fi
+          mkdir -p "$INSTALLDIR"
+          curl "$URL" -o "$INSTALLDIR/$FILENAME" -L
+          chmod 755 "$INSTALLDIR/$FILENAME"
+          echo "$INSTALLDIR" >> "$GITHUB_PATH"
       - name: Run ${{ matrix.type }} tests
         env:
           TEST_TYPE: ${{ matrix.type }}
         # Only run coverage on ubuntu-latest.
         run: |
           if [ ${{ matrix.os }} = "ubuntu-latest" ]; then
-            TEST_ARGS="--cov=slither --cov-append"
+            TEST_ARGS=(--cov=slither --cov-append)
           elif [ ${{ matrix.os }} = "windows-2022" ]; then
-            TEST_ARGS=""
+            TEST_ARGS=()
           fi
-          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" $TEST_ARGS
+          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
 
 
       - name: Upload coverage
@@ -84,23 +100,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python 3.8
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
 
       - run: pip install coverage[toml]
 
       - name: download coverage data
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4
         with:
-          name: coverage-data
+          pattern: coverage-data-*
+          merge-multiple: true
 
       - name: combine coverage data
         id: combinecoverage
         run: |
           set +e
           python -m coverage combine
-          echo "## python coverage" >> $GITHUB_STEP_SUMMARY
-          python -m coverage report -m --format=markdown >> $GITHUB_STEP_SUMMARY
+          echo "## python coverage" >> "$GITHUB_STEP_SUMMARY"
+          python -m coverage report -m --format=markdown >> "$GITHUB_STEP_SUMMARY"
