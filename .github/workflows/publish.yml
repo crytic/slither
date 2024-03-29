@@ -44,7 +44,7 @@ jobs:
           path: dist/
 
       - name: publish
-        uses: pypa/gh-action-pypi-publish@v1.8.11
+        uses: pypa/gh-action-pypi-publish@v1.8.14
 
       - name: sign
         uses: sigstore/gh-action-sigstore-python@v2.1.1

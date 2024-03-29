@@ -467,6 +467,8 @@ ALL_TESTS = [
     ),
     Test("user_defined_operators-0.8.19.sol", ["0.8.19"]),
     Test("aliasing/main.sol", ["0.8.19"]),
+    Test("aliasing/alias-unit-NewContract.sol", ["0.8.19"]),
+    Test("aliasing/alias-symbol-NewContract.sol", ["0.8.19"]),
     Test("type-aliases.sol", ["0.8.19"]),
     Test("enum-max-min.sol", ["0.8.19"]),
     Test("event-top-level.sol", ["0.8.22"]),
