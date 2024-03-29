@@ -873,9 +873,7 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
-                contract = node.file_scope.get_contract_from_name(ir.contract_name)
-                assert contract
-                ir.lvalue.set_type(UserDefinedType(contract))
+                ir.lvalue.set_type(ir.contract_name)
             elif isinstance(ir, NewElementaryType):
                 ir.lvalue.set_type(ir.type)
             elif isinstance(ir, NewStructure):
@@ -1166,7 +1164,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         return n
 
     if isinstance(ins.ori, TmpNewContract):
-        op = NewContract(Constant(ins.ori.contract_name), ins.lvalue)
+        op = NewContract(ins.ori.contract_name, ins.lvalue)
         op.set_expression(ins.expression)
         op.call_id = ins.call_id
         if ins.call_value:
@@ -1211,7 +1209,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         internalcall.set_expression(ins.expression)
         return internalcall
 
-    raise Exception(f"Not extracted {type(ins.called)} {ins}")  # pylint: disable=bad-option-value
+    raise SlithIRError(f"Not extracted {type(ins.called)} {ins}")
 
 
 # endregion
@@ -1724,6 +1722,7 @@ def convert_type_of_high_and_internal_level_call(
     Returns:
         Potential new IR
     """
+
     func = None
     if isinstance(ir, InternalCall):
         candidates: List[Function]
@@ -2018,6 +2017,9 @@ def _find_source_mapping_references(irs: List[Operation]) -> None:
 
         if isinstance(ir, NewContract):
             ir.contract_created.references.append(ir.expression.source_mapping)
+
+        if isinstance(ir, HighLevelCall):
+            ir.function.references.append(ir.expression.source_mapping)
 
 
 # endregion

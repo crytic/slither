@@ -89,6 +89,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._is_interface: bool = False
         self._is_library: bool = False
         self._is_fully_implemented: bool = False
+        self._is_abstract: bool = False
 
         self._signatures: Optional[List[str]] = None
         self._signatures_declared: Optional[List[str]] = None
@@ -199,11 +200,33 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     @property
     def is_fully_implemented(self) -> bool:
+        """
+        bool: True if the contract defines all functions.
+        In modern Solidity, virtual functions can lack an implementation.
+        Prior to Solidity 0.6.0, functions like the following would be not fully implemented:
+        ```solidity
+        contract ImplicitAbstract{
+            function f() public;
+        }
+        ```
+        """
         return self._is_fully_implemented
 
     @is_fully_implemented.setter
     def is_fully_implemented(self, is_fully_implemented: bool):
         self._is_fully_implemented = is_fully_implemented
+
+    @property
+    def is_abstract(self) -> bool:
+        """
+        Note for Solidity < 0.6.0 it will always be false
+        bool: True if the contract is abstract.
+        """
+        return self._is_abstract
+
+    @is_abstract.setter
+    def is_abstract(self, is_abstract: bool):
+        self._is_abstract = is_abstract
 
     # endregion
     ###################################################################################
@@ -983,16 +1006,14 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def get_functions_overridden_by(self, function: "Function") -> List["Function"]:
         """
-            Return the list of functions overriden by the function
+            Return the list of functions overridden by the function
         Args:
             (core.Function)
         Returns:
             list(core.Function)
 
         """
-        candidatess = [c.functions_declared for c in self.inheritance]
-        candidates = [candidate for sublist in candidatess for candidate in sublist]
-        return [f for f in candidates if f.full_name == function.full_name]
+        return function.overrides
 
     # endregion
     ###################################################################################

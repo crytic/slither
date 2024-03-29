@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set, Sequence
+from typing import Any, List, Dict, Callable, TYPE_CHECKING, Union, Set, Sequence, Tuple
 
 from slither.core.declarations import (
     Modifier,
@@ -65,7 +65,8 @@ class ContractSolc(CallerContextExpression):
         # use to remap inheritance id
         self._remapping: Dict[str, str] = {}
 
-        self.baseContracts: List[str] = []
+        # (referencedDeclaration, offset)
+        self.baseContracts: List[Tuple[int, str]] = []
         self.baseConstructorContractsCalled: List[str] = []
         self._linearized_base_contracts: List[int]
 
@@ -175,6 +176,9 @@ class ContractSolc(CallerContextExpression):
         self._contract.is_fully_implemented = attributes["fullyImplemented"]
         self._linearized_base_contracts = attributes["linearizedBaseContracts"]
 
+        if "abstract" in attributes:
+            self._contract.is_abstract = attributes["abstract"]
+
         # Parse base contract information
         self._parse_base_contract_info()
 
@@ -202,7 +206,9 @@ class ContractSolc(CallerContextExpression):
 
                     # Obtain our contract reference and add it to our base contract list
                     referencedDeclaration = base_contract["baseName"]["referencedDeclaration"]
-                    self.baseContracts.append(referencedDeclaration)
+                    self.baseContracts.append(
+                        (referencedDeclaration, base_contract["baseName"]["src"])
+                    )
 
                     # If we have defined arguments in our arguments object, this is a constructor invocation.
                     # (note: 'arguments' can be [], which is not the same as None. [] implies a constructor was
@@ -234,7 +240,10 @@ class ContractSolc(CallerContextExpression):
                     referencedDeclaration = base_contract_items[0]["attributes"][
                         "referencedDeclaration"
                     ]
-                    self.baseContracts.append(referencedDeclaration)
+
+                    self.baseContracts.append(
+                        (referencedDeclaration, base_contract_items[0]["src"])
+                    )
 
                     # If we have an 'attributes'->'arguments' which is None, this is not a constructor call.
                     if (

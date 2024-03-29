@@ -208,8 +208,6 @@ class FunctionSolc(CallerContextExpression):
         else:
             attributes = self._functionNotParsed["attributes"]
 
-        if "payable" in attributes:
-            self._function.payable = attributes["payable"]
         if "stateMutability" in attributes:
             if attributes["stateMutability"] == "payable":
                 self._function.payable = True
@@ -242,6 +240,34 @@ class FunctionSolc(CallerContextExpression):
 
         if "payable" in attributes:
             self._function.payable = attributes["payable"]
+
+        if "baseFunctions" in attributes:
+            overrides_ids = attributes["baseFunctions"]
+            if len(overrides_ids) > 0:
+                for f_id in overrides_ids:
+                    funcs = self.slither_parser.functions_by_id[f_id]
+                    for f in funcs:
+                        # Do not consider leaf contracts as overrides.
+                        # B is A { function a() override {} } and C is A { function a() override {} } override A.a(), not each other.
+                        if (
+                            f.contract == self._function.contract
+                            or f.contract in self._function.contract.inheritance
+                        ):
+                            self._function.overrides.append(f)
+                            f.overridden_by.append(self._function)
+
+        # Attaches reference to override specifier e.g. X is referenced by `function a() override(X)`
+        if "overrides" in attributes and isinstance(attributes["overrides"], dict):
+            for override in attributes["overrides"].get("overrides", []):
+                refId = override["referencedDeclaration"]
+                overridden_contract = self.slither_parser.contracts_by_id.get(refId, None)
+                if overridden_contract:
+                    overridden_contract.add_reference_from_raw_source(
+                        override["src"], self.compilation_unit
+                    )
+
+        if "virtual" in attributes:
+            self._function.is_virtual = attributes["virtual"]
 
     def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
