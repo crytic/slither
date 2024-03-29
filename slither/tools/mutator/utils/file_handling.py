@@ -42,7 +42,7 @@ def transfer_and_delete(files_dict: Dict[str, HashedPath]) -> None:
             del backuped_files[original_path]
 
     except FileNotFoundError as e:  # pylint: disable=broad-except
-        logger.error(f"Error transferring content: %s", e)
+        logger.error("Error transferring content: %s", e)
 
 
 global_counter = {}
@@ -92,7 +92,7 @@ def reset_file(file: str) -> None:
             source_file.write(duplicate_content)
 
     except Exception as e:  # pylint: disable=broad-except
-        logger.error(f"Error resetting file: %s", e)
+        logger.error("Error resetting file: %s", e)
 
 
 def get_sol_file_list(codebase: Path, ignore_paths: Union[List[str], None]) -> List[str]:

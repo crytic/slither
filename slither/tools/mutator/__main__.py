@@ -255,7 +255,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                     if contract.name in contract_names and contract.name not in mutated_contracts:
                         target_contract = contract
                         break
-                    elif not contract_names and contract.name.lower() == file_name.lower():
+                    if not contract_names and contract.name.lower() == file_name.lower():
                         target_contract = contract
                         break
 
