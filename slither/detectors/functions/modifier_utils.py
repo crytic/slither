@@ -8,10 +8,10 @@ class ModifierUtil:
     @staticmethod
     def is_reentrancy_lock(modifier: Modifier) -> bool:
         """
-        是否是防重入锁
-        1、有对状态变量的读写操作
-        2、有状态变量condition语句(require、if)
-        3、有placeholder:"_"
+        Whether it is a reentrancy lock
+        1. There are read and write operations on state variables
+        2. There are state variable condition statements (require, if)
+        3. There is a placeholder: "_"
         """
         if len(modifier.state_variables_read) <= 0 or len(modifier.state_variables_written) <= 0:
             return False
@@ -56,16 +56,16 @@ class ModifierUtil:
     @staticmethod
     def is_access_control(modifier: Modifier) -> bool:
         """
-        是否有权限控制（onlyXXX）
-        1、有placeholder:"_"
-        2、有状态变量的读写操作
-        3、有包含了msg.sender的call行为语句(require、if)
+        Whether there is access control (onlyXXX)
+        1. There is a placeholder: "_"
+        2. There are read and write operations on state variables
+        3. There is a call statement containing msg.sender (require, if)
         """
 
-        # 不存在placeholder
+        # No placeholder exists
         if not any(node.type.name == 'PLACEHOLDER' for node in modifier.nodes):
             return False
-        # 有状态变量的读写操作
+        # There are read and write operations on state variables
         if len(modifier.all_conditional_state_variables_read(include_loop=True)) < 0:
             return False
         if not ModifierUtil._has_msg_sender_check(modifier):

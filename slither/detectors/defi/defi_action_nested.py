@@ -174,167 +174,162 @@ Ensure that the underlying ERC20 token correctly implements a permit function.
                 (isinstance(call.arguments[0],Identifier) and call.arguments[0].value in func.parameters):
                 return True,call.arguments
     
-    # 检查一个call是否是erc20向用户转账的call，返回是/否以及call本身
-    def _check_call_if_transfer_to_user(self,call,func):
-        if call.called and hasattr(call.called,"member_name") and call.called.member_name in ["safeTransfer","transfer"]:                    
-            # 第一个转账参数是msg.sender或外部传入的address
-            if (isinstance(call.arguments[0],TypeConversion) and hasattr(call.arguments[0].expression,'value') and isinstance(call.arguments[0].expression.value,SolidityVariable) and call.arguments[0].expression.value.name=="msg.sender") or \
-                (isinstance(call.arguments[0],Identifier) and isinstance(call.arguments[0].value,SolidityVariableComposed) and call.arguments[0].value.name=="msg.sender") or \
-                (isinstance(call.arguments[0],Identifier) and call.arguments[0].value in func.parameters):
-                return True,call.arguments
-    
-    # 检查一个node中是否有mapping操作，是否是一个对msg.sender或者input参数进行赋值的，返回是/否，以及对应所具体赋值的变量
-    def _check_node_if_mapping_assignment_with_sender_or_param(self,node,func):
-        if isinstance(node.expression,AssignmentOperation):
+    def _check_call_if_transfer_to_user(self, call, func):
+        if call.called and hasattr(call.called, "member_name") and call.called.member_name in ["safeTransfer", "transfer"]:
+            # The first transfer parameter is msg.sender or an externally passed address
+            if (isinstance(call.arguments[0], TypeConversion) and hasattr(call.arguments[0].expression, 'value') and isinstance(call.arguments[0].expression.value, SolidityVariable) and call.arguments[0].expression.value.name == "msg.sender") or \
+                    (isinstance(call.arguments[0], Identifier) and isinstance(call.arguments[0].value, SolidityVariableComposed) and call.arguments[0].value.name == "msg.sender") or \
+                    (isinstance(call.arguments[0], Identifier) and call.arguments[0].value in func.parameters):
+                return True, call.arguments
+
+    def _check_node_if_mapping_assignment_with_sender_or_param(self, node, func):
+        if isinstance(node.expression, AssignmentOperation):
             for ir in node.irs:
-                if hasattr(ir,"variables") and any(isinstance(e.type,MappingType) for e in ir.variables):
-                    if (hasattr(ir.expression.expression_right,"value")) and ((isinstance(ir.expression.expression_right.value,SolidityVariableComposed) and ir.expression.expression_right.value.name=="msg.sender") or \
-                        ir.expression.expression_right.value in func.parameters and isinstance(ir.expression.expression_right.value,LocalVariable) and ir.expression.expression_right.value.type.type=="address"):
-                        if hasattr(node,"variables_read") and len(node.variables_read)>0:
-                            return True,set(node.variables_read)-set(ir.variables)
+                if hasattr(ir, "variables") and any(isinstance(e.type, MappingType) for e in ir.variables):
+                    if (hasattr(ir.expression.expression_right, "value")) and (
+                            (isinstance(ir.expression.expression_right.value, SolidityVariableComposed) and ir.expression.expression_right.value.name == "msg.sender") or \
+                            ir.expression.expression_right.value in func.parameters and isinstance(ir.expression.expression_right.value, LocalVariable) and ir.expression.expression_right.value.type.type == "address"):
+                        if hasattr(node, "variables_read") and len(node.variables_read) > 0:
+                            return True, set(node.variables_read) - set(ir.variables)
 
-    # 质押或存入的特点：有向内转账，有使用msgsender或者是传入参数的用户数组操作，有数据依赖     
-    def _check_function_if_staking_or_deposit_or_collateral(self,func:FunctionContract):
-        depositDiffScore=difflib.SequenceMatcher(a="deposit", b=func.name.lower()).ratio()
-        stakeDiffScore=difflib.SequenceMatcher(a="stake", b=func.name.lower()).ratio()
-        diffscore = depositDiffScore if depositDiffScore>stakeDiffScore else stakeDiffScore
-        
-        transferMatchScore=0
-        assignementToUserScore=0
-        dependencyScore=0
-        call_arguments=[]
-        var_read=[]
-        if hasattr(func,"nodes"):
+    def _check_function_if_staking_or_deposit_or_collateral(self, func: FunctionContract):
+        depositDiffScore = difflib.SequenceMatcher(a="deposit", b=func.name.lower()).ratio()
+        stakeDiffScore = difflib.SequenceMatcher(a="stake", b=func.name.lower()).ratio()
+        diffscore = depositDiffScore if depositDiffScore > stakeDiffScore else stakeDiffScore
+
+        transferMatchScore = 0
+        assignementToUserScore = 0
+        dependencyScore = 0
+        call_arguments = []
+        var_read = []
+        if hasattr(func, "nodes"):
             for node in func.nodes:
                 for call in node.calls_as_expression:
-                    # 检查是否存在向用户转账的ERC20转账函数
-                    transfer_ret=self._check_call_if_transfer_from_user(call,func)
+                    # Check if there is an ERC20 transfer function to a user
+                    transfer_ret = self._check_call_if_transfer_from_user(call, func)
                     if transfer_ret is not None and transfer_ret[0]:
                         call_arguments.append(transfer_ret[1])
-                        transferMatchScore=self.depositTransferMatchScore
-                # 是否有数组操作，并且参数是msg.sender或者func参数中的address类型参数
-                assin_ret=self._check_node_if_mapping_assignment_with_sender_or_param(node,func)
+                        transferMatchScore = self.depositTransferMatchScore
+                # Check for array operations, and whether the parameter is msg.sender or an address type parameter in func
+                assin_ret = self._check_node_if_mapping_assignment_with_sender_or_param(node, func)
                 if assin_ret is not None and assin_ret[0]:
                     var_read.append(assin_ret[1])
-                    assignementToUserScore=self.depositAssignementToUserScore
-                    # 数组操作和转账之间存在数据依赖
-            if self._check_two_arguments_if_dependent(call_arguments,var_read,func):
-                dependencyScore=self.defaultDependencyScore
+                    assignementToUserScore = self.depositAssignementToUserScore
+                    # There is data dependency between array operations and transfers
+            if self._check_two_arguments_if_dependent(call_arguments, var_read, func):
+                dependencyScore = self.defaultDependencyScore
 
-        return diffscore,transferMatchScore,assignementToUserScore,dependencyScore 
+        return diffscore, transferMatchScore, assignementToUserScore, dependencyScore
 
-    # 提取和取消质押的特点：有向外转账，有使用msgsender或者是传入参数的用户数组操作，有数据依赖    
-    def _check_function_if_withdraw_or_unstake(self,func:FunctionContract):
-        withdrawDiffScore=difflib.SequenceMatcher(a="withdraw", b=func.name.lower()).ratio()
-        unstakeDiffScore=difflib.SequenceMatcher(a="unstake", b=func.name.lower()).ratio()
-        diffscore = withdrawDiffScore if withdrawDiffScore>unstakeDiffScore else unstakeDiffScore
-        
-        transferMatchScore=0
-        assignementToUserScore=0
-        call_arguments=[]
-        var_read=[]
-        dependencyScore=0
-        if hasattr(func,"nodes"):
+    def _check_function_if_withdraw_or_unstake(self, func: FunctionContract):
+        withdrawDiffScore = difflib.SequenceMatcher(a="withdraw", b=func.name.lower()).ratio()
+        unstakeDiffScore = difflib.SequenceMatcher(a="unstake", b=func.name.lower()).ratio()
+        diffscore = withdrawDiffScore if withdrawDiffScore > unstakeDiffScore else unstakeDiffScore
+
+        transferMatchScore = 0
+        assignementToUserScore = 0
+        call_arguments = []
+        var_read = []
+        dependencyScore = 0
+        if hasattr(func, "nodes"):
             for node in func.nodes:
                 for call in node.calls_as_expression:
-                    # 检查是否存在向用户转账的ERC20转账函数
-                    transfer_ret=self._check_call_if_transfer_to_user(call,func)
+                    # Check if there is an ERC20 transfer function to a user
+                    transfer_ret = self._check_call_if_transfer_to_user(call, func)
                     if transfer_ret is not None and transfer_ret[0]:
                         call_arguments.append(transfer_ret[1])
-                        transferMatchScore=self.withdrawTransferMatchScore
-                # 是否有数组操作，并且参数是msg.sender或者func参数中的address类型参数
-                assin_ret=self._check_node_if_mapping_assignment_with_sender_or_param(node,func)
+                        transferMatchScore = self.withdrawTransferMatchScore
+                # Check for array operations, and whether the parameter is msg.sender or an address type parameter in func
+                assin_ret = self._check_node_if_mapping_assignment_with_sender_or_param(node, func)
                 if assin_ret is not None and assin_ret[0]:
                     var_read.append(assin_ret[1])
-                    assignementToUserScore=self.withdrawAssignementToUserScore
-            # 数组操作和转账之间存在数据依赖
-            if self._check_two_arguments_if_dependent(call_arguments,var_read,func):
-                dependencyScore=self.defaultDependencyScore
-        return diffscore,transferMatchScore,assignementToUserScore,dependencyScore  
-    
-    # lending特点，有向外转账，有基于用户的mapping操作
-    def _check_function_if_lending_or_borrow(self,func:FunctionContract):
-        lendingDiffScore=difflib.SequenceMatcher(a="lending", b=func.name.lower()).ratio()
-        borrowDiffScore=difflib.SequenceMatcher(a="borrow", b=func.name.lower()).ratio()
-        diffscore = lendingDiffScore if lendingDiffScore>borrowDiffScore else borrowDiffScore
-        
-        transferMatchScore=0
-        assignementToUserScore=0
-        call_arguments=[]
-        var_read=[]
-        dependencyScore=0
-        if hasattr(func,"nodes"):
+                    assignementToUserScore = self.withdrawAssignementToUserScore
+            # There is data dependency between array operations and transfers
+            if self._check_two_arguments_if_dependent(call_arguments, var_read, func):
+                dependencyScore = self.defaultDependencyScore
+        return diffscore, transferMatchScore, assignementToUserScore, dependencyScore
+
+    def _check_function_if_lending_or_borrow(self, func: FunctionContract):
+        lendingDiffScore = difflib.SequenceMatcher(a="lending", b=func.name.lower()).ratio()
+        borrowDiffScore = difflib.SequenceMatcher(a="borrow", b=func.name.lower()).ratio()
+        diffscore = lendingDiffScore if lendingDiffScore > borrowDiffScore else borrowDiffScore
+
+        transferMatchScore = 0
+        assignementToUserScore = 0
+        call_arguments = []
+        var_read = []
+        dependencyScore = 0
+        if hasattr(func, "nodes"):
             for node in func.nodes:
                 for call in node.calls_as_expression:
-                    # 检查是否存在向用户转账的ERC20转账函数
-                    transfer_ret=self._check_call_if_transfer_to_user(call,func)
+                    # Check if there is an ERC20 transfer function to a user
+                    transfer_ret = self._check_call_if_transfer_to_user(call, func)
                     if transfer_ret is not None and transfer_ret[0]:
                         call_arguments.append(transfer_ret[1])
-                        transferMatchScore=self.lendingTransferMatchScore
-                # 是否有数组操作，并且参数是msg.sender或者func参数中的address类型参数
-                assin_ret=self._check_node_if_mapping_assignment_with_sender_or_param(node,func)
+                        transferMatchScore = self.lendingTransferMatchScore
+                # Check for array operations, and whether the parameter is msg.sender or an address type parameter in func
+                assin_ret = self._check_node_if_mapping_assignment_with_sender_or_param(node, func)
                 if assin_ret is not None and assin_ret[0]:
                     var_read.append(assin_ret[1])
-                    assignementToUserScore=self.lendingAssignementToUserScore
-            # 数组操作和转账之间存在数据依赖
-            if self._check_two_arguments_if_dependent(call_arguments,var_read,func):
-                dependencyScore=self.defaultDependencyScore
-        return diffscore,transferMatchScore,assignementToUserScore,dependencyScore  
+                    assignementToUserScore = self.lendingAssignementToUserScore
+            # There is data dependency between array operations and transfers
+            if self._check_two_arguments_if_dependent(call_arguments, var_read, func):
+                dependencyScore = self.defaultDependencyScore
+        return diffscore, transferMatchScore, assignementToUserScore, dependencyScore
 
-    # liquidate的特点，有向外转账，有向内转账，有mapping操作
-    def _check_function_if_liquidate(self,func:FunctionContract):
-        liquidateDiffScore=difflib.SequenceMatcher(a="liquidate", b=func.name.lower()).ratio()
+    def _check_function_if_liquidate(self, func: FunctionContract):
+        liquidateDiffScore = difflib.SequenceMatcher(a="liquidate", b=func.name.lower()).ratio()
         diffscore = liquidateDiffScore
-        
-        transferToScore=0
-        transferFromScore=0
 
-        transferMatchScore=0
-        assignementToUserScore=0
-        call_arguments=[]
-        var_read=[]
-        dependencyScore=0
-        if hasattr(func,"nodes"):
+        transferToScore = 0
+        transferFromScore = 0
+
+        transferMatchScore = 0
+        assignementToUserScore = 0
+        call_arguments = []
+        var_read = []
+        dependencyScore = 0
+        if hasattr(func, "nodes"):
             for node in func.nodes:
                 for call in node.calls_as_expression:
-                    # 检查是否存在向用户转账的ERC20转账函数
-                    transfer_to_ret=self._check_call_if_transfer_to_user(call,func)
-                    transfer_from_ret=self._check_call_if_transfer_from_user(call,func)
+                    # Check if there is an ERC20 transfer function to a user
+                    transfer_to_ret = self._check_call_if_transfer_to_user(call, func)
+                    transfer_from_ret = self._check_call_if_transfer_from_user(call, func)
                     if transfer_to_ret is not None and transfer_to_ret[0]:
                         call_arguments.append(transfer_to_ret[1])
-                        transferToScore=self.liquidateTransferToScore
+                        transferToScore = self.liquidateTransferToScore
                     if transfer_from_ret is not None and transfer_from_ret[0]:
                         call_arguments.append(transfer_from_ret[1])
-                        transferFromScore=self.liquidateTransferFromScore
+                        transferFromScore = self.liquidateTransferFromScore
 
-                # 是否有数组操作，并且参数是msg.sender或者func参数中的address类型参数
-                assin_ret=self._check_node_if_mapping_assignment_with_sender_or_param(node,func)
+                # Check for array operations, and whether the parameter is msg.sender or an address type parameter in func
+                assin_ret = self._check_node_if_mapping_assignment_with_sender_or_param(node, func)
                 if assin_ret is not None and assin_ret[0]:
                     var_read.append(assin_ret[1])
-                    assignementToUserScore=self.lendingAssignementToUserScore
-            # 数组操作和转账之间存在数据依赖
-            if self._check_two_arguments_if_dependent(call_arguments,var_read,func):
-                dependencyScore=self.defaultDependencyScore
-        return diffscore,transferToScore+transferFromScore,assignementToUserScore,dependencyScore  
+                    assignementToUserScore = self.lendingAssignementToUserScore
+            # There is data dependency between array operations and transfers
+            if self._check_two_arguments_if_dependent(call_arguments, var_read, func):
+                dependencyScore = self.defaultDependencyScore
+        return diffscore, transferToScore + transferFromScore, assignementToUserScore, dependencyScore
 
-    def _check_two_arguments_if_dependent(self,callArgs,assignArgs,func):
-        args=[arg for callArg in callArgs for arg in callArg if isinstance(arg,Identifier)]
+    def _check_two_arguments_if_dependent(self, callArgs, assignArgs, func):
+        args = [arg for callArg in callArgs for arg in callArg if isinstance(arg, Identifier)]
         for arg in args:
-            if any(var for vars in assignArgs for var in vars if is_dependent(arg.value,var,func)):
+            if any(var for vars in assignArgs for var in vars if is_dependent(arg.value, var, func)):
                 return True
-    
+
     def _detect(self) -> List[Output]:
         """"""
         results: List[Output] = []
-        detection_result=[]
+        detection_result = []
         for c in self.contracts:
-            detection_result=self.checkIfHavePriceManipulation(c)
+            detection_result = self.checkIfHavePriceManipulation(c)
         # print("risk in",function.name,"with potential",info,"function:",func)
         for data in detection_result:
-            
+
             info = [
                 data[1],
-                " is a potential nested defi action in it's father defi action which have risk of indirectly generating arbitrage space",
+                " is a potential nested defi action in its father defi action which has the risk of indirectly generating arbitrage space",
                 "\n",
             ]
             res = self.generate_result(info)

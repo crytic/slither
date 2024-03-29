@@ -21,25 +21,7 @@ class KValueError(AbstractDetector):
     )
 
     # region wiki_exploit_scenario
-    WIKI_EXPLOIT_SCENARIO = """
-```solidity
-contract A {
-    uint x;
-    constructor() public {
-        x = 0;
-    }
-    function A() public {
-        x = 1;
-    }
-    
-    function test() public returns(uint) {
-        return x;
-    }
-}
-```
-In Solidity [0.4.22](https://github.com/ethereum/solidity/releases/tag/v0.4.23), a contract with both constructor schemes will compile. The first constructor will take precedence over the second, which may be unintended."""
-    # endregion wiki_exploit_scenario
-
+    WIKI_EXPLOIT_SCENARIO = """"""
     WIKI_RECOMMENDATION = "Only declare one constructor, preferably using the new scheme `constructor(...)` instead of `function <contractName>(...)`."
 
     def _detect(self):
@@ -55,7 +37,7 @@ In Solidity [0.4.22](https://github.com/ethereum/solidity/releases/tag/v0.4.23),
         tainted_nodes=[]
         
         for contract in self.contracts:
-            # 判断是否有可能是uniswap相关的函数
+            # check if uniswap
             if "pair" in contract.name.lower() and any("swap" == f.name for f in contract.functions) and any("burn" == f.name for f in contract.functions) and any("mint" == f.name for f in contract.functions):
                 print("found function")
                 for f in contract.functions:
