@@ -63,6 +63,11 @@ ALL_TESTS = [
         "0.4.25",
     ),
     Test(
+        all_detectors.DOSDetector,
+        "dos_detect.sol",
+        "0.6.11",
+    ),
+    Test(
         all_detectors.UninitializedFunctionPtrsConstructor,
         "uninitialized_function_ptr_constructor.sol",
         "0.5.8",
