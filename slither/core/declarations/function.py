@@ -177,6 +177,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._all_library_calls: Optional[List["LibraryCallType"]] = None
         self._all_low_level_calls: Optional[List["LowLevelCallType"]] = None
         self._all_solidity_calls: Optional[List["SolidityFunction"]] = None
+        self._all_variables_read: Optional[List["Variable"]] = None
+        self._all_variables_written: Optional[List["Variable"]] = None
         self._all_state_variables_read: Optional[List["StateVariable"]] = None
         self._all_solidity_variables_read: Optional[List["SolidityVariable"]] = None
         self._all_state_variables_written: Optional[List["StateVariable"]] = None
@@ -1152,6 +1154,18 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
 
         return list(set(values))
+
+    def all_variables_read(self) -> List["Variable"]:
+        """recursive version of variables_read"""
+        if self._all_variables_read is None:
+            self._all_variables_read = self._explore_functions(lambda x: x.variables_read)
+        return self._all_variables_read
+
+    def all_variables_written(self) -> List["Variable"]:
+        """recursive version of variables_written"""
+        if self._all_variables_written is None:
+            self._all_variables_written = self._explore_functions(lambda x: x.variables_written)
+        return self._all_variables_written
 
     def all_state_variables_read(self) -> List["StateVariable"]:
         """recursive version of variables_read"""
