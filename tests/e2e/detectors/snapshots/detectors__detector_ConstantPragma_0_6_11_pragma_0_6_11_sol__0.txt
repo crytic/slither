@@ -1,5 +1,6 @@
-Different versions of Solidity are used:
-	- Version used: ['^0.6.10', '^0.6.11']
-	- ^0.6.10 (tests/e2e/detectors/test_data/pragma/0.6.11/pragma.0.6.10.sol#1)
-	- ^0.6.11 (tests/e2e/detectors/test_data/pragma/0.6.11/pragma.0.6.11.sol#1)
+2 different versions of Solidity are used:
+	- Version constraint ^0.6.11 is used by:
+ 		- tests/e2e/detectors/test_data/pragma/0.6.11/pragma.0.6.11.sol#1
+	- Version constraint ^0.6.10 is used by:
+ 		- tests/e2e/detectors/test_data/pragma/0.6.11/pragma.0.6.10.sol#1
 
