@@ -1,14 +1,103 @@
-from typing import List
-from slither.core.declarations import Function, Contract, FunctionContract
+from typing import List, Optional
+from slither.core.cfg.node import NodeType, Node
+from enum import Enum
+from typing import List, Set, Tuple
+from slither.core.declarations import Function
+from slither.core.solidity_types import ElementaryType
+from slither.slithir.variables import Constant
+from slither.core.declarations import Contract
+from slither.utils.output import Output
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     DETECTOR_INFO,
 )
-from slither.utils.output import Output
+from slither.slithir.operations import (
+    HighLevelCall,
+    LibraryCall,
+    LowLevelCall,
+    Send,
+    Transfer,
+    InternalCall,
+    Assignment,
+    Call,
+    Return,
+    InitArray,
+    Binary,
+    BinaryType,
+    Condition,
+)
+
+
+def detect_infinite_loop_calls(contract: Contract) -> List[Node]:
+    ret: List[Node] = []
+    for f in contract.functions_entry_points:
+        if f.is_implemented:
+            detect_infinite_calls(f.entry_point, [], ret)
+
+    return ret
+
+
+def detect_infinite_calls(
+    node: Optional[Node], visited: List[Node], ret: List[Node]
+) -> None:
+    if node is None:
+        return
+    if node in visited:
+        return
+    # Add node to visited list
+    visited.append(node)
+
+    # Check if node represents a loop
+    if node.type == NodeType.STARTLOOP:
+        # Check if the loop has a proper exit condition
+        if not has_exit_condition(node):
+            ret.append(node)
+    elif node.type == NodeType.ENDLOOP:
+        pass
+
+    # Recursively traverse the graph
+    for son in node.sons:
+        detect_infinite_calls(son, visited, ret)
+
+
+def has_exit_condition(node: Node) -> bool:
+    """
+    Check if the loop represented by the given node has a proper exit condition.
+
+    Args:
+    - node: The node representing the loop in the control flow graph.
+
+    Returns:
+    - True if the loop has a proper exit condition, False otherwise.
+    """
+    # We assume the loop has an exit condition by default
+    exit_condition_found = True
+
+    # Check for special case: "while(true)"
+    if node.type == NodeType.IFLOOP and node.irs and len(node.irs) == 1:
+        ir = node.irs[0]
+        if isinstance(ir, Condition) and ir.value == Constant(
+            "True", ElementaryType("bool")
+        ):
+            exit_condition_found = False
+            return exit_condition_found  # Return immediately if it's a while(true) loop 
+
+    # Traverse through the sons of the loop node to find the exit condition
+    for son in node.sons:
+        # Check if the son node is a condition node
+        if son.type == NodeType.CONDITION:
+            # If the condition node has an exit edge, it indicates a proper exit condition
+            if son.sons:
+                exit_condition_found = True
+            # If the condition node doesn't have an exit edge, it may indicate an infinite loop
+            else:
+                exit_condition_found = False
+            break  # Exit the loop after finding a condition node
+
+    return exit_condition_found
 
 class DOSDetector(AbstractDetector):
-
     ARGUMENT = 'dosdetector'
     HELP = "Detects potential Denial of Service (DoS) vulnerabilities"
     IMPACT = DetectorClassification.HIGH
@@ -23,81 +112,18 @@ class DOSDetector(AbstractDetector):
     WIKI_RECOMMENDATION = "To mitigate DOS vulnerabilities, developers should carefully analyze their contract's public functions and ensure that they are optimized to handle potential attacks. Functions that are not intended to be called externally should be declared as `internal` or `private`, and critical functions should implement gas limits or use mechanisms such as rate limiting to prevent abuse."
     
     def _detect(self) -> List[Output]:
-        """Detect potential DoS vulnerabilities"""
-        results = []
-        for contract in self.compilation_unit.contracts:
-            for function in contract.functions:
-                results += self._analyze_function(function, contract)
+        """"""
+        results: List[Output] = []
+        for c in self.compilation_unit.contracts_derived:
+            values = detect_infinite_loop_calls(c)
+            for node in values:
+                func = node.function
 
-        return results
-
-    def _analyze_function(self, function: Function, contract: Contract) -> List[Output]:
-        results = []
-
-        # Check if the function is a Function object
-        if isinstance(function, Function):
-            # Detect inefficient algorithms
-            if hasattr(function, 'estimated_gas') and function.estimated_gas > 1000000:  # Example threshold for inefficient gas usage
                 info: DETECTOR_INFO = [
-                    function,
-                    " may have inefficient gas usage, which could lead to a DoS vulnerability\n",
-                ]
-                res = self.generate_result(info)
-                results.append(res)
-            
-            # Detect unbounded loops (only applicable to Function objects)
-        if isinstance(function, Function) and hasattr(function, 'contains_unbounded_loop') and function.contains_unbounded_loop():
-            info: DETECTOR_INFO = [
-                function,
-                " contains an unbounded loop, which may lead to a DoS vulnerability\n",
-            ]
-            res = self.generate_result(info)
-            results.append(res)
-
-
-            # Detect functions with excessive storage writes
-            storage_writes = function.all_state_variables_written()
-            if len(storage_writes) > 10:  # Example threshold for excessive storage writes
-                info: DETECTOR_INFO = [
-                    function,
-                    f" writes to {len(storage_writes)} storage variables, which may lead to a DoS vulnerability\n",
-                ]
-                res = self.generate_result(info)
-                results.append(res)
-
-            # Detect functions that rely on block timestamps
-            if function.uses_block_timestamp():
-                info: DETECTOR_INFO = [
-                    function,
-                    " relies on block timestamps, which may lead to a DoS vulnerability due to miner manipulation\n",
-                ]
-                res = self.generate_result(info)
-                results.append(res)
-
-            # Detect functions with excessive gas costs
-            if hasattr(function, 'estimated_gas') and function.estimated_gas > 500000:  # Example threshold for excessive gas costs
-                info: DETECTOR_INFO = [
-                    function,
-                    " may have excessive gas costs, which could lead to a DoS vulnerability\n",
-                ]
-                res = self.generate_result(info)
-                results.append(res)
-
-            # Detect functions with complex conditional statements
-            if function.has_complex_conditionals():
-                info: DETECTOR_INFO = [
-                    function,
-                    " contains complex conditional statements, which may lead to unexpected gas costs and DoS vulnerabilities\n",
-                ]
-                res = self.generate_result(info)
-                results.append(res)
-
-            # Detect functions that rely heavily on external calls
-            external_calls = function.all_external_calls()
-            if len(external_calls) > 5:  # Example threshold for heavy reliance on external calls
-                info: DETECTOR_INFO = [
-                    function,
-                    f" relies on {len(external_calls)} external calls, which may lead to DoS vulnerabilities due to external dependencies\n",
+                    func,
+                    " contains a loop without proper exit condition: ",
+                    node,
+                    "\n",
                 ]
                 res = self.generate_result(info)
                 results.append(res)
