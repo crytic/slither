@@ -77,7 +77,7 @@ class NodeType(Enum):
     ASSEMBLY = "INLINE ASM"
     ENDASSEMBLY = "END INLINE ASM"
     IFLOOP = "IF_LOOP"
-
+    CONDITION = "CONDITION"
     # Nodes where control flow merges
     # Can have phi IR operation
     ENDIF = "END_IF"  # ENDIF node source mapping points to the if/else "body"
