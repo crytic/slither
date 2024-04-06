@@ -116,9 +116,10 @@ class FileScope:
             # if not _dict_contain(new_scope.variables, self.variables):
             #     self.variables.update(new_scope.variables)
             #     learn_something = True
-            # if not _dict_contain(new_scope.renaming, self.renaming):
-            #     self.renaming.update(new_scope.renaming)
-            #     learn_something = True
+            # This is need to support aliasing when we do a late lookup using SolidityImportPlaceholder
+            if not _dict_contain(new_scope.renaming, self.renaming):
+                self.renaming.update(new_scope.renaming)
+                learn_something = True
 
         return learn_something
 
