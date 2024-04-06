@@ -1,32 +1,16 @@
 from typing import List, Optional
-from slither.core.cfg.node import NodeType, Node
 from enum import Enum
-from typing import List, Set, Tuple
-from slither.core.declarations import Function
-from slither.core.solidity_types import ElementaryType
-from slither.slithir.variables import Constant
-from slither.core.declarations import Contract
-from slither.utils.output import Output
+from slither.core.cfg.node import NodeType, Node
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     DETECTOR_INFO,
 )
-from slither.slithir.operations import (
-    HighLevelCall,
-    LibraryCall,
-    LowLevelCall,
-    Send,
-    Transfer,
-    InternalCall,
-    Assignment,
-    Call,
-    Return,
-    InitArray,
-    Binary,
-    BinaryType,
-    Condition,
-)
+from slither.core.solidity_types import ElementaryType
+from slither.slithir.variables import Constant
+from slither.core.declarations import Contract
+from slither.utils.output import Output
+from slither.slithir.operations import Condition
 
 
 def detect_infinite_loop_calls(contract: Contract) -> List[Node]:
@@ -38,9 +22,7 @@ def detect_infinite_loop_calls(contract: Contract) -> List[Node]:
     return ret
 
 
-def detect_infinite_calls(
-    node: Optional[Node], visited: List[Node], ret: List[Node]
-) -> None:
+def detect_infinite_calls(node: Optional[Node], visited: List[Node], ret: List[Node]) -> None:
     if node is None:
         return
     if node in visited:
@@ -62,57 +44,39 @@ def detect_infinite_calls(
 
 
 def has_exit_condition(node: Node) -> bool:
-    """
-    Check if the loop represented by the given node has a proper exit condition.
+    if node.type == NodeType.STARTLOOP:
+        for son in node.sons:
+            # Check if the son node represents a condition
+            if son.type in [NodeType.WHILELOOP, NodeType.IFLOOP]:
+                # if son.type == NodeType.WHILELOOP:
+                return True  # Exit condition found
+        return False  # No condition found within the loop
+    else:
+        return False  # The given node is not a loop
 
-    Args:
-    - node: The node representing the loop in the control flow graph.
+    # Example usage:
+    # Assuming 'node' is a Node object representing a loop
+    if has_exit_condition(node):
+        print("The loop has an exit condition.")
+    else:
+        print("The loop does not have an exit condition.")
 
-    Returns:
-    - True if the loop has a proper exit condition, False otherwise.
-    """
-    # We assume the loop has an exit condition by default
-    exit_condition_found = True
-
-    # Check for special case: "while(true)"
-    if node.type == NodeType.IFLOOP and node.irs and len(node.irs) == 1:
-        ir = node.irs[0]
-        if isinstance(ir, Condition) and ir.value == Constant(
-            "True", ElementaryType("bool")
-        ):
-            exit_condition_found = False
-            return exit_condition_found  # Return immediately if it's a while(true) loop 
-
-    # Traverse through the sons of the loop node to find the exit condition
-    for son in node.sons:
-        # Check if the son node is a condition node
-        if son.type == NodeType.CONDITION:
-            # If the condition node has an exit edge, it indicates a proper exit condition
-            if son.sons:
-                exit_condition_found = True
-            # If the condition node doesn't have an exit edge, it may indicate an infinite loop
-            else:
-                exit_condition_found = False
-            break  # Exit the loop after finding a condition node
-
-    return exit_condition_found
 
 class DOSDetector(AbstractDetector):
-    ARGUMENT = 'dosdetector'
+    ARGUMENT = "dosdetector"
     HELP = "Detects potential Denial of Service (DoS) vulnerabilities"
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://example.com/wiki/dos-vulnerabilities"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#dos-vulnerabilities"
 
     WIKI_TITLE = "DoS Vulnerabilities"
     WIKI_DESCRIPTION = "Detects functions that may lead to Denial of Service (DoS) attacks"
     WIKI_EXPLOIT_SCENARIO = "An attacker may exploit this vulnerability by repeatedly calling the vulnerable function with large input arrays, causing the contract to consume excessive gas and potentially leading to a DoS attack."
 
     WIKI_RECOMMENDATION = "To mitigate DOS vulnerabilities, developers should carefully analyze their contract's public functions and ensure that they are optimized to handle potential attacks. Functions that are not intended to be called externally should be declared as `internal` or `private`, and critical functions should implement gas limits or use mechanisms such as rate limiting to prevent abuse."
-    
+
     def _detect(self) -> List[Output]:
-        """"""
         results: List[Output] = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_infinite_loop_calls(c)
