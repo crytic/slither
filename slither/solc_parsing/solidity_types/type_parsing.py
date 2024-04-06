@@ -323,18 +323,21 @@ def parse_type(
             contract = caller_context.underlying_contract
             next_context = caller_context
             scope = caller_context.underlying_contract.file_scope
-
+        print("scope: ", scope)
+        print("contracts: ", *scope.contracts)
+        # For functions declared in this file the scope is the
         structures_direct_access = contract.structures
-        structures_direct_access += contract.file_scope.structures.values()
-        all_structuress = [c.structures for c in contract.file_scope.contracts.values()]
+        structures_direct_access += scope.structures.values()
+        all_structuress = [c.structures for c in scope.contracts.values()]
         all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += contract.file_scope.structures.values()
+        all_structures += scope.structures.values()
         enums_direct_access += contract.enums
-        enums_direct_access += contract.file_scope.enums.values()
-        all_enumss = [c.enums for c in contract.file_scope.contracts.values()]
+        enums_direct_access += scope.enums.values()
+        all_enumss = [c.enums for c in scope.contracts.values()]
         all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += contract.file_scope.enums.values()
-        contracts = contract.file_scope.contracts.values()
+        all_enums += scope.enums.values()
+        contracts = scope.contracts.values()
+        # print("contracts: ", *contracts)
         functions = contract.functions + contract.modifiers
 
         renaming = scope.renaming
@@ -495,4 +498,4 @@ def parse_type(
 
         return FunctionType(params_vars, return_values_vars)
 
-    raise ParsingError("Type name not found " + str(t))
+    raise ParsingError(f"Type name not found {(t)} in {scope.filename}")

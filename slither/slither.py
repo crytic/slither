@@ -119,6 +119,56 @@ class Slither(
                     self.add_source_code(path)
 
                 _update_file_scopes(compilation_unit_slither.scopes.values())
+                # First we save all the contracts in a dict
+                # the key is the contractid
+                for contract in sol_parser._underlying_contract_to_parser:
+                    if contract.name.startswith("SlitherInternalTopLevelContract"):
+                        raise Exception(
+                            # region multi-line-string
+                            """Your codebase has a contract named 'SlitherInternalTopLevelContract'.
+        Please rename it, this name is reserved for Slither's internals"""
+                            # endregion multi-line
+                        )
+                    sol_parser._contracts_by_id[contract.id] = contract
+                    sol_parser._compilation_unit.contracts.append(contract)
+                print("avalilable")
+                for k,v in sol_parser.contracts_by_id.items():
+                    print(k, v.name)
+                for scope in compilation_unit_slither.scopes.values():
+                    for refId in scope.exported_symbols:
+                        print("scope", scope)
+                        print("target", refId)
+                        if refId in sol_parser.contracts_by_id:
+                            contract = sol_parser.contracts_by_id[refId]
+                            scope.contracts[contract.name] = contract
+                        elif refId in sol_parser.functions_by_id:
+                            functions = sol_parser.functions_by_id[refId]
+                            assert len(functions) == 1
+                            function = functions[0]
+                            scope.functions.add(function)
+                        elif refId in sol_parser._imports_by_id:
+                            import_directive = sol_parser._imports_by_id[refId]
+                            scope.imports.add(import_directive)
+                        elif refId in sol_parser._top_level_variables_by_id:
+                            top_level_variable = sol_parser._top_level_variables_by_id[refId]
+                            scope.variables[top_level_variable.name] = top_level_variable
+                        elif refId in sol_parser._top_level_events_by_id:
+                            top_level_event = sol_parser._top_level_events_by_id[refId]
+                            scope.events.add(top_level_event)
+                        elif refId in sol_parser._top_level_structures_by_id:
+                            top_level_struct = sol_parser._top_level_structures_by_id[refId]
+                            scope.structures[top_level_struct.name] = top_level_struct
+                        elif refId in sol_parser._top_level_type_aliases_by_id:
+                            top_level_type_alias = sol_parser._top_level_type_aliases_by_id[refId]
+                            scope.type_aliases[top_level_type_alias.name] = top_level_type_alias
+                        elif refId in sol_parser._top_level_enums_by_id:
+                            top_level_enum = sol_parser._top_level_enums_by_id[refId]
+                            scope.enums[top_level_enum.name] = top_level_enum
+                        else:
+                            print ("not found", refId)
+                            assert False
+        
+
 
         if kwargs.get("generate_patches", False):
             self.generate_patches = True

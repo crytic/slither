@@ -29,6 +29,7 @@ class FileScope:
     def __init__(self, filename: Filename) -> None:
         self.filename = filename
         self.accessible_scopes: List[FileScope] = []
+        self.exported_symbols: Set[int] = set()
 
         self.contracts: Dict[str, Contract] = {}
         # Custom error are a list instead of a dict
@@ -67,42 +68,51 @@ class FileScope:
         learn_something = False
 
         for new_scope in self.accessible_scopes:
-            if not _dict_contain(new_scope.contracts, self.contracts):
-                self.contracts.update(new_scope.contracts)
+            if not new_scope.using_for_directives.issubset(self.using_for_directives):
+                self.using_for_directives |= new_scope.using_for_directives
                 learn_something = True
-            if not new_scope.custom_errors.issubset(self.custom_errors):
-                self.custom_errors |= new_scope.custom_errors
-                learn_something = True
-            if not _dict_contain(new_scope.enums, self.enums):
-                self.enums.update(new_scope.enums)
-                learn_something = True
-            if not new_scope.events.issubset(self.events):
-                self.events |= new_scope.events
+                print("using_for_directives", learn_something)
+            if not _dict_contain(new_scope.type_aliases, self.type_aliases):
+                self.type_aliases.update(new_scope.type_aliases)
                 learn_something = True
             if not new_scope.functions.issubset(self.functions):
                 self.functions |= new_scope.functions
                 learn_something = True
-            if not new_scope.using_for_directives.issubset(self.using_for_directives):
-                self.using_for_directives |= new_scope.using_for_directives
-                learn_something = True
-            if not new_scope.imports.issubset(self.imports):
-                self.imports |= new_scope.imports
-                learn_something = True
-            if not new_scope.pragmas.issubset(self.pragmas):
-                self.pragmas |= new_scope.pragmas
-                learn_something = True
-            if not _dict_contain(new_scope.structures, self.structures):
-                self.structures.update(new_scope.structures)
-                learn_something = True
-            if not _dict_contain(new_scope.variables, self.variables):
-                self.variables.update(new_scope.variables)
-                learn_something = True
-            if not _dict_contain(new_scope.renaming, self.renaming):
-                self.renaming.update(new_scope.renaming)
-                learn_something = True
-            if not _dict_contain(new_scope.type_aliases, self.type_aliases):
-                self.type_aliases.update(new_scope.type_aliases)
-                learn_something = True
+                #         if not new_scope.imports.issubset(self.imports):
+                # self.imports |= new_scope.imports
+                # learn_something = True
+            # if not _dict_contain(new_scope.contracts, self.contracts):
+            #     self.contracts.update(new_scope.contracts)
+            #     learn_something = True
+            # if not new_scope.custom_errors.issubset(self.custom_errors):
+            #     self.custom_errors |= new_scope.custom_errors
+            #     learn_something = True
+            # if not _dict_contain(new_scope.enums, self.enums):
+            #     self.enums.update(new_scope.enums)
+            #     learn_something = True
+            # if not new_scope.events.issubset(self.events):
+            #     self.events |= new_scope.events
+            #     learn_something = True
+            # if not new_scope.functions.issubset(self.functions):
+            #     self.functions |= new_scope.functions
+            #     learn_something = True
+            # if not new_scope.using_for_directives.issubset(self.using_for_directives):
+            #     self.using_for_directives |= new_scope.using_for_directives
+            #     learn_something = True
+
+            # if not new_scope.pragmas.issubset(self.pragmas):
+            #     self.pragmas |= new_scope.pragmas
+            #     learn_something = True
+            # if not _dict_contain(new_scope.structures, self.structures):
+            #     self.structures.update(new_scope.structures)
+            #     learn_something = True
+            # if not _dict_contain(new_scope.variables, self.variables):
+            #     self.variables.update(new_scope.variables)
+            #     learn_something = True
+            # if not _dict_contain(new_scope.renaming, self.renaming):
+            #     self.renaming.update(new_scope.renaming)
+            #     learn_something = True
+       
 
         return learn_something
 

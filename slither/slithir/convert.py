@@ -600,6 +600,13 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
         using_for = node_function.contract.using_for_complete
     elif isinstance(node_function, FunctionTopLevel):
         using_for = node_function.using_for_complete
+    # print("\n")
+    # print("using_for", )
+    # for key,v in using_for.items():
+    #     print("key",key, )
+    #     for i in v:
+    #         print("value",i,i.__class__ )
+
 
     if isinstance(ir, OperationWithLValue) and ir.lvalue:
         # Force assignment in case of missing previous correct type
@@ -662,6 +669,7 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                             ir, node_function.contract
                         )
                     if can_be_low_level(ir):
+                        print("can be low level")
                         return convert_to_low_level(ir)
 
                 # Convert push operations
@@ -1512,7 +1520,11 @@ def look_for_library_or_top_level(
         TypeAliasTopLevel,
     ],
 ) -> Optional[Union[LibraryCall, InternalCall,]]:
+    print("look_for_library_or_top_level")
+    print(ir.expression.source_mapping.to_detailed_str())
+    print(ir.function_name)
     for destination in using_for[t]:
+        print("destionation", destination, destination.__class__)
         if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
             arguments = [ir.destination] + ir.arguments
             if (
@@ -1537,7 +1549,9 @@ def look_for_library_or_top_level(
         if isinstance(destination, FunctionContract) and destination.contract.is_library:
             lib_contract = destination.contract
         elif not isinstance(destination, FunctionTopLevel):
-            lib_contract = contract.file_scope.get_contract_from_name(str(destination))
+            print(destination)
+            lib_contract = destination.file_scope.get_contract_from_name(str(destination))
+        print("lib_contract", lib_contract)
         if lib_contract:
             lib_call = LibraryCall(
                 lib_contract,
@@ -1554,6 +1568,7 @@ def look_for_library_or_top_level(
             new_ir = convert_type_library_call(lib_call, lib_contract)
             if new_ir:
                 new_ir.set_node(ir.node)
+                print("new_ir", new_ir)
                 return new_ir
     return None
 
@@ -1941,6 +1956,7 @@ def convert_constant_types(irs: List[Operation]) -> None:
                 if isinstance(func, StateVariable):
                     types = export_nested_types_from_variable(func)
                 else:
+                    print("func", func, ir.expression.source_mapping.to_detailed_str())
                     types = [p.type for p in func.parameters]
                 assert len(types) == len(ir.arguments)
                 for idx, arg in enumerate(ir.arguments):

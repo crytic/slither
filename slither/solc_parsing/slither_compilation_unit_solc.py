@@ -81,7 +81,16 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._compilation_unit: SlitherCompilationUnit = compilation_unit
 
         self._contracts_by_id: Dict[int, Contract] = {}
+        # For top level functions, there should only be one `Function` since they can't be virtual and therefore can't be overridden.
         self._functions_by_id: Dict[int, List[Function]] = defaultdict(list)
+        self._imports_by_id: Dict[int, Import] = {}
+        self._top_level_events_by_id: Dict[int, EventTopLevel] = {}
+        self._top_level_structures_by_id: Dict[int, StructureTopLevel] = {}
+        self._top_level_variables_by_id: Dict[int, TopLevelVariable] = {}
+        # self._top_level_using_for_by_id: Dict[int, UsingForTopLevel] = {}
+        self._top_level_type_aliases_by_id: Dict[int, TypeAliasTopLevel] = {}
+        self._top_level_enums_by_id: Dict[int, EnumTopLevel] = {}
+
         self._parsed = False
         self._analyzed = False
         self._is_compact_ast = False
@@ -204,9 +213,11 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         scope = self.compilation_unit.get_scope(filename)
         enum = EnumTopLevel(name, canonicalName, values, scope)
-        scope.enums[name] = enum
         enum.set_offset(top_level_data["src"], self._compilation_unit)
         self._compilation_unit.enums_top_level.append(enum)
+        scope.enums[name] = enum
+        refId = top_level_data["id"]
+        self._top_level_enums_by_id[refId] = enum
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def parse_top_level_items(self, data_loaded: Dict, filename: str) -> None:
@@ -237,6 +248,11 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         if self.get_children() not in data_loaded:
             return
         scope = self.compilation_unit.get_scope(filename)
+        # Exported symbols includes a reference ID to all top-level definitions the file exports,
+        # including def's brought in by imports (even transitively) and def's local to the file.
+        for refId in data_loaded["exportedSymbols"].values():
+            scope.exported_symbols |= set(refId)
+
 
         for top_level_data in data_loaded[self.get_children()]:
             if top_level_data[self.get_key()] == "ContractDefinition":
@@ -267,9 +283,16 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 self._compilation_unit.using_for_top_level.append(usingFor)
                 self._using_for_top_level_parser.append(usingFor_parser)
+                # print(top_level_data)
+                # if usingFor_parser.is_global:
+                #     for f in usingFor_parser._functions:
+                #         scope.ex
+                # referenceId = top_level_data["id"]
+                # self._top_level_using_for_by_id[referenceId] = usingFor
 
             elif top_level_data[self.get_key()] == "ImportDirective":
                 if self.is_compact_ast:
+                    referenceId = top_level_data["id"]
                     import_directive = Import(
                         Path(
                             top_level_data["absolutePath"],
@@ -284,6 +307,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                         symbol_aliases = top_level_data["symbolAliases"]
                         _handle_import_aliases(symbol_aliases, import_directive, scope)
                 else:
+                    referenceId = top_level_data["attributes"]["id"]
                     import_directive = Import(
                         Path(
                             top_level_data["attributes"].get("absolutePath", ""),
@@ -299,6 +323,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                         import_directive.alias = top_level_data["attributes"]["unitAlias"]
                 import_directive.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.import_directives.append(import_directive)
+                self._imports_by_id[referenceId] = import_directive
 
                 get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
                 scope.accessible_scopes.append(get_imported_scope)
@@ -311,6 +336,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 self._compilation_unit.structures_top_level.append(st)
                 self._structures_top_level_parser.append(st_parser)
+                referenceId = top_level_data["id"]
+                self._top_level_structures_by_id[referenceId] = st
 
             elif top_level_data[self.get_key()] == "EnumDefinition":
                 # Note enum don't need a complex parser, so everything is directly done
@@ -324,6 +351,9 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.variables_top_level.append(var)
                 self._variables_top_level_parser.append(var_parser)
                 scope.variables[var.name] = var
+                referenceId = top_level_data["id"]
+                self._top_level_variables_by_id[referenceId] = var
+
             elif top_level_data[self.get_key()] == "FunctionDefinition":
                 func = FunctionTopLevel(self._compilation_unit, scope)
                 scope.functions.add(func)
@@ -342,6 +372,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 scope.custom_errors.add(custom_error)
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
+                referenceId = top_level_data["id"]
+                self._top_level_events_by_id[referenceId] = custom_error
 
             elif top_level_data[self.get_key()] == "UserDefinedValueTypeDefinition":
                 assert "name" in top_level_data
@@ -360,6 +392,9 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 type_alias.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.type_aliases[alias] = type_alias
                 scope.type_aliases[alias] = type_alias
+                referenceId = top_level_data["id"]
+                self._top_level_type_aliases_by_id[referenceId] = type_alias
+
 
             elif top_level_data[self.get_key()] == "EventDefinition":
                 event = EventTopLevel(scope)
@@ -432,18 +467,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             # pylint: disable=broad-exception-raised
             raise Exception("Contract analysis can be run only once!")
 
-        # First we save all the contracts in a dict
-        # the key is the contractid
-        for contract in self._underlying_contract_to_parser:
-            if contract.name.startswith("SlitherInternalTopLevelContract"):
-                raise SlitherException(
-                    # region multi-line-string
-                    """Your codebase has a contract named 'SlitherInternalTopLevelContract'.
-Please rename it, this name is reserved for Slither's internals"""
-                    # endregion multi-line
-                )
-            self._contracts_by_id[contract.id] = contract
-            self._compilation_unit.contracts.append(contract)
+
 
         def resolve_remapping_and_renaming(contract_parser: ContractSolc, want: str) -> Contract:
             contract_name = contract_parser.remapping[want]
@@ -813,19 +837,19 @@ Please rename it, this name is reserved for Slither's internals"""
                 raise e
 
         for func in self._compilation_unit.functions_top_level:
-            try:
-                func.generate_slithir_and_analyze()
-            except AttributeError as e:
-                logger.error(
-                    f"Impossible to generate IR for top level function {func.name} ({func.source_mapping}):\n {e}"
-                )
-            except Exception as e:
-                func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
-                logger.error(
-                    f"\nFailed to generate IR for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
-                    f"{func_expressions}"
-                )
-                raise e
+        # try:
+            func.generate_slithir_and_analyze()
+            # except AttributeError as e:
+            # logger.error(
+            #     f"Impossible to generate IR for top level function {func.name} ({func.source_mapping}):\n {e}"
+            # )
+            # except Exception as e:
+            #     func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+            #     logger.error(
+            #         f"\nFailed to generate IR for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
+            #         f"{func_expressions}"
+            #     )
+            #     raise e
 
             try:
                 func.generate_slithir_ssa({})

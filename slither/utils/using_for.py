@@ -14,4 +14,6 @@ def _merge_using_for(uf1: USING_FOR, uf2: USING_FOR) -> USING_FOR:
     for key, value in result.items():
         if key in uf1 and key in uf2:
             result[key] = value + uf1[key]
+            for x in result[key]:
+                assert x.__class__.__name__ in ["Function", "FunctionContract", "FunctionTopLevel"], f"Expected Function, got {x.__class__.__name__}"
     return result

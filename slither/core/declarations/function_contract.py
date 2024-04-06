@@ -65,7 +65,7 @@ class FunctionContract(Function, ContractLevel):
 
     @property
     def file_scope(self) -> "FileScope":
-        return self.contract.file_scope
+        return self.contract_declarer.file_scope
 
     # endregion
     ###################################################################################
