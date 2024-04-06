@@ -15,8 +15,9 @@ class VarInCondition:  # pylint: disable=too-few-public-methods
 
 
 class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attributes
-    def __init__(self, _calls):
+    def __init__(self, _calls, _interfaces):
         self.calls = _calls
+        self.interfaces = _interfaces
         self.contract = None
         self.function = None
         self.node = None
@@ -33,8 +34,7 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
     def is_instance_of(self, ir: Operation) -> bool:
         return isinstance(ir, HighLevelCall) and (
             isinstance(ir.function, Function)
-            and self.compare_call(ir.function.name)
-            # add interface
+            and self.compare_call(ir.function.name) and self.compare_interface(str(ir.destination.type))
         )
 
     def set_node(self, _node):
@@ -42,6 +42,11 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
 
     def set_function(self, _function):
         self.function = _function
+
+    def compare_interface(self, interface) -> bool:
+        if interface in self.interfaces:
+            return True
+        return False
 
     def compare_call(self, function) -> bool:
         for call in self.calls:

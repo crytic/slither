@@ -13,6 +13,7 @@ CHAINLINK_ORACLE_CALLS = [
     "latestRoundData",
     "getRoundData",
 ]
+INTERFACES = ["AggregatorV3Interface", "FeedRegistryInterface"]
 
 
 class ChainlinkVars(Enum):
@@ -25,7 +26,7 @@ class ChainlinkVars(Enum):
 
 class ChainlinkOracle(Oracle):
     def __init__(self):
-        super().__init__(CHAINLINK_ORACLE_CALLS)
+        super().__init__(CHAINLINK_ORACLE_CALLS, INTERFACES)
 
     # This function checks if the RoundId value is validated in connection with answeredInRound value
     # But this last variable was deprecated. We left this function for possible future use.
