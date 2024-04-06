@@ -73,6 +73,11 @@ ALL_TESTS = [
         "0.5.16",
     ),
     Test(
+        all_detectors.DOSDetector,
+        "dos_detect.sol",
+        "0.6.11",
+    ),
+    Test(
         all_detectors.ReentrancyBenign,
         "reentrancy-benign.sol",
         "0.4.25",
