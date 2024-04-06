@@ -21,18 +21,20 @@ class Declaration(AbstractPrinter):
             txt += "\n# Contracts\n"
             for contract in compilation_unit.contracts:
                 txt += f"# {contract.name}\n"
-                txt += f"\t- Declaration: {get_definition(contract, compilation_unit.core.crytic_compile).to_detailed_str()}\n"
-                txt += f"\t- Implementation: {get_implementation(contract).to_detailed_str()}\n"
+                contract_def = get_definition(contract, compilation_unit.core.crytic_compile)
+                txt += f"\t- Declaration: {contract_def.to_detailed_str()}\n"
+                txt += f"\t- Implementation(s): {[x.to_detailed_str() for x in list(self.slither.offset_to_implementations(contract.source_mapping.filename.absolute, contract_def.start))]}\n"
                 txt += (
                     f"\t- References: {[x.to_detailed_str() for x in get_references(contract)]}\n"
                 )
 
                 txt += "\n\t## Function\n"
 
-                for func in contract.functions:
+                for func in contract.functions_declared:
                     txt += f"\t\t- {func.canonical_name}\n"
-                    txt += f"\t\t\t- Declaration: {get_definition(func, compilation_unit.core.crytic_compile).to_detailed_str()}\n"
-                    txt += f"\t\t\t- Implementation: {get_implementation(func).to_detailed_str()}\n"
+                    function_def = get_definition(func, compilation_unit.core.crytic_compile)
+                    txt += f"\t\t\t- Declaration: {function_def.to_detailed_str()}\n"
+                    txt += f"\t\t\t- Implementation(s): {[x.to_detailed_str() for x in list(self.slither.offset_to_implementations(func.source_mapping.filename.absolute, function_def.start))]}\n"
                     txt += f"\t\t\t- References: {[x.to_detailed_str() for x in get_references(func)]}\n"
 
                 txt += "\n\t## State variables\n"

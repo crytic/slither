@@ -232,6 +232,7 @@ def parse_type(
     from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
+    from slither.solc_parsing.declarations.event_top_level import EventTopLevelSolc
 
     sl: "SlitherCompilationUnit"
     renaming: Dict[str, str]
@@ -266,7 +267,13 @@ def parse_type(
         functions = []
     elif isinstance(
         caller_context,
-        (StructureTopLevelSolc, CustomErrorSolc, TopLevelVariableSolc, UsingForTopLevelSolc),
+        (
+            StructureTopLevelSolc,
+            CustomErrorSolc,
+            TopLevelVariableSolc,
+            UsingForTopLevelSolc,
+            EventTopLevelSolc,
+        ),
     ):
         if isinstance(caller_context, StructureTopLevelSolc):
             scope = caller_context.underlying_structure.file_scope
@@ -274,6 +281,8 @@ def parse_type(
             scope = caller_context.underlying_variable.file_scope
         elif isinstance(caller_context, UsingForTopLevelSolc):
             scope = caller_context.underlying_using_for.file_scope
+        elif isinstance(caller_context, EventTopLevelSolc):
+            scope = caller_context.underlying_event.file_scope
         else:
             assert isinstance(caller_context, CustomErrorSolc)
             custom_error = caller_context.underlying_custom_error

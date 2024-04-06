@@ -15,8 +15,8 @@ setup(
         "packaging",
         "prettytable>=3.3.0",
         "pycryptodome>=3.4.6",
-        "crytic-compile>=0.3.5,<0.4.0",
-        # "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
+        # "crytic-compile>=0.3.5,<0.4.0",
+        "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
         "web3>=6.0.0",
         "eth-abi>=4.0.0",
         "eth-typing>=3.0.0",
@@ -25,7 +25,7 @@ setup(
     extras_require={
         "lint": [
             "black==22.3.0",
-            "pylint==2.13.4",
+            "pylint==3.0.3",
         ],
         "test": [
             "pytest",

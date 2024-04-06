@@ -24,7 +24,7 @@ from slither.vyper_parsing.declarations.struct import StructVyper
 from slither.vyper_parsing.variables.state_variable import StateVariableVyper
 from slither.vyper_parsing.declarations.function import FunctionVyper
 from slither.core.declarations.function_contract import FunctionContract
-from slither.core.declarations import Contract, StructureContract, EnumContract, Event
+from slither.core.declarations import Contract, StructureContract, EnumContract, EventContract
 
 from slither.core.variables.state_variable import StateVariable
 
@@ -478,7 +478,7 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
 
     def parse_events(self) -> None:
         for event_to_parse in self._eventsNotParsed:
-            event = Event()
+            event = EventContract()
             event.set_contract(self._contract)
             event.set_offset(event_to_parse.src, self._contract.compilation_unit)
 

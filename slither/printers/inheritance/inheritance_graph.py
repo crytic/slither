@@ -100,10 +100,11 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         # Add arrows (number them if there is more than one path so we know order of declaration for inheritance).
         if len(contract.immediate_inheritance) == 1:
-            ret += f"{contract.name} -> {contract.immediate_inheritance[0]};\n"
+            immediate_inheritance = contract.immediate_inheritance[0]
+            ret += f"c{contract.id}_{contract.name} -> c{immediate_inheritance.id}_{immediate_inheritance};\n"
         else:
             for i, immediate_inheritance in enumerate(contract.immediate_inheritance):
-                ret += f'{contract.name} -> {immediate_inheritance} [ label="{i + 1}" ];\n'
+                ret += f'c{contract.id}_{contract.name} -> c{immediate_inheritance.id}_{immediate_inheritance} [ label="{i + 1}" ];\n'
 
         # Functions
         visibilities = ["public", "external"]
@@ -151,7 +152,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         indirect_shadowing_information = self._get_indirect_shadowing_information(contract)
 
         # Build the node label
-        ret += f'{contract.name}[shape="box"'
+        ret += f'c{contract.id}_{contract.name}[shape="box"'
         ret += 'label=< <TABLE border="0">'
         ret += f'<TR><TD align="center"><B>{contract.name}</B></TD></TR>'
         if public_functions:

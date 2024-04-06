@@ -71,7 +71,7 @@ def encode_var_for_compare(var: Union[variables.Variable, SolidityVariable]) -> 
     if isinstance(var, variables.LocalVariable):
         return f"local_solc_variable({ntype(var.type)},{var.location})"
     if isinstance(var, variables.StateVariable):
-        if not (var.is_constant or var.is_immutable):
+        if var.is_stored:
             try:
                 slot, _ = var.contract.compilation_unit.storage_layout_of(var.contract, var)
             except KeyError:

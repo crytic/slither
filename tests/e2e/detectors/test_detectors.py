@@ -1679,6 +1679,11 @@ ALL_TESTS = [
         "return_bomb.sol",
         "0.8.20",
     ),
+    Test(
+        all_detectors.OutOfOrderRetryable,
+        "out_of_order_retryable.sol",
+        "0.8.20",
+    ),
     Test(all_detectors.OracleDataCheck, "oracle_data_check1.sol", "0.8.20"),
     Test(all_detectors.OracleDataCheck, "oracle_data_check2.sol", "0.8.20"),
     Test(

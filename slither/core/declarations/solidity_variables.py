@@ -21,7 +21,8 @@ SOLIDITY_VARIABLES = {
 }
 
 SOLIDITY_VARIABLES_COMPOSED = {
-    "block.basefee": "uint",
+    "block.basefee": "uint256",
+    "block.blobbasefee": "uint256",
     "block.coinbase": "address",
     "block.difficulty": "uint256",
     "block.prevrandao": "uint256",
@@ -44,6 +45,7 @@ SOLIDITY_VARIABLES_COMPOSED = {
 }
 
 SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
+    "blobhash(uint256)": ["bytes32"],
     "gasleft()": ["uint256"],
     "assert(bool)": [],
     "require(bool)": [],
@@ -114,6 +116,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "_abi_encode()": [],
     "slice()": [],
     "uint2str()": ["string"],
+    "send()": [],
 }
 
 
@@ -137,7 +140,7 @@ class SolidityVariable(SourceMapping):
         self._name = name
 
     # dev function, will be removed once the code is stable
-    def _check_name(self, name: str) -> None:  # pylint: disable=no-self-use
+    def _check_name(self, name: str) -> None:
         assert name in SOLIDITY_VARIABLES or name.endswith(("_slot", "_offset"))
 
     @property
