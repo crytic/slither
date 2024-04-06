@@ -44,7 +44,7 @@ def _update_file_scopes(candidates: ValuesView[FileScope]):
     learned_something = False
     while True:
         for candidate in candidates:
-            learned_something |= candidate.add_accesible_scopes()
+            learned_something |= candidate.add_accessible_scopes()
         if not learned_something:
             break
         learned_something = False
@@ -132,7 +132,7 @@ class Slither(
                     sol_parser._contracts_by_id[contract.id] = contract
                     sol_parser._compilation_unit.contracts.append(contract)
                 print("avalilable")
-                for k,v in sol_parser.contracts_by_id.items():
+                for k, v in sol_parser.contracts_by_id.items():
                     print(k, v.name)
                 for scope in compilation_unit_slither.scopes.values():
                     for refId in scope.exported_symbols:
@@ -142,6 +142,7 @@ class Slither(
                             contract = sol_parser.contracts_by_id[refId]
                             scope.contracts[contract.name] = contract
                         elif refId in sol_parser.functions_by_id:
+                            print("found in functions")
                             functions = sol_parser.functions_by_id[refId]
                             assert len(functions) == 1
                             function = functions[0]
@@ -164,11 +165,14 @@ class Slither(
                         elif refId in sol_parser._top_level_enums_by_id:
                             top_level_enum = sol_parser._top_level_enums_by_id[refId]
                             scope.enums[top_level_enum.name] = top_level_enum
+                        elif refId in sol_parser._top_level_errors_by_id:
+                            print("found in errors")
+                            top_level_custom_error = sol_parser._top_level_errors_by_id[refId]
+                            print(top_level_custom_error.name)
+                            scope.custom_errors.add(top_level_custom_error)
                         else:
-                            print ("not found", refId)
+                            print("not found", refId)
                             assert False
-        
-
 
         if kwargs.get("generate_patches", False):
             self.generate_patches = True

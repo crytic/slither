@@ -57,7 +57,7 @@ class FileScope:
         # Name -> type alias
         self.type_aliases: Dict[str, TypeAlias] = {}
 
-    def add_accesible_scopes(self) -> bool:  # pylint: disable=too-many-branches
+    def add_accessible_scopes(self) -> bool:  # pylint: disable=too-many-branches
         """
         Add information from accessible scopes. Return true if new information was obtained
 
@@ -67,6 +67,8 @@ class FileScope:
 
         learn_something = False
 
+        # This is a hacky way to support using for directives on user defined types and user defined functions
+        # since it is not reflected in the "exportedSymbols" field of the AST.
         for new_scope in self.accessible_scopes:
             if not new_scope.using_for_directives.issubset(self.using_for_directives):
                 self.using_for_directives |= new_scope.using_for_directives
@@ -77,6 +79,11 @@ class FileScope:
                 learn_something = True
             if not new_scope.functions.issubset(self.functions):
                 self.functions |= new_scope.functions
+                learn_something = True
+
+            # Hack to get around https://github.com/ethereum/solidity/pull/11881
+            if not new_scope.exported_symbols.issubset(self.exported_symbols):
+                self.exported_symbols |= new_scope.exported_symbols
                 learn_something = True
                 #         if not new_scope.imports.issubset(self.imports):
                 # self.imports |= new_scope.imports
@@ -112,7 +119,6 @@ class FileScope:
             # if not _dict_contain(new_scope.renaming, self.renaming):
             #     self.renaming.update(new_scope.renaming)
             #     learn_something = True
-       
 
         return learn_something
 

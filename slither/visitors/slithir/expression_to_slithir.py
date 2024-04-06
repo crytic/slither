@@ -645,6 +645,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 return True
 
         for custom_error in scope.custom_errors:
+            print("scope", scope)
+            print(*scope.exported_symbols)
+            print("custom", custom_error)
+            print(custom_error.name, elem)
             if custom_error.name == elem:
                 set_val(expression, custom_error)
                 return True

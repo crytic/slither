@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, TYPE_CHECKING, Optional
 
 from slither.core.declarations import Function
 from slither.core.declarations.top_level import TopLevel
-from slither.utils.using_for import USING_FOR, _merge_using_for
+from slither.utils.using_for import USING_FOR, merge_using_for
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -32,7 +32,7 @@ class FunctionTopLevel(Function, TopLevel):
         if self._using_for_complete is None:
             result = {}
             for uftl in self.file_scope.using_for_directives:
-                result = _merge_using_for(result, uftl.using_for)
+                result = merge_using_for(result, uftl.using_for)
             self._using_for_complete = result
         return self._using_for_complete
 

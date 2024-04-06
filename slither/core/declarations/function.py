@@ -355,8 +355,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     @property
     def id(self) -> Optional[str]:
         """
-        Return the ID of the funciton. For Solidity with compact-AST the ID is the reference ID
-        For other, the ID is None
+        Return the reference ID of the function, if available.
 
         :return:
         :rtype:

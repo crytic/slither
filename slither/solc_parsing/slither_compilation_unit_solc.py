@@ -85,6 +85,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._functions_by_id: Dict[int, List[Function]] = defaultdict(list)
         self._imports_by_id: Dict[int, Import] = {}
         self._top_level_events_by_id: Dict[int, EventTopLevel] = {}
+        self._top_level_errors_by_id: Dict[int, EventTopLevel] = {}
         self._top_level_structures_by_id: Dict[int, StructureTopLevel] = {}
         self._top_level_variables_by_id: Dict[int, TopLevelVariable] = {}
         # self._top_level_using_for_by_id: Dict[int, UsingForTopLevel] = {}
@@ -228,8 +229,13 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             )
             return
 
+        exported_symbols = {}
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
+            exported_symbols = data_loaded.get("exportedSymbols", {})
+        else:
+            attributes = data_loaded.get("attributes", {})
+            exported_symbols = attributes.get("exportedSymbols", {})
 
         if "sourcePaths" in data_loaded:
             for sourcePath in data_loaded["sourcePaths"]:
@@ -247,12 +253,12 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         if self.get_children() not in data_loaded:
             return
+
         scope = self.compilation_unit.get_scope(filename)
         # Exported symbols includes a reference ID to all top-level definitions the file exports,
         # including def's brought in by imports (even transitively) and def's local to the file.
-        for refId in data_loaded["exportedSymbols"].values():
+        for refId in exported_symbols.values():
             scope.exported_symbols |= set(refId)
-
 
         for top_level_data in data_loaded[self.get_children()]:
             if top_level_data[self.get_key()] == "ContractDefinition":
@@ -291,8 +297,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 # self._top_level_using_for_by_id[referenceId] = usingFor
 
             elif top_level_data[self.get_key()] == "ImportDirective":
+                referenceId = top_level_data["id"]
                 if self.is_compact_ast:
-                    referenceId = top_level_data["id"]
                     import_directive = Import(
                         Path(
                             top_level_data["absolutePath"],
@@ -307,7 +313,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                         symbol_aliases = top_level_data["symbolAliases"]
                         _handle_import_aliases(symbol_aliases, import_directive, scope)
                 else:
-                    referenceId = top_level_data["attributes"]["id"]
                     import_directive = Import(
                         Path(
                             top_level_data["attributes"].get("absolutePath", ""),
@@ -373,7 +378,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
                 referenceId = top_level_data["id"]
-                self._top_level_events_by_id[referenceId] = custom_error
+                self._top_level_errors_by_id[referenceId] = custom_error
 
             elif top_level_data[self.get_key()] == "UserDefinedValueTypeDefinition":
                 assert "name" in top_level_data
@@ -395,7 +400,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 referenceId = top_level_data["id"]
                 self._top_level_type_aliases_by_id[referenceId] = type_alias
 
-
             elif top_level_data[self.get_key()] == "EventDefinition":
                 event = EventTopLevel(scope)
                 event.set_offset(top_level_data["src"], self._compilation_unit)
@@ -404,6 +408,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._events_top_level_parser.append(event_parser)
                 scope.events.add(event)
                 self._compilation_unit.events_top_level.append(event)
+                referenceId = top_level_data["id"]
+                self._top_level_events_by_id[referenceId] = event
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
@@ -466,8 +472,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         if self._parsed:
             # pylint: disable=broad-exception-raised
             raise Exception("Contract analysis can be run only once!")
-
-
 
         def resolve_remapping_and_renaming(contract_parser: ContractSolc, want: str) -> Contract:
             contract_name = contract_parser.remapping[want]
@@ -837,7 +841,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 raise e
 
         for func in self._compilation_unit.functions_top_level:
-        # try:
+            # try:
             func.generate_slithir_and_analyze()
             # except AttributeError as e:
             # logger.error(

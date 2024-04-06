@@ -588,9 +588,11 @@ class ContractSolc(CallerContextExpression):
             for c in self._contract.inheritance:
                 print(c.name, c.id)
                 for c2 in c.inheritance:
-                    print("\t",c2.name, c2.id)
+                    print("\t", c2.name, c2.id)
                 print("\n")
-            self.log_incorrect_parsing(f"Missing params {e} {self._contract.source_mapping.to_detailed_str()}")
+            self.log_incorrect_parsing(
+                f"Missing params {e} {self._contract.source_mapping.to_detailed_str()}"
+            )
         return all_elements
 
     def analyze_constant_state_variables(self) -> None:
@@ -624,12 +626,14 @@ class ContractSolc(CallerContextExpression):
                         self._contract.using_for[type_name] = []
 
                     if "libraryName" in using_for:
-                        print(using_for["libraryName"])
-                        x   = parse_type(using_for["libraryName"], self)
-                        for f in x.type.functions:
+                        # print(using_for["libraryName"])
+                        # x   =
+                        # for f in x.type.functions:
 
-                            assert isinstance(f, Function), x.__class__
-                            self._contract.using_for[type_name].append(f)
+                        #     assert isinstance(f, Function), x.__class__
+                        self._contract.using_for[type_name].append(
+                            parse_type(using_for["libraryName"], self)
+                        )
                     else:
                         # We have a list of functions. A function can be topLevel or a library function
                         self._analyze_function_list(using_for["functionList"], type_name)
@@ -645,7 +649,7 @@ class ContractSolc(CallerContextExpression):
                         old = "*"
                     if old not in self._contract.using_for:
                         self._contract.using_for[old] = []
-                    assert isinstance(new, Function)
+
                     self._contract.using_for[old].append(new)
             self._usingForNotParsed = []
         except (VariableNotFound, KeyError) as e:

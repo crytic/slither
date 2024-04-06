@@ -607,7 +607,6 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
     #     for i in v:
     #         print("value",i,i.__class__ )
 
-
     if isinstance(ir, OperationWithLValue) and ir.lvalue:
         # Force assignment in case of missing previous correct type
         if not ir.lvalue.type:
@@ -1548,10 +1547,9 @@ def look_for_library_or_top_level(
         lib_contract = None
         if isinstance(destination, FunctionContract) and destination.contract.is_library:
             lib_contract = destination.contract
-        elif not isinstance(destination, FunctionTopLevel):
-            print(destination)
-            lib_contract = destination.file_scope.get_contract_from_name(str(destination))
-        print("lib_contract", lib_contract)
+        elif isinstance(destination, UserDefinedType) and isinstance(destination.type, Contract):
+            lib_contract = destination.type
+
         if lib_contract:
             lib_call = LibraryCall(
                 lib_contract,
@@ -1583,6 +1581,7 @@ def convert_to_library_or_top_level(
         node.function.contract_declarer if isinstance(node.function, FunctionContract) else None
     )
     t = ir.destination.type
+
     if t in using_for:
         new_ir = look_for_library_or_top_level(contract, ir, using_for, t)
         if new_ir:
@@ -1755,7 +1754,13 @@ def convert_type_of_high_and_internal_level_call(
             ]
 
             for import_statement in contract.file_scope.imports:
-                if import_statement.alias and import_statement.alias == ir.contract_name:
+                print(import_statement)
+                print(import_statement.alias)
+                print(ir.contract_name)
+                if (
+                    import_statement.alias is not None
+                    and import_statement.alias == ir.contract_name
+                ):
                     imported_scope = contract.compilation_unit.get_scope(import_statement.filename)
                     candidates += [
                         f
@@ -1786,7 +1791,7 @@ def convert_type_of_high_and_internal_level_call(
         if func is None and candidates:
             func = _find_function_from_parameter(ir.arguments, candidates, False)
 
-    # lowlelvel lookup needs to be done at last step
+    # low level lookup needs to be done as last step
     if not func:
         if can_be_low_level(ir):
             return convert_to_low_level(ir)

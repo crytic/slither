@@ -52,8 +52,8 @@ class UsingForTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few-
         if self._library_name:
             library_name = parse_type(self._library_name, self)
             assert isinstance(library_name, UserDefinedType)
-            for f in library_name.type.functions:
-                self._using_for.using_for[type_name].append(f)
+            # for f in library_name.type.functions:
+            self._using_for.using_for[type_name].append(library_name)
 
             self._propagate_global(type_name)
         else:

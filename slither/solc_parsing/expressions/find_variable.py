@@ -307,7 +307,7 @@ def _find_variable_init(
             scope = underlying_function.file_scope
 
         # scope = underlying_function.file_scope
-            # assert False
+        # assert False
     elif isinstance(caller_context, StructureTopLevelSolc):
         direct_contracts = []
         direct_functions_parser = []
@@ -510,4 +510,6 @@ def find_variable(
     if ret:
         return ret, False
 
-    raise VariableNotFound(f"Variable not found: {var_name} (context {contract} {contract.source_mapping.to_detailed_str()})")
+    raise VariableNotFound(
+        f"Variable not found: {var_name} (context {contract} {contract.source_mapping.to_detailed_str()})"
+    )
