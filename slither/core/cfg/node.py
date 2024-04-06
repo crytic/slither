@@ -77,6 +77,7 @@ class NodeType(Enum):
     ASSEMBLY = "INLINE ASM"
     ENDASSEMBLY = "END INLINE ASM"
     IFLOOP = "IF_LOOP"
+    WHILELOOP = "WHILE_LOOP"
     CONDITION = "CONDITION"
     # Nodes where control flow merges
     # Can have phi IR operation
@@ -542,6 +543,15 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         if include_loop:
             return self.type in [NodeType.IF, NodeType.IFLOOP]
         return self.type == NodeType.IF
+    def contains_while(self, include_loop: bool = True) -> bool:
+        """
+            Check if the node is a WHILE node
+        Returns:
+            bool: True if the node is a conditional node (WHILE or WHILELOOP)
+        """
+        if include_loop:
+            return self.type in [NodeType.WHILE, NodeType.WHILELOOP]
+        return self.type == NodeType.WHILE
 
     def is_conditional(self, include_loop: bool = True) -> bool:
         """
