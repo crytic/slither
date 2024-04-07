@@ -1,7 +1,7 @@
 from typing import List
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification, Output
 
-
+# pylint: disable=protected-access,too-many-nested-blocks
 class UnusedImport(AbstractDetector):
     """
     Detector unused imports.
@@ -59,12 +59,10 @@ class UnusedImport(AbstractDetector):
                             break
 
                     if not use_found:
-                        unused.append(f"{i.source_mapping.content} ({i.source_mapping}")
+                        unused.append(f"{i.source_mapping.content} ({i.source_mapping})")
 
                 if len(unused) > 0:
-                    unused_list = ""
-                    for i in unused:
-                        unused_list += f"\n\t-{i}"
+                    unused_list = "\n\t-" + "\n\t-".join(unused)
 
                     results.append(
                         self.generate_result(
