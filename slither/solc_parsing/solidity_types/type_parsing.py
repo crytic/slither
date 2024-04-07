@@ -232,12 +232,13 @@ def parse_type(
     from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
+    from slither.solc_parsing.declarations.event_top_level import EventTopLevelSolc
 
     sl: "SlitherCompilationUnit"
     renaming: Dict[str, str]
     type_aliases: Dict[str, TypeAlias]
     enums_direct_access: List["Enum"] = []
-    # Note: for convenicence top level functions use the same parser than function in contract
+    # Note: for convenience top level functions use the same parser as function in contract
     # but contract_parser is set to None
     if isinstance(caller_context, SlitherCompilationUnitSolc) or (
         isinstance(caller_context, FunctionSolc) and caller_context.contract_parser is None
@@ -266,7 +267,13 @@ def parse_type(
         functions = []
     elif isinstance(
         caller_context,
-        (StructureTopLevelSolc, CustomErrorSolc, TopLevelVariableSolc, UsingForTopLevelSolc),
+        (
+            StructureTopLevelSolc,
+            CustomErrorSolc,
+            TopLevelVariableSolc,
+            UsingForTopLevelSolc,
+            EventTopLevelSolc,
+        ),
     ):
         if isinstance(caller_context, StructureTopLevelSolc):
             scope = caller_context.underlying_structure.file_scope
@@ -274,6 +281,8 @@ def parse_type(
             scope = caller_context.underlying_variable.file_scope
         elif isinstance(caller_context, UsingForTopLevelSolc):
             scope = caller_context.underlying_using_for.file_scope
+        elif isinstance(caller_context, EventTopLevelSolc):
+            scope = caller_context.underlying_event.file_scope
         else:
             assert isinstance(caller_context, CustomErrorSolc)
             custom_error = caller_context.underlying_custom_error
@@ -304,28 +313,28 @@ def parse_type(
         sl = caller_context.compilation_unit
         if isinstance(caller_context, FunctionSolc):
             underlying_func = caller_context.underlying_function
-            # If contract_parser is set to None, then underlying_function is a functionContract
+            # If contract_parser is set to None, then underlying_function is a FunctionContract
             # See note above
             assert isinstance(underlying_func, FunctionContract)
             contract = underlying_func.contract
             next_context = caller_context.contract_parser
-            scope = caller_context.underlying_function.file_scope
+            scope = underlying_func.file_scope
         else:
             contract = caller_context.underlying_contract
             next_context = caller_context
-            scope = caller_context.underlying_contract.file_scope
+            scope = contract.file_scope
 
         structures_direct_access = contract.structures
-        structures_direct_access += contract.file_scope.structures.values()
-        all_structuress = [c.structures for c in contract.file_scope.contracts.values()]
+        structures_direct_access += scope.structures.values()
+        all_structuress = [c.structures for c in scope.contracts.values()]
         all_structures = [item for sublist in all_structuress for item in sublist]
-        all_structures += contract.file_scope.structures.values()
+        all_structures += scope.structures.values()
         enums_direct_access += contract.enums
-        enums_direct_access += contract.file_scope.enums.values()
-        all_enumss = [c.enums for c in contract.file_scope.contracts.values()]
+        enums_direct_access += scope.enums.values()
+        all_enumss = [c.enums for c in scope.contracts.values()]
         all_enums = [item for sublist in all_enumss for item in sublist]
-        all_enums += contract.file_scope.enums.values()
-        contracts = contract.file_scope.contracts.values()
+        all_enums += scope.enums.values()
+        contracts = scope.contracts.values()
         functions = contract.functions + contract.modifiers
 
         renaming = scope.renaming
@@ -486,4 +495,4 @@ def parse_type(
 
         return FunctionType(params_vars, return_values_vars)
 
-    raise ParsingError("Type name not found " + str(t))
+    raise ParsingError(f"Type name not found {(t)} in {scope.filename}")

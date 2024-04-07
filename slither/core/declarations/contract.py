@@ -9,9 +9,8 @@ from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, 
 from crytic_compile.platform import Type as PlatformType
 
 from slither.core.cfg.scope import Scope
-from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
-
+from slither.utils.using_for import USING_FOR, merge_using_for
 from slither.core.declarations.function import Function, FunctionType, FunctionLanguage
 from slither.utils.erc import (
     ERC20_signatures,
@@ -50,9 +49,6 @@ if TYPE_CHECKING:
 
 LOGGER = logging.getLogger("Contract")
 
-USING_FOR_KEY = Union[str, Type]
-USING_FOR_ITEM = List[Union[Type, Function]]
-
 
 class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     """
@@ -87,12 +83,13 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._type_aliases: Dict[str, "TypeAliasContract"] = {}
 
         # The only str is "*"
-        self._using_for: Dict[USING_FOR_KEY, USING_FOR_ITEM] = {}
-        self._using_for_complete: Optional[Dict[USING_FOR_KEY, USING_FOR_ITEM]] = None
+        self._using_for: USING_FOR = {}
+        self._using_for_complete: Optional[USING_FOR] = None
         self._kind: Optional[str] = None
         self._is_interface: bool = False
         self._is_library: bool = False
         self._is_fully_implemented: bool = False
+        self._is_abstract: bool = False
 
         self._signatures: Optional[List[str]] = None
         self._signatures_declared: Optional[List[str]] = None
@@ -203,11 +200,33 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     @property
     def is_fully_implemented(self) -> bool:
+        """
+        bool: True if the contract defines all functions.
+        In modern Solidity, virtual functions can lack an implementation.
+        Prior to Solidity 0.6.0, functions like the following would be not fully implemented:
+        ```solidity
+        contract ImplicitAbstract{
+            function f() public;
+        }
+        ```
+        """
         return self._is_fully_implemented
 
     @is_fully_implemented.setter
     def is_fully_implemented(self, is_fully_implemented: bool):
         self._is_fully_implemented = is_fully_implemented
+
+    @property
+    def is_abstract(self) -> bool:
+        """
+        Note for Solidity < 0.6.0 it will always be false
+        bool: True if the contract is abstract.
+        """
+        return self._is_abstract
+
+    @is_abstract.setter
+    def is_abstract(self, is_abstract: bool):
+        self._is_abstract = is_abstract
 
     # endregion
     ###################################################################################
@@ -310,29 +329,20 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def using_for(self) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
+    def using_for(self) -> USING_FOR:
         return self._using_for
 
     @property
-    def using_for_complete(self) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
+    def using_for_complete(self) -> USING_FOR:
         """
-        Dict[Union[str, Type], List[Type]]: Dict of merged local using for directive with top level directive
+        USING_FOR: Dict of merged local using for directive with top level directive
         """
-
-        def _merge_using_for(
-            uf1: Dict[USING_FOR_KEY, USING_FOR_ITEM], uf2: Dict[USING_FOR_KEY, USING_FOR_ITEM]
-        ) -> Dict[USING_FOR_KEY, USING_FOR_ITEM]:
-            result = {**uf1, **uf2}
-            for key, value in result.items():
-                if key in uf1 and key in uf2:
-                    result[key] = value + uf1[key]
-            return result
 
         if self._using_for_complete is None:
             result = self.using_for
             top_level_using_for = self.file_scope.using_for_directives
             for uftl in top_level_using_for:
-                result = _merge_using_for(result, uftl.using_for)
+                result = merge_using_for(result, uftl.using_for)
             self._using_for_complete = result
         return self._using_for_complete
 
@@ -996,16 +1006,14 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def get_functions_overridden_by(self, function: "Function") -> List["Function"]:
         """
-            Return the list of functions overriden by the function
+            Return the list of functions overridden by the function
         Args:
             (core.Function)
         Returns:
             list(core.Function)
 
         """
-        candidatess = [c.functions_declared for c in self.inheritance]
-        candidates = [candidate for sublist in candidatess for candidate in sublist]
-        return [f for f in candidates if f.full_name == function.full_name]
+        return function.overrides
 
     # endregion
     ###################################################################################
