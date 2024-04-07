@@ -1502,7 +1502,6 @@ def convert_to_pop(ir: HighLevelCall, node: "Node") -> List[Operation]:
 
 
 def look_for_library_or_top_level(
-    contract: Contract,
     ir: HighLevelCall,
     using_for,
     t: Union[
@@ -1536,8 +1535,9 @@ def look_for_library_or_top_level(
         lib_contract = None
         if isinstance(destination, FunctionContract) and destination.contract.is_library:
             lib_contract = destination.contract
-        elif not isinstance(destination, FunctionTopLevel):
-            lib_contract = contract.file_scope.get_contract_from_name(str(destination))
+        elif isinstance(destination, UserDefinedType) and isinstance(destination.type, Contract):
+            lib_contract = destination.type
+
         if lib_contract:
             lib_call = LibraryCall(
                 lib_contract,
@@ -1561,20 +1561,14 @@ def look_for_library_or_top_level(
 def convert_to_library_or_top_level(
     ir: HighLevelCall, node: "Node", using_for
 ) -> Optional[Union[LibraryCall, InternalCall,]]:
-    # We use contract_declarer, because Solidity resolve the library
-    # before resolving the inheritance.
-    # Though we could use .contract as libraries cannot be shadowed
-    contract = (
-        node.function.contract_declarer if isinstance(node.function, FunctionContract) else None
-    )
     t = ir.destination.type
     if t in using_for:
-        new_ir = look_for_library_or_top_level(contract, ir, using_for, t)
+        new_ir = look_for_library_or_top_level(ir, using_for, t)
         if new_ir:
             return new_ir
 
     if "*" in using_for:
-        new_ir = look_for_library_or_top_level(contract, ir, using_for, "*")
+        new_ir = look_for_library_or_top_level(ir, using_for, "*")
         if new_ir:
             return new_ir
 
@@ -1585,7 +1579,7 @@ def convert_to_library_or_top_level(
         and UserDefinedType(node.function.contract) in using_for
     ):
         new_ir = look_for_library_or_top_level(
-            contract, ir, using_for, UserDefinedType(node.function.contract)
+            ir, using_for, UserDefinedType(node.function.contract)
         )
         if new_ir:
             return new_ir
@@ -1740,7 +1734,10 @@ def convert_type_of_high_and_internal_level_call(
             ]
 
             for import_statement in contract.file_scope.imports:
-                if import_statement.alias and import_statement.alias == ir.contract_name:
+                if (
+                    import_statement.alias is not None
+                    and import_statement.alias == ir.contract_name
+                ):
                     imported_scope = contract.compilation_unit.get_scope(import_statement.filename)
                     candidates += [
                         f
@@ -1771,7 +1768,7 @@ def convert_type_of_high_and_internal_level_call(
         if func is None and candidates:
             func = _find_function_from_parameter(ir.arguments, candidates, False)
 
-    # lowlelvel lookup needs to be done at last step
+    # low level lookup needs to be done as last step
     if not func:
         if can_be_low_level(ir):
             return convert_to_low_level(ir)

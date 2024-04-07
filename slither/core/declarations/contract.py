@@ -10,7 +10,7 @@ from crytic_compile.platform import Type as PlatformType
 
 from slither.core.cfg.scope import Scope
 from slither.core.source_mapping.source_mapping import SourceMapping
-from slither.utils.using_for import USING_FOR, _merge_using_for
+from slither.utils.using_for import USING_FOR, merge_using_for
 from slither.core.declarations.function import Function, FunctionType, FunctionLanguage
 from slither.utils.erc import (
     ERC20_signatures,
@@ -342,7 +342,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             result = self.using_for
             top_level_using_for = self.file_scope.using_for_directives
             for uftl in top_level_using_for:
-                result = _merge_using_for(result, uftl.using_for)
+                result = merge_using_for(result, uftl.using_for)
             self._using_for_complete = result
         return self._using_for_complete
 

@@ -63,10 +63,12 @@ class FunctionSolc(CallerContextExpression):
         # Only present if compact AST
         if self.is_compact_ast:
             self._function.name = function_data["name"]
-            if "id" in function_data:
-                self._function.id = function_data["id"]
         else:
             self._function.name = function_data["attributes"][self.get_key()]
+
+        if "id" in function_data:
+            self._function.id = function_data["id"]
+
         self._functionNotParsed = function_data
         self._returnsNotParsed: List[dict] = []
         self._params_was_analyzed = False
