@@ -474,6 +474,7 @@ ALL_TESTS = [
     Test("event-top-level.sol", ["0.8.22"]),
     Test("solidity-0.8.24.sol", ["0.8.24"], solc_args="--evm-version cancun"),
     Test("scope/inherited_function_scope.sol", ["0.8.24"]),
+    Test("using_for_global_user_defined_operator_1.sol", ["0.8.24"]),
 ]
 # create the output folder if needed
 try:

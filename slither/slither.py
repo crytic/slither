@@ -1,11 +1,10 @@
 import logging
-from typing import Union, List, ValuesView, Type, Dict, Optional
+from typing import Union, List, Type, Dict, Optional
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
 # pylint: disable= no-name-in-module
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.core.scope.scope import FileScope
 from slither.core.slither_core import SlitherCore
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.exceptions import SlitherError
@@ -35,7 +34,9 @@ def _check_common_things(
         raise SlitherError(f"You can't register {cls!r} twice.")
 
 
-def _update_file_scopes(sol_parser: SlitherCompilationUnitSolc):
+def _update_file_scopes(
+    sol_parser: SlitherCompilationUnitSolc,
+):  # pylint: disable=too-many-branches
     """
     Since all definitions in a file are exported by default, including definitions from its (transitive) dependencies,
     we can identify all top level items that could possibly be referenced within the file from its exportedSymbols.
@@ -59,38 +60,37 @@ def _update_file_scopes(sol_parser: SlitherCompilationUnitSolc):
             elif refId in sol_parser.functions_by_id:
                 functions = sol_parser.functions_by_id[refId]
                 assert len(functions) == 1
-                function = functions[0]
-                scope.functions.add(function)
-            elif refId in sol_parser._imports_by_id:
-                import_directive = sol_parser._imports_by_id[refId]
+                scope.functions.add(functions[0])
+            elif refId in sol_parser.imports_by_id:
+                import_directive = sol_parser.imports_by_id[refId]
                 scope.imports.add(import_directive)
-            elif refId in sol_parser._top_level_variables_by_id:
-                top_level_variable = sol_parser._top_level_variables_by_id[refId]
+            elif refId in sol_parser.top_level_variables_by_id:
+                top_level_variable = sol_parser.top_level_variables_by_id[refId]
                 scope.variables[top_level_variable.name] = top_level_variable
-            elif refId in sol_parser._top_level_events_by_id:
-                top_level_event = sol_parser._top_level_events_by_id[refId]
+            elif refId in sol_parser.top_level_events_by_id:
+                top_level_event = sol_parser.top_level_events_by_id[refId]
                 scope.events.add(top_level_event)
-            elif refId in sol_parser._top_level_structures_by_id:
-                top_level_struct = sol_parser._top_level_structures_by_id[refId]
+            elif refId in sol_parser.top_level_structures_by_id:
+                top_level_struct = sol_parser.top_level_structures_by_id[refId]
                 scope.structures[top_level_struct.name] = top_level_struct
-            elif refId in sol_parser._top_level_type_aliases_by_id:
-                top_level_type_alias = sol_parser._top_level_type_aliases_by_id[refId]
+            elif refId in sol_parser.top_level_type_aliases_by_id:
+                top_level_type_alias = sol_parser.top_level_type_aliases_by_id[refId]
                 scope.type_aliases[top_level_type_alias.name] = top_level_type_alias
-            elif refId in sol_parser._top_level_enums_by_id:
-                top_level_enum = sol_parser._top_level_enums_by_id[refId]
+            elif refId in sol_parser.top_level_enums_by_id:
+                top_level_enum = sol_parser.top_level_enums_by_id[refId]
                 scope.enums[top_level_enum.name] = top_level_enum
-            elif refId in sol_parser._top_level_errors_by_id:
-                top_level_custom_error = sol_parser._top_level_errors_by_id[refId]
+            elif refId in sol_parser.top_level_errors_by_id:
+                top_level_custom_error = sol_parser.top_level_errors_by_id[refId]
                 scope.custom_errors.add(top_level_custom_error)
             else:
-                logger.warning(
-                    f"Failed to resolved name for reference id {refId} in {scope.filename}."
+                logger.error(
+                    f"Failed to resolved name for reference id {refId} in {scope.filename.absolute}."
                 )
 
 
 class Slither(
     SlitherCore
-):  # pylint: disable=too-many-instance-attributes,too-many-locals,too-many-statements
+):  # pylint: disable=too-many-instance-attributes,too-many-locals,too-many-statements,too-many-branches
     def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
         """
         Args:

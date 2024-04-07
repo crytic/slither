@@ -83,13 +83,13 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._contracts_by_id: Dict[int, Contract] = {}
         # For top level functions, there should only be one `Function` since they can't be virtual and therefore can't be overridden.
         self._functions_by_id: Dict[int, List[Function]] = defaultdict(list)
-        self._imports_by_id: Dict[int, Import] = {}
-        self._top_level_events_by_id: Dict[int, EventTopLevel] = {}
-        self._top_level_errors_by_id: Dict[int, EventTopLevel] = {}
-        self._top_level_structures_by_id: Dict[int, StructureTopLevel] = {}
-        self._top_level_variables_by_id: Dict[int, TopLevelVariable] = {}
-        self._top_level_type_aliases_by_id: Dict[int, TypeAliasTopLevel] = {}
-        self._top_level_enums_by_id: Dict[int, EnumTopLevel] = {}
+        self.imports_by_id: Dict[int, Import] = {}
+        self.top_level_events_by_id: Dict[int, EventTopLevel] = {}
+        self.top_level_errors_by_id: Dict[int, EventTopLevel] = {}
+        self.top_level_structures_by_id: Dict[int, StructureTopLevel] = {}
+        self.top_level_variables_by_id: Dict[int, TopLevelVariable] = {}
+        self.top_level_type_aliases_by_id: Dict[int, TypeAliasTopLevel] = {}
+        self.top_level_enums_by_id: Dict[int, EnumTopLevel] = {}
 
         self._parsed = False
         self._analyzed = False
@@ -217,7 +217,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._compilation_unit.enums_top_level.append(enum)
         scope.enums[name] = enum
         refId = top_level_data["id"]
-        self._top_level_enums_by_id[refId] = enum
+        self.top_level_enums_by_id[refId] = enum
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def parse_top_level_items(self, data_loaded: Dict, filename: str) -> None:
@@ -321,7 +321,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                         import_directive.alias = top_level_data["attributes"]["unitAlias"]
                 import_directive.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.import_directives.append(import_directive)
-                self._imports_by_id[referenceId] = import_directive
+                self.imports_by_id[referenceId] = import_directive
 
                 get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
                 scope.accessible_scopes.append(get_imported_scope)
@@ -335,7 +335,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.structures_top_level.append(st)
                 self._structures_top_level_parser.append(st_parser)
                 referenceId = top_level_data["id"]
-                self._top_level_structures_by_id[referenceId] = st
+                self.top_level_structures_by_id[referenceId] = st
 
             elif top_level_data[self.get_key()] == "EnumDefinition":
                 # Note enum don't need a complex parser, so everything is directly done
@@ -350,7 +350,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._variables_top_level_parser.append(var_parser)
                 scope.variables[var.name] = var
                 referenceId = top_level_data["id"]
-                self._top_level_variables_by_id[referenceId] = var
+                self.top_level_variables_by_id[referenceId] = var
 
             elif top_level_data[self.get_key()] == "FunctionDefinition":
                 func = FunctionTopLevel(self._compilation_unit, scope)
@@ -371,7 +371,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
                 referenceId = top_level_data["id"]
-                self._top_level_errors_by_id[referenceId] = custom_error
+                self.top_level_errors_by_id[referenceId] = custom_error
 
             elif top_level_data[self.get_key()] == "UserDefinedValueTypeDefinition":
                 assert "name" in top_level_data
@@ -391,7 +391,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.type_aliases[alias] = type_alias
                 scope.type_aliases[alias] = type_alias
                 referenceId = top_level_data["id"]
-                self._top_level_type_aliases_by_id[referenceId] = type_alias
+                self.top_level_type_aliases_by_id[referenceId] = type_alias
 
             elif top_level_data[self.get_key()] == "EventDefinition":
                 event = EventTopLevel(scope)
@@ -402,7 +402,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 scope.events.add(event)
                 self._compilation_unit.events_top_level.append(event)
                 referenceId = top_level_data["id"]
-                self._top_level_events_by_id[referenceId] = event
+                self.top_level_events_by_id[referenceId] = event
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
