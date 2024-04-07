@@ -1561,14 +1561,7 @@ def look_for_library_or_top_level(
 def convert_to_library_or_top_level(
     ir: HighLevelCall, node: "Node", using_for
 ) -> Optional[Union[LibraryCall, InternalCall,]]:
-    # We use contract_declarer, because Solidity resolve the library
-    # before resolving the inheritance.
-    # Though we could use .contract as libraries cannot be shadowed
-    contract = (
-        node.function.contract_declarer if isinstance(node.function, FunctionContract) else None
-    )
     t = ir.destination.type
-
     if t in using_for:
         new_ir = look_for_library_or_top_level(ir, using_for, t)
         if new_ir:
