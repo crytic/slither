@@ -304,10 +304,8 @@ def _find_variable_init(
             scope = underlying_function.file_scope
         else:
             assert isinstance(underlying_function, FunctionContract)
-            scope = underlying_function.file_scope
+            scope = underlying_function.contract.file_scope
 
-        # scope = underlying_function.file_scope
-        # assert False
     elif isinstance(caller_context, StructureTopLevelSolc):
         direct_contracts = []
         direct_functions_parser = []
@@ -463,8 +461,6 @@ def find_variable(
         return all_enums[var_name], False
 
     contracts = current_scope.contracts
-    # print(*contracts)
-    # print(var_name in contracts)
     if var_name in contracts:
         return contracts[var_name], False
 

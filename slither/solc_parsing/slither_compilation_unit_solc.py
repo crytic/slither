@@ -88,7 +88,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._top_level_errors_by_id: Dict[int, EventTopLevel] = {}
         self._top_level_structures_by_id: Dict[int, StructureTopLevel] = {}
         self._top_level_variables_by_id: Dict[int, TopLevelVariable] = {}
-        # self._top_level_using_for_by_id: Dict[int, UsingForTopLevel] = {}
         self._top_level_type_aliases_by_id: Dict[int, TypeAliasTopLevel] = {}
         self._top_level_enums_by_id: Dict[int, EnumTopLevel] = {}
 
@@ -289,12 +288,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 self._compilation_unit.using_for_top_level.append(usingFor)
                 self._using_for_top_level_parser.append(usingFor_parser)
-                # print(top_level_data)
-                # if usingFor_parser.is_global:
-                #     for f in usingFor_parser._functions:
-                #         scope.ex
-                # referenceId = top_level_data["id"]
-                # self._top_level_using_for_by_id[referenceId] = usingFor
 
             elif top_level_data[self.get_key()] == "ImportDirective":
                 referenceId = top_level_data["id"]
@@ -841,19 +834,19 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 raise e
 
         for func in self._compilation_unit.functions_top_level:
-            # try:
-            func.generate_slithir_and_analyze()
-            # except AttributeError as e:
-            # logger.error(
-            #     f"Impossible to generate IR for top level function {func.name} ({func.source_mapping}):\n {e}"
-            # )
-            # except Exception as e:
-            #     func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
-            #     logger.error(
-            #         f"\nFailed to generate IR for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
-            #         f"{func_expressions}"
-            #     )
-            #     raise e
+            try:
+                func.generate_slithir_and_analyze()
+            except AttributeError as e:
+                logger.error(
+                    f"Impossible to generate IR for top level function {func.name} ({func.source_mapping}):\n {e}"
+                )
+            except Exception as e:
+                func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                logger.error(
+                    f"\nFailed to generate IR for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
+                    f"{func_expressions}"
+                )
+                raise e
 
             try:
                 func.generate_slithir_ssa({})

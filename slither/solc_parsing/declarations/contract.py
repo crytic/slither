@@ -585,11 +585,6 @@ class ContractSolc(CallerContextExpression):
                     element.is_shadowed = True
                     accessible_elements[element.full_name].shadows = True
         except (VariableNotFound, KeyError) as e:
-            for c in self._contract.inheritance:
-                print(c.name, c.id)
-                for c2 in c.inheritance:
-                    print("\t", c2.name, c2.id)
-                print("\n")
             self.log_incorrect_parsing(
                 f"Missing params {e} {self._contract.source_mapping.to_detailed_str()}"
             )
@@ -626,11 +621,6 @@ class ContractSolc(CallerContextExpression):
                         self._contract.using_for[type_name] = []
 
                     if "libraryName" in using_for:
-                        # print(using_for["libraryName"])
-                        # x   =
-                        # for f in x.type.functions:
-
-                        #     assert isinstance(f, Function), x.__class__
                         self._contract.using_for[type_name].append(
                             parse_type(using_for["libraryName"], self)
                         )
@@ -649,7 +639,6 @@ class ContractSolc(CallerContextExpression):
                         old = "*"
                     if old not in self._contract.using_for:
                         self._contract.using_for[old] = []
-
                     self._contract.using_for[old].append(new)
             self._usingForNotParsed = []
         except (VariableNotFound, KeyError) as e:
@@ -689,7 +678,6 @@ class ContractSolc(CallerContextExpression):
     def _analyze_top_level_function(self, function_name: str, type_name: USING_FOR_KEY) -> None:
         for tl_function in self.compilation_unit.functions_top_level:
             if tl_function.name == function_name:
-                assert isinstance(tl_function, Function)
                 self._contract.using_for[type_name].append(tl_function)
 
     def _analyze_library_function(
@@ -703,7 +691,6 @@ class ContractSolc(CallerContextExpression):
             if c.name == library_name:
                 for f in c.functions:
                     if f.name == function_name:
-                        assert isinstance(f, FunctionContract)
                         self._contract.using_for[type_name].append(f)
                         found = True
                         break

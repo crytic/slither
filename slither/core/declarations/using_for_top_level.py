@@ -1,6 +1,5 @@
-from typing import TYPE_CHECKING, List, Dict, Union
+from typing import TYPE_CHECKING
 
-from slither.core.solidity_types.type import Type
 from slither.core.declarations.top_level import TopLevel
 from slither.utils.using_for import USING_FOR
 

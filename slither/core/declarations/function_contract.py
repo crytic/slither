@@ -65,6 +65,9 @@ class FunctionContract(Function, ContractLevel):
 
     @property
     def file_scope(self) -> "FileScope":
+        # This is the contract declarer's file scope because inherited functions have access
+        # to the file scope which their declared in. This scope may contain references not
+        # available in the child contract's scope. See inherited_function_scope.sol for an example.
         return self.contract_declarer.file_scope
 
     # endregion

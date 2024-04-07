@@ -60,20 +60,18 @@ class FileScope:
     def add_accessible_scopes(self) -> bool:  # pylint: disable=too-many-branches
         """
         Add information from accessible scopes. Return true if new information was obtained
-
         :return:
         :rtype:
         """
 
         learn_something = False
-
-        # This is a hacky way to support using for directives on user defined types and user defined functions
-        # since it is not reflected in the "exportedSymbols" field of the AST.
         for new_scope in self.accessible_scopes:
+            # To support using for directives on user defined types and user defined functions,
+            # we need to propagate the using for directives from the imported file to the importing file
+            # since it is not reflected in the "exportedSymbols" field of the AST.
             if not new_scope.using_for_directives.issubset(self.using_for_directives):
                 self.using_for_directives |= new_scope.using_for_directives
                 learn_something = True
-                print("using_for_directives", learn_something)
             if not _dict_contain(new_scope.type_aliases, self.type_aliases):
                 self.type_aliases.update(new_scope.type_aliases)
                 learn_something = True
@@ -81,41 +79,13 @@ class FileScope:
                 self.functions |= new_scope.functions
                 learn_something = True
 
-            # Hack to get around https://github.com/ethereum/solidity/pull/11881
+            # To get around this bug for aliases https://github.com/ethereum/solidity/pull/11881,
+            # we propagate the exported_symbols from the imported file to the importing file
+            # See tests/e2e/solc_parsing/test_data/top-level-nested-import-0.7.1.sol
             if not new_scope.exported_symbols.issubset(self.exported_symbols):
                 self.exported_symbols |= new_scope.exported_symbols
                 learn_something = True
-                #         if not new_scope.imports.issubset(self.imports):
-                # self.imports |= new_scope.imports
-                # learn_something = True
-            # if not _dict_contain(new_scope.contracts, self.contracts):
-            #     self.contracts.update(new_scope.contracts)
-            #     learn_something = True
-            # if not new_scope.custom_errors.issubset(self.custom_errors):
-            #     self.custom_errors |= new_scope.custom_errors
-            #     learn_something = True
-            # if not _dict_contain(new_scope.enums, self.enums):
-            #     self.enums.update(new_scope.enums)
-            #     learn_something = True
-            # if not new_scope.events.issubset(self.events):
-            #     self.events |= new_scope.events
-            #     learn_something = True
-            # if not new_scope.functions.issubset(self.functions):
-            #     self.functions |= new_scope.functions
-            #     learn_something = True
-            # if not new_scope.using_for_directives.issubset(self.using_for_directives):
-            #     self.using_for_directives |= new_scope.using_for_directives
-            #     learn_something = True
 
-            # if not new_scope.pragmas.issubset(self.pragmas):
-            #     self.pragmas |= new_scope.pragmas
-            #     learn_something = True
-            # if not _dict_contain(new_scope.structures, self.structures):
-            #     self.structures.update(new_scope.structures)
-            #     learn_something = True
-            # if not _dict_contain(new_scope.variables, self.variables):
-            #     self.variables.update(new_scope.variables)
-            #     learn_something = True
             # This is need to support aliasing when we do a late lookup using SolidityImportPlaceholder
             if not _dict_contain(new_scope.renaming, self.renaming):
                 self.renaming.update(new_scope.renaming)
