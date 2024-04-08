@@ -1,14 +1,15 @@
 import re
 import shutil
-import pytest
 from collections import Counter
 from pathlib import Path
+import pytest
 
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
 
 from slither import Slither
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
+from slither.printers.summary.cheatcodes import CheatcodePrinter
 
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
@@ -45,4 +46,14 @@ def test_inheritance_printer(solc_binary_path) -> None:
     not foundry_available or not project_ready, reason="requires Foundry and project setup"
 )
 def test_printer_cheatcode():
-    slither = Slither(Path(TEST_DATA_DIR, "test_printer_cheatcode").as_posix())
+    slither = Slither(
+        Path(TEST_DATA_DIR, "test_printer_cheatcode").as_posix(), foundry_compile_all=True
+    )
+
+    printer = CheatcodePrinter(slither=slither, logger=None)
+    output = printer.output("cheatcode.out")
+
+    assert (
+        output
+        == "CounterTest (test/Counter.t.sol)\n\tsetUp\n\t\tL[21]: deal\n\t\tL[22]: deal\n\ttestIncrement\n\t\tL[28]: prank\n\t\tL[30]: assertEq\n\t\tL[32]: prank\n\t\tL[34]: assertEq\n"
+    )
