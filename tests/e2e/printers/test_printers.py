@@ -1,4 +1,6 @@
 import re
+import shutil
+import pytest
 from collections import Counter
 from pathlib import Path
 
@@ -10,6 +12,9 @@ from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGra
 
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
+
+foundry_available = shutil.which("forge") is not None
+project_ready = Path(TEST_DATA_DIR, "test_printer_cheatcode/lib/forge-std").exists()
 
 
 def test_inheritance_printer(solc_binary_path) -> None:
@@ -34,3 +39,10 @@ def test_inheritance_printer(solc_binary_path) -> None:
 
     assert counter["B -> A"] == 2
     assert counter["C -> A"] == 1
+
+
+@pytest.mark.skipif(
+    not foundry_available or not project_ready, reason="requires Foundry and project setup"
+)
+def test_printer_cheatcode():
+    slither = Slither(Path(TEST_DATA_DIR, "test_printer_cheatcode").as_posix())
