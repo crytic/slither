@@ -36,6 +36,7 @@ setup(
             "coverage[toml]",
             "filelock",
             "pytest-insta",
+            "vyper",
         ],
         "doc": [
             "pdoc",
