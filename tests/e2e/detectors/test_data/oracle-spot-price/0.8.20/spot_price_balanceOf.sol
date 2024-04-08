@@ -32,12 +32,12 @@ interface IERC20 {
 contract BalanceOfData {
     function getPriceV2(
         address pool,
-        address tokenAddress,
+        address USDCAddress,
         address weth
     ) internal view returns (uint256 price) {
-        uint256 moteBalance = IERC20(tokenAddress).balanceOf(pool);
+        uint256 usdcBalance = IERC20(USDCAddress).balanceOf(pool);
         uint256 ethBalance = IERC20(weth).balanceOf(pool);
 
-        price = (ethBalance * 10 ** 18) / moteBalance;
+        price = (ethBalance * 10 ** 18) / usdcBalance;
     }
 }

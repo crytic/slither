@@ -1679,6 +1679,8 @@ ALL_TESTS = [
         "return_bomb.sol",
         "0.8.20",
     ),
+    Test(all_detectors.SpotPriceDetector, "spot_price_getReserves.sol", "0.6.12"),
+    Test(all_detectors.SpotPriceDetector, "spot_price_balanceOf.sol", "0.8.20"),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"
