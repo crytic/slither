@@ -1,16 +1,13 @@
 from typing import List, Optional
 from enum import Enum
 from slither.core.cfg.node import NodeType, Node
-from slither.detectors.abstract_detector import (
-    AbstractDetector,
-    DetectorClassification,
-    DETECTOR_INFO,
-)
+from slither.detectors.detector import AbstractDetector, DetectorClassification
 from slither.core.solidity_types import ElementaryType
 from slither.slithir.variables import Constant
 from slither.core.declarations import Contract
 from slither.utils.output import Output
 from slither.slithir.operations import Condition
+
 
 def detect_infinite_loop_calls(contract: Contract) -> List[Node]:
     ret: List[Node] = []
@@ -20,7 +17,10 @@ def detect_infinite_loop_calls(contract: Contract) -> List[Node]:
 
     return ret
 
-def detect_infinite_calls(node: Optional[Node], visited: List[Node], ret: List[Node]) -> None:
+
+def detect_infinite_calls(
+    node: Optional[Node], visited: List[Node], ret: List[Node]
+) -> None:
     if node is None:
         return
     if node in visited:
@@ -36,6 +36,7 @@ def detect_infinite_calls(node: Optional[Node], visited: List[Node], ret: List[N
     for son in node.sons:
         detect_infinite_calls(son, visited, ret)
 
+
 def has_exit_condition(node: Node) -> bool:
     if node.type == NodeType.STARTLOOP:
         for son in node.sons:
@@ -47,6 +48,7 @@ def has_exit_condition(node: Node) -> bool:
     else:
         return False  # The given node is not a loop
 
+
 class DOSDetector(AbstractDetector):
     ARGUMENT = "dosdetector"
     HELP = "Detects potential Denial of Service (DoS) vulnerabilities"
@@ -56,10 +58,12 @@ class DOSDetector(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#dos-vulnerabilities"
 
     WIKI_TITLE = "DoS Vulnerabilities"
-    WIKI_DESCRIPTION = "Detects functions that may lead to Denial of Service (DoS) attacks"
-    WIKI_EXPLOIT_SCENARIO = "An attacker may exploit this vulnerability by repeatedly calling the vulnerable function with large input arrays, causing the contract to consume excessive gas and potentially leading to a DoS attack."
+    WIKI_DESCRIPTION = (
+        "Detects functions that may lead to Denial of Service (DoS) attacks"
+    )
+    WIKI_EXPLOIT_SCENARIO = "---"
 
-    WIKI_RECOMMENDATION = "To mitigate DOS vulnerabilities, developers should carefully analyze their contract's public functions and ensure that they are optimized to handle potential attacks. Functions that are not intended to be called externally should be declared as `internal` or `private`, and critical functions should implement gas limits or use mechanisms such as rate limiting to prevent abuse."
+    WIKI_RECOMMENDATION = "To mitigate DOS vulnerabilities, developers should carefully analyze their contract's public functions. Functions that are not intended to be called externally should be declared as `internal` or `private`."
 
     def _detect(self) -> List[Output]:
         results: List[Output] = []
@@ -76,5 +80,4 @@ class DOSDetector(AbstractDetector):
                 ]
                 res = self.generate_result(info)
                 results.append(res)
-
         return results
