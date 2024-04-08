@@ -12,6 +12,7 @@ from slither.detectors.abstract_detector import (
 )
 from slither.formatters.attributes.incorrect_solc import custom_format
 from slither.utils.output import Output
+from slither.utils.buggy_versions import bugs_by_version
 
 # group:
 # 0: ^ > >= < <= (optional)
@@ -46,64 +47,36 @@ We also recommend avoiding complex `pragma` statement."""
 
     # region wiki_recommendation
     WIKI_RECOMMENDATION = """
-Deploy with any of the following Solidity versions:
-- 0.8.18
-
-The recommendations take into account:
-- Risks related to recent releases
-- Risks of complex code generation changes
-- Risks of new language features
-- Risks of known bugs
+Deploy with a recent version of Solidity (at least 0.8.0) with no known severe issues.
 
 Use a simple pragma version that allows any of these versions.
 Consider using the latest version of Solidity for testing."""
     # endregion wiki_recommendation
 
     COMPLEX_PRAGMA_TXT = "is too complex"
-    OLD_VERSION_TXT = "allows old versions"
+    OLD_VERSION_TXT = (
+        "is an outdated solc version. Use a more recent version (at least 0.8.0), if possible."
+    )
     LESS_THAN_TXT = "uses lesser than"
 
     BUGGY_VERSION_TXT = (
-        "is known to contain severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
+        "contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)"
     )
 
     # Indicates the allowed versions. Must be formatted in increasing order.
-    ALLOWED_VERSIONS = ["0.8.18"]
-
-    TOO_RECENT_VERSION_TXT = f"necessitates a version too recent to be trusted. Consider deploying with {'/'.join(ALLOWED_VERSIONS)}."
-
-    # Indicates the versions that should not be used.
-    BUGGY_VERSIONS = [
-        "0.4.22",
-        "^0.4.22",
-        "0.5.5",
-        "^0.5.5",
-        "0.5.6",
-        "^0.5.6",
-        "0.5.14",
-        "^0.5.14",
-        "0.6.9",
-        "^0.6.9",
-        "0.8.8",
-        "^0.8.8",
-    ]
+    ALLOWED_VERSIONS = ["0.8.0"]
 
     def _check_version(self, version: Tuple[str, str, str, str, str]) -> Optional[str]:
         op = version[0]
         if op and op not in [">", ">=", "^"]:
             return self.LESS_THAN_TXT
         version_number = ".".join(version[2:])
-        if version_number in self.BUGGY_VERSIONS:
-            return self.BUGGY_VERSION_TXT
-        if version_number not in self.ALLOWED_VERSIONS:
-            if list(map(int, version[2:])) > list(map(int, self.ALLOWED_VERSIONS[-1].split("."))):
-                return self.TOO_RECENT_VERSION_TXT
-            return self.OLD_VERSION_TXT
+        if version_number in bugs_by_version:
+            bugs = "\n".join([f"\t- {bug}" for bug in bugs_by_version[version_number]])
+            return self.BUGGY_VERSION_TXT + f"\n{bugs}"
         return None
 
     def _check_pragma(self, version: str) -> Optional[str]:
-        if version in self.BUGGY_VERSIONS:
-            return self.BUGGY_VERSION_TXT
         versions = PATTERN.findall(version)
         if len(versions) == 1:
             version = versions[0]
@@ -130,42 +103,43 @@ Consider using the latest version of Solidity for testing."""
         # Detect all version related pragmas and check if they are disallowed.
         results = []
         pragma = self.compilation_unit.pragma_directives
-        disallowed_pragmas = []
+        disallowed_pragmas = {}
 
         for p in pragma:
             # Skip any pragma directives which do not refer to version
             if len(p.directive) < 1 or p.directive[0] != "solidity":
                 continue
 
-            # This is version, so we test if this is disallowed.
             reason = self._check_pragma(p.version)
-            if reason:
-                disallowed_pragmas.append((reason, p))
+            if reason is None:
+                continue
+
+            if p.version in disallowed_pragmas and reason in disallowed_pragmas[p.version]:
+                disallowed_pragmas[p.version][reason] += f"\t- {str(p.source_mapping)}\n"
+            else:
+                disallowed_pragmas[p.version] = {reason: f"\t- {str(p.source_mapping)}\n"}
 
         # If we found any disallowed pragmas, we output our findings.
-        if disallowed_pragmas:
-            for (reason, p) in disallowed_pragmas:
-                info: DETECTOR_INFO = ["Pragma version", p, f" {reason}\n"]
+        if len(disallowed_pragmas.keys()):
+            for p, reasons in disallowed_pragmas.items():
+                info: DETECTOR_INFO = []
+                for r, v in reasons.items():
+                    info += [f"Version constraint {p} {r}.\n It is used by:\n{v}"]
 
                 json = self.generate_result(info)
 
                 results.append(json)
 
-        if self.compilation_unit.solc_version not in self.ALLOWED_VERSIONS:
-
-            if self.compilation_unit.solc_version in self.BUGGY_VERSIONS:
-                info = [
-                    "solc-",
-                    self.compilation_unit.solc_version,
-                    " ",
-                    self.BUGGY_VERSION_TXT,
-                ]
-            else:
-                info = [
-                    "solc-",
-                    self.compilation_unit.solc_version,
-                    " is not recommended for deployment\n",
-                ]
+        if list(map(int, self.compilation_unit.solc_version.split("."))) < list(
+            map(int, self.ALLOWED_VERSIONS[-1].split("."))
+        ):
+            info = [
+                "solc-",
+                self.compilation_unit.solc_version,
+                " ",
+                self.OLD_VERSION_TXT,
+                "\n",
+            ]
 
             json = self.generate_result(info)
 

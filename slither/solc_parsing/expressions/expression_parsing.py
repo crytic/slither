@@ -614,20 +614,9 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         assert type_name[caller_context.get_key()] == "UserDefinedTypeName"
 
-        if is_compact_ast:
-
-            # Changed introduced in Solidity 0.8
-            # see https://github.com/crytic/slither/issues/794
-
-            # TODO explore more the changes introduced in 0.8 and the usage of pathNode/IdentifierPath
-            if "name" not in type_name:
-                assert "pathNode" in type_name and "name" in type_name["pathNode"]
-                contract_name = type_name["pathNode"]["name"]
-            else:
-                contract_name = type_name["name"]
-        else:
-            contract_name = type_name["attributes"]["name"]
-        new = NewContract(contract_name)
+        contract_type = parse_type(type_name, caller_context)
+        assert isinstance(contract_type, UserDefinedType)
+        new = NewContract(contract_type)
         new.set_offset(src, caller_context.compilation_unit)
         return new
 
