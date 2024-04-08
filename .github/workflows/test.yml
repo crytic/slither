@@ -57,23 +57,6 @@ jobs:
             npm install hardhat
             popd || exit
           fi
-      - name: Install Vyper
-        run: |
-          INSTALLDIR="$RUNNER_TEMP/vyper-install"
-          if [[ "$RUNNER_OS" = "Windows" ]]; then
-              URL="https://github.com/vyperlang/vyper/releases/download/v0.3.7/vyper.0.3.7+commit.6020b8bb.windows.exe"
-              FILENAME="vyper.exe"
-          elif [[ "$RUNNER_OS" = "Linux" ]]; then
-              URL="https://github.com/vyperlang/vyper/releases/download/v0.3.7/vyper.0.3.7+commit.6020b8bb.linux"
-              FILENAME="vyper"
-          else
-              echo "Unknown OS"
-              exit 1
-          fi
-          mkdir -p "$INSTALLDIR"
-          curl "$URL" -o "$INSTALLDIR/$FILENAME" -L
-          chmod 755 "$INSTALLDIR/$FILENAME"
-          echo "$INSTALLDIR" >> "$GITHUB_PATH"
       - name: Run ${{ matrix.type }} tests
         env:
           TEST_TYPE: ${{ matrix.type }}
