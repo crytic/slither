@@ -1,0 +1,20 @@
+Contract Scope
+	Function Scope.nested_scope() (*)
+	Function Scope.if_scope() (*)
+		Expression: true
+		IRs:
+			CONDITION True
+	Function Scope.while_scope() (*)
+		Expression: true
+		IRs:
+			CONDITION True
+	Function Scope.for_scope() (*)
+		Expression: a_scope_0 < 10
+		IRs:
+			TMP_0(bool) = a_scope_0 < 10
+			CONDITION TMP_0
+		Expression: a_scope_0 ++
+		IRs:
+			TMP_1(uint256) := a_scope_0(uint256)
+			a_scope_0(uint256) = a_scope_0 (c)+ 1
+

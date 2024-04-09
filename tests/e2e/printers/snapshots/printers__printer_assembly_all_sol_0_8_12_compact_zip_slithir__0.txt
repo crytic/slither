@@ -1,0 +1,16 @@
+Contract C
+	Function C.f() (*)
+		Expression: x_f_asm_0 = 0
+		IRs:
+			x_f_asm_0(uint256) := 0(uint256)
+		Expression: x_f_asm_1 = 0
+		IRs:
+			x_f_asm_1(uint256) := 0(uint256)
+		Expression: a()
+		IRs:
+			MODIFIER_CALL, C.a()()
+	Modifier C.a()
+		Expression: y_a_asm_0 = 0
+		IRs:
+			y_a_asm_0(uint256) := 0(uint256)
+

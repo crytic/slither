@@ -1,0 +1,6 @@
+
++ Contract C (Most derived contract)
+  - From C
+    - basic() (public)
+    - basic2() (public)
+

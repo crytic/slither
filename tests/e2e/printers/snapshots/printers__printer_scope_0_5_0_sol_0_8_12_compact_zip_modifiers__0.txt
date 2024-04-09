@@ -1,0 +1,10 @@
+
+Contract Scope
++--------------+-----------+
+| Function     | Modifiers |
++--------------+-----------+
+| nested_scope |        [] |
+| if_scope     |        [] |
+| while_scope  |        [] |
+| for_scope    |        [] |
++--------------+-----------+

@@ -1,0 +1,16 @@
+Martin agile software metrics
+Efferent Coupling (Ce) - Number of contracts that a contract depends on
+Afferent Coupling (Ca) - Number of contracts that depend on the contract
+Instability (I) - Ratio of efferent coupling to total coupling (Ce / (Ce + Ca))
+Abstractness (A) - Number of abstract contracts / total number of contracts
+Distance from the Main Sequence (D) - abs(A + I - 1)
+
+Abstractness (overall): 0.33
++----------+------------+--------------+-------------+-----------------------------+
+| Contract | Dependents | Dependencies | Instability | Distance from main sequence |
++----------+------------+--------------+-------------+-----------------------------+
+| Test     |          0 |            0 |        0.00 |                        0.00 |
+| VM       |          1 |            0 |        0.00 |                        0.33 |
+| A        |          0 |            1 |        1.00 |                        0.67 |
++----------+------------+--------------+-------------+-----------------------------+
+

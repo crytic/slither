@@ -1,0 +1,37 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "Log": [
+            "f(bytes)",
+            "f(bytes4)"
+        ]
+    },
+    "constants_used": {},
+    "constants_used_in_binary": {},
+    "functions_relations": {
+        "Log": {
+            "f(bytes)": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "f(bytes4)": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "A": {}
+    },
+    "constructors": {},
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

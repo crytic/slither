@@ -1,0 +1,13 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/throw-0.5.0.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+

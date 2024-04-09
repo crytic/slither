@@ -1,0 +1,31 @@
+Contract C
+	Function C.f() (*)
+		Expression: a ++
+		IRs:
+			TMP_0(uint256) := a(uint256)
+			a(uint256) = a (c)+ 1
+		Expression: a --
+		IRs:
+			TMP_1(uint256) := a(uint256)
+			a(uint256) = a (c)- 1
+		Expression: ++ a
+		IRs:
+			a(uint256) = a (c)+ 1
+		Expression: -- a
+		IRs:
+			a(uint256) = a (c)- 1
+		Expression: ~ a
+		IRs:
+			TMP_2 = UnaryType.TILD a 
+		Expression: i = - 5
+		IRs:
+			TMP_3(uint256) = 0 (c)- 5
+			i(int256) := TMP_3(uint256)
+		Expression: delete m[0]
+		IRs:
+			REF_0(uint256) -> m[0]
+			m = delete REF_0 
+		Expression: ! b
+		IRs:
+			TMP_4 = UnaryType.BANG b 
+

@@ -1,0 +1,27 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipC.call-graph.dot
+
+strict digraph {
+subgraph cluster_145_C {
+label = "C"
+"145_returnConstant" [label="returnConstant"]
+"145_returnDelete" [label="returnDelete"]
+"145_returnTernary" [label="returnTernary"]
+"145_returnTuple" [label="returnTuple"]
+"145_returnVariable" [label="returnVariable"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_145_C {
+label = "C"
+"145_returnConstant" [label="returnConstant"]
+"145_returnDelete" [label="returnDelete"]
+"145_returnTernary" [label="returnTernary"]
+"145_returnTuple" [label="returnTuple"]
+"145_returnVariable" [label="returnVariable"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

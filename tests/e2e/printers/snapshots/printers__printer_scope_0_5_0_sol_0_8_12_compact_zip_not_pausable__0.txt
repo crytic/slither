@@ -1,0 +1,12 @@
+Constructor and pure/view functions are not displayed
+
+Scope:
++----------------+-------------------+
+| Name           | Use whenNotPaused |
++----------------+-------------------+
+| nested_scope() |                   |
+| if_scope()     |                   |
+| while_scope()  |                   |
+| for_scope()    |                   |
++----------------+-------------------+
+

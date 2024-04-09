@@ -1,0 +1,159 @@
+Contract C
+	Function C.normalLoopBlockBody() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i < 10
+		IRs:
+			TMP_0(bool) = i < 10
+			CONDITION TMP_0
+		Expression: c ++
+		IRs:
+			TMP_1(uint256) := c(uint256)
+			c(uint256) = c (c)+ 1
+		Expression: i ++
+		IRs:
+			TMP_2(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.normalLoopExprBody() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i < 10
+		IRs:
+			TMP_3(bool) = i < 10
+			CONDITION TMP_3
+		Expression: c ++
+		IRs:
+			TMP_4(uint256) := c(uint256)
+			c(uint256) = c (c)+ 1
+		Expression: i ++
+		IRs:
+			TMP_5(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.normalLoopNoBody() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i < 10
+		IRs:
+			TMP_6(bool) = i < 10
+			CONDITION TMP_6
+		Expression: i ++
+		IRs:
+			TMP_7(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.loopNoPre() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i < 10
+		IRs:
+			TMP_8(bool) = i < 10
+			CONDITION TMP_8
+		Expression: c ++
+		IRs:
+			TMP_9(uint256) := c(uint256)
+			c(uint256) = c (c)+ 1
+		Expression: i ++
+		IRs:
+			TMP_10(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.loopNoCond() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i >= 10
+		IRs:
+			TMP_11(bool) = i >= 10
+			CONDITION TMP_11
+		Expression: c ++
+		IRs:
+			TMP_12(uint256) := c(uint256)
+			c(uint256) = c (c)+ 1
+		Expression: i ++
+		IRs:
+			TMP_13(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.loopNoPost() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i < 10
+		IRs:
+			TMP_14(bool) = i < 10
+			CONDITION TMP_14
+		Expression: c ++
+		IRs:
+			TMP_15(uint256) := c(uint256)
+			c(uint256) = c (c)+ 1
+		Expression: i ++
+		IRs:
+			TMP_16(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.loopNoPreCond() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i >= 10
+		IRs:
+			TMP_17(bool) = i >= 10
+			CONDITION TMP_17
+		Expression: c ++
+		IRs:
+			TMP_18(uint256) := c(uint256)
+			c(uint256) = c (c)+ 1
+		Expression: i ++
+		IRs:
+			TMP_19(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.loopNoPrePost() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i < 10
+		IRs:
+			TMP_20(bool) = i < 10
+			CONDITION TMP_20
+		Expression: c ++
+		IRs:
+			TMP_21(uint256) := c(uint256)
+			c(uint256) = c (c)+ 1
+		Expression: i ++
+		IRs:
+			TMP_22(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.loopNoCondPost() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i >= 10
+		IRs:
+			TMP_23(bool) = i >= 10
+			CONDITION TMP_23
+		Expression: c ++
+		IRs:
+			TMP_24(uint256) := c(uint256)
+			c(uint256) = c (c)+ 1
+		Expression: i ++
+		IRs:
+			TMP_25(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.loopNoPreCondPost() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i >= 10
+		IRs:
+			TMP_26(bool) = i >= 10
+			CONDITION TMP_26
+		Expression: c ++
+		IRs:
+			TMP_27(uint256) := c(uint256)
+			c(uint256) = c (c)+ 1
+		Expression: i ++
+		IRs:
+			TMP_28(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.loopNoPreCondPostBody() (*)
+

@@ -1,0 +1,38 @@
+Contract C
+	Function C.f() (*)
+		Expression: Helper.min(0,1)
+		IRs:
+			TMP_0(uint256) = INTERNAL_CALL, min(uint256,uint256)(0,1)
+Top level functions
+	Function min(uint256,uint256)
+		Expression: x < y
+		IRs:
+			TMP_1(bool) = x < y
+			CONDITION TMP_1
+		Expression: x
+		IRs:
+			RETURN x
+		Expression: y
+		IRs:
+			RETURN y
+	Function sum(uint256[])
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i < items.length
+		IRs:
+			REF_0 -> LENGTH items
+			TMP_2(bool) = i < REF_0
+			CONDITION TMP_2
+		Expression: s += items[i]
+		IRs:
+			REF_1(uint256) -> items[i]
+			s(uint256) = s (c)+ REF_1
+		Expression: i ++
+		IRs:
+			TMP_3(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+		Expression: s
+		IRs:
+			RETURN s
+

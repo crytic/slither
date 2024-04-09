@@ -1,0 +1,12 @@
+Contract L1
+	Function L1.f(uint256) (*)
+		Expression: a
+		IRs:
+			RETURN a
+Contract L2
+	Function L2.f(bytes32) (*)
+		Expression: a
+		IRs:
+			RETURN a
+Contract C
+

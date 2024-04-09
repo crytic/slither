@@ -1,0 +1,15 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+a = 0
+
+IRs:
+a(uint256) := 0(uint256)"];
+}
+

@@ -1,0 +1,74 @@
+
+
+CK complexity metrics (Variables):
++------------------------------------+-----------------+-----------+------------+
+| Contract                           | State variables | Constants | Immutables |
++------------------------------------+-----------------+-----------+------------+
+| LibByte                            |               0 |         0 |          0 |
+| TestByte                           |               0 |         0 |          0 |
+| LibUint                            |               0 |         0 |          0 |
+| TestUint                           |               0 |         0 |          0 |
+| LibInt                             |               0 |         0 |          0 |
+| TestUintWithVariableiAndConversion |               0 |         0 |          0 |
+| TOTAL                              |               0 |         0 |          0 |
++------------------------------------+-----------------+-----------+------------+
+
+
+CK complexity metrics (Function visibility):
++------------------------------------+--------+----------+----------+---------+
+| Contract                           | Public | External | Internal | Private |
++------------------------------------+--------+----------+----------+---------+
+| LibByte                            |      0 |        0 |        2 |       0 |
+| TestByte                           |      1 |        0 |        0 |       0 |
+| LibUint                            |      0 |        0 |        2 |       0 |
+| TestUint                           |      1 |        0 |        0 |       0 |
+| LibInt                             |      0 |        0 |        2 |       0 |
+| TestUintWithVariableiAndConversion |      1 |        0 |        0 |       0 |
+| TOTAL                              |      3 |        0 |        6 |       0 |
++------------------------------------+--------+----------+----------+---------+
+
+
+CK complexity metrics (State mutability):
++------------------------------------+----------+------+------+
+| Contract                           | Mutating | View | Pure |
++------------------------------------+----------+------+------+
+| LibByte                            |        2 |    0 |    0 |
+| TestByte                           |        1 |    0 |    0 |
+| LibUint                            |        2 |    0 |    0 |
+| TestUint                           |        1 |    0 |    0 |
+| LibInt                             |        2 |    0 |    0 |
+| TestUintWithVariableiAndConversion |        1 |    0 |    0 |
+| TOTAL                              |        9 |    0 |    0 |
++------------------------------------+----------+------+------+
+
+
+CK complexity metrics (External mutating functions):
++------------------------------------+-------------------+----------------------+--------------+
+| Contract                           | External mutating | No auth or onlyOwner | No modifiers |
++------------------------------------+-------------------+----------------------+--------------+
+| LibByte                            |                 0 |                    0 |            0 |
+| TestByte                           |                 1 |                    1 |            1 |
+| LibUint                            |                 0 |                    0 |            0 |
+| TestUint                           |                 1 |                    1 |            1 |
+| LibInt                             |                 0 |                    0 |            0 |
+| TestUintWithVariableiAndConversion |                 1 |                    1 |            1 |
+| TOTAL                              |                 3 |                    3 |            3 |
++------------------------------------+-------------------+----------------------+--------------+
+
+
+CK complexity metrics (Core):
+RFC: Response For a Class
+NOC: Number of Children
+DIT: Depth of Inheritance Tree
+CBO: Coupling Between Object Classes
++------------------------------------+-----------+-----+-----+-----+-----+
+| Contract                           | Ext calls | RFC | NOC | DIT | CBO |
++------------------------------------+-----------+-----+-----+-----+-----+
+| LibByte                            |         0 |   0 |   0 |   0 |   1 |
+| TestByte                           |         1 |   2 |   0 |   0 |   1 |
+| LibUint                            |         0 |   0 |   0 |   0 |   1 |
+| TestUint                           |         1 |   2 |   0 |   0 |   1 |
+| LibInt                             |         0 |   0 |   0 |   0 |   1 |
+| TestUintWithVariableiAndConversion |         1 |   2 |   0 |   0 |   1 |
++------------------------------------+-----------+-----+-----+-----+-----+
+

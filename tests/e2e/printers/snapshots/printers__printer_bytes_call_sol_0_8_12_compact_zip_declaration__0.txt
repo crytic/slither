@@ -1,0 +1,39 @@
+
+# Contracts
+# Log
+	- Declaration: tests/ast-parsing/bytes_call.sol#1 (10 - 14)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/bytes_call.sol#12 (5 - 8)']
+
+	## Function
+		- Log.f(bytes)
+			- Declaration: tests/ast-parsing/bytes_call.sol#3 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/bytes_call.sol#3-4 (5 - 6)']
+			- References: ['tests/ast-parsing/bytes_call.sol#14 (9 - 21)']
+		- Log.f(bytes4)
+			- Declaration: tests/ast-parsing/bytes_call.sol#6 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/bytes_call.sol#6-7 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# A
+	- Declaration: tests/ast-parsing/bytes_call.sol#10 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- A.test()
+			- Declaration: tests/ast-parsing/bytes_call.sol#13 (14 - 19)
+			- Implementation(s): ['tests/ast-parsing/bytes_call.sol#13-15 (5 - 6)']
+			- References: []
+
+	## State variables
+		- l
+			- Declaration: tests/ast-parsing/bytes_call.sol#12 (9 - 11)
+			- Implementation: tests/ast-parsing/bytes_call.sol#12 (5 - 10)
+			- References: ['tests/ast-parsing/bytes_call.sol#14 (9 - 10)']
+
+	## Structures
+

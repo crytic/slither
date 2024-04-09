@@ -1,0 +1,108 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+explicitUint8 = 0
+
+IRs:
+explicitUint8(uint8) := 0(uint256)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+explicitUint16 = 256
+
+IRs:
+explicitUint16(uint16) := 256(uint256)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+tuplea1 = 1
+
+IRs:
+tuplea1(uint256) := 1(uint256)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+
+EXPRESSION:
+tuplea2 = 2
+
+IRs:
+tuplea2(uint256) := 2(uint256)"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+
+EXPRESSION:
+tupleb1 = 1
+
+IRs:
+tupleb1(uint256) := 1(uint256)"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+
+EXPRESSION:
+tupleb3 = 2
+
+IRs:
+tupleb3(uint256) := 2(uint256)"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+
+EXPRESSION:
+tuplec6 = 1
+
+IRs:
+tuplec6(uint256) := 1(uint256)"];
+8->12;
+10[label="Node Type: NEW VARIABLE 10
+"];
+10->11;
+11[label="Node Type: NEW VARIABLE 11
+
+EXPRESSION:
+overwritten1 = overwritten = 10
+
+IRs:
+overwritten(uint256) := 10(uint256)
+overwritten1(uint256) := overwritten(uint256)"];
+12[label="Node Type: IF 12
+
+EXPRESSION:
+msg.sender.balance > 0
+
+IRs:
+REF_0(uint256) = SOLIDITY_CALL balance(address)(msg.sender)
+TMP_0(bool) = REF_0 > 0
+CONDITION TMP_0"];
+12->13[label="True"];
+12->14[label="False"];
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+ternaryInit = msg.sender
+
+IRs:
+ternaryInit(address) := msg.sender(address)"];
+13->15;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+ternaryInit = block.coinbase
+
+IRs:
+ternaryInit(address) := block.coinbase(address)"];
+14->15;
+15[label="Node Type: END_IF 15
+"];
+15->10;
+}
+

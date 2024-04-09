@@ -1,0 +1,11 @@
+Contract B
+	Function B.constructor() (*)
+Contract C
+	Function C.f() (*)
+		Expression: new B
+		IRs:
+		Expression: new uint256[]
+		IRs:
+		Expression: new uint256[][]
+		IRs:
+

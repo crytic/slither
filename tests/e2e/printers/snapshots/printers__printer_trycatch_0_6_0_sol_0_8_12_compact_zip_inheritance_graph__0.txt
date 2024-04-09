@@ -1,0 +1,8 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c11_ERC20[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>ERC20</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    balanceOf(address)</TD></TR></TABLE> >];
+
+c210_C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    tryCatchFunctionCall()</TD></TR><TR><TD align="left">    tryCatchContractDeployment()</TD></TR></TABLE> >];
+
+}

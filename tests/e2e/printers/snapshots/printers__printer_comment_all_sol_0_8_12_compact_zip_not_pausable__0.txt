@@ -1,0 +1,9 @@
+Constructor and pure/view functions are not displayed
+
+A:
++------+-------------------+
+| Name | Use whenNotPaused |
++------+-------------------+
+| f()  |                   |
++------+-------------------+
+

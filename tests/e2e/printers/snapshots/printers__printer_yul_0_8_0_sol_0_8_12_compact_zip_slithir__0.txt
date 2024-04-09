@@ -1,0 +1,110 @@
+Contract L
+Contract C
+	Function C.f(uint256,uint256[]) (*)
+		Expression: aStorA_f_asm_0 = sload(uint256)(storA)
+		IRs:
+			TMP_0(uint256) = SOLIDITY_CALL sload(uint256)(storA)
+			aStorA_f_asm_0(uint256) := TMP_0(uint256)
+		Expression: aParamA_f_asm_0 = paramA
+		IRs:
+			aParamA_f_asm_0(uint256) := paramA(uint256)
+		Expression: aRetA_f_asm_0 = retA
+		IRs:
+			aRetA_f_asm_0(uint256) := retA(uint256)
+		Expression: aLocalA_f_asm_0 = localA
+		IRs:
+			aLocalA_f_asm_0(uint256) := localA(uint256)
+		Expression: sstore(uint256,uint256)(storA,0)
+		IRs:
+			TMP_1(None) = SOLIDITY_CALL sstore(uint256,uint256)(storA,0)
+		Expression: sstore(uint256,uint256)(offset,0)
+		IRs:
+			TMP_2(None) = SOLIDITY_CALL sstore(uint256,uint256)(offset,0)
+		Expression: paramA = 0
+		IRs:
+			paramA(uint256) := 0(uint256)
+		Expression: retA = 0
+		IRs:
+			retA(uint256) := 0(uint256)
+		Expression: localA = 0
+		IRs:
+			localA(uint256) := 0(uint256)
+		Expression: aStorB_f_asm_0 = sload(uint256)(storB)
+		IRs:
+			TMP_3(uint256) = SOLIDITY_CALL sload(uint256)(storB)
+			aStorB_f_asm_0(uint256) := TMP_3(uint256)
+		Expression: aParamB_f_asm_0 = mload(uint256)(paramB)
+		IRs:
+			TMP_4(uint256) = SOLIDITY_CALL mload(uint256)(paramB)
+			aParamB_f_asm_0(uint256) := TMP_4(uint256)
+		Expression: aRetB_f_asm_0 = mload(uint256)(retB)
+		IRs:
+			TMP_5(uint256) = SOLIDITY_CALL mload(uint256)(retB)
+			aRetB_f_asm_0(uint256) := TMP_5(uint256)
+		Expression: aLocalB_f_asm_0 = mload(uint256)(localB)
+		IRs:
+			TMP_6(uint256) = SOLIDITY_CALL mload(uint256)(localB)
+			aLocalB_f_asm_0(uint256) := TMP_6(uint256)
+		Expression: sstore(uint256,uint256)(storB,0)
+		IRs:
+			TMP_7(None) = SOLIDITY_CALL sstore(uint256,uint256)(storB,0)
+		Expression: mstore(uint256,uint256)(paramB,0)
+		IRs:
+			TMP_8(None) = SOLIDITY_CALL mstore(uint256,uint256)(paramB,0)
+		Expression: mstore(uint256,uint256)(retB,0)
+		IRs:
+			TMP_9(None) = SOLIDITY_CALL mstore(uint256,uint256)(retB,0)
+		Expression: mstore(uint256,uint256)(localB,0)
+		IRs:
+			TMP_10(None) = SOLIDITY_CALL mstore(uint256,uint256)(localB,0)
+		Expression: mstore(uint256,uint256)(offset,0)
+		IRs:
+			TMP_11(None) = SOLIDITY_CALL mstore(uint256,uint256)(offset,0)
+		Expression: aStoreC_f_asm_0 = sload(uint256)(storC) * storC
+		IRs:
+			TMP_12(uint256) = SOLIDITY_CALL sload(uint256)(storC)
+			TMP_13(uint256) = TMP_12 * storC
+			aStoreC_f_asm_0(uint256) := TMP_13(uint256)
+		Expression: (retA,retB)
+		IRs:
+			RETURN retA,retB
+	Function C.f() (*)
+		Expression: st = 0x0000000000000000000000000000000000000000000000000000000000000000
+		IRs:
+			st(C.St) := 0(uint256)
+		Expression: st
+		IRs:
+			RETURN st
+Top level functions
+	Function at(address)
+		Expression: size_at_asm_0 = extcodesize(uint256)(_addr)
+		IRs:
+			REF_0 -> CODESIZE _addr
+			size_at_asm_0(uint256) := REF_0(uint256)
+		Expression: o_code = mload(uint256)(0x40)
+		IRs:
+			TMP_14(uint256) = SOLIDITY_CALL mload(uint256)(64)
+			o_code(bytes) := TMP_14(uint256)
+		Expression: mstore(uint256,uint256)(0x40,o_code + size_at_asm_0 + 0x20 + 0x1f & ~ 0x1f)
+		IRs:
+			TMP_15(uint256) = size_at_asm_0 + 32
+			TMP_16(uint256) = TMP_15 + 31
+			TMP_17 = UnaryType.TILD 31 
+			TMP_18(uint256) = TMP_16 & TMP_17
+			TMP_19(bytes) = o_code + TMP_18
+			TMP_20(None) = SOLIDITY_CALL mstore(uint256,uint256)(64,TMP_19)
+		Expression: mstore(uint256,uint256)(o_code,size_at_asm_0)
+		IRs:
+			TMP_21(None) = SOLIDITY_CALL mstore(uint256,uint256)(o_code,size_at_asm_0)
+		Expression: extcodecopy(uint256,uint256,uint256,uint256)(_addr,o_code + 0x20,0,size_at_asm_0)
+		IRs:
+			TMP_22(bytes) = o_code + 32
+			TMP_23(None) = SOLIDITY_CALL extcodecopy(uint256,uint256,uint256,uint256)(_addr,TMP_22,0,size_at_asm_0)
+		Expression: o_code
+		IRs:
+			RETURN o_code
+	Function test()
+		Expression: v_test_asm_1 = test
+		IRs:
+			v_test_asm_1(uint256) := test(string)
+

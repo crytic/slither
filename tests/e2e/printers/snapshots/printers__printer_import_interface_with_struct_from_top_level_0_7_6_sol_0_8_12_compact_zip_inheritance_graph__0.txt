@@ -1,0 +1,6 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c10_I[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>I</B></TD></TR></TABLE> >];
+
+}

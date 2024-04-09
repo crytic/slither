@@ -1,0 +1,8 @@
+
++ Contract Scope (Most derived contract)
+  - From Scope
+    - for_scope() (public)
+    - if_scope() (public)
+    - nested_scope() (public)
+    - while_scope() (public)
+

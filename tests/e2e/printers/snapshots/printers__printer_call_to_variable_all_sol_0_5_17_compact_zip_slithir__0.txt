@@ -1,0 +1,7 @@
+Contract C
+Contract D
+	Function D.f(C) (*)
+		Expression: c.v()
+		IRs:
+			TMP_0(uint256) = HIGH_LEVEL_CALL, dest:c(C), function:v, arguments:[]  
+

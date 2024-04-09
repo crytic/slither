@@ -1,0 +1,10 @@
+
+Contract Scope
++--------------+-------------------+
+| Function     | require or assert |
++--------------+-------------------+
+| nested_scope |                   |
+| if_scope     |                   |
+| while_scope  |                   |
+| for_scope    |                   |
++--------------+-------------------+

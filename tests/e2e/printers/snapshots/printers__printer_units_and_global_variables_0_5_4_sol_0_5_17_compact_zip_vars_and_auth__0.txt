@@ -1,0 +1,15 @@
+
+Contract Test
++------------------------+-------------------------+--------------------------+
+| Function               | State variables written | Conditions on msg.sender |
++------------------------+-------------------------+--------------------------+
+| ether_unit             |                      [] |                       [] |
+| time_unit              |                      [] |                       [] |
+| block_and_transactions |                      [] |                       [] |
+| abi_encode             |                      [] |                       [] |
+| error_handling         |                      [] |                       [] |
+| math_and_crypto        |                      [] |                       [] |
+| address_related        |                      [] |                       [] |
+| contract_related       |                      [] |                       [] |
++------------------------+-------------------------+--------------------------+
+

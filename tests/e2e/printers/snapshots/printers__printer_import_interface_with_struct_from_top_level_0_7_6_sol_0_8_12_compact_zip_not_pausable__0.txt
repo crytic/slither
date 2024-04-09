@@ -1,0 +1,8 @@
+Constructor and pure/view functions are not displayed
+
+I:
++------+-------------------+
+| Name | Use whenNotPaused |
++------+-------------------+
++------+-------------------+
+

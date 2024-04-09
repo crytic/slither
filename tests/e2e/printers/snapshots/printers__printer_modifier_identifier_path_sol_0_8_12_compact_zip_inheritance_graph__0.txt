@@ -1,0 +1,9 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c11_A[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>A</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    f()</TD></TR><TR><TD align="left"><I>Modifiers:</I></TD></TR><TR><TD align="left">    m()</TD></TR></TABLE> >];
+
+c19_B -> c11_A;
+c19_B[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>B</B></TD></TR><TR><TD align="left"><I>Modifiers:</I></TD></TR><TR><TD align="left"><font color="#FFA500">    m()</font></TD></TR></TABLE> >];
+
+}

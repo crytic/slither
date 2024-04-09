@@ -1,0 +1,21 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/push-all.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f()
+			- Declaration: tests/ast-parsing/push-all.sol#5 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/push-all.sol#5-7 (5 - 6)']
+			- References: []
+
+	## State variables
+		- arr
+			- Declaration: tests/ast-parsing/push-all.sol#3 (14 - 18)
+			- Implementation: tests/ast-parsing/push-all.sol#3 (5 - 17)
+			- References: ['tests/ast-parsing/push-all.sol#6 (9 - 12)']
+
+	## Structures
+

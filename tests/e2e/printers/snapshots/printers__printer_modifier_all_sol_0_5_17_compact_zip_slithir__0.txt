@@ -1,0 +1,6 @@
+Contract C
+	Modifier C.onePlaceholder()
+	Modifier C.multiplePlaceholders()
+	Modifier C.acceptsVar(uint256)
+	Modifier C.noParams()
+

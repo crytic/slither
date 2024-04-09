@@ -1,0 +1,16 @@
+Constructor and pure/view functions are not displayed
+
+Log:
++-----------+-------------------+
+| Name      | Use whenNotPaused |
++-----------+-------------------+
+| f(bytes)  |                   |
+| f(bytes4) |                   |
++-----------+-------------------+
+
+A:
++------+-------------------+
+| Name | Use whenNotPaused |
++------+-------------------+
++------+-------------------+
+

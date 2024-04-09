@@ -1,0 +1,8 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c1_L[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>L</B></TD></TR></TABLE> >];
+
+c47_C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    f(uint256,uint256[])</TD></TR><TR><TD align="left"><I>Private Functions:</I></TD></TR><TR><TD align="left">    f()</TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left">    storA</TD></TR><TR><TD align="left">    storB</TD></TR><TR><TD align="left">    storC</TD></TR></TABLE> >];
+
+}

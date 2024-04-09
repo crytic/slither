@@ -1,0 +1,79 @@
+Contract MinMax
+	Function MinMax.constructor() (*)
+		Expression: i = type()(uint8).max
+		IRs:
+			TMP_1(uint8) := 255(uint8)
+			i(uint8) := TMP_1(uint8)
+		Expression: j = type()(uint8).min
+		IRs:
+			TMP_3(uint8) := 0(uint8)
+			j(uint8) := TMP_3(uint8)
+		Expression: k = uint256(type()(Enum).max)
+		IRs:
+			TMP_4(type(Enum)) = SOLIDITY_CALL type()(Enum)
+			TMP_5(uint256) := 3(uint256)
+			TMP_6 = CONVERT TMP_5 to uint256
+			k(uint256) := TMP_6(uint256)
+		Expression: l = uint256(type()(Enum).min)
+		IRs:
+			TMP_7(type(Enum)) = SOLIDITY_CALL type()(Enum)
+			TMP_8(uint256) := 0(uint256)
+			TMP_9 = CONVERT TMP_8 to uint256
+			l(uint256) := TMP_9(uint256)
+	Function MinMax.min() (*)
+		Expression: uint256(type()(Enum).min)
+		IRs:
+			TMP_10(type(Enum)) = SOLIDITY_CALL type()(Enum)
+			TMP_11(uint256) := 0(uint256)
+			TMP_12 = CONVERT TMP_11 to uint256
+			RETURN TMP_12
+	Function MinMax.max() (*)
+		Expression: uint256(type()(Enum).max)
+		IRs:
+			TMP_13(type(Enum)) = SOLIDITY_CALL type()(Enum)
+			TMP_14(uint256) := 3(uint256)
+			TMP_15 = CONVERT TMP_14 to uint256
+			RETURN TMP_15
+	Function MinMax.slitherConstructorVariables() (*)
+		Expression: a = type()(uint256).max
+		IRs:
+			TMP_17(uint256) := 115792089237316195423570985008687907853269984665640564039457584007913129639935(uint256)
+			a(uint256) := TMP_17(uint256)
+		Expression: b = type()(uint256).min
+		IRs:
+			TMP_19(uint256) := 0(uint256)
+			b(uint256) := TMP_19(uint256)
+		Expression: c = uint256(type()(Enum).min)
+		IRs:
+			TMP_20(type(Enum)) = SOLIDITY_CALL type()(Enum)
+			TMP_21(uint256) := 0(uint256)
+			TMP_22 = CONVERT TMP_21 to uint256
+			c(uint256) := TMP_22(uint256)
+		Expression: d = uint256(type()(Enum).max)
+		IRs:
+			TMP_23(type(Enum)) = SOLIDITY_CALL type()(Enum)
+			TMP_24(uint256) := 3(uint256)
+			TMP_25 = CONVERT TMP_24 to uint256
+			d(uint256) := TMP_25(uint256)
+	Function MinMax.slitherConstructorConstantVariables() (*)
+		Expression: e = type()(int256).max
+		IRs:
+			TMP_27(int256) := 57896044618658097711785492504343953926634992332820282019728792003956564819967(int256)
+			e(int256) := TMP_27(int256)
+		Expression: f = type()(int256).min
+		IRs:
+			TMP_29(int256) := -57896044618658097711785492504343953926634992332820282019728792003956564819968(int256)
+			f(int256) := TMP_29(int256)
+		Expression: g = uint256(type()(Enum).max)
+		IRs:
+			TMP_30(type(Enum)) = SOLIDITY_CALL type()(Enum)
+			TMP_31(uint256) := 3(uint256)
+			TMP_32 = CONVERT TMP_31 to uint256
+			g(uint256) := TMP_32(uint256)
+		Expression: h = uint256(type()(Enum).min)
+		IRs:
+			TMP_33(type(Enum)) = SOLIDITY_CALL type()(Enum)
+			TMP_34(uint256) := 0(uint256)
+			TMP_35 = CONVERT TMP_34 to uint256
+			h(uint256) := TMP_35(uint256)
+

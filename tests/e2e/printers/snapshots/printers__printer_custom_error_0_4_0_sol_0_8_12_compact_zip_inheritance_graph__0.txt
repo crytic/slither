@@ -1,0 +1,4 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+}

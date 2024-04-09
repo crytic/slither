@@ -1,0 +1,39 @@
+Contract C
+	Function C.f() (*)
+		Expression: explicitUint8 = 0
+		IRs:
+			explicitUint8(uint8) := 0(uint256)
+		Expression: explicitUint16 = 256
+		IRs:
+			explicitUint16(uint16) := 256(uint256)
+		Expression: tuplea1 = 1
+		IRs:
+			tuplea1(uint256) := 1(uint256)
+		Expression: tuplea2 = 2
+		IRs:
+			tuplea2(uint256) := 2(uint256)
+		Expression: tupleb1 = 1
+		IRs:
+			tupleb1(uint256) := 1(uint256)
+		Expression: tupleb3 = 2
+		IRs:
+			tupleb3(uint256) := 2(uint256)
+		Expression: tuplec6 = 1
+		IRs:
+			tuplec6(uint256) := 1(uint256)
+		Expression: overwritten1 = overwritten = 10
+		IRs:
+			overwritten(uint256) := 10(uint256)
+			overwritten1(uint256) := overwritten(uint256)
+		Expression: msg.sender.balance > 0
+		IRs:
+			REF_0(uint256) = SOLIDITY_CALL balance(address)(msg.sender)
+			TMP_0(bool) = REF_0 > 0
+			CONDITION TMP_0
+		Expression: ternaryInit = msg.sender
+		IRs:
+			ternaryInit(address) := msg.sender(address)
+		Expression: ternaryInit = block.coinbase
+		IRs:
+			ternaryInit(address) := block.coinbase(address)
+

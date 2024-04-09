@@ -1,0 +1,30 @@
+
++ Contract I
+
++ Contract VendingMachine (Most derived contract)
+  - From VendingMachine
+    - err0() (public)
+    - err1() (public)
+    - err2() (public)
+    - err3() (public)
+    - err4() (public)
+    - err5(uint256[5]) (public)
+    - err6(uint256[10]) (public)
+
++ Contract A
+  - From A
+    - f() (public)
+
++ Contract B (Most derived contract)
+  - From A
+    - f() (public)
+  - From B
+    - g() (public)
+    - h() (public)
+
++ Contract ContractArgCustomError (Most derived contract)
+  - From ContractArgCustomError
+    - f() (external)
+    - g() (private)
+    - h() (private)
+

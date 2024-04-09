@@ -1,0 +1,30 @@
+Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ I
+
++ VendingMachine
+ -> I
+
++ A
+
++ B
+ -> A
+
++ ContractArgCustomError
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ I
+ -> VendingMachine
+
++ VendingMachine
+
++ A
+ -> B
+
++ B
+
++ ContractArgCustomError
+

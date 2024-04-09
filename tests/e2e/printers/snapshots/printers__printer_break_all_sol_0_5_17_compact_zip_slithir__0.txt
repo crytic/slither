@@ -1,0 +1,57 @@
+Contract C
+	Function C.f() (*)
+		Expression: i = 0
+		IRs:
+			i(uint256) := 0(uint256)
+		Expression: i < 10
+		IRs:
+			TMP_0(bool) = i < 10
+			CONDITION TMP_0
+		Expression: i % 2 == 0
+		IRs:
+			TMP_1(uint256) = i % 2
+			TMP_2(bool) = TMP_1 == 0
+			CONDITION TMP_2
+		Expression: c ++
+		IRs:
+			TMP_3(uint256) := c(uint256)
+			c(uint256) = c + 1
+		Expression: i ++
+		IRs:
+			TMP_4(uint256) := i(uint256)
+			i(uint256) = i + 1
+		Expression: j = 0
+		IRs:
+			j(uint256) := 0(uint256)
+		Expression: j < 10
+		IRs:
+			TMP_5(bool) = j < 10
+			CONDITION TMP_5
+		Expression: k = 0
+		IRs:
+			k(uint256) := 0(uint256)
+		Expression: k < 10
+		IRs:
+			TMP_6(bool) = k < 10
+			CONDITION TMP_6
+		Expression: j % 2 == 0 && k % 3 == 0
+		IRs:
+			TMP_7(uint256) = j % 2
+			TMP_8(bool) = TMP_7 == 0
+			TMP_9(uint256) = k % 3
+			TMP_10(bool) = TMP_9 == 0
+			TMP_11(bool) = TMP_8 && TMP_10
+			CONDITION TMP_11
+		Expression: c ++
+		IRs:
+			TMP_12(uint256) := c(uint256)
+			c(uint256) = c + 1
+		Expression: k ++
+		IRs:
+			TMP_13(uint256) := k(uint256)
+			k(uint256) = k + 1
+		Expression: j ++
+		IRs:
+			TMP_14(uint256) := j(uint256)
+			j(uint256) = j + 1
+

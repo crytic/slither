@@ -1,0 +1,43 @@
+Export tmp.zip-C-onePlaceholder().dot
+Export tmp.zip-C-multiplePlaceholders().dot
+Export tmp.zip-C-acceptsVar(uint256).dot
+Export tmp.zip-C-noParams().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: _ 1
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: _ 1
+"];
+1->2;
+2[label="Node Type: _ 2
+"];
+2->3;
+3[label="Node Type: _ 3
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: _ 1
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: _ 1
+"];
+}
+

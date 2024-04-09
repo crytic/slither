@@ -1,0 +1,262 @@
+Export tmp.zip-ERC20-balanceOf(address).dot
+Export tmp.zip-C-tryCatchFunctionCall().dot
+Export tmp.zip-C-tryCatchContractDeployment().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+0
+
+IRs:
+RETURN 0"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: TRY 2
+
+EXPRESSION:
+balance = ERC20(msg.sender).balanceOf(address(this))
+
+IRs:
+TMP_0 = CONVERT msg.sender to ERC20
+TMP_1 = CONVERT this to address
+TMP_2(uint256) = HIGH_LEVEL_CALL, dest:TMP_0(ERC20), function:balanceOf, arguments:['TMP_1']  
+balance(uint256) := TMP_2(uint256)"];
+2->3;
+2->5;
+2->7;
+3[label="Node Type: CATCH 3
+"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+actualBalance = balance
+
+IRs:
+actualBalance(uint256) := balance(uint256)"];
+4->7;
+5[label="Node Type: CATCH 5
+"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+revert(string)(err)
+
+IRs:
+TMP_3(None) = SOLIDITY_CALL revert(string)(err)"];
+6->7;
+7[label="Node Type: TRY 7
+
+EXPRESSION:
+balance_scope_0 = ERC20(msg.sender).balanceOf(address(this))
+
+IRs:
+TMP_4 = CONVERT msg.sender to ERC20
+TMP_5 = CONVERT this to address
+TMP_6(uint256) = HIGH_LEVEL_CALL, dest:TMP_4(ERC20), function:balanceOf, arguments:['TMP_5']  
+balance_scope_0(uint256) := TMP_6(uint256)"];
+7->8;
+7->10;
+7->12;
+8[label="Node Type: CATCH 8
+"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+actualBalance = balance_scope_0
+
+IRs:
+actualBalance(uint256) := balance_scope_0(uint256)"];
+9->12;
+10[label="Node Type: CATCH 10
+"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+revert(string)(string(err_scope_1))
+
+IRs:
+TMP_7 = CONVERT err_scope_1 to string
+TMP_8(None) = SOLIDITY_CALL revert(string)(TMP_7)"];
+11->12;
+12[label="Node Type: TRY 12
+
+EXPRESSION:
+balance_scope_2 = ERC20(msg.sender).balanceOf(address(this))
+
+IRs:
+TMP_9 = CONVERT msg.sender to ERC20
+TMP_10 = CONVERT this to address
+TMP_11(uint256) = HIGH_LEVEL_CALL, dest:TMP_9(ERC20), function:balanceOf, arguments:['TMP_10']  
+balance_scope_2(uint256) := TMP_11(uint256)"];
+12->13;
+12->15;
+12->17;
+12->19;
+13[label="Node Type: CATCH 13
+"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+actualBalance = balance_scope_2
+
+IRs:
+actualBalance(uint256) := balance_scope_2(uint256)"];
+14->19;
+15[label="Node Type: CATCH 15
+"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+revert(string)(err_scope_3)
+
+IRs:
+TMP_12(None) = SOLIDITY_CALL revert(string)(err_scope_3)"];
+16->19;
+17[label="Node Type: CATCH 17
+"];
+17->18;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+revert(string)(string(err_scope_4))
+
+IRs:
+TMP_13 = CONVERT err_scope_4 to string
+TMP_14(None) = SOLIDITY_CALL revert(string)(TMP_13)"];
+18->19;
+19[label="Node Type: TRY 19
+
+EXPRESSION:
+ERC20(msg.sender).balanceOf(address(this))
+
+IRs:
+TMP_15 = CONVERT msg.sender to ERC20
+TMP_16 = CONVERT this to address
+TMP_17(uint256) = HIGH_LEVEL_CALL, dest:TMP_15(ERC20), function:balanceOf, arguments:['TMP_16']  "];
+19->20;
+19->21;
+19->23;
+20[label="Node Type: CATCH 20
+"];
+20->23;
+21[label="Node Type: CATCH 21
+"];
+21->22;
+22[label="Node Type: EXPRESSION 22
+
+EXPRESSION:
+actualBalance = 0
+
+IRs:
+actualBalance(uint256) := 0(uint256)"];
+22->23;
+23[label="Node Type: TRY 23
+
+EXPRESSION:
+balance_scope_5 = ERC20(msg.sender).balanceOf(address(this))
+
+IRs:
+TMP_18 = CONVERT msg.sender to ERC20
+TMP_19 = CONVERT this to address
+TMP_20(uint256) = HIGH_LEVEL_CALL, dest:TMP_18(ERC20), function:balanceOf, arguments:['TMP_19']  
+balance_scope_5(uint256) := TMP_20(uint256)"];
+23->24;
+23->32;
+24[label="Node Type: CATCH 24
+"];
+24->25;
+25[label="Node Type: NEW VARIABLE 25
+"];
+25->28;
+26[label="Node Type: BEGIN_LOOP 26
+"];
+26->29;
+27[label="Node Type: END_LOOP 27
+"];
+28[label="Node Type: NEW VARIABLE 28
+"];
+28->26;
+29[label="Node Type: IF_LOOP 29
+
+EXPRESSION:
+i < balance_scope_5
+
+IRs:
+TMP_21(bool) = i < balance_scope_5
+CONDITION TMP_21"];
+29->30[label="True"];
+29->27[label="False"];
+30[label="Node Type: EXPRESSION 30
+
+EXPRESSION:
+c ++
+
+IRs:
+TMP_22(uint256) := c(uint256)
+c(uint256) = c (c)+ 1"];
+30->31;
+31[label="Node Type: EXPRESSION 31
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_23(uint256) := i(uint256)
+i(uint256) = i (c)+ 1"];
+31->29;
+32[label="Node Type: CATCH 32
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: TRY 1
+
+EXPRESSION:
+deployed = new ERC20()
+
+IRs:
+TMP_25(ERC20) = new ERC20() 
+deployed(ERC20) := TMP_25(ERC20)"];
+1->2;
+1->6;
+2[label="Node Type: CATCH 2
+"];
+2->3;
+3[label="Node Type: TRY 3
+
+EXPRESSION:
+deployed.balanceOf(address(this))
+
+IRs:
+TMP_26 = CONVERT this to address
+TMP_27(uint256) = HIGH_LEVEL_CALL, dest:deployed(ERC20), function:balanceOf, arguments:['TMP_26']  "];
+3->4;
+3->5;
+4[label="Node Type: CATCH 4
+"];
+5[label="Node Type: CATCH 5
+"];
+6[label="Node Type: CATCH 6
+"];
+}
+

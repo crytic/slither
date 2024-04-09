@@ -1,0 +1,123 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipC1.call-graph.dot
+Call Graph: tmp.zipC2.call-graph.dot
+Call Graph: tmp.zipC3.call-graph.dot
+Call Graph: tmp.zipC4.call-graph.dot
+Call Graph: tmp.zipC8.call-graph.dot
+
+strict digraph {
+subgraph cluster_13_C1 {
+label = "C1"
+"13_constructor" [label="constructor"]
+"13_fallback" [label="fallback"]
+"13_receive" [label="receive"]
+}subgraph cluster_26_C2 {
+label = "C2"
+"26_constructor" [label="constructor"]
+"26_fallback" [label="fallback"]
+"26_receive" [label="receive"]
+}subgraph cluster_51_C3 {
+label = "C3"
+"51_constructor" [label="constructor"]
+"51_f" [label="f"]
+"51_f" -> "51_modifierNoArgs"
+"51_f" -> "51_modifierWithArgs"
+}subgraph cluster_76_C4 {
+label = "C4"
+"76_hasArgs" [label="hasArgs"]
+"76_hasArgsAndReturns" [label="hasArgsAndReturns"]
+"76_hasReturns" [label="hasReturns"]
+}subgraph cluster_108_C5 {
+label = "C5"
+"108_abstractFunc" [label="abstractFunc"]
+"108_externalFunc" [label="externalFunc"]
+"108_internalFunc" [label="internalFunc"]
+"108_payableFunc" [label="payableFunc"]
+"108_privateFunc" [label="privateFunc"]
+"108_publicFunc" [label="publicFunc"]
+"108_pureFunc" [label="pureFunc"]
+"108_viewFunc" [label="viewFunc"]
+}subgraph cluster_115_C6 {
+label = "C6"
+"115_abstractFunc" [label="abstractFunc"]
+"115_abstractFunc2" [label="abstractFunc2"]
+}subgraph cluster_119_C7 {
+label = "C7"
+"119_abstractFunc3" [label="abstractFunc3"]
+}subgraph cluster_144_C8 {
+label = "C8"
+"144_abstractFunc" [label="abstractFunc"]
+"144_abstractFunc2" [label="abstractFunc2"]
+"144_abstractFunc3" [label="abstractFunc3"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_13_C1 {
+label = "C1"
+"13_constructor" [label="constructor"]
+"13_fallback" [label="fallback"]
+"13_receive" [label="receive"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_26_C2 {
+label = "C2"
+"26_constructor" [label="constructor"]
+"26_fallback" [label="fallback"]
+"26_receive" [label="receive"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_51_C3 {
+label = "C3"
+"51_constructor" [label="constructor"]
+"51_f" [label="f"]
+"51_f" -> "51_modifierNoArgs"
+"51_f" -> "51_modifierWithArgs"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_76_C4 {
+label = "C4"
+"76_hasArgs" [label="hasArgs"]
+"76_hasArgsAndReturns" [label="hasArgsAndReturns"]
+"76_hasReturns" [label="hasReturns"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_108_C5 {
+label = "C5"
+"108_abstractFunc" [label="abstractFunc"]
+"108_externalFunc" [label="externalFunc"]
+"108_internalFunc" [label="internalFunc"]
+"108_payableFunc" [label="payableFunc"]
+"108_privateFunc" [label="privateFunc"]
+"108_publicFunc" [label="publicFunc"]
+"108_pureFunc" [label="pureFunc"]
+"108_viewFunc" [label="viewFunc"]
+}subgraph cluster_115_C6 {
+label = "C6"
+"115_abstractFunc" [label="abstractFunc"]
+"115_abstractFunc2" [label="abstractFunc2"]
+}subgraph cluster_119_C7 {
+label = "C7"
+"119_abstractFunc3" [label="abstractFunc3"]
+}subgraph cluster_144_C8 {
+label = "C8"
+"144_abstractFunc" [label="abstractFunc"]
+"144_abstractFunc2" [label="abstractFunc2"]
+"144_abstractFunc3" [label="abstractFunc3"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

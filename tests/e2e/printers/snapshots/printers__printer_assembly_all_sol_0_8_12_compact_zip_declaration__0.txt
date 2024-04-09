@@ -1,0 +1,17 @@
+
+# Contracts
+# C
+	- Declaration: tests/e2e/solc_parsing/test_data/assembly-all.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f()
+			- Declaration: tests/e2e/solc_parsing/test_data/assembly-all.sol#9 (14 - 16)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/assembly-all.sol#9-17 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

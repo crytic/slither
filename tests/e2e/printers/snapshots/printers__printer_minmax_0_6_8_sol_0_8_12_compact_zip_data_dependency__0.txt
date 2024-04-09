@@ -1,0 +1,35 @@
+
+Contract MinMax
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
+| a        |           [] |
+| b        |           [] |
+| c        |           [] |
+| d        |           [] |
+| i        |           [] |
+| j        |           [] |
++----------+--------------+
+
+Function slitherConstructorVariables()
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
+| MinMax.a |           [] |
+| MinMax.b |           [] |
+| MinMax.c |           [] |
+| MinMax.d |           [] |
+| MinMax.i |           [] |
+| MinMax.j |           [] |
++----------+--------------+
+Function slitherConstructorConstantVariables()
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
+| MinMax.a |           [] |
+| MinMax.b |           [] |
+| MinMax.c |           [] |
+| MinMax.d |           [] |
+| MinMax.i |           [] |
+| MinMax.j |           [] |
++----------+--------------+

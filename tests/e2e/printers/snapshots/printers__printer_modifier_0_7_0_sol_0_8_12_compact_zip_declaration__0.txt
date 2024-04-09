@@ -1,0 +1,27 @@
+
+# Contracts
+# A
+	- Declaration: tests/ast-parsing/modifier-0.7.0.sol#1 (19 - 21)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- A.f()
+			- Declaration: tests/ast-parsing/modifier-0.7.0.sol#4 (11 - 13)
+			- Implementation(s): ['tests/ast-parsing/modifier-0.7.0.sol#4-6 (2 - 3)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C
+	- Declaration: tests/ast-parsing/modifier-0.7.0.sol#9 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+

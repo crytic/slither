@@ -1,0 +1,17 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/continue-all.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f()
+			- Declaration: tests/ast-parsing/continue-all.sol#2 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/continue-all.sol#2-20 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

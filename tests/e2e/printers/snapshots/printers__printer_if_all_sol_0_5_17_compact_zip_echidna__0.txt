@@ -1,0 +1,265 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {},
+    "constants_used": {
+        "C": {
+            "ifWithoutElse()": [
+                [
+                    {
+                        "value": "100",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "ifWithElse()": [
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "50",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "ifWithElseIf()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "3",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "4",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "ifWithElseIfElse()": [
+                [
+                    {
+                        "value": "100",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "50",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "75",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "80",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {
+        "C": {
+            "ifWithoutElse()": {
+                "BinaryType.GREATER": [
+                    [
+                        {
+                            "value": "100",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "ifWithElse()": {
+                "BinaryType.DIVISION": [
+                    [
+                        {
+                            "value": "2",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.LESS": [
+                    [
+                        {
+                            "value": "50",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "ifWithElseIf()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.DIVISION": [
+                    [
+                        {
+                            "value": "3",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.EQUAL": [
+                    [
+                        {
+                            "value": "0",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.MODULO": [
+                    [
+                        {
+                            "value": "2",
+                            "type": "uint256"
+                        }
+                    ],
+                    [
+                        {
+                            "value": "3",
+                            "type": "uint256"
+                        }
+                    ],
+                    [
+                        {
+                            "value": "4",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.MULTIPLICATION": [
+                    [
+                        {
+                            "value": "2",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            },
+            "ifWithElseIfElse()": {
+                "BinaryType.GREATER_EQUAL": [
+                    [
+                        {
+                            "value": "100",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.LESS": [
+                    [
+                        {
+                            "value": "50",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "functions_relations": {
+        "C": {
+            "ifWithoutElse()": {
+                "impacts": [
+                    "ifWithoutElse()",
+                    "ifWithElse()",
+                    "ifWithElseIf()",
+                    "ifWithElseIfElse()"
+                ],
+                "is_impacted_by": [
+                    "ifWithoutElse()",
+                    "ifWithElse()",
+                    "ifWithElseIf()",
+                    "ifWithElseIfElse()"
+                ]
+            },
+            "ifWithElse()": {
+                "impacts": [
+                    "ifWithoutElse()",
+                    "ifWithElse()",
+                    "ifWithElseIf()",
+                    "ifWithElseIfElse()"
+                ],
+                "is_impacted_by": [
+                    "ifWithoutElse()",
+                    "ifWithElse()",
+                    "ifWithElseIf()",
+                    "ifWithElseIfElse()"
+                ]
+            },
+            "ifWithElseIf()": {
+                "impacts": [
+                    "ifWithoutElse()",
+                    "ifWithElse()",
+                    "ifWithElseIf()",
+                    "ifWithElseIfElse()"
+                ],
+                "is_impacted_by": [
+                    "ifWithoutElse()",
+                    "ifWithElse()",
+                    "ifWithElseIf()",
+                    "ifWithElseIfElse()"
+                ]
+            },
+            "ifWithElseIfElse()": {
+                "impacts": [
+                    "ifWithoutElse()",
+                    "ifWithElse()",
+                    "ifWithElseIf()",
+                    "ifWithElseIfElse()"
+                ],
+                "is_impacted_by": [
+                    "ifWithoutElse()",
+                    "ifWithElse()",
+                    "ifWithElseIf()",
+                    "ifWithElseIfElse()"
+                ]
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.5.17"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

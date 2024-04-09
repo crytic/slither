@@ -1,0 +1,196 @@
+{
+    "payable": {
+        "C1": [
+            "()"
+        ],
+        "C2": [
+            "constructor()",
+            "()"
+        ],
+        "C5": [
+            "payableFunc()"
+        ],
+        "C8": [
+            "payableFunc()"
+        ]
+    },
+    "timestamp": {
+        "C3": [
+            "f()"
+        ]
+    },
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "C1": [
+            "constructor()",
+            "()"
+        ],
+        "C2": [
+            "()"
+        ],
+        "C3": [
+            "f()"
+        ],
+        "C4": [
+            "hasArgs(uint256,uint256)",
+            "hasReturns()",
+            "hasArgsAndReturns(uint256,uint256)"
+        ],
+        "C5": [
+            "externalFunc()",
+            "publicFunc()",
+            "pureFunc()",
+            "viewFunc()"
+        ],
+        "C8": [
+            "externalFunc()",
+            "publicFunc()",
+            "pureFunc()",
+            "viewFunc()",
+            "abstractFunc()",
+            "abstractFunc2()",
+            "abstractFunc3()"
+        ]
+    },
+    "constants_used": {},
+    "constants_used_in_binary": {},
+    "functions_relations": {
+        "C1": {
+            "constructor()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "C2": {
+            "constructor()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "C3": {
+            "f()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "C4": {
+            "hasArgs(uint256,uint256)": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "hasReturns()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "hasArgsAndReturns(uint256,uint256)": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "C5": {
+            "payableFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "externalFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "publicFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "pureFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "viewFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "abstractFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "C6": {
+            "abstractFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "abstractFunc2()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "C7": {
+            "abstractFunc3()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "C8": {
+            "payableFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "externalFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "publicFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "pureFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "viewFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "abstractFunc()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "abstractFunc2()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "abstractFunc3()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {
+        "C1": "constructor()",
+        "C2": "constructor()",
+        "C3": "constructor()"
+    },
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [
+        "C1",
+        "C2"
+    ],
+    "with_receive": [
+        "C1",
+        "C2"
+    ]
+}

@@ -1,0 +1,51 @@
+Contract C
+	Function C.f() (*)
+		Expression: false
+		IRs:
+			CONDITION False
+		Expression: 1
+		IRs:
+		Expression: 2
+		IRs:
+		Expression: 5 == 6
+		IRs:
+			TMP_0(bool) = 5 == 6
+			CONDITION TMP_0
+		Expression: 1
+		IRs:
+		Expression: 2
+		IRs:
+		Expression: 1 + 2 == 3
+		IRs:
+			TMP_1(uint256) = 1 + 2
+			TMP_2(bool) = TMP_1 == 3
+			CONDITION TMP_2
+		Expression: - 2
+		IRs:
+			TMP_3(uint256) = 0 - 2
+		Expression: true
+		IRs:
+			CONDITION True
+		Expression: a
+		IRs:
+		Expression: b
+		IRs:
+		Expression: false
+		IRs:
+			CONDITION False
+		Expression: (1,2)
+		IRs:
+		Expression: (3,4)
+		IRs:
+		Expression: 4 + 5 == 6
+		IRs:
+			TMP_4(uint256) = 4 + 5
+			TMP_5(bool) = TMP_4 == 6
+			CONDITION TMP_5
+		Expression: int8(0)
+		IRs:
+			TMP_6 = CONVERT 0 to int8
+		Expression: - 1
+		IRs:
+			TMP_7(uint256) = 0 - 1
+

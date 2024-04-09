@@ -1,0 +1,84 @@
+Contract ERC20
+	Function ERC20.balanceOf(address) (*)
+		Expression: 0
+		IRs:
+			RETURN 0
+Contract C
+	Function C.tryCatchFunctionCall() (*)
+		Expression: balance = ERC20(msg.sender).balanceOf(address(this))
+		IRs:
+			TMP_0 = CONVERT msg.sender to ERC20
+			TMP_1 = CONVERT this to address
+			TMP_2(uint256) = HIGH_LEVEL_CALL, dest:TMP_0(ERC20), function:balanceOf, arguments:['TMP_1']  
+			balance(uint256) := TMP_2(uint256)
+		Expression: actualBalance = balance
+		IRs:
+			actualBalance(uint256) := balance(uint256)
+		Expression: revert(string)(err)
+		IRs:
+			TMP_3(None) = SOLIDITY_CALL revert(string)(err)
+		Expression: balance_scope_0 = ERC20(msg.sender).balanceOf(address(this))
+		IRs:
+			TMP_4 = CONVERT msg.sender to ERC20
+			TMP_5 = CONVERT this to address
+			TMP_6(uint256) = HIGH_LEVEL_CALL, dest:TMP_4(ERC20), function:balanceOf, arguments:['TMP_5']  
+			balance_scope_0(uint256) := TMP_6(uint256)
+		Expression: actualBalance = balance_scope_0
+		IRs:
+			actualBalance(uint256) := balance_scope_0(uint256)
+		Expression: revert(string)(string(err_scope_1))
+		IRs:
+			TMP_7 = CONVERT err_scope_1 to string
+			TMP_8(None) = SOLIDITY_CALL revert(string)(TMP_7)
+		Expression: balance_scope_2 = ERC20(msg.sender).balanceOf(address(this))
+		IRs:
+			TMP_9 = CONVERT msg.sender to ERC20
+			TMP_10 = CONVERT this to address
+			TMP_11(uint256) = HIGH_LEVEL_CALL, dest:TMP_9(ERC20), function:balanceOf, arguments:['TMP_10']  
+			balance_scope_2(uint256) := TMP_11(uint256)
+		Expression: actualBalance = balance_scope_2
+		IRs:
+			actualBalance(uint256) := balance_scope_2(uint256)
+		Expression: revert(string)(err_scope_3)
+		IRs:
+			TMP_12(None) = SOLIDITY_CALL revert(string)(err_scope_3)
+		Expression: revert(string)(string(err_scope_4))
+		IRs:
+			TMP_13 = CONVERT err_scope_4 to string
+			TMP_14(None) = SOLIDITY_CALL revert(string)(TMP_13)
+		Expression: ERC20(msg.sender).balanceOf(address(this))
+		IRs:
+			TMP_15 = CONVERT msg.sender to ERC20
+			TMP_16 = CONVERT this to address
+			TMP_17(uint256) = HIGH_LEVEL_CALL, dest:TMP_15(ERC20), function:balanceOf, arguments:['TMP_16']  
+		Expression: actualBalance = 0
+		IRs:
+			actualBalance(uint256) := 0(uint256)
+		Expression: balance_scope_5 = ERC20(msg.sender).balanceOf(address(this))
+		IRs:
+			TMP_18 = CONVERT msg.sender to ERC20
+			TMP_19 = CONVERT this to address
+			TMP_20(uint256) = HIGH_LEVEL_CALL, dest:TMP_18(ERC20), function:balanceOf, arguments:['TMP_19']  
+			balance_scope_5(uint256) := TMP_20(uint256)
+		Expression: i < balance_scope_5
+		IRs:
+			TMP_21(bool) = i < balance_scope_5
+			CONDITION TMP_21
+		Expression: c ++
+		IRs:
+			TMP_22(uint256) := c(uint256)
+			c(uint256) = c (c)+ 1
+		Expression: i ++
+		IRs:
+			TMP_23(uint256) := i(uint256)
+			i(uint256) = i (c)+ 1
+	Function C.tryCatchContractDeployment() (*)
+		Expression: deployed = new ERC20()
+		IRs:
+			TMP_25(ERC20) = new ERC20() 
+			deployed(ERC20) := TMP_25(ERC20)
+		Expression: deployed.balanceOf(address(this))
+		IRs:
+			TMP_26 = CONVERT this to address
+			TMP_27(uint256) = HIGH_LEVEL_CALL, dest:deployed(ERC20), function:balanceOf, arguments:['TMP_26']  
+

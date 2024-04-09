@@ -1,0 +1,11 @@
+
+Contract MinMax
++-------------------------------------+-------------------+
+| Function                            | require or assert |
++-------------------------------------+-------------------+
+| constructor                         |                   |
+| min                                 |                   |
+| max                                 |                   |
+| slitherConstructorVariables         |                   |
+| slitherConstructorConstantVariables |                   |
++-------------------------------------+-------------------+

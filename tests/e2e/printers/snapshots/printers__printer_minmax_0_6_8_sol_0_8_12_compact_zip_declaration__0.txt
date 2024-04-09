@@ -1,0 +1,45 @@
+
+# Contracts
+# MinMax
+	- Declaration: tests/ast-parsing/minmax-0.6.8.sol#3 (10 - 17)
+	- Implementation(s): ['tests/ast-parsing/minmax-0.6.8.sol#3-13 (1 - 2)']
+	- References: []
+
+	## Function
+		- MinMax.slitherConstructorVariables()
+			- Declaration: tests/ast-parsing/minmax-0.6.8.sol#3-4 (1 - 11)
+			- Implementation(s): ['tests/ast-parsing/minmax-0.6.8.sol#3-13 (1 - 2)']
+			- References: []
+		- MinMax.slitherConstructorConstantVariables()
+			- Declaration: tests/ast-parsing/minmax-0.6.8.sol#3-4 (1 - 19)
+			- Implementation(s): ['tests/ast-parsing/minmax-0.6.8.sol#3-13 (1 - 2)']
+			- References: []
+
+	## State variables
+		- a
+			- Declaration: tests/ast-parsing/minmax-0.6.8.sol#4 (10 - 12)
+			- Implementation: tests/ast-parsing/minmax-0.6.8.sol#4 (5 - 28)
+			- References: []
+		- b
+			- Declaration: tests/ast-parsing/minmax-0.6.8.sol#5 (10 - 12)
+			- Implementation: tests/ast-parsing/minmax-0.6.8.sol#5 (5 - 28)
+			- References: []
+		- c
+			- Declaration: tests/ast-parsing/minmax-0.6.8.sol#7 (9 - 11)
+			- Implementation: tests/ast-parsing/minmax-0.6.8.sol#7 (5 - 35)
+			- References: []
+		- d
+			- Declaration: tests/ast-parsing/minmax-0.6.8.sol#8 (18 - 20)
+			- Implementation: tests/ast-parsing/minmax-0.6.8.sol#8 (5 - 35)
+			- References: []
+		- i
+			- Declaration: tests/ast-parsing/minmax-0.6.8.sol#10 (11 - 13)
+			- Implementation: tests/ast-parsing/minmax-0.6.8.sol#10 (5 - 39)
+			- References: []
+		- j
+			- Declaration: tests/ast-parsing/minmax-0.6.8.sol#11 (21 - 23)
+			- Implementation: tests/ast-parsing/minmax-0.6.8.sol#11 (5 - 40)
+			- References: []
+
+	## Structures
+

@@ -1,0 +1,8 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c13_Log[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>Log</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    f(bytes)</TD></TR><TR><TD align="left">    f(bytes4)</TD></TR></TABLE> >];
+
+c27_A[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>A</B></TD></TR><TR><TD align="left"><I>Private Functions:</I></TD></TR><TR><TD align="left">    test()</TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left">    l<font color="blue" POINT-SIZE="10"> (Log)</font></TD></TR></TABLE> >];
+
+}

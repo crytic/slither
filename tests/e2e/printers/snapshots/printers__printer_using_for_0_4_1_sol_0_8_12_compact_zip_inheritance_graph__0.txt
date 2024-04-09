@@ -1,0 +1,10 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c11_L1[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>L1</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    f(uint256)</TD></TR></TABLE> >];
+
+c22_L2[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>L2</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    f(bytes32)</TD></TR></TABLE> >];
+
+c28_C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR></TABLE> >];
+
+}

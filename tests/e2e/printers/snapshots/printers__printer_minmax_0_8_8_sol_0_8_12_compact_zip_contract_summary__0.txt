@@ -1,0 +1,7 @@
+
++ Contract MinMax (Most derived contract)
+  - From MinMax
+    - constructor() (public)
+    - max() (public)
+    - min() (public)
+

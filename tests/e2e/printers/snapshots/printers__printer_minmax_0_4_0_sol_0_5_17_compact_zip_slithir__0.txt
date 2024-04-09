@@ -1,0 +1,6 @@
+Contract C
+	Function C.f() (*)
+		Expression: a = 0
+		IRs:
+			a(uint256) := 0(uint256)
+

@@ -1,0 +1,7 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+
+strict digraph {
+subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

@@ -1,0 +1,59 @@
+
+
+CK complexity metrics (Variables):
++----------+-----------------+-----------+------------+
+| Contract | State variables | Constants | Immutables |
++----------+-----------------+-----------+------------+
+| Test     |               0 |         0 |          0 |
+| VM       |               0 |         0 |          0 |
+| A        |               0 |         0 |          0 |
+| TOTAL    |               0 |         0 |          0 |
++----------+-----------------+-----------+------------+
+
+
+CK complexity metrics (Function visibility):
++----------+--------+----------+----------+---------+
+| Contract | Public | External | Internal | Private |
++----------+--------+----------+----------+---------+
+| Test     |      0 |        0 |        0 |       0 |
+| VM       |      0 |        2 |        0 |       0 |
+| A        |      1 |        0 |        0 |       0 |
+| TOTAL    |      1 |        2 |        0 |       0 |
++----------+--------+----------+----------+---------+
+
+
+CK complexity metrics (State mutability):
++----------+----------+------+------+
+| Contract | Mutating | View | Pure |
++----------+----------+------+------+
+| Test     |        0 |    0 |    0 |
+| VM       |        2 |    0 |    0 |
+| A        |        1 |    0 |    0 |
+| TOTAL    |        3 |    0 |    0 |
++----------+----------+------+------+
+
+
+CK complexity metrics (External mutating functions):
++----------+-------------------+----------------------+--------------+
+| Contract | External mutating | No auth or onlyOwner | No modifiers |
++----------+-------------------+----------------------+--------------+
+| Test     |                 0 |                    0 |            0 |
+| VM       |                 2 |                    2 |            2 |
+| A        |                 1 |                    1 |            1 |
+| TOTAL    |                 3 |                    3 |            3 |
++----------+-------------------+----------------------+--------------+
+
+
+CK complexity metrics (Core):
+RFC: Response For a Class
+NOC: Number of Children
+DIT: Depth of Inheritance Tree
+CBO: Coupling Between Object Classes
++----------+-----------+-----+-----+-----+-----+
+| Contract | Ext calls | RFC | NOC | DIT | CBO |
++----------+-----------+-----+-----+-----+-----+
+| Test     |         0 |   0 |   0 |   0 |   0 |
+| VM       |         0 |   2 |   0 |   0 |   1 |
+| A        |         1 |   2 |   0 |   0 |   1 |
++----------+-----------+-----+-----+-----+-----+
+

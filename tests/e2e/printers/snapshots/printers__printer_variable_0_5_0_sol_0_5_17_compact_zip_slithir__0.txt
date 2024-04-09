@@ -1,0 +1,19 @@
+Contract C
+	Function C.basic() (*)
+		Expression: stringStorage_ = s
+		IRs:
+			stringStorage_(string) := s(string)
+		Expression: bytesStorage_ = b
+		IRs:
+			bytesStorage_(bytes) := b(bytes)
+	Function C.basic2() (*)
+		Expression: sStorage_ = t
+		IRs:
+			sStorage_(C.S) := t(C.S)
+		Expression: mappingStorage_ = m
+		IRs:
+			mappingStorage_(mapping(uint256 => uint256)) := m(mapping(uint256 => uint256))
+		Expression: arrayStorage_ = a
+		IRs:
+			arrayStorage_(uint256[]) := a(uint256[])
+

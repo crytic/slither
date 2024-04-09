@@ -1,0 +1,28 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c40_A[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>A</B></TD></TR></TABLE> >];
+
+c49_B -> c40_A;
+c49_B[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>B</B></TD></TR></TABLE> >];
+
+c53_C -> c49_B;
+c53_C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR></TABLE> >];
+
+c63_D -> c49_B;
+c63_D[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>D</B></TD></TR></TABLE> >];
+
+c66_E -> c49_B;
+c66_E[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>E</B></TD></TR></TABLE> >];
+
+c69_F -> c40_A;
+c69_F[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>F</B></TD></TR></TABLE> >];
+
+c72_G -> c40_A;
+c72_G[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>G</B></TD></TR></TABLE> >];
+
+c77_H -> c69_F [ label="1" ];
+c77_H -> c72_G [ label="2" ];
+c77_H[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>H</B></TD></TR></TABLE> >];
+
+}
