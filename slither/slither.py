@@ -11,7 +11,6 @@ from slither.exceptions import SlitherError
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
 from slither.vyper_parsing.vyper_compilation_unit import VyperCompilationUnit
-from slither.utils.output import Output
 from slither.vyper_parsing.ast.ast import parse
 
 logger = logging.getLogger("Slither")
@@ -292,7 +291,7 @@ class Slither(
         self.write_results_to_hide()
         return results
 
-    def run_printers(self) -> List[Output]:
+    def run_printers(self) -> List[Dict]:
         """
         :return: List of registered printers outputs.
         """

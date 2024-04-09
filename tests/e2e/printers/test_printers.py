@@ -1,15 +1,23 @@
+import itertools
 import re
 from collections import Counter
 from pathlib import Path
+from typing import List, Tuple, Type
+import pytest
 
 from crytic_compile import CryticCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
+from crytic_compile.utils.zip import load_from_zip
 
 from slither import Slither
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
+from slither.printers import all_printers
+from slither.printers.abstract_printer import AbstractPrinter
 
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
+
+PRINTER_DATA_DIR = Path(__file__).resolve().parent.parent / "solc_parsing" / "test_data" / "compile"
 
 
 def test_inheritance_printer(solc_binary_path) -> None:
@@ -34,3 +42,67 @@ def test_inheritance_printer(solc_binary_path) -> None:
 
     assert counter["B -> A"] == 2
     assert counter["C -> A"] == 1
+
+
+known_failures = [
+    ("top_level_variable-0.8.0.sol-0.8.12-compact.zip", all_printers.Halstead),
+    ("top_level_variable2-0.8.0.sol-0.8.12-compact.zip", all_printers.Halstead),
+    ("custom_error_with_state_variable.sol-0.8.12-compact.zip", all_printers.Halstead),
+]
+
+
+def generate_all_tests() -> List[Tuple[Path, Type[AbstractPrinter]]]:
+    """Generates tests cases for all printers."""
+    printers = []
+    for printer_name in dir(all_printers):
+        obj = getattr(all_printers, printer_name)
+        if (
+            isinstance(obj, type)
+            and issubclass(obj, AbstractPrinter)
+            and printer_name != "PrinterEVM"
+        ):
+            printers.append(obj)
+
+    tests = []
+    for version in ["*0.5.17-compact.zip", "*0.8.12-compact.zip"]:
+        for test_file, printer in itertools.product(PRINTER_DATA_DIR.glob(version), printers):
+            if (test_file.name, printer) not in known_failures:
+                tests.append((test_file, printer))
+
+    # TODO(dm) Handle the EVM CFG Builder printer
+    # cd ../../.. || exit
+    # # Needed for evm printer
+    # pip install evm-cfg-builder
+    # solc-select use "0.5.1"
+    # if ! slither examples/scripts/test_evm_api.sol --print evm; then
+    #     echo "EVM printer failed"
+    # fi
+
+    return tests
+
+
+ALL_TESTS = generate_all_tests()
+
+
+def id_test(test_item: Tuple[Path, Type[AbstractPrinter]]) -> str:
+    """Returns the ID of the test."""
+    return f"{test_item[0].name}-{test_item[1].ARGUMENT}"
+
+
+@pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
+def test_printer(test_item: Tuple[Path, Type[AbstractPrinter]], snapshot):
+
+    test_file, printer = test_item
+
+    crytic_compile = load_from_zip(test_file.as_posix())[0]
+
+    sl = Slither(crytic_compile)
+    sl.register_printer(printer)
+
+    results = sl.run_printers()
+
+    actual_output = ""
+    for printer_results in results:
+        actual_output += f"{printer_results['description']}\n"
+
+    assert snapshot() == actual_output
