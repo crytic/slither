@@ -336,10 +336,10 @@ def parse_args(
     )
 
     group_printer.add_argument(
-        "--exclude-interfaces",
-        help= "Exclude interfaces from inheritance-graph printer",
+        "--include-interfaces",
+        help="Include interfaces from inheritance-graph printer",
         action="store_true",
-        dest="exclude_interfaces",
+        dest="include_interfaces",
         default=False,
     )
 

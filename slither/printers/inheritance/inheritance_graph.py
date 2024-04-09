@@ -98,8 +98,14 @@ class PrinterInheritanceGraph(AbstractPrinter):
         """
         ret = ""
 
-        # Remove contracts that have "mock" in the name and if --exclude-interface removes inherited interfaces
-        inheritance = [i for i in contract.immediate_inheritance if "mock" not in i.name.lower() and (not self.slither.exclude_interfaces or self.slither.exclude_interfaces and not i.is_interface)]
+        # Remove contracts that have "mock" in the name and if --include-interfaces in False (default)
+        # removes inherited interfaces
+        inheritance = [
+            i
+            for i in contract.immediate_inheritance
+            if "mock" not in i.name.lower()
+            and (not i.is_interface or self.slither.include_interfaces)
+        ]
 
         # Add arrows (number them if there is more than one path so we know order of declaration for inheritance).
         if len(inheritance) == 1:
@@ -116,6 +122,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
             for f in contract.functions
             if not f.is_constructor
             and not f.is_constructor_variables
+            and not f.is_virtual
             and f.contract_declarer == contract
             and f.visibility in visibilities
         ]
@@ -198,7 +205,11 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         content = 'digraph "" {\n'
         for c in self.contracts:
-            if c.is_top_level or "mock" in c.name.lower() or c.is_library or (self.slither.exclude_interfaces and c.is_interface):
+            if (
+                "mock" in c.name.lower()
+                or c.is_library
+                or (c.is_interface and not self.slither.include_interfaces)
+            ):
                 continue
             content += self._summary(c) + "\n"
         content += "}"

@@ -197,7 +197,7 @@ class Slither(
             self.skip_data_dependency = True
 
         # Used in inheritance-graph printer
-        self.exclude_interfaces = kwargs.get("exclude_interfaces", False)
+        self.include_interfaces = kwargs.get("include_interfaces", False)
 
         self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
 
