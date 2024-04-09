@@ -7,6 +7,7 @@ from slither.detectors.abstract_detector import (
 from slither.core.declarations import Contract
 from slither.utils.output import Output
 
+
 def detect_infinite_loop_calls(contract: Contract) -> List[Node]:
     ret: List[Node] = []
     for f in contract.functions_entry_points:
@@ -14,6 +15,7 @@ def detect_infinite_loop_calls(contract: Contract) -> List[Node]:
             detect_infinite_calls(f.entry_point, [], ret)
 
     return ret
+
 
 def detect_infinite_calls(node: Optional[Node], visited: List[Node], ret: List[Node]) -> None:
     if node is None:
@@ -49,9 +51,7 @@ class DOSDetector(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#dos-vulnerabilities"
 
     WIKI_TITLE = "DoS Vulnerabilities"
-    WIKI_DESCRIPTION = (
-        "Detects functions that may lead to Denial of Service (DoS) attacks"
-    )
+    WIKI_DESCRIPTION = "Detects functions that may lead to Denial of Service (DoS) attacks"
     WIKI_EXPLOIT_SCENARIO = "---"
 
     WIKI_RECOMMENDATION = "To mitigate DOS vulnerabilities, developers should carefully analyze their contract's public functions. Functions that are not intended to be called externally should be declared as `internal` or `private`."
@@ -62,7 +62,12 @@ class DOSDetector(AbstractDetector):
             values = detect_infinite_loop_calls(c)
             for node in values:
                 func = node.function
-                info = [func, " contains a loop without proper exit condition: ", node, "\n",]
+                info = [
+                	func,
+                	" contains a loop without proper exit condition: ",
+                	node,
+                	"",
+                ]
                 res = self.generate_result(info)
                 results.append(res)
         return results
