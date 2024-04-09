@@ -23,7 +23,10 @@ class CheatcodePrinter(AbstractPrinter):
 
         info: str = ""
 
-        vm = self.slither.get_contract_from_name("Vm").pop()
+        try:
+            vm = self.slither.get_contract_from_name("Vm").pop()
+        except IndexError:
+            return output.Output("No contract named VM found")
 
         for contract in self.slither.contracts_derived:
             # Check that the IS_TEST variable is set. (Only works for Foundry)
