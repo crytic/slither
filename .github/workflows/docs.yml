@@ -33,7 +33,7 @@ jobs:
         uses: actions/configure-pages@v5
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.10'
       - run: pip install -e ".[doc]"
       - run: pdoc -o html/ slither '!slither.tools' #TODO fix import errors on pdoc run
       - name: Upload artifact
