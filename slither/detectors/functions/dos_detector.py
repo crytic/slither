@@ -1,6 +1,9 @@
 from typing import List, Optional
 from slither.core.cfg.node import NodeType, Node
-from slither.detectors.detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+)
 from slither.core.declarations import Contract
 from slither.utils.output import Output
 
@@ -63,4 +66,5 @@ class DOSDetector(AbstractDetector):
                 res = self.generate_result(info)
                 results.append(res)
         return results
+        
         
