@@ -8,7 +8,6 @@ from slither.core.declarations import Contract
 from slither.utils.output import Output
 from slither.slithir.operations import Condition
 
-
 def detect_infinite_loop_calls(contract: Contract) -> List[Node]:
     ret: List[Node] = []
     for f in contract.functions_entry_points:
@@ -17,22 +16,17 @@ def detect_infinite_loop_calls(contract: Contract) -> List[Node]:
 
     return ret
 
-
-def detect_infinite_calls(
-    node: Optional[Node], visited: List[Node], ret: List[Node]
-) -> None:
+def detect_infinite_calls(node: Optional[Node], visited: List[Node], ret: List[Node]) -> None:
     if node is None:
         return
     if node in visited:
         return
-    # Add node to visited list
     visited.append(node)
     if node.type == NodeType.STARTLOOP:
         if not has_exit_condition(node):
             ret.append(node)
     elif node.type == NodeType.ENDLOOP:
         pass
-    # Recursively traverse the graph
     for son in node.sons:
         detect_infinite_calls(son, visited, ret)
 
@@ -72,12 +66,8 @@ class DOSDetector(AbstractDetector):
             for node in values:
                 func = node.function
 
-                info: DETECTOR_INFO = [
-                    func,
-                    " contains a loop without proper exit condition: ",
-                    node,
-                    "\n",
-                ]
+                info: DETECTOR_INFO = [func, " contains a loop without proper exit condition: ", node, "\n",]
                 res = self.generate_result(info)
                 results.append(res)
         return results
+        
