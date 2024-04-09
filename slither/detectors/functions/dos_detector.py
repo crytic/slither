@@ -1,12 +1,8 @@
 from typing import List, Optional
-from enum import Enum
 from slither.core.cfg.node import NodeType, Node
 from slither.detectors.detector import AbstractDetector, DetectorClassification
-from slither.core.solidity_types import ElementaryType
-from slither.slithir.variables import Constant
 from slither.core.declarations import Contract
 from slither.utils.output import Output
-from slither.slithir.operations import Condition
 
 def detect_infinite_loop_calls(contract: Contract) -> List[Node]:
     ret: List[Node] = []
@@ -34,9 +30,7 @@ def detect_infinite_calls(node: Optional[Node], visited: List[Node], ret: List[N
 def has_exit_condition(node: Node) -> bool:
     if node.type == NodeType.STARTLOOP:
         for son in node.sons:
-            # Check if the son node represents a condition
             if son.type == NodeType.IFLOOP:
-                # if son.type == NodeType.WHILELOOP:
                 return True  # Exit condition found
         return False  # No condition found within the loop
     else:
@@ -65,8 +59,7 @@ class DOSDetector(AbstractDetector):
             values = detect_infinite_loop_calls(c)
             for node in values:
                 func = node.function
-
-                info: DETECTOR_INFO = [func, " contains a loop without proper exit condition: ", node, "\n",]
+                info = [func, " contains a loop without proper exit condition: ", node, "\n",]
                 res = self.generate_result(info)
                 results.append(res)
         return results
