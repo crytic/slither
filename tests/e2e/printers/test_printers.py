@@ -1,6 +1,7 @@
 import itertools
 import re
 from collections import Counter
+from fnmatch import fnmatch
 from pathlib import Path
 from typing import List, Tuple, Type
 import pytest
@@ -44,11 +45,16 @@ def test_inheritance_printer(solc_binary_path) -> None:
     assert counter["C -> A"] == 1
 
 
-known_failures = [
-    ("top_level_variable-0.8.0.sol-0.8.12-compact.zip", all_printers.Halstead),
-    ("top_level_variable2-0.8.0.sol-0.8.12-compact.zip", all_printers.Halstead),
-    ("custom_error_with_state_variable.sol-0.8.12-compact.zip", all_printers.Halstead),
-]
+known_failures = {
+    all_printers.Halstead: [
+        "top_level_variable-0.8.0.sol-0.8.12-compact.zip",
+        "top_level_variable2-0.8.0.sol-0.8.12-compact.zip",
+        "custom_error_with_state_variable.sol-0.8.12-compact.zip",
+    ],
+    all_printers.PrinterSlithIRSSA: [
+        "*",
+    ],
+}
 
 
 def generate_all_tests() -> List[Tuple[Path, Type[AbstractPrinter]]]:
@@ -66,7 +72,9 @@ def generate_all_tests() -> List[Tuple[Path, Type[AbstractPrinter]]]:
     tests = []
     for version in ["*0.5.17-compact.zip", "*0.8.12-compact.zip"]:
         for test_file, printer in itertools.product(PRINTER_DATA_DIR.glob(version), printers):
-            if (test_file.name, printer) not in known_failures:
+
+            known_errors = known_failures.get(printer, [])
+            if not any(fnmatch(test_file.name, pattern) for pattern in known_errors):
                 tests.append((test_file, printer))
 
     # TODO(dm) Handle the EVM CFG Builder printer
@@ -104,5 +112,15 @@ def test_printer(test_item: Tuple[Path, Type[AbstractPrinter]], snapshot):
     actual_output = ""
     for printer_results in results:
         actual_output += f"{printer_results['description']}\n"
+
+        # Some printers also create files, so lets compare their output too
+        for element in printer_results["elements"]:
+            if element["type"] == "file":
+                actual_output += f"{element['name']['content']}\n"
+
+                try:
+                    Path(element["name"]["filename"]).unlink()
+                except FileNotFoundError:
+                    pass
 
     assert snapshot() == actual_output

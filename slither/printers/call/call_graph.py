@@ -74,7 +74,7 @@ def _process_internal_call(
 
 
 def _render_external_calls(external_calls: Set[str]) -> str:
-    return "\n".join(external_calls)
+    return "\n".join(sorted(external_calls))
 
 
 def _render_internal_calls(
@@ -87,8 +87,8 @@ def _render_internal_calls(
     lines.append(f"subgraph {_contract_subgraph(contract)} {{")
     lines.append(f'label = "{contract.name}"')
 
-    lines.extend(contract_functions[contract])
-    lines.extend(contract_calls[contract])
+    lines.extend(sorted(contract_functions[contract]))
+    lines.extend(sorted(contract_calls[contract]))
 
     lines.append("}")
 
@@ -101,8 +101,8 @@ def _render_solidity_calls(solidity_functions: Set[str], solidity_calls: Set[str
     lines.append("subgraph cluster_solidity {")
     lines.append('label = "[Solidity]"')
 
-    lines.extend(solidity_functions)
-    lines.extend(solidity_calls)
+    lines.extend(sorted(solidity_functions))
+    lines.extend(sorted(solidity_calls))
 
     lines.append("}")
 
@@ -205,7 +205,7 @@ def _process_functions(functions: Sequence[Function]) -> str:
             )
 
     render_internal_calls = ""
-    for contract in all_contracts:
+    for contract in sorted(all_contracts, key=lambda x: x.name):
         render_internal_calls += _render_internal_calls(
             contract, contract_functions, contract_calls
         )
@@ -230,16 +230,12 @@ class PrinterCallGraph(AbstractPrinter):
             filename(string)
         """
 
-        all_contracts_filename = ""
-        if not filename.endswith(".dot"):
-            if filename in ("", "."):
-                filename = ""
-            else:
-                filename += "."
-            all_contracts_filename = f"{filename}all_contracts.call-graph.dot"
-
-        if filename == ".dot":
-            all_contracts_filename = "all_contracts.dot"
+        if filename in ("", "."):
+            all_contracts_filename = "all_contracts.call-graph.dot"
+        elif not filename.endswith(".dot"):
+            all_contracts_filename = f"{filename}.all_contracts.call-graph.dot"
+        else:
+            all_contracts_filename = filename
 
         info = ""
         results = []
@@ -256,7 +252,7 @@ class PrinterCallGraph(AbstractPrinter):
             }
             content = "\n".join(
                 ["strict digraph {"]
-                + [_process_functions(list(all_functions_as_dict.values()))]
+                + [_process_functions(sorted(all_functions_as_dict.values(), key=lambda x: x.name))]
                 + ["}"]
             )
             f.write(content)
