@@ -54,6 +54,6 @@ def test_printer_cheatcode():
     output = printer.output("cheatcode.out")
 
     assert (
-        output
+        output.data["description"]
         == "CounterTest (test/Counter.t.sol)\n\tsetUp\n\t\tL[21]: deal\n\t\tL[22]: deal\n\ttestIncrement\n\t\tL[28]: prank\n\t\tL[30]: assertEq\n\t\tL[32]: prank\n\t\tL[34]: assertEq\n"
     )
