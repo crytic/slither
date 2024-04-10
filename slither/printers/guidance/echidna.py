@@ -443,9 +443,9 @@ class Echidna(AbstractPrinter):
 
         use_balance = _use_balance(contracts)
 
-        with_fallback = list(_with_fallback(contracts))
+        with_fallback = sorted(_with_fallback(contracts))
 
-        with_receive = list(_with_receive(contracts))
+        with_receive = sorted(_with_receive(contracts))
 
         d = {
             "payable": payable,
