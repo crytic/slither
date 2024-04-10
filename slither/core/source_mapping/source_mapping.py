@@ -1,6 +1,5 @@
 import re
 from abc import ABCMeta
-import logging
 from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional, Any
 
 from Crypto.Hash import SHA1
@@ -11,8 +10,6 @@ from slither.exceptions import SlitherException
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
 
-
-logger: logging.Logger = logging.getLogger("SourceMapping")
 
 # We split the source mapping into two objects
 # The reasoning is to allow any object to just inherit from SourceMapping
@@ -142,7 +139,7 @@ def _compute_line(
         # See the GitHub issue https://github.com/crytic/slither/issues/2296
         msg = f"""The source code appears to be out of sync with the build artifacts on disk.
         This discrepancy can occur after recent modifications to {filename.short}. To resolve this
-        issue, consider executing the clean command of the build system (e.g., forge clean).
+        issue, consider executing the clean command of the build system (e.g. forge clean).
         """
         # We still re-raise the exception as a SlitherException here
         raise SlitherException(msg) from None
