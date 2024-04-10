@@ -39,6 +39,7 @@ jobs:
                "flat",
                "interface",
                "kspec",
+               "printers",
                # "prop"
                "simil",
                "slither_config",

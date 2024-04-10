@@ -77,15 +77,6 @@ def generate_all_tests() -> List[Tuple[Path, Type[AbstractPrinter]]]:
             if not any(fnmatch(test_file.name, pattern) for pattern in known_errors):
                 tests.append((test_file, printer))
 
-    # TODO(dm) Handle the EVM CFG Builder printer
-    # cd ../../.. || exit
-    # # Needed for evm printer
-    # pip install evm-cfg-builder
-    # solc-select use "0.5.1"
-    # if ! slither examples/scripts/test_evm_api.sol --print evm; then
-    #     echo "EVM printer failed"
-    # fi
-
     return tests
 
 
