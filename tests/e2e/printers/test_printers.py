@@ -4,12 +4,13 @@ from collections import Counter
 from pathlib import Path
 import pytest
 
-from crytic_compile import CryticCompile
+from crytic_compile import CryticCompile, compile_all
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
 
 from slither import Slither
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
 from slither.printers.summary.cheatcodes import CheatcodePrinter
+from slither.printers.summary.external_calls import ExternalCallPrinter
 from slither.printers.summary.slithir import PrinterSlithIR
 
 
@@ -84,3 +85,14 @@ def test_slithir_printer(solc_binary_path) -> None:
     output = printer.output("test_printer_slithir.dot")
 
     assert "slither.core.solidity_types" not in output.data["description"]
+
+
+def test_external_call_printers() -> None:
+    compilation = compile_all((TEST_DATA_DIR / "test_external_calls" / "A.sol").as_posix()).pop()
+    slither = Slither(compilation)
+
+    printer = ExternalCallPrinter(slither, None)
+    output = printer.output("")
+
+    # The test is not great here, but they will soon be moved to a snapshot based system
+    assert output is not None
