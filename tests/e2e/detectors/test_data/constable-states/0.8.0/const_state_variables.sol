@@ -66,7 +66,7 @@ contract Good {
     uint immutable should_be_immutable_3 = 10 + block.number;
     B immutable should_be_immutable_4 = new B();
     uint immutable should_be_immutable_5;
-    
+    uint blobBaseFee;
 	constructor(uint b) {
 		should_be_immutable_5 = b;
 	}
@@ -74,5 +74,10 @@ contract Good {
     function getNumber() public returns(uint){
         return block.number;
     }
-
+    
+    function updateBlobBaseFee(uint _blobBaseFee) public {
+        assembly {
+            sstore(blobBaseFee.slot, _blobBaseFee)
+        }
+    }
 }
