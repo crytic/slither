@@ -1,11 +1,14 @@
+from itertools import filterfalse
 from typing import Union, TYPE_CHECKING
 
 from slither.core.cfg.node import Node
 from slither.core.cfg.node import NodeType
+from slither.core.declarations import SolidityVariable
 from slither.core.expressions.assignment_operation import (
     AssignmentOperation,
     AssignmentOperationType,
 )
+
 from slither.core.expressions.identifier import Identifier
 from slither.solc_parsing.expressions.expression_parsing import parse_expression
 from slither.visitors.expression.find_calls import FindCalls
@@ -15,6 +18,7 @@ from slither.visitors.expression.write_var import WriteVar
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.modifier import ModifierSolc
+    from slither.core.expressions.expression import Expression
 
 
 class NodeSolc:
@@ -61,9 +65,15 @@ class NodeSolc:
 
             find_call = FindCalls(expression)
             self._node.calls_as_expression = find_call.result()
-            self._node.external_calls_as_expressions = [
-                c for c in self._node.calls_as_expression if not isinstance(c.called, Identifier)
-            ]
-            self._node.internal_calls_as_expressions = [
-                c for c in self._node.calls_as_expression if isinstance(c.called, Identifier)
-            ]
+
+            def is_external_call(element: "Expression") -> bool:
+                return not isinstance(element.called, Identifier) and not isinstance(
+                    element.called.expression.value, SolidityVariable
+                )
+
+            self._node.external_calls_as_expressions = list(
+                filter(is_external_call, self._node.calls_as_expression)
+            )
+            self._node.internal_calls_as_expressions = list(
+                filterfalse(is_external_call, self._node.calls_as_expression)
+            )
