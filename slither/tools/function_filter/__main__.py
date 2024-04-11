@@ -12,11 +12,7 @@ logger.setLevel(logging.INFO)
 
 
 def parse_args() -> Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser: ArgumentParser = ArgumentParser(
+    parser = ArgumentParser(
         description="Return contract functions based on the provided criteria.",
         usage="slither-function-filter filename [options]",
     )
@@ -24,69 +20,41 @@ def parse_args() -> Namespace:
     parser.add_argument(
         "filename", help="The filename of the contract or truffle directory to analyze."
     )
-
     parser.add_argument(
         "--contract-name",
         type=str,
-        help="If set, filter functions declared and inherited in the specified contract.",
+        help="Filter functions declared and inherited in the specified contract.",
     )
-
     parser.add_argument(
         "--declared-only",
         action="store_true",
-        help="If set, filter functions only declared in the --contract-name.",
+        help="Filter only functions declared in the --contract-name.",
     )
-
     parser.add_argument("--visibility", type=str, help="Visibility of the functions.")
-
     parser.add_argument(
-        "--modifiers", action="store_true", help="If set, filter functions that have modifiers."
+        "--modifiers", action="store_true", help="Filter functions that have modifiers."
     )
-
     parser.add_argument(
-        "--ext-calls",
-        action="store_true",
-        help="If set, filter functions that make external calls.",
+        "--ext-calls", action="store_true", help="Filter functions that make external calls."
     )
-
     parser.add_argument(
-        "--int-calls",
-        action="store_true",
-        help="If set, filter functions that make internal calls.",
+        "--int-calls", action="store_true", help="Filter functions that make internal calls."
     )
-
     parser.add_argument(
-        "--state-change", action="store_true", help="If set, filter functions that change state."
+        "--state-change", action="store_true", help="Filter functions that change state."
     )
-
     parser.add_argument(
-        "--read-only",
-        action="store_true",
-        help="If set, filter functions that do not change state.",
+        "--read-only", action="store_true", help="Filter functions that do not change state."
     )
-
     parser.add_argument(
-        "--contains-asm",
-        action="store_true",
-        help="If set, filter functions that contain inline assembly.",
+        "--contains-asm", action="store_true", help="Filter functions that contain inline assembly."
     )
-
     parser.add_argument(
-        "--low-lvl-calls",
-        action="store_true",
-        help="If set, filter functions that make low level calls.",
+        "--low-lvl-calls", action="store_true", help="Filter functions that make low level calls."
     )
-
+    parser.add_argument("--full-name", type=str, help="Filter functions by their full name.")
     parser.add_argument(
-        "--full-name",
-        type=str,
-        help="If set, filter functions by their full name.",
-    )
-
-    parser.add_argument(
-        "--in-source",
-        type=str,
-        help="If set, filter functions by the string in their source.",
+        "--in-source", type=str, help="Filter functions by the string in their source."
     )
 
     cryticparser.init(parser)
@@ -95,106 +63,43 @@ def parse_args() -> Namespace:
 
 
 def filter_function(function: Function, args) -> bool:
-    # Check visibility
-    if args.visibility and function.visibility != args.visibility:
-        return False
-
-    # Check for existence of modifiers
-    if args.modifiers:
-        if not function.modifiers:
-            return False
-
-    # Check for existence of external calls
-    if args.ext_calls:
-        if not function.high_level_calls:
-            return False
-
-    # Check for existence of internal calls
-    if args.int_calls:
-        if not function.internal_calls:
-            return False
-
-    # Check if function potentially changes state
-    if args.state_change:
-        if function.view or function.pure:
-            return False
-
-    # Check if function is read-only
-    if args.read_only:
-        if not (function.view or function.pure):
-            return False
-
-    # Check for existence of inline assembly
-    if args.contains_asm:
-        if not function.contains_asm:
-            return False
-
-    # Check for existence of low level calls
-    if args.low_lvl_calls:
-        if not function.low_level_calls:
-            return False
-
-    # Check for specific function name
-    if args.full_name:
-        if args.full_name not in function.full_name:
-            return False
-
-    # Check for specific string in function source
-    if args.in_source:
-        if args.in_source not in function.source_mapping.content:
-            return False
-
-    # If none of the conditions have returned False, the function matches all provided criteria
-    return True
+    checks = [
+        args.visibility and function.visibility != args.visibility,
+        args.modifiers and not function.modifiers,
+        args.ext_calls and not function.high_level_calls,
+        args.int_calls and not function.internal_calls,
+        args.state_change and (function.view or function.pure),
+        args.read_only and not (function.view or function.pure),
+        args.contains_asm and not function.contains_asm,
+        args.low_lvl_calls and not function.low_level_calls,
+        args.full_name and args.full_name not in function.full_name,
+        args.in_source and args.in_source not in function.source_mapping.content,
+    ]
+    return not any(checks)
 
 
-def main() -> None:
+def process_contract(contract, args):
+    target_functions = contract.functions_declared if args.declared_only else contract.functions
+    results = []
+    for function in target_functions:
+        if filter_function(function, args):
+            lines = function.source_mapping.to_detailed_str().rsplit("(", 1)[0].strip()
+            summary = function.get_summary() + (lines,)
+            results.append(summary)
+    return results
+
+
+def main():
     args = parse_args()
-
-    # Perform slither analysis on the given filename
     slither = Slither(args.filename, **vars(args))
-
-    # Access the arguments
-    contract_name = args.contract_name
-    # Store list
     filter_results = []
 
     for contract in slither.contracts:
-        # Scan only target contract's functions (declared only or immediate inheritance)
-        if contract_name:
-            # Match --contract-name with slither's contract object
-            if contract.name == contract_name:
-                # Only target contract's declared functions are scanned
-                if args.declared_only:
-                    for function in contract.functions_declared:
-                        if filter_function(function, args):
-                            lines = (
-                                function.source_mapping.to_detailed_str().rsplit("(", 1)[0].strip()
-                            )
-                            print(lines)
-                            summary = function.get_summary() + (lines,)
-                            filter_results.append(summary)
-
-                # All functions (declared and inherited) of target contract are scanned
-                else:
-                    for function in contract.functions:
-                        if filter_function(function, args):
-                            lines = (
-                                function.source_mapping.to_detailed_str().rsplit("(", 1)[0].strip()
-                            )
-                            summary = function.get_summary() + (lines,)
-                            filter_results.append(summary)
-
-        # Scan all contracts in the SourceMapping of filename provided
-        else:
-            for function in contract.functions:
-                if filter_function(function, args):
-                    lines = function.source_mapping.to_detailed_str().rsplit("(", 1)[0].strip()
-                    summary = function.get_summary() + (lines,)
-                    filter_results.append(summary)
+        if not args.contract_name or contract.name == args.contract_name:
+            filter_results.extend(process_contract(contract, args))
 
     if filter_results:
-        logger.info(green(f"Found {len(filter_results)} functions matching flags\n"))
+        logger.info(f"Found {len(filter_results)} functions matching flags\n")
         for result in filter_results:
             (
                 contract_name,
@@ -208,7 +113,6 @@ def main() -> None:
                 cyclomatic_complexity,
                 lines,
             ) = result
-
             logger.info(bold(f"Function: {contract_name}.{function_sig}"))
             logger.info(bold(f"Reference: {lines}"))
             logger.info(blue(f"Visibility: {visibility}"))
@@ -219,7 +123,7 @@ def main() -> None:
             logger.info(blue(f"External Calls: {external_calls}"))
             logger.info(blue(f"Cyclomatic Complexity: {cyclomatic_complexity}\n"))
     else:
-        logger.info(red("No functions matching flags found."))
+        logger.info("No functions matching flags found.")
 
 
 if __name__ == "__main__":
