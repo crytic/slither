@@ -70,7 +70,7 @@ def filter_function(function: Function, args) -> bool:
         args.int_calls and not function.internal_calls,
         args.state_change and (function.view or function.pure),
         args.read_only and not (function.view or function.pure),
-        args.contains_asm and not function.contains_asm,
+        args.contains_asm and not function.contains_assembly,
         args.low_lvl_calls and not function.low_level_calls,
         args.full_name and args.full_name not in function.full_name,
         args.in_source and args.in_source not in function.source_mapping.content,
