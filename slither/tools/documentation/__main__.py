@@ -21,7 +21,10 @@ def parse_args() -> argparse.Namespace:
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
-    parser = argparse.ArgumentParser(description="Demo", usage="slither-documentation filename")
+    parser = argparse.ArgumentParser(
+        description="Auto-generate NatSpec documentation for every function using OpenAI Codex.",
+        usage="slither-documentation filename",
+    )
 
     parser.add_argument("project", help="The target directory/Solidity file.")
 

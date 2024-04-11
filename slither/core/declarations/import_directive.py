@@ -11,8 +11,8 @@ class Import(SourceMapping):
     def __init__(self, filename: Path, scope: "FileScope") -> None:
         super().__init__()
         self._filename: Path = filename
-        self._alias: Optional[str] = None
         self.scope: "FileScope" = scope
+        self._alias: Optional[str] = None
         # Map local name -> original name
         self.renaming: Dict[str, str] = {}
 
