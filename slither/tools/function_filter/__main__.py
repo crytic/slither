@@ -171,8 +171,9 @@ def main() -> None:
                             lines = (
                                 function.source_mapping.to_detailed_str().rsplit("(", 1)[0].strip()
                             )
+                            print(lines)
                             summary = function.get_summary() + (lines,)
-                            filter_results.append(function.get_summary())
+                            filter_results.append(summary)
 
                 # All functions (declared and inherited) of target contract are scanned
                 else:
@@ -182,7 +183,7 @@ def main() -> None:
                                 function.source_mapping.to_detailed_str().rsplit("(", 1)[0].strip()
                             )
                             summary = function.get_summary() + (lines,)
-                            filter_results.append(function.get_summary())
+                            filter_results.append(summary)
 
         # Scan all contracts in the SourceMapping of filename provided
         else:
