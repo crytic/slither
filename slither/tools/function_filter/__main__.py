@@ -14,12 +14,29 @@ logger.setLevel(logging.INFO)
 def parse_args() -> Namespace:
     parser = ArgumentParser(
         description="Return contract functions based on the provided criteria.",
-        usage="slither-function-filter filename [options]",
+        usage="""
+        Usage: slither-function-filter filename [flags]
+
+        filename: The file path of the contract to be analyzed. 
+        flags: Flag (or string input) to return matching functions.
+
+        Flags:
+        --contract-name (str):  Declared and inherited in the specified contract.
+        --declared-only (bool): Only declared in the --contract-name.
+        --visibility (str): Visibility of the functions.
+        --modifiers (bool): Have modifiers.
+        --ext-calls (bool): Make external calls.
+        --int-calls (bool): Make internal calls.
+        --state-change (bool): Change state.
+        --read-only (bool): Do not change state.
+        --contains-asm (bool): Contains inline assembly.
+        --low-lvl-calls (bool): Make low level calls.
+        --full-name (str): By their full name.
+        --in-source (str): By the string in their source (use escape characters).
+        """,
     )
 
-    parser.add_argument(
-        "filename", help="The filename of the contract or truffle directory to analyze."
-    )
+    parser.add_argument("filename", help="The file path of the contract to be analyzed.")
     parser.add_argument(
         "--contract-name",
         type=str,
