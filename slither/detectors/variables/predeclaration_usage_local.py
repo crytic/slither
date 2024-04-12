@@ -103,8 +103,8 @@ Additionally, the for-loop uses the variable `max`, which is declared in a previ
                 if result not in results:
                     results.append(result)
 
-        for son in node.sons:
-            self.detect_predeclared_local_usage(son, results, already_declared, visited)
+        for successor in node.successors:
+            self.detect_predeclared_local_usage(successor, results, already_declared, visited)
 
     def detect_predeclared_in_contract(
         self, contract: Contract

@@ -141,9 +141,11 @@ contract C
                 ):
                     return True
 
-        for son in node.sons:
-            if son not in visited:
-                if CacheArrayLength._is_loop_referencing_array_length(son, visited, array, depth):
+        for successor in node.successors:
+            if successor not in visited:
+                if CacheArrayLength._is_loop_referencing_array_length(
+                    successor, visited, array, depth
+                ):
                     return True
         return False
 
@@ -157,7 +159,7 @@ contract C
         """
         for node in nodes:
             if node.type == NodeType.STARTLOOP:
-                if_node = node.sons[0]
+                if_node = node.successors[0]
                 if if_node.type != NodeType.IFLOOP:
                     continue
                 if not isinstance(if_node.expression, BinaryOperation):

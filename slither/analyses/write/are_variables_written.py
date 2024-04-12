@@ -86,18 +86,18 @@ def _visit(
             lvalue = refs_lvalues
 
     ret: List[Variable] = []
-    if not node.sons and node.type not in [NodeType.THROW, NodeType.RETURN]:
+    if not node.successors and node.type not in [NodeType.THROW, NodeType.RETURN]:
         ret += [v for v in variables_to_write if v not in variables_written]
 
-    # Explore sons if
+    # Explore successors if
     # - Before is none: its the first time we explored the node
     # - variables_written is not before: it means that this path has a configuration of set variables
     # that we haven't seen yet
     before = state.nodes[node] if node in state.nodes else None
     if before is None or variables_written not in before:
         state.nodes[node].append(variables_written)
-        for son in node.sons:
-            ret += _visit(son, state, variables_written, variables_to_write)
+        for successor in node.successors:
+            ret += _visit(successor, state, variables_written, variables_to_write)
     return ret
 
 

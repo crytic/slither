@@ -248,8 +248,8 @@ class FunctionVyper:  # pylint: disable=too-many-instance-attributes
         if node.is_reachable:
             return
         node.set_is_reachable(True)
-        for son in node.sons:
-            self._update_reachability(son)
+        for successor in node.successors:
+            self._update_reachability(successor)
 
     # pylint: disable=too-many-branches,too-many-statements,protected-access,too-many-locals
     def _parse_cfg(self, cfg: List[ASTNode]) -> None:

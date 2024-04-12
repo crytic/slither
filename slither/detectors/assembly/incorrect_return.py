@@ -72,7 +72,7 @@ The function will return 6 bytes starting from offset 5, instead of returning a 
             for f in c.functions_and_modifiers_declared:
 
                 for node in f.nodes:
-                    if node.sons:
+                    if node.successors:
                         for function_called in node.internal_calls:
                             if isinstance(function_called, Function):
                                 found = _assembly_node(function_called)

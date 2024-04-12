@@ -45,8 +45,8 @@ def delegatecall_in_loop(
         if isinstance(ir, (InternalCall)) and ir.function:
             delegatecall_in_loop(ir.function.entry_point, in_loop_counter, visited, results)
 
-    for son in node.sons:
-        delegatecall_in_loop(son, in_loop_counter, visited, results)
+    for successor in node.successors:
+        delegatecall_in_loop(successor, in_loop_counter, visited, results)
 
 
 class DelegatecallInLoop(AbstractDetector):

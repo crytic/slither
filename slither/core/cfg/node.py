@@ -2,6 +2,7 @@
     Node module
 """
 from enum import Enum
+import logging
 from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
 
 from slither.all_exceptions import SlitherException
@@ -64,6 +65,8 @@ if TYPE_CHECKING:
 ###################################################################################
 ###################################################################################
 
+logger = logging.getLogger("SlitherNode")
+
 
 class NodeType(Enum):
     ENTRYPOINT = "ENTRY_POINT"  # no expression
@@ -125,8 +128,8 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         self._node_type = node_type
 
         # TODO: rename to explicit CFG
-        self._sons: List["Node"] = []
-        self._fathers: List["Node"] = []
+        self._successors: List["Node"] = []
+        self._predecessors: List["Node"] = []
 
         ## Dominators info
         # Dominators nodes
@@ -225,7 +228,7 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
 
     @property
     def will_return(self) -> bool:
-        if not self.sons and self.type != NodeType.THROW:
+        if not self.successors and self.type != NodeType.THROW:
             if SolidityFunction("revert()") not in self.solidity_calls:
                 if SolidityFunction("revert(string)") not in self.solidity_calls:
                     return True
@@ -582,97 +585,97 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def add_father(self, father: "Node") -> None:
-        """Add a father node
+    def add_predecessor(self, predecessor: "Node") -> None:
+        """Add a predecessor node
 
         Args:
-            father: father to add
+            predecessor: predecessor to add
         """
-        self._fathers.append(father)
+        self._predecessors.append(predecessor)
 
-    def set_fathers(self, fathers: List["Node"]) -> None:
-        """Set the father nodes
+    def set_predecessors(self, predecessors: List["Node"]) -> None:
+        """Set the predecessors nodes
 
         Args:
-            fathers: list of fathers to add
+            predecessors: list of predecessors to add
         """
-        self._fathers = fathers
+        self._predecessors = predecessors
 
     @property
-    def fathers(self) -> List["Node"]:
-        """Returns the father nodes
+    def predecessors(self) -> List["Node"]:
+        """Returns the predecessor nodes
 
         Returns:
-            list(Node): list of fathers
+            list(Node): list of predecessor
         """
-        return list(self._fathers)
+        return list(self._predecessors)
 
-    def remove_father(self, father: "Node") -> None:
-        """Remove the father node. Do nothing if the node is not a father
+    def remove_predecessor(self, predecessor: "Node") -> None:
+        """Remove the predecessor node. Do nothing if the node is not a predecessor
 
         Args:
-            :param father:
+            :param predecessor:
         """
-        self._fathers = [x for x in self._fathers if x.node_id != father.node_id]
+        self._predecessors = [x for x in self._predecessors if x.node_id != predecessor.node_id]
 
-    def remove_son(self, son: "Node") -> None:
-        """Remove the son node. Do nothing if the node is not a son
+    def remove_successor(self, successor: "Node") -> None:
+        """Remove the successor node. Do nothing if the node is not a successor
 
         Args:
-            :param son:
+            :param successor:
         """
-        self._sons = [x for x in self._sons if x.node_id != son.node_id]
+        self._successors = [x for x in self._successors if x.node_id != successor.node_id]
 
-    def add_son(self, son: "Node") -> None:
-        """Add a son node
+    def add_successor(self, successor: "Node") -> None:
+        """Add a successor node
 
         Args:
-            son: son to add
+            successor: successor to add
         """
-        self._sons.append(son)
+        self._successors.append(successor)
 
-    def replace_son(self, ori_son: "Node", new_son: "Node") -> None:
-        """Replace a son node. Do nothing if the node to replace is not a son
+    def replace_successor(self, old_successor: "Node", new_successor: "Node") -> None:
+        """Replace a successor node. Do nothing if the node to replace is not a successor
 
         Args:
-            ori_son: son to replace
-            new_son: son to replace with
+            old_successor: successor to replace
+            new_successor: successor to replace with
         """
-        for i, s in enumerate(self._sons):
-            if s.node_id == ori_son.node_id:
+        for i, s in enumerate(self._successors):
+            if s.node_id == old_successor.node_id:
                 idx = i
                 break
         else:
             return
-        self._sons[idx] = new_son
+        self._successors[idx] = new_successor
 
-    def set_sons(self, sons: List["Node"]) -> None:
-        """Set the son nodes
+    def set_successors(self, successors: List["Node"]) -> None:
+        """Set the successor nodes
 
         Args:
-            sons: list of fathers to add
+            successors: list of successors to add
         """
-        self._sons = sons
+        self._successors = successors
 
     @property
-    def sons(self) -> List["Node"]:
-        """Returns the son nodes
+    def successors(self) -> List["Node"]:
+        """Returns the successors nodes
 
         Returns:
-            list(Node): list of sons
+            list(Node): list of successors
         """
-        return list(self._sons)
+        return list(self._successors)
 
     @property
-    def son_true(self) -> Optional["Node"]:
+    def successor_true(self) -> Optional["Node"]:
         if self.type in [NodeType.IF, NodeType.IFLOOP]:
-            return self._sons[0]
+            return self._successors[0]
         return None
 
     @property
-    def son_false(self) -> Optional["Node"]:
-        if self.type in [NodeType.IF, NodeType.IFLOOP] and len(self._sons) >= 1:
-            return self._sons[1]
+    def successor_false(self) -> Optional["Node"]:
+        if self.type in [NodeType.IF, NodeType.IFLOOP] and len(self._successors) >= 1:
+            return self._successors[1]
         return None
 
     # endregion
@@ -1046,6 +1049,43 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         txt = str(self._node_type.value) + additional_info
         return txt
 
+    def __getattr__(self, item: str):
+        """Get attribute wrapper.
+
+        Used for the breaking change to deprecate the usage of sons/fathers and use predecessors
+        and successors.
+        """
+        replaced_functions = {
+            "add_son",
+            "remove_son",
+            "replace_son",
+            "son_false",
+            "son_true",
+            "sons",
+            "add_father",
+            "fathers",
+            "remove_father",
+            "set_fathers",
+        }
+
+        if item not in replaced_functions:
+            raise AttributeError(item)
+
+        if "son" in item:
+            new_function = item.replace("son", "successor")
+        elif "father" in item:
+            new_function = item.replace("father", "predecessor")
+        else:
+            raise AttributeError(item)
+
+        proxied_function = getattr(self, new_function)
+        logger.warning(
+            "Function %s is deprecated and will be removed in a future version. Please use %s instead.",
+            item,
+            new_function,
+        )
+        return proxied_function
+
 
 # endregion
 ###################################################################################
@@ -1056,18 +1096,18 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
 
 
 def link_nodes(node1: Node, node2: Node) -> None:
-    node1.add_son(node2)
-    node2.add_father(node1)
+    node1.add_successor(node2)
+    node2.add_predecessor(node1)
 
 
 def insert_node(origin: Node, node_inserted: Node) -> None:
-    sons = origin.sons
+    successors = origin.successors
     link_nodes(origin, node_inserted)
-    for son in sons:
-        son.remove_father(origin)
-        origin.remove_son(son)
+    for successor in successors:
+        successor.remove_predecessor(origin)
+        origin.remove_successor(successor)
 
-        link_nodes(node_inserted, son)
+        link_nodes(node_inserted, successor)
 
 
 def recheable(node: Node) -> Set[Node]:
@@ -1076,16 +1116,16 @@ def recheable(node: Node) -> Set[Node]:
     :param node:
     :return: set(Node)
     """
-    nodes = node.sons
+    nodes = node.successors
     visited = set()
     while nodes:
         next_node = nodes[0]
         nodes = nodes[1:]
         if next_node not in visited:
             visited.add(next_node)
-            for son in next_node.sons:
-                if son not in visited:
-                    nodes.append(son)
+            for successor in next_node.successors:
+                if successor not in visited:
+                    nodes.append(successor)
     return visited
 
 

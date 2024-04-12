@@ -51,8 +51,8 @@ def call_in_loop(
                 assert ir.function
                 call_in_loop(ir.function.entry_point, in_loop_counter, visited, ret)
 
-    for son in node.sons:
-        call_in_loop(son, in_loop_counter, visited, ret)
+    for successor in node.successors:
+        call_in_loop(successor, in_loop_counter, visited, ret)
 
 
 class MultipleCallsInLoop(AbstractDetector):

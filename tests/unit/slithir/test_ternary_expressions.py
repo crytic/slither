@@ -24,7 +24,7 @@ def test_ternary_conversions(solc_binary_path) -> None:
             if node.type in [NodeType.IF, NodeType.IFLOOP]:
 
                 # Iterate over true and false son
-                for inner_node in node.sons:
+                for inner_node in node.successors:
                     # Count all variables declared
                     expression = inner_node.expression
                     if isinstance(
@@ -60,11 +60,20 @@ def test_ternary_tuple(solc_binary_path) -> None:
     assert len(if_nodes) == 1
 
     if_node = if_nodes[0]
-    assert isinstance(if_node.son_true.expression, AssignmentOperation)
+    assert isinstance(if_node.successor_true.expression, AssignmentOperation)
     assert (
-        len([ir for ir in if_node.son_true.all_slithir_operations() if isinstance(ir, Unpack)]) == 1
+        len(
+            [ir for ir in if_node.successor_true.all_slithir_operations() if isinstance(ir, Unpack)]
+        )
+        == 1
     )
     assert (
-        len([ir for ir in if_node.son_false.all_slithir_operations() if isinstance(ir, Unpack)])
+        len(
+            [
+                ir
+                for ir in if_node.successor_false.all_slithir_operations()
+                if isinstance(ir, Unpack)
+            ]
+        )
         == 1
     )
