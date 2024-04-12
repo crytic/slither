@@ -67,9 +67,13 @@ class NodeSolc:
             self._node.calls_as_expression = find_call.result()
 
             def is_external_call(element: "Expression") -> bool:
-                return not isinstance(element.called, Identifier) and not isinstance(
-                    element.called.expression.value, SolidityVariable
-                )
+                if not isinstance(element.called, Identifier):
+                    try:
+                        return not isinstance(element.called.expression.value, SolidityVariable)
+                    except AttributeError:
+                        return True
+
+                return False
 
             self._node.external_calls_as_expressions = list(
                 filter(is_external_call, self._node.calls_as_expression)
