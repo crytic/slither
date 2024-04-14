@@ -1,6 +1,5 @@
 from slither.slithir.operations import HighLevelCall, Operation
 from slither.core.declarations import Function
-from slither.core.declarations.contract import Contract
 from slither.slithir.operations import (
     Binary,
     BinaryType,
@@ -28,6 +27,16 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         self.returned_vars_indexes = None
         self.interface = None
         self.oracle_api = None
+        ## Works as protection against recursion loop
+        self.occured_in_functions = []
+
+    # This function adds function to the list of functions where the oracle data were used
+    # Used to prevent recursion of visiting same functions
+    def add_occurance_in_function(self, _function):
+        if _function in self.occured_in_functions:
+            return False
+        self.occured_in_functions.append(_function)
+        return True
 
     def get_calls(self):
         return self.calls
@@ -35,7 +44,9 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
     def is_instance_of(self, ir: Operation) -> bool:
         return isinstance(ir, HighLevelCall) and (
             isinstance(ir.function, Function)
-            and self.compare_call(ir.function.name) and hasattr(ir.destination, "type") and self.compare_interface(str(ir.destination.type))
+            and self.compare_call(ir.function.name)
+            and hasattr(ir.destination, "type")
+            and self.compare_interface(str(ir.destination.type))
         )
 
     def set_node(self, _node):

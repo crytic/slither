@@ -83,7 +83,7 @@ class ChainlinkOracle(Oracle):
             return False
         answer_checked = False
         startedAt_checked = False
-        
+
         if hasattr(answer, "nodes_with_var"):
             for node in answer.nodes_with_var:
                 for ir in node.irs:

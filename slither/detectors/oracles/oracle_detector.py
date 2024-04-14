@@ -14,6 +14,11 @@ from slither.core.expressions.tuple_expression import TupleExpression
 
 
 class OracleDetector(AbstractDetector):
+
+    # Vars for start point and max number of recursive calls
+    INVESTIGATION_START = 1
+    MAX_INVESTIGATION_DEEP = 10
+
     def __init__(self, compilation_unit, slither, logger):
         super().__init__(compilation_unit, slither, logger)
         self.oracles = []
@@ -160,12 +165,16 @@ class OracleDetector(AbstractDetector):
                 for node in self.nodes_with_var:
                     for ir in node.irs:
                         if isinstance(ir, InternalCall):
-                            self.investigate_internal_call(ir.function, var, None)
+                            self.investigate_internal_call(
+                                ir.function, var, None, self.INVESTIGATION_START
+                            )
 
                 if len(self.nodes_with_var) > 0:
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
             else:
-                if self.investigate_internal_call(oracle.function, var, None):
+                if self.investigate_internal_call(
+                    oracle.function, var, None, self.INVESTIGATION_START
+                ):
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
                 elif nodes := self.investigate_on_return(oracle, var):
                     oracle_vars.append(VarInCondition(var, nodes))
@@ -198,6 +207,9 @@ class OracleDetector(AbstractDetector):
         nodes = []
         for node in nodes_of_call:
             oracle.set_function(functions_of_call[i])
+            result = oracle.add_occurance_in_function(functions_of_call[i])
+            if not result:
+                break
             oracle.set_node(node)
             new_vars = self.get_returned_variables_from_oracle(node)
             for var in new_vars:
@@ -236,10 +248,13 @@ class OracleDetector(AbstractDetector):
         return False
 
     # This function interates through all internal calls in function and checks if the var is used in condition any of them
-    def investigate_internal_call(self, function: FunctionContract, var, original_function) -> bool:
+    def investigate_internal_call(
+        self, function: FunctionContract, var, original_function, depth
+    ) -> bool:
         if function is None:
             return False
-        if function == original_function:
+        if function == original_function or depth >= self.MAX_INVESTIGATION_DEEP:
+            print("Recursion limit reached")
             return False
 
         original_var_as_param = self.map_param_to_var(var, function)
@@ -265,8 +280,12 @@ class OracleDetector(AbstractDetector):
         for node in function.nodes:
             for ir in node.irs:
                 if isinstance(ir, InternalCall):
-                    if self.investigate_internal_call(ir.function, original_var_as_param, function):
+                    if self.investigate_internal_call(
+                        ir.function, original_var_as_param, function, depth + 1
+                    ):
                         return True
+                    elif depth >= self.INVESTIGATION_START:
+                        return False
         return False
 
     def _detect(self):
