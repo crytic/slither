@@ -65,7 +65,11 @@ class OracleDetector(AbstractDetector):
     @staticmethod
     def map_param_to_var(var, function: FunctionContract):
         for param in function.parameters:
-            origin_vars = get_dependencies(param, function)
+            try:
+                origin_vars = get_dependencies(param, function)
+            # DATA_DEPENDENCY error can be throw out
+            except KeyError:
+                continue
             for var2 in origin_vars:
                 if var2 == var:
                     return param
