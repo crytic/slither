@@ -38,6 +38,9 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         self.occured_in_functions.append(_function)
         return True
 
+    def remove_occurances_in_function(self):
+        self.occured_in_functions = []
+
     def get_calls(self):
         return self.calls
 
