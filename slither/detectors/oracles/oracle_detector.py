@@ -144,7 +144,6 @@ class OracleDetector(AbstractDetector):
 
     # Check if the vars occurs in require/assert statement or in conditional node
     def vars_in_conditions(self, oracle: Oracle):
-        # vars_in_condition = []
         vars_not_in_condition = []
         oracle_vars = []
         nodes = []
@@ -160,23 +159,17 @@ class OracleDetector(AbstractDetector):
                             self.investigate_internal_call(ir.function, var, None)
 
                 if len(self.nodes_with_var) > 0:
-                    # vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
             else:
                 if self.investigate_internal_call(oracle.function, var, None):
-                    # vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
                 elif nodes := self.investigate_on_return(oracle, var):
                     oracle_vars.append(VarInCondition(var, nodes))
                     oracle.out_of_function_checks.append((var, nodes))
-                # except RecursionError:
-                #     vars_not_in_condition.append(var)
-                #     oracle_vars.append(var)
                 else:
                     vars_not_in_condition.append(var)
                     oracle_vars.append(var)
 
-        # oracle.vars_in_condition = vars_in_condition
         oracle.vars_not_in_condition = vars_not_in_condition
         oracle.oracle_vars = oracle_vars
         return True

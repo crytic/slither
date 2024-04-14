@@ -92,12 +92,13 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         if var is None:
             return False
         different_behavior = False
-        for node in var.nodes_with_var:
-            # This is temporarily check which will be improved in the future. Mostly we are looking for block.timestamp and trust the developer that he is using it correctly
-            if self.timestamp_in_node(node):
-                return True
-            if not different_behavior:
-                different_behavior = check_revert(node) or return_boolean(node)
+        if hasattr(var, "nodes_with_var"):
+            for node in var.nodes_with_var:
+                # This is temporarily check which will be improved in the future. Mostly we are looking for block.timestamp and trust the developer that he is using it correctly
+                if self.timestamp_in_node(node):
+                    return True
+                if not different_behavior:
+                    different_behavior = check_revert(node) or return_boolean(node)
 
         return different_behavior
 
@@ -106,13 +107,14 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         if var is None:
             return False
         different_behavior = False
-        for node in var.nodes_with_var:
-            for ir in node.irs:
-                if isinstance(ir, Binary):
-                    if self.check_greater_zero(ir):
-                        return True
-                    # If the conditions does not match we are looking for revert or return node
-            if not different_behavior:
-                different_behavior = check_revert(node) or return_boolean(node)
+        if hasattr(var, "nodes_with_var"):
+            for node in var.nodes_with_var:
+                for ir in node.irs:
+                    if isinstance(ir, Binary):
+                        if self.check_greater_zero(ir):
+                            return True
+                        # If the conditions does not match we are looking for revert or return node
+                if not different_behavior:
+                    different_behavior = check_revert(node) or return_boolean(node)
 
         return different_behavior

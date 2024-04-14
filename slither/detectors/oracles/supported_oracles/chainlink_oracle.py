@@ -83,12 +83,13 @@ class ChainlinkOracle(Oracle):
             return False
         answer_checked = False
         startedAt_checked = False
-
-        for node in answer.nodes_with_var:
-            for ir in node.irs:
-                if isinstance(ir, Binary):
-                    if self.price_check_for_liveness(ir):
-                        answer_checked = True
+        
+        if hasattr(answer, "nodes_with_var"):
+            for node in answer.nodes_with_var:
+                for ir in node.irs:
+                    if isinstance(ir, Binary):
+                        if self.price_check_for_liveness(ir):
+                            answer_checked = True
         startedAt_checked = self.check_staleness(startedAt)
 
         return answer_checked and startedAt_checked
