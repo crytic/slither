@@ -1,5 +1,6 @@
 from slither.slithir.operations import HighLevelCall, Operation
 from slither.core.declarations import Function
+from slither.core.declarations.contract import Contract
 from slither.slithir.operations import (
     Binary,
     BinaryType,
@@ -34,7 +35,7 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
     def is_instance_of(self, ir: Operation) -> bool:
         return isinstance(ir, HighLevelCall) and (
             isinstance(ir.function, Function)
-            and self.compare_call(ir.function.name) and self.compare_interface(str(ir.destination.type))
+            and self.compare_call(ir.function.name) and hasattr(ir.destination, "type") and self.compare_interface(str(ir.destination.type))
         )
 
     def set_node(self, _node):
