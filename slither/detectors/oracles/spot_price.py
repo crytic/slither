@@ -20,7 +20,7 @@ class SpotPriceUsage:
 
     def mapping(self):
         return self.node.source_mapping
-    
+
     def type_of_interface(self):
         return self.interface
 
@@ -79,21 +79,23 @@ class SpotPriceDetector(AbstractDetector):
         return []
 
     # Detect oracle call
-    def detect_oracle_call(self, function: FunctionContract, function_names, interface_names) -> (Node, str):
+    def detect_oracle_call(
+        self, function: FunctionContract, function_names, interface_names
+    ) -> (Node, str):
         nodes = []
         first_node = None
         second_node = None
         first_arguments = []
         for node in function.nodes:
             for ir in node.irs:
-                for i in range(len(function_names)):
+                for i in range(len(function_names)): # pylint: disable=consider-using-enumerate
                     function_name = function_names[i]
                     interface_name = interface_names[i]
 
                     # Detect UniswapV3 or UniswapV2
                     if self.instance_of_call(ir, function_name, interface_name):
                         nodes.append((node, interface_name))
-                    
+
                     # Detect any fork of Uniswap
                     elif self.instance_of_call(ir, function_name, None):
                         nodes.append((node, None))
@@ -106,12 +108,12 @@ class SpotPriceDetector(AbstractDetector):
                         first_node = None
                         second_node = None
                         first_arguments = []
-                        
+
                     else:
                         first_arguments = arguments
                         first_node = node
                     break
-            
+
         return nodes
 
     # Detect spot price usage
@@ -129,7 +131,7 @@ class SpotPriceDetector(AbstractDetector):
                     ["slot0", "getReserves"],
                     ["IUniswapV3Pool", "IUniswapV2Pair"],
                 )
-                for call in oracle_call: 
+                for call in oracle_call:
                     spot_price_usage.append(SpotPriceUsage(call[0], call[1]))
 
         return spot_price_usage
@@ -184,7 +186,7 @@ class SpotPriceDetector(AbstractDetector):
                 messages.append(
                     f"Method which could indicate usage of spot price was detected in Uniswap V2 at {spot_price.node.source_mapping}\n{spot_price.node}\n"
                 )
-            elif spot_price.interface == None:
+            elif spot_price.interface is None:
                 messages.append(
                     f"Method which could indicate usage of spot price was detected in Uniswap Fork at {spot_price.node.source_mapping}\n{spot_price.node}\n"
                 )
