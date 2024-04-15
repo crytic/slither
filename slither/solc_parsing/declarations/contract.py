@@ -585,7 +585,9 @@ class ContractSolc(CallerContextExpression):
                     element.is_shadowed = True
                     accessible_elements[element.full_name].shadows = True
         except (VariableNotFound, KeyError) as e:
-            self.log_incorrect_parsing(f"Missing params {e}")
+            self.log_incorrect_parsing(
+                f"Missing params {e} {self._contract.source_mapping.to_detailed_str()}"
+            )
         return all_elements
 
     def analyze_constant_state_variables(self) -> None:

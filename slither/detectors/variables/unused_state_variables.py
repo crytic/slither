@@ -46,8 +46,18 @@ def detect_unused(contract: Contract) -> Optional[List[StateVariable]]:
     variables_used = [item for sublist in variables_used for item in sublist]
     variables_used = list(set(variables_used + array_candidates))
 
+    # If the contract is abstract, only consider private variables as other visibilities may be used in dependencies
+    if contract.is_abstract:
+        return [
+            x
+            for x in contract.state_variables
+            if x not in variables_used and x.visibility == "private"
+        ]
+
     # Return the variables unused that are not public
-    return [x for x in contract.variables if x not in variables_used and x.visibility != "public"]
+    return [
+        x for x in contract.state_variables if x not in variables_used and x.visibility != "public"
+    ]
 
 
 class UnusedStateVars(AbstractDetector):
@@ -71,7 +81,7 @@ class UnusedStateVars(AbstractDetector):
         """Detect unused state variables"""
         results = []
         for c in self.compilation_unit.contracts_derived:
-            if c.is_signature_only():
+            if c.is_signature_only() or c.is_library:
                 continue
             unusedVars = detect_unused(c)
             if unusedVars:

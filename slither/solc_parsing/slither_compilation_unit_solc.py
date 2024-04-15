@@ -81,7 +81,16 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._compilation_unit: SlitherCompilationUnit = compilation_unit
 
         self._contracts_by_id: Dict[int, Contract] = {}
+        # For top level functions, there should only be one `Function` since they can't be virtual and therefore can't be overridden.
         self._functions_by_id: Dict[int, List[Function]] = defaultdict(list)
+        self.imports_by_id: Dict[int, Import] = {}
+        self.top_level_events_by_id: Dict[int, EventTopLevel] = {}
+        self.top_level_errors_by_id: Dict[int, EventTopLevel] = {}
+        self.top_level_structures_by_id: Dict[int, StructureTopLevel] = {}
+        self.top_level_variables_by_id: Dict[int, TopLevelVariable] = {}
+        self.top_level_type_aliases_by_id: Dict[int, TypeAliasTopLevel] = {}
+        self.top_level_enums_by_id: Dict[int, EnumTopLevel] = {}
+
         self._parsed = False
         self._analyzed = False
         self._is_compact_ast = False
@@ -204,9 +213,11 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         scope = self.compilation_unit.get_scope(filename)
         enum = EnumTopLevel(name, canonicalName, values, scope)
-        scope.enums[name] = enum
         enum.set_offset(top_level_data["src"], self._compilation_unit)
         self._compilation_unit.enums_top_level.append(enum)
+        scope.enums[name] = enum
+        refId = top_level_data["id"]
+        self.top_level_enums_by_id[refId] = enum
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
     def parse_top_level_items(self, data_loaded: Dict, filename: str) -> None:
@@ -217,8 +228,13 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             )
             return
 
+        exported_symbols = {}
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
+            exported_symbols = data_loaded.get("exportedSymbols", {})
+        else:
+            attributes = data_loaded.get("attributes", {})
+            exported_symbols = attributes.get("exportedSymbols", {})
 
         if "sourcePaths" in data_loaded:
             for sourcePath in data_loaded["sourcePaths"]:
@@ -236,7 +252,12 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         if self.get_children() not in data_loaded:
             return
+
         scope = self.compilation_unit.get_scope(filename)
+        # Exported symbols includes a reference ID to all top-level definitions the file exports,
+        # including def's brought in by imports (even transitively) and def's local to the file.
+        for refId in exported_symbols.values():
+            scope.exported_symbols |= set(refId)
 
         for top_level_data in data_loaded[self.get_children()]:
             if top_level_data[self.get_key()] == "ContractDefinition":
@@ -269,6 +290,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._using_for_top_level_parser.append(usingFor_parser)
 
             elif top_level_data[self.get_key()] == "ImportDirective":
+                referenceId = top_level_data["id"]
                 if self.is_compact_ast:
                     import_directive = Import(
                         Path(
@@ -299,6 +321,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                         import_directive.alias = top_level_data["attributes"]["unitAlias"]
                 import_directive.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.import_directives.append(import_directive)
+                self.imports_by_id[referenceId] = import_directive
 
                 get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
                 scope.accessible_scopes.append(get_imported_scope)
@@ -311,6 +334,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 self._compilation_unit.structures_top_level.append(st)
                 self._structures_top_level_parser.append(st_parser)
+                referenceId = top_level_data["id"]
+                self.top_level_structures_by_id[referenceId] = st
 
             elif top_level_data[self.get_key()] == "EnumDefinition":
                 # Note enum don't need a complex parser, so everything is directly done
@@ -324,6 +349,9 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._compilation_unit.variables_top_level.append(var)
                 self._variables_top_level_parser.append(var_parser)
                 scope.variables[var.name] = var
+                referenceId = top_level_data["id"]
+                self.top_level_variables_by_id[referenceId] = var
+
             elif top_level_data[self.get_key()] == "FunctionDefinition":
                 func = FunctionTopLevel(self._compilation_unit, scope)
                 scope.functions.add(func)
@@ -342,6 +370,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 scope.custom_errors.add(custom_error)
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
+                referenceId = top_level_data["id"]
+                self.top_level_errors_by_id[referenceId] = custom_error
 
             elif top_level_data[self.get_key()] == "UserDefinedValueTypeDefinition":
                 assert "name" in top_level_data
@@ -360,6 +390,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 type_alias.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.type_aliases[alias] = type_alias
                 scope.type_aliases[alias] = type_alias
+                referenceId = top_level_data["id"]
+                self.top_level_type_aliases_by_id[referenceId] = type_alias
 
             elif top_level_data[self.get_key()] == "EventDefinition":
                 event = EventTopLevel(scope)
@@ -369,6 +401,8 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self._events_top_level_parser.append(event_parser)
                 scope.events.add(event)
                 self._compilation_unit.events_top_level.append(event)
+                referenceId = top_level_data["id"]
+                self.top_level_events_by_id[referenceId] = event
 
             else:
                 raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
@@ -431,19 +465,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         if self._parsed:
             # pylint: disable=broad-exception-raised
             raise Exception("Contract analysis can be run only once!")
-
-        # First we save all the contracts in a dict
-        # the key is the contractid
-        for contract in self._underlying_contract_to_parser:
-            if contract.name.startswith("SlitherInternalTopLevelContract"):
-                raise SlitherException(
-                    # region multi-line-string
-                    """Your codebase has a contract named 'SlitherInternalTopLevelContract'.
-Please rename it, this name is reserved for Slither's internals"""
-                    # endregion multi-line
-                )
-            self._contracts_by_id[contract.id] = contract
-            self._compilation_unit.contracts.append(contract)
 
         def resolve_remapping_and_renaming(contract_parser: ContractSolc, want: str) -> Contract:
             contract_name = contract_parser.remapping[want]

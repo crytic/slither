@@ -6,7 +6,6 @@ from slither.core.variables import Variable
 from slither.core.solidity_types import UserDefinedType
 from slither.slithir.operations import Call, OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
-from slither.slithir.variables.constant import Constant
 from slither.slithir.variables.temporary import TemporaryVariable
 from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
