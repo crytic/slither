@@ -44,7 +44,7 @@ class SpotPriceDetector(AbstractDetector):
     WIKI_RECOMMENDATION = "Using spot price for calculations can lead to vulnerabilities. Make sure to validate the data before using it or consider use of TWAP oracles."
 
     # SafeMath functions for compatibility with solidity contracts < 0.8.0 version
-    SAFEMATH_FUNCTIONS = ["add", "sub", "mul", "div"]
+    SAFEMATH_FUNCTIONS = ["mul", "div"]
     # Uniswap interfaces
     UNISWAP_INTERFACES = ["IUniswapV3Pool", "IUniswapV2Pair"]
     # Suspicious calls for Uniswap
@@ -108,17 +108,20 @@ class SpotPriceDetector(AbstractDetector):
                     elif self.instance_of_call(ir, function_name, None):
                         nodes.append((node, None))
 
-                    elif self.instance_of_call(ir, "balanceOf", None):
-                        arguments = self.get_argument_of_high_level_call(ir)
-                        if first_node is not None and arguments[0] == first_arguments[0]:
-                            second_node = node
-                            nodes.append(([first_node, second_node], "BalanceOF"))
-                            first_node = None
-                            second_node = None
-                            first_arguments = []
-                        else:
-                            first_arguments = arguments
-                            first_node = node
+                if self.instance_of_call(ir, "balanceOf", None):
+                    arguments = self.get_argument_of_high_level_call(ir)
+                    if first_node is not None and arguments[0] == first_arguments[0]:
+                        second_node = node
+                        nodes.append(([first_node, second_node], "BalanceOF"))
+                        first_node = None
+                        second_node = None
+                        first_arguments = []
+                    else:
+                        first_arguments = arguments
+                        first_node = node
+                else:
+                    first_node = None
+                    first_arguments = []
         return nodes
 
     # def detect_any_fork_of_uniswap(self, function: FunctionContract, found_nodes) -> (Node, str):
@@ -157,8 +160,6 @@ class SpotPriceDetector(AbstractDetector):
         for ir in node.irs:
             if isinstance(ir, Binary):
                 if ir.type in (
-                    BinaryType.ADDITION,
-                    BinaryType.SUBTRACTION,
                     BinaryType.MULTIPLICATION,
                     BinaryType.DIVISION,
                 ):
@@ -197,19 +198,19 @@ class SpotPriceDetector(AbstractDetector):
         for spot_price in spot_price_classes:
             if spot_price.interface == "IUniswapV3Pool":
                 messages.append(
-                    f"Spot price usage detected in Uniswap V3 at {spot_price.node.source_mapping}\n"
+                    f"Method which could indicate usage of spot price was detected in Uniswap V3 at {spot_price.node.source_mapping}\n{spot_price.node}\n"
                 )
             elif spot_price.interface == "IUniswapV2Pair":
                 messages.append(
-                    f"Spot price usage detected in Uniswap V2 at {spot_price.node.source_mapping}\n"
+                    f"Method which could indicate usage of spot price was detected in Uniswap V2 at {spot_price.node.source_mapping}\n{spot_price.node}\n"
                 )
             elif spot_price.interface == "Fork":
                 messages.append(
-                    f"Spot price usage detected in Uniswap Fork at {spot_price.node.source_mapping}\n"
+                    f"Method which could indicate usage of spot price was detected in Uniswap Fork at {spot_price.node.source_mapping}\n{spot_price.node}\n"
                 )
             elif spot_price.interface == "BalanceOF":
                 messages.append(
-                    f"Spot price usage detected at {spot_price.node[0].source_mapping} and {spot_price.node[1].source_mapping}.\n"
+                    f"Method which could indicate usage of spot price was detected at {spot_price.node[0].source_mapping} and {spot_price.node[1].source_mapping}.\n{spot_price.node[0]}\n{spot_price.node[1]}\n"
                 )
         return messages
 
@@ -229,7 +230,9 @@ class SpotPriceDetector(AbstractDetector):
                 if node is not None:
                     self.IMPACT = DetectorClassification.HIGH
                     messages.append(self.generate_calc_messages(node))
-            messages = list(set(messages))
+            # It can contain duplication, sorted and unique messages.
+            # Sorting due to testing purposes
+            messages = sorted(list(set(messages)))
             res = self.generate_result(messages)
             results.append(res)
         return results
