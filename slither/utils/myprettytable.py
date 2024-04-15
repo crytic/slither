@@ -31,7 +31,8 @@ class MyPrettyTable:
             # In this case, we fall back to the default behavior (i.e. printing as much as possible)
             terminal_column = get_terminal_size((0, 0)).columns
             if terminal_column != 0:
-                self.max_width = terminal_column - 2
+                # We reduce slightly the max-width to take into account inconsistencies in terminals
+                self.max_width = terminal_column - 3
         else:
             self.max_width = max_width
 
