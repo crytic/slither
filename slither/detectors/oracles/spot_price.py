@@ -78,16 +78,6 @@ class SpotPriceDetector(AbstractDetector):
             return ir.arguments
         return []
 
-    # Detect balanceOf method usage
-    # def balance_of_spot_price(self, function) -> bool:
-        
-    #     for node in function.nodes:
-    #         for ir in node.irs:
-    #             # The indication of balanceOf method usage as spot price is by calling
-    #             # this functions two times in row for same argument
-             
-    #     return first_node, second_node
-
     # Detect oracle call
     def detect_oracle_call(self, function: FunctionContract, function_names, interface_names) -> (Node, str):
         nodes = []
@@ -116,23 +106,13 @@ class SpotPriceDetector(AbstractDetector):
                         first_node = None
                         second_node = None
                         first_arguments = []
+                        
                     else:
                         first_arguments = arguments
                         first_node = node
-                else:
-                    first_node = None
-                    first_arguments = []
+                    break
+            
         return nodes
-
-    # def detect_any_fork_of_uniswap(self, function: FunctionContract, found_nodes) -> (Node, str):
-    #     node = self.detect_oracle_call(function, "getReserves", None)
-    #     if node is None:
-    #         node = self.detect_oracle_call(function, "slot0", None)
-
-    #     for n in found_nodes:
-    #         if n.node == node:
-    #             return None, None
-    #     return node, "Fork"
 
     # Detect spot price usage
     # 1. Detect Uniswap V3
@@ -204,7 +184,7 @@ class SpotPriceDetector(AbstractDetector):
                 messages.append(
                     f"Method which could indicate usage of spot price was detected in Uniswap V2 at {spot_price.node.source_mapping}\n{spot_price.node}\n"
                 )
-            elif spot_price.interface == "Fork":
+            elif spot_price.interface == None:
                 messages.append(
                     f"Method which could indicate usage of spot price was detected in Uniswap Fork at {spot_price.node.source_mapping}\n{spot_price.node}\n"
                 )
@@ -228,7 +208,8 @@ class SpotPriceDetector(AbstractDetector):
             for spot_price in spot_price_usage:
                 node = self.are_calculations_made_with_spot_data(spot_price.node)
                 if node is not None:
-                    self.IMPACT = DetectorClassification.HIGH
+                    self.IMPACT = DetectorClassification.LOW
+                    self.CONFIDENCE = DetectorClassification.LOW
                     messages.append(self.generate_calc_messages(node))
             # It can contain duplication, sorted and unique messages.
             # Sorting due to testing purposes
