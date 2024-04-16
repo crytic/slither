@@ -156,15 +156,8 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
 
 # Create a named tuple that is serialization in json
 def json_serializable(cls):
-    # pylint: disable=unnecessary-comprehension
-    # TODO: the next line is a quick workaround to prevent pylint from crashing
-    # It can be removed once https://github.com/PyCQA/pylint/pull/3810 is merged
-    my_super = super
-
     def as_dict(self):
-        yield {
-            name: value for name, value in zip(self._fields, iter(my_super(cls, self).__iter__()))
-        }
+        yield dict(zip(self._fields, super(cls, self).__iter__()))
 
     cls.__iter__ = as_dict
     return cls
