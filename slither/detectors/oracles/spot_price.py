@@ -78,17 +78,23 @@ class SpotPriceDetector(AbstractDetector):
             return ir.arguments
         return []
 
+    @staticmethod
+    def different_address(first_ir: Operation, second_ir: Operation):
+        print(first_ir.destination, second_ir.destination)
+        if first_ir.destination != second_ir.destination:
+            return True
+        return False
+
     # Detect oracle call
     def detect_oracle_call(
         self, function: FunctionContract, function_names, interface_names
     ) -> (Node, str):
         nodes = []
         first_node = None
-        second_node = None
         first_arguments = []
         for node in function.nodes:
             for ir in node.irs:
-                for i in range(len(function_names)): # pylint: disable=consider-using-enumerate
+                for i in range(len(function_names)):  # pylint: disable=consider-using-enumerate
                     function_name = function_names[i]
                     interface_name = interface_names[i]
 
@@ -102,16 +108,21 @@ class SpotPriceDetector(AbstractDetector):
 
                 if self.instance_of_call(ir, "balanceOf", None):
                     arguments = self.get_argument_of_high_level_call(ir)
-                    if first_node is not None and arguments[0] == first_arguments[0]:
-                        second_node = node
-                        nodes.append(([first_node, second_node], "BalanceOF"))
+                    if (
+                        first_node is not None
+                        and arguments[0] == first_arguments[0]
+                        and self.different_address(first_node[1], ir)
+                    ):
+                        nodes.append(([first_node[0], node], "BalanceOF"))
                         first_node = None
-                        second_node = None
                         first_arguments = []
 
                     else:
                         first_arguments = arguments
-                        first_node = node
+                        first_node = (
+                            node,
+                            ir,
+                        )  # Node and ir which stores destination can be used for address var comparison
                     break
 
         return nodes
@@ -126,12 +137,12 @@ class SpotPriceDetector(AbstractDetector):
         for contract in self.contracts:
             for function in contract.functions:
 
-                oracle_call = self.detect_oracle_call(
+                oracle_calls = self.detect_oracle_call(
                     function,
                     ["slot0", "getReserves"],
                     ["IUniswapV3Pool", "IUniswapV2Pair"],
                 )
-                for call in oracle_call:
+                for call in oracle_calls:
                     spot_price_usage.append(SpotPriceUsage(call[0], call[1]))
 
         return spot_price_usage
@@ -192,7 +203,7 @@ class SpotPriceDetector(AbstractDetector):
                 )
             elif spot_price.interface == "BalanceOF":
                 messages.append(
-                    f"Method which could indicate usage of spot price was detected at {spot_price.node[0].source_mapping} and {spot_price.node[1].source_mapping}.\n{spot_price.node[0]}\n{spot_price.node[1]}\n"
+                    f"Method which could indicate usage of spot price was detected at {spot_price.node[0].source_mapping} and {spot_price.node[1].source_mapping}.\n{spot_price.node[0].irs}\n{spot_price.node[1]}\n"
                 )
         return messages
 
