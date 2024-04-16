@@ -87,8 +87,11 @@ def test_slithir_printer(solc_binary_path) -> None:
     assert "slither.core.solidity_types" not in output.data["description"]
 
 
-def test_external_call_printers() -> None:
-    compilation = compile_all((TEST_DATA_DIR / "test_external_calls" / "A.sol").as_posix()).pop()
+def test_external_call_printers(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.0")
+    compilation = compile_all(
+        (TEST_DATA_DIR / "test_external_calls" / "A.sol").as_posix(), solc=solc_path
+    ).pop()
     slither = Slither(compilation)
 
     printer = ExternalCallPrinter(slither, None)
