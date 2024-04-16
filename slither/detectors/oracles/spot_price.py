@@ -174,12 +174,16 @@ class SpotPriceDetector(AbstractDetector):
                     return True
         return False
     
-    def track_var(self, variable, node) -> bool:
+    # Track if the variable was assigned to different variable without change
+    @staticmethod
+    def track_var(variable, node) -> bool:
         temp_variable = None
         for ir in node.irs:
             if isinstance(ir, Assignment):
                 if str(ir.rvalue) == str(variable):
                     temp_variable = ir.lvalue
+            else: 
+                return variable
         if temp_variable is not None:
             for v in node.variables_written:
                 if str(v) == str(temp_variable):
