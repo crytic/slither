@@ -1,9 +1,10 @@
 from typing import List
 from slither.core.declarations.function_contract import FunctionContract
 from slither.detectors.abstract_detector import AbstractDetector
-from slither.slithir.operations import HighLevelCall, Operation, LibraryCall
+from slither.slithir.operations import HighLevelCall, Operation, LibraryCall, Assignment
+from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.slithir.variables.variable import Variable
-from slither.core.cfg.node import Node
+from slither.core.cfg.node import Node, recheable
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.slithir.operations import (
     Binary,
@@ -45,6 +46,9 @@ class SpotPriceDetector(AbstractDetector):
 
     # SafeMath functions for compatibility with solidity contracts < 0.8.0 version
     SAFEMATH_FUNCTIONS = ["mul", "div"]
+
+    # Uniswap calculations functions
+    CALC_FUNCTIONS = ["getAmountOut"]
     # Uniswap interfaces
     UNISWAP_INTERFACES = ["IUniswapV3Pool", "IUniswapV2Pair"]
     # Suspicious calls for Uniswap
@@ -163,6 +167,26 @@ class SpotPriceDetector(AbstractDetector):
                         return True
         return False
 
+    def calc_functions(self, node: Node) -> bool:
+        for ir in node.irs:
+            if isinstance(ir, HighLevelCall):
+                if ir.function.name in self.CALC_FUNCTIONS:
+                    return True
+        return False
+    
+    def track_var(self, variable, node) -> bool:
+        temp_variable = None
+        for ir in node.irs:
+            if isinstance(ir, Assignment):
+                if str(ir.rvalue) == str(variable):
+                    temp_variable = ir.lvalue
+        if temp_variable is not None:
+            for v in node.variables_written:
+                if str(v) == str(temp_variable):
+                    variable = v
+        return variable
+
+        
     # Check if calculations are made with spot data
     def are_calculations_made_with_spot_data(self, node: Node) -> Node:
 
@@ -174,13 +198,19 @@ class SpotPriceDetector(AbstractDetector):
         # Check if the node is used in calculations
         while node:
             variables = node[0].variables_written
-            for n in node[0].function.nodes:
-                if n == node[0]:
-                    continue
+            recheable_nodes = recheable(node[0])
+            changed_vars = []
+            for n in recheable_nodes:
                 for var in variables:
+                    changed_vars.append(self.track_var(var, n))
+            for n in recheable_nodes:
+                for var in changed_vars:
                     if var in n.variables_read:
                         if self.detect_arithmetic_operations(n):
                             return n
+                        elif self.calc_functions(n):
+                            return n
+
             node.pop()
         return None
 
@@ -203,7 +233,7 @@ class SpotPriceDetector(AbstractDetector):
                 )
             elif spot_price.interface == "BalanceOF":
                 messages.append(
-                    f"Method which could indicate usage of spot price was detected at {spot_price.node[0].source_mapping} and {spot_price.node[1].source_mapping}.\n{spot_price.node[0].irs}\n{spot_price.node[1]}\n"
+                    f"Method which could indicate usage of spot price was detected at {spot_price.node[0].source_mapping} and {spot_price.node[1].source_mapping}.\n{spot_price.node[0]}\n{spot_price.node[1]}\n"
                 )
         return messages
 
