@@ -1875,9 +1875,8 @@ GENERIC_PATH = "/GENERIC_PATH"
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
 
-# pylint: disable=too-many-locals
-@pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
-def test_detector(test_item: Test, snapshot):
+
+def load_from_crytic(test_item: Test):
     test_dir_path = Path(
         TEST_DATA_DIR,
         test_item.detector.ARGUMENT,
@@ -1886,9 +1885,36 @@ def test_detector(test_item: Test, snapshot):
     test_file_path = Path(test_dir_path, test_item.test_file).as_posix()
 
     zip_artifact_path = Path(f"{test_file_path}-{test_item.solc_ver}.zip").as_posix()
-    crytic_compile = load_from_zip(zip_artifact_path)[0]
+    return load_from_zip(zip_artifact_path).pop()
+
+
+# pylint: disable=too-many-locals
+@pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
+def test_detector(test_item: Test, snapshot):
+    crytic_compile = load_from_crytic(test_item)
 
     sl = Slither(crytic_compile)
+    sl.register_detector(test_item.detector)
+    results = sl.run_detectors()
+
+    actual_output = ""
+    for detector_result in results:
+        for result in detector_result:
+            actual_output += result["description"]
+            actual_output += "\n"
+    assert snapshot() == actual_output
+
+
+def id_test_exclude_location(test_item: Test):
+    return f"{test_item.detector.__name__}-{test_item.solc_ver}-{test_item.test_file}-exclude"
+
+
+# Let no rerun every test, but only a subset of them
+@pytest.mark.parametrize("test_item", ALL_TESTS[::5], ids=id_test_exclude_location)
+def test_exclude_location(test_item, snapshot):
+    crytic_compile = load_from_crytic(test_item)
+
+    sl = Slither(crytic_compile, exclude_location=True)
     sl.register_detector(test_item.detector)
     results = sl.run_detectors()
 

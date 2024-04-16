@@ -1,0 +1,3 @@
+A.check(uint256) compares a variable to itself:
+	(a >= a)
+

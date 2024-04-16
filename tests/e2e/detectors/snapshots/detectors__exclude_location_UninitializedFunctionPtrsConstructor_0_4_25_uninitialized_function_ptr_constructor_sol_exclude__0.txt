@@ -1,0 +1,12 @@
+Contract bad2 
+	 s.a(10) is an unintialized function pointer call in a constructor
+
+Contract bad0 
+	 a(10) is an unintialized function pointer call in a constructor
+
+Contract bad3 
+	 a(10) is an unintialized function pointer call in a constructor
+
+Contract bad1 
+	 b(10) is an unintialized function pointer call in a constructor
+

@@ -1,0 +1,2 @@
+C.f() contains an incorrect shift operation: a = 8 >> a
+

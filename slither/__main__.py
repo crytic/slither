@@ -401,6 +401,13 @@ def parse_args(
         default=defaults_flag_in_config["exclude_high"],
     )
 
+    group_detector.add_argument(
+        "--exclude-location",
+        help="Exclude location information from detector output",
+        action="store_true",
+        default=defaults_flag_in_config["exclude_location"],
+    )
+
     fail_on_group = group_detector.add_mutually_exclusive_group()
     fail_on_group.add_argument(
         "--fail-pedantic",

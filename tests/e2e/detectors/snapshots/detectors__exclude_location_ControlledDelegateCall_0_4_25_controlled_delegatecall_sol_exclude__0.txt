@@ -1,0 +1,6 @@
+C.bad_delegate_call2(bytes) uses delegatecall to a input-controlled function id
+	- addr_bad.delegatecall(abi.encode(func_id,data))
+
+C.bad_delegate_call(bytes) uses delegatecall to a input-controlled function id
+	- addr_bad.delegatecall(data)
+

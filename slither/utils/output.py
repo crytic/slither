@@ -229,7 +229,7 @@ def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: 
 ###################################################################################
 
 
-def _convert_to_description(d: str) -> str:
+def _convert_to_description(d: Any, exclude_location: bool = False) -> str:
     if isinstance(d, str):
         return d
 
@@ -237,38 +237,41 @@ def _convert_to_description(d: str) -> str:
         raise SlitherError(f"{d} does not inherit from SourceMapping, conversion impossible")
 
     if isinstance(d, Node):
-        if d.expression:
-            return f"{d.expression} ({d.source_mapping})"
-        return f"{str(d)} ({d.source_mapping})"
+        first_part = f"{d.expression}" if d.expression else f"{str(d)}"
+    elif hasattr(d, "canonical_name"):
+        first_part = f"{d.canonical_name}"
+    elif hasattr(d, "name"):
+        first_part = f"{d.name}"
+    else:
+        raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
-    if hasattr(d, "canonical_name"):
-        return f"{d.canonical_name} ({d.source_mapping})"
+    if exclude_location:
+        return first_part
 
-    if hasattr(d, "name"):
-        return f"{d.name} ({d.source_mapping})"
-
-    raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
+    return f"{first_part} ({d.source_mapping})"
 
 
-def _convert_to_markdown(d: str, markdown_root: str) -> str:
+def _convert_to_markdown(d: str, markdown_root: str, exclude_location: bool = False) -> str:
     if isinstance(d, str):
         return d
 
     if not isinstance(d, SourceMapping):
         raise SlitherError(f"{d} does not inherit from SourceMapping, conversion impossible")
 
+    first_part: str
     if isinstance(d, Node):
-        if d.expression:
-            return f"[{d.expression}]({d.source_mapping.to_markdown(markdown_root)})"
-        return f"[{str(d)}]({d.source_mapping.to_markdown(markdown_root)})"
+        first_part = f"[{d.expression}]" if d.expression else f"[{str(d)}]"
+    elif hasattr(d, "canonical_name"):
+        first_part = f"[{d.canonical_name}]"
+    elif hasattr(d, "name"):
+        first_part = f"[{d.name}]"
+    else:
+        raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
-    if hasattr(d, "canonical_name"):
-        return f"[{d.canonical_name}]({d.source_mapping.to_markdown(markdown_root)})"
+    if exclude_location:
+        return first_part
 
-    if hasattr(d, "name"):
-        return f"[{d.name}]({d.source_mapping.to_markdown(markdown_root)})"
-
-    raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
+    return f"{first_part}({d.source_mapping.to_markdown(markdown_root)})"
 
 
 def _convert_to_id(d: str) -> str:
@@ -386,12 +389,13 @@ AllSupportedOutput = Union[str, SupportedOutput]
 
 
 class Output:
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         info_: Union[str, List[Union[str, SupportedOutput]]],
         additional_fields: Optional[Dict] = None,
         markdown_root: str = "",
         standard_format: bool = True,
+        exclude_location: bool = False,
     ) -> None:
         if additional_fields is None:
             additional_fields = {}
@@ -405,8 +409,12 @@ class Output:
 
         self._data = OrderedDict()
         self._data["elements"] = []
-        self._data["description"] = "".join(_convert_to_description(d) for d in info)
-        self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
+        self._data["description"] = "".join(
+            _convert_to_description(d, exclude_location) for d in info
+        )
+        self._data["markdown"] = "".join(
+            _convert_to_markdown(d, markdown_root, exclude_location) for d in info
+        )
         self._data["first_markdown_element"] = ""
         self._markdown_root = markdown_root
 

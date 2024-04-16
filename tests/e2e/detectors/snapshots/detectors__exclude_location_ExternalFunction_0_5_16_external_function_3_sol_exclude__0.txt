@@ -1,0 +1,20 @@
+bad4(string) should be declared external:
+	- Test.bad4(string)
+Moreover, the following function parameters should change its data location:
+x location should be calldata
+
+bad3(Test.testStruct) should be declared external:
+	- Test.bad3(Test.testStruct)
+Moreover, the following function parameters should change its data location:
+x location should be calldata
+
+bad2(uint256[]) should be declared external:
+	- Test.bad2(uint256[])
+Moreover, the following function parameters should change its data location:
+x location should be calldata
+
+bad(bytes) should be declared external:
+	- Test.bad(bytes)
+Moreover, the following function parameters should change its data location:
+x location should be calldata
+
