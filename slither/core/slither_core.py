@@ -351,8 +351,8 @@ class SlitherCore(Context):
 
         if action == FilteringAction.ALLOW:
             return False
-        else:
-            return True
+
+        return True
 
     def filter_function(self, function: "FunctionContract") -> bool:
         """Checks within the filter if this function should be excluded."""
@@ -368,8 +368,8 @@ class SlitherCore(Context):
 
         if action == FilteringAction.ALLOW:
             return False
-        else:
-            return True
+
+        return True
 
     def parse_ignore_comments(self, file: str) -> None:
         # The first time we check a file, find all start/end ignore comments and memoize them.

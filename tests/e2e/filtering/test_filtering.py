@@ -84,6 +84,7 @@ def test_filtering():
     ):
 
         # First, reset any results
+        # pylint: disable=protected-access
         sl._currently_seen_resuts = set()
 
         # Set up default action
@@ -192,14 +193,14 @@ def get_default_namespace(
     filter_paths: Union[str, None] = None,
     include: Union[str, None] = None,
     remove: Union[str, None] = None,
-    filter: Union[str, None] = None,
+    filter_arg: Union[str, None] = None,
 ) -> Namespace:
     return Namespace(
         include_paths=include_paths,
         filter_paths=filter_paths,
         include=include,
         remove=remove,
-        filter=filter,
+        filter=filter_arg,
     )
 
 
@@ -256,7 +257,7 @@ def test_filtering_cl_full():
 
 
 def test_filtering_cl_filter():
-    parsed_args = parse_filter_paths(get_default_namespace(filter="sub1/,-sub1/sub12/"))
+    parsed_args = parse_filter_paths(get_default_namespace(filter_arg="sub1/,-sub1/sub12/"))
     assert parsed_args == [
         FilteringRule(
             type=FilteringAction.ALLOW,
@@ -271,10 +272,10 @@ def test_filtering_cl_filter():
 
 def test_invalid_regex():
     with pytest.raises(ValueError):
-        parse_filter_paths(get_default_namespace(filter="sub1(/"))
+        parse_filter_paths(get_default_namespace(filter_arg="sub1(/"))
 
     with pytest.raises(ValueError):
-        parse_filter_paths(get_default_namespace(filter=":not-matching:"))
+        parse_filter_paths(get_default_namespace(filter_arg=":not-matching:"))
 
 
 @pytest.mark.skipif(
@@ -285,6 +286,7 @@ def test_filtering_printer():
         sl: Slither, filtering_rules: List[FilteringRule], default_action: FilteringAction
     ):
         sl.filters = filtering_rules
+        # pylint: disable=protected-access
         sl._contracts = []  # Reset the list of contracts so it gets recomputed
         sl.default_action = default_action
         return DummyPrinter.analyze_dummy_output(sl.run_printers().pop())

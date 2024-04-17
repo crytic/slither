@@ -20,7 +20,6 @@ from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
-from slither.core.filtering import FilteringRule
 from slither.core.scope.scope import FileScope
 from slither.core.solidity_types.type_alias import TypeAliasTopLevel
 from slither.core.variables.state_variable import StateVariable

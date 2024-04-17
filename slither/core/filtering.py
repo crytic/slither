@@ -36,7 +36,7 @@ class FilteringRule:
 
         # If we have no constraint, we just follow the default rule
         if self.path is None and self.contract is None:
-            return True if self.type == FilteringAction.ALLOW else False
+            return self.type == FilteringAction.ALLOW
 
         path_match = None
         if self.path is not None:
@@ -48,17 +48,19 @@ class FilteringRule:
 
         if path_match is None:
             return contract_match
-        elif contract_match is None:
+
+        if contract_match is None:
             return path_match
-        elif contract_match and path_match:
+
+        if contract_match and path_match:
             return True
-        else:
-            return False
+
+        return False
 
     def match_function(self, function: "FunctionContract") -> bool:
         """Check if this filter apply to this element."""
         # If we have no constraint, follow default rule
         if self.function is None:
-            return True if self.type == FilteringAction.ALLOW else False
+            return self.type == FilteringAction.ALLOW
 
         return bool(re.search(self.function, function.name))

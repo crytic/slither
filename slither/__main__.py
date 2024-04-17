@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import argparse
 import cProfile
 import glob
@@ -52,6 +51,8 @@ from slither.utils.command_line import (
     check_and_sanitize_markdown_root,
 )
 from slither.exceptions import SlitherException
+
+# pylint: disable=too-many-lines
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
@@ -300,8 +301,8 @@ def parse_filter_paths(args: argparse.Namespace) -> List[FilteringRule]:
                     if match.group("function")
                     else None,
                 )
-            except re.error:
-                raise ValueError(f"Unable to parse option {element}, invalid regex.")
+            except re.error as exc:
+                raise ValueError(f"Unable to parse option {element}, invalid regex.") from exc
 
         raise ValueError(f"Unable to parse option {element}")
 
@@ -375,7 +376,7 @@ def parse_args(
             the target for the detectors and/or printers can be restricted using these options.
 
             The filtering allow to to select directories, files, contract and functions. Each part 
-            is compiled as a regex (so A*\.sol) will match every file that starts with A and ends with .sol. 
+            is compiled as a regex (so A*.sol) will match every file that starts with A and ends with .sol. 
             Examples :
 
                 - `sub1/A.sol:A.constructor` will analyze only the function named constructor in the contract A
@@ -737,9 +738,6 @@ def parse_args(
 
     args = parser.parse_args()
     read_config_file(args)
-
-    # args.filter_paths = parse_filter_paths(args, True)
-    # args.include_paths = parse_filter_paths(args, False)
     args.filters = parse_filter_paths(args)
 
     # Verify our json-type output is valid
