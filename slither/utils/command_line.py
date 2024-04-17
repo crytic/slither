@@ -59,8 +59,12 @@ defaults_flag_in_config = {
     "sarif": None,
     "json-types": ",".join(DEFAULT_JSON_OUTPUT_TYPES),
     "disable_color": False,
-    "filter_paths": None,
-    "include_paths": None,
+    # Filtering
+    "filter_paths": None,  # deprecated
+    "include_paths": None,  # deprecated
+    "include": None,
+    "remove": None,
+    "filter": None,
     "generate_patches": False,
     # debug command
     "skip_assembly": False,

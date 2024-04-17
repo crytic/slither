@@ -5,6 +5,7 @@ from crytic_compile import CryticCompile, InvalidCompilation
 
 # pylint: disable= no-name-in-module
 from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.core.filtering import FilteringRule, FilteringAction
 from slither.core.slither_core import SlitherCore
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.exceptions import SlitherError
@@ -100,7 +101,7 @@ class Slither(
             disable_solc_warnings (bool): True to disable solc warnings (default false)
             solc_args (str): solc arguments (default '')
             ast_format (str): ast format (default '--ast-compact-json')
-            filter_paths (list(str)): list of path to filter (default [])
+            filters: list of FilteredElements (default [])
             triage_mode (bool): if true, switch to triage mode (default false)
             exclude_dependencies (bool): if true, exclude results that are only related to dependencies
             generate_patches (bool): if true, patches are generated (json output only)
@@ -165,7 +166,7 @@ class Slither(
                             # endregion multi-line
                         )
                     sol_parser._contracts_by_id[contract.id] = contract
-                    sol_parser._compilation_unit.contracts.append(contract)
+                    sol_parser._compilation_unit.add_contract(contract)
 
                 _update_file_scopes(sol_parser)
 
@@ -177,13 +178,10 @@ class Slither(
         self._detectors = []
         self._printers = []
 
-        filter_paths = kwargs.get("filter_paths", [])
-        for p in filter_paths:
-            self.add_path_to_filter(p)
-
-        include_paths = kwargs.get("include_paths", [])
-        for p in include_paths:
-            self.add_path_to_include(p)
+        # Initialize the filtering system
+        self.filters: List[FilteringRule] = kwargs.get("filters", [])
+        if any(filter.type == FilteringAction.ALLOW for filter in self.filters):
+            self.default_action = FilteringAction.REJECT
 
         self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
 
