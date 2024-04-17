@@ -49,7 +49,7 @@ class SpotPriceDetector(AbstractDetector):
     # Uniswap calculations functions
     CALC_FUNCTIONS = ["getAmountOut"]
     # Protected functions
-    PROTECTED_FUNCTIONS = ["currentCumulativePrices"]
+    PROTECTED_FUNCTIONS = ["currentCumulativePrices", "price1CumulativeLast", "price0CumulativeLast"]
     # Uniswap interfaces
     UNISWAP_INTERFACES = ["IUniswapV3Pool", "IUniswapV2Pair"]
     # Suspicious calls for Uniswap
@@ -78,6 +78,11 @@ class SpotPriceDetector(AbstractDetector):
 
         return False
 
+    def ignore_function(self, ir) -> bool:
+        for function in self.PROTECTED_FUNCTIONS:
+            if self.instance_of_call(ir, function, None):
+                return True
+        return False
     # Get the arguments of the high level call
     @staticmethod
     def get_argument_of_high_level_call(ir: Operation) -> List[Variable]:
@@ -87,7 +92,7 @@ class SpotPriceDetector(AbstractDetector):
 
     @staticmethod
     def different_address(first_ir: Operation, second_ir: Operation):
-        if first_ir.destination != second_ir.destination:
+        if hasattr(first_ir, "destination") and hasattr(first_ir, "destination") and first_ir.destination != second_ir.destination:
             return True
         return False
 
@@ -101,14 +106,21 @@ class SpotPriceDetector(AbstractDetector):
         nodes = []
         first_node = None
         first_arguments = []
+        # For finding next node
+        counter = 0
         for node in function.nodes:
             for ir in node.irs:
                 for i in range(len(function_names)):  # pylint: disable=consider-using-enumerate
                     function_name = function_names[i]
                     interface_name = interface_names[i]
 
+                    if self.ignore_function(ir):
+                        return []
                     # Detect UniswapV3 or UniswapV2
-                    if self.instance_of_call(ir, function_name, interface_name):
+                    elif self.instance_of_call(ir, function_name, interface_name):
+                        if interface_name == "IUniswapV3Pool":
+                             if not self.slot0_returned_price(node.variables_written):
+                                 continue
                         nodes.append((node, interface_name))
 
                     # Detect any fork of Uniswap
@@ -120,7 +132,7 @@ class SpotPriceDetector(AbstractDetector):
                     if (
                         first_node is not None
                         and arguments[0] == first_arguments[0]
-                        and self.different_address(first_node[1], ir)
+                        and self.different_address(first_node[1], ir) and counter == 1
                     ):
                         nodes.append(([first_node[0], node], "BalanceOF"))
                         first_node = None
@@ -132,7 +144,9 @@ class SpotPriceDetector(AbstractDetector):
                             node,
                             ir,
                         )  # Node and ir which stores destination can be used for address var comparison
+                        counter = 0
                     break
+                counter += 1
 
         return nodes
 
@@ -170,6 +184,9 @@ class SpotPriceDetector(AbstractDetector):
                 if hasattr(ir, "function"):
                     if ir.function.name in self.SAFEMATH_FUNCTIONS:
                         return True
+            # if arithmetic_op:
+            #     if "FixedPoint.fraction" in str(node):
+            #         return False
         return False
 
     def calc_functions(self, node: Node) -> bool:
@@ -180,12 +197,24 @@ class SpotPriceDetector(AbstractDetector):
         return False
     
     # Check if slot0 returned price value
-    def slot0_returned_price(self, variables) -> bool:
+    @staticmethod
+    def slot0_returned_price(variables) -> bool:
         for var in variables:
             # sqrtPricex96 is type uint160 and only var of this type is returned by slot0
             if hasattr(var, "type") and str(var.type) == "uint160":
                 return True
         return False
+    
+    # Check getReserves vars
+    # reserve0 and reserve1 are of type uint112 or someone could directly cast them to uint256
+    @staticmethod
+    def check_reserve_var(var, interface) -> bool:
+        if interface == "IUniswapV2Pair":
+            if hasattr(var, "type") and str(var.type) == "uint112" or str(var.type) == "uint256":
+                return True
+            else:
+                return False
+        return True
     # Track if the variable was assigned to different variable without change
     @staticmethod
     def track_var(variable, node) -> bool:
@@ -215,9 +244,6 @@ class SpotPriceDetector(AbstractDetector):
         nodes = []
         while node:
             variables = node[0].variables_written
-            if interface == "IUniswapV3Pool":
-                if not self.slot0_returned_price(variables):
-                    return nodes
             recheable_nodes = recheable(node[0])
             changed_vars = []
             for n in recheable_nodes:
@@ -226,6 +252,8 @@ class SpotPriceDetector(AbstractDetector):
             for n in recheable_nodes:
                 for var in changed_vars:
                     if var in n.variables_read:
+                        if not self.check_reserve_var(var, interface):
+                            continue
                         # Check if the variable is used in arithmetic operations
                         if self.detect_arithmetic_operations(n):
                             nodes.append(n)
