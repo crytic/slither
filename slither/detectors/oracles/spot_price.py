@@ -46,9 +46,10 @@ class SpotPriceDetector(AbstractDetector):
 
     # SafeMath functions for compatibility with solidity contracts < 0.8.0 version
     SAFEMATH_FUNCTIONS = ["mul", "div"]
-
     # Uniswap calculations functions
     CALC_FUNCTIONS = ["getAmountOut"]
+    # Protected functions
+    PROTECTED_FUNCTIONS = ["currentCumulativePrices"]
     # Uniswap interfaces
     UNISWAP_INTERFACES = ["IUniswapV3Pool", "IUniswapV2Pair"]
     # Suspicious calls for Uniswap
@@ -59,6 +60,8 @@ class SpotPriceDetector(AbstractDetector):
     @staticmethod
     def instance_of_call(ir: Operation, function_name, interface_name) -> bool:
         if isinstance(ir, HighLevelCall):
+            if not hasattr(ir.function, "name") or not hasattr(ir.destination, "type"):
+                return False
             if isinstance(ir.destination, Variable):
                 if function_name is not None and interface_name is not None:
                     if (
@@ -84,7 +87,6 @@ class SpotPriceDetector(AbstractDetector):
 
     @staticmethod
     def different_address(first_ir: Operation, second_ir: Operation):
-        print(first_ir.destination, second_ir.destination)
         if first_ir.destination != second_ir.destination:
             return True
         return False
@@ -93,6 +95,9 @@ class SpotPriceDetector(AbstractDetector):
     def detect_oracle_call(
         self, function: FunctionContract, function_names, interface_names
     ) -> (Node, str):
+        # Ignore cases with TWAP functions
+        if function.name in self.PROTECTED_FUNCTIONS:
+            return []
         nodes = []
         first_node = None
         first_arguments = []
@@ -174,6 +179,13 @@ class SpotPriceDetector(AbstractDetector):
                     return True
         return False
     
+    # Check if slot0 returned price value
+    def slot0_returned_price(self, variables) -> bool:
+        for var in variables:
+            # sqrtPricex96 is type uint160 and only var of this type is returned by slot0
+            if hasattr(var, "type") and str(var.type) == "uint160":
+                return True
+        return False
     # Track if the variable was assigned to different variable without change
     @staticmethod
     def track_var(variable, node) -> bool:
@@ -192,7 +204,7 @@ class SpotPriceDetector(AbstractDetector):
 
         
     # Check if calculations are made with spot data
-    def are_calculations_made_with_spot_data(self, node: Node) -> Node:
+    def are_calculations_made_with_spot_data(self, node: Node, interface: str) -> Node:
 
         # For the case when the node is not a list, create a list
         # This is done to make compatibility with balanceOf method usage which returns two nodes
@@ -200,8 +212,12 @@ class SpotPriceDetector(AbstractDetector):
             node = [node]
 
         # Check if the node is used in calculations
+        nodes = []
         while node:
             variables = node[0].variables_written
+            if interface == "IUniswapV3Pool":
+                if not self.slot0_returned_price(variables):
+                    return nodes
             recheable_nodes = recheable(node[0])
             changed_vars = []
             for n in recheable_nodes:
@@ -210,13 +226,15 @@ class SpotPriceDetector(AbstractDetector):
             for n in recheable_nodes:
                 for var in changed_vars:
                     if var in n.variables_read:
+                        # Check if the variable is used in arithmetic operations
                         if self.detect_arithmetic_operations(n):
-                            return n
+                            nodes.append(n)
+                        # Check if the variable is used in calculation functions
                         elif self.calc_functions(n):
-                            return n
+                            nodes.append(n)
 
             node.pop()
-        return None
+        return nodes
 
     # Generate informative messages for the detected spot price usage
     @staticmethod
@@ -253,11 +271,12 @@ class SpotPriceDetector(AbstractDetector):
             messages = self.generate_informative_messages(spot_price_usage)
 
             for spot_price in spot_price_usage:
-                node = self.are_calculations_made_with_spot_data(spot_price.node)
-                if node is not None:
+                node = self.are_calculations_made_with_spot_data(spot_price.node, spot_price.interface)
+                if node:
                     self.IMPACT = DetectorClassification.LOW
                     self.CONFIDENCE = DetectorClassification.LOW
-                    messages.append(self.generate_calc_messages(node))
+                    for n in node:
+                        messages.append(self.generate_calc_messages(n))
             # It can contain duplication, sorted and unique messages.
             # Sorting due to testing purposes
             messages = sorted(list(set(messages)))
