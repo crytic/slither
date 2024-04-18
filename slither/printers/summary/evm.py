@@ -1,12 +1,17 @@
 """
     Module printing evm mapping of the contract
 """
+import logging
+
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.analyses.evm import (
     generate_source_to_evm_ins_mapping,
     load_evm_cfg_builder,
 )
 from slither.utils.colors import blue, green, magenta, red
+
+
+logger: logging.Logger = logging.getLogger("EVMPrinter")
 
 
 def _extract_evm_info(slither):
@@ -24,6 +29,16 @@ def _extract_evm_info(slither):
         contract_bytecode_runtime = contract.file_scope.bytecode_runtime(
             contract.compilation_unit.crytic_compile_compilation_unit, contract.name
         )
+
+        if not contract_bytecode_runtime:
+            logger.info(
+                "Contract %s (abstract: %r) has no bytecode runtime, skipping. ",
+                contract.name,
+                contract.is_abstract,
+            )
+            evm_info["empty", contract.name] = True
+            continue
+
         contract_srcmap_runtime = contract.file_scope.srcmap_runtime(
             contract.compilation_unit.crytic_compile_compilation_unit, contract.name
         )
@@ -79,6 +94,10 @@ class PrinterEVM(AbstractPrinter):
 
         for contract in self.slither.contracts_derived:
             txt += blue(f"Contract {contract.name}\n")
+
+            if evm_info.get(("empty", contract.name), False):
+                txt += "\tempty contract\n"
+                continue
 
             contract_file = self.slither.source_code[
                 contract.source_mapping.filename.absolute
