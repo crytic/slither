@@ -4,10 +4,10 @@ import logging
 import os
 import zipfile
 from collections import OrderedDict
+from importlib import metadata
 from typing import Tuple, Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
 from zipfile import ZipFile
 
-from pkg_resources import require
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import (
@@ -165,7 +165,7 @@ def output_to_sarif(
                     "driver": {
                         "name": "Slither",
                         "informationUri": "https://github.com/crytic/slither",
-                        "version": require("slither-analyzer")[0].version,
+                        "version": metadata.version("slither-analyzer"),
                         "rules": [],
                     }
                 },

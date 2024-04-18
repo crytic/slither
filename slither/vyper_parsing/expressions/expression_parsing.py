@@ -153,10 +153,10 @@ def parse_expression(
                 parsed_expr.set_offset(expression.src, caller_context.compilation_unit)
                 return parsed_expr
 
+            # `raw_call` and `send` are treated specially in order to force `extract_tmp_call` to treat this as a `HighLevelCall` which will be converted
+            # to a `LowLevelCall` by `convert_to_low_level`. This is an artifact of the late conversion of Solidity...
             if called.value.name == "raw_call()":
                 args = [parse_expression(a, caller_context) for a in expression.args]
-                # This is treated specially in order to force `extract_tmp_call` to treat this as a `HighLevelCall` which will be converted
-                # to a `LowLevelCall` by `convert_to_low_level`. This is an artifact of the late conversion of Solidity...
                 call = CallExpression(
                     MemberAccess("raw_call", "tuple(bool,bytes32)", args[0]),
                     args[1:],
@@ -180,6 +180,17 @@ def parse_expression(
                     None,
                 )
                 # TODO handle `max_outsize` keyword
+
+                return call
+
+            if called.value.name == "send()":
+                args = [parse_expression(a, caller_context) for a in expression.args]
+                call = CallExpression(
+                    MemberAccess("send", "tuple()", args[0]),
+                    args[1:],
+                    "tuple()",
+                )
+                call.set_offset(expression.src, caller_context.compilation_unit)
 
                 return call
 
