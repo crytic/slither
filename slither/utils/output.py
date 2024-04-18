@@ -88,10 +88,10 @@ def _output_result_to_sarif(
         risk = "3.0"
 
     detector_class = next((d for d in detectors_classes if d.ARGUMENT == detector["check"]), None)
-    if detector_class == None:
+    if detector_class is None:
         logger.info(yellow(f"Detector {detector['check']} not found in the detectors classes"))
         return
-    
+
     check_id = (
         str(detector_class.IMPACT.value)
         + "-"
