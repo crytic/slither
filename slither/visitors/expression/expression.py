@@ -17,6 +17,9 @@ from slither.core.expressions.new_elementary_type import NewElementaryType
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.unary_operation import UnaryOperation
+from slither.core.expressions.super_call_expression import SuperCallExpression
+from slither.core.expressions.super_identifier import SuperIdentifier
+from slither.core.expressions.self_identifier import SelfIdentifier
 from slither.exceptions import SlitherError
 
 logger = logging.getLogger("ExpressionVisitor")
@@ -40,7 +43,10 @@ def get_visitor_mapping():
         NewElementaryType: '_visit_new_elementary_type',
         TupleExpression: '_visit_tuple_expression',
         TypeConversion: '_visit_type_conversion',
-        UnaryOperation: '_visit_unary_operation'
+        UnaryOperation: '_visit_unary_operation',
+        SelfIdentifier: '_visit_identifier',
+        SuperIdentifier: '_visit_identifier',
+        SuperCallExpression: '_visit_call_expression',
     }
 
 
