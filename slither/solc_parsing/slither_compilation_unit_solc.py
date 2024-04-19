@@ -1,3 +1,4 @@
+import concurrent.futures
 from collections import defaultdict
 import json
 import logging
@@ -71,6 +72,64 @@ def _handle_import_aliases(
                 raise SlitherException(
                     "Cannot resolve local alias for import directive due to malformed AST. Please upgrade to solc 0.6.0 or higher."
                 )
+
+
+def generate_slithir_contract(contract):
+    contract.add_constructor_variables()
+
+    for func in contract.functions + contract.modifiers:
+        try:
+            func.generate_slithir_and_analyze()
+
+        except AttributeError as e:
+            # This can happen for example if there is a call to an interface
+            # And the interface is redefined due to contract's name reuse
+            # But the available version misses some functions
+            # self._underlying_contract_to_parser[contract].log_incorrect_parsing(
+            #     f"Impossible to generate IR for {contract.name}.{func.name} ({func.source_mapping}):\n {e}"
+            # )
+            # TODO(dm)
+            pass
+        except Exception as e:
+            func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+            logger.error(
+                f"\nFailed to generate IR for {contract.name}.{func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{contract.name}.{func.name} ({func.source_mapping}):\n "
+                f"{func_expressions}"
+            )
+            raise e
+    try:
+        contract.convert_expression_to_slithir_ssa()
+    except Exception as exc:
+        logger.error(
+            f"\nFailed to convert IR to SSA for {contract.name} contract. Please open an issue https://github.com/crytic/slither/issues.\n "
+        )
+        raise exc
+
+
+def generate_slithir_function(func):
+    try:
+        func.generate_slithir_and_analyze()
+    except AttributeError as e:
+        logger.error(
+            f"Impossible to generate IR for top level function {func.name} ({func.source_mapping}):\n {e}"
+        )
+    except Exception as e:
+        func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+        logger.error(
+            f"\nFailed to generate IR for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
+            f"{func_expressions}"
+        )
+        raise e
+
+    try:
+        func.generate_slithir_ssa({})
+    except Exception as e:
+        func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+        logger.error(
+            f"\nFailed to convert IR to SSA for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
+            f"{func_expressions}"
+        )
+        raise e
 
 
 class SlitherCompilationUnitSolc(CallerContextExpression):
@@ -803,60 +862,22 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         contract.set_is_analyzed(True)
 
     def _convert_to_slithir(self) -> None:
-
         for contract in self._compilation_unit.contracts:
-            contract.add_constructor_variables()
+            generate_slithir_contract(contract)
 
-            for func in contract.functions + contract.modifiers:
-                try:
-                    func.generate_slithir_and_analyze()
-
-                except AttributeError as e:
-                    # This can happens for example if there is a call to an interface
-                    # And the interface is redefined due to contract's name reuse
-                    # But the available version misses some functions
-                    self._underlying_contract_to_parser[contract].log_incorrect_parsing(
-                        f"Impossible to generate IR for {contract.name}.{func.name} ({func.source_mapping}):\n {e}"
-                    )
-                except Exception as e:
-                    func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
-                    logger.error(
-                        f"\nFailed to generate IR for {contract.name}.{func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{contract.name}.{func.name} ({func.source_mapping}):\n "
-                        f"{func_expressions}"
-                    )
-                    raise e
-            try:
-                contract.convert_expression_to_slithir_ssa()
-            except Exception as e:
-                logger.error(
-                    f"\nFailed to convert IR to SSA for {contract.name} contract. Please open an issue https://github.com/crytic/slither/issues.\n "
-                )
-                raise e
-
-        for func in self._compilation_unit.functions_top_level:
-            try:
-                func.generate_slithir_and_analyze()
-            except AttributeError as e:
-                logger.error(
-                    f"Impossible to generate IR for top level function {func.name} ({func.source_mapping}):\n {e}"
-                )
-            except Exception as e:
-                func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
-                logger.error(
-                    f"\nFailed to generate IR for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
-                    f"{func_expressions}"
-                )
-                raise e
-
-            try:
-                func.generate_slithir_ssa({})
-            except Exception as e:
-                func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
-                logger.error(
-                    f"\nFailed to convert IR to SSA for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
-                    f"{func_expressions}"
-                )
-                raise e
+        for function in self._compilation_unit.functions_top_level:
+            generate_slithir_function(function)
+        #
+        # with concurrent.futures.ProcessPoolExecutor() as executor:
+        #
+        #     futures = [
+        #         executor.submit(generate_slithir_contract, contract) for contract in self._compilation_unit.contracts
+        #     ] + [
+        #         executor.submit(generate_slithir_function, function) for function in self._compilation_unit.functions_top_level
+        #     ]
+        #
+        #     for future in concurrent.futures.as_completed(futures):
+        #         future.result()
 
         self._compilation_unit.propagate_function_calls()
         for contract in self._compilation_unit.contracts:
