@@ -1,5 +1,4 @@
 import re
-from abc import ABCMeta
 from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional, Any
 
 from Crypto.Hash import SHA1
@@ -183,7 +182,7 @@ def _convert_source_mapping(
     return new_source
 
 
-class SourceMapping(Context, metaclass=ABCMeta):
+class SourceMapping(Context):
     def __init__(self) -> None:
         super().__init__()
         self.source_mapping: Optional[Source] = None
