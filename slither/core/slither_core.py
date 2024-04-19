@@ -35,14 +35,6 @@ def _relative_path_format(path: str) -> str:
     return path.split("..")[-1].strip(".").strip("/")
 
 
-def empty_tuple_list():
-    return [(-1, -1)]
-
-
-def tuple_dict():
-    return defaultdict(empty_tuple_list)
-
-
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCore(Context):
     """
@@ -88,7 +80,7 @@ class SlitherCore(Context):
         # Maps from file to detector name to the start/end ranges for that detector.
         # Infinity is used to signal a detector has no end range.
         self._ignore_ranges: Dict[str, Dict[str, List[Tuple[int, ...]]]] = defaultdict(
-            tuple_dict
+            lambda: defaultdict(lambda: [(-1, -1)])
         )
 
         self._compilation_units: List[SlitherCompilationUnit] = []

@@ -1,4 +1,3 @@
-from functools import cache
 from typing import Union, Tuple, TYPE_CHECKING, Any
 
 from slither.core.solidity_types.type import Type
@@ -36,7 +35,6 @@ class MappingType(Type):
     def is_dynamic(self) -> bool:
         return True
 
-    @cache
     def __str__(self) -> str:
         return f"mapping({str(self._from)} => {str(self._to)})"
 
@@ -46,4 +44,4 @@ class MappingType(Type):
         return self.type_from == other.type_from and self.type_to == other.type_to
 
     def __hash__(self) -> int:
-        return hash(f"{self._from}.{self._to}")
+        return hash(str(self))

@@ -1,5 +1,4 @@
 import itertools
-from functools import cache
 from typing import Tuple, Optional, Any
 
 from slither.core.solidity_types.type import Type
@@ -217,7 +216,6 @@ class ElementaryType(Type):
             return MaxValues[self.name]
         raise SlitherException(f"{self.name} does not have a max value")
 
-    @cache
     def __str__(self) -> str:
         return self._type
 
@@ -227,4 +225,4 @@ class ElementaryType(Type):
         return self.type == other.type
 
     def __hash__(self) -> int:
-        return hash(self._type)
+        return hash(str(self))

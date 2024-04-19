@@ -1,4 +1,3 @@
-from functools import cache
 from typing import Union, Optional, Tuple, Any, TYPE_CHECKING
 
 from slither.core.expressions.expression import Expression
@@ -67,7 +66,6 @@ class ArrayType(Type):
             return elem_size * int(str(self._length_value)), True
         return 32, True
 
-    @cache
     def __str__(self) -> str:
         if self._length:
             return str(self._type) + f"[{str(self._length_value)}]"
@@ -79,4 +77,4 @@ class ArrayType(Type):
         return self._type == other.type and self._length_value == other.length_value
 
     def __hash__(self) -> int:
-        return hash(self._type)
+        return hash(str(self))
