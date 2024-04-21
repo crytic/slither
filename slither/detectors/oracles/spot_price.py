@@ -4,12 +4,15 @@ from slither.detectors.abstract_detector import AbstractDetector
 from slither.slithir.operations import HighLevelCall, Operation, LibraryCall, Assignment
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.slithir.variables.variable import Variable
-from slither.core.cfg.node import Node, recheable
+from slither.core.cfg.node import Node, recheable, NodeType
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.slithir.operations import (
     Binary,
     BinaryType,
 )
+
+from slither.core.declarations.function import Function
+
 
 
 # SpotPriceUsage class to store the node and interface
@@ -47,8 +50,8 @@ class SpotPriceDetector(AbstractDetector):
     # SafeMath functions for compatibility with solidity contracts < 0.8.0 version
     SAFEMATH_FUNCTIONS = ["mul", "div"]
     # Uniswap calculations functions
-    CALC_FUNCTIONS = ["getAmountOut"]
-    # Protected functions
+    CALC_FUNCTIONS = ["getAmountOut", "getAmountsOut"]
+    # Protected functions -> Indicating TWAP V2 oracles
     PROTECTED_FUNCTIONS = ["currentCumulativePrices", "price1CumulativeLast", "price0CumulativeLast"]
     # Uniswap interfaces
     UNISWAP_INTERFACES = ["IUniswapV3Pool", "IUniswapV2Pair"]
@@ -96,13 +99,14 @@ class SpotPriceDetector(AbstractDetector):
             return True
         return False
 
+
+
+
     # Detect oracle call
     def detect_oracle_call(
         self, function: FunctionContract, function_names, interface_names
     ) -> (Node, str):
-        # Ignore cases with TWAP functions
-        if function.name in self.PROTECTED_FUNCTIONS:
-            return []
+        
         nodes = []
         first_node = None
         first_arguments = []
@@ -147,6 +151,7 @@ class SpotPriceDetector(AbstractDetector):
                         counter = 0
                     break
                 counter += 1
+        
 
         return nodes
 
@@ -229,9 +234,25 @@ class SpotPriceDetector(AbstractDetector):
             for v in node.variables_written:
                 if str(v) == str(temp_variable):
                     variable = v
+        print(variable)
         return variable
 
-        
+    @staticmethod
+    # Check if calculations are linked to return, that would indicate only get/calculation function
+    def are_calcs_linked_to_return(node: Node) -> bool:
+        function = node.function
+        variables = node.variables_written
+        returned_vars = function.returns
+        for r_var in returned_vars:
+            for var in variables:
+                if is_dependent(r_var, var, function):
+                    return function
+        if node.type == NodeType.RETURN:
+            return function
+        for s in node.sons:
+            if s.type == NodeType.RETURN:
+                return function
+        return None
     # Check if calculations are made with spot data
     def are_calculations_made_with_spot_data(self, node: Node, interface: str) -> Node:
 
@@ -242,6 +263,7 @@ class SpotPriceDetector(AbstractDetector):
 
         # Check if the node is used in calculations
         nodes = []
+        return_functions = []
         while node:
             variables = node[0].variables_written
             recheable_nodes = recheable(node[0])
@@ -260,10 +282,19 @@ class SpotPriceDetector(AbstractDetector):
                         # Check if the variable is used in calculation functions
                         elif self.calc_functions(n):
                             nodes.append(n)
-
             node.pop()
-        return nodes
-
+        for node in nodes:
+            function = self.are_calcs_linked_to_return(node)
+            return_functions.append(function)
+        return nodes, return_functions
+    
+    @staticmethod
+    def only_return(function: Function) -> bool:
+        if function is None:
+            return False
+        if function.reachable_from_functions:
+            return False
+        return True
     # Generate informative messages for the detected spot price usage
     @staticmethod
     def generate_informative_messages(spot_price_classes):
@@ -287,9 +318,13 @@ class SpotPriceDetector(AbstractDetector):
                 )
         return messages
 
-    # Generate message for the node which occured in calculations
+
+       # Generate message for the node which occured in calculations
     @staticmethod
-    def generate_calc_messages(node):
+    def generate_calc_messages(node: Node,  only_return: bool) -> str:
+        if only_return:
+            return f"Calculations are made with spot price data in {node.source_mapping} but the function is not used anywhere in the contract.\n"
+        
         return f"Calculations are made with spot price data in {node.source_mapping}\n"
 
     def _detect(self):
@@ -299,12 +334,12 @@ class SpotPriceDetector(AbstractDetector):
             messages = self.generate_informative_messages(spot_price_usage)
 
             for spot_price in spot_price_usage:
-                node = self.are_calculations_made_with_spot_data(spot_price.node, spot_price.interface)
-                if node:
-                    self.IMPACT = DetectorClassification.LOW
-                    self.CONFIDENCE = DetectorClassification.LOW
-                    for n in node:
-                        messages.append(self.generate_calc_messages(n))
+                nodes, return_functions = self.are_calculations_made_with_spot_data(spot_price.node, spot_price.interface)
+                if nodes:
+                    for i in range(len(nodes)):
+                        only_return = self.only_return(return_functions[i])
+                        messages.append(self.generate_calc_messages(nodes[i], only_return  ))
+
             # It can contain duplication, sorted and unique messages.
             # Sorting due to testing purposes
             messages = sorted(list(set(messages)))

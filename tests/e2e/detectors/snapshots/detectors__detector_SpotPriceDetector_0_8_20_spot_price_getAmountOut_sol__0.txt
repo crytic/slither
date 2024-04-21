@@ -1,4 +1,4 @@
-Calculations are made with spot price data in tests/e2e/detectors/test_data/oracle-spot-price/0.8.20/spot_price_getAmountOut.sol#66-71
+Calculations are made with spot price data in tests/e2e/detectors/test_data/oracle-spot-price/0.8.20/spot_price_getAmountOut.sol#66-71 but the function is not used anywhere in the contract.
 Method which could indicate usage of spot price was detected in Uniswap V2 at tests/e2e/detectors/test_data/oracle-spot-price/0.8.20/spot_price_getAmountOut.sol#59
 EXPRESSION (left,right) = pair.getReserves()
 

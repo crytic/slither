@@ -1,7 +1,4 @@
 Calculations are made with spot price data in tests/e2e/detectors/test_data/oracle-spot-price/0.6.12/spot_price_getReserves.sol#200
-Method which could indicate usage of spot price was detected at tests/e2e/detectors/test_data/oracle-spot-price/0.6.12/spot_price_getReserves.sol#196 and tests/e2e/detectors/test_data/oracle-spot-price/0.6.12/spot_price_getReserves.sol#201-203.
-NEW VARIABLE _stakeAmount = rewardsYaxisEth.balanceOf(_voter)
-NEW VARIABLE _rewardsYaxisAmount = rewardsYaxis.balanceOf(_voter).add(rewardsYaxis.earned(_voter))
 Method which could indicate usage of spot price was detected in Uniswap V2 at tests/e2e/detectors/test_data/oracle-spot-price/0.6.12/spot_price_getReserves.sol#197
 EXPRESSION (_yaxReserves) = yaxisEthUniswapV2Pair.getReserves()
 
