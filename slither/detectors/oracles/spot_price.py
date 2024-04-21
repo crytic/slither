@@ -292,9 +292,11 @@ class SpotPriceDetector(AbstractDetector):
     def only_return(function: Function) -> bool:
         if function is None:
             return False
-        if function.reachable_from_functions:
-            return False
-        return True
+        
+        if (function.view or function.pure) and not function.reachable_from_functions:
+            return True
+        
+        return False
     # Generate informative messages for the detected spot price usage
     @staticmethod
     def generate_informative_messages(spot_price_classes):
