@@ -43,7 +43,7 @@ jobs:
           echo "::add-matcher::.github/workflows/matchers/pylint.json"
 
       - name: Pylint
-        uses: super-linter/super-linter/slim@v6.1.1
+        uses: super-linter/super-linter/slim@v6.4.1
         if: always()
         env:
           # Run linters only on new files for pylint to speed up the CI
