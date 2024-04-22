@@ -1,5 +1,5 @@
 import logging
-from functools import cache
+from functools import lru_cache
 
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
@@ -25,7 +25,7 @@ from slither.exceptions import SlitherError
 logger = logging.getLogger("ExpressionVisitor")
 
 
-@cache
+@lru_cache()
 def get_visitor_mapping():
     """Returns a visitor mapping from expression type to visiting functions."""
     return {
