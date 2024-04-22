@@ -98,21 +98,29 @@ class Source:
         return f"{filename_short}{lines}"
 
     def __hash__(self) -> int:
-        return hash(str(self))
+        return hash(
+            (
+                self.start,
+                self.length,
+                self.filename.relative,
+                self.end,
+            )
+        )
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, type(self)):
+        try:
+            return (
+                self.start == other.start
+                and self.length == other.length
+                and self.filename == other.filename
+                and self.is_dependency == other.is_dependency
+                and self.lines == other.lines
+                and self.starting_column == other.starting_column
+                and self.ending_column == other.ending_column
+                and self.end == other.end
+            )
+        except AttributeError:
             return NotImplemented
-        return (
-            self.start == other.start
-            and self.length == other.length
-            and self.filename == other.filename
-            and self.is_dependency == other.is_dependency
-            and self.lines == other.lines
-            and self.starting_column == other.starting_column
-            and self.ending_column == other.ending_column
-            and self.end == other.end
-        )
 
 
 def _compute_line(
@@ -188,6 +196,8 @@ class SourceMapping(Context):
         self.source_mapping: Optional[Source] = None
         self.references: List[Source] = []
 
+        self._pattern: Union[str, None] = None
+
     def set_offset(
         self, offset: Union["Source", str], compilation_unit: "SlitherCompilationUnit"
     ) -> None:
@@ -203,3 +213,11 @@ class SourceMapping(Context):
     ) -> None:
         s = _convert_source_mapping(offset, compilation_unit)
         self.references.append(s)
+
+    @property
+    def pattern(self) -> str:
+        if self._pattern is None:
+            # Add " " to look after the first solidity keyword
+            return f" {self.name}"  # pylint: disable=no-member
+
+        return self._pattern
