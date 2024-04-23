@@ -382,3 +382,32 @@ def test_filtering_printer():
         FilteringAction.REJECT,
     )
     assert not output ^ {"E.constructor"}
+
+
+@pytest.mark.skipif(
+    not foundry_available
+    or not Path(TEST_DATA_DIR, "test_filtering_analysis/lib/forge-std").exists(),
+    reason="requires Foundry and project setup",
+)
+def test_filtering_file_before_parsing():
+    slither = Slither(
+        Path(TEST_DATA_DIR, "test_filtering_analysis").as_posix(),
+        filters=[
+            FilteringRule(
+                type=FilteringAction.REJECT,
+                path=re.compile("sub2/"),
+            ),
+        ],
+    )
+
+    slither.register_printer(DummyPrinter)
+    printer_output = DummyPrinter.analyze_dummy_output(slither.run_printers().pop())
+
+    # We want to not get any results in sub2 but still manage to analyze A that depends on B.
+    assert not printer_output ^ {
+        "A.a",
+        "A.constructor",
+        "C.constructor",
+        "E.constructor",
+        "F.constructor",
+    }
