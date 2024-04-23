@@ -106,6 +106,7 @@ class SpotPriceDetector(AbstractDetector):
         ):
             return True
         return False
+    
 
     # Detect oracle call
     def detect_oracle_call(
@@ -115,6 +116,7 @@ class SpotPriceDetector(AbstractDetector):
         nodes = []
         first_node = None
         first_arguments = []
+        swap_indicators = []
         # For finding next node
         counter = 0
         for node in function.nodes:
@@ -135,7 +137,15 @@ class SpotPriceDetector(AbstractDetector):
 
                     # Detect any fork of Uniswap
                     elif self.instance_of_call(ir, function_name, None):
-                        nodes.append((node, None))
+                        if interface_name == "IUniswapV3Pool" and not self.slot0_returned_price(
+                            node.variables_written
+                        ):
+                            continue
+                        nodes.append((node, interface_name))
+                
+                    # Swap indication
+                    elif self.instance_of_call(ir, "swap", None):
+                        swap_indicators = [node]
 
                 if self.instance_of_call(ir, "balanceOf", None):
                     arguments = self.get_argument_of_high_level_call(ir)
@@ -158,8 +168,10 @@ class SpotPriceDetector(AbstractDetector):
                         counter = 0
                     break
                 counter += 1
+        
 
-        return nodes
+
+        return nodes, swap_indicators
 
     # Detect spot price usage
     # 1. Detect Uniswap V3
@@ -168,19 +180,23 @@ class SpotPriceDetector(AbstractDetector):
     # 4. Detect balanceOf method usage which can indicate spot price usage in certain cases
     def detect_spot_price_usage(self):
         spot_price_usage = []
+        swap_functions = []
         for contract in self.contracts:
             for function in contract.functions:
 
-                oracle_calls = self.detect_oracle_call(
+                oracle_calls, swap_function = self.detect_oracle_call(
                     function,
                     ["slot0", "getReserves"],
                     ["IUniswapV3Pool", "IUniswapV2Pair"],
                 )
+                uniswap = False
                 for call in oracle_calls:
                     spot_price_usage.append(SpotPriceUsage(call[0], call[1]))
-
-        return spot_price_usage
-
+                    if call[1] in self.UNISWAP_INTERFACES:
+                        uniswap = True
+                if uniswap and swap_function:
+                    swap_functions.append(function)
+        return spot_price_usage, swap_functions
     # Check if arithmetic operations are made
     # Compatibility with SafeMath library
     def detect_arithmetic_operations(self, node: Node) -> bool:
@@ -221,7 +237,7 @@ class SpotPriceDetector(AbstractDetector):
     @staticmethod
     def check_reserve_var(var) -> bool:
         return hasattr(var, "type") and str(var.type) == "uint112" or str(var.type) == "uint256"
-
+    
     # Track if the variable was assigned to different variable without change
     @staticmethod
     def track_var(variable, node) -> bool:
@@ -303,25 +319,34 @@ class SpotPriceDetector(AbstractDetector):
 
     # Generate informative messages for the detected spot price usage
     @staticmethod
-    def generate_informative_messages(spot_price_classes):
+    def generate_informative_messages(spot_price_classes, swap_functions):
         messages = []
+        additional_message = ""
         for spot_price in spot_price_classes:
+            if not isinstance(spot_price.node, list):
+                node = [spot_price.node]
+            else:
+                node = spot_price.node
+            for function in swap_functions:
+                if node[0].function == function:
+                    additional_message = " inside function where performed swap operation"
             if spot_price.interface == "IUniswapV3Pool":
                 messages.append(
-                    f"Method which could indicate usage of spot price was detected in Uniswap V3 at {spot_price.node.source_mapping}\n{spot_price.node}\n"
+                    f"Method which could indicate usage of spot price was detected in Uniswap V3 at {spot_price.node.source_mapping}{additional_message}\n{spot_price.node}\n"
                 )
             elif spot_price.interface == "IUniswapV2Pair":
                 messages.append(
-                    f"Method which could indicate usage of spot price was detected in Uniswap V2 at {spot_price.node.source_mapping}\n{spot_price.node}\n"
+                    f"Method which could indicate usage of spot price was detected in Uniswap V2 at {spot_price.node.source_mapping}{additional_message}\n{spot_price.node}\n"
                 )
             elif spot_price.interface is None:
                 messages.append(
-                    f"Method which could indicate usage of spot price was detected in Uniswap Fork at {spot_price.node.source_mapping}\n{spot_price.node}\n"
+                    f"Method which could indicate usage of spot price was detected in Uniswap Fork at {spot_price.node.source_mapping}{additional_message}\n{spot_price.node}\n"
                 )
             elif spot_price.interface == "BalanceOF":
                 messages.append(
                     f"Method which could indicate usage of spot price was detected at {spot_price.node[0].source_mapping} and {spot_price.node[1].source_mapping}.\n{spot_price.node[0]}\n{spot_price.node[1]}\n"
                 )
+            additional_message = ""
         return messages
 
     # Generate message for the node which occured in calculations
@@ -334,9 +359,9 @@ class SpotPriceDetector(AbstractDetector):
 
     def _detect(self):
         results = []
-        spot_price_usage = self.detect_spot_price_usage()
+        spot_price_usage, swap_functions = self.detect_spot_price_usage()
         if spot_price_usage:
-            messages = self.generate_informative_messages(spot_price_usage)
+            messages = self.generate_informative_messages(spot_price_usage, swap_functions)
 
             for spot_price in spot_price_usage:
                 nodes, return_functions = self.are_calculations_made_with_spot_data(
