@@ -593,7 +593,7 @@ class ContractSolc(CallerContextExpression):
     def analyze_constant_state_variables(self) -> None:
         for var_parser in self._variables_parser:
             if var_parser.underlying_variable.is_constant:
-                # cant parse constant expression based on function calls
+                # can't parse constant expression based on function calls
                 try:
                     var_parser.analyze(self)
                 except (VariableNotFound, KeyError) as e:
