@@ -550,7 +550,7 @@ def test_storage_refers_to(slither_from_solidity_source):
         entryphi = [x for x in phinodes if x.lvalue in sphi.lvalue.refers_to]
         assert len(entryphi) == 2
 
-        # The remaining two phis are the ones recording that write through ReferenceVariable occured
+        # The remaining two phis are the ones recording that write through ReferenceVariable occurred
         for ephi in entryphi:
             phinodes.remove(ephi)
         phinodes.remove(sphi)
