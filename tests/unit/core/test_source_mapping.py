@@ -58,7 +58,7 @@ def test_source_mapping_inheritance(solc_binary_path, solc_version):
     assert {(x.start, x.end) for x in slither.offset_to_implementations(file, 203)} == {(193, 230)}
 
     # Offset 93 is the call to f() in A.test()
-    # This can lead to three differents functions, depending on the current contract's context
+    # This can lead to three different functions, depending on the current contract's context
     functions = slither.offset_to_objects(file, 93)
     print(functions)
     assert len(functions) == 3

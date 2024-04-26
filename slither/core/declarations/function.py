@@ -1593,7 +1593,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         write_var = [x for x in write_var if x]
         write_var = [item for sublist in write_var for item in sublist]
         write_var = list(set(write_var))
-        # Remove dupplicate if they share the same string representation
+        # Remove duplicate if they share the same string representation
         write_var = [
             next(obj)
             for i, obj in groupby(sorted(write_var, key=lambda x: str(x)), lambda x: str(x))
@@ -1604,7 +1604,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         write_var = [x for x in write_var if x]
         write_var = [item for sublist in write_var for item in sublist]
         write_var = list(set(write_var))
-        # Remove dupplicate if they share the same string representation
+        # Remove duplicate if they share the same string representation
         write_var = [
             next(obj)
             for i, obj in groupby(sorted(write_var, key=lambda x: str(x)), lambda x: str(x))
@@ -1614,7 +1614,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         read_var = [x.variables_read_as_expression for x in self.nodes]
         read_var = [x for x in read_var if x]
         read_var = [item for sublist in read_var for item in sublist]
-        # Remove dupplicate if they share the same string representation
+        # Remove duplicate if they share the same string representation
         read_var = [
             next(obj)
             for i, obj in groupby(sorted(read_var, key=lambda x: str(x)), lambda x: str(x))
@@ -1624,7 +1624,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         read_var = [x.variables_read for x in self.nodes]
         read_var = [x for x in read_var if x]
         read_var = [item for sublist in read_var for item in sublist]
-        # Remove dupplicate if they share the same string representation
+        # Remove duplicate if they share the same string representation
         read_var = [
             next(obj)
             for i, obj in groupby(sorted(read_var, key=lambda x: str(x)), lambda x: str(x))

@@ -14,7 +14,7 @@ from importlib import metadata
 from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
 
 
-from crytic_compile import cryticparser, CryticCompile
+from crytic_compile import cryticparser, CryticCompile, InvalidCompilation
 from crytic_compile.platform.standard import generate_standard_export
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile import compile_all, is_supported
@@ -93,7 +93,13 @@ def process_all(
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[List[Slither], List[Dict], List[Output], int]:
-    compilations = compile_all(target, **vars(args))
+
+    try:
+        compilations = compile_all(target, **vars(args))
+    except InvalidCompilation:
+        logger.error("Unable to compile all targets.")
+        sys.exit(2)
+
     slither_instances = []
     results_detectors = []
     results_printers = []
