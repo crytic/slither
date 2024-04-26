@@ -55,7 +55,8 @@ class CheatcodePrinter(AbstractPrinter):
                         ):
                             found_function = True
                             function_info += (
-                                f"\t\tL{node.source_mapping.lines}: {op.function.name}\n"
+                                f"\t\t{op.function.name} - ({node.source_mapping.to_detailed_str()})\n"
+                                f"\t\t{node.expression}\n\n"
                             )
 
                 if found_function:

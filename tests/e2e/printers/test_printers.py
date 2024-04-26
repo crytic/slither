@@ -51,9 +51,9 @@ def test_printer_cheatcode():
     )
 
     printer = CheatcodePrinter(slither=slither, logger=None)
-    output = printer.output("cheatcode.out")
+    output = printer.output("")
 
     assert (
         output.data["description"]
-        == "CounterTest (test/Counter.t.sol)\n\tsetUp\n\t\tL[21]: deal\n\t\tL[22]: deal\n\ttestIncrement\n\t\tL[28]: prank\n\t\tL[30]: assertEq\n\t\tL[32]: prank\n\t\tL[34]: assertEq\n"
+        == "CounterTest (test/Counter.t.sol)\n\tsetUp\n\t\tdeal - (test/Counter.t.sol#21 (9 - 32)\n\t\tvm.deal(alice,1000000000000000000)\n\n\t\tdeal - (test/Counter.t.sol#22 (9 - 30)\n\t\tvm.deal(bob,2000000000000000000)\n\n\ttestIncrement\n\t\tprank - (test/Counter.t.sol#28 (9 - 24)\n\t\tvm.prank(alice)\n\n\t\tassertEq - (test/Counter.t.sol#30 (9 - 38)\n\t\tassertEq(counter.number(),1)\n\n\t\tprank - (test/Counter.t.sol#32 (9 - 22)\n\t\tvm.prank(bob)\n\n\t\tassertEq - (test/Counter.t.sol#34 (9 - 38)\n\t\tassertEq(counter.number(),2)\n\n"
     )
