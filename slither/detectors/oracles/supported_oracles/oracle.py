@@ -15,8 +15,9 @@ class VarInCondition:  # pylint: disable=too-few-public-methods
 
 
 class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attributes
-    def __init__(self, _calls):
+    def __init__(self, _calls, _interfaces):
         self.calls = _calls
+        self.interfaces = _interfaces
         self.contract = None
         self.function = None
         self.node = None
@@ -26,6 +27,19 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         self.returned_vars_indexes = None
         self.interface = None
         self.oracle_api = None
+        ## Works as protection against recursion loop
+        self.occured_in_functions = []
+
+    # This function adds function to the list of functions where the oracle data were used
+    # Used to prevent recursion of visiting same functions
+    def add_occurance_in_function(self, _function):
+        if _function in self.occured_in_functions:
+            return False
+        self.occured_in_functions.append(_function)
+        return True
+
+    def remove_occurances_in_function(self):
+        self.occured_in_functions = []
 
     def get_calls(self):
         return self.calls
@@ -34,7 +48,8 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         return isinstance(ir, HighLevelCall) and (
             isinstance(ir.function, Function)
             and self.compare_call(ir.function.name)
-            # add interface
+            and hasattr(ir.destination, "type")
+            and self.compare_interface(str(ir.destination.type))
         )
 
     def set_node(self, _node):
@@ -42,6 +57,11 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
 
     def set_function(self, _function):
         self.function = _function
+
+    def compare_interface(self, interface) -> bool:
+        if interface in self.interfaces:
+            return True
+        return False
 
     def compare_call(self, function) -> bool:
         for call in self.calls:
@@ -87,12 +107,13 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         if var is None:
             return False
         different_behavior = False
-        for node in var.nodes_with_var:
-            # This is temporarily check which will be improved in the future. Mostly we are looking for block.timestamp and trust the developer that he is using it correctly
-            if self.timestamp_in_node(node):
-                return True
-            if not different_behavior:
-                different_behavior = check_revert(node) or return_boolean(node)
+        if hasattr(var, "nodes_with_var"):
+            for node in var.nodes_with_var:
+                # This is temporarily check which will be improved in the future. Mostly we are looking for block.timestamp and trust the developer that he is using it correctly
+                if self.timestamp_in_node(node):
+                    return True
+                if not different_behavior:
+                    different_behavior = check_revert(node) or return_boolean(node)
 
         return different_behavior
 
@@ -101,13 +122,14 @@ class Oracle:  # pylint: disable=too-few-public-methods, too-many-instance-attri
         if var is None:
             return False
         different_behavior = False
-        for node in var.nodes_with_var:
-            for ir in node.irs:
-                if isinstance(ir, Binary):
-                    if self.check_greater_zero(ir):
-                        return True
-                    # If the conditions does not match we are looking for revert or return node
-            if not different_behavior:
-                different_behavior = check_revert(node) or return_boolean(node)
+        if hasattr(var, "nodes_with_var"):
+            for node in var.nodes_with_var:
+                for ir in node.irs:
+                    if isinstance(ir, Binary):
+                        if self.check_greater_zero(ir):
+                            return True
+                        # If the conditions does not match we are looking for revert or return node
+                if not different_behavior:
+                    different_behavior = check_revert(node) or return_boolean(node)
 
         return different_behavior

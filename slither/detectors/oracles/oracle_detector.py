@@ -65,7 +65,11 @@ class OracleDetector(AbstractDetector):
     @staticmethod
     def map_param_to_var(var, function: FunctionContract):
         for param in function.parameters:
-            origin_vars = get_dependencies(param, function)
+            try:
+                origin_vars = get_dependencies(param, function)
+            # DATA_DEPENDENCY error can be throw out
+            except KeyError:
+                continue
             for var2 in origin_vars:
                 if var2 == var:
                     return param
@@ -144,7 +148,6 @@ class OracleDetector(AbstractDetector):
 
     # Check if the vars occurs in require/assert statement or in conditional node
     def vars_in_conditions(self, oracle: Oracle):
-        # vars_in_condition = []
         vars_not_in_condition = []
         oracle_vars = []
         nodes = []
@@ -157,26 +160,27 @@ class OracleDetector(AbstractDetector):
                 for node in self.nodes_with_var:
                     for ir in node.irs:
                         if isinstance(ir, InternalCall):
-                            self.investigate_internal_call(ir.function, var, None)
+                            self.investigate_internal_call(
+                                oracle,
+                                ir.function,
+                                var,
+                            )
+                            oracle.remove_occurances_in_function()
 
                 if len(self.nodes_with_var) > 0:
-                    # vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
             else:
-                if self.investigate_internal_call(oracle.function, var, None):
-                    # vars_in_condition.append(VarInCondition(var, self.nodes_with_var))
+                if self.investigate_internal_call(oracle, oracle.function, var):
                     oracle_vars.append(VarInCondition(var, self.nodes_with_var))
+                    oracle.remove_occurances_in_function()
                 elif nodes := self.investigate_on_return(oracle, var):
                     oracle_vars.append(VarInCondition(var, nodes))
                     oracle.out_of_function_checks.append((var, nodes))
-                # except RecursionError:
-                #     vars_not_in_condition.append(var)
-                #     oracle_vars.append(var)
+                    oracle.remove_occurances_in_function()
                 else:
                     vars_not_in_condition.append(var)
                     oracle_vars.append(var)
 
-        # oracle.vars_in_condition = vars_in_condition
         oracle.vars_not_in_condition = vars_not_in_condition
         oracle.oracle_vars = oracle_vars
         return True
@@ -201,6 +205,8 @@ class OracleDetector(AbstractDetector):
         nodes = []
         for node in nodes_of_call:
             oracle.set_function(functions_of_call[i])
+            if not oracle.add_occurance_in_function(functions_of_call[i]):
+                break
             oracle.set_node(node)
             new_vars = self.get_returned_variables_from_oracle(node)
             for var in new_vars:
@@ -239,10 +245,12 @@ class OracleDetector(AbstractDetector):
         return False
 
     # This function interates through all internal calls in function and checks if the var is used in condition any of them
-    def investigate_internal_call(self, function: FunctionContract, var, original_function) -> bool:
+    def investigate_internal_call(self, oracle, function: FunctionContract, var) -> bool:
         if function is None:
             return False
-        if function == original_function:
+
+        result = oracle.add_occurance_in_function(function)
+        if not result:
             return False
 
         original_var_as_param = self.map_param_to_var(var, function)
@@ -268,8 +276,9 @@ class OracleDetector(AbstractDetector):
         for node in function.nodes:
             for ir in node.irs:
                 if isinstance(ir, InternalCall):
-                    if self.investigate_internal_call(ir.function, original_var_as_param, function):
+                    if self.investigate_internal_call(oracle, ir.function, original_var_as_param):
                         return True
+
         return False
 
     def _detect(self):
