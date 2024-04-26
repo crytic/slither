@@ -30,7 +30,7 @@ class SpotPriceUsage:
 
 class SpotPriceDetector(AbstractDetector):
     """
-    Documentation
+    Documentation: This detector is used to detect the usage of spot price in the contract.
     """
 
     ARGUMENT = (
@@ -84,6 +84,7 @@ class SpotPriceDetector(AbstractDetector):
 
         return False
 
+    # Ignore functions related to calculation of TWAP
     def ignore_function(self, ir) -> bool:
         for function in self.PROTECTED_FUNCTIONS:
             if self.instance_of_call(ir, function, None):
@@ -97,6 +98,7 @@ class SpotPriceDetector(AbstractDetector):
             return ir.arguments
         return []
 
+    # Check if the address of the destination is different
     @staticmethod
     def different_address(first_ir: Operation, second_ir: Operation):
         if (
@@ -106,7 +108,6 @@ class SpotPriceDetector(AbstractDetector):
         ):
             return True
         return False
-    
 
     # Detect oracle call
     def detect_oracle_call(
@@ -125,6 +126,7 @@ class SpotPriceDetector(AbstractDetector):
                     function_name = function_names[i]
                     interface_name = interface_names[i]
 
+                    # Ignore functions related to calculation of TWAP
                     if self.ignore_function(ir):
                         return []
                     # Detect UniswapV3 or UniswapV2
@@ -142,13 +144,15 @@ class SpotPriceDetector(AbstractDetector):
                         ):
                             continue
                         nodes.append((node, interface_name))
-                
+
                     # Swap indication
                     elif self.instance_of_call(ir, "swap", None):
                         swap_indicators = [node]
 
+                # Detection of balanceOf spot price pattern
                 if self.instance_of_call(ir, "balanceOf", None):
                     arguments = self.get_argument_of_high_level_call(ir)
+                    # Node need to be set and argument of the call need to be the same as the first one
                     if (
                         first_node is not None
                         and arguments[0] == first_arguments[0]
@@ -160,16 +164,15 @@ class SpotPriceDetector(AbstractDetector):
                         first_arguments = []
 
                     else:
-                        first_arguments = arguments
+                        first_arguments = arguments  # Store arguments for comparison
                         first_node = (
                             node,
                             ir,
                         )  # Node and ir which stores destination can be used for address var comparison
                         counter = 0
                     break
+                # Counter used to check if the next node is immediately after the first node to follow pattern
                 counter += 1
-        
-
 
         return nodes, swap_indicators
 
@@ -197,6 +200,7 @@ class SpotPriceDetector(AbstractDetector):
                 if uniswap and swap_function:
                     swap_functions.append(function)
         return spot_price_usage, swap_functions
+
     # Check if arithmetic operations are made
     # Compatibility with SafeMath library
     def detect_arithmetic_operations(self, node: Node) -> bool:
@@ -237,7 +241,7 @@ class SpotPriceDetector(AbstractDetector):
     @staticmethod
     def check_reserve_var(var) -> bool:
         return hasattr(var, "type") and str(var.type) == "uint112" or str(var.type) == "uint256"
-    
+
     # Track if the variable was assigned to different variable without change
     @staticmethod
     def track_var(variable, node) -> bool:
@@ -283,13 +287,17 @@ class SpotPriceDetector(AbstractDetector):
         # Check if the node is used in calculations
         nodes = []
         return_functions = []
+
+        # Loop because of BalanceOF method usage as it returns two nodes
         while node:
             variables = node[0].variables_written
             recheable_nodes = recheable(node[0])
             changed_vars = []
+            # Track the variable if it was assigned to different variable without change
             for n in recheable_nodes:
                 for var in variables:
                     changed_vars.append(self.track_var(var, n))
+            # Check if the variable is used in arithmetic operations or calculate function
             for n in recheable_nodes:
                 for var in changed_vars:
                     if var in n.variables_read:
@@ -302,11 +310,13 @@ class SpotPriceDetector(AbstractDetector):
                         elif self.calc_functions(n):
                             nodes.append(n)
             node.pop()
+        # Check if the spot price data are returned
         for node2 in nodes:
             function = self.are_calcs_linked_to_return(node2)
             return_functions.append(function)
         return nodes, return_functions
 
+    # Check if the function, where the spot price data is obtained is used anywhere
     @staticmethod
     def only_return(function: Function) -> bool:
         if function is None:
@@ -322,11 +332,14 @@ class SpotPriceDetector(AbstractDetector):
     def generate_informative_messages(spot_price_classes, swap_functions):
         messages = []
         additional_message = ""
+        # Iterate through all spot price method occuriences
         for spot_price in spot_price_classes:
             if not isinstance(spot_price.node, list):
                 node = [spot_price.node]
             else:
                 node = spot_price.node
+            # Check if the function is in the swap functions
+            # Statement add for informative purposes
             for function in swap_functions:
                 if node[0].function == function:
                     additional_message = " inside function where performed swap operation"
