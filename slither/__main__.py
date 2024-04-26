@@ -2,6 +2,7 @@
 
 import argparse
 import cProfile
+import enum
 import glob
 import inspect
 import json
@@ -10,9 +11,14 @@ import os
 import pstats
 import sys
 import traceback
+from dataclasses import dataclass
+from functools import lru_cache
 from importlib import metadata
+from pathlib import Path
 from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
 
+import typer
+from typing_extensions import Annotated
 
 from crytic_compile import cryticparser, CryticCompile
 from crytic_compile.platform.standard import generate_standard_export
@@ -54,6 +60,8 @@ from slither.exceptions import SlitherException
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
+
+app = typer.Typer(rich_markup_mode="markdown")
 
 ###################################################################################
 ###################################################################################
@@ -679,6 +687,34 @@ class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-meth
         parser.exit()
 
 
+def list_detectors_json(value: bool):
+    if not value:
+        return
+
+    detectors, _ = get_detectors_and_printers()
+    detector_types_json = output_detectors_json(detectors)
+    print(json.dumps(detector_types_json))
+    raise typer.Exit(code=0)
+
+
+def list_detectors_action(value: bool) -> None:
+    if not value:
+        return
+
+    detectors, _ = get_detectors_and_printers()
+    output_detectors(detectors)
+    raise typer.Exit()
+
+
+def list_printers_action(value: bool) -> None:
+    if not value:
+        return
+
+    _, printers = get_detectors_and_printers()
+    output_printers(printers)
+    raise typer.Exit()
+
+
 class ListPrinters(argparse.Action):  # pylint: disable=too-few-public-methods
     def __call__(
         self, parser: Any, *args: Any, **kwargs: Any
@@ -962,7 +998,317 @@ def main_impl(
         sys.exit(0)
 
 
+import textwrap
+import click
+
+
+@dataclass
+class Target:
+    target: Union[str, Path]
+
+    HELP: str = textwrap.dedent(
+        f"""
+    Target can be:
+
+    - *file.sol*: a Solidity file
+    
+    - *project_directory*: a project directory. 
+      See the [documentation](https://github.com/crytic/crytic-compile/#crytic-compile) for the supported 
+      platforms.
+    
+    - *0x..* : a contract address on mainnet
+    
+    - *NETWORK:0x..*: a contract on a different network.
+      Supported networks: {', '.join(x[:-1] for x in SUPPORTED_NETWORK)}
+    """
+    )
+
+    def __str__(self) -> str:
+        return "XXX"
+
+
+class TargetParam(click.ParamType):
+    name = "Target"
+
+    def convert(self, value: Union[str, Path], param, ctx):
+        return Target(value)
+
+
+def version_callback(value: bool) -> None:
+    if not value:
+        return
+
+    print(metadata.version("slither-analyzer"))
+    raise typer.Exit(code=0)
+
+
+detectors, printers = get_detectors_and_printers()
+
+
+class OutputFormat(str, enum.Enum):
+    TEXT = "text"
+    JSON = "json"
+    SARIF = "sarif"
+
+
+class PathList(click.ParamType):
+    name = "PathList"
+
+    def convert(self, value: Union[str, None], param, ctx) -> List[str]:
+        if value is None:
+            return []
+
+        paths = value.split(",")
+        return paths
+
+
+@app.command("new_main")
+def new_main(
+    target: Annotated[
+        Optional[Target], typer.Argument(..., help=Target.HELP, click_type=TargetParam())
+    ],
+    version: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--version",
+            callback=version_callback,
+            help="Displays the current version.",
+            is_eager=True,
+        ),
+    ] = None,
+    output_format: Annotated[
+        OutputFormat,
+        typer.Option("--output-format", help="Output format.", rich_help_panel="Formatting"),
+    ] = OutputFormat.TEXT,
+    disable_color: Annotated[
+        bool,
+        typer.Option(
+            "--disable-color",
+            help=f"Disable output colorization. "
+            f"Implicit if the output format is not {OutputFormat.TEXT.value}.",
+            rich_help_panel="Formatting",
+        ),
+    ] = defaults_flag_in_config["disable_color"],
+    # Detectors options
+    list_json_detector: Annotated[
+        Optional[bool],
+        typer.Option("--list-detectors-json", callback=list_detectors_json, hidden=True),
+    ] = None,
+    list_detectors: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--list-detectors",
+            help="List available detectors.",
+            callback=list_detectors_action,
+            rich_help_panel="Detectors",
+        ),
+    ] = None,
+    detectors_to_run: Annotated[
+        Optional[str],
+        typer.Option(
+            "--detect",
+            help=f"Comma-separated list of detectors. Available detectors: {', '.join(d.ARGUMENT for d in detectors)}",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["detectors_to_run"],
+    detectors_to_exclude: Annotated[
+        Optional[str],
+        typer.Option(
+            "--exclude",
+            help="Comma-separated list of detectors that should be excluded.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["detectors_to_exclude"],
+    exclude_dependencies: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-dependencies",
+            help="Exclude results that are only related to dependencies.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_dependencies"],
+    exclude_optimization: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-optimization",
+            help="Exclude optimization analyses.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_optimization"],
+    exclude_informational: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-informational",
+            help="Exclude informational impact analyses.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_informational"],
+    exclude_low: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-low",
+            help="Exclude low impact analyses.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_low"],
+    exclude_medium: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-medium",
+            help="Exclude medium impact analyses.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_medium"],
+    exclude_high: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--exclude-high",
+            help="Exclude high impact analyses.",
+            rich_help_panel="Detectors",
+        ),
+    ] = defaults_flag_in_config["exclude_high"],
+    # Printers options
+    list_printers: Annotated[
+        Optional[bool],
+        typer.Option(
+            "--list-detectors",
+            help="List available printers.",
+            callback=list_printers_action,
+            rich_help_panel="Printers",
+        ),
+    ] = None,
+    printers_to_run: Annotated[
+        Optional[str],
+        typer.Option(
+            "--print",
+            help="Comma-separated list of contract information printers, "
+            f"available printers: {', '.join(d.ARGUMENT for d in printers)}",
+            rich_help_panel="Printers",
+        ),
+    ] = defaults_flag_in_config["printers_to_run"],
+    # Fail on options
+    fail_pedantic: Annotated[
+        bool,
+        typer.Option(
+            "--fail-pedantic",
+            help="Fail if any findings are detected.",
+            rich_help_panel="Reporting mode",
+            hidden=True,
+        ),
+    ] = False,
+    fail_low: Annotated[
+        bool,
+        typer.Option(
+            "--fail-low",
+            help="Fail if any low or greater impact findings are detected.",
+            rich_help_panel="Reporting mode",
+            hidden=True,
+        ),
+    ] = False,
+    fail_medium: Annotated[
+        bool,
+        typer.Option(
+            "--fail-medium",
+            help="Fail if any medium or greater impact findings are detected.",
+            rich_help_panel="Reporting mode",
+            hidden=True,
+        ),
+    ] = False,
+    fail_high: Annotated[
+        bool,
+        typer.Option(
+            "--fail-high",
+            help="Fail if any high or greater impact findings are detected.",
+            rich_help_panel="Reporting mode",
+            hidden=True,
+        ),
+    ] = False,
+    fail_none: Annotated[
+        bool,
+        typer.Option(
+            "--fail-none",
+            help="Do not return the number of findings in the exit code.",
+            rich_help_panel="Reporting mode",
+            hidden=True,
+        ),
+    ] = False,
+    fail_on: Annotated[
+        FailOnLevel,
+        typer.Option(
+            "--fail-on",
+            help=textwrap.dedent(
+                f"""
+                Fail level:
+                - *pedantic* : Fail if any findings are detected.
+                
+                - *none*: Do not return the number of findings in the exit code.
+                
+                - *low*: Fail if any low or greater impact findings are detected.
+                
+                - *medium*: Fail if any medium or greater impact findings are detected.
+                
+                - *high*: Fail if any high or greater impact findings are detected.
+                """
+            ),
+            rich_help_panel="Reporting mode",
+        ),
+    ] = FailOnLevel.PEDANTIC,
+    # Filtering
+    filter_paths: Annotated[
+        Union[List[str], None],
+        typer.Option(
+            help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/).",
+            click_type=PathList(),
+            rich_help_panel="Filtering",
+        ),
+    ] = defaults_flag_in_config["filter_paths"],
+    include_paths: Annotated[
+        Union[List[str], None],
+        typer.Option(
+            help="Regex filter to include detector results matching file path e.g. (src/|contracts/).",
+            click_type=PathList(),
+            rich_help_panel="Filtering",
+        ),
+    ] = defaults_flag_in_config["include_paths"],
+    # Misc
+    no_fail: Annotated[
+        bool,
+        typer.Option(
+            "--no-fail",
+            help="Do not fail in case of parsing (echidna mode only).",
+            click_type=PathList(),
+            rich_help_panel="Misc",
+        ),
+    ] = defaults_flag_in_config["no_fail"],
+):
+    """Help"""
+
+    if isinstance(target, Path):
+        typer.echo("Got a Path")
+    elif isinstance(target, str):
+        if target.startswith("0x"):
+            typer.echo("Got an address")
+
+    # Formatting configuration
+    if output_format != OutputFormat.TEXT:
+        disable_color = True
+
+    set_colorization_enabled(False if disable_color else sys.stdout.isatty())
+
+    if fail_on == FailOnLevel.PEDANTIC:
+        fail_levels = {level: locals().get(f"fail_{level.value}") for level in FailOnLevel}
+        count = list(fail_levels.values()).count(True)
+        if count == 1:
+            print("Deprecated way of setting levels.")
+            fail_on = FailOnLevel([level for level in fail_levels if fail_levels[level]].pop())
+        elif count > 1:
+            raise typer.BadParameter("Only one fail level is allowed.")
+        else:
+            fail_on = FailOnLevel.PEDANTIC
+
+
 if __name__ == "__main__":
-    main()
+    # main()
+    app()
 
 # endregion
