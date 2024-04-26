@@ -5,7 +5,7 @@ from slither.slithir.operations import HighLevelCall
 
 class DeprecatedChainlinkCall(AbstractDetector):
     """
-    Documentation
+    Documentation: This detector scans for deprecated Chainlink API calls in Solidity contracts. For example, it flags the use of `getAnswer` which is no longer recommended.
     """
 
     ARGUMENT = "deprecated-chainlink-call"

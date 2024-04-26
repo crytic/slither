@@ -45,10 +45,10 @@ contract ChainlinkETHUSDPriceConsumer {
         );
     }
     /**
-     * Returns the latest price
+     * Returns the latest price. Ensures the price is not outdated by checking the `updatedAt` timestamp.
      */
     function getLatestPrice() public view returns (int) {
-        (, int price, ,uint256 updateAt , ) = priceFeed.latestRoundData();
+        (, int price, , uint256 updateAt, ) = priceFeed.latestRoundData();
         uint current_timestamp = block.timestamp;
         require(current_timestamp - updateAt < 1 minutes, "Price is outdated");
         return price;

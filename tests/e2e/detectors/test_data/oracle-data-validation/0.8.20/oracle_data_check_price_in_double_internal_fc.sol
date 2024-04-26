@@ -53,6 +53,7 @@ contract StableOracleDAI {
         return false;
     }
 
+    //  Returns the latest price after validating it to be greater than zero and checking for data staleness and round completion.
     function getPriceUSD() external view returns (uint256) {
         uint256 wethPriceUSD = 1;
         uint256 DAIWethPrice = 1;
