@@ -4,9 +4,7 @@ from slither.slithir.operations import (
     Binary,
     BinaryType,
 )
-
 from slither.slithir.variables.constant import Constant
-from slither.detectors.oracles.supported_oracles.help_functions import check_revert, return_boolean
 
 
 CHAINLINK_ORACLE_CALLS = [
