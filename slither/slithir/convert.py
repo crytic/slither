@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Any, List, TYPE_CHECKING, Union, Optional, Dict
+from typing import Any, List, TYPE_CHECKING, Union, Optional
 
 # pylint: disable= too-many-lines,import-outside-toplevel,too-many-branches,too-many-statements,too-many-nested-blocks
 from slither.core.declarations import (
@@ -13,7 +13,6 @@ from slither.core.declarations import (
     SolidityVariableComposed,
     Structure,
 )
-from slither.core.declarations.contract import USING_FOR_KEY, USING_FOR_ITEM
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.function_top_level import FunctionTopLevel
@@ -84,6 +83,7 @@ from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVari
 from slither.slithir.variables import TupleVariable
 from slither.utils.function import get_function_id
 from slither.utils.type import export_nested_types_from_variable
+from slither.utils.using_for import USING_FOR
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
 
 if TYPE_CHECKING:
@@ -482,7 +482,7 @@ def propagate_type_and_convert_call(result: List[Operation], node: "Node") -> Li
             call_data.remove(ins.variable)
 
         if isinstance(ins, Argument):
-            # In case of dupplicate arguments we overwrite the value
+            # In case of duplicate arguments we overwrite the value
             # This can happen because of addr.call.value(1).value(2)
             if ins.get_type() in [ArgumentType.GAS]:
                 calls_gas[ins.call_id] = ins.argument
@@ -594,11 +594,13 @@ def _convert_type_contract(ir: Member) -> Assignment:
 def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-locals
     # propagate the type
     node_function = node.function
-    using_for: Dict[USING_FOR_KEY, USING_FOR_ITEM] = (
-        node_function.contract.using_for_complete
-        if isinstance(node_function, FunctionContract)
-        else {}
-    )
+
+    using_for: USING_FOR = {}
+    if isinstance(node_function, FunctionContract):
+        using_for = node_function.contract.using_for_complete
+    elif isinstance(node_function, FunctionTopLevel):
+        using_for = node_function.using_for_complete
+
     if isinstance(ir, OperationWithLValue) and ir.lvalue:
         # Force assignment in case of missing previous correct type
         if not ir.lvalue.type:
@@ -871,9 +873,7 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
             elif isinstance(ir, NewArray):
                 ir.lvalue.set_type(ir.array_type)
             elif isinstance(ir, NewContract):
-                contract = node.file_scope.get_contract_from_name(ir.contract_name)
-                assert contract
-                ir.lvalue.set_type(UserDefinedType(contract))
+                ir.lvalue.set_type(ir.contract_name)
             elif isinstance(ir, NewElementaryType):
                 ir.lvalue.set_type(ir.type)
             elif isinstance(ir, NewStructure):
@@ -1164,7 +1164,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         return n
 
     if isinstance(ins.ori, TmpNewContract):
-        op = NewContract(Constant(ins.ori.contract_name), ins.lvalue)
+        op = NewContract(ins.ori.contract_name, ins.lvalue)
         op.set_expression(ins.expression)
         op.call_id = ins.call_id
         if ins.call_value:
@@ -1209,7 +1209,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
         internalcall.set_expression(ins.expression)
         return internalcall
 
-    raise Exception(f"Not extracted {type(ins.called)} {ins}")
+    raise SlithIRError(f"Not extracted {type(ins.called)} {ins}")
 
 
 # endregion
@@ -1502,7 +1502,6 @@ def convert_to_pop(ir: HighLevelCall, node: "Node") -> List[Operation]:
 
 
 def look_for_library_or_top_level(
-    contract: Contract,
     ir: HighLevelCall,
     using_for,
     t: Union[
@@ -1533,10 +1532,12 @@ def look_for_library_or_top_level(
                     internalcall.lvalue = None
                 return internalcall
 
+        lib_contract = None
         if isinstance(destination, FunctionContract) and destination.contract.is_library:
             lib_contract = destination.contract
-        else:
-            lib_contract = contract.file_scope.get_contract_from_name(str(destination))
+        elif isinstance(destination, UserDefinedType) and isinstance(destination.type, Contract):
+            lib_contract = destination.type
+
         if lib_contract:
             lib_call = LibraryCall(
                 lib_contract,
@@ -1560,18 +1561,26 @@ def look_for_library_or_top_level(
 def convert_to_library_or_top_level(
     ir: HighLevelCall, node: "Node", using_for
 ) -> Optional[Union[LibraryCall, InternalCall,]]:
-    # We use contract_declarer, because Solidity resolve the library
-    # before resolving the inheritance.
-    # Though we could use .contract as libraries cannot be shadowed
-    contract = node.function.contract_declarer
     t = ir.destination.type
     if t in using_for:
-        new_ir = look_for_library_or_top_level(contract, ir, using_for, t)
+        new_ir = look_for_library_or_top_level(ir, using_for, t)
         if new_ir:
             return new_ir
 
     if "*" in using_for:
-        new_ir = look_for_library_or_top_level(contract, ir, using_for, "*")
+        new_ir = look_for_library_or_top_level(ir, using_for, "*")
+        if new_ir:
+            return new_ir
+
+    if (
+        isinstance(t, ElementaryType)
+        and t.name == "address"
+        and ir.destination.name == "this"
+        and UserDefinedType(node.function.contract) in using_for
+    ):
+        new_ir = look_for_library_or_top_level(
+            ir, using_for, UserDefinedType(node.function.contract)
+        )
         if new_ir:
             return new_ir
 
@@ -1719,6 +1728,7 @@ def convert_type_of_high_and_internal_level_call(
     Returns:
         Potential new IR
     """
+
     func = None
     if isinstance(ir, InternalCall):
         candidates: List[Function]
@@ -1736,7 +1746,10 @@ def convert_type_of_high_and_internal_level_call(
             ]
 
             for import_statement in contract.file_scope.imports:
-                if import_statement.alias and import_statement.alias == ir.contract_name:
+                if (
+                    import_statement.alias is not None
+                    and import_statement.alias == ir.contract_name
+                ):
                     imported_scope = contract.compilation_unit.get_scope(import_statement.filename)
                     candidates += [
                         f
@@ -1767,7 +1780,7 @@ def convert_type_of_high_and_internal_level_call(
         if func is None and candidates:
             func = _find_function_from_parameter(ir.arguments, candidates, False)
 
-    # lowlelvel lookup needs to be done at last step
+    # low level lookup needs to be done as last step
     if not func:
         if can_be_low_level(ir):
             return convert_to_low_level(ir)
@@ -1922,35 +1935,21 @@ def convert_constant_types(irs: List[Operation]) -> None:
     while was_changed:
         was_changed = False
         for ir in irs:
-            if isinstance(ir, Assignment):
-                if isinstance(ir.lvalue.type, ElementaryType):
-                    if ir.lvalue.type.type in ElementaryTypeInt:
-                        if isinstance(ir.rvalue, Function):
-                            continue
-                        if isinstance(ir.rvalue, TupleVariable):
-                            # TODO: fix missing Unpack conversion
-                            continue
-                        if isinstance(ir.rvalue.type, TypeAlias):
-                            ir.rvalue.set_type(ElementaryType(ir.lvalue.type.name))
+            if isinstance(ir, (Assignment, Binary)):
+                if (
+                    isinstance(ir.lvalue.type, ElementaryType)
+                    and ir.lvalue.type.type in ElementaryTypeInt
+                ):
+                    for r in ir.read:
+                        if isinstance(r, Constant) and r.type.type not in ElementaryTypeInt:
+                            r.set_type(ElementaryType(ir.lvalue.type.type))
                             was_changed = True
-                        elif ir.rvalue.type.type not in ElementaryTypeInt:
-                            ir.rvalue.set_type(ElementaryType(ir.lvalue.type.type))
-                            was_changed = True
-            if isinstance(ir, Binary):
-                if isinstance(ir.lvalue.type, ElementaryType):
-                    if ir.lvalue.type.type in ElementaryTypeInt:
-                        for r in ir.read:
-                            if r.type.type not in ElementaryTypeInt:
-                                r.set_type(ElementaryType(ir.lvalue.type.type))
-                                was_changed = True
+
             if isinstance(ir, (HighLevelCall, InternalCall)):
                 func = ir.function
                 if isinstance(func, StateVariable):
                     types = export_nested_types_from_variable(func)
                 else:
-                    if func is None:
-                        # TODO: add  POP instruction
-                        break
                     types = [p.type for p in func.parameters]
                 assert len(types) == len(ir.arguments)
                 for idx, arg in enumerate(ir.arguments):
@@ -1960,6 +1959,7 @@ def convert_constant_types(irs: List[Operation]) -> None:
                             if arg.type.type not in ElementaryTypeInt:
                                 arg.set_type(ElementaryType(t.type))
                                 was_changed = True
+
             if isinstance(ir, NewStructure):
                 st = ir.structure
                 for idx, arg in enumerate(ir.arguments):
@@ -1969,11 +1969,15 @@ def convert_constant_types(irs: List[Operation]) -> None:
                             if arg.type.type not in ElementaryTypeInt:
                                 arg.set_type(ElementaryType(e.type.type))
                                 was_changed = True
+
+            def is_elementary_array(t):
+                return isinstance(t, ArrayType) and isinstance(t.type, ElementaryType)
+
             if isinstance(ir, InitArray):
-                if isinstance(ir.lvalue.type, ArrayType):
-                    if isinstance(ir.lvalue.type.type, ElementaryType):
-                        if ir.lvalue.type.type.type in ElementaryTypeInt:
-                            for r in ir.read:
+                if is_elementary_array(ir.lvalue.type):
+                    if ir.lvalue.type.type.type in ElementaryTypeInt:
+                        for r in ir.read:
+                            if isinstance(r, Constant) and is_elementary_array(r.type):
                                 if r.type.type.type not in ElementaryTypeInt:
                                     r.set_type(ElementaryType(ir.lvalue.type.type.type))
                                     was_changed = True
@@ -2013,6 +2017,9 @@ def _find_source_mapping_references(irs: List[Operation]) -> None:
 
         if isinstance(ir, NewContract):
             ir.contract_created.references.append(ir.expression.source_mapping)
+
+        if isinstance(ir, HighLevelCall):
+            ir.function.references.append(ir.expression.source_mapping)
 
 
 # endregion

@@ -134,6 +134,10 @@ def find_top_level(
     if var_name in scope.enums:
         return scope.enums[var_name], False
 
+    for event in scope.events:
+        if var_name == event.full_name:
+            return event, False
+
     for import_directive in scope.imports:
         if import_directive.alias == var_name:
             new_val = SolidityImportPlaceHolder(import_directive)
@@ -265,6 +269,7 @@ def _find_variable_init(
     from slither.solc_parsing.declarations.function import FunctionSolc
     from slither.solc_parsing.declarations.structure_top_level import StructureTopLevelSolc
     from slither.solc_parsing.variables.top_level_variable import TopLevelVariableSolc
+    from slither.solc_parsing.declarations.event_top_level import EventTopLevelSolc
     from slither.solc_parsing.declarations.custom_error import CustomErrorSolc
 
     direct_contracts: List[Contract]
@@ -300,6 +305,7 @@ def _find_variable_init(
         else:
             assert isinstance(underlying_function, FunctionContract)
             scope = underlying_function.contract.file_scope
+
     elif isinstance(caller_context, StructureTopLevelSolc):
         direct_contracts = []
         direct_functions_parser = []
@@ -308,6 +314,10 @@ def _find_variable_init(
         direct_contracts = []
         direct_functions_parser = []
         scope = caller_context.underlying_variable.file_scope
+    elif isinstance(caller_context, EventTopLevelSolc):
+        direct_contracts = []
+        direct_functions_parser = []
+        scope = caller_context.underlying_event.file_scope
     elif isinstance(caller_context, CustomErrorSolc):
         if caller_context.contract_parser:
             direct_contracts = [caller_context.contract_parser.underlying_contract]
@@ -496,4 +506,6 @@ def find_variable(
     if ret:
         return ret, False
 
-    raise VariableNotFound(f"Variable not found: {var_name} (context {contract})")
+    raise VariableNotFound(
+        f"Variable not found: {var_name} (context {contract} {contract.source_mapping.to_detailed_str()})"
+    )

@@ -16,12 +16,12 @@ EXPRESSION:
 user_shares.append(1)
 
 IRs:
-REF_1 -> LENGTH user_shares
-TMP_3(uint256) := REF_1(uint256)
-TMP_4(uint256) = TMP_3 (c)+ 1
-REF_1(uint256) (->user_shares) := TMP_4(uint256)
-REF_2(uint256) -> user_shares[TMP_3]
-REF_2(uint256) (->user_shares) := 1(uint256)"];
+REF_2 -> LENGTH user_shares
+TMP_4(uint256) := REF_2(uint256)
+TMP_5(uint256) = TMP_4 (c)+ 1
+REF_2(uint256) (->user_shares) := TMP_5(uint256)
+REF_3(uint256) -> user_shares[TMP_4]
+REF_3(uint256) (->user_shares) := 1(uint256)"];
 2->3;
 3[label="Node Type: EXPRESSION 3
 
@@ -29,10 +29,10 @@ EXPRESSION:
 user_shares.pop()
 
 IRs:
-REF_4 -> LENGTH user_shares
-TMP_6(uint256) = REF_4 (c)- 1
-REF_5(uint256) -> user_shares[TMP_6]
-REF_5 = delete REF_5 
-REF_6 -> LENGTH user_shares
-REF_6(uint256) (->user_shares) := TMP_6(uint256)"];
+REF_5 -> LENGTH user_shares
+TMP_7(uint256) = REF_5 (c)- 1
+REF_6(uint256) -> user_shares[TMP_7]
+REF_6 = delete REF_6 
+REF_7 -> LENGTH user_shares
+REF_7(uint256) (->user_shares) := TMP_7(uint256)"];
 }

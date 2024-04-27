@@ -25,7 +25,7 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
         type: ["unit", "integration", "tool"]
-        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.11"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11"]') }}
+        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python }}
@@ -80,11 +80,11 @@ jobs:
         # Only run coverage on ubuntu-latest.
         run: |
           if [ ${{ matrix.os }} = "ubuntu-latest" ]; then
-            TEST_ARGS="--cov=slither --cov-append"
+            TEST_ARGS=(--cov=slither --cov-append)
           elif [ ${{ matrix.os }} = "windows-2022" ]; then
-            TEST_ARGS=""
+            TEST_ARGS=()
           fi
-          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" $TEST_ARGS
+          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
 
 
       - name: Upload coverage
@@ -109,14 +109,15 @@ jobs:
       - run: pip install coverage[toml]
 
       - name: download coverage data
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4
         with:
-          name: coverage-data
+          pattern: coverage-data-*
+          merge-multiple: true
 
       - name: combine coverage data
         id: combinecoverage
         run: |
           set +e
           python -m coverage combine
-          echo "## python coverage" >> $GITHUB_STEP_SUMMARY
-          python -m coverage report -m --format=markdown >> $GITHUB_STEP_SUMMARY
+          echo "## python coverage" >> "$GITHUB_STEP_SUMMARY"
+          python -m coverage report -m --format=markdown >> "$GITHUB_STEP_SUMMARY"

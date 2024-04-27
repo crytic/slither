@@ -38,13 +38,13 @@ jobs:
       - build-release
     steps:
       - name: fetch dists
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: slither-dists
           path: dist/
 
       - name: publish
-        uses: pypa/gh-action-pypi-publish@v1.8.11
+        uses: pypa/gh-action-pypi-publish@v1.8.14
 
       - name: sign
         uses: sigstore/gh-action-sigstore-python@v2.1.1
