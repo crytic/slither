@@ -33,12 +33,6 @@ contract ExampleContract {
                 for node in function.nodes:
                     for ir in node.irs:
                         if isinstance(ir, SolidityCall) and isinstance(ir.function, SolidityFunction) and ir.function.name[0:9] == 'ecrecover':
-                            info = {
-                                'description': f'The function `{function.name}` in contract `{contract.name}` uses `ecrecover`.',
-                                'contract': contract.name,
-                                'function_name': function.name,
-                                'location': node.source_mapping
-                            }
                             info = [f"ecrecover function call detected\n"]
                             result = self.generate_result(info)
                             results.append(result)
