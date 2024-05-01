@@ -1,12 +1,20 @@
 import argparse
+import cProfile
 import enum
 import json
 import os
+import pstats
 import re
 import logging
+import sys
 from collections import defaultdict
-from typing import Dict, List, Type, Union
+from pathlib import Path
+from typing import Dict, List, Type, Union, Any
 
+import click
+import typer
+
+from crytic_compile import cryticparser
 from crytic_compile.cryticparser.defaults import (
     DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 )
@@ -17,6 +25,11 @@ from slither.utils.colors import yellow, red
 from slither.utils.myprettytable import MyPrettyTable
 
 logger = logging.getLogger("Slither")
+
+
+class SlitherState(dict):
+    pass
+
 
 DEFAULT_JSON_OUTPUT_TYPES = ["detectors", "printers"]
 JSON_OUTPUT_TYPES = [
@@ -35,6 +48,93 @@ class FailOnLevel(enum.Enum):
     MEDIUM = "medium"
     HIGH = "high"
     NONE = "none"
+
+
+class TyperDefault(typer.Typer):
+    def __init__(self, default_method, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.default_method = default_method
+
+    @property
+    def click_app(self):
+        return typer.main.get_command(self)
+
+    def __call__(self, *args, **kwargs):
+        """Overrides Typer command handling.
+
+        We override the calling mechanism here to allow a smooth transition from the previous CLI
+        interface to the new sub command based one.
+        """
+
+        if not any(command in sys.argv for command in self.click_app.commands):
+
+            main_command_args = []
+            other_command_args = []
+
+            take_next: bool = False
+            main_args = {option: param for param in self.click_app.params for option in param.opts}
+
+            for idx, arg in enumerate(sys.argv[1:]):
+                if take_next:
+                    take_next = False
+
+                if arg in main_args:
+                    main_command_args.append(arg)
+                    if not main_args[arg].is_flag:
+                        main_command_args.append(sys.argv[idx + 1])
+                        take_next = True
+                else:
+                    other_command_args.append(arg)
+
+            sys.argv = [sys.argv[0], *main_command_args, self.default_method, *other_command_args]
+
+            if other_command_args:
+                logger.info(
+                    f"Deprecation Notice: Slither CLI has moved to a subcommand based interface. "
+                    f"This command has been automatically transposed to: %s",
+                    " ".join(sys.argv),
+                )
+
+        super().__call__(*args, **kwargs)
+
+        return
+
+
+@click.pass_context
+def slither_end_callback(ctx: click.Context, *args, **kwargs) -> None:
+    """End execution callback."""
+
+    # If we have asked for the perf object
+    ctx.state = ctx.ensure_object(SlitherState)
+    perf: Union[cProfile.Profile, None] = ctx.state.get("perf", None)
+    if perf is not None:
+        perf.disable()
+        stats = pstats.Stats(perf).sort_stats("cumtime")
+        stats.print_stats()
+
+
+def format_crytic_help(ctx: typer.Context):
+    """"""
+    parser = argparse.ArgumentParser()
+    cryticparser.init(parser)
+
+    for action_group in parser._action_groups:
+
+        if action_group.title in ("positional arguments", "options"):
+            continue
+
+        for action in action_group._group_actions:
+            param = click.Option(
+                action.option_strings,
+                help=action.help,
+                hidden=False,  # TODO(dm)
+                show_default=False,
+            )
+            param.rich_help_panel = action_group.title
+
+            ctx.command.params.append(param)
+
+    # print(ctx.get_help())
 
 
 # Those are the flags shared by the command line and the config file
@@ -74,6 +174,35 @@ defaults_flag_in_config = {
     "triage_database": "slither.db.json",
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
+
+
+def read_config_file_new(config_file: Union[None, Path]) -> Dict[str, Any]:
+    if config_file is None:
+        config_path = Path("slither.config.json")
+    else:
+        config_path = config_file
+
+    state: Dict[str, Any] = defaults_flag_in_config
+    if config_path.is_file():
+
+        with config_path.open(encoding="utf-8") as f:
+            try:
+                config = json.load(f)
+            except json.JSONDecodeError as exc:
+                logger.error(red(f"Impossible to read {config_file}, please check the file {exc}"))
+
+            for key, elem in config.items():
+                if key not in defaults_flag_in_config:
+                    logger.info(yellow(f"{config_file} has an unknown key: {key} : {elem}"))
+                    continue
+
+                state[key] = elem
+
+    elif config_file is not None:
+        logger.error(red(f"File {config_file} is not a file or does not exist"))
+        logger.error(yellow("Falling back to the default settings..."))
+
+    return state
 
 
 def read_config_file(args: argparse.Namespace) -> None:

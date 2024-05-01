@@ -50,7 +50,7 @@ setup(
     long_description_content_type="text/markdown",
     entry_points={
         "console_scripts": [
-            "slither = slither.__main__:main",
+            "slither = slither.__main__:app",
             "slither-check-upgradeability = slither.tools.upgradeability.__main__:main",
             "slither-find-paths = slither.tools.possible_paths.__main__:main",
             "slither-simil = slither.tools.similarity.__main__:main",
