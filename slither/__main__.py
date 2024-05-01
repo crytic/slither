@@ -60,7 +60,7 @@ from slither.utils.command_line import (
     format_crytic_help,
     read_config_file_new,
     slither_end_callback,
-    SlitherState,
+    SlitherState, version_callback,
 )
 from slither.exceptions import SlitherException
 
@@ -227,7 +227,7 @@ def choose_detectors(
 ) -> List[Type[AbstractDetector]]:
     # If detectors are specified, run only these
 
-    all_detector_classes: List[Type[AbstractDetector]] = detectors
+    all_detector_classes: List[Type[AbstractDetector]] = DETECTORS
     if all_detector_classes is None:
         return []
 
@@ -433,7 +433,7 @@ def list_detectors_json(value: bool):
     if not value:
         return
 
-    detector_types_json = output_detectors_json(detectors)
+    detector_types_json = output_detectors_json(DETECTORS)
     print(json.dumps(detector_types_json))
     raise typer.Exit(code=0)
 
@@ -442,7 +442,7 @@ def list_detectors_action(value: bool) -> None:
     if not value:
         return
 
-    output_detectors(detectors)
+    output_detectors(DETECTORS)
     raise typer.Exit()
 
 
@@ -450,7 +450,7 @@ def list_printers_action(value: bool) -> None:
     if not value:
         return
 
-    output_printers(printers)
+    output_printers(PRINTERS)
     raise typer.Exit()
 
 
@@ -735,16 +735,8 @@ target_type = Annotated[
     Optional[Target], typer.Argument(..., help=Target.HELP, click_type=TargetParam())
 ]
 
-
-def version_callback(value: bool) -> None:
-    if not value:
-        return
-
-    print(metadata.version("slither-analyzer"))
-    raise typer.Exit(code=0)
-
-
-detectors, printers = get_detectors_and_printers()
+# Find all detectors and printers
+DETECTORS, PRINTERS = get_detectors_and_printers()
 
 
 class OutputFormat(str, enum.Enum):
@@ -823,7 +815,7 @@ def detect(
         Optional[str],
         typer.Option(
             "--detect",
-            help=f"Comma-separated list of detectors. Available detectors: {', '.join(d.ARGUMENT for d in detectors)}",
+            help=f"Comma-separated list of detectors. Available detectors: {', '.join(d.ARGUMENT for d in DETECTORS)}",
             rich_help_panel="Detectors",
         ),
     ] = defaults_flag_in_config["detectors_to_run"],
@@ -944,7 +936,7 @@ def detect(
         Path,
         typer.Option(
             "--triage-database",
-            help="File path to the triage database (default: slither.db.json)",
+            help="File path to the triage database.",
             rich_help_panel="Detectors",
         ),
     ] = defaults_flag_in_config["triage_database"],
@@ -952,12 +944,12 @@ def detect(
         str,
         typer.Option(
             "--change-line-prefix",
-            help="Change the line prefix (default #) for the displayed source codes (i.e. file.sol#1).",
+            help="Change the line prefix for the displayed source codes (i.e. file.sol#1).",
             rich_help_panel="Detectors",
         ),
     ] = "#",  # TODO(dm) change me to ":"
-    solc_ast: bool = False,  # Unused,
-    json_types: Optional[str] = None,  # Unused
+    solc_ast: Annotated[bool, typer.Option(hidden=True)] = False,  # Unused,
+    json_types: Annotated[Optional[str], typer.Option(hidden=True)] = None,  # Unused
     generate_patches: Annotated[
         bool,
         typer.Option(
@@ -1151,12 +1143,13 @@ def printer_command(
         typer.Option(
             "--print",
             help="Comma-separated list of contract information printers, "
-            f"available printers: {', '.join(d.ARGUMENT for d in printers)}",
+            f"available printers: {', '.join(d.ARGUMENT for d in PRINTERS)}",
             rich_help_panel="Printers",
         ),
     ] = defaults_flag_in_config["printers_to_run"],
 ):
-    pass
+    choosen_printers = choose_printers(PRINTERS)
+
 
 
 def handle_target(
@@ -1261,11 +1254,11 @@ def format_output(
 
         # Add our detector types to JSON
         if "list-detectors" in json_types:
-            json_results["list-detectors"] = output_detectors_json(detectors)
+            json_results["list-detectors"] = output_detectors_json(DETECTORS)
 
         # Add our detector types to JSON
         if "list-printers" in json_types:
-            json_results["list-printers"] = output_printers_json(printers)
+            json_results["list-printers"] = output_printers_json(PRINTERS)
 
         if output_format == OutputFormat.JSON:
             if "console" in json_types:

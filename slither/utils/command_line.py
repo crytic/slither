@@ -8,6 +8,7 @@ import re
 import logging
 import sys
 from collections import defaultdict
+from importlib import metadata
 from pathlib import Path
 from typing import Dict, List, Type, Union, Any
 
@@ -535,3 +536,11 @@ def check_and_sanitize_markdown_root(markdown_root: str) -> str:
             markdown_root = f"{markdown_root[:positions[0]]}blob{markdown_root[positions[1]:]}"
 
     return markdown_root
+
+
+def version_callback(value: bool) -> None:
+    if not value:
+        return
+
+    print(metadata.version("slither-analyzer"))
+    raise typer.Exit(code=0)
