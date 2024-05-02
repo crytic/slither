@@ -1,30 +1,22 @@
 #!/usr/bin/env python3
-
-import argparse
 import cProfile
-import enum
 import glob
 import inspect
 import json
 import logging
 import os
-import pstats
 import sys
 import textwrap
-import click
 import traceback
-from dataclasses import dataclass
 from functools import lru_cache
 from importlib import metadata
 from pathlib import Path
-from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
+from typing import Tuple, Optional, List, Dict, Type, Union, Any
 
 import typer
 from typing_extensions import Annotated
 
-from crytic_compile import cryticparser, CryticCompile
-from crytic_compile.platform.standard import generate_standard_export
-from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
+from crytic_compile import CryticCompile
 from crytic_compile import compile_all, is_supported
 
 from slither.detectors import all_detectors
@@ -32,35 +24,33 @@ from slither.detectors.abstract_detector import AbstractDetector, DetectorClassi
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
-from slither.utils import codex
 from slither.utils.output import (
-    output_to_json,
-    output_to_zip,
-    output_to_sarif,
-    ZIP_TYPES_ACCEPTED,
     Output,
+    ZipType,
+    OutputFormat,
+    format_output,
+    output_to_markdown,
+    output_wiki,
+    output_detectors,
+    output_detectors_json,
+    output_printers,
 )
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
     FailOnLevel,
-    output_detectors,
-    output_results_to_markdown,
-    output_detectors_json,
-    output_printers,
-    output_printers_json,
-    output_to_markdown,
-    output_wiki,
     defaults_flag_in_config,
-    read_config_file,
-    JSON_OUTPUT_TYPES,
     DEFAULT_JSON_OUTPUT_TYPES,
-    check_and_sanitize_markdown_root,
-    TyperDefault,
-    format_crytic_help,
-    read_config_file_new,
+    SlitherApp,
     slither_end_callback,
-    SlitherState, version_callback,
+    SlitherState,
+    version_callback,
+    MarkdownRoot,
+    CommaSeparatedValueParser,
+    long_help,
+    Target,
+    target_type,
+    read_config_file,
 )
 from slither.exceptions import SlitherException
 
@@ -68,7 +58,10 @@ logging.basicConfig()
 logger = logging.getLogger("Slither")
 
 
-app = TyperDefault("detect", rich_markup_mode="markdown", result_callback=slither_end_callback)
+app = SlitherApp("detect", rich_markup_mode="markdown", result_callback=slither_end_callback)
+
+# Because the app will be used by the tools to add commands, we need to define it before importing them
+import slither.tools  # pylint: disable=unused-import,wrong-import-position
 
 ###################################################################################
 ###################################################################################
@@ -79,7 +72,7 @@ app = TyperDefault("detect", rich_markup_mode="markdown", result_callback=slithe
 
 def process_single(
     target: Union[str, CryticCompile],
-    state: Dict,
+    state: Dict[str, Any],
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[Slither, List[Dict], List[Output], int]:
@@ -90,14 +83,14 @@ def process_single(
         list(result), int: Result list and number of contracts analyzed
     """
     ast = "--ast-compact-json" if not state.get("legacy_ast", False) else "--ast-json"
-    slither = Slither(target, ast_format=ast, **vars(state))
+    slither_ = Slither(target, ast_format=ast, **state)
 
     if state.get("sarif_input"):
-        slither.sarif_input = state.get("sarif_input")
+        slither_.sarif_input = state.get("sarif_input")
     if state.get("sarif_triage"):
-        slither.sarif_triage = state.get("sarif_triage")
+        slither_.sarif_triage = state.get("sarif_triage")
 
-    return _process(slither, detector_classes, printer_classes)
+    return _process(slither_, detector_classes, printer_classes)
 
 
 def process_all(
@@ -106,21 +99,21 @@ def process_all(
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[List[Slither], List[Dict], List[Output], int]:
-    compilations = compile_all(target, **vars(state))
+    compilations = compile_all(target, **state)
     slither_instances = []
     results_detectors = []
     results_printers = []
     analyzed_contracts_count = 0
     for compilation in compilations:
         (
-            slither,
+            slither_,
             current_results_detectors,
             current_results_printers,
             current_analyzed_count,
         ) = process_single(compilation, state, detector_classes, printer_classes)
         results_detectors.extend(current_results_detectors)
         results_printers.extend(current_results_printers)
-        slither_instances.append(slither)
+        slither_instances.append(slither_)
         analyzed_contracts_count += current_analyzed_count
     return (
         slither_instances,
@@ -131,33 +124,33 @@ def process_all(
 
 
 def _process(
-    slither: Slither,
+    slither_: Slither,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[Slither, List[Dict], List[Output], int]:
     for detector_cls in detector_classes:
-        slither.register_detector(detector_cls)
+        slither_.register_detector(detector_cls)
 
     for printer_cls in printer_classes:
-        slither.register_printer(printer_cls)
+        slither_.register_printer(printer_cls)
 
-    analyzed_contracts_count = len(slither.contracts)
+    analyzed_contracts_count = len(slither_.contracts)
 
     results_detectors = []
     results_printers = []
 
     if not printer_classes:
-        detector_resultss = slither.run_detectors()
+        detector_resultss = slither_.run_detectors()
         detector_resultss = [x for x in detector_resultss if x]  # remove empty results
         detector_results = [item for sublist in detector_resultss for item in sublist]  # flatten
         results_detectors.extend(detector_results)
 
     else:
-        printer_results = slither.run_printers()
+        printer_results = slither_.run_printers()
         printer_results = [x for x in printer_results if x]  # remove empty results
         results_printers.extend(printer_results)
 
-    return slither, results_detectors, results_printers, analyzed_contracts_count
+    return slither_, results_detectors, results_printers, analyzed_contracts_count
 
 
 # endregion
@@ -215,7 +208,7 @@ def get_detectors_and_printers() -> Tuple[
     return detectors, printers
 
 
-# pylint: disable=too-many-branches
+# pylint: disable=too-many-branches,too-many-arguments
 def choose_detectors(
     arg_detector_to_run: str,
     arg_detector_exclude: str,
@@ -276,19 +269,19 @@ def choose_detectors(
 
 
 def choose_printers(
-    args: argparse.Namespace, all_printer_classes: List[Type[AbstractPrinter]]
+    arg_printer_to_run: Union[None, str] = None,
 ) -> List[Type[AbstractPrinter]]:
     printers_to_run = []
 
     # disable default printer
-    if args.printers_to_run is None:
+    if arg_printer_to_run is None:
         return []
 
-    if args.printers_to_run == "all":
-        return all_printer_classes
+    if arg_printer_to_run == "all":
+        return PRINTERS
 
-    printers = {p.ARGUMENT: p for p in all_printer_classes}
-    for printer in args.printers_to_run.split(","):
+    printers = {p.ARGUMENT: p for p in PRINTERS}
+    for printer in arg_printer_to_run.split(","):
         if printer in printers:
             printers_to_run.append(printers[printer])
         else:
@@ -304,133 +297,8 @@ def choose_printers(
 ###################################################################################
 
 
-def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]:
-    paths = args.filter_paths if filter_path else args.include_paths
-    if paths:
-        return paths.split(",")
-    return []
-
-
-# pylint: disable=too-many-statements
-def parse_args(
-    detector_classes: List[Type[AbstractDetector]], printer_classes: List[Type[AbstractPrinter]]
-) -> argparse.Namespace:
-    usage = "slither target [flag]\n"
-    usage += "\ntarget can be:\n"
-    usage += "\t- file.sol // a Solidity file\n"
-    usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
-    usage += "\t- 0x.. // a contract on mainnet\n"
-    usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x[:-1] for x in SUPPORTED_NETWORK)}\n"
-
-    parser = argparse.ArgumentParser(
-        description="For usage information, see https://github.com/crytic/slither/wiki/Usage",
-        usage=usage,
-    )
-
-    parser.add_argument("filename", help=argparse.SUPPRESS)
-
-    cryticparser.init(parser)
-
-    group_misc.add_argument(
-        "--json-types",
-        help="Comma-separated list of result types to output to JSON, defaults to "
-        + f'{",".join(output_type for output_type in DEFAULT_JSON_OUTPUT_TYPES)}. '
-        + f'Available types: {",".join(output_type for output_type in JSON_OUTPUT_TYPES)}',
-        action="store",
-        default=defaults_flag_in_config["json-types"],
-    )
-    group_misc.add_argument(
-        "--solc-ast",
-        help="Provide the contract as a json AST",
-        action="store_true",
-        default=False,
-    )
-
-    codex.init_parser(parser)
-
-    # debugger command
-    parser.add_argument("--debug", help=argparse.SUPPRESS, action="store_true", default=False)
-
-    parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
-
-    parser.add_argument(
-        "--wiki-detectors", help=argparse.SUPPRESS, action=OutputWiki, default=False
-    )
-
-    parser.add_argument(
-        "--list-detectors-json",
-        help=argparse.SUPPRESS,
-        action=ListDetectorsJson,
-        nargs=0,
-        default=False,
-    )
-
-    parser.add_argument(
-        "--legacy-ast",
-        help=argparse.SUPPRESS,
-        action="store_true",
-        default=defaults_flag_in_config["legacy_ast"],
-    )
-
-    parser.add_argument(
-        "--skip-assembly",
-        help=argparse.SUPPRESS,
-        action="store_true",
-        default=defaults_flag_in_config["skip_assembly"],
-    )
-
-    parser.add_argument(
-        "--perf",
-        help=argparse.SUPPRESS,
-        action="store_true",
-        default=False,
-    )
-
-    # Disable the throw/catch on partial analyses
-    parser.add_argument(
-        "--disallow-partial", help=argparse.SUPPRESS, action="store_true", default=False
-    )
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    args = parser.parse_args()
-    read_config_file(args)
-
-    args.filter_paths = parse_filter_paths(args, True)
-    args.include_paths = parse_filter_paths(args, False)
-
-    # Verify our json-type output is valid
-    args.json_types = set(args.json_types.split(","))  # type:ignore
-    for json_type in args.json_types:
-        if json_type not in JSON_OUTPUT_TYPES:
-            raise ValueError(f'Error: "{json_type}" is not a valid JSON result output type.')
-
-    return args
-
-
-class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
-        detectors, _ = get_detectors_and_printers()
-        output_detectors(detectors)
-        parser.exit()
-
-
-class ListDetectorsJson(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
-        detectors, _ = get_detectors_and_printers()
-        detector_types_json = output_detectors_json(detectors)
-        print(json.dumps(detector_types_json))
-        parser.exit()
-
-
-def list_detectors_json(value: bool):
-    if not value:
+def list_detectors_json(ctx: typer.Context, value: bool):
+    if not value or ctx.resilient_parsing:
         return
 
     detector_types_json = output_detectors_json(DETECTORS)
@@ -438,57 +306,47 @@ def list_detectors_json(value: bool):
     raise typer.Exit(code=0)
 
 
-def list_detectors_action(value: bool) -> None:
-    if not value:
+def list_detectors_action(ctx: typer.Context, value: bool) -> None:
+    if not value or ctx.resilient_parsing:
         return
+
+    state = ctx.ensure_object(SlitherState)
+    output_format: OutputFormat = state.get("output_format", OutputFormat.TEXT)
+    if output_format == OutputFormat.JSON:
+        StandardOutputCapture.disable()
+        list_detectors_json(ctx, True)
+
+    if output_format != OutputFormat.TEXT:
+        StandardOutputCapture.disable()
+        logger.error("Unable to output detectors in another format than TEXT or JSON.")
+        raise typer.Exit(code=1)
 
     output_detectors(DETECTORS)
     raise typer.Exit()
 
 
-def list_printers_action(value: bool) -> None:
-    if not value:
+def list_printers_action(ctx: typer.Context, value: bool) -> None:
+    if not value or ctx.resilient_parsing:
         return
 
     output_printers(PRINTERS)
     raise typer.Exit()
 
 
-class ListPrinters(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self, parser: Any, *args: Any, **kwargs: Any
-    ) -> None:  # pylint: disable=signature-differs
-        _, printers = get_detectors_and_printers()
-        output_printers(printers)
-        parser.exit()
+def output_markdown_action(ctx: typer.Context, value: Union[str, None]) -> None:
+    if value is None or ctx.resilient_parsing:
+        return
+
+    output_to_markdown(DETECTORS, PRINTERS, value)
+    raise typer.Exit()
 
 
-class OutputMarkdown(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self,
-        parser: Any,
-        args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
-        option_string: Any = None,
-    ) -> None:
-        detectors, printers = get_detectors_and_printers()
-        assert isinstance(values, str)
-        output_to_markdown(detectors, printers, values)
-        parser.exit()
+def output_wiki_action(ctx: typer.Context, _: str, value: Union[str, None] = None):
+    if ctx.resilient_parsing or value is None:
+        return
 
-
-class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(
-        self,
-        parser: Any,
-        args: Any,
-        values: Optional[Union[str, Sequence[Any]]],
-        option_string: Any = None,
-    ) -> None:
-        detectors, _ = get_detectors_and_printers()
-        assert isinstance(values, str)
-        output_wiki(detectors, values)
-        parser.exit()
+    output_wiki(DETECTORS, value)
+    raise typer.Exit()
 
 
 # endregion
@@ -519,272 +377,13 @@ class FormatterCryticCompile(logging.Formatter):
 ###################################################################################
 
 
-# pylint: disable=too-many-statements,too-many-branches,too-many-locals
-def main_impl(
-    all_detector_classes: List[Type[AbstractDetector]],
-    all_printer_classes: List[Type[AbstractPrinter]],
-) -> None:
-    """
-    :param all_detector_classes: A list of all detectors that can be included/excluded.
-    :param all_printer_classes: A list of all printers that can be included.
-    """
-    # Set logger of Slither to info, to catch warnings related to the arg parsing
-    logger.setLevel(logging.INFO)
-    args = parse_args(all_detector_classes, all_printer_classes)
-
-    cp: Optional[cProfile.Profile] = None
-    if args.perf:
-        cp = cProfile.Profile()
-        cp.enable()
-
-    # Set colorization option
-    set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
-
-    # Define some variables for potential JSON output
-    json_results: Dict[str, Any] = {}
-    output_error = None
-    outputting_json = args.json is not None
-    outputting_json_stdout = args.json == "-"
-    outputting_sarif = args.sarif is not None
-    outputting_sarif_stdout = args.sarif == "-"
-    outputting_zip = args.zip is not None
-    if args.zip_type not in ZIP_TYPES_ACCEPTED:
-        to_log = f'Zip type not accepted, it must be one of {",".join(ZIP_TYPES_ACCEPTED.keys())}'
-        logger.error(to_log)
-
-    # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
-    # output.
-    if outputting_json or outputting_sarif:
-        StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
-
-    printer_classes = choose_printers(args, all_printer_classes)
-    detector_classes = choose_detectors(args, all_detector_classes)
-
-    results_detectors: List[Dict] = []
-    results_printers: List[Output] = []
-    try:
-        filename = args.filename
-
-        # Determine if we are handling ast from solc
-        if args.solc_ast or (filename.endswith(".json") and not is_supported(filename)):
-            globbed_filenames = glob.glob(filename, recursive=True)
-            filenames = glob.glob(os.path.join(filename, "*.json"))
-            if not filenames:
-                filenames = globbed_filenames
-            number_contracts = 0
-
-            slither_instances = []
-            for filename in filenames:
-                (
-                    slither_instance,
-                    results_detectors_tmp,
-                    results_printers_tmp,
-                    number_contracts_tmp,
-                ) = process_single(filename, args, detector_classes, printer_classes)
-                number_contracts += number_contracts_tmp
-                results_detectors += results_detectors_tmp
-                results_printers += results_printers_tmp
-                slither_instances.append(slither_instance)
-
-        # Rely on CryticCompile to discern the underlying type of compilations.
-        else:
-            (
-                slither_instances,
-                results_detectors,
-                results_printers,
-                number_contracts,
-            ) = process_all(filename, args, detector_classes, printer_classes)
-
-        # Determine if we are outputting JSON
-        if outputting_json or outputting_zip or output_to_sarif:
-            # Add our compilation information to JSON
-            if "compilations" in args.json_types:
-                compilation_results = []
-                for slither_instance in slither_instances:
-                    assert slither_instance.crytic_compile
-                    compilation_results.append(
-                        generate_standard_export(slither_instance.crytic_compile)
-                    )
-                json_results["compilations"] = compilation_results
-
-            # Add our detector results to JSON if desired.
-            if results_detectors and "detectors" in args.json_types:
-                json_results["detectors"] = results_detectors
-
-            # Add our printer results to JSON if desired.
-            if results_printers and "printers" in args.json_types:
-                json_results["printers"] = results_printers
-
-            # Add our detector types to JSON
-            if "list-detectors" in args.json_types:
-                detectors, _ = get_detectors_and_printers()
-                json_results["list-detectors"] = output_detectors_json(detectors)
-
-            # Add our detector types to JSON
-            if "list-printers" in args.json_types:
-                _, printers = get_detectors_and_printers()
-                json_results["list-printers"] = output_printers_json(printers)
-
-        # Output our results to markdown if we wish to compile a checklist.
-        if args.checklist:
-            output_results_to_markdown(
-                results_detectors, args.checklist_limit, args.show_ignored_findings
-            )
-
-        # Don't print the number of result for printers
-        if number_contracts == 0:
-            logger.warning(red("No contract was analyzed"))
-        if printer_classes:
-            logger.info("%s analyzed (%d contracts)", filename, number_contracts)
-        else:
-            logger.info(
-                "%s analyzed (%d contracts with %d detectors), %d result(s) found",
-                filename,
-                number_contracts,
-                len(detector_classes),
-                len(results_detectors),
-            )
-
-    except SlitherException as slither_exception:
-        output_error = str(slither_exception)
-        traceback.print_exc()
-        logging.error(red("Error:"))
-        logging.error(red(output_error))
-        logging.error("Please report an issue to https://github.com/crytic/slither/issues")
-
-    # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
-    if outputting_json:
-        if "console" in args.json_types:
-            json_results["console"] = {
-                "stdout": StandardOutputCapture.get_stdout_output(),
-                "stderr": StandardOutputCapture.get_stderr_output(),
-            }
-        StandardOutputCapture.disable()
-        output_to_json(None if outputting_json_stdout else args.json, output_error, json_results)
-
-    if outputting_sarif:
-        StandardOutputCapture.disable()
-        output_to_sarif(
-            None if outputting_sarif_stdout else args.sarif, json_results, detector_classes
-        )
-
-    if outputting_zip:
-        output_to_zip(args.zip, output_error, json_results, args.zip_type)
-
-    if args.perf and cp:
-        cp.disable()
-        stats = pstats.Stats(cp).sort_stats("cumtime")
-        stats.print_stats()
-
-    fail_on = FailOnLevel(args.fail_on)
-    if fail_on == FailOnLevel.HIGH:
-        fail_on_detection = any(result["impact"] == "High" for result in results_detectors)
-    elif fail_on == FailOnLevel.MEDIUM:
-        fail_on_detection = any(
-            result["impact"] in ["Medium", "High"] for result in results_detectors
-        )
-    elif fail_on == FailOnLevel.LOW:
-        fail_on_detection = any(
-            result["impact"] in ["Low", "Medium", "High"] for result in results_detectors
-        )
-    elif fail_on == FailOnLevel.PEDANTIC:
-        fail_on_detection = bool(results_detectors)
-    else:
-        fail_on_detection = False
-
-    # Exit with them appropriate status code
-    if output_error or fail_on_detection:
-        sys.exit(-1)
-    else:
-        sys.exit(0)
-
-
-@dataclass
-class Target:
-    target: Union[str, Path]
-
-    HELP: str = textwrap.dedent(
-        f"""
-    Target can be:
-
-    - *file.sol*: a Solidity file
-    
-    - *project_directory*: a project directory. 
-      See the [documentation](https://github.com/crytic/crytic-compile/#crytic-compile) for the supported 
-      platforms.
-    
-    - *0x..* : a contract address on mainnet
-    
-    - *NETWORK:0x..*: a contract on a different network.
-      Supported networks: {', '.join(x[:-1] for x in SUPPORTED_NETWORK)}
-    """
-    )
-
-    def __str__(self) -> str:
-        return "XXX"
-
-
-class TargetParam(click.ParamType):
-    name = "Target"
-
-    def convert(self, value: Union[str, Path], param, ctx):
-        return Target(value)
-
-
-target_type = Annotated[
-    Optional[Target], typer.Argument(..., help=Target.HELP, click_type=TargetParam())
-]
-
 # Find all detectors and printers
 DETECTORS, PRINTERS = get_detectors_and_printers()
 
 
-class OutputFormat(str, enum.Enum):
-    TEXT = "text"
-    JSON = "json"
-    SARIF = "sarif"
-    ZIP = "zip"
-
-
-class PathList(click.ParamType):
-    name = "PathList"
-
-    def convert(self, value: Union[str, None], param, ctx) -> List[str]:
-        if value is None:
-            return []
-
-        paths = value.split(",")
-        return paths
-
-
-class MarkdownRoot(click.ParamType):
-    name = "MarkdownRoot"
-
-    def convert(self, value: str, param, ctx) -> str:
-        return check_and_sanitize_markdown_root(value)
-
-
-def parse_extra_arguments(args: List[str]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    if not args:
-        return {}, {}
-
-    parser = argparse.ArgumentParser(allow_abbrev=False)
-    cryticparser.init(parser)
-
-    parsed_args, remaining_args = parser.parse_known_args(args)
-
-    return parsed_args, remaining_args
-
-
-def long_help(ctx: typer.Context, _, value) -> None:
-    if value is True:
-        format_crytic_help(ctx)
-        ctx.get_help()
-        raise typer.Exit()
-
-
+# pylint: disable=unused-argument,too-many-locals
 @app.command(
-    context_settings={"ignore_unknown_options": True, "allow_extra_args": True},
+    help="Run slither detectors on the target.",
 )
 def detect(
     ctx: typer.Context,
@@ -809,6 +408,7 @@ def detect(
             help="List available detectors.",
             callback=list_detectors_action,
             rich_help_panel="Detectors",
+            is_eager=True,
         ),
     ] = None,
     detectors_to_run: Annotated[
@@ -823,7 +423,7 @@ def detect(
         Optional[str],
         typer.Option(
             "--exclude",
-            help="Comma-separated list of detectors that should be excluded.",
+            help="Comma-separated list of detectors that should be excluded or all.",
             rich_help_panel="Detectors",
         ),
     ] = defaults_flag_in_config["detectors_to_exclude"],
@@ -907,7 +507,7 @@ def detect(
             rich_help_panel="Detectors",
             click_type=MarkdownRoot(),
         ),
-    ] = "",
+    ] = None,
     sarif_input: Annotated[
         Path,
         typer.Option(
@@ -928,7 +528,7 @@ def detect(
         bool,
         typer.Option(
             "--triage-mode",
-            help=f"Run triage mode (save results in triage database).",
+            help="Run triage mode (save results in triage database).",
             rich_help_panel="Detectors",
         ),
     ] = False,
@@ -944,12 +544,17 @@ def detect(
         str,
         typer.Option(
             "--change-line-prefix",
-            help="Change the line prefix for the displayed source codes (i.e. file.sol#1).",
+            help="Change the line prefix for the displayed source codes (i.e. file.sol:1).",
             rich_help_panel="Detectors",
         ),
-    ] = "#",  # TODO(dm) change me to ":"
-    solc_ast: Annotated[bool, typer.Option(hidden=True)] = False,  # Unused,
-    json_types: Annotated[Optional[str], typer.Option(hidden=True)] = None,  # Unused
+    ] = ":",
+    solc_ast: Annotated[bool, typer.Option(hidden=True)] = False,
+    json_types: Annotated[
+        Optional[str],
+        typer.Option(
+            help="Types to include in the JSON output.", click_type=CommaSeparatedValueParser()
+        ),
+    ] = ",".join(DEFAULT_JSON_OUTPUT_TYPES),
     generate_patches: Annotated[
         bool,
         typer.Option(
@@ -1009,7 +614,7 @@ def detect(
         typer.Option(
             "--fail-on",
             help=textwrap.dedent(
-                f"""
+                """
                 Fail level:
                 - *pedantic* : Fail if any findings are detected.
 
@@ -1029,27 +634,39 @@ def detect(
     filter_paths: Annotated[
         Optional[List[str]],
         typer.Option(
+            "--filter-paths",
             help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/).",
-            click_type=PathList(),
+            click_type=CommaSeparatedValueParser(),
             rich_help_panel="Filtering",
         ),
     ] = defaults_flag_in_config["filter_paths"],
     include_paths: Annotated[
         Optional[List[str]],
         typer.Option(
+            "--include-paths",
             help="Regex filter to include detector results matching file path e.g. (src/|contracts/).",
-            click_type=PathList(),
+            click_type=CommaSeparatedValueParser(),
             rich_help_panel="Filtering",
         ),
     ] = defaults_flag_in_config["include_paths"],
 ):
+    """Run detectors and report findings."""
 
-    crytic_args = {}
-    if ctx.args:
-        crytic_args, remaining_args = parse_extra_arguments(ctx.args)
-
-        if remaining_args:
-            raise typer.BadParameter(f"Found additional parameters. {remaining_args}")
+    state = ctx.ensure_object(SlitherState)
+    # Update the state
+    state.update(
+        {
+            "markdown_root": markdown_root,
+            "sarif_input": sarif_input,
+            "sarif_triage": sarif_triage,
+            "triage_mode": triage_mode,
+            "triage_database": triage_database,
+            "change_line_prefix": change_line_prefix,
+            "generate_patches": generate_patches,
+            "filter_paths": filter_paths,
+            "include_paths": include_paths,
+        }
+    )
 
     detector_classes = choose_detectors(
         detectors_to_run,
@@ -1077,7 +694,6 @@ def detect(
         target,
         solc_ast=solc_ast,
         detectors_to_run=detector_classes,
-        crytic_args=crytic_args,
     )
 
     if number_contracts == 0:
@@ -1091,10 +707,7 @@ def detect(
             len(results_detectors),
         )
 
-    state = ctx.ensure_object(SlitherState)
-
     format_output(
-        state,
         state.get("output_format"),
         state.get("output_file"),
         slither_instances,
@@ -1102,7 +715,12 @@ def detect(
         [],
         output_errors,
         runned_detectors=detector_classes,
-        runned_printers=[],
+        json_types=json_types,
+        zip_type=state.get("zip_type"),
+        checklist=checklist,
+        checklist_limit=checklist_limit,
+        show_ignored_findings=show_ignored_findings,
+        all_detectors=DETECTORS,
     )
 
     if fail_on == FailOnLevel.HIGH:
@@ -1125,19 +743,20 @@ def detect(
         raise typer.Exit(1)
 
 
-@app.command(name="print")
+@app.command(name="print", help="Run printers on the target.")
 def printer_command(
     ctx: typer.Context,
     target: target_type,
     list_printers: Annotated[
         Optional[bool],
         typer.Option(
-            "--list-detectors",
+            "--list-printers",
             help="List available printers.",
             callback=list_printers_action,
             rich_help_panel="Printers",
+            is_eager=True,
         ),
-    ] = None,
+    ] = False,
     printers_to_run: Annotated[
         Optional[str],
         typer.Option(
@@ -1148,17 +767,38 @@ def printer_command(
         ),
     ] = defaults_flag_in_config["printers_to_run"],
 ):
-    choosen_printers = choose_printers(PRINTERS)
+    choosen_printers = choose_printers(printers_to_run)
+
+    slither_instances, _, results_printers, output_errors, number_contracts = handle_target(
+        ctx,
+        target,
+        printers_to_run=choosen_printers,
+    )
+
+    state = ctx.ensure_object(SlitherState)
+    format_output(
+        output_format=state.get("output_format"),
+        output_file=state.get("output_file"),
+        slither_instances=slither_instances,
+        results_detectors=[],
+        results_printers=results_printers,
+        output_error=output_errors,
+        all_printers=PRINTERS,
+    )
+
+    if number_contracts == 0:
+        logger.warning(red("No contract was analyzed"))
+    else:
+        logger.info("%s analyzed (%d contracts)", target.target, number_contracts)
 
 
-
+# pylint: disable=too-many-locals
 def handle_target(
     ctx: typer.Context,
     target: Target,
     solc_ast: bool = False,
     detectors_to_run: Optional[List[Type[AbstractDetector]]] = None,
     printers_to_run: Optional[List[Type[AbstractPrinter]]] = None,
-    crytic_args: Union[Dict[str, str], None] = None,
 ):
 
     if detectors_to_run is None:
@@ -1167,11 +807,7 @@ def handle_target(
     if printers_to_run is None:
         printers_to_run = []
 
-    if crytic_args is None:
-        crytic_args = {}
-
     state = ctx.ensure_object(SlitherState)
-    state.update(crytic_args)
 
     results_detectors: List[Dict] = []
     results_printers: List[Output] = []
@@ -1220,70 +856,8 @@ def handle_target(
     return slither_instances, results_detectors, results_printers, output_error, number_contracts
 
 
-def format_output(
-    state: Dict[str, Any],
-    output_format: OutputFormat,
-    output_file: Path,
-    slither_instances,
-    results_detectors,
-    results_printers,
-    output_error,
-    runned_detectors: Union[List[Type[AbstractDetector]], None] = None,
-    runned_printers: Union[List[Type[AbstractPrinter]], None] = None,
-):
-    if output_format in (OutputFormat.JSON, OutputFormat.SARIF, OutputFormat.ZIP):
-        json_results: Dict[str, Any] = {}
-
-        json_types = state.get("json_types", [])
-        if "compilation" in json_types:
-            compilation_results = []
-            for slither_instance in slither_instances:
-                assert slither_instance.crytic_compile
-                compilation_results.append(
-                    generate_standard_export(slither_instance.crytic_compile)
-                )
-            json_results["compilations"] = compilation_results
-
-        # Add our detector results to JSON if desired.
-        if results_detectors and "detectors" in json_types:
-            json_results["detectors"] = results_detectors
-
-        # Add our printer results to JSON if desired.
-        if results_printers and "printers" in json_types:
-            json_results["printers"] = results_printers
-
-        # Add our detector types to JSON
-        if "list-detectors" in json_types:
-            json_results["list-detectors"] = output_detectors_json(DETECTORS)
-
-        # Add our detector types to JSON
-        if "list-printers" in json_types:
-            json_results["list-printers"] = output_printers_json(PRINTERS)
-
-        if output_format == OutputFormat.JSON:
-            if "console" in json_types:
-                json_results["console"] = {
-                    "stdout": StandardOutputCapture.get_stdout_output(),
-                    "stderr": StandardOutputCapture.get_stderr_output(),
-                }
-            StandardOutputCapture.disable()
-            output_to_json(output_file.as_posix(), output_error, json_results)
-        elif output_format == OutputFormat.SARIF:
-            StandardOutputCapture.disable()
-            output_to_sarif(output_file.as_posix(), json_results, runned_detectors)
-        elif output_format == OutputFormat.ZIP:
-            output_to_zip(output_file.as_posix(), output_error, json_results, state.get("zip_type"))
-
-    elif state.get("checklist", False) is True:
-        output_results_to_markdown(
-            results_detectors,
-            state.get("checklist_limit", defaults_flag_in_config["checklist_limit"]),
-            state.get("show_ignored_findings", defaults_flag_in_config["show_ignored_findings"]),
-        )
-
-
-@app.callback(invoke_without_command=True)
-def callback(
+@app.callback(invoke_without_command=True, no_args_is_help=True)
+def main_callback(
     ctx: typer.Context,
     version: Annotated[
         Optional[bool],
@@ -1305,16 +879,35 @@ def callback(
         bool,
         typer.Option(
             "--zip",
+            hidden=True,
             help="Export the results as a zipped JSON file.",
-            rich_help_panel="Detectors",
+            rich_help_panel="Formatting",
         ),
     ] = defaults_flag_in_config["zip"],
+    json_: Annotated[
+        bool,
+        typer.Option(
+            "--json",
+            hidden=True,
+            help="Print results in JSON format.",
+            rich_help_panel="Formatting",
+        ),
+    ] = False,
+    sarif: Annotated[
+        bool,
+        typer.Option(
+            "--sarif",
+            hidden=True,
+            help="Print results in SARIF format.",
+            rich_help_panel="Formatting",
+        ),
+    ] = False,
     zip_type: Annotated[
-        Optional[str],
+        Optional[ZipType],
         typer.Option(
             "--zip-type",
-            help=f'Zip compression type. One of {",".join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma',
-            rich_help_panel="Detectors",
+            help="Zip compression type.",
+            rich_help_panel="Formatting",
         ),
     ] = defaults_flag_in_config["zip_type"],
     disable_color: Annotated[
@@ -1339,26 +932,56 @@ def callback(
         Optional[Path],
         typer.Option(
             "--config-file",
-            help="Provide a config file (default: slither.config.json).",
+            help="Configuration file. Any argument specified on the command line overrides the one "
+            "specified in the configuration file.",
             rich_help_panel="Misc",
+            show_default="slither.config.json",
         ),
     ] = None,
     debug: Annotated[bool, typer.Option(hidden=True)] = False,
-    markdown: Annotated[bool, typer.Option(hidden=True)] = False,
-    wiki_detectors: bool = False,  # TODO(dm)
+    markdown: Annotated[
+        Optional[str], typer.Option(hidden=True, callback=output_markdown_action)
+    ] = None,
+    wiki_detectors: Annotated[
+        Optional[str],
+        typer.Option(
+            help="Print each detectors information that matches the pattern.",
+            callback=output_wiki_action,
+        ),
+    ] = None,
     legacy_ast: Annotated[bool, typer.Option(hidden=True)] = False,
     skip_assembly: Annotated[bool, typer.Option(hidden=True)] = False,
-    perf: Annotated[bool, typer.Option(hidden=True)] = False,
+    perf: Annotated[bool, typer.Option(help="Profile slither execution.", hidden=True)] = False,
     disallow_partial: Annotated[bool, typer.Option(hidden=True)] = False,
 ):
-    """Main callback"""
+    """Slither is a static Solidity/Vyper/Yul analyzer.
+
+    Maintained by Trail of Bits.
+    [https://github.com/crytic/slither](https://github.com/crytic/slither)
+    """
     state = ctx.ensure_object(SlitherState)
 
     if perf:
+        print("PERF ENABLED")
         state["perf"] = cProfile.Profile()
         state["perf"].enable()
 
     # Formatting configuration
+    if zip_ or sarif or json_:
+        if output_format != OutputFormat.TEXT:
+            raise typer.BadParameter("Only specify the output format once.")
+
+        options_set = [bool(zip_), bool(sarif), bool(json_)]
+        if options_set.count(True) > 1:
+            raise typer.BadParameter("Mutually excluding formatting options set.")
+
+        if zip_:
+            output_format = OutputFormat.ZIP
+        elif sarif:
+            output_format = OutputFormat.SARIF
+        elif json_:
+            output_format = OutputFormat.JSON
+
     if output_format != OutputFormat.TEXT:
         disable_color = True
 
@@ -1367,7 +990,7 @@ def callback(
     if output_format in (OutputFormat.JSON, OutputFormat.SARIF):
         StandardOutputCapture.enable(output_file == Path("-"))
 
-    config = read_config_file_new(config_file)
+    config = read_config_file(config_file)
 
     log_level = logging.INFO if not debug else logging.DEBUG
     configure_logger(log_level)
@@ -1380,14 +1003,12 @@ def callback(
         else:
             state[option] = config[option]
 
-    if zip_ != defaults_flag_in_config["zip"]:
-        output_format = OutputFormat.ZIP
-
     state["output_format"] = output_format
     state["output_file"] = output_file
 
 
-def configure_logger(log_level):
+def configure_logger(log_level: int = logging.INFO):
+    """Configure slither loggers."""
     for logger_name in [
         "Slither",
         "Contract",
@@ -1401,9 +1022,7 @@ def configure_logger(log_level):
         "SSA_Conversion",
         "Printers",
     ]:
-
-        current_logger = logging.getLogger(logger_name)
-        current_logger.setLevel(log_level)
+        logging.getLogger(logger_name).setLevel(log_level)
 
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
@@ -1423,5 +1042,3 @@ if __name__ == "__main__":
     sys.setrecursionlimit(1500)
 
     app()
-
-# endregion

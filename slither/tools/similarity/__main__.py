@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-
-import argparse
+import enum
 import logging
-import sys
+from typing import Annotated, Optional
 
-from crytic_compile import cryticparser
+import typer
 
-from slither.tools.similarity.info import info
-from slither.tools.similarity.test import test
-from slither.tools.similarity.train import train
-from slither.tools.similarity.plot import plot
+from slither.__main__ import app
+from slither.utils.command_line import SlitherState, SlitherApp, GroupWithCrytic
+
+similarity: SlitherApp = SlitherApp()
+app.add_typer(similarity, name="similarity")
+
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-simil")
@@ -17,90 +18,73 @@ logger = logging.getLogger("Slither-simil")
 modes = ["info", "test", "train", "plot"]
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Code similarity detection tool. For usage, see https://github.com/crytic/slither/wiki/Code-Similarity-detector"
-    )
-
-    parser.add_argument("mode", help="|".join(modes))
-
-    parser.add_argument("model", help="model.bin")
-
-    parser.add_argument("--filename", action="store", dest="filename", help="contract.sol")
-
-    parser.add_argument("--fname", action="store", dest="fname", help="Target function")
-
-    parser.add_argument("--ext", action="store", dest="ext", help="Extension to filter contracts")
-
-    parser.add_argument(
-        "--nsamples",
-        action="store",
-        type=int,
-        dest="nsamples",
-        help="Number of contract samples used for training",
-    )
-
-    parser.add_argument(
-        "--ntop",
-        action="store",
-        type=int,
-        dest="ntop",
-        default=10,
-        help="Number of more similar contracts to show for testing",
-    )
-
-    parser.add_argument(
-        "--input", action="store", dest="input", help="File or directory used as input"
-    )
-
-    parser.add_argument(
-        "--version",
-        help="displays the current version",
-        version="0.0",
-        action="version",
-    )
-
-    cryticparser.init(parser)
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    args = parser.parse_args()
-    return args
+class Mode(str, enum.Enum):
+    info = "info"
+    test = "test"
+    train = "train"
+    plot = "plot"
 
 
-# endregion
-###################################################################################
-###################################################################################
-# region Main
-###################################################################################
-###################################################################################
+@similarity.callback(cls=GroupWithCrytic)
+def main(
+    ctx: typer.Context,
+    mode: Annotated[Mode, typer.Option(help="Operation mode")] = Mode.info,
+    model: Annotated[str, typer.Argument(help="Model filename")] = "model.bin",
+    filename: Annotated[
+        Optional[str], typer.Option("--filename", help="Contract file name (e.g., contract.sol)")
+    ] = None,
+    fname: Annotated[Optional[str], typer.Option("--fname", help="Target function name")] = None,
+    ext: Annotated[
+        Optional[str], typer.Option("--ext", help="Extension to filter contracts by")
+    ] = None,
+    nsamples: Annotated[
+        int, typer.Option("--nsamples", help="Number of contract samples used for training")
+    ] = 0,
+    ntop: Annotated[
+        int, typer.Option(help="Number of most similar contracts to show for testing")
+    ] = 10,
+    input_: Annotated[
+        Optional[str], typer.Option("--input", help="File or directory used as input")
+    ] = None,
+) -> None:
+    """Code similarity detection tool.
 
-
-def main() -> None:
-    args = parse_args()
+    For usage, see https://github.com/crytic/slither/wiki/Code-Similarity-detector
+    """
 
     default_log = logging.INFO
     logger.setLevel(default_log)
 
-    mode = args.mode
+    state = ctx.ensure_object(SlitherState)
+    state.update(
+        {
+            "model": model,
+            "filename": filename,
+            "fname": fname,
+            "ext": ext,
+            "nsamples": nsamples,
+            "ntop": ntop,
+            "input_": input_,
+        }
+    )
 
-    if mode == "info":
-        info(args)
-    elif mode == "train":
-        train(args)
-    elif mode == "test":
-        test(args)
-    elif mode == "plot":
-        plot(args)
-    else:
-        to_log = f"Invalid mode!. It should be one of these: {', '.join(modes)}"
-        logger.error(to_log)
-        sys.exit(-1)
+    from slither.tools.similarity.info import info
+    from slither.tools.similarity.test import test
+    from slither.tools.similarity.train import train
+    from slither.tools.similarity.plot import plot
+
+    mapping = {
+        Mode.info: info,
+        Mode.test: test,
+        Mode.train: train,
+        Mode.plot: plot,
+    }
+
+    func = mapping[mode]
+    func(**state)
 
 
 if __name__ == "__main__":
-    main()
+    similarity()
 
 # endregion

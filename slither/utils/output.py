@@ -1,13 +1,16 @@
+from enum import Enum as PythonEnum
 import hashlib
 import json
 import logging
 import os
 import zipfile
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from importlib import metadata
+from pathlib import Path
 from typing import Tuple, Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
 from zipfile import ZipFile
 
+from crytic_compile.platform.standard import generate_standard_export
 
 from slither.core.cfg.node import Node
 from slither.core.declarations import (
@@ -26,10 +29,12 @@ from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 from slither.utils.myprettytable import MyPrettyTable
+from slither.utils.output_capture import StandardOutputCapture
+from slither.detectors.abstract_detector import AbstractDetector, classification_txt
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.detectors.abstract_detector import AbstractDetector
+    from slither.printers.abstract_printer import AbstractPrinter
 
 logger = logging.getLogger("Slither")
 
@@ -187,6 +192,28 @@ def output_to_sarif(
         else:
             with open(filename, "w", encoding="utf8") as f:
                 json.dump(sarif, f, indent=2)
+
+
+class ZipType(str, PythonEnum):
+    LZMA = "lzma"
+    STORED = "stored"
+    DEFLATED = "deflated"
+    BZIP2 = "bzip2"
+
+    @classmethod
+    def get_zip_type(cls, value: "ZipType"):
+        mapping = {
+            cls.LZMA: zipfile.ZIP_LZMA,
+            cls.STORED: zipfile.ZIP_STORED,
+            cls.DEFLATED: zipfile.ZIP_DEFLATED,
+            cls.BZIP2: zipfile.ZIP_BZIP2,
+        }
+
+        try:
+            return mapping[value]
+        except ValueError as exc:
+            msg = f"Invalid zip type: {value}"
+            raise ValueError(msg) from exc
 
 
 # https://docs.python.org/3/library/zipfile.html#zipfile-objects
@@ -744,3 +771,352 @@ class Output:
         # Create the underlying element and add it to our resulting json
         element = _create_base_element("other", name, source_mapping, {}, additional_fields)
         self._data["elements"].append(element)
+
+
+def output_results_to_markdown(
+    all_results: List[Dict], checklistlimit: int, show_ignored_findings: bool
+) -> None:
+    checks = defaultdict(list)
+    info: Dict = defaultdict(dict)
+    for results_ in all_results:
+        checks[results_["check"]].append(results_)
+        info[results_["check"]] = {
+            "impact": results_["impact"],
+            "confidence": results_["confidence"],
+        }
+
+    if not show_ignored_findings:
+        print(
+            "**THIS CHECKLIST IS NOT COMPLETE**. Use `--show-ignored-findings` to show all the results."
+        )
+
+    print("Summary")
+    for check_ in checks:
+        print(
+            f" - [{check_}](#{check_}) ({len(checks[check_])} results) ({info[check_]['impact']})"
+        )
+
+    counter = 0
+    for (check, results) in checks.items():
+        print(f"## {check}")
+        print(f'Impact: {info[check]["impact"]}')
+        print(f'Confidence: {info[check]["confidence"]}')
+        additional = False
+        if checklistlimit and len(results) > 5:
+            results = results[0:5]
+            additional = True
+        for result in results:
+            print(" - [ ] ID-" + f"{counter}")
+            counter = counter + 1
+            print(result["markdown"])
+            if result["first_markdown_element"]:
+                print(result["first_markdown_element"])
+                print("\n")
+        if additional:
+            print(f"**More results were found, check [{checklistlimit}]({checklistlimit})**")
+
+
+class OutputFormat(str, PythonEnum):
+    TEXT = "text"
+    JSON = "json"
+    SARIF = "sarif"
+    ZIP = "zip"
+
+
+# pylint: disable=too-many-arguments,too-many-locals
+def format_output(
+    output_format: OutputFormat,
+    output_file: Path,
+    slither_instances,
+    results_detectors,
+    results_printers,
+    output_error,
+    runned_detectors: Union[List[Type["AbstractDetector"]], None] = None,
+    json_types: Union[None, List[str]] = None,
+    zip_type: ZipType = ZipType.LZMA,
+    checklist: bool = False,
+    checklist_limit: int = 1,
+    show_ignored_findings: bool = False,
+    all_detectors: Union[None, List[Type["AbstractDetector"]]] = None,
+    all_printers: Union[None, List[Type["AbstractPrinter"]]] = None,
+):
+    if output_format in (OutputFormat.JSON, OutputFormat.SARIF, OutputFormat.ZIP):
+        json_results: Dict[str, Any] = {}
+
+        if "compilation" in json_types:
+            compilation_results = []
+            for slither_instance in slither_instances:
+                assert slither_instance.crytic_compile
+                compilation_results.append(
+                    generate_standard_export(slither_instance.crytic_compile)
+                )
+            json_results["compilations"] = compilation_results
+
+        # Add our detector results to JSON if desired.
+        if results_detectors and "detectors" in json_types:
+            json_results["detectors"] = results_detectors
+
+        # Add our printer results to JSON if desired.
+        if results_printers and "printers" in json_types:
+            json_results["printers"] = results_printers
+
+        # Add our detector types to JSON
+        if "list-detectors" in json_types:
+            json_results["list-detectors"] = output_detectors_json(all_detectors)
+
+        # Add our detector types to JSON
+        if "list-printers" in json_types:
+            json_results["list-printers"] = output_printers_json(all_printers)
+
+        if output_format == OutputFormat.JSON:
+            if "console" in json_types:
+                json_results["console"] = {
+                    "stdout": StandardOutputCapture.get_stdout_output(),
+                    "stderr": StandardOutputCapture.get_stderr_output(),
+                }
+            StandardOutputCapture.disable()
+            output_to_json(output_file.as_posix(), output_error, json_results)
+        elif output_format == OutputFormat.SARIF:
+            StandardOutputCapture.disable()
+            output_to_sarif(output_file.as_posix(), json_results, runned_detectors)
+        elif output_format == OutputFormat.ZIP:
+            output_to_zip(output_file.as_posix(), output_error, json_results, zip_type)
+
+    elif checklist is True:
+        output_results_to_markdown(
+            results_detectors,
+            checklist_limit,
+            show_ignored_findings,
+        )
+
+
+def output_to_markdown(
+    detector_classes: List[Type["AbstractDetector"]],
+    printer_classes: List[Type["AbstractPrinter"]],
+    filter_wiki: str,
+) -> None:
+    def extract_help(cls: Union[Type["AbstractDetector"], Type["AbstractPrinter"]]) -> str:
+        if cls.WIKI == "":
+            return cls.HELP
+        return f"[{cls.HELP}]({cls.WIKI})"
+
+    detectors_list = []
+    print(filter_wiki)
+    for detector in detector_classes:
+        argument = detector.ARGUMENT
+        # dont show the backdoor example
+        if argument == "backdoor":
+            continue
+        if not filter_wiki in detector.WIKI:
+            continue
+        help_info = extract_help(detector)
+        impact = detector.IMPACT
+        confidence = classification_txt[detector.CONFIDENCE]
+        detectors_list.append((argument, help_info, impact, confidence))
+
+    # Sort by impact, confidence, and name
+    detectors_list = sorted(
+        detectors_list, key=lambda element: (element[2], element[3], element[0])
+    )
+    idx = 1
+    for (argument, help_info, impact, confidence) in detectors_list:
+        print(f"{idx} | `{argument}` | {help_info} | {classification_txt[impact]} | {confidence}")
+        idx = idx + 1
+
+    print()
+    printers_list = []
+    for printer in printer_classes:
+        argument = printer.ARGUMENT
+        help_info = extract_help(printer)
+        printers_list.append((argument, help_info))
+
+    # Sort by impact, confidence, and name
+    printers_list = sorted(printers_list, key=lambda element: (element[0]))
+    idx = 1
+    for (argument, help_info) in printers_list:
+        print(f"{idx} | `{argument}` | {help_info}")
+        idx = idx + 1
+
+
+def convert_result_to_markdown(txt: str) -> str:
+    def get_level(l: str) -> int:
+        tab = l.count("\t") + 1
+        if l.replace("\t", "").startswith(" -"):
+            tab = tab + 1
+        if l.replace("\t", "").startswith("-"):
+            tab = tab + 1
+        return tab
+
+    # -1 to remove the last \n
+    lines = txt[0:-1].split("\n")
+    ret = []
+    level = 0
+    for l in lines:
+        next_level = get_level(l)
+        prefix = "<li>"
+        if next_level < level:
+            prefix = "</ul>" * (level - next_level) + prefix
+        if next_level > level:
+            prefix = "<ul>" * (next_level - level) + prefix
+        level = next_level
+        ret.append(prefix + l)
+
+    return "".join(ret)
+
+
+def output_wiki(detector_classes: List[Type["AbstractDetector"]], filter_wiki: str) -> None:
+
+    # Sort by impact, confidence, and name
+    detectors_list = sorted(
+        detector_classes,
+        key=lambda element: (element.IMPACT, element.CONFIDENCE, element.ARGUMENT),
+    )
+
+    for detector in detectors_list:
+        argument = detector.ARGUMENT
+        # dont show the backdoor example
+        if argument == "backdoor":
+            continue
+        if not filter_wiki in detector.WIKI:
+            continue
+        check = detector.ARGUMENT
+        impact = classification_txt[detector.IMPACT]
+        confidence = classification_txt[detector.CONFIDENCE]
+        title = detector.WIKI_TITLE
+        description = detector.WIKI_DESCRIPTION
+        exploit_scenario = detector.WIKI_EXPLOIT_SCENARIO
+        recommendation = detector.WIKI_RECOMMENDATION
+
+        print(f"\n## {title}")
+        print("### Configuration")
+        print(f"* Check: `{check}`")
+        print(f"* Severity: `{impact}`")
+        print(f"* Confidence: `{confidence}`")
+        print("\n### Description")
+        print(description)
+        if exploit_scenario:
+            print("\n### Exploit Scenario:")
+            print(exploit_scenario)
+        print("\n### Recommendation")
+        print(recommendation)
+
+
+def output_detectors(detector_classes: List[Type["AbstractDetector"]]) -> None:
+    detectors_list = []
+    for detector in detector_classes:
+        argument = detector.ARGUMENT
+        # dont show the backdoor example
+        if argument == "backdoor":
+            continue
+        help_info = detector.HELP
+        impact = detector.IMPACT
+        confidence = classification_txt[detector.CONFIDENCE]
+        detectors_list.append((argument, help_info, impact, confidence))
+    table = MyPrettyTable(["Num", "Check", "What it Detects", "Impact", "Confidence"])
+
+    # Sort by impact, confidence, and name
+    detectors_list = sorted(
+        detectors_list, key=lambda element: (element[2], element[3], element[0])
+    )
+    idx = 1
+    for (argument, help_info, impact, confidence) in detectors_list:
+        table.add_row([str(idx), argument, help_info, classification_txt[impact], confidence])
+        idx = idx + 1
+    print(table)
+
+
+def output_detectors_json(
+    detector_classes: List[Type["AbstractDetector"]],
+) -> List[Dict]:
+    detectors_list = []
+    for detector in detector_classes:
+        argument = detector.ARGUMENT
+        # dont show the backdoor example
+        if argument == "backdoor":
+            continue
+        help_info = detector.HELP
+        impact = detector.IMPACT
+        confidence = classification_txt[detector.CONFIDENCE]
+        wiki_url = detector.WIKI
+        wiki_description = detector.WIKI_DESCRIPTION
+        wiki_exploit_scenario = detector.WIKI_EXPLOIT_SCENARIO
+        wiki_recommendation = detector.WIKI_RECOMMENDATION
+        detectors_list.append(
+            (
+                argument,
+                help_info,
+                impact,
+                confidence,
+                wiki_url,
+                wiki_description,
+                wiki_exploit_scenario,
+                wiki_recommendation,
+            )
+        )
+
+    # Sort by impact, confidence, and name
+    detectors_list = sorted(
+        detectors_list, key=lambda element: (element[2], element[3], element[0])
+    )
+    idx = 1
+    table = []
+    for (
+        argument,
+        help_info,
+        impact,
+        confidence,
+        wiki_url,
+        description,
+        exploit,
+        recommendation,
+    ) in detectors_list:
+        table.append(
+            {
+                "index": idx,
+                "check": argument,
+                "title": help_info,
+                "impact": classification_txt[impact],
+                "confidence": confidence,
+                "wiki_url": wiki_url,
+                "description": description,
+                "exploit_scenario": exploit,
+                "recommendation": recommendation,
+            }
+        )
+        idx = idx + 1
+    return table
+
+
+def output_printers(printer_classes: List[Type["AbstractPrinter"]]) -> None:
+    printers_list = []
+    for printer in printer_classes:
+        argument = printer.ARGUMENT
+        help_info = printer.HELP
+        printers_list.append((argument, help_info))
+    table = MyPrettyTable(["Num", "Printer", "What it Does"])
+
+    # Sort by impact, confidence, and name
+    printers_list = sorted(printers_list, key=lambda element: (element[0]))
+    idx = 1
+    for (argument, help_info) in printers_list:
+        table.add_row([str(idx), argument, help_info])
+        idx = idx + 1
+    print(table)
+
+
+def output_printers_json(printer_classes: List[Type["AbstractPrinter"]]) -> List[Dict]:
+    printers_list = []
+    for printer in printer_classes:
+        argument = printer.ARGUMENT
+        help_info = printer.HELP
+
+        printers_list.append((argument, help_info))
+
+    # Sort by name
+    printers_list = sorted(printers_list, key=lambda element: (element[0]))
+    idx = 1
+    table = []
+    for (argument, help_info) in printers_list:
+        table.append({"index": idx, "check": argument, "title": help_info})
+        idx = idx + 1
+    return table

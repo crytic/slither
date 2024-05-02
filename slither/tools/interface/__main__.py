@@ -1,88 +1,64 @@
-import argparse
 import logging
 from pathlib import Path
-
-from crytic_compile import cryticparser
+from typing import Annotated
 
 from slither import Slither
 from slither.utils.code_generation import generate_interface
+
+import typer
+
+from slither.__main__ import app
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
+
+interface_cmd: SlitherApp = SlitherApp()
+app.add_typer(interface_cmd, name="interface")
+
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-Interface")
 logger.setLevel(logging.INFO)
 
 
-def parse_args() -> argparse.Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser = argparse.ArgumentParser(
-        description="Generates code for a Solidity interface from contract",
-        usage=("slither-interface <ContractName> <source file or deployment address>"),
-    )
+@interface_cmd.callback(cls=GroupWithCrytic)
+def main(
+    ctx: typer.Context,
+    contract_name: Annotated[
+        str, typer.Argument(help="The name of the contract (case sensitive).")
+    ],
+    target: target_type,
+    unroll_structs: Annotated[
+        bool,
+        typer.Option(
+            help="Whether to use structures' underlying types instead of the user-defined type."
+        ),
+    ] = False,
+    exclude_events: Annotated[
+        bool, typer.Option(help="Excludes event signatures in the interface.")
+    ] = False,
+    exclude_errors: Annotated[
+        bool, typer.Option(help="Excludes custom errors signatures in the interface.")
+    ] = False,
+    exclude_enums: Annotated[
+        bool, typer.Option(help="Excludes enum definitions in the interface.")
+    ] = False,
+    exclude_structs: Annotated[
+        bool, typer.Option(help="Excludes structs definitions in the interface.")
+    ] = False,
+) -> None:
+    """Generates code for a Solidity interface from contract"""
 
-    parser.add_argument(
-        "contract_source",
-        help="The name of the contract (case sensitive) followed by the deployed contract address if verified on etherscan or project directory/filename for local contracts.",
-        nargs="+",
-    )
-
-    parser.add_argument(
-        "--unroll-structs",
-        help="Whether to use structures' underlying types instead of the user-defined type",
-        default=False,
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--exclude-events",
-        help="Excludes event signatures in the interface",
-        default=False,
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--exclude-errors",
-        help="Excludes custom error signatures in the interface",
-        default=False,
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--exclude-enums",
-        help="Excludes enum definitions in the interface",
-        default=False,
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--exclude-structs",
-        help="Exclude struct definitions in the interface",
-        default=False,
-        action="store_true",
-    )
-
-    cryticparser.init(parser)
-
-    return parser.parse_args()
-
-
-def main() -> None:
-    args = parse_args()
-
-    contract_name, target = args.contract_source
-    slither = Slither(target, **vars(args))
+    state = ctx.ensure_object(SlitherState)
+    slither = Slither(target.target, **state)
 
     _contract = slither.get_contract_from_name(contract_name)[0]
 
     interface = generate_interface(
         contract=_contract,
-        unroll_structs=args.unroll_structs,
-        include_events=not args.exclude_events,
-        include_errors=not args.exclude_errors,
-        include_enums=not args.exclude_enums,
-        include_structs=not args.exclude_structs,
+        unroll_structs=unroll_structs,
+        include_events=not exclude_events,
+        include_errors=not exclude_errors,
+        include_enums=not exclude_enums,
+        include_structs=not exclude_structs,
     )
 
     # add version pragma
@@ -103,4 +79,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    interface_cmd()

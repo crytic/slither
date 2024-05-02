@@ -1,23 +1,32 @@
-import argparse
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List, Callable
+from pathlib import Path
+from typing import Any, Dict, List, Callable, Annotated
 
-from crytic_compile import cryticparser
+import typer
+
 
 from slither import Slither
 from slither.core.declarations import Contract
 from slither.utils.erc import ERCS
-from slither.utils.output import output_to_json
+from slither.utils.output import output_to_json, OutputFormat
 from .erc.erc1155 import check_erc1155
 from .erc.erc20 import check_erc20
 from .erc.ercs import generic_erc_checks
+
+from slither.__main__ import app
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
+
+conformance: SlitherApp = SlitherApp()
+app.add_typer(conformance, name="conformance")
+
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 
 logger = logging.getLogger("Slither-conformance")
 logger.setLevel(logging.INFO)
+
 
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
@@ -32,82 +41,62 @@ ADDITIONAL_CHECKS: Dict[str, Callable[[Contract, Dict[str, List]], Dict[str, Lis
 }
 
 
-def parse_args() -> argparse.Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser = argparse.ArgumentParser(
-        description="Check the ERC 20 conformance",
-        usage="slither-check-erc project contractName",
-    )
-
-    parser.add_argument("project", help="The codebase to be tested.")
-
-    parser.add_argument(
-        "contract_name",
-        help="The name of the contract. Specify the first case contract that follow the standard. Derived contracts will be checked.",
-    )
-
-    parser.add_argument(
-        "--erc",
-        help=f"ERC to be tested, available {','.join(ERCS.keys())} (default ERC20)",
-        action="store",
-        default="erc20",
-    )
-
-    parser.add_argument(
-        "--json",
-        help='Export the results as a JSON file ("--json -" to export to stdout)',
-        action="store",
-        default=False,
-    )
-
-    # Add default arguments from crytic-compile
-    cryticparser.init(parser)
-
-    return parser.parse_args()
-
-
-def _log_error(err: Any, args: argparse.Namespace) -> None:
-    if args.json:
-        output_to_json(args.json, str(err), {"upgradeability-check": []})
+def _log_error(err: Any, output_format: OutputFormat, output_file: Path) -> None:
+    if output_format == OutputFormat.JSON:
+        output_to_json(output_file.as_posix(), str(err), {"erc-conformance-check": []})
 
     logger.error(err)
 
 
-def main() -> None:
-    args = parse_args()
+@conformance.callback(cls=GroupWithCrytic)
+def main(
+    ctx: typer.Context,
+    target: target_type,
+    contract_name: Annotated[
+        str,
+        typer.Argument(
+            help="The name of the contract. Specify the first case contract that follow the "
+            "standard. Derived contracts will be checked."
+        ),
+    ],
+    erc: Annotated[
+        str, typer.Option("--erc", help=f"ERC to be tested, available {','.join(ERCS.keys())}.")
+    ] = "erc20",
+) -> None:
+    """Check the conformance with a specified ERC."""
+    state = ctx.ensure_object(SlitherState)
 
     # Perform slither analysis on the given filename
-    slither = Slither(args.project, **vars(args))
+    slither = Slither(target.target, **state)
 
     ret: Dict[str, List] = defaultdict(list)
+    output_format = state.get("output_format", OutputFormat.TEXT)
+    output_file = state.get("output_file", Path("-"))
 
-    if args.erc.upper() in ERCS:
+    if erc.upper() in ERCS:
 
-        contracts = slither.get_contract_from_name(args.contract_name)
+        contracts = slither.get_contract_from_name(contract_name)
 
         if len(contracts) != 1:
-            err = f"Contract not found: {args.contract_name}"
-            _log_error(err, args)
+            err = f"Contract not found: {contract_name}"
+            _log_error(err, output_format=output_format, output_file=output_file)
             return
         contract = contracts[0]
         # First elem is the function, second is the event
-        erc = ERCS[args.erc.upper()]
+        erc = ERCS[erc.upper()]
         generic_erc_checks(contract, erc[0], erc[1], ret)
 
-        if args.erc.upper() in ADDITIONAL_CHECKS:
-            ADDITIONAL_CHECKS[args.erc.upper()](contract, ret)
+        if erc.upper() in ADDITIONAL_CHECKS:
+            ADDITIONAL_CHECKS[erc.upper()](contract, ret)
 
     else:
-        err = f"Incorrect ERC selected {args.erc}"
-        _log_error(err, args)
+        err = f"Incorrect ERC selected {erc}"
+        _log_error(err, output_format=output_format, output_file=output_file)
         return
 
-    if args.json:
-        output_to_json(args.json, None, {"upgradeability-check": ret})
+    if output_format == OutputFormat.JSON:
+        output_to_json(output_file.as_posix(), None, {"erc-conformance-check": ret})
 
 
 if __name__ == "__main__":
-    main()
+    conformance()

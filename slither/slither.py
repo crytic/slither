@@ -118,6 +118,7 @@ class Slither(
 
         # Indicate if Codex related features should be used
         self.codex_enabled = kwargs.get("codex", False)
+        print(f"{kwargs=}")
         self.codex_contracts = kwargs.get("codex_contracts", "all")
         self.codex_model = kwargs.get("codex_model", "text-davinci-003")
         self.codex_temperature = kwargs.get("codex_temperature", 0)
@@ -177,13 +178,16 @@ class Slither(
         self._detectors = []
         self._printers = []
 
-        filter_paths = kwargs.get("filter_paths", [])
-        for p in filter_paths:
-            self.add_path_to_filter(p)
+        # The default value for filters_paths / include_paths is None (and not [])
+        filter_paths: Optional[List[str]] = kwargs.get("filter_paths", None)
+        if filter_paths is not None:
+            for p in filter_paths:
+                self.add_path_to_filter(p)
 
-        include_paths = kwargs.get("include_paths", [])
-        for p in include_paths:
-            self.add_path_to_include(p)
+        include_paths: Optional[List[str]] = kwargs.get("include_paths", None)
+        if include_paths is not None:
+            for p in include_paths:
+                self.add_path_to_include(p)
 
         self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
 

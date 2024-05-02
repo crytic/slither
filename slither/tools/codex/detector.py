@@ -3,7 +3,8 @@ import uuid
 from typing import List, Union
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.utils import codex
+from slither.tools.codex.utils import log_codex
+from slither.tools.codex.utils import openai_module as find_openai_module
 from slither.utils.output import Output, SupportedOutput
 
 logger = logging.getLogger("Slither")
@@ -43,12 +44,12 @@ class Codex(AbstractDetector):
         Returns:
             codex answer (str)
         """
-        openai_module = codex.openai_module()  # type: ignore
+        openai_module = find_openai_module()  # type: ignore
         if openai_module is None:
             return ""
 
         if self.slither.codex_log:
-            codex.log_codex(logging_file, "Q: " + prompt)
+            log_codex(logging_file, "Q: " + prompt)
 
         answer = ""
         res = {}
@@ -87,11 +88,11 @@ class Codex(AbstractDetector):
         #     }
         # } """
 
-        if res:
-            if self.slither.codex_log:
-                codex.log_codex(logging_file, "A: " + str(res))
-        else:
-            codex.log_codex(logging_file, "A: Codex failed")
+        if self.slither.codex_log:
+            if res:
+                log_codex(logging_file, "A: " + str(res))
+            else:
+                log_codex(logging_file, "A: Codex failed")
 
         if res.get("choices", []) and VULN_FOUND in res["choices"][0].get("text", ""):
             # remove VULN_FOUND keyword and cleanup
@@ -106,7 +107,10 @@ class Codex(AbstractDetector):
     def _detect(self) -> List[Output]:
         results: List[Output] = []
 
+        print("im here")
+
         if not self.slither.codex_enabled:
+            print("codex disabled")
             return []
 
         logging_file = str(uuid.uuid4())

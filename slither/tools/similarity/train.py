@@ -1,4 +1,3 @@
-import argparse
 import logging
 import os
 import sys
@@ -11,25 +10,25 @@ from slither.tools.similarity.model import train_unsupervised
 logger = logging.getLogger("Slither-simil")
 
 
-def train(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
+def train(**kwargs) -> None:  # pylint: disable=too-many-locals
 
     try:
         last_data_train_filename = "last_data_train.txt"
-        model_filename = args.model
-        dirname = args.input
+        model_filename = kwargs.get("model")
+        dirname = kwargs.get("input")
 
         if dirname is None:
             logger.error("The train mode requires the input parameter.")
             sys.exit(-1)
 
-        contracts = load_contracts(dirname, **vars(args))
+        contracts = load_contracts(dirname, **kwargs)
         logger.info("Saving extracted data into %s", last_data_train_filename)
         cache = []
         with open(last_data_train_filename, "w", encoding="utf8") as f:
             for filename in contracts:
                 # cache[filename] = dict()
                 for (filename_inner, contract, function), ir in encode_contract(
-                    filename, **vars(args)
+                    filename, **kwargs
                 ).items():
                     if ir != []:
                         x = " ".join(ir)
@@ -50,6 +49,6 @@ def train(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
         logger.info("Done!")
 
     except Exception:  # pylint: disable=broad-except
-        logger.error(f"Error in {args.filename}")
+        logger.error(f"Error in {kwargs.get('filename')}")
         logger.error(traceback.format_exc())
         sys.exit(-1)

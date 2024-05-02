@@ -9,10 +9,11 @@ from slither.formatters.exceptions import FormatImpossible
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.utils.colors import green, yellow, red
 from slither.utils.comparable_enum import ComparableEnum
-from slither.utils.output import Output, SupportedOutput
+from slither.utils.output import Output
 
 if TYPE_CHECKING:
     from slither import Slither
+    from slither.utils.output import SupportedOutput
 
 
 class IncorrectDetectorInitialization(Exception):
@@ -59,7 +60,7 @@ ALL_SOLC_VERSIONS_06 = make_solc_versions(6, 0, 12)
 ALL_SOLC_VERSIONS_07 = make_solc_versions(7, 0, 6)
 # No VERSIONS_08 as it is still in dev
 
-DETECTOR_INFO = List[Union[str, SupportedOutput]]
+DETECTOR_INFO = List[Union[str, "SupportedOutput"]]
 
 
 class AbstractDetector(metaclass=abc.ABCMeta):

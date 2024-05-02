@@ -1,142 +1,83 @@
-import argparse
 import logging
-import sys
-
-from crytic_compile import cryticparser
-from crytic_compile.utils.zip import ZIP_TYPES_ACCEPTED
+from pathlib import Path
+from typing import Annotated, Optional
+import typer
 
 from slither import Slither
 from slither.tools.flattening.flattening import (
     Flattening,
     Strategy,
-    STRATEGIES_NAMES,
     DEFAULT_EXPORT_PATH,
 )
+from slither.utils.output import OutputFormat
+from slither.__main__ import app
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
+
+flattener: SlitherApp = SlitherApp()
+app.add_typer(flattener, name="flattener")
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 logger.setLevel(logging.INFO)
 
 
-def parse_args() -> argparse.Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser = argparse.ArgumentParser(
-        description="Contracts flattening. See https://github.com/crytic/slither/wiki/Contract-Flattening",
-        usage="slither-flat filename",
-    )
-
-    parser.add_argument("filename", help="The filename of the contract or project to analyze.")
-
-    parser.add_argument("--contract", help="Flatten one contract.", default=None)
-
-    parser.add_argument(
-        "--strategy",
-        help=f"Flatenning strategy: {STRATEGIES_NAMES} (default: MostDerived).",
-        default=Strategy.MostDerived.name,  # pylint: disable=no-member
-    )
-
-    group_export = parser.add_argument_group("Export options")
-
-    group_export.add_argument(
-        "--dir",
-        help=f"Export directory (default: {DEFAULT_EXPORT_PATH}).",
-        default=None,
-    )
-
-    group_export.add_argument(
-        "--json",
-        help='Export the results as a JSON file ("--json -" to export to stdout)',
-        action="store",
-        default=None,
-    )
-
-    parser.add_argument(
-        "--zip",
-        help="Export all the files to a zip file",
-        action="store",
-        default=None,
-    )
-
-    parser.add_argument(
-        "--zip-type",
-        help=f"Zip compression type. One of {','.join(ZIP_TYPES_ACCEPTED.keys())}. Default lzma",
-        action="store",
-        default=None,
-    )
-
-    group_patching = parser.add_argument_group("Patching options")
-
-    group_patching.add_argument(
-        "--convert-external", help="Convert external to public.", action="store_true"
-    )
-
-    group_patching.add_argument(
-        "--convert-private",
-        help="Convert private variables to internal.",
-        action="store_true",
-    )
-
-    group_patching.add_argument(
-        "--convert-library-to-internal",
-        help="Convert external or public functions to internal in library.",
-        action="store_true",
-    )
-
-    group_patching.add_argument(
-        "--remove-assert", help="Remove call to assert().", action="store_true"
-    )
-
-    group_patching.add_argument(
-        "--pragma-solidity",
-        help="Set the solidity pragma with a given version.",
-        action="store",
-        default=None,
-    )
-
-    # Add default arguments from crytic-compile
-    cryticparser.init(parser)
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    return parser.parse_args()
-
-
-def main() -> None:
-    args = parse_args()
-
-    slither = Slither(args.filename, **vars(args))
+@flattener.callback(cls=GroupWithCrytic)
+def main(
+    ctx: typer.Context,
+    target: target_type,
+    contract: Annotated[Optional[str], typer.Option(help="Flatten one contract.")] = None,
+    strategy: Annotated[
+        Strategy,
+        typer.Option(help="Flattening strategy."),
+    ] = Strategy.MostDerived,
+    dir_: Annotated[Path, typer.Option(help="Export directory.")] = DEFAULT_EXPORT_PATH,
+    convert_external: Annotated[bool, typer.Option(help="Convert external to public.")] = False,
+    convert_private: Annotated[
+        bool, typer.Option(help="Convert private variables to internal.")
+    ] = False,
+    convert_library_to_internal: Annotated[
+        bool,
+        typer.Option(help="Convert external or public functions to internal in library."),
+    ] = False,
+    remove_assert: Annotated[bool, typer.Option(help="Remove call to assert().")] = False,
+    pragma_solidity: Annotated[
+        Optional[str], typer.Option(help="Set the solidity pragma with a given version.")
+    ] = None,
+) -> None:
+    """Flatten a contract using the specified strategy."""
+    state = ctx.ensure_object(SlitherState)
+    slither = Slither(target.target, **state)
 
     for compilation_unit in slither.compilation_units:
 
         flat = Flattening(
             compilation_unit,
-            external_to_public=args.convert_external,
-            remove_assert=args.remove_assert,
-            convert_library_to_internal=args.convert_library_to_internal,
-            private_to_internal=args.convert_private,
-            export_path=args.dir,
-            pragma_solidity=args.pragma_solidity,
+            external_to_public=convert_external,
+            remove_assert=remove_assert,
+            convert_library_to_internal=convert_library_to_internal,
+            private_to_internal=convert_private,
+            export_path=dir_.as_posix(),
+            pragma_solidity=pragma_solidity,
         )
 
-        try:
-            strategy = Strategy[args.strategy]
-        except KeyError:
-            to_log = f"{args.strategy} is not a valid strategy, use: {STRATEGIES_NAMES} (default MostDerived)"
-            logger.error(to_log)
-            return
+        json = None
+        zip_ = None
+        zip_type = None
+
+        if state.get("output_format") == OutputFormat.JSON:
+            json = state.get("output_file", Path("-")).as_posix()
+        elif state.get("output_format") == OutputFormat.ZIP:
+            zip_ = state.get("output_file", Path("-")).as_posix()
+            zip_type = state.get("zip_type", [])
+
         flat.export(
             strategy=strategy,
-            target=args.contract,
-            json=args.json,
-            zip=args.zip,
-            zip_type=args.zip_type,
+            target=contract,
+            json=json,
+            zip=zip_,
+            zip_type=zip_type,
         )
 
 
 if __name__ == "__main__":
-    main()
+    flattener()

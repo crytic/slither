@@ -1,42 +1,33 @@
-import argparse
 import logging
 import sys
 
-from crytic_compile import cryticparser
+import typer
 
 from slither.tools.doctor.utils import report_section
 from slither.tools.doctor.checks import ALL_CHECKS
 
+from slither.__main__ import app
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
 
-def parse_args() -> argparse.Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser = argparse.ArgumentParser(
-        description="Troubleshoot running Slither on your project",
-        usage="slither-doctor project",
-    )
-
-    parser.add_argument("project", help="The codebase to be tested.")
-
-    # Add default arguments from crytic-compile
-    cryticparser.init(parser)
-
-    return parser.parse_args()
+doctor: SlitherApp = SlitherApp()
+app.add_typer(doctor, name="doctor")
 
 
-def main() -> None:
+@doctor.callback(cls=GroupWithCrytic)
+def main(
+    ctx: typer.Context,
+    project: target_type,
+) -> None:
+    """Troubleshoot running Slither on your project."""
     # log on stdout to keep output in order
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, force=True)
 
-    args = parse_args()
-    kwargs = vars(args)
+    state = ctx.ensure_object(SlitherState)
 
     for check in ALL_CHECKS:
         with report_section(check.title):
-            check.function(**kwargs)
+            check.function(project=project.target, **state)
 
 
 if __name__ == "__main__":
-    main()
+    doctor()

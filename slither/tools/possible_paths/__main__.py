@@ -1,9 +1,8 @@
-import sys
-
 import logging
-from argparse import ArgumentParser, Namespace
+from typing import Annotated, List
 
-from crytic_compile import cryticparser
+import typer
+
 from slither import Slither
 from slither.core.declarations import FunctionContract
 from slither.utils.colors import red
@@ -13,48 +12,37 @@ from slither.tools.possible_paths.possible_paths import (
     ResolveFunctionException,
 )
 
+from slither.__main__ import app
+from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
+
+possible_paths_app: SlitherApp = SlitherApp()
+app.add_typer(possible_paths_app, name="possible-paths")
+
+
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
 
 
-def parse_args() -> Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser: ArgumentParser = ArgumentParser(
-        description="PossiblePaths",
-        usage="possible_paths.py filename [contract.function targets]",
-    )
-
-    parser.add_argument(
-        "filename", help="The filename of the contract or truffle directory to analyze."
-    )
-
-    parser.add_argument("targets", nargs="+")
-
-    cryticparser.init(parser)
-
-    return parser.parse_args()
-
-
-def main() -> None:
-    # ------------------------------
-    # PossiblePaths.py
-    #       Usage: python3 possible_paths.py filename targets
-    #       Example: python3 possible_paths.py contract.sol contract1.function1 contract2.function2 contract3.function3
-    # ------------------------------
-    # Parse all arguments
-    args = parse_args()
-
-    # Perform slither analysis on the given filename
-    slither = Slither(args.filename, **vars(args))
+@possible_paths_app.callback(cls=GroupWithCrytic)
+def main(
+    ctx: typer.Context,
+    target: target_type,
+    functions: Annotated[
+        List[str],
+        typer.Argument(
+            help="Function to analyze. Should be noted as contract.function. Can be repeated."
+        ),
+    ],
+) -> None:
+    """Find the possible paths."""
+    state = ctx.ensure_object(SlitherState)
+    slither = Slither(target.target, **state)
 
     try:
-        targets = resolve_functions(slither, args.targets)
-    except ResolveFunctionException as resolvefunction:
-        print(red(resolvefunction))
-        sys.exit(-1)
+        targets = resolve_functions(slither, functions)
+    except ResolveFunctionException as resolve_function:
+        print(red(resolve_function))
+        raise typer.Exit(1)
 
     # Print out all target functions.
     print("Target functions:")
@@ -89,4 +77,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    possible_paths_app()

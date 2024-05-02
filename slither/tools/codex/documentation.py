@@ -1,64 +1,16 @@
-import argparse
 import logging
 import uuid
 from typing import Optional, Dict, List
-from crytic_compile import cryticparser
+
 from slither import Slither
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.declarations import Function
-
 from slither.formatters.utils.patches import create_patch, apply_patch, create_diff
-from slither.utils import codex
 
-logging.basicConfig()
-logging.getLogger("Slither").setLevel(logging.INFO)
-
-logger = logging.getLogger("Slither")
+from slither.tools.codex.utils import log_codex, openai_module
 
 
-def parse_args() -> argparse.Namespace:
-    """
-    Parse the underlying arguments for the program.
-    :return: Returns the arguments for the program.
-    """
-    parser = argparse.ArgumentParser(
-        description="Auto-generate NatSpec documentation for every function using OpenAI Codex.",
-        usage="slither-documentation filename",
-    )
-
-    parser.add_argument("project", help="The target directory/Solidity file.")
-
-    parser.add_argument(
-        "--overwrite", help="Overwrite the files (be careful).", action="store_true", default=False
-    )
-
-    parser.add_argument(
-        "--force-answer-parsing",
-        help="Apply heuristics to better parse codex output (might lead to incorrect results)",
-        action="store_true",
-        default=False,
-    )
-
-    parser.add_argument(
-        "--include-tests",
-        help="Include the tests",
-        action="store_true",
-        default=False,
-    )
-
-    parser.add_argument(
-        "--retry",
-        help="Retry failed query (default 1). Each retry increases the temperature by 0.1",
-        action="store",
-        default=1,
-    )
-
-    # Add default arguments from crytic-compile
-    cryticparser.init(parser)
-
-    codex.init_parser(parser, always_enable_codex=True)
-
-    return parser.parse_args()
+logger = logging.getLogger("Codex")
 
 
 def _use_tab(char: str) -> Optional[bool]:
@@ -137,7 +89,6 @@ def _handle_codex(
     return None
 
 
-# pylint: disable=too-many-locals,too-many-arguments
 def _handle_function(
     function: Function,
     overwrite: bool,
@@ -167,12 +118,12 @@ def _handle_function(
             logger.info("Disable overwrite to avoid mistakes")
             overwrite = False
 
-    openai = codex.openai_module()  # type: ignore
+    openai = openai_module()  # type: ignore
     if openai is None:
         raise ImportError
 
     if logging_file:
-        codex.log_codex(logging_file, "Q: " + prompt)
+        log_codex(logging_file, "Q: " + prompt)
 
     tentative = 0
     answer_processed: Optional[str] = None
@@ -187,7 +138,7 @@ def _handle_function(
         )
 
         if logging_file:
-            codex.log_codex(logging_file, "A: " + str(answer))
+            log_codex(logging_file, "A: " + str(answer))
 
         answer_processed = _handle_codex(answer, src_mapping.starting_column, use_tab, force)
         if answer_processed:
@@ -221,6 +172,7 @@ def _handle_compilation_unit(
         logging_file = None
 
     for scope in compilation_unit.scopes.values():
+
         # Dont send tests file
         if not include_test and (
             ".t.sol" in scope.filename.absolute
@@ -264,28 +216,3 @@ def _handle_compilation_unit(
                 diff = create_diff(compilation_unit, original_txt, patched_txt, file)
                 with open(f"{file}.patch", "w", encoding="utf8") as f:
                     f.write(diff)
-
-
-def main() -> None:
-    args = parse_args()
-
-    logger.info("This tool is a WIP, use it with cautious")
-    logger.info("Be aware of OpenAI ToS: https://openai.com/api/policies/terms/")
-    slither = Slither(args.project, **vars(args))
-
-    try:
-        for compilation_unit in slither.compilation_units:
-            _handle_compilation_unit(
-                slither,
-                compilation_unit,
-                args.overwrite,
-                args.force_answer_parsing,
-                int(args.retry),
-                args.include_tests,
-            )
-    except ImportError:
-        pass
-
-
-if __name__ == "__main__":
-    main()
