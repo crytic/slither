@@ -12,6 +12,12 @@ from functools import lru_cache
 from importlib import metadata
 from pathlib import Path
 from typing import Tuple, Optional, List, Dict, Type, Union, Any
+import warnings
+
+# pylint: disable=wrong-import-position
+# We want to disable the warnings thrown by any package when using the completion
+if os.environ.get("_TYPER_COMPLETE_ARGS", False):
+    warnings.filterwarnings("ignore")
 
 import typer
 from typing_extensions import Annotated
@@ -1043,9 +1049,12 @@ def configure_logger(log_level: int = logging.INFO):
 
 
 if __name__ == "__main__":
-    logger.setLevel(logging.INFO)
-
-    # Codebase with complex dominators can lead to a lot of SSA recursive call
-    sys.setrecursionlimit(1500)
-
-    app()
+    pass
+    #
+    #
+    # logger.setLevel(logging.INFO)
+    #
+    # # Codebase with complex dominators can lead to a lot of SSA recursive call
+    # sys.setrecursionlimit(1500)
+    #
+    # app()
