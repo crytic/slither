@@ -10,7 +10,7 @@ from slither.utils.command_line import target_type, SlitherApp, GroupWithCrytic,
 from slither.utils.output import OutputFormat
 
 kspec_coverage_app: SlitherApp = SlitherApp()
-app.add_typer(kspec_coverage_app, name="kspec-coverage")
+app.add_typer(kspec_coverage_app, name="check-kspec")
 
 logging.basicConfig()
 logger = logging.getLogger("Slither.kspec")

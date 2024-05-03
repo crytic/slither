@@ -52,19 +52,6 @@ setup(
     entry_points={
         "console_scripts": [
             "slither = slither.__main__:app",
-            "slither-check-upgradeability = slither.tools.upgradeability.__main__:main",
-            "slither-find-paths = slither.tools.possible_paths.__main__:main",
-            "slither-simil = slither.tools.similarity.__main__:main",
-            "slither-flat = slither.tools.flattening.__main__:main",
-            "slither-format = slither.tools.slither_format.__main__:main",
-            "slither-check-erc = slither.tools.erc_conformance.__main__:main",
-            "slither-check-kspec = slither.tools.kspec_coverage.__main__:main",
-            "slither-prop = slither.tools.properties.__main__:main",
-            "slither-mutate = slither.tools.mutator.__main__:main",
-            "slither-read-storage = slither.tools.read_storage.__main__:main",
-            "slither-doctor = slither.tools.doctor.__main__:main",
-            "slither-documentation = slither.tools.documentation.__main__:main",
-            "slither-interface = slither.tools.interface.__main__:main",
         ]
     },
 )

@@ -17,7 +17,7 @@ from slither.utils.command_line import target_type, SlitherState, SlitherApp, Gr
 
 
 properties_app: SlitherApp = SlitherApp()
-app.add_typer(properties_app, name="properties")
+app.add_typer(properties_app, name="prop")
 
 
 logging.basicConfig()

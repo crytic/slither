@@ -66,7 +66,7 @@ class GroupWithCrytic(typer.core.TyperGroup):
             # We could have a better solution when this issue is solved in Typer
             # https://github.com/tiangolo/typer/issues/119
             crytic_args, remaining_args = handle_crytic_args(
-                ctx.args + ctx.protected_args, no_error=True
+                ctx.protected_args + ctx.args, no_error=True
             )
 
             # Remove all handled arguments from the context

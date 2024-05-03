@@ -2,7 +2,7 @@
 
 ### Test
 
-if ! slither "tests/*.json" --config "tests/config/slither.config.json"; then
+if ! slither --config-file "tests/config/slither.config.json" detect "tests/*.json"; then
     echo "Config failed"
     exit 1
 fi

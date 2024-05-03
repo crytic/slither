@@ -13,7 +13,7 @@ test_slither(){
     expected="$DIR/../tests/expected_json/$(basename "$1" .sol).$2.json"
 
     # run slither detector on input file and save output as json
-    if ! slither "$1" --solc-disable-warnings --detect "$2" --json "$DIR/tmp-test.json";
+    if ! slither --json "$DIR/tmp-test.json" detect "$1" --solc-disable-warnings --detect "$2";
     then
         echo "Slither crashed"
         exit 255
@@ -39,7 +39,7 @@ test_slither(){
     fi
 
     # run slither detector on input file and save output as json
-    if ! slither "$1" --solc-disable-warnings --detect "$2" --legacy-ast --json "$DIR/tmp-test.json";
+    if ! slither --json "$DIR/tmp-test.json" detect "$1" --solc-disable-warnings --detect "$2" --legacy-ast;
     then
         echo "Slither crashed"
         exit 255
@@ -75,7 +75,7 @@ generate_expected_json(){
     output_filename_txt="$DIR/../tests/expected_json/$(basename "$1" .sol).$2.txt"
 
     # run slither detector on input file and save output as json
-    slither "$1" --solc-disable-warnings --detect "$2" --json "$output_filename" > "$output_filename_txt" 2>&1
+    slither --json "$output_filename" detect "$1" --solc-disable-warnings --detect "$2" > "$output_filename_txt" 2>&1
 
 
     sed "s|$CURRENT_PATH|$TRAVIS_PATH|g" "$output_filename" -i

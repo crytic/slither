@@ -18,7 +18,7 @@ from slither.__main__ import app
 from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
 
 conformance: SlitherApp = SlitherApp()
-app.add_typer(conformance, name="conformance")
+app.add_typer(conformance, name="check-erc")
 
 
 logging.basicConfig()
@@ -59,7 +59,7 @@ def main(
             "standard. Derived contracts will be checked."
         ),
     ],
-    erc: Annotated[
+    erc_arg: Annotated[
         str, typer.Option("--erc", help=f"ERC to be tested, available {','.join(ERCS.keys())}.")
     ] = "erc20",
 ) -> None:
@@ -73,7 +73,7 @@ def main(
     output_format = state.get("output_format", OutputFormat.TEXT)
     output_file = state.get("output_file", Path("-"))
 
-    if erc.upper() in ERCS:
+    if erc_arg.upper() in ERCS:
 
         contracts = slither.get_contract_from_name(contract_name)
 
@@ -83,14 +83,14 @@ def main(
             return
         contract = contracts[0]
         # First elem is the function, second is the event
-        erc = ERCS[erc.upper()]
+        erc = ERCS[erc_arg.upper()]
         generic_erc_checks(contract, erc[0], erc[1], ret)
 
-        if erc.upper() in ADDITIONAL_CHECKS:
-            ADDITIONAL_CHECKS[erc.upper()](contract, ret)
+        if erc_arg.upper() in ADDITIONAL_CHECKS:
+            ADDITIONAL_CHECKS[erc_arg.upper()](contract, ret)
 
     else:
-        err = f"Incorrect ERC selected {erc}"
+        err = f"Incorrect ERC selected {erc_arg}"
         _log_error(err, output_format=output_format, output_file=output_file)
         return
 

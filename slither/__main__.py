@@ -889,32 +889,32 @@ def main_callback(
         Path, typer.Option("--output-file", help="Output file. Use - for stdout.")
     ] = "-",
     zip_: Annotated[
-        bool,
+        Optional[str],
         typer.Option(
             "--zip",
             hidden=True,
             help="Export the results as a zipped JSON file.",
             rich_help_panel="Formatting",
         ),
-    ] = defaults_flag_in_config["zip"],
+    ] = None,
     json_: Annotated[
-        bool,
+        Optional[str],
         typer.Option(
             "--json",
             hidden=True,
             help="Print results in JSON format.",
             rich_help_panel="Formatting",
         ),
-    ] = False,
+    ] = None,
     sarif: Annotated[
-        bool,
+        Optional[str],
         typer.Option(
             "--sarif",
             hidden=True,
             help="Print results in SARIF format.",
             rich_help_panel="Formatting",
         ),
-    ] = False,
+    ] = None,
     zip_type: Annotated[
         Optional[ZipType],
         typer.Option(
@@ -988,12 +988,15 @@ def main_callback(
         if options_set.count(True) > 1:
             raise typer.BadParameter("Mutually excluding formatting options set.")
 
-        if zip_:
+        if zip_ is not None:
             output_format = OutputFormat.ZIP
-        elif sarif:
+            output_file = Path(zip_)
+        elif sarif is not None:
             output_format = OutputFormat.SARIF
-        elif json_:
+            output_file = Path(sarif)
+        elif json_ is not None:
             output_format = OutputFormat.JSON
+            output_file = Path(json_)
 
     if output_format != OutputFormat.TEXT:
         disable_color = True

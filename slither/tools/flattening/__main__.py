@@ -14,7 +14,7 @@ from slither.__main__ import app
 from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
 
 flattener: SlitherApp = SlitherApp()
-app.add_typer(flattener, name="flattener")
+app.add_typer(flattener, name="flat")
 
 logging.basicConfig()
 logger = logging.getLogger("Slither")

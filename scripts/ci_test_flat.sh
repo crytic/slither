@@ -6,8 +6,8 @@ solc-select use 0.8.19 --always-install
 
 cd examples/flat || exit 1
 
-if ! slither-flat b.sol; then
-    echo "slither-flat failed"
+if ! slither flat b.sol; then
+    echo "slither flat failed"
     exit 1
 fi
  

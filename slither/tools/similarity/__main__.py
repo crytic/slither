@@ -9,7 +9,7 @@ from slither.__main__ import app
 from slither.utils.command_line import SlitherState, SlitherApp, GroupWithCrytic
 
 similarity: SlitherApp = SlitherApp()
-app.add_typer(similarity, name="similarity")
+app.add_typer(similarity, name="simil")
 
 
 logging.basicConfig()

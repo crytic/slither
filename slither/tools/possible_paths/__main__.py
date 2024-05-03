@@ -16,7 +16,7 @@ from slither.__main__ import app
 from slither.utils.command_line import target_type, SlitherState, SlitherApp, GroupWithCrytic
 
 possible_paths_app: SlitherApp = SlitherApp()
-app.add_typer(possible_paths_app, name="possible-paths")
+app.add_typer(possible_paths_app, name="find-paths")
 
 
 logging.basicConfig()
