@@ -2,7 +2,7 @@ from typing import Union
 
 from eth_typing.evm import ChecksumAddress
 
-# from eth_utils import to_int, to_text, to_checksum_address
+from eth_utils import to_int, to_text, to_checksum_address
 from web3 import Web3
 
 

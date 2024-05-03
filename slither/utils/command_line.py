@@ -250,8 +250,6 @@ def format_crytic_help(ctx: typer.Context):
 
             ctx.command.params.append(param)
 
-    # print(ctx.get_help())
-
 
 # Those are the flags shared by the command line and the config file
 defaults_flag_in_config = {
@@ -321,9 +319,9 @@ def read_config_file(config_file: Union[None, Path]) -> Dict[str, Any]:
     return state
 
 
-def version_callback(value: bool) -> None:
+def version_callback(ctx: typer.Context, value: bool) -> None:
     """Callback called when the --version flag is used."""
-    if not value:
+    if not value or ctx.resilient_parsing:
         return
 
     print(metadata.version("slither-analyzer"))

@@ -30,11 +30,11 @@ from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 from slither.utils.myprettytable import MyPrettyTable
 from slither.utils.output_capture import StandardOutputCapture
-from slither.detectors.abstract_detector import AbstractDetector, classification_txt
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
     from slither.printers.abstract_printer import AbstractPrinter
+    from slither.detectors.abstract_detector import AbstractDetector
 
 logger = logging.getLogger("Slither")
 
@@ -880,7 +880,7 @@ def format_output(
             StandardOutputCapture.disable()
             output_to_sarif(output_file.as_posix(), json_results, runned_detectors)
         elif output_format == OutputFormat.ZIP:
-            output_to_zip(output_file.as_posix(), output_error, json_results, zip_type)
+            output_to_zip(output_file.as_posix(), output_error, json_results, zip_type.value)
 
     elif checklist is True:
         output_results_to_markdown(

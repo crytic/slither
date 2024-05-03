@@ -107,10 +107,7 @@ class Codex(AbstractDetector):
     def _detect(self) -> List[Output]:
         results: List[Output] = []
 
-        print("im here")
-
         if not self.slither.codex_enabled:
-            print("codex disabled")
             return []
 
         logging_file = str(uuid.uuid4())

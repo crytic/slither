@@ -68,7 +68,7 @@ def main(
             json = state.get("output_file", Path("-")).as_posix()
         elif state.get("output_format") == OutputFormat.ZIP:
             zip_ = state.get("output_file", Path("-")).as_posix()
-            zip_type = state.get("zip_type", [])
+            zip_type = state.get("zip_type", "lzma")
 
         flat.export(
             strategy=strategy,

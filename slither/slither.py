@@ -118,7 +118,6 @@ class Slither(
 
         # Indicate if Codex related features should be used
         self.codex_enabled = kwargs.get("codex", False)
-        print(f"{kwargs=}")
         self.codex_contracts = kwargs.get("codex_contracts", "all")
         self.codex_model = kwargs.get("codex_model", "text-davinci-003")
         self.codex_temperature = kwargs.get("codex_temperature", 0)

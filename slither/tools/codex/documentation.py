@@ -172,7 +172,6 @@ def _handle_compilation_unit(
         logging_file = None
 
     for scope in compilation_unit.scopes.values():
-
         # Dont send tests file
         if not include_test and (
             ".t.sol" in scope.filename.absolute

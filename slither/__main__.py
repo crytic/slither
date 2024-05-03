@@ -16,11 +16,12 @@ from typing import Tuple, Optional, List, Dict, Type, Union, Any
 import typer
 from typing_extensions import Annotated
 
-from crytic_compile import CryticCompile
+from crytic_compile import CryticCompile, InvalidCompilation
 from crytic_compile import compile_all, is_supported
 
 from slither.detectors import all_detectors
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import AbstractDetector
+from slither.detectors.classification import DetectorClassification
 from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
@@ -99,7 +100,13 @@ def process_all(
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[List[Slither], List[Dict], List[Output], int]:
-    compilations = compile_all(target, **state)
+
+    try:
+        compilations = compile_all(target, **state)
+    except InvalidCompilation:
+        logger.error("Unable to compile all targets.")
+        raise typer.Exit(code=2)
+
     slither_instances = []
     results_detectors = []
     results_printers = []
