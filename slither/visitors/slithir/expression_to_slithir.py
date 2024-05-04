@@ -188,7 +188,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         operation: Operation
         if isinstance(left, list):  # tuple expression:
-            if isinstance(right, list):  # unbox assigment
+            if isinstance(right, list):  # unbox assignment
                 assert len(left) == len(right)
                 for idx, _ in enumerate(left):
                     if (
