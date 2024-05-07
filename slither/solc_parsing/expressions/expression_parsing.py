@@ -509,19 +509,21 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         var, was_created = find_variable(value, caller_context, referenced_declaration)
 
-        pattern = r'\b(\w+)\s*\)'
+        if 'typeDescriptions' in expression:
 
-        type_string = expression["typeDescriptions"]["typeString"]
+            pattern = r'\b(\w+)\s*\)'
 
-        type_string_name = re.search(pattern, type_string)
+            type_string = expression["typeDescriptions"]["typeString"]
 
-        if type_string_name:
-            found_contract = type_string_name.group(1)
-            all_contracts_dict = {c.name: c for c in caller_context.compilation_unit.contracts}
+            type_string_name = re.search(pattern, type_string)
 
-            if str(var) in all_contracts_dict.keys() and found_contract in all_contracts_dict.keys():
-                if str(var) != found_contract:
-                    var = all_contracts_dict[found_contract]
+            if type_string_name:
+                found_contract = type_string_name.group(1)
+                all_contracts_dict = {c.name: c for c in caller_context.compilation_unit.contracts}
+
+                if str(var) in all_contracts_dict.keys() and found_contract in all_contracts_dict.keys():
+                    if str(var) != found_contract:
+                        var = all_contracts_dict[found_contract]
                     
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)
