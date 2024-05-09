@@ -24,7 +24,7 @@ from slither.vyper_parsing.declarations.struct import StructVyper
 from slither.vyper_parsing.variables.state_variable import StateVariableVyper
 from slither.vyper_parsing.declarations.function import FunctionVyper
 from slither.core.declarations.function_contract import FunctionContract
-from slither.core.declarations import Contract, StructureContract, EnumContract, Event
+from slither.core.declarations import Contract, StructureContract, EnumContract, EventContract
 
 from slither.core.variables.state_variable import StateVariable
 
@@ -84,7 +84,7 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
                 self._structuresNotParsed.append(node)
             elif isinstance(node, ImportFrom):
                 # TOOD aliases
-                # We create an `InterfaceDef` sense the compilatuion unit does not contain the actual interface
+                # We create an `InterfaceDef` sense the compilation unit does not contain the actual interface
                 # https://github.com/vyperlang/vyper/tree/master/vyper/builtins/interfaces
                 if node.module == "vyper.interfaces":
                     interfaces = {
@@ -478,7 +478,7 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
 
     def parse_events(self) -> None:
         for event_to_parse in self._eventsNotParsed:
-            event = Event()
+            event = EventContract()
             event.set_contract(self._contract)
             event.set_offset(event_to_parse.src, self._contract.compilation_unit)
 

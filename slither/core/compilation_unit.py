@@ -16,6 +16,7 @@ from slither.core.declarations import (
 )
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
@@ -57,6 +58,7 @@ class SlitherCompilationUnit(Context):
         self.contracts: List[Contract] = []
         self._structures_top_level: List[StructureTopLevel] = []
         self._enums_top_level: List[EnumTopLevel] = []
+        self._events_top_level: List[EventTopLevel] = []
         self._variables_top_level: List[TopLevelVariable] = []
         self._functions_top_level: List[FunctionTopLevel] = []
         self._using_for_top_level: List[UsingForTopLevel] = []
@@ -235,6 +237,10 @@ class SlitherCompilationUnit(Context):
         return self._enums_top_level
 
     @property
+    def events_top_level(self) -> List[EventTopLevel]:
+        return self._events_top_level
+
+    @property
     def variables_top_level(self) -> List[TopLevelVariable]:
         return self._variables_top_level
 
@@ -296,10 +302,7 @@ class SlitherCompilationUnit(Context):
 
             slot = 0
             offset = 0
-            for var in contract.state_variables_ordered:
-                if var.is_constant or var.is_immutable:
-                    continue
-
+            for var in contract.stored_state_variables_ordered:
                 assert var.type
                 size, new_slot = var.type.storage_size
 

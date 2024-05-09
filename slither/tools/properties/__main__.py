@@ -68,13 +68,13 @@ def parse_args() -> argparse.Namespace:
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(
-        description="Demo",
-        usage="slither-demo filename",
+        description="Generates code properties (e.g., invariants) that can be tested with unit tests or Echidna, entirely automatically.",
+        usage="slither-prop filename",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
-        "filename", help="The filename of the contract or truffle directory to analyze."
+        "filename", help="The filename of the contract or project directory to analyze."
     )
 
     parser.add_argument("--contract", help="The targeted contract.")

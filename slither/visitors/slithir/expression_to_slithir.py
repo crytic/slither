@@ -188,7 +188,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         operation: Operation
         if isinstance(left, list):  # tuple expression:
-            if isinstance(right, list):  # unbox assigment
+            if isinstance(right, list):  # unbox assignment
                 assert len(left) == len(right)
                 for idx, _ in enumerate(left):
                     if (
@@ -210,12 +210,6 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 for idx, _ in enumerate(left):
                     if not left[idx] is None:
                         index = idx
-                        # The following test is probably always true?
-                        if (
-                            isinstance(left[idx], LocalVariableInitFromTuple)
-                            and left[idx].tuple_index is not None
-                        ):
-                            index = left[idx].tuple_index
                         operation = Unpack(left[idx], right, index)
                         operation.set_expression(expression)
                         self._result.append(operation)
@@ -233,15 +227,16 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(operation)
             set_val(expression, None)
         else:
-            # Init of array, like
-            # uint8[2] var = [1,2];
+            # For `InitArray`, the rhs is a list or singleton of `TupleExpression` elements.
+            # Init of array e.g. uint8[2] var = [1,2];
             if isinstance(right, list):
                 operation = InitArray(right, left)
                 operation.set_expression(expression)
                 self._result.append(operation)
                 set_val(expression, left)
-            elif isinstance(left.type, ArrayType):
-                # Special case for init of array, when the right has only one element
+
+            # Special case for init of array, when the right has only one element e.g. arr = [1];
+            elif isinstance(left.type, ArrayType) and not isinstance(right.type, ArrayType):
                 operation = InitArray([right], left)
                 operation.set_expression(expression)
                 self._result.append(operation)
@@ -276,6 +271,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 self._result.append(operation)
 
             else:
+
                 operation = convert_assignment(
                     left, right, expression.type, expression.expression_return_type
                 )
@@ -436,7 +432,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             set_val(expression, val)
 
     def _post_conditional_expression(self, expression: ConditionalExpression) -> None:
-        raise Exception(f"Ternary operator are not convertible to SlithIR {expression}")
+        raise SlithIRError(f"Ternary operator are not convertible to SlithIR {expression}")
 
     def _post_elementary_type_name_expression(
         self,
@@ -591,8 +587,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
             # contract A { type MyInt is int}
             # contract B { function f() public{ A.MyInt test = A.MyInt.wrap(1);}}
             # The logic is handled by _post_call_expression
-            if expression.member_name in expr.file_scope.type_aliases:
-                set_val(expression, expr.file_scope.type_aliases[expression.member_name])
+            if expression.member_name in expr.type_aliases_as_dict:
+                set_val(expression, expr.type_aliases_as_dict[expression.member_name])
                 return
             # Lookup errors referred to as member of contract e.g. Test.myError.selector
             if expression.member_name in expr.custom_errors_as_dict:
