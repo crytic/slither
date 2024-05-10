@@ -509,9 +509,9 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         var, was_created = find_variable(value, caller_context, referenced_declaration)
 
-        if 'typeDescriptions' in expression:
+        if "typeDescriptions" in expression:
 
-            pattern = r'\b(\w+)\s*\)'
+            pattern = r"\b(\w+)\s*\)"
 
             type_string = expression["typeDescriptions"]["typeString"]
 
