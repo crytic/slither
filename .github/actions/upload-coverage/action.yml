@@ -6,8 +6,8 @@
 name: Upload Coverage
 description: Upload coverage files
 
-runs:
-  using: "composite"
+/** runs:
+ */  using: "composite"
 
   steps:
     # FIXME(jl): codecov has the option of including machine information in filename that would solve this unique naming

@@ -1,5 +1,5 @@
----
-name: Feature request
+/** ---
+ */name: Feature request
 description: Suggest a feature
 labels: ["enhancement"]
 body:

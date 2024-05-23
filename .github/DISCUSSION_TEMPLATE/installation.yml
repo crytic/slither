@@ -1,20 +1,20 @@
---- 
-body: 
-  - 
-    attributes: 
+/** ---
+ */body: 
+  -
+    attributes:
       label: "What operating system are you using?"
     id: os
     type: textarea
-    validations: 
+    validations:
       required: true
-  - 
-    attributes: 
+  -
+    attributes:
       label: "How did you install slither?"
       description: |
         For example, using git or python's pip.
     id: install-method
     type: textarea
-    validations: 
+    validations:
       required: true
   - type: dropdown
     id: python
@@ -25,14 +25,14 @@ body:
         - "Yes"
         - "No"
         - "Not sure"
-  - 
-    attributes: 
+  -
+    attributes:
       description: |
-          Please copy and paste any relevant log output. This 
+          Please copy and paste any relevant log output. This
           will be automatically formatted into code, so no need for backticks.
       render: shell
       label: "Output of running `slither-doctor .`:"
     id: logs
-labels: 
+labels:
   - installation-help
 title: "[Installation-Help]: "
