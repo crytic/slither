@@ -20,7 +20,7 @@ class ReturnInsteadOfLeave(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.MEDIUM
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-assembly-return"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#return-instead-of-leave-in-assembly"
 
     WIKI_TITLE = "Return instead of leave in assembly"
     WIKI_DESCRIPTION = "Detect if a `return` is used where a `leave` should be used."

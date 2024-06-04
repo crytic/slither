@@ -7,6 +7,7 @@ from crytic_compile.utils.naming import Filename
 from slither.core.declarations import Contract, Import, Pragma
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.enum_top_level import EnumTopLevel
+from slither.core.declarations.event_top_level import EventTopLevel
 from slither.core.declarations.function_top_level import FunctionTopLevel
 from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
@@ -28,6 +29,7 @@ class FileScope:
     def __init__(self, filename: Filename) -> None:
         self.filename = filename
         self.accessible_scopes: List[FileScope] = []
+        self.exported_symbols: Set[int] = set()
 
         self.contracts: Dict[str, Contract] = {}
         # Custom error are a list instead of a dict
@@ -39,6 +41,7 @@ class FileScope:
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
         self.functions: Set[FunctionTopLevel] = set()
+        self.events: Set[EventTopLevel] = set()
         self.using_for_directives: Set[UsingForTopLevel] = set()
         self.imports: Set[Import] = set()
         self.pragmas: Set[Pragma] = set()
@@ -54,49 +57,38 @@ class FileScope:
         # Name -> type alias
         self.type_aliases: Dict[str, TypeAlias] = {}
 
-    def add_accesible_scopes(self) -> bool:
+    def add_accessible_scopes(self) -> bool:  # pylint: disable=too-many-branches
         """
         Add information from accessible scopes. Return true if new information was obtained
-
         :return:
         :rtype:
         """
 
         learn_something = False
-
         for new_scope in self.accessible_scopes:
-            if not _dict_contain(new_scope.contracts, self.contracts):
-                self.contracts.update(new_scope.contracts)
+            # To support using for directives on user defined types and user defined functions,
+            # we need to propagate the using for directives from the imported file to the importing file
+            # since it is not reflected in the "exportedSymbols" field of the AST.
+            if not new_scope.using_for_directives.issubset(self.using_for_directives):
+                self.using_for_directives |= new_scope.using_for_directives
                 learn_something = True
-            if not new_scope.custom_errors.issubset(self.custom_errors):
-                self.custom_errors |= new_scope.custom_errors
-                learn_something = True
-            if not _dict_contain(new_scope.enums, self.enums):
-                self.enums.update(new_scope.enums)
+            if not _dict_contain(new_scope.type_aliases, self.type_aliases):
+                self.type_aliases.update(new_scope.type_aliases)
                 learn_something = True
             if not new_scope.functions.issubset(self.functions):
                 self.functions |= new_scope.functions
                 learn_something = True
-            if not new_scope.using_for_directives.issubset(self.using_for_directives):
-                self.using_for_directives |= new_scope.using_for_directives
+
+            # To get around this bug for aliases https://github.com/ethereum/solidity/pull/11881,
+            # we propagate the exported_symbols from the imported file to the importing file
+            # See tests/e2e/solc_parsing/test_data/top-level-nested-import-0.7.1.sol
+            if not new_scope.exported_symbols.issubset(self.exported_symbols):
+                self.exported_symbols |= new_scope.exported_symbols
                 learn_something = True
-            if not new_scope.imports.issubset(self.imports):
-                self.imports |= new_scope.imports
-                learn_something = True
-            if not new_scope.pragmas.issubset(self.pragmas):
-                self.pragmas |= new_scope.pragmas
-                learn_something = True
-            if not _dict_contain(new_scope.structures, self.structures):
-                self.structures.update(new_scope.structures)
-                learn_something = True
-            if not _dict_contain(new_scope.variables, self.variables):
-                self.variables.update(new_scope.variables)
-                learn_something = True
+
+            # This is need to support aliasing when we do a late lookup using SolidityImportPlaceholder
             if not _dict_contain(new_scope.renaming, self.renaming):
                 self.renaming.update(new_scope.renaming)
-                learn_something = True
-            if not _dict_contain(new_scope.type_aliases, self.type_aliases):
-                self.type_aliases.update(new_scope.type_aliases)
                 learn_something = True
 
         return learn_something

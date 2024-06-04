@@ -178,15 +178,14 @@ def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither
         # In order to compress these source mappings especially for bytecode, the following rules are used:
         # If a field is empty, the value of the preceding element is used.
         # If a : is missing, all following fields are considered empty.
-
         mapping_item = mapping.split(":")
         mapping_item += prev_mapping[len(mapping_item) :]
 
         for i, _ in enumerate(mapping_item):
             if mapping_item[i] == "":
-                mapping_item[i] = int(prev_mapping[i])
+                mapping_item[i] = prev_mapping[i]
 
-        offset, _length, file_id, *_ = mapping_item
+        offset, _, file_id, *_ = mapping_item
         prev_mapping = mapping_item
 
         if file_id == "-1":
@@ -194,8 +193,7 @@ def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither
             # See https://github.com/ethereum/solidity/issues/6119#issuecomment-467797635
             continue
 
-        offset = int(offset)
-        line_number = file_source[0:offset].count("\n".encode("utf-8")) + 1
+        line_number = file_source[0 : int(offset)].count("\n".encode("utf-8")) + 1
 
         # Append evm instructions to the corresponding source line number
         # Note: Some evm instructions in mapping are not necessarily in program execution order
