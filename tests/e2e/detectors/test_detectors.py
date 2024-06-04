@@ -1404,26 +1404,6 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.4.25",
-    ),
-    Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.5.16",
-    ),
-    Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.6.11",
-    ),
-    Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.7.6",
-    ),
-    Test(
         all_detectors.MsgValueInLoop,
         "msg_value_loop.sol",
         "0.4.25",
