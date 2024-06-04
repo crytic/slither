@@ -348,6 +348,14 @@ def parse_args(
         default=defaults_flag_in_config["printers_to_run"],
     )
 
+    group_printer.add_argument(
+        "--include-interfaces",
+        help="Include interfaces from inheritance-graph printer",
+        action="store_true",
+        dest="include_interfaces",
+        default=False,
+    )
+
     group_detector.add_argument(
         "--list-detectors",
         help="List available detectors",
