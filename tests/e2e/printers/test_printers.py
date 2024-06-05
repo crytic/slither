@@ -35,7 +35,6 @@ def test_inheritance_printer(solc_binary_path) -> None:
 
     assert counter["B -> A"] == 2
     assert counter["C -> A"] == 1
-    
     # Let also test the include/exclude interface behavior
     # Check that the interface is not included
     assert "MyInterfaceX" not in content
