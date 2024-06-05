@@ -63,7 +63,7 @@ class UnusedImport(AbstractDetector):
                 return False
         return True
 
-    def _detect(self) -> List[Output]:
+    def _detect(self) -> List[Output]:  # pylint: disable=too-many-branches
         results: List[Output] = []
         # This is computed lazily and then memoized so we need to trigger the computation.
         self.slither._compute_offsets_to_ref_impl_decl()
