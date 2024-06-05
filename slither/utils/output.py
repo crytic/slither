@@ -5,7 +5,7 @@ import os
 import zipfile
 from collections import OrderedDict
 from importlib import metadata
-from typing import Tuple, Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
+from typing import Tuple, Optional, Dict, List, Union, Any, TYPE_CHECKING, Type, TypeVar
 from zipfile import ZipFile
 
 
@@ -229,7 +229,10 @@ def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: 
 ###################################################################################
 
 
-def _convert_to_description(d: Any, exclude_location: bool = False) -> str:
+SourceMappingT = TypeVar("SourceMappingT", bound=SourceMapping)
+
+
+def _convert_to_description(d: Union[str, SourceMappingT], exclude_location: bool = False) -> str:
     if isinstance(d, str):
         return d
 
