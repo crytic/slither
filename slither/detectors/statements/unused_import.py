@@ -32,7 +32,7 @@ class UnusedImport(AbstractDetector):
     )
 
     @staticmethod
-    def _is_import_container(scope: FileScope) -> bool:
+    def _is_import_container(scope: FileScope) -> bool:  # pylint: disable=too-many-branches
         """
         Returns True if a given file (provided as a `FileScope` object) contains only `import` directives (and pragmas).
         Such a file doesn't need the imports it contains, but its purpose is to aggregate certain correlated imports.
