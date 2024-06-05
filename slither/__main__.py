@@ -11,7 +11,7 @@ import pstats
 import sys
 import traceback
 from importlib import metadata
-from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
 
 
 from crytic_compile import cryticparser, CryticCompile, InvalidCompilation
@@ -211,44 +211,51 @@ def choose_detectors(
 
     if args.detectors_to_run == "all":
         detectors_to_run = all_detector_classes
-        if args.detectors_to_exclude:
-            detectors_excluded = args.detectors_to_exclude.split(",")
-            for detector in detectors:
-                if detector in detectors_excluded:
-                    detectors_to_run.remove(detectors[detector])
     else:
-        for detector in args.detectors_to_run.split(","):
-            if detector in detectors:
-                detectors_to_run.append(detectors[detector])
-            else:
-                raise ValueError(f"Error: {detector} is not a detector")
-        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+        detectors_to_run = __include_detectors(
+            set(detectors_to_run), args.detectors_to_run, detectors
+        )
         return detectors_to_run
 
-    if args.exclude_optimization:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.OPTIMIZATION
-        ]
+    classification_map = {
+        DetectorClassification.HIGH: args.exclude_high,
+        DetectorClassification.MEDIUM: args.exclude_medium,
+        DetectorClassification.LOW: args.exclude_low,
+        DetectorClassification.INFORMATIONAL: args.exclude_informational,
+        DetectorClassification.OPTIMIZATION: args.exclude_optimization,
+    }
+    excluded_classification = [
+        classification for classification, included in classification_map.items() if included
+    ]
+    detectors_to_run = [d for d in detectors_to_run if d.IMPACT not in excluded_classification]
 
-    if args.exclude_informational:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.INFORMATIONAL
-        ]
-    if args.exclude_low:
-        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.LOW]
-    if args.exclude_medium:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.MEDIUM
-        ]
-    if args.exclude_high:
-        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.HIGH]
     if args.detectors_to_exclude:
         detectors_to_run = [
             d for d in detectors_to_run if d.ARGUMENT not in args.detectors_to_exclude
         ]
 
-    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+    if args.detectors_to_include:
+        detectors_to_run = __include_detectors(
+            set(detectors_to_run), args.detectors_to_include, detectors
+        )
 
+    return detectors_to_run
+
+
+def __include_detectors(
+    detectors_to_run: Set[Type[AbstractDetector]],
+    detectors_to_include: str,
+    detectors: Dict[str, Type[AbstractDetector]],
+) -> List[Type[AbstractDetector]]:
+    include_detectors = detectors_to_include.split(",")
+
+    for detector in include_detectors:
+        if detector in detectors:
+            detectors_to_run.add(detectors[detector])
+        else:
+            raise ValueError(f"Error: {detector} is not a detector")
+
+    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
     return detectors_to_run
 
 
@@ -341,6 +348,14 @@ def parse_args(
         default=defaults_flag_in_config["printers_to_run"],
     )
 
+    group_printer.add_argument(
+        "--include-interfaces",
+        help="Include interfaces from inheritance-graph printer",
+        action="store_true",
+        dest="include_interfaces",
+        default=False,
+    )
+
     group_detector.add_argument(
         "--list-detectors",
         help="List available detectors",
@@ -405,6 +420,14 @@ def parse_args(
         help="Exclude high impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_high"],
+    )
+
+    group_detector.add_argument(
+        "--include-detectors",
+        help="Comma-separated list of detectors that should be included",
+        action="store",
+        dest="detectors_to_include",
+        default=defaults_flag_in_config["detectors_to_include"],
     )
 
     fail_on_group = group_detector.add_mutually_exclusive_group()

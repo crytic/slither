@@ -94,14 +94,11 @@ class FunctionType(Enum):
 
 def _filter_state_variables_written(expressions: List["Expression"]):
     ret = []
+
     for expression in expressions:
-        if isinstance(expression, Identifier):
-            ret.append(expression)
-        if isinstance(expression, UnaryOperation):
+        if isinstance(expression, (Identifier, UnaryOperation, MemberAccess)):
             ret.append(expression.expression)
-        if isinstance(expression, MemberAccess):
-            ret.append(expression.expression)
-        if isinstance(expression, IndexAccess):
+        elif isinstance(expression, IndexAccess):
             ret.append(expression.expression_left)
     return ret
 
