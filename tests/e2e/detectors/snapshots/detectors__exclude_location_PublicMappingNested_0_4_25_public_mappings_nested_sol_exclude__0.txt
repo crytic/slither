@@ -1,0 +1,2 @@
+Bug.testMapping is a public mapping with nested variables
+

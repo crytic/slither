@@ -1,0 +1,12 @@
+Timestamp.bad0() uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool)(block.timestamp == 0)
+
+Timestamp.bad1() uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool)(time == 0)
+
+Timestamp.bad2() uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp > 0
+

@@ -1,0 +1,8 @@
+ERC20 event IERC20Bad.Approval(address,address,uint256)does not index parameter owner
+
+ERC20 event IERC20Bad.Transfer(address,address,uint256)does not index parameter from
+
+ERC20 event IERC20Bad.Approval(address,address,uint256)does not index parameter spender
+
+ERC20 event IERC20Bad.Transfer(address,address,uint256)does not index parameter to
+

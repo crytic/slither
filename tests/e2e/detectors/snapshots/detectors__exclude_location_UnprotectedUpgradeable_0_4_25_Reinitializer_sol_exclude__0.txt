@@ -1,0 +1,1 @@
+Reinitializer is an upgradeable contract that does not protect its initialize functions: Reinitializer.initialize(). Anyone can delete the contract with: Reinitializer.kill()

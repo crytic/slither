@@ -1,0 +1,4 @@
+A contains multiple constructors in the same contract:
+	- A.constructor()
+	- A.A()
+

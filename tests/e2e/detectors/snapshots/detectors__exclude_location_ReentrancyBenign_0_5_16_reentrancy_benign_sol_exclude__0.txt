@@ -1,0 +1,50 @@
+Reentrancy in ReentrancyBenign.bad0():
+	External calls:
+	- (success,None) = msg.sender.call()
+	State variables written after the call(s):
+	- counter += 1
+
+Reentrancy in ReentrancyBenign.bad3(address):
+	External calls:
+	- externalCaller(target)
+		- address(target).call()
+	State variables written after the call(s):
+	- varChanger()
+		- anotherVariableToChange ++
+
+Reentrancy in ReentrancyBenign.bad1(address):
+	External calls:
+	- (success,None) = target.call()
+	State variables written after the call(s):
+	- counter += 1
+
+Reentrancy in ReentrancyBenign.bad5(address):
+	External calls:
+	- ethSender(address(0))
+		- address(target).call.value(1)()
+	State variables written after the call(s):
+	- varChanger()
+		- anotherVariableToChange ++
+
+Reentrancy in ReentrancyBenign.bad4(address):
+	External calls:
+	- externalCaller(target)
+		- address(target).call()
+	- ethSender(address(0))
+		- address(target).call.value(1)()
+	External calls sending eth:
+	- ethSender(address(0))
+		- address(target).call.value(1)()
+	State variables written after the call(s):
+	- varChanger()
+		- anotherVariableToChange ++
+
+Reentrancy in ReentrancyBenign.bad2(address):
+	External calls:
+	- (success,None) = target.call()
+	- address(target).call.value(1000)()
+	External calls sending eth:
+	- address(target).call.value(1000)()
+	State variables written after the call(s):
+	- counter += 1
+

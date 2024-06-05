@@ -1940,7 +1940,7 @@ def id_test_exclude_location(test_item: Test):
 
 
 # Let no rerun every test, but only a subset of them
-@pytest.mark.parametrize("test_item", ALL_TESTS[::5], ids=id_test_exclude_location)
+@pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test_exclude_location)
 def test_exclude_location(test_item, snapshot):
     crytic_compile = load_from_crytic(test_item)
 
@@ -1977,7 +1977,7 @@ def _generate_compile(test_item: Test, skip_existing=False):
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print(
-            "To generate the zip artifacts run\n\tpython tests/e2e/tests/test_detectors.py --compile"
+            "To generate the zip artifacts run\n\tpython tests/e2e/detectors/test_detectors.py --compile"
         )
     elif sys.argv[1] == "--compile":
         for next_test in ALL_TESTS:

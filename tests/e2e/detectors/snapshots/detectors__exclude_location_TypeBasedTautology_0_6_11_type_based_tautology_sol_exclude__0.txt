@@ -1,0 +1,6 @@
+A.g(uint8) contains a tautology or contradiction:
+	- (y < 512)
+
+A.f(uint256) contains a tautology or contradiction:
+	- x >= 0
+

@@ -1,0 +1,6 @@
+Reentrancy in Test.bug(C):
+	External calls:
+	- c.f()
+	Event emitted after the call(s):
+	- E()
+

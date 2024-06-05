@@ -1,0 +1,12 @@
+CostlyOperationsInLoopBase.bad_base() has costly operations inside a loop:
+	- state_variable_base ++
+
+CostlyOperationsInLoop.bad2() has costly operations inside a loop:
+	- state_variable ++
+
+CostlyOperationsInLoop.bad3_internal() has costly operations inside a loop:
+	- state_variable ++
+
+CostlyOperationsInLoop.bad() has costly operations inside a loop:
+	- state_variable ++
+

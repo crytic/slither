@@ -1,0 +1,3 @@
+MyConc.bad1(bool) uses a Boolean constant improperly:
+	-(b || true)
+

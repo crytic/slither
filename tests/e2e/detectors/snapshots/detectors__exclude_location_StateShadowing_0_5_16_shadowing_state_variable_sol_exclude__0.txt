@@ -1,0 +1,3 @@
+DerivedContract.owner shadows:
+	- BaseContract.owner
+

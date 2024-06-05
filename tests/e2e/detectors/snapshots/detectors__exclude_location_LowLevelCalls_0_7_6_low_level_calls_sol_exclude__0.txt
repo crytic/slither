@@ -1,0 +1,3 @@
+Low level call in Sender.send(address):
+	- _receiver.call{gas: 7777,value: msg.value}()
+

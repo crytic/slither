@@ -1,0 +1,171 @@
+Reentrancy in DAO.retrieveDAOReward(bool):
+	External calls:
+	- reward = (rewardToken[msg.sender] * DAOrewardAccount.accumulatedInput()) / totalRewardToken - DAOpaidOut[msg.sender]
+	- ! DAOrewardAccount.payOut(dao.rewardAccount(),reward)
+	- ! DAOrewardAccount.payOut(dao,reward)
+	State variables written after the call(s):
+	- DAOpaidOut[msg.sender] += reward
+	DAOInterface.DAOpaidOut can be used in cross function reentrancies:
+	- DAOInterface.DAOpaidOut
+	- DAO.newContract(address)
+	- DAO.retrieveDAOReward(bool)
+	- DAO.splitDAO(uint256,address)
+
+Reentrancy in DAO.withdrawRewardFor(address):
+	External calls:
+	- reward = (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply - paidOut[_account]
+	- ! rewardAccount.payOut(_account,reward)
+	State variables written after the call(s):
+	- paidOut[_account] += reward
+	DAOInterface.paidOut can be used in cross function reentrancies:
+	- DAOInterface.paidOut
+	- DAO.splitDAO(uint256,address)
+	- DAO.transferPaidOut(address,address,uint256)
+	- DAO.withdrawRewardFor(address)
+
+Reentrancy in DAO.splitDAO(uint256,address):
+	External calls:
+	- p.splitData[0].newDAO = createNewDAO(_newCurator)
+		- daoCreator.createDAO(_newCurator,0,0,now + splitExecutionPeriod)
+	- withdrawRewardFor(msg.sender)
+		- (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply < paidOut[_account]
+		- reward = (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply - paidOut[_account]
+		- ! rewardAccount.payOut(_account,reward)
+	State variables written after the call(s):
+	- balances[msg.sender] = 0
+	TokenInterface.balances can be used in cross function reentrancies:
+	- Token.balanceOf(address)
+	- TokenCreation.createTokenProxy(address)
+	- TokenCreation.refund()
+	- DAO.splitDAO(uint256,address)
+	- Token.transfer(address,uint256)
+	- Token.transferFrom(address,address,uint256)
+	- DAO.vote(uint256,bool)
+	- paidOut[msg.sender] = 0
+	DAOInterface.paidOut can be used in cross function reentrancies:
+	- DAOInterface.paidOut
+	- DAO.splitDAO(uint256,address)
+	- DAO.transferPaidOut(address,address,uint256)
+	- DAO.withdrawRewardFor(address)
+	- totalSupply -= balances[msg.sender]
+	TokenInterface.totalSupply can be used in cross function reentrancies:
+	- TokenCreation.createTokenProxy(address)
+	- DAO.executeProposal(uint256,bytes)
+	- DAO.minQuorum(uint256)
+	- TokenCreation.refund()
+	- DAO.splitDAO(uint256,address)
+	- TokenInterface.totalSupply
+	- DAO.withdrawRewardFor(address)
+
+Reentrancy in DAO.splitDAO(uint256,address):
+	External calls:
+	- p.splitData[0].newDAO = createNewDAO(_newCurator)
+		- daoCreator.createDAO(_newCurator,0,0,now + splitExecutionPeriod)
+	State variables written after the call(s):
+	- p.splitData[0].splitBalance = actualBalance()
+	DAOInterface.proposals can be used in cross function reentrancies:
+	- DAO.DAO(address,DAO_Creator,uint256,uint256,uint256,address)
+	- DAO.checkProposalCode(uint256,address,uint256,bytes)
+	- DAO.closeProposal(uint256)
+	- DAO.executeProposal(uint256,bytes)
+	- DAO.getNewDAOAddress(uint256)
+	- DAO.isBlocked(address)
+	- DAO.newProposal(address,uint256,string,bytes,uint256,bool)
+	- DAO.numberOfProposals()
+	- DAOInterface.proposals
+	- DAO.splitDAO(uint256,address)
+	- DAO.vote(uint256,bool)
+	- p.splitData[0].rewardToken = rewardToken[address(this)]
+	DAOInterface.proposals can be used in cross function reentrancies:
+	- DAO.DAO(address,DAO_Creator,uint256,uint256,uint256,address)
+	- DAO.checkProposalCode(uint256,address,uint256,bytes)
+	- DAO.closeProposal(uint256)
+	- DAO.executeProposal(uint256,bytes)
+	- DAO.getNewDAOAddress(uint256)
+	- DAO.isBlocked(address)
+	- DAO.newProposal(address,uint256,string,bytes,uint256,bool)
+	- DAO.numberOfProposals()
+	- DAOInterface.proposals
+	- DAO.splitDAO(uint256,address)
+	- DAO.vote(uint256,bool)
+	- p.splitData[0].totalSupply = totalSupply
+	DAOInterface.proposals can be used in cross function reentrancies:
+	- DAO.DAO(address,DAO_Creator,uint256,uint256,uint256,address)
+	- DAO.checkProposalCode(uint256,address,uint256,bytes)
+	- DAO.closeProposal(uint256)
+	- DAO.executeProposal(uint256,bytes)
+	- DAO.getNewDAOAddress(uint256)
+	- DAO.isBlocked(address)
+	- DAO.newProposal(address,uint256,string,bytes,uint256,bool)
+	- DAO.numberOfProposals()
+	- DAOInterface.proposals
+	- DAO.splitDAO(uint256,address)
+	- DAO.vote(uint256,bool)
+	- p.proposalPassed = true
+	DAOInterface.proposals can be used in cross function reentrancies:
+	- DAO.DAO(address,DAO_Creator,uint256,uint256,uint256,address)
+	- DAO.checkProposalCode(uint256,address,uint256,bytes)
+	- DAO.closeProposal(uint256)
+	- DAO.executeProposal(uint256,bytes)
+	- DAO.getNewDAOAddress(uint256)
+	- DAO.isBlocked(address)
+	- DAO.newProposal(address,uint256,string,bytes,uint256,bool)
+	- DAO.numberOfProposals()
+	- DAOInterface.proposals
+	- DAO.splitDAO(uint256,address)
+	- DAO.vote(uint256,bool)
+
+Reentrancy in DAO.transferFromWithoutReward(address,address,uint256):
+	External calls:
+	- ! withdrawRewardFor(_from)
+		- (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply < paidOut[_account]
+		- reward = (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply - paidOut[_account]
+		- ! rewardAccount.payOut(_account,reward)
+	State variables written after the call(s):
+	- transferFrom(_from,_to,_value)
+		- balances[_to] += _amount
+		- balances[_from] -= _amount
+	TokenInterface.balances can be used in cross function reentrancies:
+	- Token.balanceOf(address)
+	- TokenCreation.createTokenProxy(address)
+	- TokenCreation.refund()
+	- DAO.splitDAO(uint256,address)
+	- Token.transfer(address,uint256)
+	- Token.transferFrom(address,address,uint256)
+	- DAO.vote(uint256,bool)
+	- transferFrom(_from,_to,_value)
+		- paidOut[_from] -= transferPaidOut
+		- paidOut[_to] += transferPaidOut
+	DAOInterface.paidOut can be used in cross function reentrancies:
+	- DAOInterface.paidOut
+	- DAO.splitDAO(uint256,address)
+	- DAO.transferPaidOut(address,address,uint256)
+	- DAO.withdrawRewardFor(address)
+
+Reentrancy in DAO.transferWithoutReward(address,uint256):
+	External calls:
+	- ! getMyReward()
+		- (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply < paidOut[_account]
+		- reward = (balanceOf(_account) * rewardAccount.accumulatedInput()) / totalSupply - paidOut[_account]
+		- ! rewardAccount.payOut(_account,reward)
+	State variables written after the call(s):
+	- transfer(_to,_value)
+		- balances[msg.sender] -= _amount
+		- balances[_to] += _amount
+	TokenInterface.balances can be used in cross function reentrancies:
+	- Token.balanceOf(address)
+	- TokenCreation.createTokenProxy(address)
+	- TokenCreation.refund()
+	- DAO.splitDAO(uint256,address)
+	- Token.transfer(address,uint256)
+	- Token.transferFrom(address,address,uint256)
+	- DAO.vote(uint256,bool)
+	- transfer(_to,_value)
+		- paidOut[_from] -= transferPaidOut
+		- paidOut[_to] += transferPaidOut
+	DAOInterface.paidOut can be used in cross function reentrancies:
+	- DAOInterface.paidOut
+	- DAO.splitDAO(uint256,address)
+	- DAO.transferPaidOut(address,address,uint256)
+	- DAO.withdrawRewardFor(address)
+

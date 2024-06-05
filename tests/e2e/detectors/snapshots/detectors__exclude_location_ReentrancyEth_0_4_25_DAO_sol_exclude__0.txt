@@ -1,0 +1,72 @@
+Reentrancy in TokenCreation.refund():
+	External calls:
+	- extraBalance.balance >= extraBalance.accumulatedInput()
+	- extraBalance.payOut(address(this),extraBalance.accumulatedInput())
+	- msg.sender.call.value(weiGiven[msg.sender])()
+	External calls sending eth:
+	- msg.sender.call.value(weiGiven[msg.sender])()
+	State variables written after the call(s):
+	- weiGiven[msg.sender] = 0
+	TokenCreationInterface.weiGiven can be used in cross function reentrancies:
+	- TokenCreation.createTokenProxy(address)
+	- TokenCreation.refund()
+
+Reentrancy in DAO.executeProposal(uint256,bytes):
+	External calls:
+	- ! isRecipientAllowed(p.recipient)
+		- allowedRecipients[_recipient] || (_recipient == address(extraBalance) && totalRewardToken > extraBalance.accumulatedInput())
+	- ! p.recipient.call.value(p.amount)(_transactionData)
+	External calls sending eth:
+	- ! p.creator.send(p.proposalDeposit)
+	- ! p.recipient.call.value(p.amount)(_transactionData)
+	State variables written after the call(s):
+	- p.proposalPassed = true
+	DAOInterface.proposals can be used in cross function reentrancies:
+	- DAO.DAO(address,DAO_Creator,uint256,uint256,uint256,address)
+	- DAO.checkProposalCode(uint256,address,uint256,bytes)
+	- DAO.closeProposal(uint256)
+	- DAO.executeProposal(uint256,bytes)
+	- DAO.getNewDAOAddress(uint256)
+	- DAO.isBlocked(address)
+	- DAO.newProposal(address,uint256,string,bytes,uint256,bool)
+	- DAO.numberOfProposals()
+	- DAOInterface.proposals
+	- DAO.splitDAO(uint256,address)
+	- DAO.vote(uint256,bool)
+	- closeProposal(_proposalID)
+		- p.open = false
+	DAOInterface.proposals can be used in cross function reentrancies:
+	- DAO.DAO(address,DAO_Creator,uint256,uint256,uint256,address)
+	- DAO.checkProposalCode(uint256,address,uint256,bytes)
+	- DAO.closeProposal(uint256)
+	- DAO.executeProposal(uint256,bytes)
+	- DAO.getNewDAOAddress(uint256)
+	- DAO.isBlocked(address)
+	- DAO.newProposal(address,uint256,string,bytes,uint256,bool)
+	- DAO.numberOfProposals()
+	- DAOInterface.proposals
+	- DAO.splitDAO(uint256,address)
+	- DAO.vote(uint256,bool)
+	- rewardToken[address(this)] += p.amount
+	DAOInterface.rewardToken can be used in cross function reentrancies:
+	- DAO.changeProposalDeposit(uint256)
+	- DAO.executeProposal(uint256,bytes)
+	- DAO.minQuorum(uint256)
+	- DAO.newContract(address)
+	- DAO.retrieveDAOReward(bool)
+	- DAOInterface.rewardToken
+	- DAO.splitDAO(uint256,address)
+	- closeProposal(_proposalID)
+		- sumOfProposalDeposits -= p.proposalDeposit
+	DAOInterface.sumOfProposalDeposits can be used in cross function reentrancies:
+	- DAO.actualBalance()
+	- DAO.closeProposal(uint256)
+	- DAO.newProposal(address,uint256,string,bytes,uint256,bool)
+	- DAO.splitDAO(uint256,address)
+	- totalRewardToken += p.amount
+	DAOInterface.totalRewardToken can be used in cross function reentrancies:
+	- DAO.executeProposal(uint256,bytes)
+	- DAO.isRecipientAllowed(address)
+	- DAO.retrieveDAOReward(bool)
+	- DAOInterface.totalRewardToken
+

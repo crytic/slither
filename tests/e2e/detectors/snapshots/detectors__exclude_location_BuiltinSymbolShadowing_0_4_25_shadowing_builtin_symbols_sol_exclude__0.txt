@@ -1,0 +1,26 @@
+Reserved.mutable (state variable) shadows built-in symbol"
+
+ExtendedContract.ecrecover (state variable) shadows built-in symbol"
+
+FurtherExtendedContract.require().keccak256 (local variable) shadows built-in symbol"
+
+FurtherExtendedContract.abi (state variable) shadows built-in symbol"
+
+BaseContract.blockhash (state variable) shadows built-in symbol"
+
+FurtherExtendedContract.this (state variable) shadows built-in symbol"
+
+BaseContract.now (state variable) shadows built-in symbol"
+
+ExtendedContract.assert(bool).msg (local variable) shadows built-in symbol"
+
+ExtendedContract.assert(bool) (function) shadows built-in symbol"
+
+BaseContract.revert(bool) (event) shadows built-in symbol"
+
+FurtherExtendedContract.require().sha3 (local variable) shadows built-in symbol"
+
+FurtherExtendedContract.blockhash (state variable) shadows built-in symbol"
+
+FurtherExtendedContract.require() (modifier) shadows built-in symbol"
+

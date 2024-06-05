@@ -1,0 +1,15 @@
+Reentrancy in Reentrancy.withdraw(address):
+	External calls:
+	- require(bool)(Token(token).transfer(msg.sender,token_deposed[token][msg.sender]))
+	External calls sending eth:
+	- msg.sender.transfer(eth_deposed[token][msg.sender])
+	State variables written after the call(s):
+	- eth_deposed[token][msg.sender] = 0
+	Reentrancy.eth_deposed can be used in cross function reentrancies:
+	- Reentrancy.deposit_eth(address)
+	- Reentrancy.withdraw(address)
+	- token_deposed[token][msg.sender] = 0
+	Reentrancy.token_deposed can be used in cross function reentrancies:
+	- Reentrancy.deposit_token(address,uint256)
+	- Reentrancy.withdraw(address)
+

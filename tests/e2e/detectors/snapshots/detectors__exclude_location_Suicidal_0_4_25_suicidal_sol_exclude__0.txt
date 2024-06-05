@@ -1,0 +1,2 @@
+C.i_am_a_backdoor() allows anyone to destruct the contract
+

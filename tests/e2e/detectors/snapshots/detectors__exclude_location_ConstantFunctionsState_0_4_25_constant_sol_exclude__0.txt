@@ -1,0 +1,6 @@
+Constant.test_constant_bug() is declared view but changes state variables:
+	- Constant.a
+
+Constant.test_view_bug() is declared view but changes state variables:
+	- Constant.a
+
