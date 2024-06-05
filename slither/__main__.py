@@ -239,6 +239,7 @@ def choose_detectors(
             set(detectors_to_run), args.detectors_to_include, detectors
         )
 
+    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
     return detectors_to_run
 
 
@@ -255,7 +256,6 @@ def __include_detectors(
         else:
             raise ValueError(f"Error: {detector} is not a detector")
 
-    detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
     return detectors_to_run
 
 
