@@ -304,7 +304,7 @@ def _find_variable_init(
             scope = underlying_function.file_scope
         else:
             assert isinstance(underlying_function, FunctionContract)
-            scope = underlying_function.contract.file_scope
+            scope = underlying_function.contract_declarer.file_scope
 
     elif isinstance(caller_context, StructureTopLevelSolc):
         direct_contracts = []

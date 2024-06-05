@@ -11,6 +11,7 @@ class Pragma(SourceMapping):
         super().__init__()
         self._directive = directive
         self.scope: "FileScope" = scope
+        self._pattern = "pragma"
 
     @property
     def directive(self) -> List[str]:

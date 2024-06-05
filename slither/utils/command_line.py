@@ -48,6 +48,7 @@ defaults_flag_in_config = {
     "detectors_to_run": "all",
     "printers_to_run": None,
     "detectors_to_exclude": None,
+    "detectors_to_include": None,
     "exclude_dependencies": False,
     "exclude_informational": False,
     "exclude_optimization": False,
@@ -75,13 +76,6 @@ defaults_flag_in_config = {
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
 
-deprecated_flags = {
-    "fail_pedantic": True,
-    "fail_low": False,
-    "fail_medium": False,
-    "fail_high": False,
-}
-
 
 def read_config_file(args: argparse.Namespace) -> None:
     # No config file was provided as an argument
@@ -98,12 +92,6 @@ def read_config_file(args: argparse.Namespace) -> None:
             with open(args.config_file, encoding="utf8") as f:
                 config = json.load(f)
                 for key, elem in config.items():
-                    if key in deprecated_flags:
-                        logger.info(
-                            yellow(f"{args.config_file} has a deprecated key: {key} : {elem}")
-                        )
-                        migrate_config_options(args, key, elem)
-                        continue
                     if key not in defaults_flag_in_config:
                         logger.info(
                             yellow(f"{args.config_file} has an unknown key: {key} : {elem}")
@@ -116,28 +104,6 @@ def read_config_file(args: argparse.Namespace) -> None:
     else:
         logger.error(red(f"File {args.config_file} is not a file or does not exist"))
         logger.error(yellow("Falling back to the default settings..."))
-
-
-def migrate_config_options(args: argparse.Namespace, key: str, elem):
-    if key.startswith("fail_") and getattr(args, "fail_on") == defaults_flag_in_config["fail_on"]:
-        if key == "fail_pedantic":
-            pedantic_setting = elem
-            fail_on = FailOnLevel.PEDANTIC if pedantic_setting else FailOnLevel.NONE
-            setattr(args, "fail_on", fail_on)
-            logger.info(f"Migrating fail_pedantic: {pedantic_setting} as fail_on: {fail_on.value}")
-        elif key == "fail_low" and elem is True:
-            logger.info("Migrating fail_low: true -> fail_on: low")
-            setattr(args, "fail_on", FailOnLevel.LOW)
-
-        elif key == "fail_medium" and elem is True:
-            logger.info("Migrating fail_medium: true -> fail_on: medium")
-            setattr(args, "fail_on", FailOnLevel.MEDIUM)
-
-        elif key == "fail_high" and elem is True:
-            logger.info("Migrating fail_high: true -> fail_on: high")
-            setattr(args, "fail_on", FailOnLevel.HIGH)
-        else:
-            logger.warning(yellow(f"Key {key} was deprecated but no migration was provided"))
 
 
 def output_to_markdown(
