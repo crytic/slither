@@ -940,6 +940,16 @@ ALL_TESTS = [
     ),
     Test(
         all_detectors.UnprotectedUpgradeable,
+        "Reinitializer.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AnyInitializer.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
         "Buggy.sol",
         "0.5.16",
     ),
@@ -955,6 +965,16 @@ ALL_TESTS = [
     ),
     Test(
         all_detectors.UnprotectedUpgradeable,
+        "Reinitializer.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AnyInitializer.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
         "Buggy.sol",
         "0.6.11",
     ),
@@ -966,6 +986,16 @@ ALL_TESTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "whitelisted.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "Reinitializer.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AnyInitializer.sol",
         "0.6.11",
     ),
     Test(
@@ -976,6 +1006,16 @@ ALL_TESTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "Fixed.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "Reinitializer.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AnyInitializer.sol",
         "0.7.6",
     ),
     Test(
@@ -996,6 +1036,16 @@ ALL_TESTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "whitelisted.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "Reinitializer.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AnyInitializer.sol",
         "0.8.15",
     ),
     Test(
@@ -1401,26 +1451,6 @@ ALL_TESTS = [
     Test(
         all_detectors.TypeBasedTautology,
         "type_based_tautology.sol",
-        "0.7.6",
-    ),
-    Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.4.25",
-    ),
-    Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.5.16",
-    ),
-    Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.6.11",
-    ),
-    Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
         "0.7.6",
     ),
     Test(

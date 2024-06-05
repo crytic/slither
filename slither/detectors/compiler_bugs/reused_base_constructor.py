@@ -35,7 +35,7 @@ class ReusedBaseConstructor(AbstractDetector):
     ARGUMENT = "reused-constructor"
     HELP = "Reused base constructor"
     IMPACT = DetectorClassification.MEDIUM
-    # The confidence is medium, because prior Solidity 0.4.22, we cant differentiate
+    # The confidence is medium, because prior Solidity 0.4.22, we can't differentiate
     # contract C is A() {
     # to
     # contract C is A {
