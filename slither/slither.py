@@ -54,7 +54,12 @@ def _update_file_scopes(
         for refId in scope.exported_symbols:
             if refId in sol_parser.contracts_by_id:
                 contract = sol_parser.contracts_by_id[refId]
-                scope.contracts[contract.name] = contract
+
+                # Only add elements if they are not present. Since we kept the exported symbols in
+                # we resolve from the most local imports first.
+                if contract.name not in scope.contracts:
+                    scope.contracts[contract.name] = contract
+
             elif refId in sol_parser.functions_by_id:
                 functions = sol_parser.functions_by_id[refId]
                 assert len(functions) == 1
