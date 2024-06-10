@@ -85,7 +85,7 @@ class FileScope:
             if not set(new_scope.exported_symbols).issubset(self.exported_symbols):
                 # We are using lists and specifically extending them to keep the order in which
                 # elements are added. This will come handy when we have name collisions.
-                # See issue :
+                # See issue : https://github.com/crytic/slither/issues/2477
                 new_symbols = [
                     symbol
                     for symbol in new_scope.exported_symbols

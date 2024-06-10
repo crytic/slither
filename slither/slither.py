@@ -55,8 +55,9 @@ def _update_file_scopes(
             if refId in sol_parser.contracts_by_id:
                 contract = sol_parser.contracts_by_id[refId]
 
-                # Only add elements if they are not present. Since we kept the exported symbols in
-                # we resolve from the most local imports first.
+                # Add elements only if they are not already present. By keeping the exported symbols
+                # in the order they were encountered, we ensure that the most local imports are
+                # resolved first.
                 if contract.name not in scope.contracts:
                     scope.contracts[contract.name] = contract
 
