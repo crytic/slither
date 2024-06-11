@@ -48,6 +48,7 @@ defaults_flag_in_config = {
     "detectors_to_run": "all",
     "printers_to_run": None,
     "detectors_to_exclude": None,
+    "detectors_to_include": None,
     "exclude_dependencies": False,
     "exclude_informational": False,
     "exclude_optimization": False,

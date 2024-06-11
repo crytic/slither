@@ -44,6 +44,18 @@ def test_inheritance_printer(solc_binary_path) -> None:
     assert counter["B -> A"] == 2
     assert counter["C -> A"] == 1
 
+    # Let also test the include/exclude interface behavior
+    # Check that the interface is not included
+    assert "MyInterfaceX" not in content
+
+    slither.include_interfaces = True
+    output = printer.output("test_printer.dot")
+    content = output.elements[0]["name"]["content"]
+    assert "MyInterfaceX" in content
+
+    # Remove test generated files
+    Path("test_printer.dot").unlink(missing_ok=True)
+
 
 known_failures = {
     all_printers.Halstead: [

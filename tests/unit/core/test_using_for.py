@@ -17,7 +17,7 @@ def test_using_for_global_collision(solc_binary_path) -> None:
     for source_file in Path(USING_FOR_TEST_DATA_DIR, "using_for_global_collision").rglob("*.sol"):
         standard_json.add_source_file(Path(source_file).as_posix())
     compilation = CryticCompile(standard_json, solc=solc_path)
-    sl = Slither(compilation)
+    sl = Slither(compilation, disallow_partial=True)
     _run_all_detectors(sl)
 
 

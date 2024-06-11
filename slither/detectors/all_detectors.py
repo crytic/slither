@@ -57,7 +57,6 @@ from .slither.name_reused import NameReused
 from .functions.unimplemented import UnimplementedFunctionDetection
 from .statements.mapping_deletion import MappingDeletionDetection
 from .statements.array_length_assignment import ArrayLengthAssignment
-from .variables.similar_variables import SimilarVarsDetection
 from .variables.function_init_state_variables import FunctionInitializedState
 from .statements.redundant_statements import RedundantStatements
 from .operations.bad_prng import BadPRNG
