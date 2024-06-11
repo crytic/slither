@@ -1,15 +1,9 @@
 Inheritance Graph: tmp.zip.inheritance-graph.dot
 
 digraph "" {
-c160_LibByte[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>LibByte</B></TD></TR><TR><TD align="left"><I>Private Functions:</I></TD></TR><TR><TD align="left">    t(uint256,bytes1)</TD></TR><TR><TD align="left">    t(uint256,bytes32)</TD></TR></TABLE> >];
-
 c178_TestByte[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>TestByte</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    test()</TD></TR></TABLE> >];
 
-c203_LibUint[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>LibUint</B></TD></TR><TR><TD align="left"><I>Private Functions:</I></TD></TR><TR><TD align="left">    t(uint256,uint8)</TD></TR><TR><TD align="left">    t(uint256,uint256)</TD></TR></TABLE> >];
-
 c223_TestUint[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>TestUint</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    test()</TD></TR></TABLE> >];
-
-c248_LibInt[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>LibInt</B></TD></TR><TR><TD align="left"><I>Private Functions:</I></TD></TR><TR><TD align="left">    t(uint256,int8)</TD></TR><TR><TD align="left">    t(uint256,int256)</TD></TR></TABLE> >];
 
 c269_TestUintWithVariableiAndConversion[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>TestUintWithVariableiAndConversion</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    test()</TD></TR></TABLE> >];
 

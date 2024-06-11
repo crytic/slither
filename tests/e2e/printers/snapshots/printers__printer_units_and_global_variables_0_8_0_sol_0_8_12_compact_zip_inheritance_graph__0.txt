@@ -3,8 +3,6 @@ Inheritance Graph: tmp.zip.inheritance-graph.dot
 digraph "" {
 c2_A[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>A</B></TD></TR></TABLE> >];
 
-c3_I[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>I</B></TD></TR></TABLE> >];
-
 c333_Test[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>Test</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    ether_unit()</TD></TR><TR><TD align="left">    time_unit()</TD></TR><TR><TD align="left">    block_and_transactions()</TD></TR><TR><TD align="left">    abi_encode()</TD></TR><TR><TD align="left">    error_handling()</TD></TR><TR><TD align="left">    math_and_crypto()</TD></TR><TR><TD align="left">    address_related()</TD></TR><TR><TD align="left">    address_edge_case()</TD></TR><TR><TD align="left">    contract_related()</TD></TR><TR><TD align="left">    type_related()</TD></TR><TR><TD align="left"><I>Private Functions:</I></TD></TR><TR><TD align="left">    return_addr()</TD></TR></TABLE> >];
 
 }

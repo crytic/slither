@@ -9,15 +9,15 @@ c51_C3[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C3</B></TD
 
 c76_C4[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C4</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    hasArgs(uint256,uint256)</TD></TR><TR><TD align="left">    hasReturns()</TD></TR><TR><TD align="left">    hasArgsAndReturns(uint256,uint256)</TD></TR></TABLE> >];
 
-c108_C5[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C5</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    payableFunc()</TD></TR><TR><TD align="left">    externalFunc()</TD></TR><TR><TD align="left">    publicFunc()</TD></TR><TR><TD align="left">    pureFunc()</TD></TR><TR><TD align="left">    viewFunc()</TD></TR><TR><TD align="left">    abstractFunc()</TD></TR><TR><TD align="left"><I>Private Functions:</I></TD></TR><TR><TD align="left">    internalFunc()</TD></TR><TR><TD align="left">    privateFunc()</TD></TR></TABLE> >];
+c108_C5[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C5</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    payableFunc()</TD></TR><TR><TD align="left">    externalFunc()</TD></TR><TR><TD align="left">    publicFunc()</TD></TR><TR><TD align="left">    pureFunc()</TD></TR><TR><TD align="left">    viewFunc()</TD></TR><TR><TD align="left"><I>Private Functions:</I></TD></TR><TR><TD align="left">    internalFunc()</TD></TR><TR><TD align="left">    privateFunc()</TD></TR></TABLE> >];
 
-c115_C6[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C6</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    abstractFunc()</TD></TR><TR><TD align="left">    abstractFunc2()</TD></TR></TABLE> >];
+c115_C6[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C6</B></TD></TR></TABLE> >];
 
-c119_C7[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C7</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    abstractFunc3()</TD></TR></TABLE> >];
+c119_C7[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C7</B></TD></TR></TABLE> >];
 
 c144_C8 -> c108_C5 [ label="1" ];
 c144_C8 -> c115_C6 [ label="2" ];
 c144_C8 -> c119_C7 [ label="3" ];
-c144_C8[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C8</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left"><font color="#FFA500">    abstractFunc()</font></TD></TR><TR><TD align="left"><font color="#FFA500">    abstractFunc2()</font></TD></TR><TR><TD align="left"><font color="#FFA500">    abstractFunc3()</font></TD></TR></TABLE> >];
+c144_C8[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C8</B></TD></TR></TABLE> >];
 
 }
