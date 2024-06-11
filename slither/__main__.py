@@ -54,6 +54,7 @@ from slither.exceptions import SlitherException
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
+# pylint: disable=too-many-lines
 
 ###################################################################################
 ###################################################################################
