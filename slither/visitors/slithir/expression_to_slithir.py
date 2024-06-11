@@ -188,7 +188,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         operation: Operation
         if isinstance(left, list):  # tuple expression:
-            if isinstance(right, list):  # unbox assigment
+            if isinstance(right, list):  # unbox assignment
                 assert len(left) == len(right)
                 for idx, _ in enumerate(left):
                     if (
@@ -448,12 +448,12 @@ class ExpressionToSlithIR(ExpressionVisitor):
         right = get(expression.expression_right)
         operation: Operation
         # Left can be a type for abi.decode(var, uint[2])
-        if isinstance(left, (Type, Contract, Enum)):
+        if isinstance(left, (Type, Contract, Enum, Structure)):
             # Nested type are not yet supported by abi.decode, so the assumption
             # Is that the right variable must be a constant
             assert isinstance(right, Constant)
             # Case for abi.decode(var, I[2]) where I is an interface/contract or an enum
-            if isinstance(left, (Contract, Enum)):
+            if isinstance(left, (Contract, Enum, Structure)):
                 left = UserDefinedType(left)
             t = ArrayType(left, int(right.value))
             set_val(expression, t)

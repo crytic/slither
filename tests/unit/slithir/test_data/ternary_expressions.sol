@@ -6,7 +6,7 @@ contract C {
     // TODO
     // 1) support variable declarations
     //uint min = 1 > 0 ? 1 : 2;
-    // 2) suppory ternary index range access
+    // 2) support ternary index range access
     // function e(bool cond, bytes calldata x) external {
     //     bytes memory a = x[cond ? 1 : 2 :];
     // }
