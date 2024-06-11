@@ -4,6 +4,7 @@ from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional, Any
 from Crypto.Hash import SHA1
 from crytic_compile.utils.naming import Filename
 from slither.core.context.context import Context
+from slither.exceptions import SlitherException
 
 if TYPE_CHECKING:
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -136,9 +137,20 @@ def _compute_line(
     start_line, starting_column = compilation_unit.core.crytic_compile.get_line_from_offset(
         filename, start
     )
-    end_line, ending_column = compilation_unit.core.crytic_compile.get_line_from_offset(
-        filename, start + length
-    )
+    try:
+        end_line, ending_column = compilation_unit.core.crytic_compile.get_line_from_offset(
+            filename, start + length
+        )
+    except KeyError:
+        # This error may occur when the build is not synchronised with the source code on disk.
+        # See the GitHub issue https://github.com/crytic/slither/issues/2296
+        msg = f"""The source code appears to be out of sync with the build artifacts on disk.
+        This discrepancy can occur after recent modifications to {filename.short}. To resolve this
+        issue, consider executing the clean command of the build system (e.g. forge clean).
+        """
+        # We still re-raise the exception as a SlitherException here
+        raise SlitherException(msg) from None
+
     return list(range(start_line, end_line + 1)), starting_column, ending_column
 
 
