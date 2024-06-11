@@ -115,16 +115,18 @@ Consider using the latest version of Solidity for testing."""
                 continue
 
             if p.version in disallowed_pragmas and reason in disallowed_pragmas[p.version]:
-                disallowed_pragmas[p.version][reason] += f"\t- {str(p.source_mapping)}\n"
+                disallowed_pragmas[p.version][reason].append(p)
             else:
-                disallowed_pragmas[p.version] = {reason: f"\t- {str(p.source_mapping)}\n"}
+                disallowed_pragmas[p.version] = {reason: [p]}
 
         # If we found any disallowed pragmas, we output our findings.
         if len(disallowed_pragmas.keys()):
             for p, reasons in disallowed_pragmas.items():
                 info: DETECTOR_INFO = []
-                for r, v in reasons.items():
-                    info += [f"Version constraint {p} {r}.\n It is used by:\n{v}"]
+                for r, vers in reasons.items():
+                    info += [f"Version constraint {p} {r}.\nIt is used by:\n"]
+                    for ver in vers:
+                        info += ["\t- ", ver, "\n"]
 
                 json = self.generate_result(info)
 
