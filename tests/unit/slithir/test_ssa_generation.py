@@ -502,7 +502,7 @@ def test_storage_refers_to(slither_from_solidity_source):
     When a phi-node is created, ensure refers_to is propagated to the phi-node.
     Assignments also propagate refers_to.
     Whenever a ReferenceVariable is the destination of an assignment (e.g. s.v = 10)
-    below, create additional versions of the variables it refers to record that a a
+    below, create additional versions of the variables it refers to record that a
     write was made. In the current implementation, this is referenced by phis.
     """
     source = """
@@ -550,7 +550,7 @@ def test_storage_refers_to(slither_from_solidity_source):
         entryphi = [x for x in phinodes if x.lvalue in sphi.lvalue.refers_to]
         assert len(entryphi) == 2
 
-        # The remaining two phis are the ones recording that write through ReferenceVariable occured
+        # The remaining two phis are the ones recording that write through ReferenceVariable occurred
         for ephi in entryphi:
             phinodes.remove(ephi)
         phinodes.remove(sphi)

@@ -84,7 +84,7 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
                 self._structuresNotParsed.append(node)
             elif isinstance(node, ImportFrom):
                 # TOOD aliases
-                # We create an `InterfaceDef` sense the compilatuion unit does not contain the actual interface
+                # We create an `InterfaceDef` sense the compilation unit does not contain the actual interface
                 # https://github.com/vyperlang/vyper/tree/master/vyper/builtins/interfaces
                 if node.module == "vyper.interfaces":
                     interfaces = {

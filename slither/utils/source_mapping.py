@@ -2,37 +2,17 @@ from typing import List, Set
 from crytic_compile import CryticCompile
 from slither.core.declarations import (
     Contract,
-    Function,
-    Enum,
-    Event,
-    Import,
-    Pragma,
-    Structure,
-    CustomError,
     FunctionContract,
 )
-from slither.core.solidity_types import Type, TypeAlias
 from slither.core.source_mapping.source_mapping import Source, SourceMapping
-from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 
 
 def get_definition(target: SourceMapping, crytic_compile: CryticCompile) -> Source:
-    if isinstance(target, (Contract, Function, Enum, Event, Structure, Variable)):
-        # Add " " to look after the first solidity keyword
-        pattern = " " + target.name
-    elif isinstance(target, Import):
-        pattern = "import"
-    elif isinstance(target, Pragma):
-        pattern = "pragma"  # todo maybe return with the while pragma statement
-    elif isinstance(target, CustomError):
-        pattern = "error"
-    elif isinstance(target, TypeAlias):
-        pattern = "type"
-    elif isinstance(target, Type):
-        raise SlitherError("get_definition_generic not implemented for types")
-    else:
-        raise SlitherError(f"get_definition_generic not implemented for {type(target)}")
+    try:
+        pattern = target.pattern
+    except AttributeError as exc:
+        raise SlitherError(f"get_definition_generic not implemented for {type(target)}") from exc
 
     file_content = crytic_compile.src_content_for_file(target.source_mapping.filename.absolute)
     txt = file_content[
