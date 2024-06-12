@@ -10,7 +10,7 @@ on:
   pull_request:
     branches: [master, dev]
     paths:
-      - "**/*.py"
+      - "**.py"
   schedule:
     # run CI every day even if no PRs/merges occur
     - cron: '0 12 * * *'
