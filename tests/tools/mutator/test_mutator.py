@@ -1,10 +1,11 @@
-import os
-import subprocess
-import tempfile
-from pathlib import Path
-from unittest import mock
 import argparse
 from contextlib import contextmanager
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import tempfile
+from unittest import mock
 
 import pytest
 from slither import Slither
@@ -14,6 +15,9 @@ from slither.tools.mutator.utils.file_handling import get_sol_file_list, backup_
 
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
+
+foundry_available = shutil.which("forge") is not None
+project_ready = Path(TEST_DATA_DIR, "test_source_unit/lib/forge-std").exists()
 
 
 @contextmanager
@@ -75,6 +79,9 @@ def test_backup_source_file():
         assert Path(files_dict[file_path]).exists()
 
 
+@pytest.mark.skipif(
+    not foundry_available or not project_ready, reason="requires Foundry and project setup"
+)
 def test_get_sol_file_list():
 
     project_directory = TEST_DATA_DIR / "test_source_unit"
@@ -98,6 +105,9 @@ def test_get_sol_file_list():
     (project_directory / "test.sol").rmdir()
 
 
+@pytest.mark.skipif(
+    not foundry_available or not project_ready, reason="requires Foundry and project setup"
+)
 def test_run_test(caplog):
     with change_directory(TEST_DATA_DIR / "test_source_unit"):
         result = run_test_cmd("forge test", timeout=None, target_file=None, verbose=True)
