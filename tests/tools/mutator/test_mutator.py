@@ -61,16 +61,17 @@ def test_get_mutators():
     ),
 )
 @pytest.mark.skip(reason="Slow test")
-def test_mutator(mock_args):  # pylint: disable=unused-argument
+def test_mutator(mock_args, solc_binary_path):  # pylint: disable=unused-argument
 
     with change_directory(TEST_DATA_DIR / "test_source_unit"):
         main()
 
 
-def test_backup_source_file():
+def test_backup_source_file(solc_binary_path):
+    solc_path = solc_binary_path("0.8.15")
 
     file_path = (TEST_DATA_DIR / "test_source_unit" / "src" / "Counter.sol").as_posix()
-    sl = Slither(file_path)
+    sl = Slither(file_path, solc=solc_path)
 
     with tempfile.TemporaryDirectory() as directory:
         files_dict = backup_source_file(sl.source_code, Path(directory))
