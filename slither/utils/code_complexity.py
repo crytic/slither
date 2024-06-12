@@ -33,14 +33,14 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
     visited = {n: False for n in function.nodes}
     assigned = {n: False for n in function.nodes}
     components = []
-    l = []
+    current_list = []
 
     def visit(node: "Node") -> None:
         if not visited[node]:
             visited[node] = True
             for son in node.sons:
                 visit(son)
-            l.append(node)
+            current_list.append(node)
 
     for n in function.nodes:
         visit(n)
@@ -52,7 +52,7 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
             for father in node.fathers:
                 assign(father, root)
 
-    for n in reversed(l):
+    for n in reversed(current_list):
         component: List["Node"] = []
         assign(n, component)
         if component:

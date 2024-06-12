@@ -85,7 +85,7 @@ def transform_slithir_vars_to_ssa(
     variables = []
     for node in function.nodes:
         for ir in node.irs_ssa:
-            if isinstance(ir, OperationWithLValue) and not ir.lvalue in variables:
+            if isinstance(ir, OperationWithLValue) and ir.lvalue not in variables:
                 variables += [ir.lvalue]
 
     tmp_variables = [v for v in variables if isinstance(v, TemporaryVariable)]
@@ -227,7 +227,7 @@ def generate_ssa_irs(
         return
 
     if node.type in [NodeType.ENDIF, NodeType.ENDLOOP] and any(
-        not father in visited for father in node.fathers
+        father not in visited for father in node.fathers
     ):
         return
 
@@ -399,7 +399,7 @@ def is_used_later(
             ):
                 return False
         for son in node.sons:
-            if not son in explored:
+            if son not in explored:
                 to_explore.add(son)
 
     return False
@@ -556,7 +556,7 @@ def add_phi_origins(
     # For unini variable declaration
     if (
         node.variable_declaration
-        and not node.variable_declaration.name in local_variables_definition
+        and node.variable_declaration.name not in local_variables_definition
     ):
         local_variables_definition[node.variable_declaration.name] = (
             node.variable_declaration,
@@ -609,7 +609,7 @@ def get(
     if isinstance(variable, StateVariable) and variable.canonical_name in state_variables_instances:
         return state_variables_instances[variable.canonical_name]
     if isinstance(variable, ReferenceVariable):
-        if not variable.index in reference_variables_instances:
+        if variable.index not in reference_variables_instances:
             new_variable = ReferenceVariableSSA(variable)
             if variable.points_to:
                 new_variable.points_to = get(
@@ -625,13 +625,13 @@ def get(
             reference_variables_instances[variable.index] = new_variable
         return reference_variables_instances[variable.index]
     if isinstance(variable, TemporaryVariable):
-        if not variable.index in temporary_variables_instances:
+        if variable.index not in temporary_variables_instances:
             new_variable = TemporaryVariableSSA(variable)
             new_variable.set_type(variable.type)
             temporary_variables_instances[variable.index] = new_variable
         return temporary_variables_instances[variable.index]
     if isinstance(variable, TupleVariable):
-        if not variable.index in tuple_variables_instances:
+        if variable.index not in tuple_variables_instances:
             new_variable = TupleVariableSSA(variable)
             new_variable.set_type(variable.type)
             tuple_variables_instances[variable.index] = new_variable

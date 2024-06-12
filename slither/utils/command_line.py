@@ -123,7 +123,7 @@ def output_to_markdown(
         # dont show the backdoor example
         if argument == "backdoor":
             continue
-        if not filter_wiki in detector.WIKI:
+        if filter_wiki not in detector.WIKI:
             continue
         help_info = extract_help(detector)
         impact = detector.IMPACT
@@ -154,11 +154,11 @@ def output_to_markdown(
         idx = idx + 1
 
 
-def get_level(l: str) -> int:
-    tab = l.count("\t") + 1
-    if l.replace("\t", "").startswith(" -"):
+def get_level(level: str) -> int:
+    tab = level.count("\t") + 1
+    if level.replace("\t", "").startswith(" -"):
         tab = tab + 1
-    if l.replace("\t", "").startswith("-"):
+    if level.replace("\t", "").startswith("-"):
         tab = tab + 1
     return tab
 
@@ -168,15 +168,15 @@ def convert_result_to_markdown(txt: str) -> str:
     lines = txt[0:-1].split("\n")
     ret = []
     level = 0
-    for l in lines:
-        next_level = get_level(l)
+    for line in lines:
+        next_level = get_level(line)
         prefix = "<li>"
         if next_level < level:
             prefix = "</ul>" * (level - next_level) + prefix
         if next_level > level:
             prefix = "<ul>" * (next_level - level) + prefix
         level = next_level
-        ret.append(prefix + l)
+        ret.append(prefix + line)
 
     return "".join(ret)
 
@@ -237,7 +237,7 @@ def output_wiki(detector_classes: List[Type[AbstractDetector]], filter_wiki: str
         # dont show the backdoor example
         if argument == "backdoor":
             continue
-        if not filter_wiki in detector.WIKI:
+        if filter_wiki not in detector.WIKI:
             continue
         check = detector.ARGUMENT
         impact = classification_txt[detector.IMPACT]

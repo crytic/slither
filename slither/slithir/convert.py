@@ -351,7 +351,7 @@ def integrate_value_gas(result: List[Operation]) -> List[Operation]:
                 variable_to_replace[ins.lvalue.name] = ins.ori.variable_left  # type: ignore
 
         # Remove the call to value/gas instruction
-        result = [i for i in result if not i in to_remove]
+        result = [i for i in result if i not in to_remove]
 
         # update the real call
         for ins in result:
@@ -1890,7 +1890,7 @@ def remove_unused(result: List[Operation]) -> List[Operation]:
 
         for ins in result:
             if isinstance(ins, Member):
-                if not ins.lvalue.name in to_keep and ins != last_elem:
+                if ins.lvalue.name not in to_keep and ins != last_elem:
                     to_remove.append(ins)
                     removed = True
             # Remove type(X) if X is an elementary type
@@ -1900,7 +1900,7 @@ def remove_unused(result: List[Operation]) -> List[Operation]:
                 if isinstance(ins.arguments[0], ElementaryType):
                     to_remove.append(ins)
 
-        result = [i for i in result if not i in to_remove]
+        result = [i for i in result if i not in to_remove]
     return result
 
 

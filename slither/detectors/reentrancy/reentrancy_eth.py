@@ -60,7 +60,7 @@ Bob uses the re-entrancy bug to call `withdrawBalance` two times, and withdraw m
             for f in contract.functions_and_modifiers_declared:
                 for node in f.nodes:
                     # dead code
-                    if not self.KEY in node.context:
+                    if self.KEY not in node.context:
                         continue
                     if node.context[self.KEY].calls and node.context[self.KEY].send_eth:
                         if not any(n != node for n in node.context[self.KEY].send_eth):

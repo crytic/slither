@@ -255,7 +255,7 @@ class ContractSolc(CallerContextExpression):
 
     def _parse_contract_items(self) -> None:
         # pylint: disable=too-many-branches
-        if not self.get_children() in self._data:  # empty contract
+        if self.get_children() not in self._data:  # empty contract
             return
         for item in self._data[self.get_children()]:
             if item[self.get_key()] == "FunctionDefinition":

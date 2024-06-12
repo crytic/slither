@@ -132,7 +132,7 @@ SOLIDITY_KEYWORDS += ElementaryTypeName
 
 def _name_already_use(slither: SlitherCompilationUnit, name: str) -> bool:
     # Do not convert to a name used somewhere else
-    if not KEY in slither.context:
+    if KEY not in slither.context:
         all_names: Set[str] = set()
         for contract in slither.contracts_derived:
             all_names = all_names.union({st.name for st in contract.structures})
@@ -624,7 +624,7 @@ def _explore_irs(
                     full_txt_start:full_txt_end
                 ]
 
-                if not target.name.encode("utf8") in full_txt:
+                if target.name.encode("utf8") not in full_txt:
                     raise FormatError(f"{target} not found in {full_txt} ({source_mapping}")
 
                 old_str = target.name.encode("utf8")

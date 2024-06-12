@@ -23,6 +23,7 @@ from slither.core.expressions import (
     Literal,
     Identifier,
     BinaryOperation,
+    Expression,
     UnaryOperation,
     TupleExpression,
     TypeConversion,

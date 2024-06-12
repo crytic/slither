@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from slither.utils.type_helpers import LibraryCallType, HighLevelCallType, InternalCallType
     from slither.core.declarations import (
         Enum,
+        Event,
         EventContract,
         Modifier,
         EnumContract,

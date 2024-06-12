@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from slither.core.declarations import FunctionContract, CustomErrorContract
     from slither.core.variables.state_variable import StateVariable
     from slither.core.variables.local_variable import LocalVariable
-    from slither.core.variables.structure_variable import StructureVariable
 
 
 # pylint: disable=too-many-arguments,too-many-locals,too-many-branches

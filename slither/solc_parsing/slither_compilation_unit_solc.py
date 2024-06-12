@@ -435,11 +435,11 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 sourceUnit = len(self._compilation_unit.core.source_code)
 
         self._compilation_unit.source_units[sourceUnit] = name
-        if os.path.isfile(name) and not name in self._compilation_unit.core.source_code:
+        if os.path.isfile(name) and name not in self._compilation_unit.core.source_code:
             self._compilation_unit.core.add_source_code(name)
         else:
             lib_name = os.path.join("node_modules", name)
-            if os.path.isfile(lib_name) and not name in self._compilation_unit.core.source_code:
+            if os.path.isfile(lib_name) and name not in self._compilation_unit.core.source_code:
                 self._compilation_unit.core.add_source_code(lib_name)
 
     # endregion

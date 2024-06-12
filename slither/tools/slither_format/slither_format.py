@@ -59,7 +59,7 @@ def slither_format(slither: Slither, **kwargs: Dict) -> None:  # pylint: disable
     logger.info(yellow("slither-format is in beta, carefully review each patch before merging it."))
 
     for result in detector_results:
-        if not "patches" in result:
+        if "patches" not in result:
             continue
         one_line_description = result["description"].split("\n")[0]
 

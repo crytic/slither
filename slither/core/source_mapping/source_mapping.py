@@ -169,17 +169,17 @@ def _convert_source_mapping(
     if len(position) != 1:
         return Source(compilation_unit)
 
-    s, l, f = position[0]
-    s = int(s)
-    l = int(l)
-    f = int(f)
+    start, length, file_path = position[0]
+    start = int(start)
+    length = int(length)
+    file_path = int(file_path)
 
-    if f not in sourceUnits:
+    if file_path not in sourceUnits:
         new_source = Source(compilation_unit)
-        new_source.start = s
-        new_source.length = l
+        new_source.start = start
+        new_source.length = length
         return new_source
-    filename_used = sourceUnits[f]
+    filename_used = sourceUnits[file_path]
 
     # If possible, convert the filename to its absolute/relative version
     assert compilation_unit.core.crytic_compile
@@ -187,17 +187,19 @@ def _convert_source_mapping(
     filename: Filename = compilation_unit.core.crytic_compile.filename_lookup(filename_used)
     is_dependency = compilation_unit.core.crytic_compile.is_dependency(filename.absolute)
 
-    (lines, starting_column, ending_column) = _compute_line(compilation_unit, filename, s, l)
+    (lines, starting_column, ending_column) = _compute_line(
+        compilation_unit, filename, start, length
+    )
 
     new_source = Source(compilation_unit)
-    new_source.start = s
-    new_source.length = l
+    new_source.start = start
+    new_source.length = length
     new_source.filename = filename
     new_source.is_dependency = is_dependency
     new_source.lines = lines
     new_source.starting_column = starting_column
     new_source.ending_column = ending_column
-    new_source.end = new_source.start + l
+    new_source.end = new_source.start + length
 
     return new_source
 

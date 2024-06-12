@@ -131,10 +131,10 @@ def export_nested_types_from_variable(variable: Variable) -> List[Type]:
     :param variable:
     :return: list(Type)
     """
-    l: List[Type] = []
+    current_list: List[Type] = []
     seen: Set[Type] = set()
-    _export_nested_types_from_variable(variable.type, l, seen)
-    return l
+    _export_nested_types_from_variable(variable.type, current_list, seen)
+    return current_list
 
 
 def _export_return_type_from_variable(underlying_type: Type, all_types: bool) -> List[Type]:

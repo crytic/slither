@@ -619,7 +619,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
             for node in self.nodes:
                 # if node.type == NodeType.OTHER_ENTRYPOINT:
-                if not node in self._nodes_ordered_dominators:
+                if node not in self._nodes_ordered_dominators:
                     self._compute_nodes_ordered_dominators(node)
 
         return self._nodes_ordered_dominators

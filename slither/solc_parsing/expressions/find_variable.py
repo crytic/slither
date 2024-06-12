@@ -30,7 +30,6 @@ from slither.solc_parsing.exceptions import VariableNotFound
 
 if TYPE_CHECKING:
     from slither.solc_parsing.declarations.function import FunctionSolc
-    from slither.solc_parsing.declarations.contract import ContractSolc
 
 # pylint: disable=import-outside-toplevel,too-many-branches,too-many-locals
 

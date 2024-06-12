@@ -327,7 +327,7 @@ class Flattening:
         for f in contract.functions_declared:
             for ir in f.slithir_operations:
                 if isinstance(ir, NewContract):
-                    if ir.contract_created != contract and not ir.contract_created in exported:
+                    if ir.contract_created != contract and ir.contract_created not in exported:
                         self._export_list_used_contracts(
                             ir.contract_created, exported, list_contract, list_top_level
                         )
