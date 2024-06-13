@@ -5,6 +5,7 @@ Note that require()/assert() are not considered here. Even if they
 are in the outermost scope, they do not guarantee a revert, so a
 default value can still be returned.
 """
+
 from typing import List
 from slither.detectors.abstract_detector import (
     AbstractDetector,

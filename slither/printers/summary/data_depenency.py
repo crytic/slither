@@ -1,6 +1,7 @@
 """
     Module printing summary of the contract
 """
+
 from typing import List
 
 from slither.core.declarations import Contract

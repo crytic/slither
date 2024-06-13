@@ -1,6 +1,7 @@
 """
     Event module
 """
+
 from typing import Dict, TYPE_CHECKING, Union
 
 from slither.core.cfg.node import NodeType

@@ -1,6 +1,7 @@
 """
 Module detecting state variables initializing from an immediate function call (prior to constructor run).
 """
+
 from typing import List
 
 from slither.core.declarations.contract import Contract

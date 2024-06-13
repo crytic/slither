@@ -9,6 +9,7 @@
     Distance from the Main Sequence (D):  abs(A + I - 1)
 
 """
+
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.martin import MartinMetrics
 from slither.utils.output import Output

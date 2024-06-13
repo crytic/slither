@@ -1,6 +1,7 @@
 """
 Detect incorrect erc721 interface.
 """
+
 from typing import Any, List, Tuple, Union
 from slither.detectors.abstract_detector import (
     AbstractDetector,

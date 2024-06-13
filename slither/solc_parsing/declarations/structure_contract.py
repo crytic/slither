@@ -1,6 +1,7 @@
 """
     Structure module
 """
+
 from typing import TYPE_CHECKING, Dict
 
 from slither.core.declarations.structure import Structure

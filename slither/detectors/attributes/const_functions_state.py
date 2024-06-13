@@ -2,6 +2,7 @@
 Module detecting constant functions
 Recursively check the called functions
 """
+
 from typing import List, Dict
 
 from slither.core.compilation_unit import SlitherCompilationUnit

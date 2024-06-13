@@ -1,6 +1,7 @@
 """
     EventTopLevel module
 """
+
 from typing import TYPE_CHECKING, Dict
 
 from slither.core.declarations.event_top_level import EventTopLevel

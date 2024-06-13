@@ -1,6 +1,7 @@
 """
 Detects the passing of arrays located in memory to functions which expect to modify arrays via storage reference.
 """
+
 from typing import List, Set, Tuple, Union
 
 from slither.core.declarations import Function
@@ -133,7 +134,7 @@ As a result, Bob's usage of the contract is incorrect."""
                             continue
 
                         # Verify one of these parameters is an array in storage.
-                        for (param, arg) in zip(ir.function.parameters, ir.arguments):
+                        for param, arg in zip(ir.function.parameters, ir.arguments):
                             # Verify this argument is a variable that is an array type.
                             if not isinstance(arg, (StateVariable, LocalVariable)):
                                 continue

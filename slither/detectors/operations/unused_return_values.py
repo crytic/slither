@@ -1,6 +1,7 @@
 """
 Module detecting unused return values from external calls
 """
+
 from typing import List
 
 from slither.core.cfg.node import Node, NodeType

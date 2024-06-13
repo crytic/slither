@@ -1,6 +1,7 @@
 """
     Compute the data depenency between all the SSA variables
 """
+
 from collections import defaultdict
 from typing import Union, Set, Dict, TYPE_CHECKING, List
 
@@ -380,7 +381,7 @@ def propagate_function(
     transitive_close_dependencies(function, context_key, context_key_non_ssa)
     # Propage data dependency
     data_depencencies = function.context[context_key]
-    for (key, values) in data_depencencies.items():
+    for key, values in data_depencencies.items():
         if key not in contract.context[context_key]:
             contract.context[context_key][key] = set(values)
         else:
@@ -493,7 +494,7 @@ def convert_to_non_ssa(
 ) -> Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]]:
     # Need to create new set() as its changed during iteration
     ret: Dict[SUPPORTED_TYPES, Set[SUPPORTED_TYPES]] = {}
-    for (k, values) in data_depencies.items():
+    for k, values in data_depencies.items():
         var = convert_variable_to_non_ssa(k)
         if var not in ret:
             ret[var] = set()

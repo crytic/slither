@@ -1,6 +1,7 @@
 """
     Function module
 """
+
 from typing import Dict, TYPE_CHECKING, List, Tuple, Optional
 
 from slither.core.declarations.contract_level import ContractLevel

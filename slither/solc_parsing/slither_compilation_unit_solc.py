@@ -513,7 +513,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                     missing_inheritance = i
 
             # Resolve immediate base contracts and attach references.
-            for (i, src) in contract_parser.baseContracts:
+            for i, src in contract_parser.baseContracts:
                 if i in contract_parser.remapping:
                     target = resolve_remapping_and_renaming(contract_parser, i)
                     fathers.append(target)

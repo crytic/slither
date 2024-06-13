@@ -30,6 +30,7 @@
      - Ext calls: total number of external calls
 
 """
+
 from collections import OrderedDict
 from typing import Tuple, List, Dict
 from dataclasses import dataclass, field
@@ -325,7 +326,7 @@ class CKMetrics:
 
         subtitle = ""
         # Update each section
-        for (title, attr, keys) in self.SECTIONS:
+        for title, attr, keys in self.SECTIONS:
             if attr == "core":
                 # Special handling for core section
                 totals_enabled = False

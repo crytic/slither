@@ -137,7 +137,7 @@ def add_ssa_ir(
     # We only add phi function for state variable at entry node if
     # The state variable is used
     # And if the state variables is written in another function (otherwise its stay at index 0)
-    for (_, variable_instance) in all_state_variables_instances.items():
+    for _, variable_instance in all_state_variables_instances.items():
         if is_used_later(function.entry_point, variable_instance):
             # rvalues are fixed in solc_parsing.declaration.function
             function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
@@ -145,13 +145,13 @@ def add_ssa_ir(
     add_phi_origins(function.entry_point, init_definition, {})
 
     for node in function.nodes:
-        for (variable, nodes) in node.phi_origins_local_variables.values():
+        for variable, nodes in node.phi_origins_local_variables.values():
             if len(nodes) < 2:
                 continue
             if not is_used_later(node, variable):
                 continue
             node.add_ssa_ir(Phi(LocalIRVariable(variable), nodes))
-        for (variable, nodes) in node.phi_origins_state_variables.values():
+        for variable, nodes in node.phi_origins_state_variables.values():
             if len(nodes) < 2:
                 continue
             # if not is_used_later(node, variable.name, []):
@@ -345,7 +345,10 @@ def last_name(
         LocalIRVariable,
     ],
     init_vars: Dict[str, LocalIRVariable],
-) -> Union[StateIRVariable, LocalIRVariable,]:
+) -> Union[
+    StateIRVariable,
+    LocalIRVariable,
+]:
     candidates = []
     # Todo optimize by creating a variables_ssa_written attribute
     for ir_ssa in n.irs_ssa:

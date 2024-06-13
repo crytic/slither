@@ -1,6 +1,7 @@
 """
 Module detecting storage signed integer array bug
 """
+
 from typing import List, Tuple, Set
 
 from slither.core.declarations import Function, Contract

@@ -3,6 +3,7 @@
     It is similar to the non-SSA version of slithIR
     as the TupleVariable are in SSA form in both version
 """
+
 from slither.slithir.variables.tuple import TupleVariable
 
 

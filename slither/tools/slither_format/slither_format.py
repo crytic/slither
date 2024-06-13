@@ -13,6 +13,7 @@ from slither.detectors.variables.could_be_constant import CouldBeConstant
 from slither.detectors.variables.could_be_immutable import CouldBeImmutable
 from slither.detectors.attributes.const_functions_asm import ConstantFunctionsAsm
 from slither.detectors.attributes.const_functions_state import ConstantFunctionsState
+from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
 
 logging.basicConfig(level=logging.INFO)
@@ -110,7 +111,7 @@ def choose_detectors(
                     continue
                 cls_detectors_to_run.append(all_detectors[d])
             else:
-                raise Exception(f"Error: {d} is not a detector")
+                raise SlitherError(f"Error: {d} is not a detector")
     return cls_detectors_to_run
 
 

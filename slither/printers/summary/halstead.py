@@ -23,6 +23,7 @@
     B = (E^(2/3)) / 3000 # Number of delivered bugs
 
 """
+
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.halstead import HalsteadMetrics
 from slither.utils.output import Output

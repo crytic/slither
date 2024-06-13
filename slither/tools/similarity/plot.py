@@ -71,7 +71,7 @@ def plot(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
         logger.info("Plotting data..")
         plt.figure(figsize=(20, 10))
         assert len(tdata) == len(fs)
-        for ([x, y], label) in zip(tdata, fs):
+        for [x, y], label in zip(tdata, fs):
             x = random.gauss(0, 0.01) + x
             y = random.gauss(0, 0.01) + y
             plt.scatter(x, y, c="blue")

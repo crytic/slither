@@ -1,6 +1,7 @@
 """
     Module printing evm mapping of the contract
 """
+
 import logging
 from typing import Union, List, Dict
 
@@ -134,12 +135,16 @@ class PrinterEVM(AbstractPrinter):
 
                 txt += self.build_element_node_str(
                     function,
-                    evm_info["mapping", contract.name]
-                    if not function.is_constructor
-                    else evm_info["mapping_init", contract.name],
-                    evm_info["cfg", contract.name]
-                    if not function.is_constructor
-                    else evm_info["cfg_init", contract.name],
+                    (
+                        evm_info["mapping", contract.name]
+                        if not function.is_constructor
+                        else evm_info["mapping_init", contract.name]
+                    ),
+                    (
+                        evm_info["cfg", contract.name]
+                        if not function.is_constructor
+                        else evm_info["cfg_init", contract.name]
+                    ),
                 )
 
             for modifier in contract.modifiers:

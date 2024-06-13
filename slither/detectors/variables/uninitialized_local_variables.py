@@ -4,6 +4,7 @@
     Recursively explore the CFG to only report uninitialized local variables that are
     read before being written
 """
+
 from typing import List
 
 from slither.core.cfg.node import Node, NodeType
@@ -117,7 +118,7 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
                     function.entry_point.context[self.key] = uninitialized_local_variables
                     self._detect_uninitialized(function, function.entry_point, [])
         all_results = list(set(self.results))
-        for (function, uninitialized_local_variable) in all_results:
+        for function, uninitialized_local_variable in all_results:
 
             info = [
                 uninitialized_local_variable,

@@ -1,6 +1,7 @@
 """
 Module printing summary of the contract
 """
+
 import logging
 from typing import Tuple, List, Dict
 

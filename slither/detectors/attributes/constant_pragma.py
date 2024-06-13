@@ -1,6 +1,7 @@
 """
     Check that the same pragma is used in all the files
 """
+
 from collections import OrderedDict
 from typing import List, Dict
 

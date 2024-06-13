@@ -1,6 +1,7 @@
 """
 Module detecting redundant statements.
 """
+
 from typing import List
 
 from slither.core.cfg.node import Node, NodeType

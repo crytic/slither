@@ -168,9 +168,11 @@ class Flattening:
                         to_patch.append(
                             Patch(
                                 attributes_start + regex.span()[0] + 1,
-                                "external_to_internal"
-                                if visibility == "external"
-                                else "public_to_internal",
+                                (
+                                    "external_to_internal"
+                                    if visibility == "external"
+                                    else "public_to_internal"
+                                ),
                             )
                         )
                     else:

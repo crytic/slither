@@ -2,6 +2,7 @@
     Module detecting dangerous strict equality
 
 """
+
 from typing import Any, Dict, List, Union
 from slither.analyses.data_dependency.data_dependency import is_dependent_ssa
 from slither.core.declarations import Function

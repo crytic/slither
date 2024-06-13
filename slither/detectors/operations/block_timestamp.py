@@ -2,6 +2,7 @@
     Module detecting dangerous use of block.timestamp
 
 """
+
 from typing import List, Tuple
 
 from slither.analyses.data_dependency.data_dependency import is_dependent
@@ -81,7 +82,7 @@ class Timestamp(AbstractDetector):
 
         for c in self.contracts:
             dangerous_timestamp = _detect_dangerous_timestamp(c)
-            for (func, nodes) in dangerous_timestamp:
+            for func, nodes in dangerous_timestamp:
 
                 info: DETECTOR_INFO = [func, " uses timestamp for comparisons\n"]
 

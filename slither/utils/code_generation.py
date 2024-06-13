@@ -286,11 +286,18 @@ def generate_custom_error_interface(
     error: "CustomErrorContract", unroll_structs: bool = True
 ) -> str:
     args = [
-        convert_type_for_solidity_signature_to_string(arg.type).replace("(", "").replace(")", "")
-        if unroll_structs
-        else str(arg.type.type)
-        if isinstance(arg.type, UserDefinedType) and isinstance(arg.type.type, (Structure, Enum))
-        else str(arg.type)
+        (
+            convert_type_for_solidity_signature_to_string(arg.type)
+            .replace("(", "")
+            .replace(")", "")
+            if unroll_structs
+            else (
+                str(arg.type.type)
+                if isinstance(arg.type, UserDefinedType)
+                and isinstance(arg.type.type, (Structure, Enum))
+                else str(arg.type)
+            )
+        )
         for arg in error.parameters
     ]
     return f"{error.name}({', '.join(args)})"

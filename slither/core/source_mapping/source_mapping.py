@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 # All an object needs to do is to inherits from SourceMapping
 # And call set_offset at some point
 
+
 # pylint: disable=too-many-instance-attributes
 class Source:
     def __init__(self, compilation_unit: "SlitherCompilationUnit") -> None:

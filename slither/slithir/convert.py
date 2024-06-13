@@ -1234,7 +1234,11 @@ def can_be_low_level(ir: HighLevelCall) -> bool:
 
 def convert_to_low_level(
     ir: HighLevelCall,
-) -> Union[Send, LowLevelCall, Transfer,]:
+) -> Union[
+    Send,
+    LowLevelCall,
+    Transfer,
+]:
     """
     Convert to a transfer/send/or low level call
     The funciton assume to receive a correct IR
@@ -1414,9 +1418,15 @@ def convert_to_push_set_val(
         ret.append(ir_assign_value)
 
 
-def convert_to_push(
-    ir: HighLevelCall, node: "Node"
-) -> List[Union[Length, Assignment, Binary, Index, InitArray,]]:
+def convert_to_push(ir: HighLevelCall, node: "Node") -> List[
+    Union[
+        Length,
+        Assignment,
+        Binary,
+        Index,
+        InitArray,
+    ]
+]:
     """
     Convert a call to a series of operations to push a new value onto the array
 
@@ -1510,7 +1520,12 @@ def look_for_library_or_top_level(
         str,
         TypeAliasTopLevel,
     ],
-) -> Optional[Union[LibraryCall, InternalCall,]]:
+) -> Optional[
+    Union[
+        LibraryCall,
+        InternalCall,
+    ]
+]:
     for destination in using_for[t]:
         if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
             arguments = [ir.destination] + ir.arguments
@@ -1558,9 +1573,12 @@ def look_for_library_or_top_level(
     return None
 
 
-def convert_to_library_or_top_level(
-    ir: HighLevelCall, node: "Node", using_for
-) -> Optional[Union[LibraryCall, InternalCall,]]:
+def convert_to_library_or_top_level(ir: HighLevelCall, node: "Node", using_for) -> Optional[
+    Union[
+        LibraryCall,
+        InternalCall,
+    ]
+]:
     t = ir.destination.type
     if t in using_for:
         new_ir = look_for_library_or_top_level(ir, using_for, t)

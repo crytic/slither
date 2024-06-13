@@ -1,6 +1,7 @@
 """
 Tool to read on-chain storage from EVM
 """
+
 import json
 import argparse
 

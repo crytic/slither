@@ -1,6 +1,7 @@
 """
 Module detecting dead code
 """
+
 from typing import List, Tuple
 
 from slither.core.declarations import Function, FunctionContract, Contract

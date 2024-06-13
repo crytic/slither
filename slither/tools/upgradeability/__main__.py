@@ -279,6 +279,7 @@ def _checks_on_contract_and_proxy(
 ###################################################################################
 ###################################################################################
 
+
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main() -> None:
     json_results: Dict = {

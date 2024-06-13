@@ -103,6 +103,7 @@ def filter_name(value: str) -> str:
 ###################################################################################
 ###################################################################################
 
+
 # pylint: disable=too-many-statements
 def parse_call(
     expression: Dict, caller_context: Union["FunctionSolc", "ContractSolc", "TopLevelVariableSolc"]

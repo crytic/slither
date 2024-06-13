@@ -1,6 +1,7 @@
 """"
     Contract module
 """
+
 import logging
 from collections import defaultdict
 from pathlib import Path
@@ -528,9 +529,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         if self._state_variables_used_in_reentrant_targets is None:
             reentrant_functions = [f for f in self.functions_entry_points if f.is_reentrant]
-            variables_used: Dict[
-                StateVariable, Set[Union[StateVariable, "Function"]]
-            ] = defaultdict(set)
+            variables_used: Dict[StateVariable, Set[Union[StateVariable, "Function"]]] = (
+                defaultdict(set)
+            )
             for function in reentrant_functions:
                 for ir in function.all_slithir_operations():
                     state_variables = [v for v in ir.used if isinstance(v, StateVariable)]
@@ -1455,7 +1456,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         from slither.core.declarations.function_contract import FunctionContract
 
         if self.state_variables:
-            for (idx, variable_candidate) in enumerate(self.state_variables):
+            for idx, variable_candidate in enumerate(self.state_variables):
                 if variable_candidate.expression and not variable_candidate.is_constant:
 
                     constructor_variable = FunctionContract(self.compilation_unit)
@@ -1485,7 +1486,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                             counter += 1
                     break
 
-            for (idx, variable_candidate) in enumerate(self.state_variables):
+            for idx, variable_candidate in enumerate(self.state_variables):
                 if variable_candidate.expression and variable_candidate.is_constant:
 
                     constructor_variable = FunctionContract(self.compilation_unit)

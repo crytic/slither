@@ -1,6 +1,7 @@
 """
     Check if ethers are locked in the contract
 """
+
 from typing import List
 
 from slither.core.declarations import Contract, SolidityFunction
