@@ -7,20 +7,20 @@ if TYPE_CHECKING:
 
 
 def intersection_predecessor(node: "Node") -> Set["Node"]:
-    if not node.fathers:
+    if not node.predecessors:
         return set()
 
-    ret = node.fathers[0].dominators
-    for pred in node.fathers[1:]:
+    ret = node.predecessors[0].dominators
+    for pred in node.predecessors[1:]:
         ret = ret.intersection(pred.dominators)
-    if not any(father.is_reachable for father in node.fathers):
+    if not any(predecessor.is_reachable for predecessor in node.predecessors):
         return set()
 
     ret = set()
-    for pred in node.fathers:
+    for pred in node.predecessors:
         ret = ret.union(pred.dominators)
 
-    for pred in node.fathers:
+    for pred in node.predecessors:
         if pred.is_reachable:
             ret = ret.intersection(pred.dominators)
     return ret
@@ -93,11 +93,11 @@ def compute_dominance_frontier(nodes: List["Node"]) -> None:
     Compute dominance frontier
     """
     for node in nodes:
-        if len(node.fathers) >= 2:
-            for father in node.fathers:
-                if not father.is_reachable:
+        if len(node.predecessors) >= 2:
+            for predecessor in node.predecessors:
+                if not predecessor.is_reachable:
                     continue
-                runner = father
+                runner = predecessor
                 # Corner case: if there is a if without else
                 # we need to add update the conditional node
                 if (

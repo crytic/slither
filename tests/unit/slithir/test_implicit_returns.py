@@ -27,16 +27,16 @@ def test_with_explicit_return(slither_from_solidity_source, legacy) -> None:
         c: Contract = slither.get_contract_from_name("Contract")[0]
         f: Function = c.functions[0]
         node_if: Node = f.nodes[1]
-        node_true = node_if.son_true
-        node_false = node_if.son_false
+        node_true = node_if.successor_true
+        node_false = node_if.successor_false
         assert node_true.type == NodeType.RETURN
         assert isinstance(node_true.irs[0], Return)
         assert node_true.irs[0].values[0] == f.get_local_variable_from_name("x")
-        assert len(node_true.sons) == 0
-        node_end_if = node_false.sons[0]
+        assert len(node_true.successors) == 0
+        node_end_if = node_false.successors[0]
         assert node_end_if.type == NodeType.ENDIF
-        assert node_end_if.sons[0].type == NodeType.RETURN
-        node_ret = node_end_if.sons[0]
+        assert node_end_if.successors[0].type == NodeType.RETURN
+        node_ret = node_end_if.successors[0]
         assert isinstance(node_ret.irs[0], Return)
         assert node_ret.irs[0].values[0] == f.get_local_variable_from_name("y")
 
@@ -93,19 +93,19 @@ def test_nested_ifs_with_loop_legacy(slither_from_solidity_source) -> None:
         c: Contract = slither.get_contract_from_name("Contract")[0]
         f: Function = c.functions[0]
         node_if = f.nodes[2]
-        assert node_if.son_true.type == NodeType.RETURN
-        node_explicit = node_if.son_true
+        assert node_if.successor_true.type == NodeType.RETURN
+        node_explicit = node_if.successor_true
         assert isinstance(node_explicit.irs[0], Return)
         assert node_explicit.irs[0].values[0] == f.get_local_variable_from_name("a")
         node_end_if = f.nodes[16]
         assert node_end_if.type == NodeType.ENDIF
-        assert node_end_if.sons[0].type == NodeType.RETURN
-        node_implicit = node_end_if.sons[0]
+        assert node_end_if.successors[0].type == NodeType.RETURN
+        node_implicit = node_end_if.successors[0]
         assert isinstance(node_implicit.irs[0], Return)
         assert node_implicit.irs[0].values[0] == f.get_local_variable_from_name("x")
         node_throw = f.nodes[11]
         assert node_throw.type == NodeType.THROW
-        assert len(node_throw.sons) == 0
+        assert len(node_throw.successors) == 0
 
 
 def test_nested_ifs_with_loop_compact(slither_from_solidity_source) -> None:
@@ -136,14 +136,14 @@ def test_nested_ifs_with_loop_compact(slither_from_solidity_source) -> None:
         c: Contract = slither.get_contract_from_name("Contract")[0]
         f: Function = c.functions[0]
         node_if = f.nodes[2]
-        assert node_if.son_true.type == NodeType.RETURN
-        node_explicit = node_if.son_true
+        assert node_if.successor_true.type == NodeType.RETURN
+        node_explicit = node_if.successor_true
         assert isinstance(node_explicit.irs[0], Return)
         assert node_explicit.irs[0].values[0] == f.get_local_variable_from_name("a")
         node_end_if = f.nodes[17]
         assert node_end_if.type == NodeType.ENDIF
-        assert node_end_if.sons[0].type == NodeType.RETURN
-        node_implicit = node_end_if.sons[0]
+        assert node_end_if.successors[0].type == NodeType.RETURN
+        node_implicit = node_end_if.successors[0]
         assert isinstance(node_implicit.irs[0], Return)
         assert node_implicit.irs[0].values[0] == f.get_local_variable_from_name("x")
 
@@ -175,14 +175,14 @@ def test_assembly_switch_cases(slither_from_solidity_source, legacy):
             assert node.irs[0].values[0] == f.get_local_variable_from_name("x")
         else:
             node_end_if = f.nodes[5]
-            assert node_end_if.sons[0].type == NodeType.RETURN
-            node_implicit = node_end_if.sons[0]
+            assert node_end_if.successors[0].type == NodeType.RETURN
+            node_implicit = node_end_if.successors[0]
             assert isinstance(node_implicit.irs[0], Return)
             assert node_implicit.irs[0].values[0] == f.get_local_variable_from_name("x")
             # This part will fail until issue #1927 is fixed
             node_explicit = f.nodes[10]
             assert node_explicit.type == NodeType.RETURN
-            assert len(node_explicit.sons) == 0
+            assert len(node_explicit.successors) == 0
 
 
 @pytest.mark.parametrize("legacy", [True, False])
@@ -199,8 +199,8 @@ def test_issue_1846_ternary_in_ternary(slither_from_solidity_source, legacy):
         f = c.functions[0]
         node_end_if = f.nodes[3]
         assert node_end_if.type == NodeType.ENDIF
-        assert len(node_end_if.sons) == 1
-        node_ret = node_end_if.sons[0]
+        assert len(node_end_if.successors) == 1
+        node_ret = node_end_if.successors[0]
         assert node_ret.type == NodeType.RETURN
         assert isinstance(node_ret.irs[0], Return)
         assert node_ret.irs[0].values[0] == f.get_local_variable_from_name("y")
