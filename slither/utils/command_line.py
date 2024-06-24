@@ -272,7 +272,9 @@ def output_detectors(detector_classes: List[Type[AbstractDetector]]) -> None:
         impact = detector.IMPACT
         confidence = classification_txt[detector.CONFIDENCE]
         detectors_list.append((argument, help_info, impact, confidence))
-    table = MyPrettyTable(["Num", "Check", "What it Detects", "Impact", "Confidence"])
+    table = MyPrettyTable(
+        ["Num", "Check", "What it Detects", "Impact", "Confidence"], max_width="max"
+    )
 
     # Sort by impact, confidence, and name
     detectors_list = sorted(
@@ -354,14 +356,16 @@ def output_printers(printer_classes: List[Type[AbstractPrinter]]) -> None:
         argument = printer.ARGUMENT
         help_info = printer.HELP
         printers_list.append((argument, help_info))
-    table = MyPrettyTable(["Num", "Printer", "What it Does"])
+    table = MyPrettyTable(["Num", "Printer", "What it Does"], max_width="max")
 
     # Sort by impact, confidence, and name
     printers_list = sorted(printers_list, key=lambda element: (element[0]))
     idx = 1
     for (argument, help_info) in printers_list:
-        table.add_row([str(idx), argument, help_info])
+        # Clean multi line HELP info
+        table.add_row([str(idx), argument, " ".join(x.strip() for x in help_info.splitlines())])
         idx = idx + 1
+
     print(table)
 
 
