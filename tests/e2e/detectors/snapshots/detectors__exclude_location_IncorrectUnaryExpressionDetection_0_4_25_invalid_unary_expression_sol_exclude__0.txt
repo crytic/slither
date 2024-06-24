@@ -1,0 +1,8 @@
+C.slitherConstructorVariables() uses an dangerous unary operator: c = (b = + 1)
+
+C.f() uses an dangerous unary operator: x = + 144444
+
+C.c uses an dangerous unary operator: (b = + 1)
+
+C.f() uses an dangerous unary operator: x = (x = + 1)
+

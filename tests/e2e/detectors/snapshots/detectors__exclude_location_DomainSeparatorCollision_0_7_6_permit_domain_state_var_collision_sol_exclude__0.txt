@@ -1,0 +1,2 @@
+The function signature of ERC20.fopwCDKKK collides with DOMAIN_SEPARATOR and should be renamed or removed.
+

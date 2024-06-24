@@ -1,0 +1,6 @@
+C.bad3(address[]) use msg.value in a loop: balances[receivers[j]] += msg.value
+
+C.bad2_internal(address) use msg.value in a loop: balances[a] += msg.value
+
+C.bad(address[]) use msg.value in a loop: balances[receivers[i]] += msg.value
+

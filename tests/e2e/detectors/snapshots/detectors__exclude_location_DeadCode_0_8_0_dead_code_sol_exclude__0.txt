@@ -1,0 +1,6 @@
+Test4.unused_but_shadowed() is never used and should be removed
+
+Test.unused() is never used and should be removed
+
+Test2.unused_but_shadowed() is never used and should be removed
+

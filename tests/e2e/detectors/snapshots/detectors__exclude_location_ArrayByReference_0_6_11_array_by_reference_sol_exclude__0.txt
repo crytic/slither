@@ -1,0 +1,14 @@
+D.f() passes array D.x by reference to C.setByValue(uint256[1]) which only takes arrays by value
+
+C.g() passes array C.g().y by reference to C.setByValueAndReturn(uint256[1]) which only takes arrays by value
+
+C.f() passes array C.x by reference to C.setByValueAndReturn(uint256[1]) which only takes arrays by value
+
+C.f() passes array C.x by reference to C.setByValue(uint256[1]) which only takes arrays by value
+
+D.f() passes array D.x by reference to C.setByValueAndReturn(uint256[1]) which only takes arrays by value
+
+C.g() passes array C.g().y by reference to C.setByValue(uint256[1]) which only takes arrays by value
+
+E.f() passes array E.x by reference to E.setByValue(uint256[1],uint256[1]) which only takes arrays by value
+

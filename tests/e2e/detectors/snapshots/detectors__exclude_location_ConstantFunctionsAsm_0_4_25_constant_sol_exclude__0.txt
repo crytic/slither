@@ -1,0 +1,2 @@
+Constant.test_assembly_bug() is declared view but contains assembly code
+

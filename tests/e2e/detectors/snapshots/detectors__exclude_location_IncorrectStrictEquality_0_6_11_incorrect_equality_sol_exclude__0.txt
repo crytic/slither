@@ -1,0 +1,36 @@
+TestContractBalance.bad5() uses a dangerous strict equality:
+	- 10000000000000000000 == balance
+
+ERC20TestBalance.bad0(ERC20Function) uses a dangerous strict equality:
+	- require(bool)(erc.balanceOf(address(this)) == 10)
+
+TestContractBalance.bad3() uses a dangerous strict equality:
+	- require(bool)(10000000000000000000 == address(this).balance)
+
+TestContractBalance.bad6() uses a dangerous strict equality:
+	- balance == 10000000000000000000
+
+TestSolidityKeyword.bad0() uses a dangerous strict equality:
+	- require(bool)(now == 0)
+
+TestContractBalance.bad2() uses a dangerous strict equality:
+	- require(bool)(address(this).balance == 10000000000000000000)
+
+ERC20TestBalance.bad1(ERC20Variable) uses a dangerous strict equality:
+	- require(bool)(erc.balanceOf(msg.sender) == 10)
+
+TestSolidityKeyword.bad1() uses a dangerous strict equality:
+	- require(bool)(block.number == 0)
+
+TestContractBalance.bad4() uses a dangerous strict equality:
+	- balance == 10000000000000000000
+
+TestContractBalance.bad1() uses a dangerous strict equality:
+	- require(bool)(10000000000000000000 == address(address(this)).balance)
+
+TestSolidityKeyword.bad2() uses a dangerous strict equality:
+	- require(bool)(block.number == 0)
+
+TestContractBalance.bad0() uses a dangerous strict equality:
+	- require(bool)(address(address(this)).balance == 10000000000000000000)
+

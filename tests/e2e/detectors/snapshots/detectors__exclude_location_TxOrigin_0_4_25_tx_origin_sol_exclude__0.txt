@@ -1,0 +1,4 @@
+TxOrigin.bug0() uses tx.origin for authorization: require(bool)(tx.origin == owner)
+
+TxOrigin.bug2() uses tx.origin for authorization: tx.origin != owner
+
