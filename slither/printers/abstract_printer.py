@@ -22,7 +22,6 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
 
     def __init__(self, slither: "Slither", logger: Optional[Logger]) -> None:
         self.slither = slither
-        self.contracts = slither.contracts
         self.filename = slither.filename
         self.logger = logger
 
@@ -40,6 +39,15 @@ class AbstractPrinter(metaclass=abc.ABCMeta):
             raise IncorrectPrinterInitialization(
                 f"WIKI is not initialized {self.__class__.__name__}"
             )
+
+    @property
+    def contracts(self):
+        """Direct accessor to the slither contracts.
+
+        We prefer to delay as much as possible the direct access of contracts to leave the possibility
+        for filtering to be applied.
+        """
+        return self.slither.contracts
 
     def info(self, info: str) -> None:
         if self.logger:
