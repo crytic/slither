@@ -173,6 +173,12 @@ Slither requires Python 3.6+ and [solc](https://github.com/ethereum/solidity/), 
 pip3 install slither-analyzer
 ```
 
+If your slither version is behind the latest available release, you can upgrade slither to stay up to date with the latest features and bug fixes using the following command:
+
+```console
+pip install --upgrade slither-analyzer
+```
+
 ### Using Git
 
 ```bash
