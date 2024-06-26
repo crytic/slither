@@ -2,7 +2,7 @@
 
 ### Test Dapp integration
 
-# work around having two python versions loading libraries from each other in CI
+# Work around having two python versions loading libraries from each other in CI
 OLD_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 alias crytic-compile='LD_LIBRARY_PATH=$OLD_LD_LIBRARY_PATH crytic-compile'
 unset LD_LIBRARY_PATH
