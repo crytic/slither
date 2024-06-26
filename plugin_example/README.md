@@ -15,4 +15,4 @@ Once these files are updated with your plugin, you can install it:
 python setup.py develop
 ```
 
-We recommend to use a Python virtual environment (for example: [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)).
+We recommend using a Python virtual environment (for example: [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)).
