@@ -32,7 +32,7 @@ class FileScope:
         self.exported_symbols: Set[int] = set()
 
         self.contracts: Dict[str, Contract] = {}
-        # Custom error are a list instead of a dict
+        # Custom errors are a list instead of a dict
         # Because we parse the function signature later on
         # So we simplify the logic and have the scope fields all populated
         self.custom_errors: Set[CustomErrorTopLevel] = set()
