@@ -12,7 +12,7 @@ if ! slither 0x7F37f78cBD74481E593F9C737776F7113d76B315 --etherscan-apikey "$GIT
 fi
 echo "::endgroup::"
 
-# Perform a small sleep when API key is not available (e.g. on PR CI from external contributor)
+# Perform a small sleep when API key is not available (e.g. on PR CI from an external contributor)
 if [ "$GITHUB_ETHERSCAN" = "" ]; then
     sleep $(( ( RANDOM % 5 )  + 1 ))s
 fi
