@@ -22,7 +22,7 @@ class State:  # pylint: disable=too-few-public-methods
         # Map node -> list of variables set
         # Were each variables set represents a configuration of a path
         # If two paths lead to the exact same set of variables written, we dont need to explore both
-        # We need to keep different set per path, because we want to capture stuff like
+        # We need to keep different sets per path, because we want to capture stuff like
         # if (..){
         #    v = 10
         # }
