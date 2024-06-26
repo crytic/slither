@@ -76,7 +76,7 @@ contract SimpleVulnerableToken{
 
   /**
    * @dev Transfer tokens from one address to another
-   * @param _from address The address which you want to send tokens from
+   * @param _from address The address to which you want to send tokens from
    * @param _to address The address which you want to transfer to
    * @param _value uint256 the amount of tokens to be transferred
    */
