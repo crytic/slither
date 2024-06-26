@@ -115,7 +115,7 @@ def __find_target_paths(target_function, current_path=None):
                 if path_results:
                     results = results.union(path_results)
 
-    # If this path is external accessible from this point, we add the current path to the list.
+    # If this path is externally accessible from this point, we add the current path to the list.
     if target_function.visibility in ["public", "external"] and len(current_path) > 1:
         results.add(tuple(current_path))
 
