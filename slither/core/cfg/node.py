@@ -106,7 +106,7 @@ class NodeType(Enum):
 
 # endregion
 
-# I am not sure why, but pylint reports a lot of "no-member" issue that are not real (Josselin)
+# I am not sure why, but pylint reports a lot of "no-member" issues that are not real (Josselin)
 # pylint: disable=no-member
 class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     """
