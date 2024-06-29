@@ -1,0 +1,8 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c3_C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR><TR><TD align="left"><I>Public Variables:</I></TD></TR><TR><TD align="left">    v</TD></TR></TABLE> >];
+
+c16_D[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>D</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    f(C)</TD></TR></TABLE> >];
+
+}

@@ -1,0 +1,5 @@
+
++ Contract T (Most derived contract)
+  - From T
+    - g() (public)
+

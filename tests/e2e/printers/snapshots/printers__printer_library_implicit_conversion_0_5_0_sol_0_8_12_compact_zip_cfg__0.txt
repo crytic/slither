@@ -1,0 +1,143 @@
+Export tmp.zip-LibByte-t(uint256,bytes1).dot
+Export tmp.zip-LibByte-t(uint256,bytes32).dot
+Export tmp.zip-TestByte-test().dot
+Export tmp.zip-LibUint-t(uint256,uint8).dot
+Export tmp.zip-LibUint-t(uint256,uint256).dot
+Export tmp.zip-TestUint-test().dot
+Export tmp.zip-LibInt-t(uint256,int8).dot
+Export tmp.zip-LibInt-t(uint256,int256).dot
+Export tmp.zip-TestUintWithVariableiAndConversion-test().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+0x1
+
+IRs:
+RETURN 1"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+0x32
+
+IRs:
+RETURN 50"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+a.t(0x10)
+
+IRs:
+TMP_0(uint256) = LIBRARY_CALL, dest:LibByte, function:LibByte.t(uint256,bytes1), arguments:['a', '16'] 
+RETURN TMP_0"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+0x1
+
+IRs:
+RETURN 1"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+0x32
+
+IRs:
+RETURN 50"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+a.t(2 ** 8)
+
+IRs:
+TMP_1(uint256) = 2 (c)** 8
+TMP_2(uint256) = LIBRARY_CALL, dest:LibUint, function:LibUint.t(uint256,uint256), arguments:['a', 'TMP_1'] 
+RETURN TMP_2"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+0x1
+
+IRs:
+RETURN 1"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+0x32
+
+IRs:
+RETURN 50"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+a.t(v)
+
+IRs:
+TMP_3(uint256) = LIBRARY_CALL, dest:LibInt, function:LibInt.t(uint256,int256), arguments:['a', 'v'] 
+RETURN TMP_3"];
+}
+

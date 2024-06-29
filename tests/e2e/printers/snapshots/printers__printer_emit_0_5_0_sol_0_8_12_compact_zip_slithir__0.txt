@@ -1,0 +1,9 @@
+Contract C
+	Function C.emitWithKeyword() (*)
+		Expression: E(1)
+		IRs:
+			Emit E(1)
+		Expression: C.E(1)
+		IRs:
+			Emit E(1)
+

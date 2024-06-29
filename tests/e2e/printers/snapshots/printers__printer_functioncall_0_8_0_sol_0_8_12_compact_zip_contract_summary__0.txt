@@ -1,0 +1,11 @@
+
++ Contract I (Most derived contract)
+  - From I
+    - constructor() (public)
+
++ Contract C (Most derived contract)
+  - From C
+    - f() (public)
+    - internalTarget(uint256,uint256) (public)
+    - publicTarget() (public)
+

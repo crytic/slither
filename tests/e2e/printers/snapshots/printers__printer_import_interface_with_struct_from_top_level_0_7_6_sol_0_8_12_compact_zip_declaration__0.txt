@@ -1,0 +1,19 @@
+
+# Contracts
+# I
+	- Declaration: tests/ast-parsing/helper/interface_with_struct.sol#2 (11 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+		- St
+			- Declaration: struct St{
+        uint a;
+    }
+			- Implementation: tests/ast-parsing/helper/interface_with_struct.sol#3-5 (5 - 6)
+			- References: ['tests/ast-parsing/import_interface_with_struct_from_top_level-0.7.6.sol#4 (5 - 9)']
+

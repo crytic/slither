@@ -1,0 +1,47 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/variable-0.5.0.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.basic()
+			- Declaration: tests/ast-parsing/variable-0.5.0.sol#12 (14 - 20)
+			- Implementation(s): ['tests/ast-parsing/variable-0.5.0.sol#12-27 (5 - 6)']
+			- References: []
+		- C.basic2()
+			- Declaration: tests/ast-parsing/variable-0.5.0.sol#29 (14 - 21)
+			- Implementation(s): ['tests/ast-parsing/variable-0.5.0.sol#29-52 (5 - 6)']
+			- References: []
+
+	## State variables
+		- m
+			- Declaration: tests/ast-parsing/variable-0.5.0.sol#6 (27 - 29)
+			- Implementation: tests/ast-parsing/variable-0.5.0.sol#6 (5 - 28)
+			- References: ['tests/ast-parsing/variable-0.5.0.sol#40 (55 - 56)']
+		- s
+			- Declaration: tests/ast-parsing/variable-0.5.0.sol#7 (12 - 14)
+			- Implementation: tests/ast-parsing/variable-0.5.0.sol#7 (5 - 13)
+			- References: ['tests/ast-parsing/variable-0.5.0.sol#16 (41 - 42)']
+		- b
+			- Declaration: tests/ast-parsing/variable-0.5.0.sol#8 (11 - 13)
+			- Implementation: tests/ast-parsing/variable-0.5.0.sol#8 (5 - 12)
+			- References: ['tests/ast-parsing/variable-0.5.0.sol#25 (39 - 40)']
+		- t
+			- Declaration: tests/ast-parsing/variable-0.5.0.sol#9 (7 - 9)
+			- Implementation: tests/ast-parsing/variable-0.5.0.sol#9 (5 - 8)
+			- References: ['tests/ast-parsing/variable-0.5.0.sol#38 (31 - 32)']
+		- a
+			- Declaration: tests/ast-parsing/variable-0.5.0.sol#10 (12 - 14)
+			- Implementation: tests/ast-parsing/variable-0.5.0.sol#10 (5 - 13)
+			- References: ['tests/ast-parsing/variable-0.5.0.sol#43 (40 - 41)']
+
+	## Structures
+		- S
+			- Declaration: struct S {
+        uint a;
+    }
+			- Implementation: tests/ast-parsing/variable-0.5.0.sol#2-4 (5 - 6)
+			- References: ['tests/ast-parsing/variable-0.5.0.sol#9 (5 - 6)', 'tests/ast-parsing/variable-0.5.0.sol#37 (9 - 10)', 'tests/ast-parsing/variable-0.5.0.sol#38 (9 - 10)']
+

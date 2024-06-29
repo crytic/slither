@@ -1,0 +1,25 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipScope.call-graph.dot
+
+strict digraph {
+subgraph cluster_64_Scope {
+label = "Scope"
+"64_for_scope" [label="for_scope"]
+"64_if_scope" [label="if_scope"]
+"64_nested_scope" [label="nested_scope"]
+"64_while_scope" [label="while_scope"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_64_Scope {
+label = "Scope"
+"64_for_scope" [label="for_scope"]
+"64_if_scope" [label="if_scope"]
+"64_nested_scope" [label="nested_scope"]
+"64_while_scope" [label="while_scope"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

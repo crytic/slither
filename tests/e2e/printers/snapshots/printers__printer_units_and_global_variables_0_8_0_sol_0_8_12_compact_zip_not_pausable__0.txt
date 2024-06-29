@@ -1,0 +1,30 @@
+Constructor and pure/view functions are not displayed
+
+A:
++------+-------------------+
+| Name | Use whenNotPaused |
++------+-------------------+
++------+-------------------+
+
+I:
++------+-------------------+
+| Name | Use whenNotPaused |
++------+-------------------+
++------+-------------------+
+
+Test:
++--------------------------+-------------------+
+| Name                     | Use whenNotPaused |
++--------------------------+-------------------+
+| ether_unit()             |                   |
+| time_unit()              |                   |
+| block_and_transactions() |                   |
+| abi_encode()             |                   |
+| error_handling()         |                   |
+| math_and_crypto()        |                   |
+| address_related()        |                   |
+| address_edge_case()      |                   |
+| contract_related()       |                   |
+| type_related()           |                   |
++--------------------------+-------------------+
+

@@ -1,0 +1,43 @@
+
+Contract C1
++-------------+-------------------+
+| Function    | require or assert |
++-------------+-------------------+
+| constructor |                   |
+| fallback    |                   |
++-------------+-------------------+
+Contract C2
++-------------+-------------------+
+| Function    | require or assert |
++-------------+-------------------+
+| constructor |                   |
+| fallback    |                   |
++-------------+-------------------+
+Contract C3
++-------------+-------------------+
+| Function    | require or assert |
++-------------+-------------------+
+| constructor |                   |
+| f           |                   |
++-------------+-------------------+
+Contract C4
++-------------------+-------------------+
+| Function          | require or assert |
++-------------------+-------------------+
+| hasArgs           |                   |
+| hasReturns        |                   |
+| hasArgsAndReturns |                   |
++-------------------+-------------------+
+Contract C5
++--------------+-------------------+
+| Function     | require or assert |
++--------------+-------------------+
+| payableFunc  |                   |
+| externalFunc |                   |
+| publicFunc   |                   |
+| internalFunc |                   |
+| privateFunc  |                   |
+| pureFunc     |                   |
+| viewFunc     |                   |
+| abstractFunc |                   |
++--------------+-------------------+

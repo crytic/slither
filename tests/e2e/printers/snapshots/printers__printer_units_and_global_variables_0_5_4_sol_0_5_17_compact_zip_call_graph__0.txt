@@ -1,0 +1,113 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipTest.call-graph.dot
+
+strict digraph {
+subgraph cluster_519_Test {
+label = "Test"
+"519_abi_encode" [label="abi_encode"]
+"519_address_related" [label="address_related"]
+"519_block_and_transactions" [label="block_and_transactions"]
+"519_contract_related" [label="contract_related"]
+"519_error_handling" [label="error_handling"]
+"519_ether_unit" [label="ether_unit"]
+"519_math_and_crypto" [label="math_and_crypto"]
+"519_time_unit" [label="time_unit"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"abi.decode()" 
+"abi.encode()" 
+"abi.encodePacked()" 
+"abi.encodeWithSelector()" 
+"abi.encodeWithSignature()" 
+"addmod(uint256,uint256,uint256)" 
+"assert(bool)" 
+"balance(address)" 
+"blockhash(uint256)" 
+"ecrecover(bytes32,uint8,bytes32,bytes32)" 
+"gasleft()" 
+"keccak256(bytes)" 
+"mulmod(uint256,uint256,uint256)" 
+"require(bool)" 
+"require(bool,string)" 
+"revert()" 
+"revert(string)" 
+"ripemd160(bytes)" 
+"selfdestruct(address)" 
+"sha256(bytes)" 
+"519_abi_encode" -> "abi.decode()"
+"519_abi_encode" -> "abi.encode()"
+"519_abi_encode" -> "abi.encodePacked()"
+"519_abi_encode" -> "abi.encodeWithSelector()"
+"519_abi_encode" -> "abi.encodeWithSignature()"
+"519_address_related" -> "balance(address)"
+"519_block_and_transactions" -> "blockhash(uint256)"
+"519_block_and_transactions" -> "gasleft()"
+"519_contract_related" -> "selfdestruct(address)"
+"519_error_handling" -> "assert(bool)"
+"519_error_handling" -> "require(bool)"
+"519_error_handling" -> "require(bool,string)"
+"519_error_handling" -> "revert()"
+"519_error_handling" -> "revert(string)"
+"519_math_and_crypto" -> "addmod(uint256,uint256,uint256)"
+"519_math_and_crypto" -> "ecrecover(bytes32,uint8,bytes32,bytes32)"
+"519_math_and_crypto" -> "keccak256(bytes)"
+"519_math_and_crypto" -> "mulmod(uint256,uint256,uint256)"
+"519_math_and_crypto" -> "ripemd160(bytes)"
+"519_math_and_crypto" -> "sha256(bytes)"
+}
+}
+strict digraph {
+subgraph cluster_519_Test {
+label = "Test"
+"519_abi_encode" [label="abi_encode"]
+"519_address_related" [label="address_related"]
+"519_block_and_transactions" [label="block_and_transactions"]
+"519_contract_related" [label="contract_related"]
+"519_error_handling" [label="error_handling"]
+"519_ether_unit" [label="ether_unit"]
+"519_math_and_crypto" [label="math_and_crypto"]
+"519_time_unit" [label="time_unit"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"abi.decode()" 
+"abi.encode()" 
+"abi.encodePacked()" 
+"abi.encodeWithSelector()" 
+"abi.encodeWithSignature()" 
+"addmod(uint256,uint256,uint256)" 
+"assert(bool)" 
+"balance(address)" 
+"blockhash(uint256)" 
+"ecrecover(bytes32,uint8,bytes32,bytes32)" 
+"gasleft()" 
+"keccak256(bytes)" 
+"mulmod(uint256,uint256,uint256)" 
+"require(bool)" 
+"require(bool,string)" 
+"revert()" 
+"revert(string)" 
+"ripemd160(bytes)" 
+"selfdestruct(address)" 
+"sha256(bytes)" 
+"519_abi_encode" -> "abi.decode()"
+"519_abi_encode" -> "abi.encode()"
+"519_abi_encode" -> "abi.encodePacked()"
+"519_abi_encode" -> "abi.encodeWithSelector()"
+"519_abi_encode" -> "abi.encodeWithSignature()"
+"519_address_related" -> "balance(address)"
+"519_block_and_transactions" -> "blockhash(uint256)"
+"519_block_and_transactions" -> "gasleft()"
+"519_contract_related" -> "selfdestruct(address)"
+"519_error_handling" -> "assert(bool)"
+"519_error_handling" -> "require(bool)"
+"519_error_handling" -> "require(bool,string)"
+"519_error_handling" -> "revert()"
+"519_error_handling" -> "revert(string)"
+"519_math_and_crypto" -> "addmod(uint256,uint256,uint256)"
+"519_math_and_crypto" -> "ecrecover(bytes32,uint8,bytes32,bytes32)"
+"519_math_and_crypto" -> "keccak256(bytes)"
+"519_math_and_crypto" -> "mulmod(uint256,uint256,uint256)"
+"519_math_and_crypto" -> "ripemd160(bytes)"
+"519_math_and_crypto" -> "sha256(bytes)"
+}
+}

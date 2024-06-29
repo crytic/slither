@@ -1,0 +1,18 @@
+
+Contract C
++-----------------------+-------------------------+--------------------------+
+| Function              | State variables written | Conditions on msg.sender |
++-----------------------+-------------------------+--------------------------+
+| normalLoopBlockBody   |                      [] |                       [] |
+| normalLoopExprBody    |                      [] |                       [] |
+| normalLoopNoBody      |                      [] |                       [] |
+| loopNoPre             |                      [] |                       [] |
+| loopNoCond            |                      [] |                       [] |
+| loopNoPost            |                      [] |                       [] |
+| loopNoPreCond         |                      [] |                       [] |
+| loopNoPrePost         |                      [] |                       [] |
+| loopNoCondPost        |                      [] |                       [] |
+| loopNoPreCondPost     |                      [] |                       [] |
+| loopNoPreCondPostBody |                      [] |                       [] |
++-----------------------+-------------------------+--------------------------+
+

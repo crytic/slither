@@ -1,0 +1,49 @@
+
+
+CK complexity metrics (Variables):
++----------+-----------------+-----------+------------+
+| Contract | State variables | Constants | Immutables |
++----------+-----------------+-----------+------------+
+| C        |               1 |         0 |          0 |
+| TOTAL    |               1 |         0 |          0 |
++----------+-----------------+-----------+------------+
+
+
+CK complexity metrics (Function visibility):
++----------+--------+----------+----------+---------+
+| Contract | Public | External | Internal | Private |
++----------+--------+----------+----------+---------+
+| C        |      1 |        0 |        0 |       0 |
+| TOTAL    |      1 |        0 |        0 |       0 |
++----------+--------+----------+----------+---------+
+
+
+CK complexity metrics (State mutability):
++----------+----------+------+------+
+| Contract | Mutating | View | Pure |
++----------+----------+------+------+
+| C        |        1 |    0 |    0 |
+| TOTAL    |        1 |    0 |    0 |
++----------+----------+------+------+
+
+
+CK complexity metrics (External mutating functions):
++----------+-------------------+----------------------+--------------+
+| Contract | External mutating | No auth or onlyOwner | No modifiers |
++----------+-------------------+----------------------+--------------+
+| C        |                 1 |                    1 |            1 |
+| TOTAL    |                 1 |                    1 |            1 |
++----------+-------------------+----------------------+--------------+
+
+
+CK complexity metrics (Core):
+RFC: Response For a Class
+NOC: Number of Children
+DIT: Depth of Inheritance Tree
+CBO: Coupling Between Object Classes
++----------+-----------+-----+-----+-----+-----+
+| Contract | Ext calls | RFC | NOC | DIT | CBO |
++----------+-----------+-----+-----+-----+-----+
+| C        |         0 |   1 |   0 |   0 |   0 |
++----------+-----------+-----+-----+-----+-----+
+

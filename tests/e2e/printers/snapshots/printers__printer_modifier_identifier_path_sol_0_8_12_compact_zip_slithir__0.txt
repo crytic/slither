@@ -1,0 +1,14 @@
+Contract A
+	Function A.f() (*)
+		Expression: m()
+		IRs:
+			MODIFIER_CALL, A.m()()
+	Modifier A.m()
+Contract B
+	Function A.f() (*)
+		Expression: m()
+		IRs:
+			MODIFIER_CALL, B.m()()
+	Modifier A.m()
+	Modifier B.m()
+

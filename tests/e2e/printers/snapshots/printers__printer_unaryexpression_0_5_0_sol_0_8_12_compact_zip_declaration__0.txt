@@ -1,0 +1,21 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/unaryexpression-0.5.0.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f()
+			- Declaration: tests/ast-parsing/unaryexpression-0.5.0.sol#4 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/unaryexpression-0.5.0.sol#4-20 (5 - 6)']
+			- References: []
+
+	## State variables
+		- m
+			- Declaration: tests/ast-parsing/unaryexpression-0.5.0.sol#2 (27 - 29)
+			- Implementation: tests/ast-parsing/unaryexpression-0.5.0.sol#2 (5 - 28)
+			- References: ['tests/ast-parsing/unaryexpression-0.5.0.sol#16 (16 - 17)']
+
+	## Structures
+

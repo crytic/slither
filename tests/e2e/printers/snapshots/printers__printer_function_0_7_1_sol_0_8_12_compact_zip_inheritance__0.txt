@@ -1,0 +1,42 @@
+Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ C1
+
++ C2
+
++ C3
+
++ C4
+
++ C5
+
++ C6
+
++ C7
+
++ C8
+ -> C5, C6, C7
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ C1
+
++ C2
+
++ C3
+
++ C4
+
++ C5
+ -> C8
+
++ C6
+ -> C8
+
++ C7
+ -> C8
+
++ C8
+

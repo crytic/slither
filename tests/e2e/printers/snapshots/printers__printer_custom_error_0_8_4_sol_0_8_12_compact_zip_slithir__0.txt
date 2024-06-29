@@ -1,0 +1,83 @@
+Contract I
+Contract VendingMachine
+	Function VendingMachine.err0() (*)
+		Expression: revert ErrorSimple()()
+		IRs:
+			TMP_0(None) = SOLIDITY_CALL revert ErrorSimple()()
+	Function VendingMachine.err1() (*)
+		Expression: revert ErrorWithStruct(St)(s)
+		IRs:
+			TMP_1(None) = SOLIDITY_CALL revert ErrorWithStruct(St)(s)
+	Function VendingMachine.err2() (*)
+		Expression: revert ErrorWithArgs(uint256,uint256)(10 + 10,10)
+		IRs:
+			TMP_2(uint256) = 10 (c)+ 10
+			TMP_3(None) = SOLIDITY_CALL revert ErrorWithArgs(uint256,uint256)(TMP_2,10)
+		Expression: revert ErrorWithArgs(uint256,uint256)(uint256(SomeEnum.ONE),uint256(SomeEnum.ONE))
+		IRs:
+			REF_0(I.SomeEnum) -> SomeEnum.ONE
+			TMP_4 = CONVERT REF_0 to uint256
+			REF_1(I.SomeEnum) -> SomeEnum.ONE
+			TMP_5 = CONVERT REF_1 to uint256
+			TMP_6(None) = SOLIDITY_CALL revert ErrorWithArgs(uint256,uint256)(TMP_4,TMP_5)
+	Function VendingMachine.err3() (*)
+		Expression: revert(string)(test)
+		IRs:
+			TMP_7(None) = SOLIDITY_CALL revert(string)(test)
+	Function VendingMachine.err4() (*)
+		Expression: revert ErrorWithEnum(I.SomeEnum)(SomeEnum.ONE)
+		IRs:
+			REF_2(I.SomeEnum) -> SomeEnum.ONE
+			TMP_8(None) = SOLIDITY_CALL revert ErrorWithEnum(I.SomeEnum)(REF_2)
+	Function VendingMachine.err5(uint256[5]) (*)
+		Expression: revert ErrorWithConst(uint256[5])(a)
+		IRs:
+			TMP_9(None) = SOLIDITY_CALL revert ErrorWithConst(uint256[5])(a)
+	Function VendingMachine.err6(uint256[10]) (*)
+		Expression: revert CErrorWithConst(uint256[10])(a)
+		IRs:
+			TMP_10(None) = SOLIDITY_CALL revert CErrorWithConst(uint256[10])(a)
+	Function VendingMachine.slitherConstructorConstantVariables() (*)
+		Expression: CMAX = 10
+		IRs:
+			CMAX(uint256) := 10(uint256)
+Contract A
+	Function A.f() (*)
+		Expression: revert MyError(uint256)(2)
+		IRs:
+			TMP_11(None) = SOLIDITY_CALL revert MyError(uint256)(2)
+Contract B
+	Function A.f() (*)
+		Expression: revert MyError(uint256)(2)
+		IRs:
+			TMP_12(None) = SOLIDITY_CALL revert MyError(uint256)(2)
+	Function B.g() (*)
+		Expression: revert MyError(uint256)(2)
+		IRs:
+			TMP_13(None) = SOLIDITY_CALL revert MyError(uint256)(2)
+	Function B.h() (*)
+		Expression: revert MyError(uint256).selector
+		IRs:
+			REF_3(bytes4) (->None) := 816952677(bytes4)
+			RETURN REF_3
+Contract ContractArgCustomError
+	Function ContractArgCustomError.f() (*)
+		Expression: g()
+		IRs:
+			INTERNAL_CALL, ContractArgCustomError.g()()
+	Function ContractArgCustomError.g() (*)
+		Expression: something = h()
+		IRs:
+			TMP_15(bool) = INTERNAL_CALL, ContractArgCustomError.h()()
+			something(bool) := TMP_15(bool)
+		Expression: something
+		IRs:
+			CONDITION something
+		Expression: revert E(address)(this)
+		IRs:
+			TMP_16(None) = SOLIDITY_CALL revert E(address)(this)
+	Function ContractArgCustomError.h() (*)
+		Expression: something
+		IRs:
+			RETURN something
+

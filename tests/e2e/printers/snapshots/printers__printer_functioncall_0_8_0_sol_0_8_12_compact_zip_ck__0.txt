@@ -1,0 +1,54 @@
+
+
+CK complexity metrics (Variables):
++----------+-----------------+-----------+------------+
+| Contract | State variables | Constants | Immutables |
++----------+-----------------+-----------+------------+
+| I        |               0 |         0 |          0 |
+| C        |               0 |         0 |          0 |
+| TOTAL    |               0 |         0 |          0 |
++----------+-----------------+-----------+------------+
+
+
+CK complexity metrics (Function visibility):
++----------+--------+----------+----------+---------+
+| Contract | Public | External | Internal | Private |
++----------+--------+----------+----------+---------+
+| I        |      0 |        0 |        0 |       0 |
+| C        |      3 |        0 |        0 |       0 |
+| TOTAL    |      3 |        0 |        0 |       0 |
++----------+--------+----------+----------+---------+
+
+
+CK complexity metrics (State mutability):
++----------+----------+------+------+
+| Contract | Mutating | View | Pure |
++----------+----------+------+------+
+| I        |        0 |    0 |    0 |
+| C        |        3 |    0 |    0 |
+| TOTAL    |        3 |    0 |    0 |
++----------+----------+------+------+
+
+
+CK complexity metrics (External mutating functions):
++----------+-------------------+----------------------+--------------+
+| Contract | External mutating | No auth or onlyOwner | No modifiers |
++----------+-------------------+----------------------+--------------+
+| I        |                 0 |                    0 |            0 |
+| C        |                 3 |                    3 |            3 |
+| TOTAL    |                 3 |                    3 |            3 |
++----------+-------------------+----------------------+--------------+
+
+
+CK complexity metrics (Core):
+RFC: Response For a Class
+NOC: Number of Children
+DIT: Depth of Inheritance Tree
+CBO: Coupling Between Object Classes
++----------+-----------+-----+-----+-----+-----+
+| Contract | Ext calls | RFC | NOC | DIT | CBO |
++----------+-----------+-----+-----+-----+-----+
+| I        |         0 |   0 |   0 |   0 |   0 |
+| C        |         4 |   4 |   0 |   0 |   1 |
++----------+-----------+-----+-----+-----+-----+
+

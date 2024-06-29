@@ -1,0 +1,11 @@
+
++ Contract L1 (Most derived contract)
+  - From L1
+    - f(uint256) (public)
+
++ Contract L2 (Most derived contract)
+  - From L2
+    - f(bytes32) (public)
+
++ Contract C (Most derived contract)
+

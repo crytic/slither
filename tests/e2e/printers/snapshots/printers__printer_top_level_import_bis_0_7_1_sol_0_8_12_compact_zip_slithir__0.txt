@@ -1,0 +1,17 @@
+Contract C
+	Function C.f() (*)
+		Expression: Helper._require(msg.sender != address(0),42)
+		IRs:
+			TMP_0 = CONVERT 0 to address
+			TMP_1(bool) = msg.sender != TMP_0
+			INTERNAL_CALL, _require(bool,uint256)(TMP_1,42)
+Top level functions
+	Function _require(bool,uint256)
+		Expression: ! condition
+		IRs:
+			TMP_3 = UnaryType.BANG condition 
+			CONDITION TMP_3
+		Expression: revert()()
+		IRs:
+			TMP_4(None) = SOLIDITY_CALL revert()()
+

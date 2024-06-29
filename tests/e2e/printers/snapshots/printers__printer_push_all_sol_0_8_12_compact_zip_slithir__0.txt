@@ -1,0 +1,12 @@
+Contract C
+	Function C.f() (*)
+		Expression: arr.push((1,2))
+		IRs:
+			REF_1 -> LENGTH arr
+			TMP_1(uint256) := REF_1(uint256)
+			TMP_2(uint256) = TMP_1 (c)+ 1
+			REF_1(uint256) (->arr) := TMP_2(uint256)
+			REF_2(uint256[]) -> arr[TMP_1]
+			TMP_3(uint256[]) = ['1(uint256)', '2(uint256)']
+			REF_2(uint256[]) (->arr) := TMP_3(uint256[])
+

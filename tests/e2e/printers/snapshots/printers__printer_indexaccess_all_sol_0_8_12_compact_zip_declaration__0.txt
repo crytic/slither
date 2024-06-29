@@ -1,0 +1,17 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/indexaccess-all.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f()
+			- Declaration: tests/ast-parsing/indexaccess-all.sol#2 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/indexaccess-all.sol#2-6 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

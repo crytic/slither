@@ -1,0 +1,6 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c129_Scope[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>Scope</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    nested_scope()</TD></TR><TR><TD align="left">    if_scope()</TD></TR><TR><TD align="left">    while_scope()</TD></TR><TR><TD align="left">    for_scope()</TD></TR></TABLE> >];
+
+}

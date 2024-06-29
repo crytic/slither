@@ -1,0 +1,51 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipC.call-graph.dot
+Call Graph: tmp.zipD.call-graph.dot
+Call Graph: tmp.zipE.call-graph.dot
+Call Graph: tmp.zipH.call-graph.dot
+
+strict digraph {
+subgraph cluster_10_B {
+label = "B"
+"10_constructor" [label="constructor"]
+}subgraph cluster_24_D {
+label = "D"
+"24_constructor" [label="constructor"]
+"24_constructor" -> "24_constructor"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_10_B {
+label = "B"
+"10_constructor" [label="constructor"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_10_B {
+label = "B"
+"10_constructor" [label="constructor"]
+}subgraph cluster_24_D {
+label = "D"
+"24_constructor" [label="constructor"]
+"24_constructor" -> "24_constructor"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_10_B {
+label = "B"
+"10_constructor" [label="constructor"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

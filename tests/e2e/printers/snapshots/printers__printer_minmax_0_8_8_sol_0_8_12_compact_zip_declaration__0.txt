@@ -1,0 +1,81 @@
+
+# Contracts
+# MinMax
+	- Declaration: tests/ast-parsing/minmax-0.8.8.sol#3 (10 - 17)
+	- Implementation(s): ['tests/ast-parsing/minmax-0.8.8.sol#3-28 (1 - 2)']
+	- References: []
+
+	## Function
+		- MinMax.constructor()
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#19 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/minmax-0.8.8.sol#19-24 (5 - 6)']
+			- References: []
+		- MinMax.min()
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#26 (14 - 18)
+			- Implementation(s): ['tests/ast-parsing/minmax-0.8.8.sol#26 (5 - 73)']
+			- References: []
+		- MinMax.max()
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#27 (14 - 18)
+			- Implementation(s): ['tests/ast-parsing/minmax-0.8.8.sol#27 (5 - 73)']
+			- References: []
+		- MinMax.slitherConstructorVariables()
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#3-4 (1 - 11)
+			- Implementation(s): ['tests/ast-parsing/minmax-0.8.8.sol#3-28 (1 - 2)']
+			- References: []
+		- MinMax.slitherConstructorConstantVariables()
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#3-4 (1 - 19)
+			- Implementation(s): ['tests/ast-parsing/minmax-0.8.8.sol#3-28 (1 - 2)']
+			- References: []
+
+	## State variables
+		- a
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#4 (10 - 12)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#4 (5 - 28)
+			- References: []
+		- b
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#5 (10 - 12)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#5 (5 - 28)
+			- References: []
+		- c
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#6 (10 - 12)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#6 (5 - 34)
+			- References: []
+		- d
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#7 (10 - 12)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#7 (5 - 35)
+			- References: []
+		- e
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#9 (18 - 20)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#9 (5 - 35)
+			- References: []
+		- f
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#10 (18 - 20)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#10 (5 - 35)
+			- References: []
+		- g
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#11 (19 - 21)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#11 (5 - 43)
+			- References: []
+		- h
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#12 (19 - 21)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#12 (5 - 43)
+			- References: []
+		- i
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#14 (11 - 13)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#14 (5 - 22)
+			- References: ['tests/ast-parsing/minmax-0.8.8.sol#20 (9 - 10)']
+		- j
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#15 (21 - 23)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#15 (5 - 22)
+			- References: ['tests/ast-parsing/minmax-0.8.8.sol#21 (9 - 10)']
+		- k
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#16 (20 - 22)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#16 (5 - 21)
+			- References: ['tests/ast-parsing/minmax-0.8.8.sol#22 (9 - 10)']
+		- l
+			- Declaration: tests/ast-parsing/minmax-0.8.8.sol#17 (20 - 22)
+			- Implementation: tests/ast-parsing/minmax-0.8.8.sol#17 (5 - 21)
+			- References: ['tests/ast-parsing/minmax-0.8.8.sol#23 (9 - 10)']
+
+	## Structures
+

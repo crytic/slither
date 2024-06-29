@@ -1,0 +1,38 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipERC20.call-graph.dot
+Call Graph: tmp.zipC.call-graph.dot
+
+strict digraph {
+subgraph cluster_210_C {
+label = "C"
+"210_tryCatchContractDeployment" [label="tryCatchContractDeployment"]
+"210_tryCatchFunctionCall" [label="tryCatchFunctionCall"]
+}subgraph cluster_11_ERC20 {
+label = "ERC20"
+"11_balanceOf" [label="balanceOf"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"revert(string)" 
+"210_tryCatchFunctionCall" -> "revert(string)"
+}"210_tryCatchContractDeployment" -> "11_balanceOf"
+"210_tryCatchFunctionCall" -> "11_balanceOf"
+}
+strict digraph {
+subgraph cluster_11_ERC20 {
+label = "ERC20"
+"11_balanceOf" [label="balanceOf"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_210_C {
+label = "C"
+"210_tryCatchContractDeployment" [label="tryCatchContractDeployment"]
+"210_tryCatchFunctionCall" [label="tryCatchFunctionCall"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"revert(string)" 
+"210_tryCatchFunctionCall" -> "revert(string)"
+}
+}

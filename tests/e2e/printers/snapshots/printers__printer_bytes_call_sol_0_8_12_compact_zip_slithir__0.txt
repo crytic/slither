@@ -1,0 +1,9 @@
+Contract Log
+	Function Log.f(bytes) (*)
+	Function Log.f(bytes4) (*)
+Contract A
+	Function A.test() (*)
+		Expression: l.f(TESTA)
+		IRs:
+			HIGH_LEVEL_CALL, dest:l(Log), function:f, arguments:['TESTA']  
+

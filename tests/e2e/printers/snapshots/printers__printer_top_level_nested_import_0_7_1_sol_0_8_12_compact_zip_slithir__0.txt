@@ -1,0 +1,15 @@
+Contract C
+	Function C.f() (*)
+		Expression: Helper._require(true,1)
+		IRs:
+			INTERNAL_CALL, _require(bool,uint256)(True,1)
+Top level functions
+	Function _require(bool,uint256)
+		Expression: ! condition
+		IRs:
+			TMP_1 = UnaryType.BANG condition 
+			CONDITION TMP_1
+		Expression: revert()()
+		IRs:
+			TMP_2(None) = SOLIDITY_CALL revert()()
+

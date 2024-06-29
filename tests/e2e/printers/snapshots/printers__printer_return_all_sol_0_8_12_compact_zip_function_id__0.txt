@@ -1,0 +1,12 @@
+
+C:
++------------------+------------+
+| Name             |         ID |
++------------------+------------+
+| returnConstant() | 0xf7f92ce3 |
+| returnVariable() | 0xa4c4d174 |
+| returnTuple()    | 0x39009482 |
+| returnTernary()  | 0x096b5e38 |
+| returnDelete()   | 0xd9cec295 |
++------------------+------------+
+

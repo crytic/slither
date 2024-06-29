@@ -1,0 +1,28 @@
+Contract MinMax
+	Function MinMax.slitherConstructorVariables() (*)
+		Expression: a = type()(uint256).max
+		IRs:
+			TMP_1(uint256) := 115792089237316195423570985008687907853269984665640564039457584007913129639935(uint256)
+			a(uint256) := TMP_1(uint256)
+		Expression: b = type()(uint256).min
+		IRs:
+			TMP_3(uint256) := 0(uint256)
+			b(uint256) := TMP_3(uint256)
+		Expression: i = type()(uint8).max
+		IRs:
+			TMP_5(uint8) := 255(uint8)
+			i(uint8) := TMP_5(uint8)
+		Expression: j = type()(uint8).min
+		IRs:
+			TMP_7(uint8) := 0(uint8)
+			j(uint8) := TMP_7(uint8)
+	Function MinMax.slitherConstructorConstantVariables() (*)
+		Expression: c = type()(int256).max
+		IRs:
+			TMP_9(int256) := 57896044618658097711785492504343953926634992332820282019728792003956564819967(int256)
+			c(int256) := TMP_9(int256)
+		Expression: d = type()(int256).min
+		IRs:
+			TMP_11(int256) := -57896044618658097711785492504343953926634992332820282019728792003956564819968(int256)
+			d(int256) := TMP_11(int256)
+

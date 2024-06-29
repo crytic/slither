@@ -1,0 +1,7 @@
+
++ Contract C (Most derived contract)
+
++ Contract D (Most derived contract)
+  - From D
+    - f(C) (public)
+

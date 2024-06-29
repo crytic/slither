@@ -1,0 +1,27 @@
+
+Contract A
++----------+-----------+
+| Function | Modifiers |
++----------+-----------+
++----------+-----------+
+Contract I
++----------+-----------+
+| Function | Modifiers |
++----------+-----------+
++----------+-----------+
+Contract Test
++------------------------+-----------+
+| Function               | Modifiers |
++------------------------+-----------+
+| ether_unit             |        [] |
+| time_unit              |        [] |
+| block_and_transactions |        [] |
+| abi_encode             |        [] |
+| error_handling         |        [] |
+| math_and_crypto        |        [] |
+| address_related        |        [] |
+| return_addr            |        [] |
+| address_edge_case      |        [] |
+| contract_related       |        [] |
+| type_related           |        [] |
++------------------------+-----------+

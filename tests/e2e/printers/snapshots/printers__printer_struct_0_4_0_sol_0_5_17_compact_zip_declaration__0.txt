@@ -1,0 +1,27 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/struct-0.4.0.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+		- S1
+			- Declaration: struct S1 {
+        uint a;
+        int b;
+        mapping(address => bool) c;
+    }
+			- Implementation: tests/ast-parsing/struct-0.4.0.sol#2-6 (5 - 6)
+			- References: []
+		- S2
+			- Declaration: struct S2 {
+        bool d;
+    }
+			- Implementation: tests/ast-parsing/struct-0.4.0.sol#8-10 (5 - 6)
+			- References: []
+
