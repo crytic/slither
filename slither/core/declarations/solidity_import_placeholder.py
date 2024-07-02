@@ -1,6 +1,7 @@
 """
 Special variable to model import with renaming
 """
+
 from typing import Union
 
 from slither.core.declarations import Import

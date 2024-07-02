@@ -1,6 +1,7 @@
 """
 Module detecting the incorrect use of unary expressions
 """
+
 from typing import List
 
 from slither.core.expressions.assignment_operation import AssignmentOperation
@@ -13,6 +14,7 @@ from slither.detectors.abstract_detector import (
 )
 from slither.utils.output import Output
 from slither.visitors.expression.expression import ExpressionVisitor
+
 
 # pylint: disable=too-few-public-methods
 class InvalidUnaryExpressionDetector(ExpressionVisitor):

@@ -1,6 +1,7 @@
 """
 Module detecting public mappings with nested variables (returns incorrect values prior to 0.5.x)
 """
+
 from typing import Any, List, Union
 from slither.detectors.abstract_detector import (
     AbstractDetector,

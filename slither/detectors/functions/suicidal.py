@@ -3,6 +3,7 @@ Module detecting suicidal contract
 
 A suicidal contract is an unprotected function that calls selfdestruct
 """
+
 from typing import List
 
 from slither.core.declarations.contract import Contract

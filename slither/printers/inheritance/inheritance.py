@@ -62,7 +62,7 @@ class PrinterInheritance(AbstractPrinter):
             result["base_to_child"][base.name] = {"immediate": [], "not_immediate": []}
             if children:
                 immediate = [child for child in children if base in child.immediate_inheritance]
-                not_immediate = [child for child in children if not child in immediate]
+                not_immediate = [child for child in children if child not in immediate]
 
                 info += " -> " + blue(", ".join(map(str, immediate))) + "\n"
                 result["base_to_child"][base.name]["immediate"] = list(map(str, immediate))

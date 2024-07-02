@@ -269,7 +269,7 @@ Ensure all the initialize functions are reached by the most derived initialize f
 
         all_init_functions = _get_initialize_functions(self.contract)
         all_init_functions_called = _get_all_internal_calls(most_derived_init) + [most_derived_init]
-        missing_calls = [f for f in all_init_functions if not f in all_init_functions_called]
+        missing_calls = [f for f in all_init_functions if f not in all_init_functions_called]
         for f in missing_calls:
             info = ["Missing call to ", f, " in ", most_derived_init, ".\n"]
             json = self.generate_result(info)

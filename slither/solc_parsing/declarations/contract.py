@@ -255,7 +255,7 @@ class ContractSolc(CallerContextExpression):
 
     def _parse_contract_items(self) -> None:
         # pylint: disable=too-many-branches
-        if not self.get_children() in self._data:  # empty contract
+        if self.get_children() not in self._data:  # empty contract
             return
         for item in self._data[self.get_children()]:
             if item[self.get_key()] == "FunctionDefinition":
@@ -573,12 +573,12 @@ class ContractSolc(CallerContextExpression):
                 }
 
             for element_parser in elements_no_params:
-                accessible_elements[
-                    element_parser.underlying_function.full_name
-                ] = element_parser.underlying_function
-                all_elements[
-                    element_parser.underlying_function.canonical_name
-                ] = element_parser.underlying_function
+                accessible_elements[element_parser.underlying_function.full_name] = (
+                    element_parser.underlying_function
+                )
+                all_elements[element_parser.underlying_function.canonical_name] = (
+                    element_parser.underlying_function
+                )
 
             for element in all_elements.values():
                 if accessible_elements[element.full_name] != all_elements[element.canonical_name]:

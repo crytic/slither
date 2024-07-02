@@ -38,7 +38,7 @@ class ROR(AbstractMutator):  # pylint: disable=too-few-public-methods
                                 stop = start + ir.expression.source_mapping.length
                                 old_str = self.in_file_str[start:stop]
                                 line_no = node.source_mapping.lines
-                                if not line_no[0] in self.dont_mutate_line:
+                                if line_no[0] not in self.dont_mutate_line:
                                     # Replace the expression with true
                                     new_str = f"{old_str.split(ir.type.value)[0]} {op.value} {old_str.split(ir.type.value)[1]}"
                                     create_patch_with_line(

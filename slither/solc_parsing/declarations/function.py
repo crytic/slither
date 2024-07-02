@@ -162,9 +162,9 @@ class FunctionSolc(CallerContextExpression):
                 known_variables = [v.name for v in self._function.variables]
         if local_var_parser.reference_id is not None:
             self._variables_renamed[local_var_parser.reference_id] = local_var_parser
-        self._function.variables_as_dict[
-            local_var_parser.underlying_variable.name
-        ] = local_var_parser.underlying_variable
+        self._function.variables_as_dict[local_var_parser.underlying_variable.name] = (
+            local_var_parser.underlying_variable
+        )
         self._local_variables_parser.append(local_var_parser)
 
     # endregion

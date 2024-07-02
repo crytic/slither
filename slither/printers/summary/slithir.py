@@ -1,6 +1,7 @@
 """
     Module printing summary of the contract
 """
+
 from slither.core.declarations import Function
 from slither.printers.abstract_printer import AbstractPrinter
 

@@ -1,6 +1,7 @@
 """
     Node module
 """
+
 from enum import Enum
 from typing import Optional, List, Set, Dict, Tuple, Union, TYPE_CHECKING
 
@@ -105,6 +106,7 @@ class NodeType(Enum):
 
 
 # endregion
+
 
 # I am not sure why, but pylint reports a lot of "no-member" issue that are not real (Josselin)
 # pylint: disable=no-member

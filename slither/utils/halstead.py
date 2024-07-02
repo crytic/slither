@@ -24,6 +24,7 @@
 
 
 """
+
 import math
 from collections import OrderedDict
 from dataclasses import dataclass, field
@@ -221,7 +222,7 @@ class HalsteadMetrics:
             contract.name: self.contract_metrics[contract.name].to_dict()
             for contract in self.contracts
         }
-        for (title, attr, keys) in self.SECTIONS:
+        for title, attr, keys in self.SECTIONS:
             pretty_table = make_pretty_table(["Contract", *keys], data, False)
             section_title = f"{self.title} ({title})"
             txt = f"\n\n{section_title}:\n{pretty_table}\n"

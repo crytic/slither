@@ -5,6 +5,7 @@
     what are the contracts/functions called.
     The output is a dot file named filename.dot
 """
+
 from collections import defaultdict
 from typing import Optional, Union, Dict, Set, Tuple, Sequence
 
@@ -119,7 +120,7 @@ def _process_external_call(
 ) -> None:
     external_contract, external_function = external_call
 
-    if not external_contract in all_contracts:
+    if external_contract not in all_contracts:
         return
 
     # add variable as node to respective contract

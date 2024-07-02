@@ -23,3 +23,29 @@ from .custom_error_contract import CustomErrorContract
 from .custom_error_top_level import CustomErrorTopLevel
 from .custom_error import CustomError
 from .solidity_import_placeholder import SolidityImportPlaceHolder
+
+__all__ = [
+    "Contract",
+    "Enum",
+    "Event",
+    "EventContract",
+    "EventTopLevel",
+    "Function",
+    "Import",
+    "Modifier",
+    "Pragma",
+    "SolidityVariable",
+    "SolidityVariableComposed",
+    "SolidityFunction",
+    "Structure",
+    "EnumContract",
+    "EnumTopLevel",
+    "StructureContract",
+    "StructureTopLevel",
+    "FunctionContract",
+    "FunctionTopLevel",
+    "CustomErrorContract",
+    "CustomErrorTopLevel",
+    "CustomError",
+    "SolidityImportPlaceHolder",
+]

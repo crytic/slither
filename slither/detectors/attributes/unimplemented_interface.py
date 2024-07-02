@@ -4,6 +4,7 @@ Module detecting unimplemented interfaces
 Collect all the interfaces
 Check for contracts which implement all interface functions but do not explicitly derive from those interfaces.
 """
+
 from typing import List
 from slither.detectors.abstract_detector import (
     AbstractDetector,

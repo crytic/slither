@@ -2,6 +2,7 @@
 Module detecting missing zero address validation
 
 """
+
 from collections import defaultdict
 from typing import DefaultDict, List, Tuple, Union
 
@@ -157,7 +158,7 @@ Bob calls `updateOwner` without specifying the `newOwner`, so Bob loses ownershi
         results = []
         for contract in self.compilation_unit.contracts_derived:
             missing_zero_address_validation = self._detect_missing_zero_address_validation(contract)
-            for (_, var_nodes) in missing_zero_address_validation:
+            for _, var_nodes in missing_zero_address_validation:
                 for var, nodes in var_nodes.items():
                     info: DETECTOR_INFO = [var, " lacks a zero-check on ", ":\n"]
                     for node in nodes:

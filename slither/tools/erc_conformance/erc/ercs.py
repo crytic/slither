@@ -29,7 +29,7 @@ def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
         # The check on state variable is needed until we have a better API to handle state variable getters
         state_variable_as_function = contract.get_state_variable_from_name(name)
 
-        if not state_variable_as_function or not state_variable_as_function.visibility in [
+        if not state_variable_as_function or state_variable_as_function.visibility not in [
             "public",
             "external",
         ]:

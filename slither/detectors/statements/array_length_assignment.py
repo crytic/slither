@@ -1,6 +1,7 @@
 """
 Module detecting assignment of array length
 """
+
 from typing import List, Set, Union
 
 from slither.core.variables import Variable

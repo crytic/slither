@@ -8,6 +8,7 @@
 
     Only analyze "leaf" contracts (contracts that are not inherited by another contract)
 """
+
 from typing import List, Tuple
 
 from slither.core.declarations import Function
