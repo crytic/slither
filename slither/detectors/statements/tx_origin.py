@@ -1,6 +1,7 @@
 """
 Module detecting usage of `tx.origin` in a conditional node
 """
+
 from typing import List, Tuple
 
 from slither.core.cfg.node import Node

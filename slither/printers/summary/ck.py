@@ -30,6 +30,7 @@
      - Ext calls: total number of external calls
 
 """
+
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.ck import CKMetrics
 from slither.utils.output import Output

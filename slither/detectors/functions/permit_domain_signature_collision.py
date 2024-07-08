@@ -1,6 +1,7 @@
 """
 Module detecting EIP-2612 domain separator collision
 """
+
 from typing import Union, List
 
 from slither.core.declarations import Function

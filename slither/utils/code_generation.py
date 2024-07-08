@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from slither.core.declarations import FunctionContract, CustomErrorContract
     from slither.core.variables.state_variable import StateVariable
     from slither.core.variables.local_variable import LocalVariable
-    from slither.core.variables.structure_variable import StructureVariable
 
 
 # pylint: disable=too-many-arguments,too-many-locals,too-many-branches
@@ -287,11 +286,18 @@ def generate_custom_error_interface(
     error: "CustomErrorContract", unroll_structs: bool = True
 ) -> str:
     args = [
-        convert_type_for_solidity_signature_to_string(arg.type).replace("(", "").replace(")", "")
-        if unroll_structs
-        else str(arg.type.type)
-        if isinstance(arg.type, UserDefinedType) and isinstance(arg.type.type, (Structure, Enum))
-        else str(arg.type)
+        (
+            convert_type_for_solidity_signature_to_string(arg.type)
+            .replace("(", "")
+            .replace(")", "")
+            if unroll_structs
+            else (
+                str(arg.type.type)
+                if isinstance(arg.type, UserDefinedType)
+                and isinstance(arg.type.type, (Structure, Enum))
+                else str(arg.type)
+            )
+        )
         for arg in error.parameters
     ]
     return f"{error.name}({', '.join(args)})"

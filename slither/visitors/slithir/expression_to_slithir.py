@@ -192,7 +192,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 assert len(left) == len(right)
                 for idx, _ in enumerate(left):
                     if (
-                        not left[idx] is None
+                        left[idx] is not None
                         and expression.type
                         and expression.expression_return_type
                     ):
@@ -208,7 +208,7 @@ class ExpressionToSlithIR(ExpressionVisitor):
             else:
                 assert isinstance(right, TupleVariable)
                 for idx, _ in enumerate(left):
-                    if not left[idx] is None:
+                    if left[idx] is not None:
                         index = idx
                         operation = Unpack(left[idx], right, index)
                         operation.set_expression(expression)

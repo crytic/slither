@@ -35,7 +35,11 @@ class TypeConversion(OperationWithLValue):
     @property
     def type(
         self,
-    ) -> Union[TypeAlias, UserDefinedType, ElementaryType,]:
+    ) -> Union[
+        TypeAlias,
+        UserDefinedType,
+        ElementaryType,
+    ]:
         return self._type
 
     @property

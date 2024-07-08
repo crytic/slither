@@ -4,6 +4,7 @@ tests that `tests/test_function.sol` gets translated into correct
 `slither.core.declarations.Function` objects or its subclasses
 and that these objects behave correctly.
 """
+
 from pathlib import Path
 
 from slither import Slither

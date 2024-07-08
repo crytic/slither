@@ -2,6 +2,7 @@
     We use protected member, to avoid having setter in the expression
     as they should be immutable
 """
+
 import copy
 from typing import Union, Callable
 
@@ -22,6 +23,7 @@ from slither.core.expressions.new_contract import NewContract
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
 from slither.core.expressions.new_elementary_type import NewElementaryType
+
 
 # pylint: disable=protected-access
 def f_expressions(

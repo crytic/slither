@@ -172,7 +172,7 @@ def choose_checks(
             if detector in detectors:
                 detectors_to_run.append(detectors[detector])
             else:
-                raise Exception(f"Error: {detector} is not a detector")
+                raise SlitherException(f"Error: {detector} is not a detector")
         detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
         return detectors_to_run
 
@@ -278,6 +278,7 @@ def _checks_on_contract_and_proxy(
 # region Main
 ###################################################################################
 ###################################################################################
+
 
 # pylint: disable=too-many-statements,too-many-branches,too-many-locals
 def main() -> None:

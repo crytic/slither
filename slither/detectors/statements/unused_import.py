@@ -2,6 +2,7 @@ from typing import List
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification, Output
 from slither.core.scope.scope import FileScope
 
+
 # pylint: disable=protected-access,too-many-nested-blocks
 class UnusedImport(AbstractDetector):
     """

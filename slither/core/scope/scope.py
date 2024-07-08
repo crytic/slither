@@ -134,7 +134,10 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, str]] = lambda x: x.bytecodes_init
+
+        def getter(x: SourceUnit) -> Dict[str, str]:
+            return x.bytecodes_init
+
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
@@ -152,7 +155,10 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, str]] = lambda x: x.bytecodes_runtime
+
+        def getter(x: SourceUnit) -> Dict[str, str]:
+            return x.bytecodes_runtime
+
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
@@ -170,7 +176,10 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.srcmaps_init
+
+        def getter(x: SourceUnit) -> Dict[str, List[str]]:
+            return x.srcmaps_init
+
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
@@ -188,7 +197,10 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.srcmaps_runtime
+
+        def getter(x: SourceUnit) -> Dict[str, List[str]]:
+            return x.srcmaps_runtime
+
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
@@ -204,7 +216,10 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.abis
+
+        def getter(x: SourceUnit) -> Dict[str, List[str]]:
+            return x.abis
+
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )

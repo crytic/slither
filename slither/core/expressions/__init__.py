@@ -16,3 +16,29 @@ from .self_identifier import SelfIdentifier
 from .tuple_expression import TupleExpression
 from .type_conversion import TypeConversion
 from .unary_operation import UnaryOperation, UnaryOperationType
+from .expression import Expression
+
+__all__ = [
+    "AssignmentOperation",
+    "AssignmentOperationType",
+    "BinaryOperation",
+    "BinaryOperationType",
+    "CallExpression",
+    "ConditionalExpression",
+    "ElementaryTypeNameExpression",
+    "Expression",
+    "Identifier",
+    "IndexAccess",
+    "Literal",
+    "MemberAccess",
+    "NewArray",
+    "NewContract",
+    "NewElementaryType",
+    "SuperCallExpression",
+    "SuperIdentifier",
+    "SelfIdentifier",
+    "TupleExpression",
+    "TypeConversion",
+    "UnaryOperation",
+    "UnaryOperationType",
+]

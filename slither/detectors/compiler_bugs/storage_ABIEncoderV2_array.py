@@ -1,6 +1,7 @@
 """
 Module detecting ABIEncoderV2 array bug
 """
+
 from typing import List, Set, Tuple
 from slither.detectors.abstract_detector import (
     AbstractDetector,

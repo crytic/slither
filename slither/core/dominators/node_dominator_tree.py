@@ -1,6 +1,7 @@
 """
     Nodes of the dominator tree
 """
+
 from typing import TYPE_CHECKING, Set, List
 
 if TYPE_CHECKING:

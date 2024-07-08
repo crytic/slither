@@ -351,7 +351,7 @@ def integrate_value_gas(result: List[Operation]) -> List[Operation]:
                 variable_to_replace[ins.lvalue.name] = ins.ori.variable_left  # type: ignore
 
         # Remove the call to value/gas instruction
-        result = [i for i in result if not i in to_remove]
+        result = [i for i in result if i not in to_remove]
 
         # update the real call
         for ins in result:
@@ -1234,7 +1234,11 @@ def can_be_low_level(ir: HighLevelCall) -> bool:
 
 def convert_to_low_level(
     ir: HighLevelCall,
-) -> Union[Send, LowLevelCall, Transfer,]:
+) -> Union[
+    Send,
+    LowLevelCall,
+    Transfer,
+]:
     """
     Convert to a transfer/send/or low level call
     The funciton assume to receive a correct IR
@@ -1414,9 +1418,15 @@ def convert_to_push_set_val(
         ret.append(ir_assign_value)
 
 
-def convert_to_push(
-    ir: HighLevelCall, node: "Node"
-) -> List[Union[Length, Assignment, Binary, Index, InitArray,]]:
+def convert_to_push(ir: HighLevelCall, node: "Node") -> List[
+    Union[
+        Length,
+        Assignment,
+        Binary,
+        Index,
+        InitArray,
+    ]
+]:
     """
     Convert a call to a series of operations to push a new value onto the array
 
@@ -1510,7 +1520,12 @@ def look_for_library_or_top_level(
         str,
         TypeAliasTopLevel,
     ],
-) -> Optional[Union[LibraryCall, InternalCall,]]:
+) -> Optional[
+    Union[
+        LibraryCall,
+        InternalCall,
+    ]
+]:
     for destination in using_for[t]:
         if isinstance(destination, FunctionTopLevel) and destination.name == ir.function_name:
             arguments = [ir.destination] + ir.arguments
@@ -1558,9 +1573,12 @@ def look_for_library_or_top_level(
     return None
 
 
-def convert_to_library_or_top_level(
-    ir: HighLevelCall, node: "Node", using_for
-) -> Optional[Union[LibraryCall, InternalCall,]]:
+def convert_to_library_or_top_level(ir: HighLevelCall, node: "Node", using_for) -> Optional[
+    Union[
+        LibraryCall,
+        InternalCall,
+    ]
+]:
     t = ir.destination.type
     if t in using_for:
         new_ir = look_for_library_or_top_level(ir, using_for, t)
@@ -1890,7 +1908,7 @@ def remove_unused(result: List[Operation]) -> List[Operation]:
 
         for ins in result:
             if isinstance(ins, Member):
-                if not ins.lvalue.name in to_keep and ins != last_elem:
+                if ins.lvalue.name not in to_keep and ins != last_elem:
                     to_remove.append(ins)
                     removed = True
             # Remove type(X) if X is an elementary type
@@ -1900,7 +1918,7 @@ def remove_unused(result: List[Operation]) -> List[Operation]:
                 if isinstance(ins.arguments[0], ElementaryType):
                     to_remove.append(ins)
 
-        result = [i for i in result if not i in to_remove]
+        result = [i for i in result if i not in to_remove]
     return result
 
 

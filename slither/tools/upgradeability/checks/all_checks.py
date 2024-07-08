@@ -22,3 +22,23 @@ from slither.tools.upgradeability.checks.variables_order import (
 )
 
 from slither.tools.upgradeability.checks.constant import WereConstant, BecameConstant
+
+__all__ = [
+    "InitializablePresent",
+    "InitializableInherited",
+    "InitializableInitializer",
+    "MissingInitializerModifier",
+    "MissingCalls",
+    "MultipleCalls",
+    "InitializeTarget",
+    "IDCollision",
+    "FunctionShadowing",
+    "VariableWithInit",
+    "MissingVariable",
+    "DifferentVariableContractProxy",
+    "DifferentVariableContractNewContract",
+    "ExtraVariablesProxy",
+    "ExtraVariablesNewContract",
+    "WereConstant",
+    "BecameConstant",
+]

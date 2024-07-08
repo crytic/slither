@@ -1,6 +1,7 @@
 """
     Variable module
 """
+
 from typing import Optional, TYPE_CHECKING, List, Union, Tuple
 
 from slither.core.source_mapping.source_mapping import SourceMapping
@@ -9,6 +10,7 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
+
 
 # pylint: disable=too-many-instance-attributes
 class Variable(SourceMapping):

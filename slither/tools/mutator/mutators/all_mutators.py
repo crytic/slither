@@ -14,3 +14,21 @@ from slither.tools.mutator.mutators.MIA import MIA  # severity medium
 from slither.tools.mutator.mutators.ROR import ROR  # severity medium
 from slither.tools.mutator.mutators.RR import RR  # severity high
 from slither.tools.mutator.mutators.CR import CR  # severity high
+
+__all__ = [
+    "MVIV",
+    "MVIE",
+    "LOR",
+    "UOR",
+    "SBR",
+    "AOR",
+    "BOR",
+    "ASOR",
+    "MWA",
+    "LIR",
+    "FHR",
+    "MIA",
+    "ROR",
+    "RR",
+    "CR",
+]

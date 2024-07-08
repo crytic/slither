@@ -1,6 +1,7 @@
 """
     Function module
 """
+
 from typing import Dict, List, Tuple, TYPE_CHECKING, Optional
 
 from slither.core.declarations import Function

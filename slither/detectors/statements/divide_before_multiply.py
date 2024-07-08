@@ -1,6 +1,7 @@
 """
 Module detecting possible loss of precision due to divide before multiple
 """
+
 from collections import defaultdict
 from typing import DefaultDict, List, Tuple
 
@@ -193,7 +194,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
         for contract in self.contracts:
             divisions_before_multiplications = detect_divide_before_multiply(contract)
             if divisions_before_multiplications:
-                for (func, nodes) in divisions_before_multiplications:
+                for func, nodes in divisions_before_multiplications:
 
                     info: DETECTOR_INFO = [
                         func,

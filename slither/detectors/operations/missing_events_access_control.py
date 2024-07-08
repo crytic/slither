@@ -2,6 +2,7 @@
 Module detecting missing events for critical contract parameters set by owners and used in access control
 
 """
+
 from typing import List, Tuple
 
 from slither.analyses.data_dependency.data_dependency import is_tainted
@@ -103,9 +104,9 @@ contract C {
         results = []
         for contract in self.compilation_unit.contracts_derived:
             missing_events = self._detect_missing_events(contract)
-            for (function, nodes) in missing_events:
+            for function, nodes in missing_events:
                 info: DETECTOR_INFO = [function, " should emit an event for: \n"]
-                for (node, _sv, _mod) in nodes:
+                for node, _sv, _mod in nodes:
                     info += ["\t- ", node, " \n"]
                 res = self.generate_result(info)
                 results.append(res)
