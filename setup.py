@@ -13,7 +13,7 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "packaging",
-        "prettytable>=3.10.0",
+        "prettytable>=3.10.1",
         "pycryptodome>=3.4.6",
         "crytic-compile>=0.3.7,<0.4.0",
         # "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
