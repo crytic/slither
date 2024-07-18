@@ -25,6 +25,7 @@ class MyPrettyTable:
         else:
             self._options["set_alignment"] = []
 
+        self.max_width = None
         if max_width == "max":
             # We use (0,0) as a fallback to detect if we are not attached to a terminal
             # In this case, we fall back to the default behavior (i.e. printing as much as possible)
