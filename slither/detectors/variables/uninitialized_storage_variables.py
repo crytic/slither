@@ -57,35 +57,39 @@ Bob calls `func`. As a result, `owner` is overridden to `0`.
 
         visited = visited + [node]
 
-        fathers_context = []
+        predecessors_context = []
 
-        for father in node.fathers:
-            if self.key in father.context:
-                fathers_context += father.context[self.key]
+        for predecessor in node.predecessors:
+            if self.key in predecessor.context:
+                predecessors_context += predecessor.context[self.key]
 
         # Exclude paths that dont bring further information
         if node in self.visited_all_paths:
-            if all(f_c in self.visited_all_paths[node] for f_c in fathers_context):
+            if all(f_c in self.visited_all_paths[node] for f_c in predecessors_context):
                 return
         else:
             self.visited_all_paths[node] = []
 
-        self.visited_all_paths[node] = list(set(self.visited_all_paths[node] + fathers_context))
+        self.visited_all_paths[node] = list(
+            set(self.visited_all_paths[node] + predecessors_context)
+        )
 
         if self.key in node.context:
-            fathers_context += node.context[self.key]
+            predecessors_context += node.context[self.key]
 
         variables_read = node.variables_read
-        for uninitialized_storage_variable in fathers_context:
+        for uninitialized_storage_variable in predecessors_context:
             if uninitialized_storage_variable in variables_read:
                 self.results.append((function, uninitialized_storage_variable))
 
         # Only save the storage variables that are not yet written
-        uninitialized_storage_variables = list(set(fathers_context) - set(node.variables_written))
+        uninitialized_storage_variables = list(
+            set(predecessors_context) - set(node.variables_written)
+        )
         node.context[self.key] = uninitialized_storage_variables
 
-        for son in node.sons:
-            self._detect_uninitialized(function, son, visited)
+        for successor in node.successors:
+            self._detect_uninitialized(function, successor, visited)
 
     def _detect(self) -> List[Output]:
         """Detect uninitialized storage variables

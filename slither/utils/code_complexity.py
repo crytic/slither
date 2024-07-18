@@ -16,7 +16,7 @@ def compute_number_edges(function: "Function") -> int:
     """
     n = 0
     for node in function.nodes:
-        n += len(node.sons)
+        n += len(node.successors)
     return n
 
 
@@ -38,8 +38,8 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
     def visit(node: "Node") -> None:
         if not visited[node]:
             visited[node] = True
-            for son in node.sons:
-                visit(son)
+            for successor in node.successors:
+                visit(successor)
             l.append(node)
 
     for n in function.nodes:
@@ -49,8 +49,8 @@ def compute_strongly_connected_components(function: "Function") -> List[List["No
         if not assigned[node]:
             assigned[node] = True
             root.append(node)
-            for father in node.fathers:
-                assign(father, root)
+            for predecessor in node.predecessors:
+                assign(predecessor, root)
 
     for n in reversed(l):
         component: List["Node"] = []
