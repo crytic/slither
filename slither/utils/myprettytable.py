@@ -1,5 +1,5 @@
 from shutil import get_terminal_size
-from typing import List, Dict, Union, Literal
+from typing import List, Dict, Union
 
 from prettytable import PrettyTable
 from prettytable.colortable import ColorTable, Themes
