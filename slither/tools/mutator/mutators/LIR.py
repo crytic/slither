@@ -31,7 +31,7 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                         literal_replacements.append(variable.type.max)  # append data type max value
                         if str(variable.type).startswith("uint"):
                             literal_replacements.append("1")
-                        elif str(variable.type).startswith("uint"):
+                        elif str(variable.type).startswith("int"):
                             literal_replacements.append("-1")
                     # Get the string
                     start = variable.source_mapping.start
@@ -63,7 +63,7 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                         literal_replacements.append(variable.type.max)
                         if str(variable.type).startswith("uint"):
                             literal_replacements.append("1")
-                        elif str(variable.type).startswith("uint"):
+                        elif str(variable.type).startswith("int"):
                             literal_replacements.append("-1")
                     start = variable.source_mapping.start
                     stop = start + variable.source_mapping.length

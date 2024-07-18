@@ -17,8 +17,8 @@ from slither.utils.output import Output
 
 class LocPrinter(AbstractPrinter):
     ARGUMENT = "loc"
-    HELP = """Count the total number lines of code (LOC), source lines of code (SLOC), \
-            and comment lines of code (CLOC) found in source files (SRC), dependencies (DEP), \
+    HELP = """Count the total number lines of code (LOC), source lines of code (SLOC),
+            and comment lines of code (CLOC) found in source files (SRC), dependencies (DEP),
             and test files (TEST)."""
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#loc"

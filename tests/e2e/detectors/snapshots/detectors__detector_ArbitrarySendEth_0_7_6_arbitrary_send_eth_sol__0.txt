@@ -1,8 +1,8 @@
-Test.direct() (tests/e2e/detectors/test_data/arbitrary-send-eth/0.7.6/arbitrary_send_eth.sol#11-13) sends eth to arbitrary user
+Test.direct() (tests/e2e/detectors/test_data/arbitrary-send-eth/0.7.6/arbitrary_send_eth.sol#16-18) sends eth to arbitrary user
 	Dangerous calls:
-	- msg.sender.send(address(this).balance) (tests/e2e/detectors/test_data/arbitrary-send-eth/0.7.6/arbitrary_send_eth.sol#12)
+	- msg.sender.send(address(this).balance) (tests/e2e/detectors/test_data/arbitrary-send-eth/0.7.6/arbitrary_send_eth.sol#17)
 
-Test.indirect() (tests/e2e/detectors/test_data/arbitrary-send-eth/0.7.6/arbitrary_send_eth.sol#19-21) sends eth to arbitrary user
+Test.indirect() (tests/e2e/detectors/test_data/arbitrary-send-eth/0.7.6/arbitrary_send_eth.sol#24-26) sends eth to arbitrary user
 	Dangerous calls:
-	- destination.send(address(this).balance) (tests/e2e/detectors/test_data/arbitrary-send-eth/0.7.6/arbitrary_send_eth.sol#20)
+	- destination.send(address(this).balance) (tests/e2e/detectors/test_data/arbitrary-send-eth/0.7.6/arbitrary_send_eth.sol#25)
 

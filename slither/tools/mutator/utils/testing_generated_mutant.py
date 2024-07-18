@@ -22,7 +22,12 @@ def compile_generated_mutant(file_path: str, mappings: str) -> bool:
         return False
 
 
-def run_test_cmd(cmd: str, timeout: int | None, target_file: str | None, verbose: bool) -> bool:
+def run_test_cmd(
+    cmd: str,
+    timeout: Union[int, None] = None,
+    target_file: Union[str, None] = None,
+    verbose: bool = False,
+) -> bool:
     """
     function to run codebase tests
     returns: boolean whether the tests passed or not

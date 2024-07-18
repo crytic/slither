@@ -30,6 +30,7 @@ from slither.slithir.operations import (
     SolidityCall,
     Transfer,
 )
+from slither.core.variables.state_variable import StateVariable
 
 # pylint: disable=too-many-nested-blocks,too-many-branches
 from slither.utils.output import Output
@@ -66,6 +67,8 @@ def arbitrary_send(func: Function) -> Union[bool, List[Node]]:
                 if ir.call_value is None:
                     continue
                 if ir.call_value == SolidityVariableComposed("msg.value"):
+                    continue
+                if isinstance(ir.destination, StateVariable) and ir.destination.is_immutable:
                     continue
                 if is_dependent(
                     ir.call_value,

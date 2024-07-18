@@ -6,7 +6,7 @@ import shutil
 import sys
 import time
 from pathlib import Path
-from typing import Type, List, Any, Optional
+from typing import Type, List, Any, Optional, Union
 from crytic_compile import cryticparser
 from slither import Slither
 from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
@@ -116,7 +116,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _get_mutators(mutators_list: List[str] | None) -> List[Type[AbstractMutator]]:
+def _get_mutators(mutators_list: Union[List[str], None]) -> List[Type[AbstractMutator]]:
     detectors_ = [getattr(all_mutators, name) for name in dir(all_mutators)]
     if mutators_list is not None:
         detectors = [

@@ -71,7 +71,7 @@ Consider using the latest version of Solidity for testing."""
         if op and op not in [">", ">=", "^"]:
             return self.LESS_THAN_TXT
         version_number = ".".join(version[2:])
-        if version_number in bugs_by_version:
+        if version_number in bugs_by_version and len(bugs_by_version[version_number]):
             bugs = "\n".join([f"\t- {bug}" for bug in bugs_by_version[version_number]])
             return self.BUGGY_VERSION_TXT + f"\n{bugs}"
         return None

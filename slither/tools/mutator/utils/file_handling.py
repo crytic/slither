@@ -111,7 +111,7 @@ def get_sol_file_list(codebase: Path, ignore_paths: Union[List[str], None]) -> L
     # if input is folder
     if codebase.is_dir():
         for file_name in codebase.rglob("*.sol"):
-            if not any(part in ignore_paths for part in file_name.parts):
+            if file_name.is_file() and not any(part in ignore_paths for part in file_name.parts):
                 sol_file_list.append(file_name.as_posix())
 
     return sol_file_list
