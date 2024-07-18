@@ -12,7 +12,7 @@ class MyPrettyTable:
         self,
         field_names: List[str],
         pretty_align: bool = True,
-        max_width: Union[int, Literal["max"], None] = None,
+        max_width: Union[int, None] = "max",  # Default value is "max"
     ):
         self._field_names = field_names
         self._rows: List = []
@@ -25,7 +25,6 @@ class MyPrettyTable:
         else:
             self._options["set_alignment"] = []
 
-        self.max_width = None
         if max_width == "max":
             # We use (0,0) as a fallback to detect if we are not attached to a terminal
             # In this case, we fall back to the default behavior (i.e. printing as much as possible)
