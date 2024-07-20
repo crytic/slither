@@ -1,0 +1,109 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "C": [
+            "f()"
+        ]
+    },
+    "constants_used": {
+        "C": {
+            "f()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "3",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {
+        "C": {
+            "f()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.EQUAL": [
+                    [
+                        {
+                            "value": "0",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.LESS": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.MODULO": [
+                    [
+                        {
+                            "value": "2",
+                            "type": "uint256"
+                        }
+                    ],
+                    [
+                        {
+                            "value": "3",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "functions_relations": {
+        "C": {
+            "f()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

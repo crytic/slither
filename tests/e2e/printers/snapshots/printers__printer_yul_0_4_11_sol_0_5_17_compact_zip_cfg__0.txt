@@ -1,0 +1,27 @@
+Export tmp.zip-C-f(uint256,uint256[]).dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: INLINE ASM 3
+"];
+3->4;
+4[label="Node Type: END INLINE ASM 4
+"];
+4->5;
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+(retA,retB)
+
+IRs:
+RETURN retA,retB"];
+}
+

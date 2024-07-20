@@ -1,0 +1,191 @@
+Export tmp.zip-C-ifWithoutElse().dot
+Export tmp.zip-C-ifWithElse().dot
+Export tmp.zip-C-ifWithElseIf().dot
+Export tmp.zip-C-ifWithElseIfElse().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+a > 100
+
+IRs:
+TMP_0(bool) = a > 100
+CONDITION TMP_0"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+a = 100
+
+IRs:
+a(uint256) := 100(uint256)"];
+2->3;
+3[label="Node Type: END_IF 3
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+a < 50
+
+IRs:
+TMP_1(bool) = a < 50
+CONDITION TMP_1"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+a = 50
+
+IRs:
+a(uint256) := 50(uint256)"];
+2->4;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+a /= 2
+
+IRs:
+a(uint256) = a / 2"];
+3->4;
+4[label="Node Type: END_IF 4
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+a % 2 == 0
+
+IRs:
+TMP_2(uint256) = a % 2
+TMP_3(bool) = TMP_2 == 0
+CONDITION TMP_3"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+a += 1
+
+IRs:
+a(uint256) = a + 1"];
+2->9;
+3[label="Node Type: IF 3
+
+EXPRESSION:
+a % 3 == 0
+
+IRs:
+TMP_4(uint256) = a % 3
+TMP_5(bool) = TMP_4 == 0
+CONDITION TMP_5"];
+3->4[label="True"];
+3->5[label="False"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+a /= 3
+
+IRs:
+a(uint256) = a / 3"];
+4->8;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+a % 4 == 0
+
+IRs:
+TMP_6(uint256) = a % 4
+TMP_7(bool) = TMP_6 == 0
+CONDITION TMP_7"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+a *= 2
+
+IRs:
+a(uint256) = a * 2"];
+6->7;
+7[label="Node Type: END_IF 7
+"];
+7->8;
+8[label="Node Type: END_IF 8
+"];
+8->9;
+9[label="Node Type: END_IF 9
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+a >= 100
+
+IRs:
+TMP_8(bool) = a >= 100
+CONDITION TMP_8"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+a = 100
+
+IRs:
+a(uint256) := 100(uint256)"];
+2->7;
+3[label="Node Type: IF 3
+
+EXPRESSION:
+a < 50
+
+IRs:
+TMP_9(bool) = a < 50
+CONDITION TMP_9"];
+3->4[label="True"];
+3->5[label="False"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+a = 80
+
+IRs:
+a(uint256) := 80(uint256)"];
+4->6;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+a = 75
+
+IRs:
+a(uint256) := 75(uint256)"];
+5->6;
+6[label="Node Type: END_IF 6
+"];
+6->7;
+7[label="Node Type: END_IF 7
+"];
+}
+

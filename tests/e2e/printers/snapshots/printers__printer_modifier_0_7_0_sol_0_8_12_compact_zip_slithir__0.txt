@@ -1,0 +1,12 @@
+Contract A
+	Function A.f() (*)
+		Expression: m()
+		IRs:
+			MODIFIER_CALL, A.m()()
+	Modifier A.m()
+Contract C
+	Modifier C.onePlaceholder()
+	Modifier C.multiplePlaceholders()
+	Modifier C.acceptsVar(uint256)
+	Modifier C.noParams()
+

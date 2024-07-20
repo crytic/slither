@@ -1,0 +1,3 @@
+
++ Contract MinMax (Most derived contract)
+

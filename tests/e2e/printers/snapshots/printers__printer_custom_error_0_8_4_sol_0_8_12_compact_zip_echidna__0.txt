@@ -1,0 +1,188 @@
+{
+    "payable": {
+        "ContractArgCustomError": [
+            "f()"
+        ]
+    },
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "VendingMachine": [
+            "err0()",
+            "err1()",
+            "err2()",
+            "err3()",
+            "err4()",
+            "err5(uint256[])",
+            "err6(uint256[])"
+        ],
+        "A": [
+            "f()"
+        ],
+        "B": [
+            "f()",
+            "g()",
+            "h()"
+        ]
+    },
+    "constants_used": {
+        "VendingMachine": {
+            "err2()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "20",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "err3()": [
+                [
+                    {
+                        "value": "test",
+                        "type": "string"
+                    }
+                ]
+            ],
+            "err4()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        },
+        "A": {
+            "f()": [
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        },
+        "B": {
+            "f()": [
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "g()": [
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "h()": [
+                [
+                    {
+                        "value": "816952677",
+                        "type": "bytes4"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {
+        "VendingMachine": {
+            "err2()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "functions_relations": {
+        "I": {},
+        "VendingMachine": {
+            "err0()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "err1()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "err2()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "err3()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "err4()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "err5(uint256[])": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "err6(uint256[])": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "A": {
+            "f()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "B": {
+            "f()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "g()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "h()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "ContractArgCustomError": {
+            "f()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

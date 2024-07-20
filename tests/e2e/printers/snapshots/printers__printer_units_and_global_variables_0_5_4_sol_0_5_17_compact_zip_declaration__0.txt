@@ -1,0 +1,45 @@
+
+# Contracts
+# Test
+	- Declaration: tests/ast-parsing/units_and_global_variables-0.5.4.sol#4 (10 - 15)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- Test.ether_unit()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.5.4.sol#6 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.5.4.sol#6-11 (5 - 6)']
+			- References: []
+		- Test.time_unit()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.5.4.sol#13 (14 - 24)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.5.4.sol#13-19 (5 - 6)']
+			- References: []
+		- Test.block_and_transactions()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.5.4.sol#21 (14 - 37)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.5.4.sol#21-36 (5 - 6)']
+			- References: []
+		- Test.abi_encode()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.5.4.sol#38 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.5.4.sol#38-47 (5 - 6)']
+			- References: []
+		- Test.error_handling()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.5.4.sol#49 (14 - 29)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.5.4.sol#49-55 (5 - 6)']
+			- References: []
+		- Test.math_and_crypto()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.5.4.sol#57 (14 - 30)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.5.4.sol#57-68 (5 - 6)']
+			- References: []
+		- Test.address_related()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.5.4.sol#70 (14 - 30)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.5.4.sol#70-78 (5 - 6)']
+			- References: []
+		- Test.contract_related()
+			- Declaration: tests/ast-parsing/units_and_global_variables-0.5.4.sol#80 (14 - 31)
+			- Implementation(s): ['tests/ast-parsing/units_and_global_variables-0.5.4.sol#80-84 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

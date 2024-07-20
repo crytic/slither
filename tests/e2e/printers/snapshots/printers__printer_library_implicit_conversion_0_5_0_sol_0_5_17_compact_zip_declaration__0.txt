@@ -1,0 +1,99 @@
+
+# Contracts
+# LibByte
+	- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#1 (9 - 17)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#13 (11 - 18)']
+
+	## Function
+		- LibByte.t(uint256,bytes1)
+			- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#2 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#2-4 (5 - 6)']
+			- References: ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#16 (16 - 25)']
+		- LibByte.t(uint256,bytes32)
+			- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#5 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#5-7 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# TestByte
+	- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#12 (10 - 19)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- TestByte.test()
+			- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#14 (14 - 19)
+			- Implementation(s): ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#14-17 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# LibUint
+	- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#20 (9 - 17)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#32 (11 - 18)']
+
+	## Function
+		- LibUint.t(uint256,uint8)
+			- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#21 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#21-23 (5 - 6)']
+			- References: []
+		- LibUint.t(uint256,uint256)
+			- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#24 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#24-26 (5 - 6)']
+			- References: ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#35 (16 - 25)']
+
+	## State variables
+
+	## Structures
+# TestUint
+	- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#30 (10 - 19)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- TestUint.test()
+			- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#33 (14 - 19)
+			- Implementation(s): ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#33-36 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# LibInt
+	- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#39 (9 - 16)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#51 (11 - 17)']
+
+	## Function
+		- LibInt.t(uint256,int8)
+			- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#40 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#40-42 (5 - 6)']
+			- References: []
+		- LibInt.t(uint256,int256)
+			- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#43 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#43-45 (5 - 6)']
+			- References: ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#55 (16 - 22)']
+
+	## State variables
+
+	## Structures
+# TestUintWithVariableiAndConversion
+	- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#49 (10 - 45)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- TestUintWithVariableiAndConversion.test()
+			- Declaration: tests/ast-parsing/library_implicit_conversion-0.5.0.sol#52 (14 - 19)
+			- Implementation(s): ['tests/ast-parsing/library_implicit_conversion-0.5.0.sol#52-56 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

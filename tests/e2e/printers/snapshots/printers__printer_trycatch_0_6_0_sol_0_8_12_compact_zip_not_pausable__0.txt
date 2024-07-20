@@ -1,0 +1,16 @@
+Constructor and pure/view functions are not displayed
+
+ERC20:
++------+-------------------+
+| Name | Use whenNotPaused |
++------+-------------------+
++------+-------------------+
+
+C:
++------------------------------+-------------------+
+| Name                         | Use whenNotPaused |
++------------------------------+-------------------+
+| tryCatchFunctionCall()       |                   |
+| tryCatchContractDeployment() |                   |
++------------------------------+-------------------+
+

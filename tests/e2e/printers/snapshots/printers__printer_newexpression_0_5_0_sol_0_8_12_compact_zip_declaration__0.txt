@@ -1,0 +1,31 @@
+
+# Contracts
+# B
+	- Declaration: tests/ast-parsing/newexpression-0.5.0.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/newexpression-0.5.0.sol#7 (13 - 14)']
+
+	## Function
+		- B.constructor()
+			- Declaration: tests/ast-parsing/newexpression-0.5.0.sol#2 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/newexpression-0.5.0.sol#2 (5 - 28)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C
+	- Declaration: tests/ast-parsing/newexpression-0.5.0.sol#5 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f()
+			- Declaration: tests/ast-parsing/newexpression-0.5.0.sol#6 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/newexpression-0.5.0.sol#6-12 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

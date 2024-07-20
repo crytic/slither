@@ -1,0 +1,17 @@
+
+# Contracts
+# A
+	- Declaration: tests/ast-parsing/comment-all.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- A.f()
+			- Declaration: tests/ast-parsing/comment-all.sol#6 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/comment-all.sol#6 (5 - 26)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

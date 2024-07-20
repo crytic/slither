@@ -1,0 +1,148 @@
+Export tmp.zip-C-basic().dot
+Export tmp.zip-C-slitherConstructorVariables().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+stringStorage_ = s
+
+IRs:
+stringStorage_(string) := s(string)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+"];
+9->10;
+10[label="Node Type: NEW VARIABLE 10
+"];
+10->11;
+11[label="Node Type: NEW VARIABLE 11
+"];
+11->12;
+12[label="Node Type: NEW VARIABLE 12
+"];
+12->13;
+13[label="Node Type: NEW VARIABLE 13
+"];
+13->14;
+14[label="Node Type: NEW VARIABLE 14
+
+EXPRESSION:
+bytesStorage_ = b
+
+IRs:
+bytesStorage_(bytes) := b(bytes)"];
+14->15;
+15[label="Node Type: NEW VARIABLE 15
+"];
+15->16;
+16[label="Node Type: NEW VARIABLE 16
+"];
+16->17;
+17[label="Node Type: NEW VARIABLE 17
+"];
+17->18;
+18[label="Node Type: NEW VARIABLE 18
+"];
+18->19;
+19[label="Node Type: NEW VARIABLE 19
+"];
+19->20;
+20[label="Node Type: NEW VARIABLE 20
+"];
+20->21;
+21[label="Node Type: NEW VARIABLE 21
+"];
+21->22;
+22[label="Node Type: NEW VARIABLE 22
+"];
+22->23;
+23[label="Node Type: NEW VARIABLE 23
+"];
+23->24;
+24[label="Node Type: NEW VARIABLE 24
+
+EXPRESSION:
+sStorage_ = t
+
+IRs:
+sStorage_(C.S) := t(C.S)"];
+24->25;
+25[label="Node Type: NEW VARIABLE 25
+"];
+25->26;
+26[label="Node Type: NEW VARIABLE 26
+
+EXPRESSION:
+mappingStorage_ = m
+
+IRs:
+mappingStorage_(mapping(uint256 => uint256)) := m(mapping(uint256 => uint256))"];
+26->27;
+27[label="Node Type: NEW VARIABLE 27
+"];
+27->28;
+28[label="Node Type: NEW VARIABLE 28
+
+EXPRESSION:
+arrayStorage_ = a
+
+IRs:
+arrayStorage_(uint256[]) := a(uint256[])"];
+28->29;
+29[label="Node Type: NEW VARIABLE 29
+"];
+29->30;
+30[label="Node Type: NEW VARIABLE 30
+"];
+30->31;
+31[label="Node Type: NEW VARIABLE 31
+"];
+31->32;
+32[label="Node Type: NEW VARIABLE 32
+"];
+32->33;
+33[label="Node Type: NEW VARIABLE 33
+"];
+33->34;
+34[label="Node Type: NEW VARIABLE 34
+"];
+34->35;
+35[label="Node Type: NEW VARIABLE 35
+"];
+}
+
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+immutableInt = 1
+
+IRs:
+immutableInt(uint256) := 1(uint256)"];
+}
+

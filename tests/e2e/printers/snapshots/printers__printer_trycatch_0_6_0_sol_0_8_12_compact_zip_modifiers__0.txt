@@ -1,0 +1,14 @@
+
+Contract ERC20
++-----------+-----------+
+| Function  | Modifiers |
++-----------+-----------+
+| balanceOf |        [] |
++-----------+-----------+
+Contract C
++----------------------------+-----------+
+| Function                   | Modifiers |
++----------------------------+-----------+
+| tryCatchFunctionCall       |        [] |
+| tryCatchContractDeployment |        [] |
++----------------------------+-----------+

@@ -1,0 +1,31 @@
+
+Contract Test
+Contract vars: []
+Inheritance:: []
+ 
++--------------------------+------------+-----------+------+-------+---------------------------------------------------------------------------------+--------------------------------------------------------------------------+-----------------------+
+| Function                 | Visibility | Modifiers | Read | Write |                                                                  Internal Calls |                                                           External Calls | Cyclomatic Complexity |
++--------------------------+------------+-----------+------+-------+---------------------------------------------------------------------------------+--------------------------------------------------------------------------+-----------------------+
+| ether_unit()             |     public |        [] |   [] |    [] |                                                                              [] |                                                                       [] |                     1 |
+| time_unit()              |     public |        [] |   [] |    [] |                                                                              [] |                                                                       [] |                     1 |
+| block_and_transactions() |     public |        [] |   [] |    [] |                                             ['blockhash(uint256)', 'gasleft()'] |                                                                       [] |                     1 |
+| abi_encode()             |     public |        [] |   [] |    [] |                                                ['abi.decode()', 'abi.encode()'] |                    ['abi.decode(m,(uint256,uint256))', 'abi.encode(10)'] |                     1 |
+|                          |            |           |      |       |                              ['abi.encodePacked()', 'abi.encodeWithSelector()'] | ['abi.encodePacked(uint256(10))', 'abi.encodeWithSelector(selector,10)'] |                       |
+|                          |            |           |      |       |                                                   ['abi.encodeWithSignature()'] |                                ['abi.encodeWithSignature(signature,10)'] |                       |
+| error_handling()         |     public |        [] |   [] |    [] |                                               ['assert(bool)', 'require(bool)'] |                                                                       [] |                     1 |
+|                          |            |           |      |       |                                            ['require(bool,string)', 'revert()'] |                                                                          |                       |
+|                          |            |           |      |       |                                                              ['revert(string)'] |                                                                          |                       |
+| math_and_crypto()        |     public |        [] |   [] |    [] | ['addmod(uint256,uint256,uint256)', 'ecrecover(bytes32,uint8,bytes32,bytes32)'] |                                                                       [] |                     1 |
+|                          |            |           |      |       |                         ['keccak256(bytes)', 'mulmod(uint256,uint256,uint256)'] |                                                                          |                       |
+|                          |            |           |      |       |                                           ['ripemd160(bytes)', 'sha256(bytes)'] |                                                                          |                       |
+| address_related()        |     public |        [] |   [] |    [] |                                                            ['balance(address)'] |                                         ['a.call()', 'a.delegatecall()'] |                     1 |
+|                          |            |           |      |       |                                                                                 |                                          ['a.send(0)', 'a.staticcall()'] |                       |
+|                          |            |           |      |       |                                                                                 |                                                        ['a.transfer(0)'] |                       |
+| contract_related()       |     public |        [] |   [] |    [] |                                                       ['selfdestruct(address)'] |                                                                       [] |                     1 |
++--------------------------+------------+-----------+------+-------+---------------------------------------------------------------------------------+--------------------------------------------------------------------------+-----------------------+
+
++-----------+------------+------+-------+----------------+----------------+-----------------------+
+| Modifiers | Visibility | Read | Write | Internal Calls | External Calls | Cyclomatic Complexity |
++-----------+------------+------+-------+----------------+----------------+-----------------------+
++-----------+------------+------+-------+----------------+----------------+-----------------------+
+

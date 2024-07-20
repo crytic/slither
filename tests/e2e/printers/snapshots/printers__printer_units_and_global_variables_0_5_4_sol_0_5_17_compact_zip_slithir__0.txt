@@ -1,0 +1,130 @@
+Contract Test
+	Function Test.ether_unit() (*)
+		Expression: 1
+		IRs:
+		Expression: 1000000000000000
+		IRs:
+		Expression: 1000000000000
+		IRs:
+		Expression: 1000000000000000000
+		IRs:
+	Function Test.time_unit() (*)
+		Expression: 1
+		IRs:
+		Expression: 60
+		IRs:
+		Expression: 3600
+		IRs:
+		Expression: 86400
+		IRs:
+		Expression: 604800
+		IRs:
+	Function Test.block_and_transactions() (*)
+		Expression: blockhash(uint256)(0)
+		IRs:
+			TMP_0(uint256) = SOLIDITY_CALL blockhash(uint256)(0)
+		Expression: block.coinbase
+		IRs:
+		Expression: block.difficulty
+		IRs:
+		Expression: block.gaslimit
+		IRs:
+		Expression: block.number
+		IRs:
+		Expression: block.timestamp
+		IRs:
+		Expression: gasleft()()
+		IRs:
+			TMP_1(uint256) = SOLIDITY_CALL gasleft()()
+		Expression: msg.data
+		IRs:
+		Expression: msg.sender
+		IRs:
+		Expression: msg.sig
+		IRs:
+		Expression: msg.value
+		IRs:
+		Expression: now
+		IRs:
+		Expression: tx.gasprice
+		IRs:
+		Expression: tx.origin
+		IRs:
+	Function Test.abi_encode() (*)
+		Expression: abi.decode(m,(uint256,uint256))
+		IRs:
+			TUPLE_0(uint256,uint256) = SOLIDITY_CALL abi.decode()(m(uint256,uint256))
+		Expression: abi.encode(10)
+		IRs:
+			TMP_2(bytes) = SOLIDITY_CALL abi.encode()(10)
+		Expression: abi.encodePacked(uint256(10))
+		IRs:
+			TMP_3 = CONVERT 10 to uint256
+			TMP_4(bytes) = SOLIDITY_CALL abi.encodePacked()(TMP_3)
+		Expression: abi.encodeWithSelector(selector,10)
+		IRs:
+			TMP_5(bytes) = SOLIDITY_CALL abi.encodeWithSelector()(selector,10)
+		Expression: abi.encodeWithSignature(signature,10)
+		IRs:
+			TMP_6(bytes) = SOLIDITY_CALL abi.encodeWithSignature()(signature,10)
+	Function Test.error_handling() (*)
+		Expression: assert(bool)(true)
+		IRs:
+			TMP_7(None) = SOLIDITY_CALL assert(bool)(True)
+		Expression: require(bool)(true)
+		IRs:
+			TMP_8(None) = SOLIDITY_CALL require(bool)(True)
+		Expression: require(bool,string)(true,something)
+		IRs:
+			TMP_9(None) = SOLIDITY_CALL require(bool,string)(True,something)
+		Expression: revert()()
+		IRs:
+			TMP_10(None) = SOLIDITY_CALL revert()()
+		Expression: revert(string)(something)
+		IRs:
+			TMP_11(None) = SOLIDITY_CALL revert(string)(something)
+	Function Test.math_and_crypto() (*)
+		Expression: addmod(uint256,uint256,uint256)(0,0,1)
+		IRs:
+			TMP_12(uint256) = SOLIDITY_CALL addmod(uint256,uint256,uint256)(0,0,1)
+		Expression: mulmod(uint256,uint256,uint256)(0,0,1)
+		IRs:
+			TMP_13(uint256) = SOLIDITY_CALL mulmod(uint256,uint256,uint256)(0,0,1)
+		Expression: keccak256(bytes)()
+		IRs:
+			TMP_14(bytes32) = SOLIDITY_CALL keccak256(bytes)()
+		Expression: sha256(bytes)()
+		IRs:
+			TMP_15(bytes32) = SOLIDITY_CALL sha256(bytes)()
+		Expression: ripemd160(bytes)()
+		IRs:
+			TMP_16(bytes32) = SOLIDITY_CALL ripemd160(bytes)()
+		Expression: ecrecover(bytes32,uint8,bytes32,bytes32)(hash,v,r,s)
+		IRs:
+			TMP_17(address) = SOLIDITY_CALL ecrecover(bytes32,uint8,bytes32,bytes32)(hash,v,r,s)
+	Function Test.address_related() (*)
+		Expression: a.balance
+		IRs:
+			TMP_18(uint256) = SOLIDITY_CALL balance(address)(a)
+		Expression: a.send(0)
+		IRs:
+			TMP_19 = SEND dest:a value:0
+		Expression: a.transfer(0)
+		IRs:
+			Transfer dest:a value:0
+		Expression: a.call()
+		IRs:
+			TUPLE_1(bool,bytes) = LOW_LEVEL_CALL, dest:a, function:call, arguments:['']  
+		Expression: a.delegatecall()
+		IRs:
+			TUPLE_2(bool,bytes) = LOW_LEVEL_CALL, dest:a, function:delegatecall, arguments:['']  
+		Expression: a.staticcall()
+		IRs:
+			TUPLE_3(bool,bytes) = LOW_LEVEL_CALL, dest:a, function:staticcall, arguments:['']  
+	Function Test.contract_related() (*)
+		Expression: this
+		IRs:
+		Expression: selfdestruct(address)(a)
+		IRs:
+			TMP_21(None) = SOLIDITY_CALL selfdestruct(address)(a)
+

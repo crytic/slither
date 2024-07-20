@@ -1,0 +1,36 @@
+Contract C
+	Function C.f() (*)
+		Expression: assign = 10
+		IRs:
+			assign(uint256) := 10(uint256)
+		Expression: assign |= 10
+		IRs:
+			assign(uint256) = assign | 10
+		Expression: assign ^= 10
+		IRs:
+			assign(uint256) = assign ^ 10
+		Expression: assign &= 10
+		IRs:
+			assign(uint256) = assign & 10
+		Expression: assign <<= 10
+		IRs:
+			assign(uint256) = assign << 10
+		Expression: assign >>= 10
+		IRs:
+			assign(uint256) = assign >> 10
+		Expression: assign += 10
+		IRs:
+			assign(uint256) = assign (c)+ 10
+		Expression: assign -= 10
+		IRs:
+			assign(uint256) = assign (c)- 10
+		Expression: assign *= 10
+		IRs:
+			assign(uint256) = assign (c)* 10
+		Expression: assign /= 10
+		IRs:
+			assign(uint256) = assign (c)/ 10
+		Expression: assign %= 10
+		IRs:
+			assign(uint256) = assign % 10
+

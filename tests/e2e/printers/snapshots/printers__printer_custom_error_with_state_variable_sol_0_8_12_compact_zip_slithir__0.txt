@@ -1,0 +1,12 @@
+Contract CustomErrors
+Contract Bar
+	Function Bar.baz() (*)
+		Expression: CustomErrors.LibraryError()
+		IRs:
+			TMP_0(None) = SOLIDITY_CALL revert LibraryError()()
+Top level functions
+	Function foo()
+		Expression: revert ErrorWithParam(uint256)(0)
+		IRs:
+			TMP_1(None) = SOLIDITY_CALL revert ErrorWithParam(uint256)(0)
+

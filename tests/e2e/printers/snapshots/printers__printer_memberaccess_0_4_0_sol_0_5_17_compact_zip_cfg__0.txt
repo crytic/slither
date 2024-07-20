@@ -1,0 +1,54 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+x.length
+
+IRs:
+REF_0 -> LENGTH x"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+address(this).balance
+
+IRs:
+TMP_0 = CONVERT this to address
+TMP_1(uint256) = SOLIDITY_CALL balance(address)(TMP_0)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+block.coinbase
+"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+msg.sender
+"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+tx.origin
+"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+S({a:5}).a
+
+IRs:
+TMP_2(C.S) = new S(5)
+REF_1(uint256) -> TMP_2.a"];
+}
+

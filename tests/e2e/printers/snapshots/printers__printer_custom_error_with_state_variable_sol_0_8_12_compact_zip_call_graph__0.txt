@@ -1,0 +1,29 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipCustomErrors.call-graph.dot
+Call Graph: tmp.zipBar.call-graph.dot
+
+strict digraph {
+subgraph cluster_33_Bar {
+label = "Bar"
+"33_baz" [label="baz"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"revert LibraryError()" 
+"33_baz" -> "revert LibraryError()"
+}
+}
+strict digraph {
+subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_33_Bar {
+label = "Bar"
+"33_baz" [label="baz"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"revert LibraryError()" 
+"33_baz" -> "revert LibraryError()"
+}
+}

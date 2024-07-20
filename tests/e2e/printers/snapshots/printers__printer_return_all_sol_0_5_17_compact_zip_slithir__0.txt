@@ -1,0 +1,43 @@
+Contract C
+	Function C.returnConstant() (*)
+		Expression: 0
+		IRs:
+			RETURN 0
+	Function C.returnVariable() (*)
+		Expression: x = 0
+		IRs:
+			x(uint256) := 0(uint256)
+		Expression: x
+		IRs:
+			RETURN x
+	Function C.returnTuple() (*)
+		Expression: x = 0
+		IRs:
+			x(uint256) := 0(uint256)
+		Expression: y = 0
+		IRs:
+			y(uint256) := 0(uint256)
+		Expression: (x,y)
+		IRs:
+			RETURN x,y
+	Function C.returnTernary() (*)
+		Expression: x = 0
+		IRs:
+			x(uint256) := 0(uint256)
+		Expression: x == 0
+		IRs:
+			TMP_0(bool) = x == 0
+			CONDITION TMP_0
+		Expression: 1
+		IRs:
+			RETURN 1
+		Expression: 2
+		IRs:
+			RETURN 2
+	Function C.returnDelete() (*)
+		Expression: delete (m[0])
+		IRs:
+			REF_0(uint256) -> m[0]
+			m = delete REF_0 
+			RETURN REF_0
+

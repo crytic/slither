@@ -1,0 +1,122 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "C": [
+            "returnConstant()",
+            "returnVariable()",
+            "returnTuple()",
+            "returnTernary()"
+        ]
+    },
+    "constants_used": {
+        "C": {
+            "returnConstant()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "returnVariable()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "returnTuple()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "returnTernary()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "returnDelete()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {
+        "C": {
+            "returnTernary()": {
+                "BinaryType.EQUAL": [
+                    [
+                        {
+                            "value": "0",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "functions_relations": {
+        "C": {
+            "returnConstant()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "returnVariable()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "returnTuple()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "returnTernary()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "returnDelete()": {
+                "impacts": [
+                    "returnDelete()"
+                ],
+                "is_impacted_by": [
+                    "returnDelete()"
+                ]
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

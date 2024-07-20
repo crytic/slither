@@ -1,0 +1,10 @@
+
+Contract C
++------------------+-----------+
+| Function         | Modifiers |
++------------------+-----------+
+| ifWithoutElse    |        [] |
+| ifWithElse       |        [] |
+| ifWithElseIf     |        [] |
+| ifWithElseIfElse |        [] |
++------------------+-----------+

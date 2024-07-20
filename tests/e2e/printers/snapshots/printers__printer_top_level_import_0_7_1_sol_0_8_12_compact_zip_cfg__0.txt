@@ -1,0 +1,15 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+Helper.min(0,1)
+
+IRs:
+TMP_0(uint256) = INTERNAL_CALL, min(uint256,uint256)(0,1)"];
+}
+

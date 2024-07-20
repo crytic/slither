@@ -1,0 +1,87 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "MinMax": [
+            "min()",
+            "max()"
+        ]
+    },
+    "constants_used": {
+        "MinMax": {
+            "constructor()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "0",
+                        "type": "uint8"
+                    }
+                ],
+                [
+                    {
+                        "value": "255",
+                        "type": "uint8"
+                    }
+                ],
+                [
+                    {
+                        "value": "3",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "min()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "max()": [
+                [
+                    {
+                        "value": "3",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {},
+    "functions_relations": {
+        "MinMax": {
+            "constructor()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "min()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "max()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {
+        "MinMax": "constructor()"
+    },
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

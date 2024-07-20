@@ -1,0 +1,191 @@
+{
+    "payable": {
+        "Test": [
+            "block_and_transactions()"
+        ]
+    },
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {
+        "Test": [
+            "error_handling()"
+        ]
+    },
+    "constant_functions": {
+        "Test": [
+            "ether_unit()",
+            "time_unit()",
+            "abi_encode()",
+            "error_handling()",
+            "math_and_crypto()",
+            "address_edge_case()",
+            "type_related()"
+        ]
+    },
+    "constants_used": {
+        "Test": {
+            "block_and_transactions()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "abi_encode()": [
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "error_handling()": [
+                [
+                    {
+                        "value": "True",
+                        "type": "bool"
+                    }
+                ],
+                [
+                    {
+                        "value": "something",
+                        "type": "string"
+                    }
+                ]
+            ],
+            "math_and_crypto()": [
+                [
+                    {
+                        "value": "",
+                        "type": "string"
+                    }
+                ],
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "address_related()": [
+                [
+                    {
+                        "value": "",
+                        "type": "string"
+                    }
+                ],
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ]
+            ],
+            "type_related()": [
+                [
+                    {
+                        "value": "0",
+                        "type": "bytes4"
+                    }
+                ],
+                [
+                    {
+                        "value": "0",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212206213b9c5b8ebef4a5a16be67bf75f4031184fb4c87a046b4d24564d5efba773c64736f6c634300080c0033",
+                        "type": "string"
+                    }
+                ],
+                [
+                    {
+                        "value": "6080604052600080fdfea26469706673582212206213b9c5b8ebef4a5a16be67bf75f4031184fb4c87a046b4d24564d5efba773c64736f6c634300080c0033",
+                        "type": "string"
+                    }
+                ],
+                [
+                    {
+                        "value": "A",
+                        "type": "string"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {},
+    "functions_relations": {
+        "A": {},
+        "I": {},
+        "Test": {
+            "ether_unit()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "time_unit()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "block_and_transactions()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "abi_encode()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "error_handling()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "math_and_crypto()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "address_related()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "address_edge_case()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "contract_related()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "type_related()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {
+        "Test": [
+            "address_related()"
+        ]
+    },
+    "use_balance": {
+        "Test": [
+            "address_edge_case()",
+            "address_related()"
+        ]
+    },
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

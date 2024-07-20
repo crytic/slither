@@ -1,0 +1,15 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+Helper._require(true,1)
+
+IRs:
+INTERNAL_CALL, _require(bool,uint256)(True,1)"];
+}
+

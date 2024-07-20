@@ -1,0 +1,110 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipVendingMachine.call-graph.dot
+Call Graph: tmp.zipB.call-graph.dot
+Call Graph: tmp.zipContractArgCustomError.call-graph.dot
+
+strict digraph {
+subgraph cluster_145_A {
+label = "A"
+"145_f" [label="f"]
+}subgraph cluster_165_B {
+label = "B"
+"165_g" [label="g"]
+"165_h" [label="h"]
+}subgraph cluster_200_ContractArgCustomError {
+label = "ContractArgCustomError"
+"200_f" [label="f"]
+"200_g" [label="g"]
+"200_h" [label="h"]
+"200_f" -> "200_g"
+"200_g" -> "200_h"
+}subgraph cluster_132_VendingMachine {
+label = "VendingMachine"
+"132_err0" [label="err0"]
+"132_err1" [label="err1"]
+"132_err2" [label="err2"]
+"132_err3" [label="err3"]
+"132_err4" [label="err4"]
+"132_err5" [label="err5"]
+"132_err6" [label="err6"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"revert CErrorWithConst(uint256[10])" 
+"revert E(address)" 
+"revert ErrorSimple()" 
+"revert ErrorWithArgs(uint256,uint256)" 
+"revert ErrorWithConst(uint256[5])" 
+"revert ErrorWithEnum(I.SomeEnum)" 
+"revert ErrorWithStruct(St)" 
+"revert MyError(uint256)" 
+"revert(string)" 
+"132_err0" -> "revert ErrorSimple()"
+"132_err1" -> "revert ErrorWithStruct(St)"
+"132_err2" -> "revert ErrorWithArgs(uint256,uint256)"
+"132_err3" -> "revert(string)"
+"132_err4" -> "revert ErrorWithEnum(I.SomeEnum)"
+"132_err5" -> "revert ErrorWithConst(uint256[5])"
+"132_err6" -> "revert CErrorWithConst(uint256[10])"
+"145_f" -> "revert MyError(uint256)"
+"165_g" -> "revert MyError(uint256)"
+"200_g" -> "revert E(address)"
+}
+}
+strict digraph {
+subgraph cluster_132_VendingMachine {
+label = "VendingMachine"
+"132_err0" [label="err0"]
+"132_err1" [label="err1"]
+"132_err2" [label="err2"]
+"132_err3" [label="err3"]
+"132_err4" [label="err4"]
+"132_err5" [label="err5"]
+"132_err6" [label="err6"]
+"132_slitherConstructorConstantVariables" [label="slitherConstructorConstantVariables"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"revert CErrorWithConst(uint256[10])" 
+"revert ErrorSimple()" 
+"revert ErrorWithArgs(uint256,uint256)" 
+"revert ErrorWithConst(uint256[5])" 
+"revert ErrorWithEnum(I.SomeEnum)" 
+"revert ErrorWithStruct(St)" 
+"revert(string)" 
+"132_err0" -> "revert ErrorSimple()"
+"132_err1" -> "revert ErrorWithStruct(St)"
+"132_err2" -> "revert ErrorWithArgs(uint256,uint256)"
+"132_err3" -> "revert(string)"
+"132_err4" -> "revert ErrorWithEnum(I.SomeEnum)"
+"132_err5" -> "revert ErrorWithConst(uint256[5])"
+"132_err6" -> "revert CErrorWithConst(uint256[10])"
+}
+}
+strict digraph {
+subgraph cluster_145_A {
+label = "A"
+"145_f" [label="f"]
+}subgraph cluster_165_B {
+label = "B"
+"165_g" [label="g"]
+"165_h" [label="h"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"revert MyError(uint256)" 
+"145_f" -> "revert MyError(uint256)"
+"165_g" -> "revert MyError(uint256)"
+}
+}
+strict digraph {
+subgraph cluster_200_ContractArgCustomError {
+label = "ContractArgCustomError"
+"200_f" [label="f"]
+"200_g" [label="g"]
+"200_h" [label="h"]
+"200_f" -> "200_g"
+"200_g" -> "200_h"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"revert E(address)" 
+"200_g" -> "revert E(address)"
+}
+}

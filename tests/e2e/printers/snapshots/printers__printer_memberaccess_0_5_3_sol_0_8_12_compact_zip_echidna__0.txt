@@ -1,0 +1,53 @@
+{
+    "payable": {
+        "C": [
+            "f()"
+        ]
+    },
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {},
+    "constants_used": {
+        "C": {
+            "f()": [
+                [
+                    {
+                        "value": "5",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220fa4230d5c072892b749b058c7c73d07d46563ac244a163372762d047dc16853564736f6c634300080c0033",
+                        "type": "string"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {},
+    "functions_relations": {
+        "I": {},
+        "C": {
+            "f()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {},
+    "use_balance": {
+        "C": [
+            "f()"
+        ]
+    },
+    "solc_versions": [
+        "0.8.12"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

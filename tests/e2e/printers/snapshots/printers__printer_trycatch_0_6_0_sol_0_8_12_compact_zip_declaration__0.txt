@@ -1,0 +1,35 @@
+
+# Contracts
+# ERC20
+	- Declaration: tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#1 (10 - 16)
+	- Implementation(s): []
+	- References: ['tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#11 (13 - 30)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#17 (13 - 30)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#23 (13 - 30)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#31 (13 - 30)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#36 (13 - 30)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#46 (34 - 39)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#46 (17 - 22)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#46 (13 - 24)']
+
+	## Function
+		- ERC20.balanceOf(address)
+			- Declaration: tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#2 (14 - 24)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#2-4 (5 - 6)']
+			- References: ['tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#11 (13 - 55)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#17 (13 - 55)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#23 (13 - 55)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#31 (13 - 55)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#36 (13 - 55)', 'tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#47 (17 - 50)']
+
+	## State variables
+
+	## Structures
+# C
+	- Declaration: tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#7 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.tryCatchFunctionCall()
+			- Declaration: tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#8 (14 - 35)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#8-43 (5 - 6)']
+			- References: []
+		- C.tryCatchContractDeployment()
+			- Declaration: tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#45 (14 - 41)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/trycatch-0.6.0.sol#45-55 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

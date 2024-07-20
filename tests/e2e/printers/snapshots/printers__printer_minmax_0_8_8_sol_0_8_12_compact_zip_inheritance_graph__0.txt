@@ -1,0 +1,6 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c146_MinMax[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>MinMax</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    min()</TD></TR><TR><TD align="left">    max()</TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left">    a</TD></TR><TR><TD align="left">    b</TD></TR><TR><TD align="left">    c</TD></TR><TR><TD align="left">    d</TD></TR><TR><TD align="left">    e</TD></TR><TR><TD align="left">    f</TD></TR><TR><TD align="left">    g</TD></TR><TR><TD align="left">    h</TD></TR><TR><TD align="left">    i</TD></TR><TR><TD align="left">    j</TD></TR><TR><TD align="left">    k</TD></TR><TR><TD align="left">    l</TD></TR></TABLE> >];
+
+}

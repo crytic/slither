@@ -1,0 +1,41 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipL.call-graph.dot
+Call Graph: tmp.zipC.call-graph.dot
+
+strict digraph {
+subgraph cluster_47_C {
+label = "C"
+"47_f" [label="f"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"mload(uint256)" 
+"mstore(uint256,uint256)" 
+"sload(uint256)" 
+"sstore(uint256,uint256)" 
+"47_f" -> "mload(uint256)"
+"47_f" -> "mstore(uint256,uint256)"
+"47_f" -> "sload(uint256)"
+"47_f" -> "sstore(uint256,uint256)"
+}
+}
+strict digraph {
+subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_47_C {
+label = "C"
+"47_f" [label="f"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"mload(uint256)" 
+"mstore(uint256,uint256)" 
+"sload(uint256)" 
+"sstore(uint256,uint256)" 
+"47_f" -> "mload(uint256)"
+"47_f" -> "mstore(uint256,uint256)"
+"47_f" -> "sload(uint256)"
+"47_f" -> "sstore(uint256,uint256)"
+}
+}

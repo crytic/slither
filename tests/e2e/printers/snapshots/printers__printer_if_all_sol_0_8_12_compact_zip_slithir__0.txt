@@ -1,0 +1,64 @@
+Contract C
+	Function C.ifWithoutElse() (*)
+		Expression: a > 100
+		IRs:
+			TMP_0(bool) = a > 100
+			CONDITION TMP_0
+		Expression: a = 100
+		IRs:
+			a(uint256) := 100(uint256)
+	Function C.ifWithElse() (*)
+		Expression: a < 50
+		IRs:
+			TMP_1(bool) = a < 50
+			CONDITION TMP_1
+		Expression: a = 50
+		IRs:
+			a(uint256) := 50(uint256)
+		Expression: a /= 2
+		IRs:
+			a(uint256) = a (c)/ 2
+	Function C.ifWithElseIf() (*)
+		Expression: a % 2 == 0
+		IRs:
+			TMP_2(uint256) = a % 2
+			TMP_3(bool) = TMP_2 == 0
+			CONDITION TMP_3
+		Expression: a += 1
+		IRs:
+			a(uint256) = a (c)+ 1
+		Expression: a % 3 == 0
+		IRs:
+			TMP_4(uint256) = a % 3
+			TMP_5(bool) = TMP_4 == 0
+			CONDITION TMP_5
+		Expression: a /= 3
+		IRs:
+			a(uint256) = a (c)/ 3
+		Expression: a % 4 == 0
+		IRs:
+			TMP_6(uint256) = a % 4
+			TMP_7(bool) = TMP_6 == 0
+			CONDITION TMP_7
+		Expression: a *= 2
+		IRs:
+			a(uint256) = a (c)* 2
+	Function C.ifWithElseIfElse() (*)
+		Expression: a >= 100
+		IRs:
+			TMP_8(bool) = a >= 100
+			CONDITION TMP_8
+		Expression: a = 100
+		IRs:
+			a(uint256) := 100(uint256)
+		Expression: a < 50
+		IRs:
+			TMP_9(bool) = a < 50
+			CONDITION TMP_9
+		Expression: a = 80
+		IRs:
+			a(uint256) := 80(uint256)
+		Expression: a = 75
+		IRs:
+			a(uint256) := 75(uint256)
+

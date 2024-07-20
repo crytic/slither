@@ -1,0 +1,54 @@
+
+
+CK complexity metrics (Variables):
++----------+-----------------+-----------+------------+
+| Contract | State variables | Constants | Immutables |
++----------+-----------------+-----------+------------+
+| ERC20    |               0 |         0 |          0 |
+| C        |               0 |         0 |          0 |
+| TOTAL    |               0 |         0 |          0 |
++----------+-----------------+-----------+------------+
+
+
+CK complexity metrics (Function visibility):
++----------+--------+----------+----------+---------+
+| Contract | Public | External | Internal | Private |
++----------+--------+----------+----------+---------+
+| ERC20    |      1 |        0 |        0 |       0 |
+| C        |      2 |        0 |        0 |       0 |
+| TOTAL    |      3 |        0 |        0 |       0 |
++----------+--------+----------+----------+---------+
+
+
+CK complexity metrics (State mutability):
++----------+----------+------+------+
+| Contract | Mutating | View | Pure |
++----------+----------+------+------+
+| ERC20    |        0 |    1 |    0 |
+| C        |        2 |    0 |    0 |
+| TOTAL    |        2 |    1 |    0 |
++----------+----------+------+------+
+
+
+CK complexity metrics (External mutating functions):
++----------+-------------------+----------------------+--------------+
+| Contract | External mutating | No auth or onlyOwner | No modifiers |
++----------+-------------------+----------------------+--------------+
+| ERC20    |                 0 |                    0 |            0 |
+| C        |                 2 |                    2 |            2 |
+| TOTAL    |                 2 |                    2 |            2 |
++----------+-------------------+----------------------+--------------+
+
+
+CK complexity metrics (Core):
+RFC: Response For a Class
+NOC: Number of Children
+DIT: Depth of Inheritance Tree
+CBO: Coupling Between Object Classes
++----------+-----------+-----+-----+-----+-----+
+| Contract | Ext calls | RFC | NOC | DIT | CBO |
++----------+-----------+-----+-----+-----+-----+
+| ERC20    |         0 |   1 |   0 |   0 |   1 |
+| C        |         6 |   4 |   0 |   0 |   1 |
++----------+-----------+-----+-----+-----+-----+
+

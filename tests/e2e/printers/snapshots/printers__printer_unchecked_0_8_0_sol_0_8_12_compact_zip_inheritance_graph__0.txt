@@ -1,0 +1,6 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c30_C[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>C</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    f(uint256,uint256)</TD></TR><TR><TD align="left">    g(uint256,uint256)</TD></TR></TABLE> >];
+
+}

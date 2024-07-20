@@ -1,0 +1,47 @@
+Contract C
+	Function C.f() (*)
+		Expression: true
+		IRs:
+		Expression: false
+		IRs:
+		Expression: 123
+		IRs:
+		Expression: 123.456
+		IRs:
+		Expression: 123.456e7
+		IRs:
+		Expression: 123.456e0
+		IRs:
+		Expression: 123.456e-7
+		IRs:
+		Expression: 1_2_3
+		IRs:
+		Expression: 0xabc
+		IRs:
+		Expression: 0xa_b_c
+		IRs:
+		Expression: 1
+		IRs:
+		Expression: 1000000000000
+		IRs:
+		Expression: 1000000000000000
+		IRs:
+		Expression: 1000000000000000000
+		IRs:
+		Expression: 1
+		IRs:
+		Expression: 60
+		IRs:
+		Expression: 3600
+		IRs:
+		Expression: 86400
+		IRs:
+		Expression: 604800
+		IRs:
+		Expression: 0xabcd
+		IRs:
+		Expression: abc
+		IRs:
+		Expression: def
+		IRs:
+

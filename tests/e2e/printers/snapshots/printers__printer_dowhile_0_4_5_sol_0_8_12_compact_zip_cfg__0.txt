@@ -1,0 +1,69 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+go = true
+
+IRs:
+go(bool) := True(bool)"];
+1->2;
+2[label="Node Type: BEGIN_LOOP 2
+"];
+2->4;
+3[label="Node Type: IF_LOOP 3
+
+EXPRESSION:
+go
+
+IRs:
+CONDITION go"];
+3->4[label="True"];
+3->5[label="False"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+go = false
+
+IRs:
+go(bool) := False(bool)"];
+4->3;
+5[label="Node Type: END_LOOP 5
+"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+go = true
+
+IRs:
+go(bool) := True(bool)"];
+6->7;
+7[label="Node Type: BEGIN_LOOP 7
+"];
+7->9;
+8[label="Node Type: IF_LOOP 8
+
+EXPRESSION:
+go
+
+IRs:
+CONDITION go"];
+8->9[label="True"];
+8->10[label="False"];
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+go = false
+
+IRs:
+go(bool) := False(bool)"];
+9->8;
+10[label="Node Type: END_LOOP 10
+"];
+}
+

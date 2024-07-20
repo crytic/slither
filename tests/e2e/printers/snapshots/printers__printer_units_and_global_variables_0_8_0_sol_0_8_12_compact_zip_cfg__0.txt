@@ -1,0 +1,516 @@
+Export tmp.zip-Test-ether_unit().dot
+Export tmp.zip-Test-time_unit().dot
+Export tmp.zip-Test-block_and_transactions().dot
+Export tmp.zip-Test-abi_encode().dot
+Export tmp.zip-Test-error_handling().dot
+Export tmp.zip-Test-math_and_crypto().dot
+Export tmp.zip-Test-address_related().dot
+Export tmp.zip-Test-return_addr().dot
+Export tmp.zip-Test-address_edge_case().dot
+Export tmp.zip-Test-contract_related().dot
+Export tmp.zip-Test-type_related().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+1
+"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+1000000000000000000
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+1
+"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+60
+"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+3600
+"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+86400
+"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+604800
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+blockhash(uint256)(0)
+
+IRs:
+TMP_0(uint256) = SOLIDITY_CALL blockhash(uint256)(0)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+block.chainid
+"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+block.coinbase
+"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+block.difficulty
+"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+block.gaslimit
+"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+block.number
+"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+block.timestamp
+"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+gasleft()()
+
+IRs:
+TMP_1(uint256) = SOLIDITY_CALL gasleft()()"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+msg.data
+"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+msg.sender
+"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+msg.sig
+"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+msg.value
+"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+block.timestamp
+"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+tx.gasprice
+"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+tx.origin
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+abi.decode(m,(uint256,uint256))
+
+IRs:
+TUPLE_0(uint256,uint256) = SOLIDITY_CALL abi.decode()(m(uint256,uint256))"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+abi.encode(10)
+
+IRs:
+TMP_2(bytes) = SOLIDITY_CALL abi.encode()(10)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+abi.encodePacked(uint256(10))
+
+IRs:
+TMP_3 = CONVERT 10 to uint256
+TMP_4(bytes) = SOLIDITY_CALL abi.encodePacked()(TMP_3)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+abi.encodeWithSelector(selector,10)
+
+IRs:
+TMP_5(bytes) = SOLIDITY_CALL abi.encodeWithSelector()(selector,10)"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+abi.encodeWithSignature(signature,10)
+
+IRs:
+TMP_6(bytes) = SOLIDITY_CALL abi.encodeWithSignature()(signature,10)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+assert(bool)(true)
+
+IRs:
+TMP_7(None) = SOLIDITY_CALL assert(bool)(True)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(true)
+
+IRs:
+TMP_8(None) = SOLIDITY_CALL require(bool)(True)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool,string)(true,something)
+
+IRs:
+TMP_9(None) = SOLIDITY_CALL require(bool,string)(True,something)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+revert()()
+
+IRs:
+TMP_10(None) = SOLIDITY_CALL revert()()"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+revert(string)(something)
+
+IRs:
+TMP_11(None) = SOLIDITY_CALL revert(string)(something)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+addmod(uint256,uint256,uint256)(0,0,1)
+
+IRs:
+TMP_12(uint256) = SOLIDITY_CALL addmod(uint256,uint256,uint256)(0,0,1)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+mulmod(uint256,uint256,uint256)(0,0,1)
+
+IRs:
+TMP_13(uint256) = SOLIDITY_CALL mulmod(uint256,uint256,uint256)(0,0,1)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+keccak256(bytes)()
+
+IRs:
+TMP_14(bytes32) = SOLIDITY_CALL keccak256(bytes)()"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+sha256(bytes)()
+
+IRs:
+TMP_15(bytes32) = SOLIDITY_CALL sha256(bytes)()"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+ripemd160(bytes)()
+
+IRs:
+TMP_16(bytes32) = SOLIDITY_CALL ripemd160(bytes)()"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+ecrecover(bytes32,uint8,bytes32,bytes32)(hash,v,r,s)
+
+IRs:
+TMP_17(address) = SOLIDITY_CALL ecrecover(bytes32,uint8,bytes32,bytes32)(hash,v,r,s)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+a.balance
+
+IRs:
+TMP_18(uint256) = SOLIDITY_CALL balance(address)(a)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+a.code
+
+IRs:
+TMP_19(bytes) = SOLIDITY_CALL code(address)(a)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+a.codehash
+
+IRs:
+TMP_20(bytes32) = SOLIDITY_CALL codehash(address)(a)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+a.send(0)
+
+IRs:
+TMP_21 = SEND dest:a value:0"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+a.transfer(0)
+
+IRs:
+Transfer dest:a value:0"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+a.call()
+
+IRs:
+TUPLE_1(bool,bytes) = LOW_LEVEL_CALL, dest:a, function:call, arguments:['']  "];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+a.delegatecall()
+
+IRs:
+TUPLE_2(bool,bytes) = LOW_LEVEL_CALL, dest:a, function:delegatecall, arguments:['']  "];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+a.staticcall()
+
+IRs:
+TUPLE_3(bool,bytes) = LOW_LEVEL_CALL, dest:a, function:staticcall, arguments:['']  "];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+return_addr().balance
+
+IRs:
+TMP_23(address) = INTERNAL_CALL, Test.return_addr()()
+REF_10(uint256) = SOLIDITY_CALL balance(address)(TMP_23)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+return_addr().code
+
+IRs:
+TMP_24(address) = INTERNAL_CALL, Test.return_addr()()
+REF_11(bytes) = SOLIDITY_CALL code(address)(TMP_24)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+return_addr().codehash
+
+IRs:
+TMP_25(address) = INTERNAL_CALL, Test.return_addr()()
+REF_12(bytes32) = SOLIDITY_CALL codehash(address)(TMP_25)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+this
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+selfdestruct(address)(a)
+
+IRs:
+TMP_26(None) = SOLIDITY_CALL selfdestruct(address)(a)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+type()(A).name
+
+IRs:
+TMP_27(type(A)) = SOLIDITY_CALL type()(A)
+REF_13(string) (->None) := A(string)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+type()(A).creationCode
+
+IRs:
+TMP_28(type(A)) = SOLIDITY_CALL type()(A)
+REF_14(bytes) (->None) := 6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212206213b9c5b8ebef4a5a16be67bf75f4031184fb4c87a046b4d24564d5efba773c64736f6c634300080c0033(string)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+type()(A).runtimeCode
+
+IRs:
+TMP_29(type(A)) = SOLIDITY_CALL type()(A)
+REF_15(bytes) (->None) := 6080604052600080fdfea26469706673582212206213b9c5b8ebef4a5a16be67bf75f4031184fb4c87a046b4d24564d5efba773c64736f6c634300080c0033(string)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+type()(I).interfaceId
+
+IRs:
+TMP_30(type(I)) = SOLIDITY_CALL type()(I)
+REF_16(bytes4) (->None) := 0(bytes4)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+type()(uint256).min
+
+IRs:
+TMP_32(uint256) := 0(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+type()(uint256).min
+
+IRs:
+TMP_34(uint256) := 0(uint256)"];
+}
+

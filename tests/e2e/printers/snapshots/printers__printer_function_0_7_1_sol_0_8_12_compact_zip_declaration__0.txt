@@ -1,0 +1,183 @@
+
+# Contracts
+# C1
+	- Declaration: tests/ast-parsing/function-0.7.1.sol#1 (10 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C1.constructor()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#3 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#3 (5 - 21)']
+			- References: []
+		- C1.fallback()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#5 (5 - 14)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#5 (5 - 27)']
+			- References: []
+		- C1.receive()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#7 (5 - 13)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#7 (5 - 34)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C2
+	- Declaration: tests/ast-parsing/function-0.7.1.sol#10 (10 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C2.constructor()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#12 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#12 (5 - 29)']
+			- References: []
+		- C2.fallback()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#14 (5 - 14)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#14 (5 - 27)']
+			- References: []
+		- C2.receive()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#16 (5 - 13)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#16 (5 - 34)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C3
+	- Declaration: tests/ast-parsing/function-0.7.1.sol#19 (19 - 22)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C3.constructor()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#21 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#21 (5 - 30)']
+			- References: []
+		- C3.f()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#26 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#26 (5 - 76)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C4
+	- Declaration: tests/ast-parsing/function-0.7.1.sol#29 (10 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C4.hasArgs(uint256,uint256)
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#30 (14 - 22)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#30 (5 - 43)']
+			- References: []
+		- C4.hasReturns()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#31 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#31 (5 - 51)']
+			- References: []
+		- C4.hasArgsAndReturns(uint256,uint256)
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#32 (14 - 32)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#32 (5 - 74)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C5
+	- Declaration: tests/ast-parsing/function-0.7.1.sol#35 (19 - 22)
+	- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#55-59 (1 - 2)']
+	- References: ['tests/ast-parsing/function-0.7.1.sol#55 (16 - 18)', 'tests/ast-parsing/function-0.7.1.sol#56 (53 - 55)']
+
+	## Function
+		- C5.payableFunc()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#36 (14 - 26)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#36 (5 - 45)']
+			- References: []
+		- C5.externalFunc()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#37 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#37 (5 - 40)']
+			- References: []
+		- C5.publicFunc()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#38 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#38 (5 - 36)']
+			- References: []
+		- C5.internalFunc()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#39 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#39 (5 - 40)']
+			- References: []
+		- C5.privateFunc()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#40 (14 - 26)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#40 (5 - 38)']
+			- References: []
+		- C5.pureFunc()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#41 (14 - 23)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#41 (5 - 39)']
+			- References: []
+		- C5.viewFunc()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#42 (14 - 23)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#42 (5 - 39)']
+			- References: []
+		- C5.abstractFunc()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#43 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#56 (5 - 63)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C6
+	- Declaration: tests/ast-parsing/function-0.7.1.sol#46 (19 - 22)
+	- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#55-59 (1 - 2)']
+	- References: ['tests/ast-parsing/function-0.7.1.sol#55 (20 - 22)', 'tests/ast-parsing/function-0.7.1.sol#56 (57 - 59)', 'tests/ast-parsing/function-0.7.1.sol#57 (54 - 56)']
+
+	## Function
+		- C6.abstractFunc()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#47 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#56 (5 - 63)']
+			- References: []
+		- C6.abstractFunc2()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#48 (14 - 28)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#57 (5 - 60)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C7
+	- Declaration: tests/ast-parsing/function-0.7.1.sol#51 (19 - 22)
+	- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#55-59 (1 - 2)']
+	- References: ['tests/ast-parsing/function-0.7.1.sol#55 (24 - 26)']
+
+	## Function
+		- C7.abstractFunc3()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#52 (14 - 28)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#58 (5 - 56)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C8
+	- Declaration: tests/ast-parsing/function-0.7.1.sol#55 (10 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C8.abstractFunc()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#56 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#56 (5 - 63)']
+			- References: []
+		- C8.abstractFunc2()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#57 (14 - 28)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#57 (5 - 60)']
+			- References: []
+		- C8.abstractFunc3()
+			- Declaration: tests/ast-parsing/function-0.7.1.sol#58 (14 - 28)
+			- Implementation(s): ['tests/ast-parsing/function-0.7.1.sol#58 (5 - 56)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

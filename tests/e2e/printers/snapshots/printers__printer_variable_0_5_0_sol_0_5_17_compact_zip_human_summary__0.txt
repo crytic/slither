@@ -1,0 +1,14 @@
+
+Compiled with Archive
+Total number of contracts in source files: 0
+Number of contracts in tests       : 1
+Source lines of code (SLOC) in source files: 0
+Source lines of code (SLOC) in tests       : 45
+Number of  assembly lines: 0
+Number of optimization issues: 0
+Number of informational issues: 0
+Number of low issues: 0
+Number of medium issues: 0
+Number of high issues: 0
+
+

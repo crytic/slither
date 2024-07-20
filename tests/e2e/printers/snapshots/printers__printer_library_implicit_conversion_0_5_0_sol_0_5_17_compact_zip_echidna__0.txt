@@ -1,0 +1,126 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {},
+    "constants_used": {
+        "TestByte": {
+            "test()": [
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "16",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        },
+        "TestUint": {
+            "test()": [
+                [
+                    {
+                        "value": "2",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "256",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "50",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "8",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        },
+        "TestUintWithVariableiAndConversion": {
+            "test()": [
+                [
+                    {
+                        "value": "50",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {
+        "TestUint": {
+            "test()": {
+                "BinaryType.POWER": [
+                    [
+                        {
+                            "value": "2",
+                            "type": "uint256"
+                        }
+                    ],
+                    [
+                        {
+                            "value": "8",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "functions_relations": {
+        "LibByte": {},
+        "TestByte": {
+            "test()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "LibUint": {},
+        "TestUint": {
+            "test()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        },
+        "LibInt": {},
+        "TestUintWithVariableiAndConversion": {
+            "test()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {
+        "TestByte": [
+            "test()"
+        ],
+        "TestUint": [
+            "test()"
+        ],
+        "TestUintWithVariableiAndConversion": [
+            "test()"
+        ]
+    },
+    "use_balance": {},
+    "solc_versions": [
+        "0.5.17"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

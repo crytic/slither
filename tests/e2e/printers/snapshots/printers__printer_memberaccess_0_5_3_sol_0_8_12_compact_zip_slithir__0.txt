@@ -1,0 +1,25 @@
+Contract I
+Contract C
+	Function C.f() (*)
+		Expression: x.length
+		IRs:
+			REF_0 -> LENGTH x
+		Expression: address(this).balance
+		IRs:
+			TMP_0 = CONVERT this to address
+			TMP_1(uint256) = SOLIDITY_CALL balance(address)(TMP_0)
+		Expression: block.coinbase
+		IRs:
+		Expression: msg.sender
+		IRs:
+		Expression: tx.origin
+		IRs:
+		Expression: S({a:5}).a
+		IRs:
+			TMP_2(C.S) = new S(5)
+			REF_1(uint256) -> TMP_2.a
+		Expression: type()(I).creationCode
+		IRs:
+			TMP_3(type(I)) = SOLIDITY_CALL type()(I)
+			REF_2(bytes) (->None) := 6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea2646970667358221220fa4230d5c072892b749b058c7c73d07d46563ac244a163372762d047dc16853564736f6c634300080c0033(string)
+

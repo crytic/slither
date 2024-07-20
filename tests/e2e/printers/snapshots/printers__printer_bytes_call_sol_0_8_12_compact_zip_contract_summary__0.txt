@@ -1,0 +1,10 @@
+
++ Contract Log (Most derived contract)
+  - From Log
+    - f(bytes) (external)
+    - f(bytes4) (external)
+
++ Contract A (Most derived contract)
+  - From A
+    - test() (internal)
+

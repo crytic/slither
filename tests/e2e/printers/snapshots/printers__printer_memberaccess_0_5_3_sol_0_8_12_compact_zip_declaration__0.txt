@@ -1,0 +1,33 @@
+
+# Contracts
+# I
+	- Declaration: tests/ast-parsing/memberaccess-0.5.3.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/memberaccess-0.5.3.sol#24 (14 - 15)']
+
+	## Function
+
+	## State variables
+
+	## Structures
+# C
+	- Declaration: tests/ast-parsing/memberaccess-0.5.3.sol#5 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C.f()
+			- Declaration: tests/ast-parsing/memberaccess-0.5.3.sol#10 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/memberaccess-0.5.3.sol#10-25 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+		- S
+			- Declaration: struct S {
+        uint a;
+    }
+			- Implementation: tests/ast-parsing/memberaccess-0.5.3.sol#6-8 (5 - 6)
+			- References: ['tests/ast-parsing/memberaccess-0.5.3.sol#22 (9 - 10)']
+

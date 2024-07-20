@@ -1,0 +1,21 @@
+Export tmp.zip-T-g().dot
+Export tmp.zip-T2-h(uint256[10]).dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+f()
+
+IRs:
+TMP_0(uint256) = INTERNAL_CALL, f()()"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+

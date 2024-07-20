@@ -1,0 +1,9 @@
+
++ Contract B (Most derived contract)
+  - From B
+    - constructor() (public)
+
++ Contract C (Most derived contract)
+  - From C
+    - f() (public)
+

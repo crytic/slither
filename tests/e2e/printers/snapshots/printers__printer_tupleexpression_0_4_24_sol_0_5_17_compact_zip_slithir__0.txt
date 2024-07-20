@@ -1,0 +1,7 @@
+Contract C
+	Function C.f() (*)
+		Expression: (a,b)
+		IRs:
+		Expression: (a,b)
+		IRs:
+
