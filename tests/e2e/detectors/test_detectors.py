@@ -4,6 +4,7 @@ import sys
 from typing import Type, Optional, List
 
 import pytest
+
 from crytic_compile import CryticCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
@@ -1897,6 +1898,11 @@ ALL_TESTS = [
     Test(
         all_detectors.UnusedImport,
         "C.sol",
+        "0.8.16",
+    ),
+    Test(
+        all_detectors.UnusedImport,
+        "CrossDomainMessenger.sol",
         "0.8.16",
     ),
 ]
