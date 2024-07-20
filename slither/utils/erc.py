@@ -324,8 +324,8 @@ ERC1155_signatures = erc_to_signatures(ERC1155)
 # https://eips.ethereum.org/EIPS/eip-2612
 # Must have ERC20
 
-ERC2612_EVENTS = []
-ERC2612 = [
+ERC2612_EVENTS: List[ERC_EVENT] = []
+ERC2612: List[ERC] = [
     ERC(
         "permit",
         ["address", "address", "uint256", "uint256", "uint8", "bytes32", "bytes32"],
@@ -344,8 +344,8 @@ ERC2612_signatures = erc_to_signatures(ERC2612)
 # https://eips.ethereum.org/EIPS/eip-1363
 # Must have ERC20 and ERC165
 
-ERC1363_EVENTS = []
-ERC1363 = (
+ERC1363_EVENTS: List[ERC_EVENT] = []
+ERC1363: List[ERC] = (
     [
         ERC("transferAndCall", ["address", "uint256"], "bool", False, True, []),
         ERC("transferAndCall", ["address", "uint256", "bytes"], "bool", False, True, []),
@@ -371,8 +371,8 @@ ERC1363_signatures = erc_to_signatures(ERC1363)
 # https://eips.ethereum.org/EIPS/eip-4524
 # Must have ERC20 and ERC165
 
-ERC4524_EVENTS = []
-ERC4524 = (
+ERC4524_EVENTS: List[ERC_EVENT] = []
+ERC4524: List[ERC] = (
     [
         ERC("safeTransfer", ["address", "uint256"], "bool", False, True, []),
         ERC("safeTransfer", ["address", "uint256", "bytes"], "bool", False, True, []),
