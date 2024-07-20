@@ -1,0 +1,4 @@
+C.bad0() ignores return value by t.transfer(address(0),1000000000000000000)
+
+C.bad1() ignores return value by t.transferFrom(address(this),address(0),1000000000000000000)
+

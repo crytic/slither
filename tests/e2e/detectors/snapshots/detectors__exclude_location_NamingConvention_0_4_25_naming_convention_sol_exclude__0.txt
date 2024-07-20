@@ -1,0 +1,34 @@
+Variable T.s_myStateVar is not in mixedCase
+
+Struct naming.test is not in CapWords
+
+Variable T.I is not in mixedCase
+
+Variable T.I is single letter l, O, or I, which should not be used
+
+Variable T.O is not in mixedCase
+
+Variable naming.Var_One is not in mixedCase
+
+Constant naming.MY_other_CONSTANT is not in UPPER_CASE_WITH_UNDERSCORES
+
+Contract naming is not in CapWords
+
+Enum naming.numbers is not in CapWords
+
+Parameter T.test(uint256,uint256)._used is not in mixedCase
+
+Variable T._myPublicVar is not in mixedCase
+
+Variable T.O is single letter l, O, or I, which should not be used
+
+Event naming.event_(uint256) is not in CapWords
+
+Modifier naming.CantDo() is not in mixedCase
+
+Function naming.GetOne() is not in mixedCase
+
+Variable T.l is single letter l, O, or I, which should not be used
+
+Parameter naming.setInt(uint256,uint256).Number2 is not in mixedCase
+

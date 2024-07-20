@@ -1,0 +1,5 @@
+Mark.oops(address) tries to limit the gas of an external call that controls implicit decoding
+	ret1 = BadGuy(badGuy).fbad{gas: 2000}()
+	(x,str) = BadGuy(badGuy).fbad1{gas: 2000}()
+	(success,ret) = badGuy.call{gas: 10000}(abi.encodeWithSelector(BadGuy.llbad.selector))
+
