@@ -98,3 +98,6 @@ from .statements.tautological_compare import TautologicalCompare
 from .statements.return_bomb import ReturnBomb
 from .functions.out_of_order_retryable import OutOfOrderRetryable
 from .statements.unused_import import UnusedImport
+from .oracles.oracle_data_validation import OracleDataCheck
+from .oracles.oracle_sequencer import SequencerCheck
+from .oracles.deprecated_chainlink_calls import DeprecatedChainlinkCall
