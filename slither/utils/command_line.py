@@ -396,14 +396,15 @@ def check_and_sanitize_markdown_root(markdown_root: str) -> str:
 
         if not match.group(4):
             logger.warning(
-                "Appending 'master/tree/' in markdown_root url for better code referencing"
+                "Appending 'tree/master/' in markdown_root url for better code referencing"
             )
-            markdown_root = markdown_root + "master/tree/"
+            markdown_root = markdown_root + "tree/master/"
+        # Use blob/HEAD so that we get the default branch regardless of its name
         elif match.group(4) == "tree":
             logger.warning(
-                "Replacing 'tree' with 'blob' in markdown_root url for better code referencing"
+                "Replacing 'tree' with 'blob/HEAD' in markdown_root url for better code referencing"
             )
             positions = match.span(4)
-            markdown_root = f"{markdown_root[:positions[0]]}blob{markdown_root[positions[1]:]}"
+            markdown_root = f"{markdown_root[:positions[0]]}blob/HEAD{markdown_root[positions[1]:]}"
 
     return markdown_root
