@@ -195,7 +195,7 @@ class AbstractState:
 
 def _filter_if(node: Node) -> bool:
     """
-    Check if the node is a condtional node where
+    Check if the node is a conditional node where
     there is an external call checked
     Heuristic:
         - The call is a IF node

@@ -995,7 +995,7 @@ def extract_tmp_call(ins: TmpCall, contract: Optional[Contract]) -> Union[Call, 
             # Support for library call where the parameter is a function
             # We could merge this with the standard library handling
             # Except that we will have some troubles with using_for
-            # As the type of the funciton will not match function()
+            # As the type of the function will not match function()
             # Additionally we do not have a correct view on the parameters of the tmpcall
             # At this level
             #
@@ -1237,7 +1237,7 @@ def convert_to_low_level(
 ) -> Union[Send, LowLevelCall, Transfer,]:
     """
     Convert to a transfer/send/or low level call
-    The funciton assume to receive a correct IR
+    The function assume to receive a correct IR
     The checks must be done by the caller
 
     Must be called after can_be_low_level
