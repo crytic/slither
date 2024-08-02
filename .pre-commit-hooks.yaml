@@ -1,0 +1,7 @@
+- id: slither
+  name: Slither
+  description: Run Slither on your project
+  entry: slither .
+  pass_filenames: false
+  language: python
+  files: \.sol$

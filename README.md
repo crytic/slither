@@ -102,6 +102,13 @@ docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
 ### Integration
 
 * For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
+* For pre-commit integratio, use (replace `$GIT_TAG` with real tag)
+  ```
+  - repo: https://github.com/crytic/slither
+    rev: $GIT_TAG
+    hooks:
+      - slither
+  ```
 * To generate a Markdown report, use `slither [target] --checklist`.
 * To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
 
