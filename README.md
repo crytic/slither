@@ -103,7 +103,7 @@ docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
 
 * For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
 * For pre-commit integratio, use (replace `$GIT_TAG` with real tag)
-  ```
+  ```YAML
   - repo: https://github.com/crytic/slither
     rev: $GIT_TAG
     hooks:
