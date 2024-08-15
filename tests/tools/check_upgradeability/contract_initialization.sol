@@ -6,11 +6,23 @@ contract Initializable{
         _;
     }
 
+    modifier reinitializer(uint64 version){
+        _;
+    }
+
 }
 
 contract Contract_no_bug is Initializable{
 
     function initialize() public initializer{
+
+    }
+
+}
+
+contract Contract_no_bug_reinitializer is Initializable{
+
+    function initialize() public reinitializer(2){
 
     }
 

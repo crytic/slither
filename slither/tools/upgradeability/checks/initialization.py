@@ -18,7 +18,7 @@ class MultipleInitTarget(Exception):
 def _has_initialize_modifier(function: Function):
     if not function.modifiers:
         return False
-    return any((m.name == "initializer") for m in function.modifiers)
+    return any((m.name == "initializer" or m.name == "reinitializer") for m in function.modifiers)
 
 
 def _get_initialize_functions(contract):
@@ -164,7 +164,7 @@ class MissingInitializerModifier(AbstractCheck):
 
     # region wiki_description
     WIKI_DESCRIPTION = """
-Detect if `Initializable.initializer()` is called.
+Detect if `Initializable.initializer()` or `Initializable.reinitializer(uint64)` is called.
 """
     # endregion wiki_description
 
@@ -184,7 +184,7 @@ contract Contract{
 
     # region wiki_recommendation
     WIKI_RECOMMENDATION = """
-Use `Initializable.initializer()`.
+Use `Initializable.initializer()` or `Initializable.reinitializer(uint64)`.
 """
     # endregion wiki_recommendation
 
@@ -199,15 +199,16 @@ Use `Initializable.initializer()`.
         if initializable not in self.contract.inheritance:
             return []
         initializer = self.contract.get_modifier_from_canonical_name("Initializable.initializer()")
+        reinitializer = self.contract.get_modifier_from_canonical_name("Initializable.reinitializer(uint64)")
         # InitializableInitializer
-        if initializer is None:
+        if initializer is None and reinitializer is None:
             return []
 
         results = []
         all_init_functions = _get_initialize_functions(self.contract)
         for f in all_init_functions:
-            if initializer not in f.modifiers:
-                info = [f, " does not call the initializer modifier.\n"]
+            if initializer not in f.modifiers and reinitializer not in f.modifiers:
+                info = [f, " does not call the initializer or reinitializer modifier.\n"]
                 json = self.generate_result(info)
                 results.append(json)
         return results
