@@ -400,3 +400,96 @@ Ensure that the function is called at deployment.
         ]
         json = self.generate_result(info)
         return [json]
+
+class MultipleReinitializers(AbstractCheck):
+    ARGUMENT = "multiple-new-reinitializers"
+    IMPACT = CheckClassification.LOW
+
+    HELP = "Multiple new reinitializers in the updated contract"
+    WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#multiple-new-reinitializers"
+    WIKI_TITLE = "Multiple new reinitializers in the updated contract"
+
+    # region wiki_description
+    WIKI_DESCRIPTION = """
+Detect multiple new reinitializers in the updated contract`.
+"""
+    # endregion wiki_description
+
+    # region wiki_exploit_scenario
+    WIKI_EXPLOIT_SCENARIO = """
+```solidity
+contract Counter is Initializable {
+    uint256 public x;
+
+    function initialize(uint256 _x) public initializer {
+        x = _x;
+    }
+
+    function changeX() public {
+        x++;
+    }
+}
+
+contract CounterV2 is Initializable {
+    uint256 public x;
+    uint256 public y;
+    uint256 public z;
+
+    function initializeV2(uint256 _y) public reinitializer(2) {
+        y = _y;
+    }
+
+    function initializeV3(uint256 _z) public reinitializer(3) {
+        z = _z;
+    }
+
+    function changeX() public {
+        x = x + y + z;
+    }
+}
+```
+`CounterV2` has two reinitializers with new versions `2` and `3`. If `initializeV3()` is called first, the `initializeV2()` can't be called to initialize `y`, which may brings security risks.
+"""
+    # endregion wiki_exploit_scenario
+
+    # region wiki_recommendation
+    WIKI_RECOMMENDATION = """
+Do not use multiple reinitializers with higher versions in the updated contract.
+"""
+    # endregion wiki_recommendation
+
+    REQUIRE_CONTRACT = True
+    REQUIRE_CONTRACT_V2 = True
+
+    def _check(self):
+        contract_v1 = self.contract
+        contract_v2 = self.contract_v2
+
+        if contract_v2 is None:
+            raise Exception("multiple-new-reinitializers requires a V2 contract")
+
+        initializerV1 = contract_v1.get_modifier_from_canonical_name("Initializable.initializer()")
+        reinitializerV1 = contract_v1.get_modifier_from_canonical_name("Initializable.reinitializer(uint64)")
+        reinitializerV2 = contract_v2.get_modifier_from_canonical_name("Initializable.reinitializer(uint64)")
+
+        # contractV1 has initializer or reinitializer
+        if initializerV1 is None and reinitializerV1 is None:
+            return []
+        # contractV2 has reinitializer
+        if reinitializerV2 is None:
+            return []
+
+        initializer_funcs_v1 = _get_initialize_functions(contract_v1)
+        initializer_funcs_v2 = _get_initialize_functions(contract_v2)
+        new_reinitializer_funcs = []
+        for fv2 in initializer_funcs_v2:
+            if not any((fv2.full_name == fv1.full_name) for fv1 in initializer_funcs_v1):
+                new_reinitializer_funcs.append(fv2)
+
+        results = []
+        if len(new_reinitializer_funcs) > 1:
+            for f in new_reinitializer_funcs:
+                info = [f, " multiple new reinitializers.\n"]
+                json = self.generate_result(info)
+                results.append(json)
+        return results

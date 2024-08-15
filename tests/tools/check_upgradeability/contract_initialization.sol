@@ -59,3 +59,45 @@ contract Contract_double_call is Contract_no_bug, Contract_no_bug_inherits{
     }
 
 }
+
+contract Contract_reinitializer_V2 is Initializable {
+    uint256 public x;
+
+    function initialize(uint256 _x) public initializer {
+        x = _x;
+    }
+
+    function initializeV2(uint256 _x) public reinitializer(2) {
+        x = _x;
+    }
+
+    function changeX() public {
+        x++;
+    }
+}
+
+contract Counter_reinitializer_V3_V4 is Initializable {
+    uint256 public x;
+    uint256 public y;
+    uint256 public z;
+
+    function initialize(uint256 _x) public initializer {
+        x = _x;
+    }
+
+    function initializeV2(uint256 _x) public reinitializer(2) {
+        x = _x;
+    }
+
+    function initializeV3(uint256 _y) public reinitializer(3) {
+        y = _y;
+    }
+
+    function initializeV4(uint256 _z) public reinitializer(4) {
+        z = _z;
+    }
+
+    function changeX() public {
+        x = x + y + z;
+    }
+}
