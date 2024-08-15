@@ -272,6 +272,9 @@ Ensure all the initialize functions are reached by the most derived initialize f
         all_init_functions_called = _get_all_internal_calls(most_derived_init) + [most_derived_init]
         missing_calls = [f for f in all_init_functions if not f in all_init_functions_called]
         for f in missing_calls:
+            # we don't account reinitializers
+            if any((m.name == "reinitializer") for m in f.modifiers):
+                continue
             info = ["Missing call to ", f, " in ", most_derived_init, ".\n"]
             json = self.generate_result(info)
             results.append(json)
