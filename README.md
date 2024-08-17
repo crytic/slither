@@ -107,7 +107,7 @@ docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
   - repo: https://github.com/crytic/slither
     rev: $GIT_TAG
     hooks:
-      - slither
+      - id: slither
   ```
 * To generate a Markdown report, use `slither [target] --checklist`.
 * To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
