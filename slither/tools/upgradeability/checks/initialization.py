@@ -7,6 +7,7 @@ from slither.tools.upgradeability.checks.abstract_checks import (
     CheckClassification,
 )
 from slither.utils.colors import red
+from slither.exceptions import SlitherError
 
 logger = logging.getLogger("Slither-check-upgradeability")
 
@@ -18,7 +19,7 @@ class MultipleInitTarget(Exception):
 def _has_initialize_modifier(function: Function):
     if not function.modifiers:
         return False
-    return any((m.name == "initializer" or m.name == "reinitializer") for m in function.modifiers)
+    return any((m.name in ("initializer", "reinitializer")) for m in function.modifiers)
 
 
 def _get_initialize_functions(contract):
@@ -199,7 +200,9 @@ Use `Initializable.initializer()` or `Initializable.reinitializer(uint64)`.
         if initializable not in self.contract.inheritance:
             return []
         initializer = self.contract.get_modifier_from_canonical_name("Initializable.initializer()")
-        reinitializer = self.contract.get_modifier_from_canonical_name("Initializable.reinitializer(uint64)")
+        reinitializer = self.contract.get_modifier_from_canonical_name(
+            "Initializable.reinitializer(uint64)"
+        )
         # InitializableInitializer
         if initializer is None and reinitializer is None:
             return []
@@ -401,12 +404,15 @@ Ensure that the function is called at deployment.
         json = self.generate_result(info)
         return [json]
 
+
 class MultipleReinitializers(AbstractCheck):
     ARGUMENT = "multiple-new-reinitializers"
     IMPACT = CheckClassification.LOW
 
     HELP = "Multiple new reinitializers in the updated contract"
-    WIKI = "https://github.com/crytic/slither/wiki/Upgradeability-Checks#multiple-new-reinitializers"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Upgradeability-Checks#multiple-new-reinitializers"
+    )
     WIKI_TITLE = "Multiple new reinitializers in the updated contract"
 
     # region wiki_description
@@ -454,7 +460,7 @@ contract CounterV2 is Initializable {
 
     # region wiki_recommendation
     WIKI_RECOMMENDATION = """
-Do not use multiple reinitializers with higher versions in the updated contract.
+Do not use multiple reinitializers with higher versions in the updated contract. Please consider combining new reinitializers into a single one.
 """
     # endregion wiki_recommendation
 
@@ -466,11 +472,15 @@ Do not use multiple reinitializers with higher versions in the updated contract.
         contract_v2 = self.contract_v2
 
         if contract_v2 is None:
-            raise Exception("multiple-new-reinitializers requires a V2 contract")
+            raise SlitherError("multiple-new-reinitializers requires a V2 contract")
 
         initializerV1 = contract_v1.get_modifier_from_canonical_name("Initializable.initializer()")
-        reinitializerV1 = contract_v1.get_modifier_from_canonical_name("Initializable.reinitializer(uint64)")
-        reinitializerV2 = contract_v2.get_modifier_from_canonical_name("Initializable.reinitializer(uint64)")
+        reinitializerV1 = contract_v1.get_modifier_from_canonical_name(
+            "Initializable.reinitializer(uint64)"
+        )
+        reinitializerV2 = contract_v2.get_modifier_from_canonical_name(
+            "Initializable.reinitializer(uint64)"
+        )
 
         # contractV1 has initializer or reinitializer
         if initializerV1 is None and reinitializerV1 is None:
@@ -489,7 +499,10 @@ Do not use multiple reinitializers with higher versions in the updated contract.
         results = []
         if len(new_reinitializer_funcs) > 1:
             for f in new_reinitializer_funcs:
-                info = [f, " multiple new reinitializers.\n"]
+                info = [
+                    f,
+                    " multiple new reinitializers which should be combined into one per upgrade.\n",
+                ]
                 json = self.generate_result(info)
                 results.append(json)
         return results
