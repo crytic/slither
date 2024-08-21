@@ -17,7 +17,7 @@ setup(
         "pycryptodome>=3.4.6",
         "crytic-compile>=0.3.7,<0.4.0",
         # "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
-        "web3>=6.0.0",
+        "web3>=6.20.2",
         "eth-abi>=4.0.0",
         "eth-typing>=3.0.0",
         "eth-utils>=2.1.0",
