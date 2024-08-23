@@ -176,7 +176,7 @@ pip3 install slither-analyzer
 #### How to upgrade
 
 ```console
-pip install --upgrade slither-analyzer
+python3 -m pip install --upgrade slither-analyzer
 ```
 
 ### Using Git
