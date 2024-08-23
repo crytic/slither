@@ -2,7 +2,8 @@
 
 ### Test slither-check-upgradeability
 
-DIR_TESTS="tests/check-upgradeability"
+DIR_TESTS="tests/tools/check_upgradeability"
+solc-select install "0.5.0"
 solc-select use "0.5.0"
 
 slither-check-upgradeability  "$DIR_TESTS/contractV1.sol" ContractV1 --proxy-filename "$DIR_TESTS/proxy.sol" --proxy-name Proxy  > test_1.txt 2>&1
@@ -181,6 +182,32 @@ then
     exit 255
 fi
 
+slither-check-upgradeability "$DIR_TESTS/contract_initialization.sol" Contract_no_bug_reinitializer --proxy-filename "$DIR_TESTS/proxy.sol" --proxy-name Proxy   > test_14.txt 2>&1
+DIFF=$(diff test_14.txt "$DIR_TESTS/test_14.txt")
+if [  "$DIFF" != "" ]
+then
+    echo "slither-check-upgradeability 14 failed"
+    cat test_14.txt
+    echo ""
+    cat "$DIR_TESTS/test_14.txt"
+    echo ""
+    echo "$DIFF"
+    exit 255
+fi
+
+slither-check-upgradeability "$DIR_TESTS/contract_initialization.sol" Contract_reinitializer_V2 --new-contract-name Counter_reinitializer_V3_V4 > test_15.txt 2>&1
+DIFF=$(diff test_15.txt "$DIR_TESTS/test_15.txt")
+if [  "$DIFF" != "" ]
+then
+    echo "slither-check-upgradeability 14 failed"
+    cat test_15.txt
+    echo ""
+    cat "$DIR_TESTS/test_15.txt"
+    echo ""
+    echo "$DIFF"
+    exit 255
+fi
+
 rm test_1.txt
 rm test_2.txt
 rm test_3.txt
@@ -194,3 +221,5 @@ rm test_10.txt
 rm test_11.txt
 rm test_12.txt
 rm test_13.txt
+rm test_14.txt
+rm test_15.txt
