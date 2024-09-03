@@ -123,9 +123,9 @@ def __find_target_paths(
 
             # Find all function calls in this function (except for low level)
             called_functions_list = [
-                f for (_, f) in function.high_level_calls if isinstance(f, Function)
+                f for (_, f, _) in function.high_level_calls if isinstance(f, Function)
             ]
-            called_functions_list += [f for (_, f) in function.library_calls]
+            called_functions_list += [f for (_, f, _) in function.library_calls]
             called_functions_list += [f for f in function.internal_calls if isinstance(f, Function)]
             called_functions = set(called_functions_list)
 

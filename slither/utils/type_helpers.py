@@ -8,10 +8,12 @@ if TYPE_CHECKING:
         SolidityVariable,
     )
     from slither.core.variables.variable import Variable
+    from slither.core.cfg.node import Node
 
 ### core.declaration
 # pylint: disable=used-before-assignment
-InternalCallType = Union["Function", "SolidityFunction"]
-HighLevelCallType = Tuple["Contract", Union["Function", "Variable"]]
-LibraryCallType = Tuple["Contract", "Function"]
-LowLevelCallType = Tuple[Union["Variable", "SolidityVariable"], str]
+InternalCallType = Tuple[Union["Function", "SolidityFunction"], "Node"]
+SolidityCallType = Tuple["SolidityFunction", "Node"]
+HighLevelCallType = Tuple["Contract", Union["Function", "Variable"], "Node"]
+LibraryCallType = Tuple["Contract", "Function", "Node"]
+LowLevelCallType = Tuple[Union["Variable", "SolidityVariable"], str, "Node"]

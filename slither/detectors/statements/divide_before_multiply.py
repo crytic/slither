@@ -56,7 +56,7 @@ def is_assert(node: Node) -> bool:
     # Old Solidity code where using an internal 'assert(bool)' function
     # While we dont check that this function is correct, we assume it is
     # To avoid too many FP
-    if "assert(bool)" in [c.full_name for c in node.internal_calls]:
+    if "assert(bool)" in [c.full_name for c, _ in node.internal_calls]:
         return True
     return False
 

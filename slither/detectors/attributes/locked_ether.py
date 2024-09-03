@@ -59,7 +59,7 @@ Every Ether sent to `Locked` will be lost."""
             explored += to_explore
             to_explore = []
             for function in functions:
-                calls = [c.name for c in function.internal_calls]
+                calls = [c.name for (c, _) in function.internal_calls]
                 if "suicide(address)" in calls or "selfdestruct(address)" in calls:
                     return False
                 for node in function.nodes:

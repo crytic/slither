@@ -154,7 +154,7 @@ def _process_function(
         _node(_function_node(contract, function), function.name),
     )
 
-    for internal_call in function.internal_calls:
+    for internal_call, _ in function.internal_calls:
         _process_internal_call(
             contract,
             function,

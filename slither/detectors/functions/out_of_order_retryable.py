@@ -101,7 +101,7 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
 
         # include ops from internal function calls
         internal_ops = []
-        for internal_call in node.internal_calls:
+        for internal_call, _ in node.internal_calls:
             if isinstance(internal_call, Function):
                 internal_ops += internal_call.all_slithir_operations()
 

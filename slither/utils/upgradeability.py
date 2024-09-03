@@ -123,7 +123,7 @@ def compare(
         ):
             continue
         modified_calls = [
-            func for func in new_modified_functions if func in function.internal_calls
+            func for func in new_modified_functions if func in [f for f, _ in function.internal_calls]
         ]
         tainted_vars = [
             var

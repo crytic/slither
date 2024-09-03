@@ -35,7 +35,7 @@ def _has_initializing_protection(functions: List[Function]) -> bool:
         for m in f.modifiers:
             if m.name == "initializer":
                 return True
-        for ifc in f.all_internal_calls():
+        for ifc, _ in f.all_internal_calls():
             if ifc.name == "_disableInitializers":
                 return True
 

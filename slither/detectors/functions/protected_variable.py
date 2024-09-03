@@ -61,7 +61,7 @@ contract Buggy{
                     if not function_protection:
                         self.logger.error(f"{function_sig} not found")
                         continue
-                    if function_protection not in function.all_internal_calls():
+                    if function_protection not in [f for f, _ in function.all_internal_calls()]:
                         info: DETECTOR_INFO = [
                             function,
                             " should have ",

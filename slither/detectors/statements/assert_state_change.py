@@ -32,7 +32,7 @@ def detect_assert_state_change(
     for function in contract.functions_declared + list(contract.modifiers_declared):
         for node in function.nodes:
             # Detect assert() calls
-            if any(c.name == "assert(bool)" for c in node.internal_calls) and (
+            if any(c.name == "assert(bool)" for c, _ in node.internal_calls) and (
                 # Detect direct changes to state
                 node.state_variables_written
                 or

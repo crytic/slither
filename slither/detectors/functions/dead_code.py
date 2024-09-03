@@ -48,13 +48,13 @@ contract Contract{
             all_functionss_called = [
                 f.all_internal_calls() for f in contract.functions_entry_points
             ]
-            all_functions_called = [item for sublist in all_functionss_called for item in sublist]
+            all_functions_called = [item[0] for sublist in all_functionss_called for item in sublist]
             functions_used |= {
                 f.canonical_name for f in all_functions_called if isinstance(f, Function)
             }
             all_libss_called = [f.all_library_calls() for f in contract.functions_entry_points]
             all_libs_called: List[Tuple[Contract, Function]] = [
-                item for sublist in all_libss_called for item in sublist
+                item[0] for sublist in all_libss_called for item in sublist
             ]
             functions_used |= {
                 lib[1].canonical_name for lib in all_libs_called if isinstance(lib, tuple)

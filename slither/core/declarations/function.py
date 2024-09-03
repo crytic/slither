@@ -33,6 +33,7 @@ from slither.utils.utils import unroll
 if TYPE_CHECKING:
     from slither.utils.type_helpers import (
         InternalCallType,
+        SolidityCallType,
         LowLevelCallType,
         HighLevelCallType,
         LibraryCallType,
@@ -150,7 +151,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._solidity_vars_read: List["SolidityVariable"] = []
         self._state_vars_written: List["StateVariable"] = []
         self._internal_calls: List["InternalCallType"] = []
-        self._solidity_calls: List["SolidityFunction"] = []
+        self._solidity_calls: List["SolidityCallType"] = []
         self._low_level_calls: List["LowLevelCallType"] = []
         self._high_level_calls: List["HighLevelCallType"] = []
         self._library_calls: List["LibraryCallType"] = []
@@ -173,7 +174,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._all_high_level_calls: Optional[List["HighLevelCallType"]] = None
         self._all_library_calls: Optional[List["LibraryCallType"]] = None
         self._all_low_level_calls: Optional[List["LowLevelCallType"]] = None
-        self._all_solidity_calls: Optional[List["SolidityFunction"]] = None
+        self._all_solidity_calls: Optional[List["SolidityCallType"]] = None
         self._all_variables_read: Optional[List["Variable"]] = None
         self._all_variables_written: Optional[List["Variable"]] = None
         self._all_state_variables_read: Optional[List["StateVariable"]] = None
@@ -864,7 +865,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         return list(self._internal_calls)
 
     @property
-    def solidity_calls(self) -> List[SolidityFunction]:
+    def solidity_calls(self) -> List["SolidityCallType"]:
         """
         list(SolidityFunction): List of Soldity calls
         """
@@ -1121,10 +1122,10 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         values = f_new_values(self)
         explored = [self]
         to_explore = [
-            c for c in self.internal_calls if isinstance(c, Function) and c not in explored
+            c for c, _ in self.internal_calls if isinstance(c, Function) and c not in explored
         ]
         to_explore += [
-            c for (_, c) in self.library_calls if isinstance(c, Function) and c not in explored
+            c for _, c, _ in self.library_calls if isinstance(c, Function) and c not in explored
         ]
         to_explore += [m for m in self.modifiers if m not in explored]
 
@@ -1139,12 +1140,12 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
             to_explore += [
                 c
-                for c in f.internal_calls
+                for c, _ in f.internal_calls
                 if isinstance(c, Function) and c not in explored and c not in to_explore
             ]
             to_explore += [
                 c
-                for (_, c) in f.library_calls
+                for _, c, _ in f.library_calls
                 if isinstance(c, Function) and c not in explored and c not in to_explore
             ]
             to_explore += [m for m in f.modifiers if m not in explored and m not in to_explore]
