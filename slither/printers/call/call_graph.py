@@ -14,10 +14,7 @@ from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.output import Output
-from slither.utils.type_helpers import (
-    InternalCallType,
-    HighLevelCallType,
-)
+from slither.utils.type_helpers import HighLevelCallType
 
 
 def _contract_subgraph(contract: Contract) -> str:
