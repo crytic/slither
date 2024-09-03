@@ -256,7 +256,7 @@ def tainted_inheriting_contracts(
             new_taint = TaintedExternalContract(c)
             for f in c.functions_declared:
                 # Search for functions that call an inherited tainted function or access an inherited tainted variable
-                internal_calls = [c for c in f.all_internal_calls() if isinstance(c, Function)]
+                internal_calls = [f for f, _ in f.all_internal_calls() if isinstance(f, Function)]
                 if any(
                     call.canonical_name == t.canonical_name
                     for t in tainted.tainted_functions

@@ -11,7 +11,7 @@ from slither.utils.myprettytable import MyPrettyTable
 
 def _use_modifier(function: Function, modifier_name: str = "whenNotPaused") -> bool:
 
-    for internal_call in function.all_internal_calls():
+    for internal_call, _ in function.all_internal_calls():
         if isinstance(internal_call, SolidityFunction):
             continue
         if any(modifier.name == modifier_name for modifier in function.modifiers):

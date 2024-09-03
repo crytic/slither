@@ -19,7 +19,7 @@ class PrinterWrittenVariablesAndAuthorization(AbstractPrinter):
     @staticmethod
     def get_msg_sender_checks(function: Function) -> List[str]:
         all_functions = (
-            [f for f in function.all_internal_calls() if isinstance(f, Function)]
+            [f for f, _ in function.all_internal_calls() if isinstance(f, Function)]
             + [function]
             + [m for m in function.modifiers if isinstance(m, Function)]
         )

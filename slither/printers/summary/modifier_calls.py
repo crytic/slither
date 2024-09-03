@@ -29,10 +29,10 @@ class Modifiers(AbstractPrinter):
             table = MyPrettyTable(["Function", "Modifiers"])
             for function in contract.functions:
                 modifiers = function.modifiers
-                for call in function.all_internal_calls():
+                for call, _ in function.all_internal_calls():
                     if isinstance(call, Function):
                         modifiers += call.modifiers
-                for (_, call) in function.all_library_calls():
+                for _, call, _ in function.all_library_calls():
                     if isinstance(call, Function):
                         modifiers += call.modifiers
                 table.add_row([function.name, sorted([m.name for m in set(modifiers)])])
