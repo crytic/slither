@@ -1023,7 +1023,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def all_functions_called(self) -> List["InternalCallType"]:
+    def all_functions_called(self) -> List[Function]:
         """
         list(Function): List of functions reachable from the contract
         Includes super, and private/internal functions not shadowed
@@ -1031,7 +1031,11 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         if self._all_functions_called is None:
             all_functions = [f for f in self.functions + self.modifiers if not f.is_shadowed]  # type: ignore
             all_callss = [f.all_internal_calls() for f in all_functions] + [list(all_functions)]
-            all_calls = [item for sublist in all_callss for item in sublist]
+            all_calls = [
+                item[0] if isinstance(item, Tuple) else item
+                for sublist in all_callss
+                for item in sublist
+            ]
             all_calls = list(set(all_calls))
 
             all_constructors = [c.constructor for c in self.inheritance if c.constructor]
