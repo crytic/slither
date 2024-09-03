@@ -123,7 +123,9 @@ def compare(
         ):
             continue
         modified_calls = [
-            func for func in new_modified_functions if func in [f for f, _ in function.internal_calls]
+            func
+            for func in new_modified_functions
+            if func in [f for f, _ in function.internal_calls]
         ]
         tainted_vars = [
             var
@@ -179,7 +181,7 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
     tainted_list: list[TaintedExternalContract] = []
 
     for func in funcs:
-        for contract, target in func.all_high_level_calls():
+        for contract, target, _ in func.all_high_level_calls():
             if contract.is_library:
                 # Not interested in library calls
                 continue

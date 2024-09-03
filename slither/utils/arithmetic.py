@@ -82,7 +82,7 @@ def unchecked_arithemtic_usage(contract: "Contract") -> List["Function"]:
     from slither.core.declarations import Function
 
     ret: List[Function] = []
-    for function in contract.all_functions_called:
+    for function, _ in contract.all_functions_called:
         if isinstance(function, Function) and _unchecked_arithemtic_usage(function):
             ret.append(function)
     return ret

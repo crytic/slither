@@ -933,7 +933,9 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
                 else:
                     try:
                         # Todo this part needs more tests and documentation
-                        self._high_level_calls.append((ir.destination.type.type, ir.function, ir.node))
+                        self._high_level_calls.append(
+                            (ir.destination.type.type, ir.function, ir.node)
+                        )
                     except AttributeError as error:
                         #  pylint: disable=raise-missing-from
                         raise SlitherException(
