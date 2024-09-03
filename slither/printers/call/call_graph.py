@@ -14,6 +14,10 @@ from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.utils.output import Output
+from slither.utils.type_helpers import (
+        InternalCallType,
+        HighLevelCallType,
+    )
 
 
 def _contract_subgraph(contract: Contract) -> str:
@@ -49,11 +53,12 @@ def _node(node: str, label: Optional[str] = None) -> str:
 def _process_internal_call(
     contract: Contract,
     function: Function,
-    internal_call: Union[Function, SolidityFunction],
+    internal_call: InternalCallType,
     contract_calls: Dict[Contract, Set[str]],
     solidity_functions: Set[str],
     solidity_calls: Set[str],
 ) -> None:
+    internal_call = internal_call[0]
     if isinstance(internal_call, (Function)):
         contract_calls[contract].add(
             _edge(
@@ -112,12 +117,12 @@ def _render_solidity_calls(solidity_functions: Set[str], solidity_calls: Set[str
 def _process_external_call(
     contract: Contract,
     function: Function,
-    external_call: Tuple[Contract, Union[Function, Variable]],
+    external_call: HighLevelCallType,
     contract_functions: Dict[Contract, Set[str]],
     external_calls: Set[str],
     all_contracts: Set[Contract],
 ) -> None:
-    external_contract, external_function = external_call
+    external_contract, external_function, _ = external_call
 
     if not external_contract in all_contracts:
         return
