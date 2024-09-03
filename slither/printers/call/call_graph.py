@@ -6,7 +6,7 @@
     The output is a dot file named filename.dot
 """
 from collections import defaultdict
-from typing import Optional, Union, Dict, Set, Tuple, Sequence
+from typing import Optional, Union, Dict, Set, Sequence
 
 from slither.core.declarations import Contract, FunctionContract
 from slither.core.declarations.function import Function
@@ -53,12 +53,11 @@ def _node(node: str, label: Optional[str] = None) -> str:
 def _process_internal_call(
     contract: Contract,
     function: Function,
-    internal_call: InternalCallType,
+    internal_call: Union[Function, SolidityFunction],
     contract_calls: Dict[Contract, Set[str]],
     solidity_functions: Set[str],
     solidity_calls: Set[str],
 ) -> None:
-    internal_call = internal_call[0]
     if isinstance(internal_call, (Function)):
         contract_calls[contract].add(
             _edge(
