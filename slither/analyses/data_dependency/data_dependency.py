@@ -301,7 +301,7 @@ def get_must_depends_on(variable: SUPPORTED_TYPES) -> List:
     :return: Variable | None
     """
     must_dependencies = compute_must_dependencies(variable)
-    if len(must_dependencies) > 1 or len(must_dependencies) == 0:
+    if len(must_dependencies) != 1:
         return []
     return [list(must_dependencies)[0]]
 
