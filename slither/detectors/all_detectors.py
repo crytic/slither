@@ -1,3 +1,7 @@
+# Coinspect Detectors
+from .coinspect.adt_helpers_for_complex_code import CoinspectHelperFunctionsDetector
+from .coinspect.adt_magic_numbers import CoinspectMagicNumberDetector
+
 # pylint: disable=unused-import,relative-beyond-top-level
 from .examples.backdoor import Backdoor
 from .variables.uninitialized_state_variables import UninitializedStateVarsDetection
