@@ -19,6 +19,7 @@ from .reentrancy.reentrancy_eth import ReentrancyEth
 from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
 from .reentrancy.reentrancy_events import ReentrancyEvent
 from .variables.unused_state_variables import UnusedStateVars
+from .variables.unused_custom_errors import UnusedCustomErrors
 from .variables.could_be_constant import CouldBeConstant
 from .variables.could_be_immutable import CouldBeImmutable
 from .statements.tx_origin import TxOrigin

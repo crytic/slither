@@ -401,6 +401,11 @@ ALL_TESTS = [
         "unused_state.sol",
         "0.7.6",
     ),
+    Test(
+        all_detectors.UnusedCustomErrors,
+        "unused_custom_errors.sol",
+        "0.8.15",
+    ),
     Test(all_detectors.LockedEther, "locked_ether.sol", "0.4.25"),
     Test(all_detectors.LockedEther, "locked_ether.sol", "0.5.16"),
     Test(all_detectors.LockedEther, "locked_ether.sol", "0.6.11"),
