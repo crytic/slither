@@ -140,8 +140,8 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
     for contract in contracts:
         functions_using_assert = []  # Dict[str, List[Dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
-            for v in f.all_solidity_calls():
-                if v == SolidityFunction("assert(bool)"):
+            for ir in f.all_solidity_calls():
+                if ir.function == SolidityFunction("assert(bool)"):
                     functions_using_assert.append(_get_name(f))
                     break
             # Revert https://github.com/crytic/slither/pull/2105 until format is supported by echidna.

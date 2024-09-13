@@ -31,11 +31,11 @@ class ArbitrarySendErc20:
     def _detect_arbitrary_from(self, contract: Contract) -> None:
         for f in contract.functions:
             all_high_level_calls = [
-                f_called[1].solidity_signature
-                for f_called in f.high_level_calls
-                if isinstance(f_called[1], Function)
+                ir.function.solidity_signature
+                for _, ir in f.high_level_calls
+                if isinstance(ir.function, Function)
             ]
-            all_library_calls = [f_called[1].solidity_signature for f_called in f.library_calls]
+            all_library_calls = [ir.function.solidity_signature for ir in f.library_calls]
             if (
                 "transferFrom(address,address,uint256)" in all_high_level_calls
                 or "safeTransferFrom(address,address,address,uint256)" in all_library_calls

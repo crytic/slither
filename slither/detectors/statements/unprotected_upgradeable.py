@@ -35,8 +35,8 @@ def _has_initializing_protection(functions: List[Function]) -> bool:
         for m in f.modifiers:
             if m.name == "initializer":
                 return True
-        for ifc in f.all_internal_calls():
-            if ifc.name == "_disableInitializers":
+        for ir in f.all_internal_calls():
+            if ir.function.name == "_disableInitializers":
                 return True
 
     # to avoid future FPs in different modifier + function naming implementations, we can also implement a broader check for state var "_initialized" being written to in the constructor
