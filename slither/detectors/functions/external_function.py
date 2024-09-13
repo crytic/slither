@@ -100,6 +100,7 @@ class ExternalFunction(AbstractDetector):
 
         # Somehow we couldn't resolve it, which shouldn't happen, as the provided function should be found if we could
         # not find some any more basic.
+        # pylint: disable=broad-exception-raised
         raise Exception("Could not resolve the base-most function for the provided function.")
 
     @staticmethod
