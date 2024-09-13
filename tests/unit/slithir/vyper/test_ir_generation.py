@@ -35,9 +35,9 @@ def bar():
         interface = next(iter(x for x in sl.contracts if x.is_interface))
         contract = next(iter(x for x in sl.contracts if not x.is_interface))
         func = contract.get_function_from_signature("bar()")
-        (contract, function) = func.high_level_calls[0]
+        (contract, ir) = func.high_level_calls[0]
         assert contract == interface
-        assert function.signature_str == "foo() returns(int128,uint256)"
+        assert ir.function.signature_str == "foo() returns(int128,uint256)"
 
 
 def test_phi_entry_point_internal_call(slither_from_vyper_source):
