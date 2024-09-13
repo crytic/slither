@@ -1661,7 +1661,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         internal_calls = [item for sublist in internal_calls for item in sublist]
         self._internal_calls = list(set(internal_calls))
 
-        self._solidity_calls = [c for c in internal_calls if isinstance(c, SolidityFunction)]
+        self._solidity_calls = [
+            ir for ir in internal_calls if isinstance(ir.function, SolidityFunction)
+        ]
 
         low_level_calls = [x.low_level_calls for x in self.nodes]
         low_level_calls = [x for x in low_level_calls if x]
