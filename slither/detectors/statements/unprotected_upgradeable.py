@@ -7,23 +7,28 @@ from slither.detectors.abstract_detector import (
     DetectorClassification,
     DETECTOR_INFO,
 )
-from slither.slithir.operations import LowLevelCall, SolidityCall
 from slither.utils.output import Output
 
 
 def _can_be_destroyed(contract: Contract) -> List[Function]:
     targets = []
     for f in contract.functions_entry_points:
-        for ir in f.all_slithir_operations():
-            if (
-                isinstance(ir, LowLevelCall) and ir.function_name in ["delegatecall", "codecall"]
-            ) or (
-                isinstance(ir, SolidityCall)
-                and ir.function
-                in [SolidityFunction("suicide(address)"), SolidityFunction("selfdestruct(address)")]
-            ):
+        found = False
+        for ir in f.all_low_level_calls():
+            if ir.function_name in ["delegatecall", "codecall"]:
                 targets.append(f)
+                found = True
                 break
+
+        if not found:
+            for ir in f.all_solidity_calls():
+                if ir.function in [
+                    SolidityFunction("suicide(address)"),
+                    SolidityFunction("selfdestruct(address)"),
+                ]:
+                    targets.append(f)
+                    break
+
     return targets
 
 

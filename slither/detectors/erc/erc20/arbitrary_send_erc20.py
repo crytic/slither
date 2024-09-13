@@ -3,7 +3,7 @@ from typing import List
 from slither.analyses.data_dependency.data_dependency import is_dependent
 from slither.core.cfg.node import Node
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.core.declarations import Contract, Function, SolidityVariableComposed
+from slither.core.declarations import Contract, Function, SolidityVariableComposed, FunctionContract
 from slither.core.declarations.solidity_variables import SolidityVariable
 from slither.slithir.operations import HighLevelCall, LibraryCall
 
@@ -44,51 +44,50 @@ class ArbitrarySendErc20:
                     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)"
                     in all_high_level_calls
                 ):
-                    ArbitrarySendErc20._arbitrary_from(f.nodes, self._permit_results)
+                    ArbitrarySendErc20._arbitrary_from(f, self._permit_results)
                 else:
-                    ArbitrarySendErc20._arbitrary_from(f.nodes, self._no_permit_results)
+                    ArbitrarySendErc20._arbitrary_from(f, self._no_permit_results)
 
     @staticmethod
-    def _arbitrary_from(nodes: List[Node], results: List[Node]) -> None:
+    def _arbitrary_from(function: FunctionContract, results: List[Node]) -> None:
         """Finds instances of (safe)transferFrom that do not use msg.sender or address(this) as from parameter."""
-        for node in nodes:
-            for ir in node.irs:
-                if (
-                    isinstance(ir, HighLevelCall)
-                    and isinstance(ir.function, Function)
-                    and ir.function.solidity_signature == "transferFrom(address,address,uint256)"
-                    and not (
-                        is_dependent(
-                            ir.arguments[0],
-                            SolidityVariableComposed("msg.sender"),
-                            node,
-                        )
-                        or is_dependent(
-                            ir.arguments[0],
-                            SolidityVariable("this"),
-                            node,
-                        )
+        for _, ir in function.high_level_calls:
+            if (
+                isinstance(ir, LibraryCall)
+                and ir.function.solidity_signature
+                == "safeTransferFrom(address,address,address,uint256)"
+                and not (
+                    is_dependent(
+                        ir.arguments[1],
+                        SolidityVariableComposed("msg.sender"),
+                        ir.node,
                     )
-                ):
-                    results.append(ir.node)
-                elif (
-                    isinstance(ir, LibraryCall)
-                    and ir.function.solidity_signature
-                    == "safeTransferFrom(address,address,address,uint256)"
-                    and not (
-                        is_dependent(
-                            ir.arguments[1],
-                            SolidityVariableComposed("msg.sender"),
-                            node,
-                        )
-                        or is_dependent(
-                            ir.arguments[1],
-                            SolidityVariable("this"),
-                            node,
-                        )
+                    or is_dependent(
+                        ir.arguments[1],
+                        SolidityVariable("this"),
+                        ir.node,
                     )
-                ):
-                    results.append(ir.node)
+                )
+            ):
+                results.append(ir.node)
+            elif (
+                isinstance(ir, HighLevelCall)
+                and isinstance(ir.function, Function)
+                and ir.function.solidity_signature == "transferFrom(address,address,uint256)"
+                and not (
+                    is_dependent(
+                        ir.arguments[0],
+                        SolidityVariableComposed("msg.sender"),
+                        ir.node,
+                    )
+                    or is_dependent(
+                        ir.arguments[0],
+                        SolidityVariable("this"),
+                        ir.node,
+                    )
+                )
+            ):
+                results.append(ir.node)
 
     def detect(self) -> None:
         """Detect transfers that use arbitrary `from` parameter."""

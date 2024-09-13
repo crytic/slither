@@ -21,10 +21,8 @@ def _assembly_node(function: Function) -> Optional[SolidityCall]:
 
     """
 
-    for ir in function.all_slithir_operations():
-        if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
-            "return(uint256,uint256)"
-        ):
+    for ir in function.all_solidity_calls():
+        if ir.function == SolidityFunction("return(uint256,uint256)"):
             return ir
     return None
 
@@ -71,24 +69,23 @@ The function will return 6 bytes starting from offset 5, instead of returning a 
         for c in self.contracts:
             for f in c.functions_and_modifiers_declared:
 
-                for node in f.nodes:
-                    if node.sons:
-                        for ir in node.internal_calls:
-                            function_called = ir.function
-                            if isinstance(function_called, Function):
-                                found = _assembly_node(function_called)
-                                if found:
+                for ir in f.internal_calls:
+                    if ir.node.sons:
+                        function_called = ir.function
+                        if isinstance(function_called, Function):
+                            found = _assembly_node(function_called)
+                            if found:
 
-                                    info: DETECTOR_INFO = [
-                                        f,
-                                        " calls ",
-                                        function_called,
-                                        " which halt the execution ",
-                                        found.node,
-                                        "\n",
-                                    ]
-                                    json = self.generate_result(info)
+                                info: DETECTOR_INFO = [
+                                    f,
+                                    " calls ",
+                                    function_called,
+                                    " which halt the execution ",
+                                    found.node,
+                                    "\n",
+                                ]
+                                json = self.generate_result(info)
 
-                                    results.append(json)
+                                results.append(json)
 
         return results
