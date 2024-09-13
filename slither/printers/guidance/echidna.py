@@ -162,9 +162,7 @@ def json_serializable(cls):
     my_super = super
 
     def as_dict(self):
-        yield {
-            name: value for name, value in zip(self._fields, iter(my_super(cls, self).__iter__()))
-        }
+        yield {name: value for name, value in zip(self._fields, iter(my_super(cls, self).iter()))}
 
     cls.__iter__ = as_dict
     return cls
