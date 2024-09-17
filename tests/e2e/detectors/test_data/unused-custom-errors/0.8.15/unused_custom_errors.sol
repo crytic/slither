@@ -2,10 +2,15 @@
 
 contract A {
     error Unused1();
-    error Unused2();
-    error Unused3();
+    error UsedError(address x);
 
-    function x() public pure {
-        revert Unused1();
+    constructor() public {}
+
+    function x() public view {
+        uint256 d = 7;
+        if (msg.sender == address(0)) {
+            d = 100;
+            revert UsedError(msg.sender);
+        }
     }
 }
