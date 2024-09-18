@@ -46,7 +46,7 @@ class UnusedCustomErrors(AbstractDetector):
         for custom_error in self.compilation_unit.custom_errors:
             defined_custom_errors.add(custom_error)
 
-        # Collect all used custom errors
+        # Collect all custom errors used in revertsCustomError
         for contract in self.compilation_unit.contracts:
             for function in contract.functions_and_modifiers:
                 for internal_call in function.internal_calls:
@@ -59,9 +59,10 @@ class UnusedCustomErrors(AbstractDetector):
                 unused_custom_errors.add(defined_error)
 
         results = []
-        for custom_error in unused_custom_errors:
-            info: DETECTOR_INFO = ["Unused custom error: # ", custom_error.full_name, "\n"]
-            json = self.generate_result(info)
-            results.append(json)
+        if len(unused_custom_errors) > 0:
+            info: DETECTOR_INFO = ["The following unused error(s) should be removed:"]
+            for custom_error in unused_custom_errors:
+                info += ["\n\t-", custom_error.full_name, " ", custom_error.compilation_unit, "\n"]
+            results.append(self.generate_result(info))
 
         return results
