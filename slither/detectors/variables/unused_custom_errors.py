@@ -19,16 +19,32 @@ class UnusedCustomErrors(AbstractDetector):
     """
 
     ARGUMENT = "unused-custom-errors"
-    HELP = "Unused Custom Errors"
+    HELP = "Detects unused custom errors"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-custom-error"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#unused-custom-errors"
 
-    WIKI_TITLE = "Unused custom error"
-    WIKI_DESCRIPTION = "Unused custom error."
-    WIKI_EXPLOIT_SCENARIO = ""
-    WIKI_RECOMMENDATION = "Remove unused custom errors."
+    WIKI_TITLE = "Unused Custom Errors"
+    WIKI_DESCRIPTION = "Declaring a custom error, but never using it might indicate a mistake."
+    
+    # region wiki_exploit_scenario
+    WIKI_EXPLOIT_SCENARIO = """
+    ```solidity
+    contract A {
+        error ZeroAddressNotAllowed();
+        
+        address public owner;
+        
+        constructor(address _owner) {
+            owner = _owner;
+        }
+    }
+    ```
+    Custom error `ZeroAddressNotAllowed` is declared but never used. It shall be either invoked where needed, or removed if there's no need for it.
+    """
+    # endregion wiki_exploit_scenario = ""
+    WIKI_RECOMMENDATION = "Remove the unused custom errors."
 
     def _detect(self) -> List[Output]:
         """Detect unused custom errors"""
