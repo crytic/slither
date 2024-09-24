@@ -54,7 +54,6 @@ class UnusedCustomErrors(AbstractDetector):
 
         # Collect all custom errors defined in the contracts
         for contract in self.compilation_unit.contracts:
-            contract.custom_errors_declared
             for custom_error in contract.custom_errors:
                 declared_custom_errors.append(custom_error)
 
@@ -76,6 +75,7 @@ class UnusedCustomErrors(AbstractDetector):
             ):
                 unused_custom_errors.append(declared_error)
 
+        # Format results
         results = []
         if len(unused_custom_errors) > 0:
             info: DETECTOR_INFO = ["The following unused error(s) should be removed:"]
