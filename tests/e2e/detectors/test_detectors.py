@@ -403,7 +403,7 @@ ALL_TESTS = [
     ),
     Test(
         all_detectors.UnusedCustomErrors,
-        "unused_custom_errors.sol",
+        "ContractToTestForCustomErrors.sol",
         "0.8.15",
     ),
     Test(all_detectors.LockedEther, "locked_ether.sol", "0.4.25"),
