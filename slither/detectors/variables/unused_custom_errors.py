@@ -1,10 +1,9 @@
 """
 Module detecting unused custom errors
 """
-from typing import List, Tuple
-
-from slither.core.compilation_unit import SlitherCompilationUnit
+from typing import List
 from slither.core.declarations.custom_error import CustomError
+from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.solidity_variables import SolidityCustomRevert
 from slither.detectors.abstract_detector import (
     AbstractDetector,
@@ -33,19 +32,19 @@ class UnusedCustomErrors(AbstractDetector):
 
     def _detect(self) -> List[Output]:
         """Detect unused custom errors"""
-        defined_custom_errors: List[Tuple[CustomError,str]] = []
+        declared_custom_errors: List[CustomError] = []
         custom_reverts: List[SolidityCustomRevert] = []
-        unused_custom_errors: List[Tuple[CustomError,str]] = []
+        unused_custom_errors: List[CustomError] = []
 
         # Collect all custom errors defined in the contracts
         for contract in self.compilation_unit.contracts:
             contract.custom_errors_declared
             for custom_error in contract.custom_errors:
-                defined_custom_errors.append((custom_error, custom_error.contract.file_scope.filename.short))
+                declared_custom_errors.append(custom_error)
 
         # Add custom errors defined outside of contracts
         for custom_error in self.compilation_unit.custom_errors:
-            defined_custom_errors.append((custom_error, custom_error.file_scope.filename.short))
+            declared_custom_errors.append(custom_error)
 
         # Collect all custom errors used in revertsCustomError
         for contract in self.compilation_unit.contracts:
@@ -55,15 +54,16 @@ class UnusedCustomErrors(AbstractDetector):
                         custom_reverts.append(internal_call)
 
         # Find unused custom errors
-        for defined_error, file_name in defined_custom_errors:
+        for defined_error in declared_custom_errors:
             if not any(defined_error.name in custom_revert.name for custom_revert in custom_reverts):
-                unused_custom_errors.append((defined_error, file_name))
+                unused_custom_errors.append(defined_error)
 
         results = []
         if len(unused_custom_errors) > 0:
             info: DETECTOR_INFO = ["The following unused error(s) should be removed:"]
-            for custom_error, file_name in unused_custom_errors:
-                info += ["\n\t-", custom_error.full_name, " (", file_name, ")\n"]
+            for custom_error in unused_custom_errors:
+                file_scope = custom_error.file_scope if isinstance(custom_error, CustomErrorTopLevel) else custom_error.contract.file_scope
+                info += ["\n\t-", custom_error.full_name, " (", file_scope.filename.short, ")\n"]
             results.append(self.generate_result(info))
 
         return results
