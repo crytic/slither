@@ -27,7 +27,7 @@ class UnusedCustomErrors(AbstractDetector):
 
     WIKI_TITLE = "Unused Custom Errors"
     WIKI_DESCRIPTION = "Declaring a custom error, but never using it might indicate a mistake."
-    
+
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
     ```solidity
@@ -71,14 +71,20 @@ class UnusedCustomErrors(AbstractDetector):
 
         # Find unused custom errors
         for defined_error in declared_custom_errors:
-            if not any(defined_error.name in custom_revert.name for custom_revert in custom_reverts):
+            if not any(
+                defined_error.name in custom_revert.name for custom_revert in custom_reverts
+            ):
                 unused_custom_errors.append(defined_error)
 
         results = []
         if len(unused_custom_errors) > 0:
             info: DETECTOR_INFO = ["The following unused error(s) should be removed:"]
             for custom_error in unused_custom_errors:
-                file_scope = custom_error.file_scope if isinstance(custom_error, CustomErrorTopLevel) else custom_error.contract.file_scope
+                file_scope = (
+                    custom_error.file_scope
+                    if isinstance(custom_error, CustomErrorTopLevel)
+                    else custom_error.contract.file_scope
+                )
                 info += ["\n\t-", custom_error.full_name, " (", file_scope.filename.short, ")\n"]
             results.append(self.generate_result(info))
 
