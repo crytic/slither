@@ -62,7 +62,7 @@ class UnusedCustomErrors(AbstractDetector):
         for custom_error in self.compilation_unit.custom_errors:
             declared_custom_errors.append(custom_error)
 
-        # Collect all custom errors used in revertsCustomError
+        # Collect all custom errors invoked in revert statements
         for contract in self.compilation_unit.contracts:
             for function in contract.functions_and_modifiers:
                 for internal_call in function.internal_calls:
@@ -70,11 +70,11 @@ class UnusedCustomErrors(AbstractDetector):
                         custom_reverts.append(internal_call)
 
         # Find unused custom errors
-        for defined_error in declared_custom_errors:
+        for declared_error in declared_custom_errors:
             if not any(
-                defined_error.name in custom_revert.name for custom_revert in custom_reverts
+                declared_error.name in custom_revert.name for custom_revert in custom_reverts
             ):
-                unused_custom_errors.append(defined_error)
+                unused_custom_errors.append(declared_error)
 
         results = []
         if len(unused_custom_errors) > 0:
