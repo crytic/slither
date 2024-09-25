@@ -1,5 +1,5 @@
 from typing import List, Union
-from slither.core.declarations import Contract, Function
+from slither.core.declarations import Contract, Function, Event
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.enum import Enum
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
@@ -33,14 +33,14 @@ class Member(OperationWithLValue):
         # Can be an ElementaryType because of bytes.concat, string.concat
         assert is_valid_rvalue(variable_left) or isinstance(
             variable_left,
-            (Contract, Enum, Function, CustomError, SolidityImportPlaceHolder, ElementaryType),
+            (Contract, Enum, Function, Event, CustomError, SolidityImportPlaceHolder, ElementaryType),
         )
 
         assert isinstance(variable_right, Constant)
         assert isinstance(result, ReferenceVariable)
         super().__init__()
         self._variable_left: Union[
-            RVALUE, Contract, Enum, Function, CustomError, SolidityImportPlaceHolder, ElementaryType
+            RVALUE, Contract, Enum, Function, Event, CustomError, SolidityImportPlaceHolder, ElementaryType
         ] = variable_left
         self._variable_right = variable_right
         self._lvalue = result
