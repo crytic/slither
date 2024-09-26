@@ -1,7 +1,7 @@
 """
 Module detecting unused custom errors
 """
-from typing import List
+from typing import List, Set
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.custom_error_top_level import CustomErrorTopLevel
 from slither.core.declarations.solidity_variables import SolidityCustomRevert
@@ -48,32 +48,32 @@ class UnusedCustomErrors(AbstractDetector):
 
     def _detect(self) -> List[Output]:
         """Detect unused custom errors"""
-        declared_custom_errors: List[CustomError] = []
-        custom_reverts: List[SolidityCustomRevert] = []
-        unused_custom_errors: List[CustomError] = []
+        declared_custom_errors: Set[CustomError] = set()
+        custom_reverts: Set[SolidityCustomRevert] = set()
+        unused_custom_errors: Set[CustomError] = set()
 
         # Collect all custom errors defined in the contracts
         for contract in self.compilation_unit.contracts:
             for custom_error in contract.custom_errors:
-                declared_custom_errors.append(custom_error)
+                declared_custom_errors.add(custom_error)
 
         # Add custom errors defined outside of contracts
         for custom_error in self.compilation_unit.custom_errors:
-            declared_custom_errors.append(custom_error)
+            declared_custom_errors.add(custom_error)
 
         # Collect all custom errors invoked in revert statements
         for contract in self.compilation_unit.contracts:
             for function in contract.functions_and_modifiers:
                 for internal_call in function.internal_calls:
                     if isinstance(internal_call, SolidityCustomRevert):
-                        custom_reverts.append(internal_call)
+                        custom_reverts.add(internal_call)
 
         # Find unused custom errors
         for declared_error in declared_custom_errors:
             if not any(
                 declared_error.name in custom_revert.name for custom_revert in custom_reverts
             ):
-                unused_custom_errors.append(declared_error)
+                unused_custom_errors.add(declared_error)
 
         # Format results
         results = []

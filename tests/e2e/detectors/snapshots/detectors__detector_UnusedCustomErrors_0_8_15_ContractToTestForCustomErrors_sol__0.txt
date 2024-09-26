@@ -1,15 +1,11 @@
 The following unused error(s) should be removed:
-	-UnusedParentErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol)
-
-	-UnusedParentErrWithArg(uint256) (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol)
-
-	-UnusedParentErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol)
-
-	-UnusedParentErrWithArg(uint256) (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol)
-
 	-UnusedLibError() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/CustomErrorsLib.sol)
 
 	-UnusedErrorLibConsumerErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ErrorLibConsumer.sol)
+
+	-UnusedParentErrWithArg(uint256) (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol)
+
+	-UnusedParentErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol)
 
 	-UnusedTopLevelErr() (tests/e2e/detectors/test_data/unused-custom-errors/0.8.15/ContractToTestForCustomErrors.sol)
 
