@@ -50,7 +50,7 @@ class UnusedCustomErrors(AbstractDetector):
         """Detect unused custom errors"""
         declared_custom_errors: Set[CustomError] = set()
         custom_reverts: Set[SolidityCustomRevert] = set()
-        unused_custom_errors: Set[CustomError] = set()
+        unused_custom_errors: List[CustomError] = []
 
         # Collect all custom errors defined in the contracts
         for contract in self.compilation_unit.contracts:
@@ -73,7 +73,10 @@ class UnusedCustomErrors(AbstractDetector):
             if not any(
                 declared_error.name in custom_revert.name for custom_revert in custom_reverts
             ):
-                unused_custom_errors.add(declared_error)
+                unused_custom_errors.append(declared_error)
+
+        # Sort by error name
+        unused_custom_errors = sorted(unused_custom_errors, key=lambda err: err.name)
 
         # Format results
         results = []
