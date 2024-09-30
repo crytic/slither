@@ -1,0 +1,6 @@
+Deprecated standard detected THROW:
+	- Usage of "throw" should be replaced with "revert()"
+
+Deprecated standard detected msg.gas == msg.value:
+	- Usage of "msg.gas" should be replaced with "gasleft()"
+

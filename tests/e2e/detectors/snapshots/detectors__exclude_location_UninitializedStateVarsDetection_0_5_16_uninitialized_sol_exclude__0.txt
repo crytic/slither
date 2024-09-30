@@ -1,0 +1,12 @@
+Test2.st is never initialized. It is used in:
+	- Test2.use()
+
+Test.balances is never initialized. It is used in:
+	- Test.use()
+
+Test2.v is never initialized. It is used in:
+	- Test2.init()
+
+Uninitialized.destination is never initialized. It is used in:
+	- Uninitialized.transfer()
+

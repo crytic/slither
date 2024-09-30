@@ -1,0 +1,6 @@
+C.bad(address[]) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))
+
+C.bad3(address[]) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))
+
+C.bad2_internal(address[]) has delegatecall inside a loop in a payable function: address(this).delegatecall(abi.encodeWithSignature(addBalance(address),receivers[i]))
+

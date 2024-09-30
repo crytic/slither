@@ -1,0 +1,2 @@
+Something should inherit from ISomething
+

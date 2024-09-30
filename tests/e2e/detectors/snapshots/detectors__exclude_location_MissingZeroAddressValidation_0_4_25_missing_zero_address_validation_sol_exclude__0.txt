@@ -1,0 +1,16 @@
+C.bad4_call(address).addr lacks a zero-check on :
+		- addr.call.value(msg.value)()
+
+C.bad3_transfer(address).addr lacks a zero-check on :
+		- addr.transfer(msg.value)
+
+C.bad2_transfer(address).addr lacks a zero-check on :
+		- addr.transfer(msg.value)
+
+C.bad0_set_owner(address).new_owner lacks a zero-check on :
+		- owner = new_owner
+
+C.bad1_send(address).addr lacks a zero-check on :
+		- addr.send(msg.value)
+		- addr.send(msg.value)
+

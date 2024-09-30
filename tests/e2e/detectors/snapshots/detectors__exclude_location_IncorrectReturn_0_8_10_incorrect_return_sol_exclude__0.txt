@@ -1,0 +1,4 @@
+C.bad1() calls C.indirect() which halt the execution return(uint256,uint256)(5,6)
+
+C.bad0() calls C.internal_return() which halt the execution return(uint256,uint256)(5,6)
+

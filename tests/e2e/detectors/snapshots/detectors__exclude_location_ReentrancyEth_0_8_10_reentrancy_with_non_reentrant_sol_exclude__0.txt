@@ -1,0 +1,32 @@
+Reentrancy in TestWithBugInternal.withdraw_internal(uint256):
+	External calls:
+	- Receiver(msg.sender).send_funds{value: amount}()
+	State variables written after the call(s):
+	- balances[msg.sender] -= amount
+	TestWithBugInternal.balances can be used in cross function reentrancies:
+	- TestWithBugInternal.withdraw_all_internal()
+
+Reentrancy in TestWithBug.withdraw(uint256):
+	External calls:
+	- Receiver(msg.sender).send_funds{value: amount}()
+	State variables written after the call(s):
+	- balances[msg.sender] -= amount
+	TestWithBug.balances can be used in cross function reentrancies:
+	- TestWithBug.withdraw_all()
+
+Reentrancy in TestBugWithPublicVariable.withdraw_internal(uint256):
+	External calls:
+	- Receiver(msg.sender).send_funds{value: amount}()
+	State variables written after the call(s):
+	- balances[msg.sender] -= amount
+	TestBugWithPublicVariable.balances can be used in cross function reentrancies:
+	- TestBugWithPublicVariable.balances
+
+Reentrancy in TestWithBugNonReentrantRead.withdraw(uint256):
+	External calls:
+	- Receiver(msg.sender).send_funds{value: amount}()
+	State variables written after the call(s):
+	- balances[msg.sender] -= amount
+	TestWithBugNonReentrantRead.balances can be used in cross function reentrancies:
+	- TestWithBugNonReentrantRead.read()
+

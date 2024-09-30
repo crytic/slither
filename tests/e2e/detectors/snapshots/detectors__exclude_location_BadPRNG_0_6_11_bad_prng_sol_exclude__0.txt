@@ -1,0 +1,8 @@
+BadPRNG.bad1() uses a weak PRNG: "i = now % 10" 
+
+BadPRNG.bad0() uses a weak PRNG: "i = block.timestamp % 10" 
+
+BadPRNG.bad2() uses a weak PRNG: "i = uint256(blockhash(uint256)(10000)) % 10" 
+
+BadPRNG.bad3() uses a weak PRNG: "i = foo() % 10" 
+

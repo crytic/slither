@@ -1,0 +1,3 @@
+DerivedContract.__gap shadows:
+	- BaseContract.__gap
+

@@ -1,0 +1,14 @@
+MyConc.should_be_constant_3 should be constant 
+
+A.text2 should be constant 
+
+B.mySistersAddress should be constant 
+
+A.myFriendsAddress should be constant 
+
+MyConc.should_be_constant should be constant 
+
+MyConc.should_be_constant_2 should be constant 
+
+A.test should be constant 
+
