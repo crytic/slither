@@ -1,0 +1,167 @@
+Export tmp.zip-I-constructor().dot
+Export tmp.zip-C-f().dot
+Export tmp.zip-C-publicTarget().dot
+Export tmp.zip-C-internalTarget(uint256,uint256).dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+publicTarget()
+
+IRs:
+INTERNAL_CALL, C.publicTarget()()"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+this.publicTarget()
+
+IRs:
+HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[]  "];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+this.publicTarget.value(1000000000000000000)()
+
+IRs:
+HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[] value:1000000000000000000 "];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+this.publicTarget.value(1000000000000000000)
+
+IRs:
+REF_3(function()) -> this.publicTarget
+REF_4(None) -> REF_3.value"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+this.publicTarget.gas(10000)()
+
+IRs:
+HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[]  gas:10000"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+this.publicTarget.gas(10000).value(2000000000000000000)()
+
+IRs:
+HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[] value:2000000000000000000 gas:10000"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+this.publicTarget.gas(10000).gas(20000).value(2000000000000000000).gas(0)()
+
+IRs:
+HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[] value:2000000000000000000 gas:0"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+internalTarget(1,2)
+
+IRs:
+INTERNAL_CALL, C.internalTarget(uint256,uint256)(1,2)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+S({a:5,b:6})
+
+IRs:
+TMP_16(C.S) = new S(5,6)"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+T({s1:S({a:1,b:2}),s2:S({a:3,b:4})})
+
+IRs:
+TMP_17(C.S) = new S(1,2)
+TMP_18(C.S) = new S(3,4)
+TMP_19(C.T) = new T(TMP_17,TMP_18)"];
+10->11;
+11[label="Node Type: NEW VARIABLE 11
+"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+ptr.value(10000000000000000000)(1)
+
+IRs:
+INTERNAL_DYNAMIC_CALL ptr(1) value:10000000000000000000 "];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+I(msg.sender)
+
+IRs:
+TMP_22 = CONVERT msg.sender to I"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+new I()
+
+IRs:
+TMP_24(I) = new I() "];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+(new I).value(1000000000000000000)()
+
+IRs:
+TMP_27(I) = new I() value:1000000000000000000 "];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+type(address)(I)
+
+IRs:
+TMP_28(type(I)) = SOLIDITY_CALL type(address)(I)"];
+16->17;
+17[label="Node Type: EXPRESSION 17
+
+EXPRESSION:
+abi.encode(1,2,3)
+
+IRs:
+TMP_29(bytes) = SOLIDITY_CALL abi.encode()(1,2,3)"];
+17->18;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+abi.decode(msg.data,(uint256,uint256[],I))
+
+IRs:
+TUPLE_0(uint256,uint256[],I) = SOLIDITY_CALL abi.decode()(msg.data(uint256,uint256[],I))"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+

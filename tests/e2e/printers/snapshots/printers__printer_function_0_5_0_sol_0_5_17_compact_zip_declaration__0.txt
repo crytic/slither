@@ -1,0 +1,121 @@
+
+# Contracts
+# C1
+	- Declaration: tests/ast-parsing/function-0.5.0.sol#1 (10 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C1.constructor()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#3 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#3 (5 - 28)']
+			- References: []
+		- C1.fallback()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#6 (5 - 14)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#6 (5 - 27)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C2
+	- Declaration: tests/ast-parsing/function-0.5.0.sol#9 (10 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C2.constructor()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#11 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#11 (5 - 36)']
+			- References: []
+		- C2.fallback()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#14 (5 - 14)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#14 (5 - 35)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C3
+	- Declaration: tests/ast-parsing/function-0.5.0.sol#17 (10 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C3.constructor()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#19 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#19 (5 - 30)']
+			- References: []
+		- C3.f()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#24 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#24 (5 - 76)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C4
+	- Declaration: tests/ast-parsing/function-0.5.0.sol#27 (10 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C4.hasArgs(uint256,uint256)
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#28 (14 - 22)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#28 (5 - 43)']
+			- References: []
+		- C4.hasReturns()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#29 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#29 (5 - 51)']
+			- References: []
+		- C4.hasArgsAndReturns(uint256,uint256)
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#30 (14 - 32)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#30 (5 - 74)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C5
+	- Declaration: tests/ast-parsing/function-0.5.0.sol#33 (10 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- C5.payableFunc()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#34 (14 - 26)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#34 (5 - 45)']
+			- References: []
+		- C5.externalFunc()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#35 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#35 (5 - 40)']
+			- References: []
+		- C5.publicFunc()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#36 (14 - 25)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#36 (5 - 36)']
+			- References: []
+		- C5.internalFunc()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#37 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#37 (5 - 40)']
+			- References: []
+		- C5.privateFunc()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#38 (14 - 26)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#38 (5 - 38)']
+			- References: []
+		- C5.pureFunc()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#39 (14 - 23)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#39 (5 - 39)']
+			- References: []
+		- C5.viewFunc()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#40 (14 - 23)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#40 (5 - 39)']
+			- References: []
+		- C5.abstractFunc()
+			- Declaration: tests/ast-parsing/function-0.5.0.sol#41 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/function-0.5.0.sol#41 (5 - 36)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

@@ -1,0 +1,54 @@
+Inheritance
+Child_Contract -> Immediate_Base_Contracts [Not_Immediate_Base_Contracts]
++ A
+
++ B
+ -> A
+
++ C
+ -> B
+, [A]
+
++ D
+ -> B
+, [A]
+
++ E
+ -> B
+, [A]
+
++ F
+ -> A
+
++ G
+ -> A
+
++ H
+ -> F, G
+, [A]
+
+
+Base_Contract -> Immediate_Child_Contracts
+ [Not_Immediate_Child_Contracts]
+
++ A
+ -> B, F, G
+, [C, D, E, H]
+
++ B
+ -> C, D, E
+
++ C
+
++ D
+
++ E
+
++ F
+ -> H
+
++ G
+ -> H
+
++ H
+

@@ -1,0 +1,12 @@
+
++ Contract Test (Most derived contract)
+
++ Contract VM (Most derived contract)
+  - From VM
+    - expectRevert(bytes) (external)
+    - expectRevert(bytes4) (external)
+
++ Contract A (Most derived contract)
+  - From A
+    - b(address) (public)
+

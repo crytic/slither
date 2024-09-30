@@ -1,0 +1,45 @@
+
+# Contracts
+# Test
+	- Declaration: tests/ast-parsing/custom-error-selector.sol#1 (11 - 16)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/custom-error-selector.sol#11 (28 - 32)']
+
+	## Function
+
+	## State variables
+
+	## Structures
+# VM
+	- Declaration: tests/ast-parsing/custom-error-selector.sol#5 (11 - 14)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/custom-error-selector.sol#11 (9 - 14)']
+
+	## Function
+		- VM.expectRevert(bytes4)
+			- Declaration: tests/ast-parsing/custom-error-selector.sol#6 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/custom-error-selector.sol#6 (5 - 44)']
+			- References: ['tests/ast-parsing/custom-error-selector.sol#11 (9 - 50)']
+		- VM.expectRevert(bytes)
+			- Declaration: tests/ast-parsing/custom-error-selector.sol#7 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/custom-error-selector.sol#7 (5 - 52)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# A
+	- Declaration: tests/ast-parsing/custom-error-selector.sol#9 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- A.b(address)
+			- Declaration: tests/ast-parsing/custom-error-selector.sol#10 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/custom-error-selector.sol#10-12 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

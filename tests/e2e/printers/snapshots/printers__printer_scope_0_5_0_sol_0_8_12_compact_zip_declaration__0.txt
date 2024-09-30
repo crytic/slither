@@ -1,0 +1,29 @@
+
+# Contracts
+# Scope
+	- Declaration: tests/ast-parsing/scope-0.5.0.sol#1 (10 - 16)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- Scope.nested_scope()
+			- Declaration: tests/ast-parsing/scope-0.5.0.sol#3 (14 - 27)
+			- Implementation(s): ['tests/ast-parsing/scope-0.5.0.sol#3-12 (5 - 6)']
+			- References: []
+		- Scope.if_scope()
+			- Declaration: tests/ast-parsing/scope-0.5.0.sol#14 (14 - 23)
+			- Implementation(s): ['tests/ast-parsing/scope-0.5.0.sol#14-22 (5 - 6)']
+			- References: []
+		- Scope.while_scope()
+			- Declaration: tests/ast-parsing/scope-0.5.0.sol#24 (14 - 26)
+			- Implementation(s): ['tests/ast-parsing/scope-0.5.0.sol#24-30 (5 - 6)']
+			- References: []
+		- Scope.for_scope()
+			- Declaration: tests/ast-parsing/scope-0.5.0.sol#31 (14 - 24)
+			- Implementation(s): ['tests/ast-parsing/scope-0.5.0.sol#31-37 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

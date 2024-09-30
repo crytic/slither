@@ -1,0 +1,31 @@
+
+# Contracts
+# T
+	- Declaration: tests/ast-parsing/top_level_variable-0.8.0.sol#11 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- T.g()
+			- Declaration: tests/ast-parsing/top_level_variable-0.8.0.sol#12 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/top_level_variable-0.8.0.sol#12-14 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# T2
+	- Declaration: tests/ast-parsing/top_level_variable2-0.8.0.sol#3 (10 - 13)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- T2.h(uint256[10])
+			- Declaration: tests/ast-parsing/top_level_variable2-0.8.0.sol#5 (14 - 16)
+			- Implementation(s): ['tests/ast-parsing/top_level_variable2-0.8.0.sol#5-6 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+

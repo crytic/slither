@@ -1,0 +1,7 @@
+
++ Contract L (Most derived contract)
+
++ Contract C (Most derived contract)
+  - From C
+    - f(uint256,uint256[]) (public)
+

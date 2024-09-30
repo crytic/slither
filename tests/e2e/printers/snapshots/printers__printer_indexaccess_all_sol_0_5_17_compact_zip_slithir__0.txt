@@ -1,0 +1,6 @@
+Contract C
+	Function C.f() (*)
+		Expression: x[0]
+		IRs:
+			REF_0(uint256) -> x[0]
+

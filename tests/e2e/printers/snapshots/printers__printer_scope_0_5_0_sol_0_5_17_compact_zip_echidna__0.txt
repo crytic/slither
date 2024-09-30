@@ -1,0 +1,100 @@
+{
+    "payable": {},
+    "timestamp": {},
+    "block_number": {},
+    "msg_sender": {},
+    "msg_gas": {},
+    "assert": {},
+    "constant_functions": {
+        "Scope": [
+            "nested_scope()",
+            "if_scope()",
+            "while_scope()",
+            "for_scope()"
+        ]
+    },
+    "constants_used": {
+        "Scope": {
+            "if_scope()": [
+                [
+                    {
+                        "value": "True",
+                        "type": "bool"
+                    }
+                ]
+            ],
+            "while_scope()": [
+                [
+                    {
+                        "value": "True",
+                        "type": "bool"
+                    }
+                ]
+            ],
+            "for_scope()": [
+                [
+                    {
+                        "value": "1",
+                        "type": "uint256"
+                    }
+                ],
+                [
+                    {
+                        "value": "10",
+                        "type": "uint256"
+                    }
+                ]
+            ]
+        }
+    },
+    "constants_used_in_binary": {
+        "Scope": {
+            "for_scope()": {
+                "BinaryType.ADDITION": [
+                    [
+                        {
+                            "value": "1",
+                            "type": "uint256"
+                        }
+                    ]
+                ],
+                "BinaryType.LESS": [
+                    [
+                        {
+                            "value": "10",
+                            "type": "uint256"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "functions_relations": {
+        "Scope": {
+            "nested_scope()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "if_scope()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "while_scope()": {
+                "impacts": [],
+                "is_impacted_by": []
+            },
+            "for_scope()": {
+                "impacts": [],
+                "is_impacted_by": []
+            }
+        }
+    },
+    "constructors": {},
+    "have_external_calls": {},
+    "use_balance": {},
+    "solc_versions": [
+        "0.5.17"
+    ],
+    "with_fallback": [],
+    "with_receive": []
+}

@@ -1,0 +1,13 @@
+
+# Contracts
+# C
+	- Declaration: tests/ast-parsing/pragma-0.8.0.sol#7 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+

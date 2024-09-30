@@ -1,0 +1,247 @@
+Export tmp.zip-VendingMachine-err0().dot
+Export tmp.zip-VendingMachine-err1().dot
+Export tmp.zip-VendingMachine-err2().dot
+Export tmp.zip-VendingMachine-err3().dot
+Export tmp.zip-VendingMachine-err4().dot
+Export tmp.zip-VendingMachine-err5(uint256[5]).dot
+Export tmp.zip-VendingMachine-err6(uint256[10]).dot
+Export tmp.zip-VendingMachine-slitherConstructorConstantVariables().dot
+Export tmp.zip-A-f().dot
+Export tmp.zip-B-f().dot
+Export tmp.zip-B-g().dot
+Export tmp.zip-B-h().dot
+Export tmp.zip-ContractArgCustomError-f().dot
+Export tmp.zip-ContractArgCustomError-g().dot
+Export tmp.zip-ContractArgCustomError-h().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+revert ErrorSimple()()
+
+IRs:
+TMP_0(None) = SOLIDITY_CALL revert ErrorSimple()()"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+revert ErrorWithStruct(St)(s)
+
+IRs:
+TMP_1(None) = SOLIDITY_CALL revert ErrorWithStruct(St)(s)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+revert ErrorWithArgs(uint256,uint256)(10 + 10,10)
+
+IRs:
+TMP_2(uint256) = 10 (c)+ 10
+TMP_3(None) = SOLIDITY_CALL revert ErrorWithArgs(uint256,uint256)(TMP_2,10)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+revert ErrorWithArgs(uint256,uint256)(uint256(SomeEnum.ONE),uint256(SomeEnum.ONE))
+
+IRs:
+REF_0(I.SomeEnum) -> SomeEnum.ONE
+TMP_4 = CONVERT REF_0 to uint256
+REF_1(I.SomeEnum) -> SomeEnum.ONE
+TMP_5 = CONVERT REF_1 to uint256
+TMP_6(None) = SOLIDITY_CALL revert ErrorWithArgs(uint256,uint256)(TMP_4,TMP_5)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+revert(string)(test)
+
+IRs:
+TMP_7(None) = SOLIDITY_CALL revert(string)(test)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+revert ErrorWithEnum(I.SomeEnum)(SomeEnum.ONE)
+
+IRs:
+REF_2(I.SomeEnum) -> SomeEnum.ONE
+TMP_8(None) = SOLIDITY_CALL revert ErrorWithEnum(I.SomeEnum)(REF_2)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+revert ErrorWithConst(uint256[5])(a)
+
+IRs:
+TMP_9(None) = SOLIDITY_CALL revert ErrorWithConst(uint256[5])(a)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+revert CErrorWithConst(uint256[10])(a)
+
+IRs:
+TMP_10(None) = SOLIDITY_CALL revert CErrorWithConst(uint256[10])(a)"];
+}
+
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+CMAX = 10
+
+IRs:
+CMAX(uint256) := 10(uint256)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+revert MyError(uint256)(2)
+
+IRs:
+TMP_11(None) = SOLIDITY_CALL revert MyError(uint256)(2)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+revert MyError(uint256)(2)
+
+IRs:
+TMP_12(None) = SOLIDITY_CALL revert MyError(uint256)(2)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+revert MyError(uint256)(2)
+
+IRs:
+TMP_13(None) = SOLIDITY_CALL revert MyError(uint256)(2)"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+revert MyError(uint256).selector
+
+IRs:
+REF_3(bytes4) (->None) := 816952677(bytes4)
+RETURN REF_3"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+g()
+
+IRs:
+INTERNAL_CALL, ContractArgCustomError.g()()"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+something = h()
+
+IRs:
+TMP_15(bool) = INTERNAL_CALL, ContractArgCustomError.h()()
+something(bool) := TMP_15(bool)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+something
+
+IRs:
+CONDITION something"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+revert E(address)(this)
+
+IRs:
+TMP_16(None) = SOLIDITY_CALL revert E(address)(this)"];
+3->4;
+4[label="Node Type: END_IF 4
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+something
+
+IRs:
+RETURN something"];
+}
+

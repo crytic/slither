@@ -1,0 +1,11 @@
+
+Contract C
++----------------+-------------------+
+| Function       | require or assert |
++----------------+-------------------+
+| returnConstant |                   |
+| returnVariable |                   |
+| returnTuple    |                   |
+| returnTernary  |                   |
+| returnDelete   |                   |
++----------------+-------------------+

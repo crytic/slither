@@ -1,0 +1,53 @@
+
+Contract ERC20
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
++----------+--------------+
+
+Function balanceOf(address)
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
+|          |           [] |
++----------+--------------+
+Contract ERC20
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
++----------+--------------+
+
+Function balanceOf(address)
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
+|          |           [] |
++----------+--------------+
+Contract C
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
++----------+--------------+
+
+Function tryCatchFunctionCall()
++-----------------+-------------------------------------------------------------------------+
+| Variable        |                                                            Dependencies |
++-----------------+-------------------------------------------------------------------------+
+| actualBalance   | ['balance', 'balance_scope_0', 'balance_scope_2', 'msg.sender', 'this'] |
+| balance         |                                                  ['msg.sender', 'this'] |
+| err             |                                                                      [] |
+| balance_scope_0 |                                                  ['msg.sender', 'this'] |
+| err_scope_1     |                                                                      [] |
+| balance_scope_2 |                                                  ['msg.sender', 'this'] |
+| err_scope_3     |                                                                      [] |
+| err_scope_4     |                                                                      [] |
+| balance_scope_5 |                                                  ['msg.sender', 'this'] |
+| c               |                                                                   ['c'] |
+| i               |                                                                   ['i'] |
++-----------------+-------------------------------------------------------------------------+
+Function tryCatchContractDeployment()
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
+| deployed |           [] |
++----------+--------------+

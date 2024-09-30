@@ -1,0 +1,95 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipC1.call-graph.dot
+Call Graph: tmp.zipC2.call-graph.dot
+Call Graph: tmp.zipC3.call-graph.dot
+Call Graph: tmp.zipC4.call-graph.dot
+Call Graph: tmp.zipC5.call-graph.dot
+
+strict digraph {
+subgraph cluster_110_C1 {
+label = "C1"
+"110_constructor" [label="constructor"]
+"110_fallback" [label="fallback"]
+}subgraph cluster_119_C2 {
+label = "C2"
+"119_constructor" [label="constructor"]
+"119_fallback" [label="fallback"]
+}subgraph cluster_144_C3 {
+label = "C3"
+"144_constructor" [label="constructor"]
+"144_f" [label="f"]
+"144_f" -> "144_modifierNoArgs"
+"144_f" -> "144_modifierWithArgs"
+}subgraph cluster_169_C4 {
+label = "C4"
+"169_hasArgs" [label="hasArgs"]
+"169_hasArgsAndReturns" [label="hasArgsAndReturns"]
+"169_hasReturns" [label="hasReturns"]
+}subgraph cluster_201_C5 {
+label = "C5"
+"201_abstractFunc" [label="abstractFunc"]
+"201_externalFunc" [label="externalFunc"]
+"201_internalFunc" [label="internalFunc"]
+"201_payableFunc" [label="payableFunc"]
+"201_privateFunc" [label="privateFunc"]
+"201_publicFunc" [label="publicFunc"]
+"201_pureFunc" [label="pureFunc"]
+"201_viewFunc" [label="viewFunc"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_110_C1 {
+label = "C1"
+"110_constructor" [label="constructor"]
+"110_fallback" [label="fallback"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_119_C2 {
+label = "C2"
+"119_constructor" [label="constructor"]
+"119_fallback" [label="fallback"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_144_C3 {
+label = "C3"
+"144_constructor" [label="constructor"]
+"144_f" [label="f"]
+"144_f" -> "144_modifierNoArgs"
+"144_f" -> "144_modifierWithArgs"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_169_C4 {
+label = "C4"
+"169_hasArgs" [label="hasArgs"]
+"169_hasArgsAndReturns" [label="hasArgsAndReturns"]
+"169_hasReturns" [label="hasReturns"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_201_C5 {
+label = "C5"
+"201_abstractFunc" [label="abstractFunc"]
+"201_externalFunc" [label="externalFunc"]
+"201_internalFunc" [label="internalFunc"]
+"201_payableFunc" [label="payableFunc"]
+"201_privateFunc" [label="privateFunc"]
+"201_publicFunc" [label="publicFunc"]
+"201_pureFunc" [label="pureFunc"]
+"201_viewFunc" [label="viewFunc"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

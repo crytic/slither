@@ -1,0 +1,27 @@
+
++ Contract A
+
++ Contract B
+  - From B
+    - constructor(uint256) (public)
+
++ Contract C (Most derived contract)
+  - From B
+    - constructor(uint256) (public)
+
++ Contract D (Most derived contract)
+  - From B
+    - constructor(uint256) (public)
+  - From D
+    - constructor() (public)
+
++ Contract E (Most derived contract)
+  - From B
+    - constructor(uint256) (public)
+
++ Contract F
+
++ Contract G
+
++ Contract H (Most derived contract)
+

@@ -1,0 +1,51 @@
+
+Contract C1
++-------------+-----------+
+| Function    | Modifiers |
++-------------+-----------+
+| constructor |        [] |
+| fallback    |        [] |
+| receive     |        [] |
++-------------+-----------+
+Contract C2
++-------------+-----------+
+| Function    | Modifiers |
++-------------+-----------+
+| constructor |        [] |
+| fallback    |        [] |
+| receive     |        [] |
++-------------+-----------+
+Contract C3
++-------------+----------------------------------------+
+| Function    |                              Modifiers |
++-------------+----------------------------------------+
+| constructor |                                     [] |
+| f           | ['modifierNoArgs', 'modifierWithArgs'] |
++-------------+----------------------------------------+
+Contract C4
++-------------------+-----------+
+| Function          | Modifiers |
++-------------------+-----------+
+| hasArgs           |        [] |
+| hasReturns        |        [] |
+| hasArgsAndReturns |        [] |
++-------------------+-----------+
+Contract C8
++---------------+-----------+
+| Function      | Modifiers |
++---------------+-----------+
+| abstractFunc3 |        [] |
+| abstractFunc  |        [] |
+| abstractFunc2 |        [] |
+| payableFunc   |        [] |
+| externalFunc  |        [] |
+| publicFunc    |        [] |
+| internalFunc  |        [] |
+| privateFunc   |        [] |
+| pureFunc      |        [] |
+| viewFunc      |        [] |
+| abstractFunc  |        [] |
+| abstractFunc  |        [] |
+| abstractFunc2 |        [] |
+| abstractFunc3 |        [] |
++---------------+-----------+

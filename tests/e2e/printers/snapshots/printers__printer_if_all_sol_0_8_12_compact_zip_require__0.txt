@@ -1,0 +1,10 @@
+
+Contract C
++------------------+-------------------+
+| Function         | require or assert |
++------------------+-------------------+
+| ifWithoutElse    |                   |
+| ifWithElse       |                   |
+| ifWithElseIf     |                   |
+| ifWithElseIfElse |                   |
++------------------+-------------------+

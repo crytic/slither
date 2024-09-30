@@ -1,0 +1,8 @@
+
+Contract MinMax
++-------------------------------------+-----------+
+| Function                            | Modifiers |
++-------------------------------------+-----------+
+| slitherConstructorVariables         |        [] |
+| slitherConstructorConstantVariables |        [] |
++-------------------------------------+-----------+

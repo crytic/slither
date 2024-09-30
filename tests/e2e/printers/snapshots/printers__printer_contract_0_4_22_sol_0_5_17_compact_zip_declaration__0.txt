@@ -1,0 +1,91 @@
+
+# Contracts
+# A
+	- Declaration: tests/ast-parsing/contract-0.4.22.sol#3 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/contract-0.4.22.sol#8 (15 - 16)', 'tests/ast-parsing/contract-0.4.22.sol#31 (15 - 16)', 'tests/ast-parsing/contract-0.4.22.sol#32 (15 - 16)']
+
+	## Function
+
+	## State variables
+
+	## Structures
+# B
+	- Declaration: tests/ast-parsing/contract-0.4.22.sol#8 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/contract-0.4.22.sol#15 (15 - 16)', 'tests/ast-parsing/contract-0.4.22.sol#20 (15 - 16)', 'tests/ast-parsing/contract-0.4.22.sol#27 (15 - 16)', 'tests/ast-parsing/contract-0.4.22.sol#21 (19 - 20)', 'tests/ast-parsing/contract-0.4.22.sol#21 (19 - 20)']
+
+	## Function
+		- B.constructor(uint256)
+			- Declaration: tests/ast-parsing/contract-0.4.22.sol#9 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/contract-0.4.22.sol#9-11 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# C
+	- Declaration: tests/ast-parsing/contract-0.4.22.sol#15 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+# D
+	- Declaration: tests/ast-parsing/contract-0.4.22.sol#20 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- D.constructor()
+			- Declaration: tests/ast-parsing/contract-0.4.22.sol#21 (5 - 17)
+			- Implementation(s): ['tests/ast-parsing/contract-0.4.22.sol#21-23 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# E
+	- Declaration: tests/ast-parsing/contract-0.4.22.sol#27 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+# F
+	- Declaration: tests/ast-parsing/contract-0.4.22.sol#31 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/contract-0.4.22.sol#33 (15 - 16)']
+
+	## Function
+
+	## State variables
+
+	## Structures
+# G
+	- Declaration: tests/ast-parsing/contract-0.4.22.sol#32 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/contract-0.4.22.sol#33 (18 - 19)']
+
+	## Function
+
+	## State variables
+
+	## Structures
+# H
+	- Declaration: tests/ast-parsing/contract-0.4.22.sol#33 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+

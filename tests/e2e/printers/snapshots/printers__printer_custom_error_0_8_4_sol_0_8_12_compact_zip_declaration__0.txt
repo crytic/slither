@@ -1,0 +1,113 @@
+
+# Contracts
+# I
+	- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#2 (11 - 13)
+	- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#19-49 (1 - 2)']
+	- References: ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#19 (28 - 29)']
+
+	## Function
+
+	## State variables
+
+	## Structures
+# VendingMachine
+	- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#19 (10 - 25)
+	- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#19-49 (1 - 2)']
+	- References: []
+
+	## Function
+		- VendingMachine.err0()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#24 (14 - 19)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#24-26 (5 - 6)']
+			- References: []
+		- VendingMachine.err1()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#27 (14 - 19)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#27-30 (5 - 6)']
+			- References: []
+		- VendingMachine.err2()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#31 (14 - 19)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#31-34 (5 - 6)']
+			- References: []
+		- VendingMachine.err3()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#35 (14 - 19)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#35-37 (5 - 6)']
+			- References: []
+		- VendingMachine.err4()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#38 (14 - 19)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#38-40 (5 - 6)']
+			- References: []
+		- VendingMachine.err5(uint256[5])
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#41 (14 - 19)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#41-43 (5 - 6)']
+			- References: []
+		- VendingMachine.err6(uint256[10])
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#44 (14 - 19)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#44-46 (5 - 6)']
+			- References: []
+		- VendingMachine.slitherConstructorConstantVariables()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#19-21 (1 - 5)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#19-49 (1 - 2)']
+			- References: []
+
+	## State variables
+		- CMAX
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#21 (22 - 27)
+			- Implementation: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#21 (5 - 31)
+			- References: ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#22 (35 - 39)', 'tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#44 (27 - 31)']
+
+	## Structures
+# A
+	- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#51 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#59 (15 - 16)']
+
+	## Function
+		- A.f()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#54 (14 - 16)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#54-56 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# B
+	- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#59 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+		- B.g()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#60 (14 - 16)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#60-62 (5 - 6)']
+			- References: []
+		- B.h()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#64 (14 - 16)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#64-66 (5 - 6)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# ContractArgCustomError
+	- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#69 (10 - 33)
+	- Implementation(s): []
+	- References: ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#70 (13 - 35)']
+
+	## Function
+		- ContractArgCustomError.f()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#72 (14 - 16)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#72-74 (5 - 6)']
+			- References: []
+		- ContractArgCustomError.g()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#76 (14 - 16)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#76-81 (5 - 6)']
+			- References: ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#73 (7 - 8)']
+		- ContractArgCustomError.h()
+			- Declaration: tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#83 (14 - 16)
+			- Implementation(s): ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#83-84 (5 - 6)']
+			- References: ['tests/e2e/solc_parsing/test_data/custom_error-0.8.4.sol#77 (24 - 25)']
+
+	## State variables
+
+	## Structures
+

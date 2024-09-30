@@ -1,0 +1,13 @@
+Constructor and pure/view functions are not displayed
+
+C:
++------------------+-------------------+
+| Name             | Use whenNotPaused |
++------------------+-------------------+
+| returnConstant() |                   |
+| returnVariable() |                   |
+| returnTuple()    |                   |
+| returnTernary()  |                   |
+| returnDelete()   |                   |
++------------------+-------------------+
+

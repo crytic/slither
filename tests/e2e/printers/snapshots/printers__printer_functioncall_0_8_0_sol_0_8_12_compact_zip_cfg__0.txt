@@ -1,0 +1,183 @@
+Export tmp.zip-I-constructor().dot
+Export tmp.zip-C-f().dot
+Export tmp.zip-C-publicTarget().dot
+Export tmp.zip-C-internalTarget(uint256,uint256).dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+publicTarget()
+
+IRs:
+INTERNAL_CALL, C.publicTarget()()"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+this.publicTarget()
+
+IRs:
+HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[]  "];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+this.publicTarget{value: 1000000000000000000}()
+
+IRs:
+HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[] value:1000000000000000000 "];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+this.publicTarget
+
+IRs:
+REF_2(function()) -> this.publicTarget"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+this.publicTarget{gas: 10000}()
+
+IRs:
+HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[]  gas:10000"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+this.publicTarget{gas: 20000,value: 2000000000000000000}()
+
+IRs:
+HIGH_LEVEL_CALL, dest:this(address), function:publicTarget, arguments:[] value:2000000000000000000 gas:20000"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+internalTarget(1,2)
+
+IRs:
+INTERNAL_CALL, C.internalTarget(uint256,uint256)(1,2)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+S({a:5,b:6})
+
+IRs:
+TMP_6(C.S) = new S(5,6)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+T({s1:S({a:1,b:2}),s2:S({a:3,b:4})})
+
+IRs:
+TMP_7(C.S) = new S(1,2)
+TMP_8(C.S) = new S(3,4)
+TMP_9(C.T) = new T(TMP_7,TMP_8)"];
+9->10;
+10[label="Node Type: NEW VARIABLE 10
+"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+ptr{value: 10000000000000000000}(1)
+
+IRs:
+INTERNAL_DYNAMIC_CALL ptr(1)  "];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+I(msg.sender)
+
+IRs:
+TMP_11 = CONVERT msg.sender to I"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+new I()
+
+IRs:
+TMP_13(I) = new I() "];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+(new I){value: 1000000000000000000}()
+
+IRs:
+TMP_15(I) = new I() value:1000000000000000000 "];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+(new I){value: 1000000000000000000,salt: 
+}()
+
+IRs:
+TMP_17(I) = new I() value:1000000000000000000 salt:
+ "];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+type()(I)
+
+IRs:
+TMP_18(type(I)) = SOLIDITY_CALL type()(I)"];
+16->17;
+17[label="Node Type: EXPRESSION 17
+
+EXPRESSION:
+type()(int256)
+"];
+17->18;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+abi.encode(1,2,3)
+
+IRs:
+TMP_20(bytes) = SOLIDITY_CALL abi.encode()(1,2,3)"];
+18->19;
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+abi.decode(msg.data,(uint256,uint256[],I))
+
+IRs:
+TUPLE_0(uint256,uint256[],I) = SOLIDITY_CALL abi.decode()(msg.data(uint256,uint256[],I))"];
+19->20;
+20[label="Node Type: EXPRESSION 20
+
+EXPRESSION:
+address(address(1))
+
+IRs:
+TMP_21 = CONVERT 1 to address
+TMP_22 = CONVERT TMP_21 to address"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+}
+

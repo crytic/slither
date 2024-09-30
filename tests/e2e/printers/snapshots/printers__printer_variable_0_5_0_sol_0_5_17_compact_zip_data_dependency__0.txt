@@ -1,0 +1,63 @@
+
+Contract C
++----------+--------------+
+| Variable | Dependencies |
++----------+--------------+
+| m        |        ['m'] |
+| s        |        ['s'] |
+| b        |        ['b'] |
+| t        |        ['t'] |
+| a        |        ['a'] |
++----------+--------------+
+
+Function basic()
++----------------+--------------+
+| Variable       | Dependencies |
++----------------+--------------+
+| address_       |           [] |
+| bool_          |           [] |
+| stringMemory_  |           [] |
+| stringStorage_ |           [] |
+| int_           |           [] |
+| int256_        |           [] |
+| int8_          |           [] |
+| uint_          |           [] |
+| uint256_       |           [] |
+| uint8_         |           [] |
+| byte_          |           [] |
+| bytesMemory_   |           [] |
+| bytesStorage_  |           [] |
+| byte32_        |           [] |
+| C.m            |           [] |
+| C.s            |        ['s'] |
+| C.b            |        ['b'] |
+| C.t            |           [] |
+| C.a            |           [] |
++----------------+--------------+
+Function basic2()
++------------------------------+--------------+
+| Variable                     | Dependencies |
++------------------------------+--------------+
+| fixed_                       |           [] |
+| fixed128x18_                 |           [] |
+| fixed8x0_                    |           [] |
+| ufixed_                      |           [] |
+| ufixed128x18_                |           [] |
+| ufixed8x0_                   |           [] |
+| sMemory_                     |           [] |
+| sStorage_                    |           [] |
+| mappingStorage_              |           [] |
+| arrayMemory_                 |           [] |
+| arrayStorage_                |           [] |
+| funcEmptyInternalEmpty_      |           [] |
+| funcUintInternalEmpty_       |           [] |
+| funcUintInternalUint_        |           [] |
+| funcUintExternalPayableUint_ |           [] |
+| funcUintExternalViewUint_    |           [] |
+| addressPayable_              |           [] |
+| C.m                          |        ['m'] |
+| C.s                          |           [] |
+| C.b                          |           [] |
+| C.t                          |        ['t'] |
+| C.a                          |        ['a'] |
++------------------------------+--------------+

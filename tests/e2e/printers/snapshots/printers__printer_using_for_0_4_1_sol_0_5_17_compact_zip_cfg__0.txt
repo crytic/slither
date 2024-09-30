@@ -1,0 +1,29 @@
+Export tmp.zip-L1-f(uint256).dot
+Export tmp.zip-L2-f(bytes32).dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+a
+
+IRs:
+RETURN a"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+a
+
+IRs:
+RETURN a"];
+}
+

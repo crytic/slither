@@ -1,0 +1,53 @@
+
+#################
+####### C #######
+#################
+
+## Constructor Call Sequence
+	- B
+
+## Constructor Definitions
+
+### B
+
+     constructor(uint a) public {
+
+    }
+
+#################
+####### D #######
+#################
+
+## Constructor Call Sequence
+	- B
+	- D
+
+## Constructor Definitions
+
+### B
+
+     constructor(uint a) public {
+
+    }
+
+### D
+
+     constructor() B(2) public {
+
+    }
+
+#################
+####### E #######
+#################
+
+## Constructor Call Sequence
+	- B
+
+## Constructor Definitions
+
+### B
+
+     constructor(uint a) public {
+
+    }
+

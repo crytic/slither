@@ -1,0 +1,151 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipA.call-graph.dot
+Call Graph: tmp.zipI.call-graph.dot
+Call Graph: tmp.zipTest.call-graph.dot
+
+strict digraph {
+subgraph cluster_333_Test {
+label = "Test"
+"333_abi_encode" [label="abi_encode"]
+"333_address_edge_case" [label="address_edge_case"]
+"333_address_related" [label="address_related"]
+"333_block_and_transactions" [label="block_and_transactions"]
+"333_contract_related" [label="contract_related"]
+"333_error_handling" [label="error_handling"]
+"333_ether_unit" [label="ether_unit"]
+"333_math_and_crypto" [label="math_and_crypto"]
+"333_return_addr" [label="return_addr"]
+"333_time_unit" [label="time_unit"]
+"333_type_related" [label="type_related"]
+"333_address_edge_case" -> "333_return_addr"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"abi.decode()" 
+"abi.encode()" 
+"abi.encodePacked()" 
+"abi.encodeWithSelector()" 
+"abi.encodeWithSignature()" 
+"addmod(uint256,uint256,uint256)" 
+"assert(bool)" 
+"balance(address)" 
+"blockhash(uint256)" 
+"code(address)" 
+"codehash(address)" 
+"ecrecover(bytes32,uint8,bytes32,bytes32)" 
+"gasleft()" 
+"keccak256(bytes)" 
+"mulmod(uint256,uint256,uint256)" 
+"require(bool)" 
+"require(bool,string)" 
+"revert()" 
+"revert(string)" 
+"ripemd160(bytes)" 
+"selfdestruct(address)" 
+"sha256(bytes)" 
+"type()" 
+"333_abi_encode" -> "abi.decode()"
+"333_abi_encode" -> "abi.encode()"
+"333_abi_encode" -> "abi.encodePacked()"
+"333_abi_encode" -> "abi.encodeWithSelector()"
+"333_abi_encode" -> "abi.encodeWithSignature()"
+"333_address_edge_case" -> "balance(address)"
+"333_address_edge_case" -> "code(address)"
+"333_address_edge_case" -> "codehash(address)"
+"333_address_related" -> "balance(address)"
+"333_address_related" -> "code(address)"
+"333_address_related" -> "codehash(address)"
+"333_block_and_transactions" -> "blockhash(uint256)"
+"333_block_and_transactions" -> "gasleft()"
+"333_contract_related" -> "selfdestruct(address)"
+"333_error_handling" -> "assert(bool)"
+"333_error_handling" -> "require(bool)"
+"333_error_handling" -> "require(bool,string)"
+"333_error_handling" -> "revert()"
+"333_error_handling" -> "revert(string)"
+"333_math_and_crypto" -> "addmod(uint256,uint256,uint256)"
+"333_math_and_crypto" -> "ecrecover(bytes32,uint8,bytes32,bytes32)"
+"333_math_and_crypto" -> "keccak256(bytes)"
+"333_math_and_crypto" -> "mulmod(uint256,uint256,uint256)"
+"333_math_and_crypto" -> "ripemd160(bytes)"
+"333_math_and_crypto" -> "sha256(bytes)"
+"333_type_related" -> "type()"
+}
+}
+strict digraph {
+subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_333_Test {
+label = "Test"
+"333_abi_encode" [label="abi_encode"]
+"333_address_edge_case" [label="address_edge_case"]
+"333_address_related" [label="address_related"]
+"333_block_and_transactions" [label="block_and_transactions"]
+"333_contract_related" [label="contract_related"]
+"333_error_handling" [label="error_handling"]
+"333_ether_unit" [label="ether_unit"]
+"333_math_and_crypto" [label="math_and_crypto"]
+"333_return_addr" [label="return_addr"]
+"333_time_unit" [label="time_unit"]
+"333_type_related" [label="type_related"]
+"333_address_edge_case" -> "333_return_addr"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"abi.decode()" 
+"abi.encode()" 
+"abi.encodePacked()" 
+"abi.encodeWithSelector()" 
+"abi.encodeWithSignature()" 
+"addmod(uint256,uint256,uint256)" 
+"assert(bool)" 
+"balance(address)" 
+"blockhash(uint256)" 
+"code(address)" 
+"codehash(address)" 
+"ecrecover(bytes32,uint8,bytes32,bytes32)" 
+"gasleft()" 
+"keccak256(bytes)" 
+"mulmod(uint256,uint256,uint256)" 
+"require(bool)" 
+"require(bool,string)" 
+"revert()" 
+"revert(string)" 
+"ripemd160(bytes)" 
+"selfdestruct(address)" 
+"sha256(bytes)" 
+"type()" 
+"333_abi_encode" -> "abi.decode()"
+"333_abi_encode" -> "abi.encode()"
+"333_abi_encode" -> "abi.encodePacked()"
+"333_abi_encode" -> "abi.encodeWithSelector()"
+"333_abi_encode" -> "abi.encodeWithSignature()"
+"333_address_edge_case" -> "balance(address)"
+"333_address_edge_case" -> "code(address)"
+"333_address_edge_case" -> "codehash(address)"
+"333_address_related" -> "balance(address)"
+"333_address_related" -> "code(address)"
+"333_address_related" -> "codehash(address)"
+"333_block_and_transactions" -> "blockhash(uint256)"
+"333_block_and_transactions" -> "gasleft()"
+"333_contract_related" -> "selfdestruct(address)"
+"333_error_handling" -> "assert(bool)"
+"333_error_handling" -> "require(bool)"
+"333_error_handling" -> "require(bool,string)"
+"333_error_handling" -> "revert()"
+"333_error_handling" -> "revert(string)"
+"333_math_and_crypto" -> "addmod(uint256,uint256,uint256)"
+"333_math_and_crypto" -> "ecrecover(bytes32,uint8,bytes32,bytes32)"
+"333_math_and_crypto" -> "keccak256(bytes)"
+"333_math_and_crypto" -> "mulmod(uint256,uint256,uint256)"
+"333_math_and_crypto" -> "ripemd160(bytes)"
+"333_math_and_crypto" -> "sha256(bytes)"
+"333_type_related" -> "type()"
+}
+}

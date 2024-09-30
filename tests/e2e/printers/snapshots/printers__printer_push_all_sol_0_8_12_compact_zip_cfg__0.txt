@@ -1,0 +1,21 @@
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+arr.push((1,2))
+
+IRs:
+REF_1 -> LENGTH arr
+TMP_1(uint256) := REF_1(uint256)
+TMP_2(uint256) = TMP_1 (c)+ 1
+REF_1(uint256) (->arr) := TMP_2(uint256)
+REF_2(uint256[]) -> arr[TMP_1]
+TMP_3(uint256[]) = ['1(uint256)', '2(uint256)']
+REF_2(uint256[]) (->arr) := TMP_3(uint256[])"];
+}
+

@@ -1,0 +1,11 @@
+Contract T
+	Function T.g() (*)
+		Expression: f()
+		IRs:
+			TMP_0(uint256) = INTERNAL_CALL, f()()
+Top level functions
+	Function f()
+		Expression: A
+		IRs:
+			RETURN A
+

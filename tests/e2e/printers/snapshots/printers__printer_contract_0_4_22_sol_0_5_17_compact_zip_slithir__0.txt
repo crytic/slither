@@ -1,0 +1,17 @@
+Contract A
+Contract B
+	Function B.constructor(uint256) (*)
+Contract C
+	Function B.constructor(uint256) (*)
+Contract D
+	Function B.constructor(uint256) (*)
+	Function D.constructor() (*)
+		Expression: B(2)
+		IRs:
+			INTERNAL_CALL, B.constructor(uint256)(2)
+Contract E
+	Function B.constructor(uint256) (*)
+Contract F
+Contract G
+Contract H
+

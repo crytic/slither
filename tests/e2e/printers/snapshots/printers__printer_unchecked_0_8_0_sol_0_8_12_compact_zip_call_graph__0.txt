@@ -1,0 +1,21 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipC.call-graph.dot
+
+strict digraph {
+subgraph cluster_30_C {
+label = "C"
+"30_f" [label="f"]
+"30_g" [label="g"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_30_C {
+label = "C"
+"30_f" [label="f"]
+"30_g" [label="g"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

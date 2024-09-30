@@ -1,0 +1,13 @@
+Inheritance Graph: tmp.zip.inheritance-graph.dot
+
+digraph "" {
+c132_VendingMachine[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>VendingMachine</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    err0()</TD></TR><TR><TD align="left">    err1()</TD></TR><TR><TD align="left">    err2()</TD></TR><TR><TD align="left">    err3()</TD></TR><TR><TD align="left">    err4()</TD></TR><TR><TD align="left">    err5(uint256[5])</TD></TR><TR><TD align="left">    err6(uint256[10])</TD></TR><TR><TD align="left"><I>Private Variables:</I></TD></TR><TR><TD align="left">    CMAX</TD></TR></TABLE> >];
+
+c145_A[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>A</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    f()</TD></TR></TABLE> >];
+
+c165_B -> c145_A;
+c165_B[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>B</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    g()</TD></TR><TR><TD align="left">    h()</TD></TR></TABLE> >];
+
+c200_ContractArgCustomError[shape="box"label=< <TABLE border="0"><TR><TD align="center"><B>ContractArgCustomError</B></TD></TR><TR><TD align="left"><I>Public Functions:</I></TD></TR><TR><TD align="left">    f()</TD></TR><TR><TD align="left"><I>Private Functions:</I></TD></TR><TR><TD align="left">    g()</TD></TR><TR><TD align="left">    h()</TD></TR></TABLE> >];
+
+}

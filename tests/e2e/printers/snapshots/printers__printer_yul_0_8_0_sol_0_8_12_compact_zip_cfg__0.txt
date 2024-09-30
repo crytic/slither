@@ -1,0 +1,241 @@
+Export tmp.zip-C-f(uint256,uint256[]).dot
+Export tmp.zip-C-f().dot
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: INLINE ASM 3
+"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+aStorA_f_asm_0 = sload(uint256)(storA)
+
+IRs:
+TMP_0(uint256) = SOLIDITY_CALL sload(uint256)(storA)
+aStorA_f_asm_0(uint256) := TMP_0(uint256)"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+aParamA_f_asm_0 = paramA
+
+IRs:
+aParamA_f_asm_0(uint256) := paramA(uint256)"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+aRetA_f_asm_0 = retA
+
+IRs:
+aRetA_f_asm_0(uint256) := retA(uint256)"];
+9->10;
+10[label="Node Type: NEW VARIABLE 10
+"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+aLocalA_f_asm_0 = localA
+
+IRs:
+aLocalA_f_asm_0(uint256) := localA(uint256)"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+sstore(uint256,uint256)(storA,0)
+
+IRs:
+TMP_1(None) = SOLIDITY_CALL sstore(uint256,uint256)(storA,0)"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+sstore(uint256,uint256)(offset,0)
+
+IRs:
+TMP_2(None) = SOLIDITY_CALL sstore(uint256,uint256)(offset,0)"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+paramA = 0
+
+IRs:
+paramA(uint256) := 0(uint256)"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+retA = 0
+
+IRs:
+retA(uint256) := 0(uint256)"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+localA = 0
+
+IRs:
+localA(uint256) := 0(uint256)"];
+16->17;
+17[label="Node Type: NEW VARIABLE 17
+"];
+17->18;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+aStorB_f_asm_0 = sload(uint256)(storB)
+
+IRs:
+TMP_3(uint256) = SOLIDITY_CALL sload(uint256)(storB)
+aStorB_f_asm_0(uint256) := TMP_3(uint256)"];
+18->19;
+19[label="Node Type: NEW VARIABLE 19
+"];
+19->20;
+20[label="Node Type: EXPRESSION 20
+
+EXPRESSION:
+aParamB_f_asm_0 = mload(uint256)(paramB)
+
+IRs:
+TMP_4(uint256) = SOLIDITY_CALL mload(uint256)(paramB)
+aParamB_f_asm_0(uint256) := TMP_4(uint256)"];
+20->21;
+21[label="Node Type: NEW VARIABLE 21
+"];
+21->22;
+22[label="Node Type: EXPRESSION 22
+
+EXPRESSION:
+aRetB_f_asm_0 = mload(uint256)(retB)
+
+IRs:
+TMP_5(uint256) = SOLIDITY_CALL mload(uint256)(retB)
+aRetB_f_asm_0(uint256) := TMP_5(uint256)"];
+22->23;
+23[label="Node Type: NEW VARIABLE 23
+"];
+23->24;
+24[label="Node Type: EXPRESSION 24
+
+EXPRESSION:
+aLocalB_f_asm_0 = mload(uint256)(localB)
+
+IRs:
+TMP_6(uint256) = SOLIDITY_CALL mload(uint256)(localB)
+aLocalB_f_asm_0(uint256) := TMP_6(uint256)"];
+24->25;
+25[label="Node Type: EXPRESSION 25
+
+EXPRESSION:
+sstore(uint256,uint256)(storB,0)
+
+IRs:
+TMP_7(None) = SOLIDITY_CALL sstore(uint256,uint256)(storB,0)"];
+25->26;
+26[label="Node Type: EXPRESSION 26
+
+EXPRESSION:
+mstore(uint256,uint256)(paramB,0)
+
+IRs:
+TMP_8(None) = SOLIDITY_CALL mstore(uint256,uint256)(paramB,0)"];
+26->27;
+27[label="Node Type: EXPRESSION 27
+
+EXPRESSION:
+mstore(uint256,uint256)(retB,0)
+
+IRs:
+TMP_9(None) = SOLIDITY_CALL mstore(uint256,uint256)(retB,0)"];
+27->28;
+28[label="Node Type: EXPRESSION 28
+
+EXPRESSION:
+mstore(uint256,uint256)(localB,0)
+
+IRs:
+TMP_10(None) = SOLIDITY_CALL mstore(uint256,uint256)(localB,0)"];
+28->29;
+29[label="Node Type: EXPRESSION 29
+
+EXPRESSION:
+mstore(uint256,uint256)(offset,0)
+
+IRs:
+TMP_11(None) = SOLIDITY_CALL mstore(uint256,uint256)(offset,0)"];
+29->30;
+30[label="Node Type: NEW VARIABLE 30
+"];
+30->31;
+31[label="Node Type: EXPRESSION 31
+
+EXPRESSION:
+aStoreC_f_asm_0 = sload(uint256)(storC) * storC
+
+IRs:
+TMP_12(uint256) = SOLIDITY_CALL sload(uint256)(storC)
+TMP_13(uint256) = TMP_12 * storC
+aStoreC_f_asm_0(uint256) := TMP_13(uint256)"];
+31->32;
+32[label="Node Type: END INLINE ASM 32
+"];
+32->33;
+33[label="Node Type: RETURN 33
+
+EXPRESSION:
+(retA,retB)
+
+IRs:
+RETURN retA,retB"];
+}
+
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: INLINE ASM 1
+"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+st = 0x0000000000000000000000000000000000000000000000000000000000000000
+
+IRs:
+st(C.St) := 0(uint256)"];
+2->3;
+3[label="Node Type: END INLINE ASM 3
+"];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+st
+
+IRs:
+RETURN st"];
+}
+

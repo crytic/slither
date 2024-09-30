@@ -1,0 +1,27 @@
+
+# Contracts
+# A
+	- Declaration: tests/ast-parsing/modifier_identifier_path.sol#1 (10 - 12)
+	- Implementation(s): []
+	- References: ['tests/ast-parsing/modifier_identifier_path.sol#8 (15 - 16)']
+
+	## Function
+		- A.f()
+			- Declaration: tests/ast-parsing/modifier_identifier_path.sol#3 (11 - 13)
+			- Implementation(s): ['tests/ast-parsing/modifier_identifier_path.sol#3 (2 - 26)']
+			- References: []
+
+	## State variables
+
+	## Structures
+# B
+	- Declaration: tests/ast-parsing/modifier_identifier_path.sol#8 (10 - 12)
+	- Implementation(s): []
+	- References: []
+
+	## Function
+
+	## State variables
+
+	## Structures
+

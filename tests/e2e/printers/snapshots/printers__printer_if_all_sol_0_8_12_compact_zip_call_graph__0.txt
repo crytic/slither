@@ -1,0 +1,25 @@
+Call Graph: tmp.zip.all_contracts.call-graph.dot
+Call Graph: tmp.zipC.call-graph.dot
+
+strict digraph {
+subgraph cluster_98_C {
+label = "C"
+"98_ifWithElse" [label="ifWithElse"]
+"98_ifWithElseIf" [label="ifWithElseIf"]
+"98_ifWithElseIfElse" [label="ifWithElseIfElse"]
+"98_ifWithoutElse" [label="ifWithoutElse"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}
+strict digraph {
+subgraph cluster_98_C {
+label = "C"
+"98_ifWithElse" [label="ifWithElse"]
+"98_ifWithElseIf" [label="ifWithElseIf"]
+"98_ifWithElseIfElse" [label="ifWithElseIfElse"]
+"98_ifWithoutElse" [label="ifWithoutElse"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

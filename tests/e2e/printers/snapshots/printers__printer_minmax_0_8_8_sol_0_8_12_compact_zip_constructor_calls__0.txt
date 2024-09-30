@@ -1,0 +1,19 @@
+
+######################
+####### MinMax #######
+######################
+
+## Constructor Call Sequence
+	- MinMax
+
+## Constructor Definitions
+
+### MinMax
+
+     constructor() {
+        i =  type(uint8).max;
+        j = type(uint8).min;
+        k =  uint(type(Enum).max);
+        l =  uint(type(Enum).min);
+    }
+
