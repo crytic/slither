@@ -5,14 +5,12 @@ defaults:
   run:
     shell: bash
 
-# We run all the CI tests only on cron job
-# This is to reduce the CI time, and prevent issues
-# Like with the etherscan API
-# All the test from ci_pr are run here + additional ones
 on:
-  schedule:
-    # run CI every day even if no PRs/merges occur
-    - cron: '0 12 * * *'
+  push:
+    branches:
+      - master
+      - dev
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,21 +24,14 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
         python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
-        type: ["cli",
-               "dapp",
-               "data_dependency",
+        type: ["data_dependency",
                "path_filtering",
                "erc",
-               "etherscan",
                "find_paths",
                "flat",
                "interface",
-               "kspec",
                "printers",
-               # "prop"
-               "simil",
                "slither_config",
-               "truffle",
                "upgradability"]
         exclude:
           # Requires nix
