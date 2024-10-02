@@ -81,23 +81,23 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
 
         visited = visited + [node]
 
-        fathers_context = []
+        predecessors_context = []
 
-        for father in node.fathers:
-            if self.key in father.context:
-                fathers_context += father.context[self.key]
+        for predecessor in node.predecessors:
+            if self.key in predecessor.context:
+                predecessors_context += predecessor.context[self.key]
 
         # Exclude path that dont bring further information
         if node in self.visited_all_paths:
-            if all(f_c in self.visited_all_paths[node] for f_c in fathers_context):
+            if all(f_c in self.visited_all_paths[node] for f_c in predecessors_context):
                 return
         else:
             self.visited_all_paths[node] = []
 
-        self.visited_all_paths[node] = self.visited_all_paths[node] + fathers_context
+        self.visited_all_paths[node] = self.visited_all_paths[node] + predecessors_context
 
         if self.key not in node.context:
-            node.context[self.key] = fathers_context
+            node.context[self.key] = predecessors_context
 
         # include ops from internal function calls
         internal_ops = []
@@ -123,8 +123,8 @@ Bob calls `doStuffOnL2` but the first retryable ticket calling `claim_rewards` f
             self.results.append(node.context[self.key])
             return
 
-        for son in node.sons:
-            self._detect_multiple_tickets(function, son, visited)
+        for successor in node.successors:
+            self._detect_multiple_tickets(function, successor, visited)
 
     def _detect(self) -> List[Output]:
         results = []

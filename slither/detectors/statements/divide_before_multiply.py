@@ -113,8 +113,8 @@ def _explore(
             if not (is_assert(node) and equality_found):
                 f_results.append(node_results)
 
-        for son in node.sons:
-            to_explore.append(son)
+        for successor in node.successors:
+            to_explore.append(successor)
 
 
 def detect_divide_before_multiply(

@@ -46,8 +46,8 @@ def costly_operations_in_loop(
             if isinstance(ir, (InternalCall)) and ir.function:
                 costly_operations_in_loop(ir.function.entry_point, in_loop_counter, visited, ret)
 
-    for son in node.sons:
-        costly_operations_in_loop(son, in_loop_counter, visited, ret)
+    for successor in node.successors:
+        costly_operations_in_loop(successor, in_loop_counter, visited, ret)
 
 
 class CostlyOperationsInLoop(AbstractDetector):
