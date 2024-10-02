@@ -50,6 +50,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "assert(bool)": [],
     "require(bool)": [],
     "require(bool,string)": [],
+    "require(bool,error)": [],  # Solidity 0.8.26 via-ir and Solidity >= 0.8.27
     "revert()": [],
     "revert(string)": [],
     "revert ": [],

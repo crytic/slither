@@ -518,7 +518,7 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
             bool: True if the node has a require or assert call
         """
         return any(
-            ir.function.name in ["require(bool)", "require(bool,string)", "assert(bool)"]
+            ir.function.name in ["require(bool)", "require(bool,string)", "require(bool,error)", "assert(bool)"]
             for ir in self.internal_calls
         )
 
