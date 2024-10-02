@@ -18,6 +18,8 @@ assert len(contracts) == 1
 contract = contracts[0]
 destination = contract.get_state_variable_from_name("destination")
 source = contract.get_state_variable_from_name("source")
+assert source
+assert destination
 
 print(f"{source} is dependent of {destination}: {is_dependent(source, destination, contract)}")
 assert not is_dependent(source, destination, contract)
@@ -47,9 +49,11 @@ print(f"{destination} is tainted {is_tainted(destination, contract)}")
 assert is_tainted(destination, contract)
 
 destination_indirect_1 = contract.get_state_variable_from_name("destination_indirect_1")
+assert destination_indirect_1
 print(f"{destination_indirect_1} is tainted {is_tainted(destination_indirect_1, contract)}")
 assert is_tainted(destination_indirect_1, contract)
 destination_indirect_2 = contract.get_state_variable_from_name("destination_indirect_2")
+assert destination_indirect_2
 print(f"{destination_indirect_2} is tainted {is_tainted(destination_indirect_2, contract)}")
 assert is_tainted(destination_indirect_2, contract)
 
@@ -88,6 +92,8 @@ contract = contracts[0]
 contract_derived = slither.get_contract_from_name("Derived")[0]
 destination = contract.get_state_variable_from_name("destination")
 source = contract.get_state_variable_from_name("source")
+assert destination
+assert source
 
 print(f"{destination} is dependent of {source}: {is_dependent(destination, source, contract)}")
 assert not is_dependent(destination, source, contract)
@@ -120,3 +126,17 @@ print(f"{var_tainted} is tainted: {is_tainted(var_tainted, contract)}")
 assert is_tainted(var_tainted, contract)
 print(f"{var_not_tainted} is tainted: {is_tainted(var_not_tainted, contract)}")
 assert not is_tainted(var_not_tainted, contract)
+
+print("SimpleModifier contract")
+contracts = slither.get_contract_from_name("SimpleModifier")
+assert len(contracts) == 1
+contract = contracts[0]
+dependent_state_var = contract.get_state_variable_from_name("owner")
+assert dependent_state_var
+baz = contract.get_modifier_from_signature("baz()")
+intermediate = baz.get_local_variable_from_name("intermediate")
+assert intermediate
+print(
+    f"{intermediate} depends on msg.sender: {is_dependent(intermediate, SolidityVariableComposed('msg.sender'), baz)}"
+)
+assert is_dependent(intermediate, SolidityVariableComposed("msg.sender"), baz)

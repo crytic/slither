@@ -2,18 +2,29 @@
 Module detecting possible loss of precision due to divide before multiple
 """
 from collections import defaultdict
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import Binary, Assignment, BinaryType, LibraryCall
+from typing import DefaultDict, List, Tuple
+
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.slithir.operations import Binary, Assignment, BinaryType, LibraryCall, Operation
+from slither.slithir.utils.utils import LVALUE
 from slither.slithir.variables import Constant
+from slither.utils.output import Output
 
 
-def is_division(ir):
+def is_division(ir: Operation) -> bool:
     if isinstance(ir, Binary):
         if ir.type == BinaryType.DIVISION:
             return True
 
     if isinstance(ir, LibraryCall):
-        if ir.function.name.lower() in [
+        if ir.function.name and ir.function.name.lower() in [
             "div",
             "safediv",
         ]:
@@ -23,13 +34,13 @@ def is_division(ir):
     return False
 
 
-def is_multiplication(ir):
+def is_multiplication(ir: Operation) -> bool:
     if isinstance(ir, Binary):
         if ir.type == BinaryType.MULTIPLICATION:
             return True
 
     if isinstance(ir, LibraryCall):
-        if ir.function.name.lower() in [
+        if ir.function.name and ir.function.name.lower() in [
             "mul",
             "safemul",
         ]:
@@ -39,7 +50,7 @@ def is_multiplication(ir):
     return False
 
 
-def is_assert(node):
+def is_assert(node: Node) -> bool:
     if node.contains_require_or_assert():
         return True
     # Old Solidity code where using an internal 'assert(bool)' function
@@ -50,7 +61,10 @@ def is_assert(node):
     return False
 
 
-def _explore(to_explore, f_results, divisions):  # pylint: disable=too-many-branches
+# pylint: disable=too-many-branches
+def _explore(
+    to_explore: List[Node], f_results: List[List[Node]], divisions: DefaultDict[LVALUE, List[Node]]
+) -> None:
     explored = set()
     while to_explore:  # pylint: disable=too-many-nested-blocks
         node = to_explore.pop()
@@ -61,27 +75,26 @@ def _explore(to_explore, f_results, divisions):  # pylint: disable=too-many-bran
 
         equality_found = False
         # List of nodes related to one bug instance
-        node_results = []
+        node_results: List[Node] = []
 
         for ir in node.irs:
-            # check for Constant, has its not hashable (TODO: make Constant hashable)
-            if isinstance(ir, Assignment) and not isinstance(ir.rvalue, Constant):
+            if isinstance(ir, Assignment):
                 if ir.rvalue in divisions:
-                    # Avoid dupplicate. We dont use set so we keep the order of the nodes
-                    if node not in divisions[ir.rvalue]:
-                        divisions[ir.lvalue] = divisions[ir.rvalue] + [node]
+                    # Avoid duplicate. We dont use set so we keep the order of the nodes
+                    if node not in divisions[ir.rvalue]:  # type: ignore
+                        divisions[ir.lvalue] = divisions[ir.rvalue] + [node]  # type: ignore
                     else:
-                        divisions[ir.lvalue] = divisions[ir.rvalue]
+                        divisions[ir.lvalue] = divisions[ir.rvalue]  # type: ignore
 
             if is_division(ir):
-                divisions[ir.lvalue] = [node]
+                divisions[ir.lvalue] = [node]  # type: ignore
 
             if is_multiplication(ir):
-                mul_arguments = ir.read if isinstance(ir, Binary) else ir.arguments
+                mul_arguments = ir.read if isinstance(ir, Binary) else ir.arguments  # type: ignore
                 nodes = []
                 for r in mul_arguments:
                     if not isinstance(r, Constant) and (r in divisions):
-                        # Dont add node already present to avoid dupplicate
+                        # Dont add node already present to avoid duplicate
                         # We dont use set to keep the order of the nodes
                         if node in divisions[r]:
                             nodes += [n for n in divisions[r] if n not in nodes]
@@ -101,10 +114,12 @@ def _explore(to_explore, f_results, divisions):  # pylint: disable=too-many-bran
                 f_results.append(node_results)
 
         for son in node.sons:
-            to_explore.add(son)
+            to_explore.append(son)
 
 
-def detect_divide_before_multiply(contract):
+def detect_divide_before_multiply(
+    contract: Contract,
+) -> List[Tuple[FunctionContract, List[Node]]]:
     """
     Detects and returns all nodes with multiplications of division results.
     :param contract: Contract to detect assignment within.
@@ -115,22 +130,22 @@ def detect_divide_before_multiply(contract):
     # List of tuple (function -> list(list(nodes)))
     # Each list(nodes) of the list is one bug instances
     # Each node in the list(nodes) is involved in the bug
-    results = []
+    results: List[Tuple[FunctionContract, List[Node]]] = []
 
     # Loop for each function and modifier.
-    for function in contract.functions_declared:
+    for function in contract.functions_declared + contract.modifiers_declared:
         if not function.entry_point:
             continue
 
         # List of list(nodes)
         # Each list(nodes) is one bug instances
-        f_results = []
+        f_results: List[List[Node]] = []
 
         # lvalue -> node
         # track all the division results (and the assignment of the division results)
-        divisions = defaultdict(list)
+        divisions: DefaultDict[LVALUE, List[Node]] = defaultdict(list)
 
-        _explore({function.entry_point}, f_results, divisions)
+        _explore([function.entry_point], f_results, divisions)
 
         for f_result in f_results:
             results.append((function, f_result))
@@ -170,7 +185,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
 
     WIKI_RECOMMENDATION = """Consider ordering multiplication before division."""
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect divisions before multiplications
         """
@@ -180,7 +195,7 @@ In general, it's usually a good idea to re-arrange arithmetic to perform multipl
             if divisions_before_multiplications:
                 for (func, nodes) in divisions_before_multiplications:
 
-                    info = [
+                    info: DETECTOR_INFO = [
                         func,
                         " performs a multiplication on the result of a division:\n",
                     ]

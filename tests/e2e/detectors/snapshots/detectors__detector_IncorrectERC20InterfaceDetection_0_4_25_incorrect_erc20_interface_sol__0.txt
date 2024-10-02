@@ -1,0 +1,12 @@
+Token (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.approve(address,uint256) (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#5)
+
+Token (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.allowance(address,address) (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#9)
+
+Token (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.balanceOf(address) (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#8)
+
+Token (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.transferFrom(address,address,uint256) (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#6)
+
+Token (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.totalSupply() (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#7)
+
+Token (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#3-10) has incorrect ERC20 function interface:Token.transfer(address,uint256) (tests/e2e/detectors/test_data/erc20-interface/0.4.25/incorrect_erc20_interface.sol#4)
+

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-instance-attributes
 class Variable(SourceMapping):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._name: Optional[str] = None
         self._initial_expression: Optional["Expression"] = None
@@ -55,7 +55,7 @@ class Variable(SourceMapping):
         return self._initialized
 
     @initialized.setter
-    def initialized(self, is_init: bool):
+    def initialized(self, is_init: bool) -> None:
         self._initialized = is_init
 
     @property
@@ -73,24 +73,32 @@ class Variable(SourceMapping):
         return self._name
 
     @name.setter
-    def name(self, name):
+    def name(self, name: str) -> None:
         self._name = name
 
     @property
-    def type(self) -> Optional[Union[Type, List[Type]]]:
+    def type(self) -> Optional[Type]:
         return self._type
 
     @type.setter
-    def type(self, types: Union[Type, List[Type]]):
-        self._type = types
+    def type(self, new_type: Type) -> None:
+        assert isinstance(new_type, Type)
+        self._type = new_type
 
     @property
     def is_constant(self) -> bool:
         return self._is_constant
 
     @is_constant.setter
-    def is_constant(self, is_cst: bool):
+    def is_constant(self, is_cst: bool) -> None:
         self._is_constant = is_cst
+
+    @property
+    def is_stored(self) -> bool:
+        """
+        Checks if a variable is stored, based on it not being constant or immutable. Future updates may adjust for new non-storage keywords.
+        """
+        return not self._is_constant and not self._is_immutable
 
     @property
     def is_reentrant(self) -> bool:
@@ -159,8 +167,8 @@ class Variable(SourceMapping):
 
         return (
             self.name,
-            [str(x) for x in export_nested_types_from_variable(self)],
-            [str(x) for x in export_return_type_from_variable(self)],
+            [str(x) for x in export_nested_types_from_variable(self)],  # type: ignore
+            [str(x) for x in export_return_type_from_variable(self)],  # type: ignore
         )
 
     @property
@@ -178,4 +186,6 @@ class Variable(SourceMapping):
         return f'{name}({",".join(parameters)})'
 
     def __str__(self) -> str:
+        if self._name is None:
+            return ""
         return self._name

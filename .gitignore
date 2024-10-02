@@ -42,6 +42,7 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
+.pytest_cache
 nosetests.xml
 coverage.xml
 *.cover
@@ -111,3 +112,9 @@ test_artifacts/
 
 # crytic export 
 crytic-export/
+
+# Auto-generated Github pages docs
+docs/
+
+# slither.db.json 
+slither.db.json

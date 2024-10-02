@@ -1,0 +1,18 @@
+Version constraint 0.5.16 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+	- AbiReencodingHeadOverflowWithStaticArrayCleanup
+	- DirtyBytesArrayToStorage
+	- NestedCalldataArrayAbiReencodingSizeValidation
+	- ABIDecodeTwoDimensionalArrayMemory
+	- KeccakCaching
+	- EmptyByteArrayCopy
+	- DynamicArrayCleanup
+	- MissingEscapingInFormatting
+	- ImplicitConstructorCallvalueCheck
+	- TupleAssignmentMultiStackSlotComponents
+	- MemoryArrayCreationOverflow
+	- privateCanBeOverridden.
+It is used by:
+	- 0.5.16 (tests/e2e/detectors/test_data/solc-version/0.5.16/static.sol#1)
+
+solc-0.5.16 is an outdated solc version. Use a more recent version (at least 0.8.0), if possible.
+

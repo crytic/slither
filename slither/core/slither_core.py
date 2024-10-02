@@ -8,12 +8,12 @@ import pathlib
 import posixpath
 import re
 from collections import defaultdict
-from typing import Optional, Dict, List, Set, Union
+from typing import Optional, Dict, List, Set, Union, Tuple
 
 from crytic_compile import CryticCompile
 from crytic_compile.utils.naming import Filename
 
-from slither.core.children.child_contract import ChildContract
+from slither.core.declarations.contract_level import ContractLevel
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.core.context.context import Context
 from slither.core.declarations import Contract, FunctionContract
@@ -21,7 +21,8 @@ from slither.core.declarations.top_level import TopLevel
 from slither.core.source_mapping.source_mapping import SourceMapping, Source
 from slither.slithir.variables import Constant
 from slither.utils.colors import red
-from slither.utils.source_mapping import get_definition, get_references, get_implementation
+from slither.utils.sarif import read_triage_info
+from slither.utils.source_mapping import get_definition, get_references, get_all_implementations
 
 logger = logging.getLogger("Slither")
 logging.basicConfig()
@@ -40,7 +41,7 @@ class SlitherCore(Context):
     Slither static analyzer
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self._filename: Optional[str] = None
@@ -48,6 +49,10 @@ class SlitherCore(Context):
         self._source_code_to_line: Optional[Dict[str, List[str]]] = None
 
         self._previous_results_filename: str = "slither.db.json"
+
+        # TODO: add cli flag to set these variables
+        self.sarif_input: str = "export.sarif"
+        self.sarif_triage: str = "export.sarif.sarifexplorer"
         self._results_to_hide: List = []
         self._previous_results: List = []
         # From triaged result
@@ -57,6 +62,7 @@ class SlitherCore(Context):
         # Multiple time the same result, so we remove duplicates
         self._currently_seen_resuts: Set[str] = set()
         self._paths_to_filter: Set[str] = set()
+        self._paths_to_include: Set[str] = set()
 
         self._crytic_compile: Optional[CryticCompile] = None
 
@@ -73,8 +79,8 @@ class SlitherCore(Context):
 
         # Maps from file to detector name to the start/end ranges for that detector.
         # Infinity is used to signal a detector has no end range.
-        self._ignore_ranges: defaultdict[str, defaultdict[str, List[(int, int)]]] = defaultdict(
-            lambda: defaultdict(lambda: [])
+        self._ignore_ranges: Dict[str, Dict[str, List[Tuple[int, ...]]]] = defaultdict(
+            lambda: defaultdict(lambda: [(-1, -1)])
         )
 
         self._compilation_units: List[SlitherCompilationUnit] = []
@@ -95,6 +101,8 @@ class SlitherCore(Context):
         # Use by the echidna printer
         # If true, partial analysis is allowed
         self.no_fail = False
+
+        self.skip_data_dependency = False
 
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
@@ -196,41 +204,53 @@ class SlitherCore(Context):
     def _compute_offsets_from_thing(self, thing: SourceMapping):
         definition = get_definition(thing, self.crytic_compile)
         references = get_references(thing)
-        implementation = get_implementation(thing)
+        implementations = get_all_implementations(thing, self.contracts)
 
         for offset in range(definition.start, definition.end + 1):
-
             if (
-                isinstance(thing, TopLevel)
+                isinstance(thing, (TopLevel, Contract))
                 or (
                     isinstance(thing, FunctionContract)
                     and thing.contract_declarer == thing.contract
                 )
-                or (isinstance(thing, ChildContract) and not isinstance(thing, FunctionContract))
+                or (isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract))
             ):
+
                 self._offset_to_objects[definition.filename][offset].add(thing)
 
             self._offset_to_definitions[definition.filename][offset].add(definition)
-            self._offset_to_implementations[definition.filename][offset].add(implementation)
+            self._offset_to_implementations[definition.filename][offset].update(implementations)
             self._offset_to_references[definition.filename][offset] |= set(references)
 
         for ref in references:
             for offset in range(ref.start, ref.end + 1):
-
+                is_declared_function = (
+                    isinstance(thing, FunctionContract)
+                    and thing.contract_declarer == thing.contract
+                )
                 if (
                     isinstance(thing, TopLevel)
+                    or is_declared_function
                     or (
-                        isinstance(thing, FunctionContract)
-                        and thing.contract_declarer == thing.contract
-                    )
-                    or (
-                        isinstance(thing, ChildContract) and not isinstance(thing, FunctionContract)
+                        isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract)
                     )
                 ):
                     self._offset_to_objects[definition.filename][offset].add(thing)
 
-                self._offset_to_definitions[ref.filename][offset].add(definition)
-                self._offset_to_implementations[ref.filename][offset].add(implementation)
+                if is_declared_function:
+                    # Only show the nearest lexical definition for declared contract-level functions
+                    if (
+                        thing.contract.source_mapping.start
+                        < offset
+                        < thing.contract.source_mapping.end
+                    ):
+
+                        self._offset_to_definitions[ref.filename][offset].add(definition)
+
+                else:
+                    self._offset_to_definitions[ref.filename][offset].add(definition)
+
+                self._offset_to_implementations[ref.filename][offset].update(implementations)
                 self._offset_to_references[ref.filename][offset] |= set(references)
 
     def _compute_offsets_to_ref_impl_decl(self):  # pylint: disable=too-many-branches
@@ -243,14 +263,17 @@ class SlitherCore(Context):
             for contract in compilation_unit.contracts:
                 self._compute_offsets_from_thing(contract)
 
-                for function in contract.functions:
+                for function in contract.functions_declared:
                     self._compute_offsets_from_thing(function)
                     for variable in function.local_variables:
                         self._compute_offsets_from_thing(variable)
-                for modifier in contract.modifiers:
+                for modifier in contract.modifiers_declared:
                     self._compute_offsets_from_thing(modifier)
                     for variable in modifier.local_variables:
                         self._compute_offsets_from_thing(variable)
+
+                for var in contract.state_variables:
+                    self._compute_offsets_from_thing(var)
 
                 for st in contract.structures:
                     self._compute_offsets_from_thing(st)
@@ -260,12 +283,26 @@ class SlitherCore(Context):
 
                 for event in contract.events:
                     self._compute_offsets_from_thing(event)
+
+                for typ in contract.type_aliases:
+                    self._compute_offsets_from_thing(typ)
+
             for enum in compilation_unit.enums_top_level:
                 self._compute_offsets_from_thing(enum)
+            for event in compilation_unit.events_top_level:
+                self._compute_offsets_from_thing(event)
             for function in compilation_unit.functions_top_level:
                 self._compute_offsets_from_thing(function)
             for st in compilation_unit.structures_top_level:
                 self._compute_offsets_from_thing(st)
+            for var in compilation_unit.variables_top_level:
+                self._compute_offsets_from_thing(var)
+            for typ in compilation_unit.type_aliases.values():
+                self._compute_offsets_from_thing(typ)
+            for err in compilation_unit.custom_errors:
+                self._compute_offsets_from_thing(err)
+            for event in compilation_unit.events_top_level:
+                self._compute_offsets_from_thing(event)
             for import_directive in compilation_unit.import_directives:
                 self._compute_offsets_from_thing(import_directive)
             for pragma in compilation_unit.pragma_directives:
@@ -402,25 +439,29 @@ class SlitherCore(Context):
             if "source_mapping" in elem
         ]
 
-        # Use POSIX-style paths so that filter_paths works across different
+        # Use POSIX-style paths so that filter_paths|include_paths works across different
         # OSes. Convert to a list so elements don't get consumed and are lost
         # while evaluating the first pattern
         source_mapping_elements = list(
             map(lambda x: pathlib.Path(x).resolve().as_posix() if x else x, source_mapping_elements)
         )
-        matching = False
+        (matching, paths, msg_err) = (
+            (True, self._paths_to_include, "--include-paths")
+            if self._paths_to_include
+            else (False, self._paths_to_filter, "--filter-paths")
+        )
 
-        for path in self._paths_to_filter:
+        for path in paths:
             try:
                 if any(
                     bool(re.search(_relative_path_format(path), src_mapping))
                     for src_mapping in source_mapping_elements
                 ):
-                    matching = True
+                    matching = not matching
                     break
             except re.error:
                 logger.error(
-                    f"Incorrect regular expression for --filter-paths {path}."
+                    f"Incorrect regular expression for {msg_err} {path}."
                     "\nSlither supports the Python re format"
                     ": https://docs.python.org/3/library/re.html"
                 )
@@ -443,7 +484,9 @@ class SlitherCore(Context):
 
         return True
 
-    def load_previous_results(self):
+    def load_previous_results(self) -> None:
+        self.load_previous_results_from_sarif()
+
         filename = self._previous_results_filename
         try:
             if os.path.isfile(filename):
@@ -453,10 +496,25 @@ class SlitherCore(Context):
                         for r in self._previous_results:
                             if "id" in r:
                                 self._previous_results_ids.add(r["id"])
+
         except json.decoder.JSONDecodeError:
             logger.error(red(f"Impossible to decode {filename}. Consider removing the file"))
 
-    def write_results_to_hide(self):
+    def load_previous_results_from_sarif(self) -> None:
+        sarif = pathlib.Path(self.sarif_input)
+        triage = pathlib.Path(self.sarif_triage)
+
+        if not sarif.exists():
+            return
+        if not triage.exists():
+            return
+
+        triaged = read_triage_info(sarif, triage)
+
+        for id_triaged in triaged:
+            self._previous_results_ids.add(id_triaged)
+
+    def write_results_to_hide(self) -> None:
         if not self._results_to_hide:
             return
         filename = self._previous_results_filename
@@ -464,8 +522,9 @@ class SlitherCore(Context):
             results = self._results_to_hide + self._previous_results
             json.dump(results, f)
 
-    def save_results_to_hide(self, results: List[Dict]):
+    def save_results_to_hide(self, results: List[Dict]) -> None:
         self._results_to_hide += results
+        self.write_results_to_hide()
 
     def add_path_to_filter(self, path: str):
         """
@@ -473,6 +532,13 @@ class SlitherCore(Context):
         Path are used through direct comparison (no regex)
         """
         self._paths_to_filter.add(path)
+
+    def add_path_to_include(self, path: str):
+        """
+        Add path to include
+        Path are used through direct comparison (no regex)
+        """
+        self._paths_to_include.add(path)
 
     # endregion
     ###################################################################################
@@ -482,8 +548,8 @@ class SlitherCore(Context):
     ###################################################################################
 
     @property
-    def crytic_compile(self) -> Optional[CryticCompile]:
-        return self._crytic_compile
+    def crytic_compile(self) -> CryticCompile:
+        return self._crytic_compile  # type: ignore
 
     # endregion
     ###################################################################################

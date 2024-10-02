@@ -1,6 +1,12 @@
 import re
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.formatters.naming_convention.naming_convention import custom_format
+from slither.utils.output import Output
 
 
 class NamingConvention(AbstractDetector):
@@ -10,7 +16,7 @@ class NamingConvention(AbstractDetector):
 
     Exceptions:
     - Allow constant variables name/symbol/decimals to be lowercase (ERC20)
-    - Allow '_' at the beggining of the mixed_case match for private variables and unused parameters
+    - Allow '_' at the beginning of the mixed_case match for private variables and unused parameters
     - Ignore echidna properties (functions with names starting 'echidna_' or 'crytic_'
     """
 
@@ -18,7 +24,7 @@ class NamingConvention(AbstractDetector):
     HELP = "Conformity to Solidity naming conventions"
     IMPACT = DetectorClassification.INFORMATIONAL
     CONFIDENCE = DetectorClassification.HIGH
-
+    LANGUAGE = "solidity"
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions"
 
     WIKI_TITLE = "Conformance to Solidity naming conventions"
@@ -36,30 +42,40 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
     STANDARD_JSON = False
 
     @staticmethod
-    def is_cap_words(name):
+    def is_cap_words(name: str) -> bool:
         return re.search("^[A-Z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
-    def is_mixed_case(name):
+    def is_immutable_naming(name: str) -> bool:
+        return re.search("^i_[a-z]([A-Za-z0-9]+)?_?$", name) is not None
+
+    @staticmethod
+    def is_state_naming(name: str) -> bool:
+        return re.search("^s_[a-z]([A-Za-z0-9]+)?_?$", name) is not None
+
+    @staticmethod
+    def is_mixed_case(name: str) -> bool:
         return re.search("^[a-z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
-    def is_mixed_case_with_underscore(name):
+    def is_mixed_case_with_underscore(name: str) -> bool:
         # Allow _ at the beginning to represent private variable
         # or unused parameters
         return re.search("^[_]?[a-z]([A-Za-z0-9]+)?_?$", name) is not None
 
     @staticmethod
-    def is_upper_case_with_underscores(name):
+    def is_upper_case_with_underscores(name: str) -> bool:
         return re.search("^[A-Z0-9_]+_?$", name) is not None
 
     @staticmethod
-    def should_avoid_name(name):
+    def should_avoid_name(name: str) -> bool:
         return re.search("^[lOI]$", name) is not None
 
-    def _detect(self):  # pylint: disable=too-many-branches,too-many-statements
+    # pylint: disable=too-many-branches,too-many-statements
+    def _detect(self) -> List[Output]:
 
         results = []
+        info: DETECTOR_INFO
         for contract in self.contracts:
 
             if not self.is_cap_words(contract.name):
@@ -139,7 +155,8 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                     # For ERC20 compatibility
                     if var.name in ["symbol", "name", "decimals"]:
                         continue
-
+                    if var.visibility == "public":
+                        continue
                     if not self.is_upper_case_with_underscores(var.name):
                         info = [
                             "Constant ",
@@ -158,10 +175,17 @@ Solidity defines a [naming convention](https://solidity.readthedocs.io/en/v0.4.2
                         results.append(res)
 
                 else:
-                    if var.visibility == "private":
-                        correct_naming = self.is_mixed_case_with_underscore(var.name)
+                    if var.visibility in ["private", "internal"]:
+                        correct_naming = self.is_mixed_case_with_underscore(
+                            var.name
+                        ) or self.is_state_naming(var.name)
+
+                        if not correct_naming and var.is_immutable:
+                            correct_naming = self.is_immutable_naming(var.name)
+
                     else:
                         correct_naming = self.is_mixed_case(var.name)
+
                     if not correct_naming:
                         info = ["Variable ", var, " is not in mixedCase\n"]
 

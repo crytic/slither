@@ -12,6 +12,7 @@ from .new_contract import NewContract
 from .new_elementary_type import NewElementaryType
 from .super_call_expression import SuperCallExpression
 from .super_identifier import SuperIdentifier
+from .self_identifier import SelfIdentifier
 from .tuple_expression import TupleExpression
 from .type_conversion import TypeConversion
 from .unary_operation import UnaryOperation, UnaryOperationType

@@ -4,14 +4,13 @@
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set
+from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set, Any
 
 from crytic_compile.platform import Type as PlatformType
 
 from slither.core.cfg.scope import Scope
-from slither.core.solidity_types.type import Type
 from slither.core.source_mapping.source_mapping import SourceMapping
-
+from slither.utils.using_for import USING_FOR, merge_using_for
 from slither.core.declarations.function import Function, FunctionType, FunctionLanguage
 from slither.utils.erc import (
     ERC20_signatures,
@@ -33,18 +32,19 @@ if TYPE_CHECKING:
     from slither.utils.type_helpers import LibraryCallType, HighLevelCallType, InternalCallType
     from slither.core.declarations import (
         Enum,
-        Event,
+        EventContract,
         Modifier,
         EnumContract,
         StructureContract,
         FunctionContract,
+        CustomErrorContract,
     )
     from slither.slithir.variables.variable import SlithIRVariable
-    from slither.core.variables.variable import Variable
-    from slither.core.variables.state_variable import StateVariable
+    from slither.core.variables import Variable, StateVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.core.declarations.custom_error_contract import CustomErrorContract
     from slither.core.scope.scope import FileScope
+    from slither.core.cfg.node import Node
+    from slither.core.solidity_types import TypeAliasContract
 
 
 LOGGER = logging.getLogger("Contract")
@@ -55,7 +55,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     Contract class
     """
 
-    def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope"):
+    def __init__(self, compilation_unit: "SlitherCompilationUnit", scope: "FileScope") -> None:
         super().__init__()
 
         self._name: Optional[str] = None
@@ -69,31 +69,37 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
         self._enums: Dict[str, "EnumContract"] = {}
         self._structures: Dict[str, "StructureContract"] = {}
-        self._events: Dict[str, "Event"] = {}
+        self._events: Dict[str, "EventContract"] = {}
         # map accessible variable from name -> variable
         # do not contain private variables inherited from contract
         self._variables: Dict[str, "StateVariable"] = {}
         self._variables_ordered: List["StateVariable"] = []
+        # Reference id -> variable declaration (only available for compact AST)
+        self._state_variables_by_ref_id: Dict[int, "StateVariable"] = {}
         self._modifiers: Dict[str, "Modifier"] = {}
         self._functions: Dict[str, "FunctionContract"] = {}
         self._linearizedBaseContracts: List[int] = []
         self._custom_errors: Dict[str, "CustomErrorContract"] = {}
+        self._type_aliases: Dict[str, "TypeAliasContract"] = {}
 
         # The only str is "*"
-        self._using_for: Dict[Union[str, Type], List[Type]] = {}
-        self._using_for_complete: Dict[Union[str, Type], List[Type]] = None
+        self._using_for: USING_FOR = {}
+        self._using_for_complete: Optional[USING_FOR] = None
         self._kind: Optional[str] = None
         self._is_interface: bool = False
         self._is_library: bool = False
+        self._is_fully_implemented: bool = False
+        self._is_abstract: bool = False
 
         self._signatures: Optional[List[str]] = None
         self._signatures_declared: Optional[List[str]] = None
 
+        self._fallback_function: Optional["FunctionContract"] = None
+        self._receive_function: Optional["FunctionContract"] = None
+
         self._is_upgradeable: Optional[bool] = None
         self._is_upgradeable_proxy: Optional[bool] = None
         self._upgradeable_version: Optional[str] = None
-
-        self.is_top_level = False  # heavily used, so no @property
 
         self._initial_state_variables: List["StateVariable"] = []  # ssa
 
@@ -110,6 +116,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             Dict["StateVariable", Set[Union["StateVariable", "Function"]]]
         ] = None
 
+        self._comments: Optional[str] = None
+
     ###################################################################################
     ###################################################################################
     # region General's properties
@@ -123,17 +131,17 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._name
 
     @name.setter
-    def name(self, name: str):
+    def name(self, name: str) -> None:
         self._name = name
 
     @property
     def id(self) -> int:
         """Unique id."""
-        assert self._id
+        assert self._id is not None
         return self._id
 
     @id.setter
-    def id(self, new_id):
+    def id(self, new_id: int) -> None:
         """Unique id."""
         self._id = new_id
 
@@ -146,7 +154,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._kind
 
     @contract_kind.setter
-    def contract_kind(self, kind):
+    def contract_kind(self, kind: str) -> None:
         self._kind = kind
 
     @property
@@ -154,7 +162,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._is_interface
 
     @is_interface.setter
-    def is_interface(self, is_interface: bool):
+    def is_interface(self, is_interface: bool) -> None:
         self._is_interface = is_interface
 
     @property
@@ -162,8 +170,63 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._is_library
 
     @is_library.setter
-    def is_library(self, is_library: bool):
+    def is_library(self, is_library: bool) -> None:
         self._is_library = is_library
+
+    @property
+    def comments(self) -> Optional[str]:
+        """
+        Return the comments associated with the contract.
+
+        When using comments, avoid strict text matching, as the solc behavior might change.
+        For example, for old solc version, the first space after the * is not kept, i.e:
+
+          * @title Test Contract
+          * @dev Test comment
+
+        Returns
+        - " @title Test Contract\n @dev Test comment" for newest versions
+        - "@title Test Contract\n@dev Test comment" for older versions
+
+
+        Returns:
+            the comment as a string
+        """
+        return self._comments
+
+    @comments.setter
+    def comments(self, comments: str):
+        self._comments = comments
+
+    @property
+    def is_fully_implemented(self) -> bool:
+        """
+        bool: True if the contract defines all functions.
+        In modern Solidity, virtual functions can lack an implementation.
+        Prior to Solidity 0.6.0, functions like the following would be not fully implemented:
+        ```solidity
+        contract ImplicitAbstract{
+            function f() public;
+        }
+        ```
+        """
+        return self._is_fully_implemented
+
+    @is_fully_implemented.setter
+    def is_fully_implemented(self, is_fully_implemented: bool):
+        self._is_fully_implemented = is_fully_implemented
+
+    @property
+    def is_abstract(self) -> bool:
+        """
+        Note for Solidity < 0.6.0 it will always be false
+        bool: True if the contract is abstract.
+        """
+        return self._is_abstract
+
+    @is_abstract.setter
+    def is_abstract(self, is_abstract: bool):
+        self._is_abstract = is_abstract
 
     # endregion
     ###################################################################################
@@ -234,28 +297,28 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def events(self) -> List["Event"]:
+    def events(self) -> List["EventContract"]:
         """
         list(Event): List of the events
         """
         return list(self._events.values())
 
     @property
-    def events_inherited(self) -> List["Event"]:
+    def events_inherited(self) -> List["EventContract"]:
         """
         list(Event): List of the inherited events
         """
         return [e for e in self.events if e.contract != self]
 
     @property
-    def events_declared(self) -> List["Event"]:
+    def events_declared(self) -> List["EventContract"]:
         """
         list(Event): List of the events declared within the contract (not inherited)
         """
         return [e for e in self.events if e.contract == self]
 
     @property
-    def events_as_dict(self) -> Dict[str, "Event"]:
+    def events_as_dict(self) -> Dict[str, "EventContract"]:
         return self._events
 
     # endregion
@@ -266,27 +329,20 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def using_for(self) -> Dict[Union[str, Type], List[Type]]:
+    def using_for(self) -> USING_FOR:
         return self._using_for
 
     @property
-    def using_for_complete(self) -> Dict[Union[str, Type], List[Type]]:
+    def using_for_complete(self) -> USING_FOR:
         """
-        Dict[Union[str, Type], List[Type]]: Dict of merged local using for directive with top level directive
+        USING_FOR: Dict of merged local using for directive with top level directive
         """
-
-        def _merge_using_for(uf1, uf2):
-            result = {**uf1, **uf2}
-            for key, value in result.items():
-                if key in uf1 and key in uf2:
-                    result[key] = value + uf1[key]
-            return result
 
         if self._using_for_complete is None:
             result = self.using_for
             top_level_using_for = self.file_scope.using_for_directives
             for uftl in top_level_using_for:
-                result = _merge_using_for(result, uftl.using_for)
+                result = merge_using_for(result, uftl.using_for)
             self._using_for_complete = result
         return self._using_for_complete
 
@@ -325,9 +381,47 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     # endregion
     ###################################################################################
     ###################################################################################
+    # region Custom Errors
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def type_aliases(self) -> List["TypeAliasContract"]:
+        """
+        list(TypeAliasContract): List of the contract's custom errors
+        """
+        return list(self._type_aliases.values())
+
+    @property
+    def type_aliases_inherited(self) -> List["TypeAliasContract"]:
+        """
+        list(TypeAliasContract): List of the inherited custom errors
+        """
+        return [s for s in self.type_aliases if s.contract != self]
+
+    @property
+    def type_aliases_declared(self) -> List["TypeAliasContract"]:
+        """
+        list(TypeAliasContract): List of the custom errors declared within the contract (not inherited)
+        """
+        return [s for s in self.type_aliases if s.contract == self]
+
+    @property
+    def type_aliases_as_dict(self) -> Dict[str, "TypeAliasContract"]:
+        return self._type_aliases
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
     # region Variables
     ###################################################################################
     ###################################################################################
+    @property
+    def state_variables_by_ref_id(self) -> Dict[int, "StateVariable"]:
+        """
+        Returns the state variables by reference id (only available for compact AST).
+        """
+        return self._state_variables_by_ref_id
 
     @property
     def variables(self) -> List["StateVariable"]:
@@ -353,6 +447,33 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return list(self._variables.values())
 
     @property
+    def stored_state_variables(self) -> List["StateVariable"]:
+        """
+        Returns state variables with storage locations, excluding private variables from inherited contracts.
+        Use stored_state_variables_ordered to access variables with storage locations in their declaration order.
+
+        This implementation filters out state variables if they are constant or immutable. It will be
+        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
+
+        Returns:
+            List[StateVariable]: A list of state variables with storage locations.
+        """
+        return [variable for variable in self.state_variables if variable.is_stored]
+
+    @property
+    def stored_state_variables_ordered(self) -> List["StateVariable"]:
+        """
+        list(StateVariable): List of the state variables with storage locations by order of declaration.
+
+        This implementation filters out state variables if they are constant or immutable. It will be
+        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
+
+        Returns:
+            List[StateVariable]: A list of state variables with storage locations ordered by declaration.
+        """
+        return [variable for variable in self.state_variables_ordered if variable.is_stored]
+
+    @property
     def state_variables_entry_points(self) -> List["StateVariable"]:
         """
         list(StateVariable): List of the state variables that are public.
@@ -366,7 +487,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         return list(self._variables_ordered)
 
-    def add_variables_ordered(self, new_vars: List["StateVariable"]):
+    def add_variables_ordered(self, new_vars: List["StateVariable"]) -> None:
         self._variables_ordered += new_vars
 
     @property
@@ -455,7 +576,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         )
 
     @property
-    def constructors(self) -> List["Function"]:
+    def constructors(self) -> List["FunctionContract"]:
         """
         Return the list of constructors (including inherited)
         """
@@ -524,17 +645,17 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         return list(self._functions.values())
 
-    def available_functions_as_dict(self) -> Dict[str, "FunctionContract"]:
+    def available_functions_as_dict(self) -> Dict[str, "Function"]:
         if self._available_functions_as_dict is None:
             self._available_functions_as_dict = {
                 f.full_name: f for f in self._functions.values() if not f.is_shadowed
             }
         return self._available_functions_as_dict
 
-    def add_function(self, func: "FunctionContract"):
+    def add_function(self, func: "FunctionContract") -> None:
         self._functions[func.canonical_name] = func
 
-    def set_functions(self, functions: Dict[str, "FunctionContract"]):
+    def set_functions(self, functions: Dict[str, "FunctionContract"]) -> None:
         """
         Set the functions
 
@@ -578,7 +699,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def available_modifiers_as_dict(self) -> Dict[str, "Modifier"]:
         return {m.full_name: m for m in self._modifiers.values() if not m.is_shadowed}
 
-    def set_modifiers(self, modifiers: Dict[str, "Modifier"]):
+    def set_modifiers(self, modifiers: Dict[str, "Modifier"]) -> None:
         """
         Set the modifiers
 
@@ -621,6 +742,24 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         list(Function|Modifier): List of the functions and modifiers defined within the contract (not inherited)
         """
         return self.functions_declared + self.modifiers_declared  # type: ignore
+
+    @property
+    def fallback_function(self) -> Optional["FunctionContract"]:
+        if self._fallback_function is None:
+            for f in self.functions:
+                if f.is_fallback:
+                    self._fallback_function = f
+                    break
+        return self._fallback_function
+
+    @property
+    def receive_function(self) -> Optional["FunctionContract"]:
+        if self._receive_function is None:
+            for f in self.functions:
+                if f.is_receive:
+                    self._receive_function = f
+                    break
+        return self._receive_function
 
     def available_elements_from_inheritances(
         self,
@@ -688,7 +827,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         inheritance: List["Contract"],
         immediate_inheritance: List["Contract"],
         called_base_constructor_contracts: List["Contract"],
-    ):
+    ) -> None:
         self._inheritance = inheritance
         self._immediate_inheritance = immediate_inheritance
         self._explicit_base_constructor_calls = called_base_constructor_contracts
@@ -699,7 +838,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         list(Contract): Return the list of contracts derived from self
         """
         candidates = self.compilation_unit.contracts
-        return [c for c in candidates if self in c.inheritance]
+        return [c for c in candidates if self in c.inheritance]  # type: ignore
 
     # endregion
     ###################################################################################
@@ -765,7 +904,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def get_function_from_canonical_name(self, canonical_name: str) -> Optional["Function"]:
         """
-            Return a function from a a canonical name (contract.signature())
+            Return a function from a canonical name (contract.signature())
         Args:
             canonical_name (str): canonical name of the function (without return statement)
         Returns:
@@ -801,25 +940,27 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         Returns:
             StateVariable
         """
-        return next((v for v in self.state_variables if v.name == canonical_name), None)
+        return next((v for v in self.state_variables if v.canonical_name == canonical_name), None)
 
-    def get_structure_from_name(self, structure_name: str) -> Optional["Structure"]:
+    def get_structure_from_name(self, structure_name: str) -> Optional["StructureContract"]:
         """
             Return a structure from a name
         Args:
             structure_name (str): name of the structure
         Returns:
-            Structure
+            StructureContract
         """
         return next((st for st in self.structures if st.name == structure_name), None)
 
-    def get_structure_from_canonical_name(self, structure_name: str) -> Optional["Structure"]:
+    def get_structure_from_canonical_name(
+        self, structure_name: str
+    ) -> Optional["StructureContract"]:
         """
             Return a structure from a canonical name
         Args:
             structure_name (str): canonical name of the structure
         Returns:
-            Structure
+            StructureContract
         """
         return next((st for st in self.structures if st.canonical_name == structure_name), None)
 
@@ -853,7 +994,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         return next((e for e in self.enums if e.name == enum_name), None)
 
-    def get_enum_from_canonical_name(self, enum_name) -> Optional["Enum"]:
+    def get_enum_from_canonical_name(self, enum_name: str) -> Optional["Enum"]:
         """
             Return an enum from a canonical name
         Args:
@@ -865,16 +1006,14 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def get_functions_overridden_by(self, function: "Function") -> List["Function"]:
         """
-            Return the list of functions overriden by the function
+            Return the list of functions overridden by the function
         Args:
             (core.Function)
         Returns:
             list(core.Function)
 
         """
-        candidatess = [c.functions_declared for c in self.inheritance]
-        candidates = [candidate for sublist in candidatess for candidate in sublist]
-        return [f for f in candidates if f.full_name == function.full_name]
+        return function.overrides
 
     # endregion
     ###################################################################################
@@ -954,7 +1093,9 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def get_summary(self, include_shadowed=True) -> Tuple[str, List[str], List[str], List, List]:
+    def get_summary(
+        self, include_shadowed: bool = True
+    ) -> Tuple[str, List[str], List[str], List, List]:
         """Return the function summary
 
         :param include_shadowed: boolean to indicate if shadowed functions should be included (default True)
@@ -1207,7 +1348,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     @property
     def is_test(self) -> bool:
-        return is_test_contract(self) or self.is_truffle_migration
+        return is_test_contract(self) or self.is_truffle_migration  # type: ignore
 
     # endregion
     ###################################################################################
@@ -1216,8 +1357,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def update_read_write_using_ssa(self):
-        for function in self.functions + self.modifiers:
+    def update_read_write_using_ssa(self) -> None:
+        for function in self.functions + list(self.modifiers):
             function.update_read_write_using_ssa()
 
     # endregion
@@ -1231,8 +1372,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def is_upgradeable(self) -> bool:
         if self._is_upgradeable is None:
             self._is_upgradeable = False
-            if self.is_upgradeable_proxy:
-                return False
             initializable = self.file_scope.get_contract_from_name("Initializable")
             if initializable:
                 if initializable in self.inheritance:
@@ -1252,7 +1391,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._is_upgradeable
 
     @is_upgradeable.setter
-    def is_upgradeable(self, upgradeable: bool):
+    def is_upgradeable(self, upgradeable: bool) -> None:
         self._is_upgradeable = upgradeable
 
     @property
@@ -1281,7 +1420,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._is_upgradeable_proxy
 
     @is_upgradeable_proxy.setter
-    def is_upgradeable_proxy(self, upgradeable_proxy: bool):
+    def is_upgradeable_proxy(self, upgradeable_proxy: bool) -> None:
         self._is_upgradeable_proxy = upgradeable_proxy
 
     @property
@@ -1289,7 +1428,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._upgradeable_version
 
     @upgradeable_version.setter
-    def upgradeable_version(self, version_name: str):
+    def upgradeable_version(self, version_name: str) -> None:
         self._upgradeable_version = version_name
 
     # endregion
@@ -1308,10 +1447,10 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return self._is_incorrectly_parsed
 
     @is_incorrectly_constructed.setter
-    def is_incorrectly_constructed(self, incorrect: bool):
+    def is_incorrectly_constructed(self, incorrect: bool) -> None:
         self._is_incorrectly_parsed = incorrect
 
-    def add_constructor_variables(self):
+    def add_constructor_variables(self) -> None:
         from slither.core.declarations.function_contract import FunctionContract
 
         if self.state_variables:
@@ -1320,8 +1459,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
                     constructor_variable = FunctionContract(self.compilation_unit)
                     constructor_variable.set_function_type(FunctionType.CONSTRUCTOR_VARIABLES)
-                    constructor_variable.set_contract(self)
-                    constructor_variable.set_contract_declarer(self)
+                    constructor_variable.set_contract(self)  # type: ignore
+                    constructor_variable.set_contract_declarer(self)  # type: ignore
                     constructor_variable.set_visibility("internal")
                     # For now, source mapping of the constructor variable is the whole contract
                     # Could be improved with a targeted source mapping
@@ -1352,8 +1491,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                     constructor_variable.set_function_type(
                         FunctionType.CONSTRUCTOR_CONSTANT_VARIABLES
                     )
-                    constructor_variable.set_contract(self)
-                    constructor_variable.set_contract_declarer(self)
+                    constructor_variable.set_contract(self)  # type: ignore
+                    constructor_variable.set_contract_declarer(self)  # type: ignore
                     constructor_variable.set_visibility("internal")
                     # For now, source mapping of the constructor variable is the whole contract
                     # Could be improved with a targeted source mapping
@@ -1380,7 +1519,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def _create_node(
         self, func: Function, counter: int, variable: "Variable", scope: Union[Scope, Function]
-    ):
+    ) -> "Node":
         from slither.core.cfg.node import Node, NodeType
         from slither.core.expressions import (
             AssignmentOperationType,
@@ -1412,7 +1551,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def convert_expression_to_slithir_ssa(self):
+    def convert_expression_to_slithir_ssa(self) -> None:
         """
         Assume generate_slithir_and_analyze was called on all functions
 
@@ -1434,22 +1573,23 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 all_ssa_state_variables_instances[v.canonical_name] = new_var
                 self._initial_state_variables.append(new_var)
 
-        for func in self.functions + self.modifiers:
+        for func in self.functions + list(self.modifiers):
             func.generate_slithir_ssa(all_ssa_state_variables_instances)
 
-    def fix_phi(self):
-        last_state_variables_instances = {}
-        initial_state_variables_instances = {}
+    def fix_phi(self) -> None:
+        last_state_variables_instances: Dict[str, List["StateVariable"]] = {}
+        initial_state_variables_instances: Dict[str, "StateVariable"] = {}
         for v in self._initial_state_variables:
             last_state_variables_instances[v.canonical_name] = []
             initial_state_variables_instances[v.canonical_name] = v
 
-        for func in self.functions + self.modifiers:
+        for func in self.functions + list(self.modifiers):
             result = func.get_last_ssa_state_variables_instances()
             for variable_name, instances in result.items():
-                last_state_variables_instances[variable_name] += instances
+                # TODO: investigate the next operation
+                last_state_variables_instances[variable_name] += list(instances)
 
-        for func in self.functions + self.modifiers:
+        for func in self.functions + list(self.modifiers):
             func.fix_phi(last_state_variables_instances, initial_state_variables_instances)
 
     # endregion
@@ -1459,20 +1599,20 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
     ###################################################################################
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if isinstance(other, str):
             return other == self.name
         return NotImplemented
 
-    def __neq__(self, other):
+    def __neq__(self, other: Any) -> bool:
         if isinstance(other, str):
             return other != self.name
         return NotImplemented
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def __hash__(self):
-        return self._id
+    def __hash__(self) -> int:
+        return self._id  # type:ignore
 
     # endregion

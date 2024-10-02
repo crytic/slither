@@ -21,7 +21,10 @@ def parse_args() -> argparse.Namespace:
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
-    parser = argparse.ArgumentParser(description="Demo", usage="slither-documentation filename")
+    parser = argparse.ArgumentParser(
+        description="Auto-generate NatSpec documentation for every function using OpenAI Codex.",
+        usage="slither-documentation filename",
+    )
 
     parser.add_argument("project", help="The target directory/Solidity file.")
 
@@ -32,6 +35,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--force-answer-parsing",
         help="Apply heuristics to better parse codex output (might lead to incorrect results)",
+        action="store_true",
+        default=False,
+    )
+
+    parser.add_argument(
+        "--include-tests",
+        help="Include the tests",
         action="store_true",
         default=False,
     )
@@ -202,6 +212,7 @@ def _handle_compilation_unit(
     overwrite: bool,
     force: bool,
     retry: int,
+    include_test: bool,
 ) -> None:
     logging_file: Optional[str]
     if slither.codex_log:
@@ -210,9 +221,8 @@ def _handle_compilation_unit(
         logging_file = None
 
     for scope in compilation_unit.scopes.values():
-
         # Dont send tests file
-        if (
+        if not include_test and (
             ".t.sol" in scope.filename.absolute
             or "mock" in scope.filename.absolute.lower()
             or "test" in scope.filename.absolute.lower()
@@ -271,6 +281,7 @@ def main() -> None:
                 args.overwrite,
                 args.force_answer_parsing,
                 int(args.retry),
+                args.include_tests,
             )
     except ImportError:
         pass

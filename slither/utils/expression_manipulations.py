@@ -4,6 +4,8 @@
 """
 import copy
 from typing import Union, Callable
+
+from slither.all_exceptions import SlitherException
 from slither.core.expressions import UnaryOperation
 from slither.core.expressions.assignment_operation import AssignmentOperation
 from slither.core.expressions.binary_operation import BinaryOperation
@@ -19,7 +21,7 @@ from slither.core.expressions.new_array import NewArray
 from slither.core.expressions.new_contract import NewContract
 from slither.core.expressions.tuple_expression import TupleExpression
 from slither.core.expressions.type_conversion import TypeConversion
-from slither.all_exceptions import SlitherException
+from slither.core.expressions.new_elementary_type import NewElementaryType
 
 # pylint: disable=protected-access
 def f_expressions(
@@ -29,7 +31,7 @@ def f_expressions(
     e._expressions.append(x)
 
 
-def f_call(e: CallExpression, x):
+def f_call(e: CallExpression, x: ElementaryTypeNameExpression) -> None:
     e._arguments.append(x)
 
 
@@ -41,11 +43,11 @@ def f_call_gas(e: CallExpression, x):
     e._gas = x
 
 
-def f_expression(e: Union[TypeConversion, UnaryOperation, MemberAccess], x):
+def f_expression(e: Union[TypeConversion, UnaryOperation, MemberAccess], x: CallExpression) -> None:
     e._expression = x
 
 
-def f_called(e: CallExpression, x):
+def f_called(e: CallExpression, x: Identifier) -> None:
     e._called = x
 
 
@@ -98,11 +100,20 @@ class SplitTernaryExpression:
 
         if isinstance(
             expression,
-            (Literal, Identifier, IndexAccess, NewArray, NewContract, ElementaryTypeNameExpression),
+            (
+                Literal,
+                Identifier,
+                NewArray,
+                NewContract,
+                ElementaryTypeNameExpression,
+                NewElementaryType,
+            ),
         ):
             return
 
-        if isinstance(expression, (AssignmentOperation, BinaryOperation, TupleExpression)):
+        if isinstance(
+            expression, (AssignmentOperation, BinaryOperation, TupleExpression, IndexAccess)
+        ):
             true_expression._expressions = []
             false_expression._expressions = []
             self.convert_expressions(expression, true_expression, false_expression)
@@ -136,9 +147,7 @@ class SplitTernaryExpression:
         for next_expr in expression.expressions:
             # TODO: can we get rid of `NoneType` expressions in `TupleExpression`?
             # montyly: this might happen with unnamed tuple (ex: (,,,) = f()), but it needs to be checked
-            if next_expr:
-                if isinstance(next_expr, IndexAccess):
-                    self.convert_index_access(next_expr, true_expression, false_expression)
+            if next_expr is not None:
 
                 if self.conditional_not_ahead(
                     next_expr, true_expression, false_expression, f_expressions
@@ -149,6 +158,9 @@ class SplitTernaryExpression:
                         true_expression.expressions[-1],
                         false_expression.expressions[-1],
                     )
+            else:
+                true_expression.expressions.append(None)
+                false_expression.expressions.append(None)
 
     def convert_index_access(
         self, next_expr: IndexAccess, true_expression: Expression, false_expression: Expression

@@ -21,8 +21,6 @@ class PrinterSlithIRSSA(AbstractPrinter):
 
         txt = ""
         for contract in self.contracts:
-            if contract.is_top_level:
-                continue
             txt += f"Contract {contract.name}" + "\n"
             for function in contract.functions:
                 txt += f"\tFunction {function.canonical_name}" + "\n"

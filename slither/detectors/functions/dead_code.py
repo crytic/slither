@@ -4,7 +4,12 @@ Module detecting dead code
 from typing import List, Tuple
 
 from slither.core.declarations import Function, FunctionContract, Contract
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.utils.output import Output
 
 
 class DeadCode(AbstractDetector):
@@ -20,7 +25,7 @@ class DeadCode(AbstractDetector):
     WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code"
 
     WIKI_TITLE = "Dead-code"
-    WIKI_DESCRIPTION = "Functions that are not sued."
+    WIKI_DESCRIPTION = "Functions that are not used."
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
@@ -34,7 +39,7 @@ contract Contract{
 
     WIKI_RECOMMENDATION = "Remove unused functions."
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
 
         results = []
 
@@ -66,12 +71,13 @@ contract Contract{
                 continue
             if isinstance(function, FunctionContract) and (
                 function.contract_declarer.is_from_dependency()
+                or function.contract_declarer.is_library
             ):
                 continue
-            # Continue if the functon is not implemented because it means the contract is abstract
+            # Continue if the function is not implemented because it means the contract is abstract
             if not function.is_implemented:
                 continue
-            info = [function, " is never used and should be removed\n"]
+            info: DETECTOR_INFO = [function, " is never used and should be removed\n"]
             res = self.generate_result(info)
             results.append(res)
 

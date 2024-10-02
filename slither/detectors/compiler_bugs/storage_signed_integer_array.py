@@ -1,19 +1,24 @@
 """
 Module detecting storage signed integer array bug
 """
+from typing import List, Tuple, Set
 
+from slither.core.declarations import Function, Contract
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     make_solc_versions,
+    DETECTOR_INFO,
 )
-from slither.core.cfg.node import NodeType
+from slither.core.cfg.node import NodeType, Node
 from slither.core.solidity_types import ArrayType
 from slither.core.solidity_types.elementary_type import Int, ElementaryType
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.slithir.operations import Operation, OperationWithLValue
 from slither.slithir.operations.assignment import Assignment
 from slither.slithir.operations.init_array import InitArray
+from slither.utils.output import Output
 
 
 class StorageSignedIntegerArray(AbstractDetector):
@@ -58,7 +63,7 @@ contract A {
     VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 7, 25) + make_solc_versions(5, 0, 9)
 
     @staticmethod
-    def _is_vulnerable_type(ir):
+    def _is_vulnerable_type(ir: Operation) -> bool:
         """
         Detect if the IR lvalue is a vulnerable type
         Must be a storage allocation, and an array of Int
@@ -66,23 +71,28 @@ contract A {
         """
         # Storage allocation
         # Base type is signed integer
+        if not isinstance(ir, OperationWithLValue):
+            return False
+
         return (
             (
                 isinstance(ir.lvalue, StateVariable)
                 or (isinstance(ir.lvalue, LocalVariable) and ir.lvalue.is_storage)
             )
-            and isinstance(ir.lvalue.type.type, ElementaryType)
-            and ir.lvalue.type.type.type in Int
+            and isinstance(ir.lvalue.type.type, ElementaryType)  # type: ignore
+            and ir.lvalue.type.type.type in Int  # type: ignore
         )
 
-    def detect_storage_signed_integer_arrays(self, contract):
+    def detect_storage_signed_integer_arrays(
+        self, contract: Contract
+    ) -> Set[Tuple[Function, Node]]:
         """
         Detects and returns all nodes with storage-allocated signed integer array init/assignment
         :param contract: Contract to detect within
         :return: A list of tuples with (function, node) where function node has storage-allocated signed integer array init/assignment
         """
         # Create our result set.
-        results = set()
+        results: Set[Tuple[Function, Node]] = set()
 
         # Loop for each function and modifier.
         for function in contract.functions_and_modifiers_declared:
@@ -108,7 +118,7 @@ contract A {
         # Return the resulting set of tuples
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect storage signed integer array init/assignment
         """
@@ -116,9 +126,13 @@ contract A {
         for contract in self.contracts:
             storage_signed_integer_arrays = self.detect_storage_signed_integer_arrays(contract)
             for function, node in storage_signed_integer_arrays:
-                contract_info = ["Contract ", contract, " \n"]
-                function_info = ["\t- Function ", function, "\n"]
-                node_info = ["\t\t- ", node, " has a storage signed integer array assignment\n"]
+                contract_info: DETECTOR_INFO = ["Contract ", contract, " \n"]
+                function_info: DETECTOR_INFO = ["\t- Function ", function, "\n"]
+                node_info: DETECTOR_INFO = [
+                    "\t\t- ",
+                    node,
+                    " has a storage signed integer array assignment\n",
+                ]
                 res = self.generate_result(contract_info + function_info + node_info)
                 results.append(res)
 

@@ -1,4 +1,4 @@
-from typing import Optional, Union, TYPE_CHECKING
+from typing import Optional, Union, TYPE_CHECKING, Any
 
 from slither.core.expressions.expression import Expression
 from slither.core.solidity_types.elementary_type import Fixed, Int, Ufixed, Uint
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class Literal(Expression):
     def __init__(
         self, value: Union[int, str], custom_type: "Type", subdenomination: Optional[str] = None
-    ):
+    ) -> None:
         super().__init__()
         self._value = value
         self._type = custom_type
@@ -47,7 +47,7 @@ class Literal(Expression):
         # be sure to handle any character
         return str(self._value)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Literal):
             return False
         return (self.value, self.subdenomination) == (other.value, other.subdenomination)

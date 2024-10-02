@@ -4,7 +4,11 @@ from slither.core.cfg.node import Node, NodeType
 from slither.core.solidity_types import ElementaryType
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import (
     OperationWithLValue,
     HighLevelCall,
@@ -15,9 +19,10 @@ from slither.slithir.operations import (
 )
 from slither.slithir.variables import ReferenceVariable, TemporaryVariable, TupleVariable
 from slither.slithir.variables.variable import SlithIRVariable
+from slither.utils.output import Output
 
 
-def _remove_states(written: Dict[Variable, Node]):
+def _remove_states(written: Dict[Variable, Node]) -> None:
     for key in list(written.keys()):
         if isinstance(key, StateVariable):
             del written[key]
@@ -27,11 +32,13 @@ def _handle_ir(
     ir: Operation,
     written: Dict[Variable, Node],
     ret: List[Tuple[Variable, Node, Node]],
-):
+) -> None:
     if isinstance(ir, (HighLevelCall, InternalDynamicCall, LowLevelCall)):
         _remove_states(written)
 
     if isinstance(ir, InternalCall):
+        if not ir.function:
+            return
         if ir.function.all_high_level_calls() or ir.function.all_library_calls():
             _remove_states(written)
 
@@ -73,7 +80,7 @@ def _detect_write_after_write(
     explored: Set[Node],
     written: Dict[Variable, Node],
     ret: List[Tuple[Variable, Node, Node]],
-):
+) -> None:
     if node in explored:
         return
 
@@ -121,16 +128,23 @@ class WriteAfterWrite(AbstractDetector):
 
     WIKI_RECOMMENDATION = """Fix or remove the writes."""
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:
             for function in contract.functions:
                 if function.entry_point:
-                    ret = []
+                    ret: List[Tuple[Variable, Node, Node]] = []
                     _detect_write_after_write(function.entry_point, set(), {}, ret)
                     for var, node1, node2 in ret:
-                        info = [var, " is written in both\n\t", node1, "\n\t", node2, "\n"]
+                        info: DETECTOR_INFO = [
+                            var,
+                            " is written in both\n\t",
+                            node1,
+                            "\n\t",
+                            node2,
+                            "\n",
+                        ]
 
                         res = self.generate_result(info)
                         results.append(res)

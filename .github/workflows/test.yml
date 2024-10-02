@@ -1,0 +1,123 @@
+---
+name: Pytest
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+  schedule:
+    # run CI every day even if no PRs/merges occur
+    - cron: '0 12 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-2022"]
+        type: ["unit", "integration", "tool"]
+        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: "pip"
+          cache-dependency-path: setup.py
+
+      - name: Install dependencies
+        run: |
+          pip install ".[test]"
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install test dependencies
+        run: |
+          if [ ${{ matrix.type }} = "tool" ]; then
+            # Setup Ganache for slither-read-storage tests.
+            npm install --global ganache
+          elif [ ${{ matrix.type }} = "integration" ]; then
+            # Setup Hardhat for compilation tests.
+            pushd tests/e2e/compilation/test_data/test_node_modules/ || exit
+            npm install hardhat
+            popd || exit
+          fi
+      - name: Install Vyper
+        run: |
+          INSTALLDIR="$RUNNER_TEMP/vyper-install"
+          if [[ "$RUNNER_OS" = "Windows" ]]; then
+              URL="https://github.com/vyperlang/vyper/releases/download/v0.3.7/vyper.0.3.7+commit.6020b8bb.windows.exe"
+              FILENAME="vyper.exe"
+          elif [[ "$RUNNER_OS" = "Linux" ]]; then
+              URL="https://github.com/vyperlang/vyper/releases/download/v0.3.7/vyper.0.3.7+commit.6020b8bb.linux"
+              FILENAME="vyper"
+          else
+              echo "Unknown OS"
+              exit 1
+          fi
+          mkdir -p "$INSTALLDIR"
+          curl "$URL" -o "$INSTALLDIR/$FILENAME" -L
+          chmod 755 "$INSTALLDIR/$FILENAME"
+          echo "$INSTALLDIR" >> "$GITHUB_PATH"
+      - name: Run ${{ matrix.type }} tests
+        env:
+          TEST_TYPE: ${{ matrix.type }}
+        # Only run coverage on ubuntu-latest.
+        run: |
+          if [ ${{ matrix.os }} = "ubuntu-latest" ]; then
+            TEST_ARGS=(--cov=slither --cov-append)
+          elif [ ${{ matrix.os }} = "windows-2022" ]; then
+            TEST_ARGS=()
+          fi
+          bash "./.github/scripts/${TEST_TYPE}_test_runner.sh" "${TEST_ARGS[@]}"
+
+
+      - name: Upload coverage
+        uses: ./.github/actions/upload-coverage
+        # only aggregate test coverage over linux-based tests to avoid any OS-specific filesystem information stored in
+        # coverage metadata.
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python == '3.8' }}
+
+  coverage:
+    needs:
+      - tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+
+      - run: pip install coverage[toml]
+
+      - name: download coverage data
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-data-*
+          merge-multiple: true
+
+      - name: combine coverage data
+        id: combinecoverage
+        run: |
+          set +e
+          python -m coverage combine
+          echo "## python coverage" >> "$GITHUB_STEP_SUMMARY"
+          python -m coverage report -m --format=markdown >> "$GITHUB_STEP_SUMMARY"

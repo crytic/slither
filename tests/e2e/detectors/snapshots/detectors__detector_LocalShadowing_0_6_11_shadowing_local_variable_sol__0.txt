@@ -1,0 +1,21 @@
+LocalReturnVariables.shadowedState().state (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#30) shadows:
+	- LocalReturnVariables.state (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#29) (state variable)
+
+FurtherExtendedContract.shadowingParent(uint256).y (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#25) shadows:
+	- BaseContract.y (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#5) (state variable)
+
+FurtherExtendedContract.shadowingParent(uint256).v (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#25) shadows:
+	- ExtendedContract.v() (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#13) (event)
+
+FurtherExtendedContract.shadowingParent(uint256).w (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#25) shadows:
+	- FurtherExtendedContract.w() (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#20-23) (modifier)
+
+FurtherExtendedContract.shadowingParent(uint256).__x (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#25) shadows:
+	- FurtherExtendedContract.__x (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#17) (state variable)
+
+LocalReturnVariables.shadowedReturn().local_scope_0 (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#34) shadows:
+	- LocalReturnVariables.shadowedReturn().local (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#33) (return variable)
+
+FurtherExtendedContract.shadowingParent(uint256).z (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#25) shadows:
+	- ExtendedContract.z() (tests/e2e/detectors/test_data/shadowing-local/0.6.11/shadowing_local_variable.sol#11) (function)
+

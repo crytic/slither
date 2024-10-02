@@ -8,20 +8,29 @@ Slither-read-storage is a tool to retrieve the storage slots and values of entir
 
 ```shell
 positional arguments:
-  contract_source (DIR) ADDRESS     The deployed contract address if verified on etherscan. Prepend project directory for unverified contracts.
+  contract_source       The deployed contract address if verified on etherscan. Prepend project directory for unverified contracts.
 
 optional arguments:
-  --variable-name VARIABLE_NAME     The name of the variable whose value will be returned.
-  --rpc-url RPC_URL                 An endpoint for web3 requests.
-  --key KEY                         The key/ index whose value will be returned from a mapping or array.
-  --deep-key DEEP_KEY               The key/ index whose value will be returned from a deep mapping or multidimensional array.
-  --struct-var STRUCT_VAR           The name of the variable whose value will be returned from a struct.
-  --storage-address STORAGE_ADDRESS The address of the storage contract (if a proxy pattern is used).
-  --contract-name CONTRACT_NAME     The name of the logic contract.
-  --json FILE                       Write the entire storage layout in JSON format to the specified FILE
-  --value                           Toggle used to include values in output.
-  --max-depth MAX_DEPTH             Max depth to search in data structure.
-  --block BLOCK_NUMBER              Block number to retrieve storage from (requires archive rpc node)
+  -h, --help            show this help message and exit
+  --variable-name VARIABLE_NAME
+                        The name of the variable whose value will be returned.
+  --rpc-url RPC_URL     An endpoint for web3 requests.
+  --key KEY             The key/ index whose value will be returned from a mapping or array.
+  --deep-key DEEP_KEY   The key/ index whose value will be returned from a deep mapping or multidimensional array.
+  --struct-var STRUCT_VAR
+                        The name of the variable whose value will be returned from a struct.
+  --storage-address STORAGE_ADDRESS
+                        The address of the storage contract (if a proxy pattern is used).
+  --contract-name CONTRACT_NAME
+                        The name of the logic contract.
+  --json JSON           Save the result in a JSON file.
+  --value               Toggle used to include values in output.
+  --table               Print table view of storage layout
+  --silent              Silence log outputs
+  --max-depth MAX_DEPTH
+                        Max depth to search in data structure.
+  --block BLOCK         The block number to read storage from. Requires an archive node to be provided as the RPC url.
+  --unstructured        Include unstructured storage slots
 ```
 
 ### Examples

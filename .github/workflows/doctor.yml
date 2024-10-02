@@ -1,5 +1,5 @@
 ---
-name: CI
+name: Doctor
 
 defaults:
   run:
@@ -12,6 +12,10 @@ on:
       - 'slither/tools/doctor/**'
       - '.github/workflows/doctor.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   slither-doctor:
     runs-on: ${{ matrix.os }}
@@ -19,16 +23,16 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-2022"]
-        python: ["3.8", "3.9", "3.10", "3.11"]
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
         exclude:
           # strange failure
           - os: windows-2022
             python: 3.8
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
 

@@ -1,30 +1,37 @@
 import logging
-import sys
 from math import floor
-from typing import Callable, Optional, Tuple, Union, List, Dict, Any
-
-try:
-    from web3 import Web3
-    from eth_typing.evm import ChecksumAddress
-    from eth_abi import decode_single, encode_abi
-    from eth_utils import keccak
-    from .utils import (
-        get_offset_value,
-        get_storage_data,
-        coerce_type,
-    )
-except ImportError:
-    print("ERROR: in order to use slither-read-storage, you need to install web3")
-    print("$ pip3 install web3 --user\n")
-    sys.exit(-1)
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import dataclasses
-from slither.utils.myprettytable import MyPrettyTable
-from slither.core.solidity_types.type import Type
-from slither.core.solidity_types import ArrayType, ElementaryType, UserDefinedType, MappingType
+
+from eth_abi import decode, encode
+from eth_typing.evm import ChecksumAddress
+from eth_utils import keccak, to_checksum_address
+from web3 import Web3
+from web3.types import BlockIdentifier
+from web3.exceptions import ExtraDataLengthError
+from web3.middleware import geth_poa_middleware
+
 from slither.core.declarations import Contract, Structure
+from slither.core.solidity_types import ArrayType, ElementaryType, MappingType, UserDefinedType
+from slither.core.solidity_types.type import Type
+from slither.core.cfg.node import NodeType
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.structure_variable import StructureVariable
+from slither.core.expressions import (
+    AssignmentOperation,
+    Literal,
+    Identifier,
+    BinaryOperation,
+    UnaryOperation,
+    TupleExpression,
+    TypeConversion,
+    CallExpression,
+)
+from slither.utils.myprettytable import MyPrettyTable
+from slither.visitors.expression.constants_folding import ConstantFolding, NotConstant
+
+from .utils import coerce_type, get_offset_value, get_storage_data
 
 logging.basicConfig()
 logger = logging.getLogger("Slither-read-storage")
@@ -50,20 +57,47 @@ class SlitherReadStorageException(Exception):
     pass
 
 
-# pylint: disable=too-many-instance-attributes
+class RpcInfo:
+    def __init__(self, rpc_url: str, block: BlockIdentifier = "latest") -> None:
+        assert isinstance(block, int) or block in [
+            "latest",
+            "earliest",
+            "pending",
+            "safe",
+            "finalized",
+        ]
+        self.rpc: str = rpc_url
+        self._web3: Web3 = Web3(Web3.HTTPProvider(self.rpc))
+        """If the RPC is for a POA network, the first call to get_block fails, so we inject geth_poa_middleware"""
+        try:
+            self._block: int = self.web3.eth.get_block(block)["number"]
+        except ExtraDataLengthError:
+            self._web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            self._block: int = self.web3.eth.get_block(block)["number"]
+
+    @property
+    def web3(self) -> Web3:
+        return self._web3
+
+    @property
+    def block(self) -> int:
+        return self._block
+
+
+# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherReadStorage:
-    def __init__(self, contracts: List[Contract], max_depth: int) -> None:
+    def __init__(self, contracts: List[Contract], max_depth: int, rpc_info: RpcInfo = None) -> None:
         self._checksum_address: Optional[ChecksumAddress] = None
         self._contracts: List[Contract] = contracts
         self._log: str = ""
         self._max_depth: int = max_depth
         self._slot_info: Dict[str, SlotInfo] = {}
         self._target_variables: List[Tuple[Contract, StateVariable]] = []
-        self._web3: Optional[Web3] = None
-        self.block: Union[str, int] = "latest"
-        self.rpc: Optional[str] = None
+        self._constant_storage_slots: List[Tuple[Contract, StateVariable]] = []
+        self.rpc_info: Optional[RpcInfo] = rpc_info
         self.storage_address: Optional[str] = None
         self.table: Optional[MyPrettyTable] = None
+        self.unstructured: bool = False
 
     @property
     def contracts(self) -> List[Contract]:
@@ -82,23 +116,22 @@ class SlitherReadStorage:
         self._log = log
 
     @property
-    def web3(self) -> Web3:
-        if not self._web3:
-            self._web3 = Web3(Web3.HTTPProvider(self.rpc))
-        return self._web3
-
-    @property
     def checksum_address(self) -> ChecksumAddress:
         if not self.storage_address:
             raise ValueError
         if not self._checksum_address:
-            self._checksum_address = self.web3.toChecksumAddress(self.storage_address)
+            self._checksum_address = to_checksum_address(self.storage_address)
         return self._checksum_address
 
     @property
     def target_variables(self) -> List[Tuple[Contract, StateVariable]]:
         """Storage variables (not constant or immutable) and their associated contract."""
         return self._target_variables
+
+    @property
+    def constant_slots(self) -> List[Tuple[Contract, StateVariable]]:
+        """Constant bytes32 variables and their associated contract."""
+        return self._constant_storage_slots
 
     @property
     def slot_info(self) -> Dict[str, SlotInfo]:
@@ -119,8 +152,47 @@ class SlitherReadStorage:
                 elif isinstance(type_, ArrayType):
                     elems = self._all_array_slots(var, contract, type_, info.slot)
                     tmp[var.name].elems = elems
-
+        if self.unstructured:
+            tmp.update(self.get_unstructured_layout())
         self._slot_info = tmp
+
+    def get_unstructured_layout(self) -> Dict[str, SlotInfo]:
+        tmp: Dict[str, SlotInfo] = {}
+        for _, var in self.constant_slots:
+            var_name = var.name
+            try:
+                exp = var.expression
+                if isinstance(
+                    exp,
+                    (
+                        BinaryOperation,
+                        UnaryOperation,
+                        Identifier,
+                        TupleExpression,
+                        TypeConversion,
+                        CallExpression,
+                    ),
+                ):
+                    exp = ConstantFolding(exp, "bytes32").result()
+                if isinstance(exp, Literal):
+                    slot = coerce_type("int", exp.value)
+                else:
+                    continue
+                offset = 0
+                type_string, size = self.find_constant_slot_storage_type(var)
+                if type_string:
+                    tmp[var.name] = SlotInfo(
+                        name=var_name, type_string=type_string, slot=slot, size=size, offset=offset
+                    )
+                    self.log += (
+                        f"\nSlot Name: {var_name}\nType: bytes32"
+                        f"\nStorage Type: {type_string}\nSlot: {str(exp)}\n"
+                    )
+                    logger.info(self.log)
+                    self.log = ""
+            except NotConstant:
+                continue
+        return tmp
 
     # TODO: remove this pylint exception (montyly)
     # pylint: disable=too-many-locals
@@ -130,7 +202,8 @@ class SlitherReadStorage:
         contract: Contract,
         **kwargs: Any,
     ) -> Union[SlotInfo, None]:
-        """Finds the storage slot of a variable in a given contract.
+        """
+        Finds the storage slot of a variable in a given contract.
         Args:
             target_variable (`StateVariable`): The variable to retrieve the slot for.
             contracts (`Contract`): The contract that contains the given state variable.
@@ -216,6 +289,78 @@ class SlitherReadStorage:
             if slot_info:
                 self._slot_info[f"{contract.name}.{var.name}"] = slot_info
 
+    def find_constant_slot_storage_type(
+        self, var: StateVariable
+    ) -> Tuple[Optional[str], Optional[int]]:
+        """
+        Given a constant bytes32 StateVariable, tries to determine which variable type is stored there, using the
+        heuristic that if a function reads from the slot and returns a value, it probably stores that type of value.
+        Also uses the StorageSlot library as a heuristic when a function has no return but uses the library's getters.
+        Args:
+            var (StateVariable): The constant bytes32 storage slot.
+
+        Returns:
+            type (str): The type of value stored in the slot.
+            size (int): The type's size in bits.
+        """
+        assert var.is_constant and var.type == ElementaryType("bytes32")
+        storage_type = None
+        size = None
+        funcs = []
+        for c in self.contracts:
+            c_funcs = c.get_functions_reading_from_variable(var)
+            c_funcs.extend(
+                f
+                for f in c.functions
+                if any(str(v.expression) == str(var.expression) for v in f.variables)
+            )
+            c_funcs = list(set(c_funcs))
+            funcs.extend(c_funcs)
+        fallback = [f for f in var.contract.functions if f.is_fallback]
+        funcs += fallback
+        for func in funcs:
+            rets = func.return_type if func.return_type is not None else []
+            for ret in rets:
+                size, _ = ret.storage_size
+                if size <= 32:
+                    return str(ret), size * 8
+            for node in func.all_nodes():
+                exp = node.expression
+                # Look for use of the common OpenZeppelin StorageSlot library
+                if f"getAddressSlot({var.name})" in str(exp):
+                    return "address", 160
+                if f"getBooleanSlot({var.name})" in str(exp):
+                    return "bool", 1
+                if f"getBytes32Slot({var.name})" in str(exp):
+                    return "bytes32", 256
+                if f"getUint256Slot({var.name})" in str(exp):
+                    return "uint256", 256
+                # Look for variable assignment in assembly loaded from a hardcoded slot
+                if (
+                    isinstance(exp, AssignmentOperation)
+                    and isinstance(exp.expression_left, Identifier)
+                    and isinstance(exp.expression_right, CallExpression)
+                    and "sload" in str(exp.expression_right.called)
+                    and str(exp.expression_right.arguments[0]) == str(var.expression)
+                ):
+                    if func.is_fallback:
+                        return "address", 160
+                    storage_type = exp.expression_left.value.type.name
+                    size, _ = exp.expression_left.value.type.storage_size
+                    return storage_type, size * 8
+                # Look for variable storage in assembly stored to a hardcoded slot
+                if (
+                    isinstance(exp, CallExpression)
+                    and "sstore" in str(exp.called)
+                    and isinstance(exp.arguments[0], Identifier)
+                    and isinstance(exp.arguments[1], Identifier)
+                    and str(exp.arguments[0].value.expression) == str(var.expression)
+                ):
+                    storage_type = exp.arguments[1].value.type.name
+                    size, _ = exp.arguments[1].value.type.storage_size
+                    return storage_type, size * 8
+        return storage_type, size
+
     def walk_slot_info(self, func: Callable) -> None:
         stack = list(self.slot_info.values())
         while stack:
@@ -228,39 +373,178 @@ class SlitherReadStorage:
                 func(slot_info)
 
     def get_slot_values(self, slot_info: SlotInfo) -> None:
-        """Fetches the slot value of `SlotInfo` object
+        """
+        Fetches the slot value of `SlotInfo` object
         :param slot_info:
         """
+        assert self.rpc_info is not None
         hex_bytes = get_storage_data(
-            self.web3,
+            self.rpc_info.web3,
             self.checksum_address,
             int.to_bytes(slot_info.slot, 32, byteorder="big"),
-            self.block,
+            self.rpc_info.block,
         )
         slot_info.value = self.convert_value_to_type(
             hex_bytes, slot_info.size, slot_info.offset, slot_info.type_string
         )
         logger.info(f"\nValue: {slot_info.value}\n")
 
-    def get_all_storage_variables(self, func: Callable = None) -> None:
-        """Fetches all storage variables from a list of contracts.
+    def get_all_storage_variables(self, func: Callable = lambda x: x) -> None:
+        """
+        Fetches all storage variables from a list of contracts.
         kwargs:
             func (Callable, optional): A criteria to filter functions e.g. name.
         """
         for contract in self.contracts:
-            self._target_variables.extend(
-                filter(
-                    func,
-                    [
-                        (contract, var)
-                        for var in contract.state_variables_ordered
-                        if not var.is_constant and not var.is_immutable
-                    ],
-                )
+            for var in contract.state_variables_ordered:
+                if func(var):
+                    if var.is_stored:
+                        self._target_variables.append((contract, var))
+                    elif (
+                        self.unstructured
+                        and var.is_constant
+                        and var.type == ElementaryType("bytes32")
+                    ):
+                        self._constant_storage_slots.append((contract, var))
+            if self.unstructured:
+                hardcoded_slot = self.find_hardcoded_slot_in_fallback(contract)
+                if hardcoded_slot is not None:
+                    self._constant_storage_slots.append((contract, hardcoded_slot))
+
+    def find_hardcoded_slot_in_fallback(self, contract: Contract) -> Optional[StateVariable]:
+        """
+        Searches the contract's fallback function for a sload from a literal storage slot, i.e.,
+        `let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)`.
+
+        Args:
+            contract: a Contract object, which should have a fallback function.
+
+        Returns:
+            A newly created StateVariable representing the Literal bytes32 slot, if one is found, otherwise None.
+        """
+        fallback = None
+        for func in contract.functions_entry_points:
+            if func.is_fallback:
+                fallback = func
+                break
+        if fallback is None:
+            return None
+        queue = [fallback.entry_point]
+        visited = []
+        while len(queue) > 0:
+            node = queue.pop(0)
+            visited.append(node)
+            queue.extend(son for son in node.sons if son not in visited)
+            if node.type == NodeType.ASSEMBLY and isinstance(node.inline_asm, str):
+                return SlitherReadStorage.find_hardcoded_slot_in_asm_str(node.inline_asm, contract)
+            if node.type == NodeType.EXPRESSION:
+                sv = self.find_hardcoded_slot_in_exp(node.expression, contract)
+                if sv is not None:
+                    return sv
+        return None
+
+    @staticmethod
+    def find_hardcoded_slot_in_asm_str(
+        inline_asm: str, contract: Contract
+    ) -> Optional[StateVariable]:
+        """
+        Searches a block of assembly code (given as a string) for a sload from a literal storage slot.
+        Does not work if the argument passed to sload does not start with "0x", i.e., `sload(add(1,1))`
+        or `and(sload(0), 0xffffffffffffffffffffffffffffffffffffffff)`.
+
+        Args:
+            inline_asm: a string containing all the code in an assembly node (node.inline_asm for solc < 0.6.0).
+
+        Returns:
+            A newly created StateVariable representing the Literal bytes32 slot, if one is found, otherwise None.
+        """
+        asm_split = inline_asm.split("\n")
+        for asm in asm_split:
+            if "sload(" in asm:  # Only handle literals
+                arg = asm.split("sload(")[1].split(")")[0]
+                if arg.startswith("0x"):
+                    exp = Literal(arg, ElementaryType("bytes32"))
+                    sv = StateVariable()
+                    sv.name = "fallback_sload_hardcoded"
+                    sv.expression = exp
+                    sv.is_constant = True
+                    sv.type = exp.type
+                    sv.set_contract(contract)
+                    return sv
+        return None
+
+    def find_hardcoded_slot_in_exp(
+        self, exp: "Expression", contract: Contract
+    ) -> Optional[StateVariable]:
+        """
+        Parses an expression to see if it contains a sload from a literal storage slot,
+        unrolling nested expressions if necessary to determine which slot it loads from.
+        Args:
+            exp: an Expression object to search.
+            contract: the Contract containing exp.
+
+        Returns:
+            A newly created StateVariable representing the Literal bytes32 slot, if one is found, otherwise None.
+        """
+        if isinstance(exp, AssignmentOperation):
+            exp = exp.expression_right
+        while isinstance(exp, BinaryOperation):
+            exp = next(
+                (e for e in exp.expressions if isinstance(e, (CallExpression, BinaryOperation))),
+                exp.expression_left,
             )
+        while isinstance(exp, CallExpression) and len(exp.arguments) > 0:
+            called = exp.called
+            exp = exp.arguments[0]
+            if "sload" in str(called):
+                break
+        if isinstance(
+            exp,
+            (
+                BinaryOperation,
+                UnaryOperation,
+                Identifier,
+                TupleExpression,
+                TypeConversion,
+                CallExpression,
+            ),
+        ):
+            try:
+                exp = ConstantFolding(exp, "bytes32").result()
+            except NotConstant:
+                return None
+        if (
+            isinstance(exp, Literal)
+            and isinstance(exp.type, ElementaryType)
+            and exp.type.name in ["bytes32", "uint256"]
+        ):
+            sv = StateVariable()
+            sv.name = "fallback_sload_hardcoded"
+            value = exp.value
+            str_value = str(value)
+            if str_value.isdecimal():
+                value = int(value)
+            if isinstance(value, (int, bytes)):
+                if isinstance(value, bytes):
+                    str_value = "0x" + value.hex()
+                    value = int(str_value, 16)
+                exp = Literal(str_value, ElementaryType("bytes32"))
+                state_var_slots = [
+                    self.get_variable_info(contract, var)[0]
+                    for contract, var in self.target_variables
+                ]
+                if value in state_var_slots:
+                    return None
+            sv.expression = exp
+            sv.is_constant = True
+            sv.type = ElementaryType("bytes32")
+            sv.set_contract(contract)
+            return sv
+        return None
 
     def convert_slot_info_to_rows(self, slot_info: SlotInfo) -> None:
-        """Convert and append slot info to table. Create table if it
+        """
+        Convert and append slot info to table. Create table if it
         does not yet exist
         :param slot_info:
         """
@@ -278,7 +562,8 @@ class SlitherReadStorage:
     def _find_struct_var_slot(
         elems: List[StructureVariable], slot_as_bytes: bytes, struct_var: str
     ) -> Tuple[str, str, bytes, int, int]:
-        """Finds the slot of a structure variable.
+        """
+        Finds the slot of a structure variable.
         Args:
             elems (List[StructureVariable]): Ordered list of structure variables.
             slot_as_bytes (bytes): The slot of the struct to begin searching at.
@@ -320,7 +605,8 @@ class SlitherReadStorage:
         deep_key: int = None,
         struct_var: str = None,
     ) -> Tuple[str, str, bytes, int, int]:
-        """Finds the slot of array's index.
+        """
+        Finds the slot of array's index.
         Args:
             target_variable (`StateVariable`): The array that contains the target variable.
             slot (bytes): The starting slot of the array.
@@ -423,7 +709,8 @@ class SlitherReadStorage:
         deep_key: Union[int, str] = None,
         struct_var: str = None,
     ) -> Tuple[str, str, bytes, int, int]:
-        """Finds the data slot of a target variable within a mapping.
+        """
+        Finds the data slot of a target variable within a mapping.
             target_variable (`StateVariable`): The mapping that contains the target variable.
             slot (bytes): The starting slot of the mapping.
             key (Union[int, str]): The key the variable is stored at.
@@ -449,7 +736,7 @@ class SlitherReadStorage:
         if "int" in key_type:  # without this eth_utils encoding fails
             key = int(key)
         key = coerce_type(key_type, key)
-        slot = keccak(encode_abi([key_type, "uint256"], [key, decode_single("uint256", slot)]))
+        slot = keccak(encode([key_type, "uint256"], [key, decode(["uint256"], slot)[0]]))
 
         if isinstance(target_variable_type.type_to, UserDefinedType) and isinstance(
             target_variable_type.type_to.type, Structure
@@ -471,7 +758,7 @@ class SlitherReadStorage:
                 deep_key = int(deep_key)
 
             # If deep map, will be keccak256(abi.encode(key1, keccak256(abi.encode(key0, uint(slot)))))
-            slot = keccak(encode_abi([key_type, "bytes32"], [deep_key, slot]))
+            slot = keccak(encode([key_type, "bytes32"], [deep_key, slot]))
 
             # mapping(elem => mapping(elem => elem))
             target_variable_type_type_to_type_to = target_variable_type.type_to.type_to
@@ -494,7 +781,7 @@ class SlitherReadStorage:
                 )
                 info += info_tmp
 
-        # TODO: suppory mapping with dynamic arrays
+        # TODO: support mapping with dynamic arrays
 
         # mapping(elem => elem)
         elif isinstance(target_variable_type.type_to, ElementaryType):
@@ -600,7 +887,8 @@ class SlitherReadStorage:
         return elems
 
     def _get_array_length(self, type_: Type, slot: int) -> int:
-        """Gets the length of dynamic and fixed arrays.
+        """
+        Gets the length of dynamic and fixed arrays.
         Args:
             type_ (`AbstractType`): The array type.
             slot (int): Slot a dynamic array's length is stored at.
@@ -608,15 +896,15 @@ class SlitherReadStorage:
             (int): The length of the array.
         """
         val = 0
-        if self.rpc:
+        if self.rpc_info:
             # The length of dynamic arrays is stored at the starting slot.
             # Convert from hexadecimal to decimal.
             val = int(
                 get_storage_data(
-                    self.web3,
+                    self.rpc_info.web3,
                     self.checksum_address,
                     int.to_bytes(slot, 32, byteorder="big"),
-                    self.block,
+                    self.rpc_info.block,
                 ).hex(),
                 16,
             )

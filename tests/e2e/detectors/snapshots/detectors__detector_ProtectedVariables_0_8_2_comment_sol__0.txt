@@ -1,0 +1,4 @@
+Internal.buggy() (tests/e2e/detectors/test_data/protected-vars/0.8.2/comment.sol#47-49) should have Internal.onlyOwner() (tests/e2e/detectors/test_data/protected-vars/0.8.2/comment.sol#42-45) to protect Internal.owner (tests/e2e/detectors/test_data/protected-vars/0.8.2/comment.sol#38)
+
+ReentrancyAndWrite.set_not_protected() (tests/e2e/detectors/test_data/protected-vars/0.8.2/comment.sol#31-33) should have ReentrancyAndWrite.onlyOwner() (tests/e2e/detectors/test_data/protected-vars/0.8.2/comment.sol#11-14) to protect ReentrancyAndWrite.external_contract (tests/e2e/detectors/test_data/protected-vars/0.8.2/comment.sol#9)
+

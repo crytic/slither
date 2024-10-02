@@ -7,10 +7,11 @@ if TYPE_CHECKING:
 
 
 class Pragma(SourceMapping):
-    def __init__(self, directive: List[str], scope: "FileScope"):
+    def __init__(self, directive: List[str], scope: "FileScope") -> None:
         super().__init__()
         self._directive = directive
         self.scope: "FileScope" = scope
+        self._pattern = "pragma"
 
     @property
     def directive(self) -> List[str]:
@@ -39,5 +40,5 @@ class Pragma(SourceMapping):
             return self._directive[0] == "experimental" and self._directive[1] == "ABIEncoderV2"
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "pragma " + "".join(self.directive)

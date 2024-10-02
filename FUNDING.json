@@ -1,0 +1,12 @@
+{
+    "Optimism": {
+        "op-mainnet": {
+            "ownedBy": "0xc44F30Be3eBBEfdDBB5a85168710b4f0e18f4Ff0"
+        }
+    },
+    "drips": {
+        "ethereum": {
+            "ownedBy": "0xc44F30Be3eBBEfdDBB5a85168710b4f0e18f4Ff0"
+        }
+    }
+}

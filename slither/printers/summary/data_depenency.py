@@ -1,19 +1,22 @@
 """
     Module printing summary of the contract
 """
+from typing import List
 
+from slither.core.declarations import Contract
 from slither.printers.abstract_printer import AbstractPrinter
-from slither.analyses.data_dependency.data_dependency import get_dependencies
+from slither.analyses.data_dependency.data_dependency import get_dependencies, SUPPORTED_TYPES
 from slither.slithir.variables import TemporaryVariable, ReferenceVariable
 from slither.utils.myprettytable import MyPrettyTable
+from slither.utils.output import Output
 
 
-def _get(v, c):
+def _get(v: SUPPORTED_TYPES, c: Contract) -> List[str]:
     return list(
         {
             d.name
             for d in get_dependencies(v, c)
-            if not isinstance(d, (TemporaryVariable, ReferenceVariable))
+            if not isinstance(d, (TemporaryVariable, ReferenceVariable)) and d.name
         }
     )
 
@@ -25,7 +28,7 @@ class DataDependency(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#data-dependencies"
 
-    def output(self, _filename):
+    def output(self, _filename: str) -> Output:
         """
         _filename is not used
         Args:
@@ -37,11 +40,10 @@ class DataDependency(AbstractPrinter):
 
         txt = ""
         for c in self.contracts:
-            if c.is_top_level:
-                continue
             txt += f"\nContract {c.name}\n"
             table = MyPrettyTable(["Variable", "Dependencies"])
             for v in c.state_variables:
+                assert v.name
                 table.add_row([v.name, sorted(_get(v, c))])
 
             txt += str(table)

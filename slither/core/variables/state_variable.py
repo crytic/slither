@@ -1,6 +1,6 @@
 from typing import Optional, TYPE_CHECKING
 
-from slither.core.children.child_contract import ChildContract
+from slither.core.declarations.contract_level import ContractLevel
 from slither.core.variables.variable import Variable
 
 if TYPE_CHECKING:
@@ -8,8 +8,8 @@ if TYPE_CHECKING:
     from slither.core.declarations import Contract
 
 
-class StateVariable(ChildContract, Variable):
-    def __init__(self):
+class StateVariable(ContractLevel, Variable):
+    def __init__(self) -> None:
         super().__init__()
         self._node_initialization: Optional["Node"] = None
 

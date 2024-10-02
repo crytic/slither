@@ -1,0 +1,15 @@
+StateVarInitFromFunction.v (tests/e2e/detectors/test_data/function-init-state/0.4.25/function_init_state_variables.sol#5) is set pre-construction with a non-constant function or state variable:
+	- set()
+
+StateVarInitFromFunction.z4 (tests/e2e/detectors/test_data/function-init-state/0.4.25/function_init_state_variables.sol#17) is set pre-construction with a non-constant function or state variable:
+	- z3 + 5
+
+StateVarInitFromFunction.x (tests/e2e/detectors/test_data/function-init-state/0.4.25/function_init_state_variables.sol#7) is set pre-construction with a non-constant function or state variable:
+	- set()
+
+StateVarInitFromFunction.y1 (tests/e2e/detectors/test_data/function-init-state/0.4.25/function_init_state_variables.sol#9) is set pre-construction with a non-constant function or state variable:
+	- 5 + get()
+
+StateVarInitFromFunction.y2 (tests/e2e/detectors/test_data/function-init-state/0.4.25/function_init_state_variables.sol#10) is set pre-construction with a non-constant function or state variable:
+	- (10 + (5 + get()))
+

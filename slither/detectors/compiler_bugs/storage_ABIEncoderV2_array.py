@@ -1,11 +1,12 @@
 """
 Module detecting ABIEncoderV2 array bug
 """
-
+from typing import List, Set, Tuple
 from slither.detectors.abstract_detector import (
     AbstractDetector,
     DetectorClassification,
     make_solc_versions,
+    DETECTOR_INFO,
 )
 from slither.core.solidity_types import ArrayType
 from slither.core.solidity_types import UserDefinedType
@@ -16,6 +17,10 @@ from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.slithir.operations import EventCall
 from slither.slithir.operations import HighLevelCall
 from slither.utils.utils import unroll
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.utils.output import Output
 
 
 class ABIEncoderV2Array(AbstractDetector):
@@ -55,7 +60,9 @@ contract A {
     VULNERABLE_SOLC_VERSIONS = make_solc_versions(4, 7, 25) + make_solc_versions(5, 0, 9)
 
     @staticmethod
-    def _detect_storage_abiencoderv2_arrays(contract):
+    def _detect_storage_abiencoderv2_arrays(
+        contract: Contract,
+    ) -> Set[Tuple[FunctionContract, Node]]:
         """
         Detects and returns all nodes with storage-allocated abiencoderv2 arrays of arrays/structs in abi.encode, events or external calls
         :param contract: Contract to detect within
@@ -98,7 +105,7 @@ contract A {
         # Return the resulting set of tuples
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect ABIEncoderV2 array bug
         """
@@ -116,7 +123,13 @@ contract A {
         for contract in self.contracts:
             storage_abiencoderv2_arrays = self._detect_storage_abiencoderv2_arrays(contract)
             for function, node in storage_abiencoderv2_arrays:
-                info = ["Function ", function, " trigger an abi encoding bug:\n\t- ", node, "\n"]
+                info: DETECTOR_INFO = [
+                    "Function ",
+                    function,
+                    " trigger an abi encoding bug:\n\t- ",
+                    node,
+                    "\n",
+                ]
                 res = self.generate_result(info)
                 results.append(res)
 

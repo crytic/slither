@@ -1,0 +1,4 @@
+INFO:Slither:
+Contract_no_bug_inherits (tests/tools/check_upgradeability/contract_initialization.sol#46-52) needs to be initialized by Contract_no_bug_inherits.initialize() (tests/tools/check_upgradeability/contract_initialization.sol#48-50).
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function
+INFO:Slither:1 findings, 12 detectors run

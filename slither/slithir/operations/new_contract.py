@@ -1,13 +1,33 @@
+from typing import Optional, Any, List, Union
+
+from slither.core.declarations import Function
+from slither.core.declarations.contract import Contract
+from slither.core.variables import Variable
+from slither.core.solidity_types import UserDefinedType
 from slither.slithir.operations import Call, OperationWithLValue
 from slither.slithir.utils.utils import is_valid_lvalue
-from slither.slithir.variables.constant import Constant
+from slither.slithir.variables.temporary import TemporaryVariable
+from slither.slithir.variables.temporary_ssa import TemporaryVariableSSA
 
 
 class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, contract_name, lvalue):
-        assert isinstance(contract_name, Constant)
+    def __init__(
+        self,
+        contract_name: UserDefinedType,
+        lvalue: Union[TemporaryVariableSSA, TemporaryVariable],
+        names: Optional[List[str]] = None,
+    ) -> None:
+        """
+        #### Parameters
+        names -
+            For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+            Otherwise, None.
+        """
+        assert isinstance(
+            contract_name.type, Contract
+        ), f"contract_name is {contract_name} of type {type(contract_name)}"
         assert is_valid_lvalue(lvalue)
-        super().__init__()
+        super().__init__(names=names)
         self._contract_name = contract_name
         # todo create analyze to add the contract instance
         self._lvalue = lvalue
@@ -40,18 +60,18 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
         self._call_salt = s
 
     @property
-    def contract_name(self):
+    def contract_name(self) -> UserDefinedType:
         return self._contract_name
 
     @property
-    def read(self):
-        return self._unroll(self.arguments)
+    def read(self) -> List[Any]:
+        all_read = [self.call_salt, self.call_value] + self._unroll(self.arguments)
+        # remove None
+        return [x for x in all_read if x]
 
     @property
-    def contract_created(self):
-        contract_name = self.contract_name
-        contract_instance = self.node.file_scope.get_contract_from_name(contract_name)
-        return contract_instance
+    def contract_created(self) -> Contract:
+        return self.contract_name.type
 
     ###################################################################################
     ###################################################################################
@@ -59,7 +79,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
     ###################################################################################
     ###################################################################################
 
-    def can_reenter(self, callstack=None):
+    def can_reenter(self, callstack: Optional[List[Union[Function, Variable]]] = None) -> bool:
         """
         Must be called after slithIR analysis pass
         For Solidity > 0.5, filter access to public variables and constant/pure/view
@@ -76,7 +96,7 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
         callstack = callstack + [constructor]
         return constructor.can_reenter(callstack)
 
-    def can_send_eth(self):
+    def can_send_eth(self) -> bool:
         """
         Must be called after slithIR analysis pass
         :return: bool
@@ -85,11 +105,12 @@ class NewContract(Call, OperationWithLValue):  # pylint: disable=too-many-instan
 
     # endregion
 
-    def __str__(self):
+    def __str__(self) -> str:
         options = ""
         if self.call_value:
             options = f"value:{self.call_value} "
         if self.call_salt:
             options += f"salt:{self.call_salt} "
         args = [str(a) for a in self.arguments]
-        return f"{self.lvalue} = new {self.contract_name}({','.join(args)}) {options}"
+        lvalue = self.lvalue
+        return f"{lvalue}({lvalue.type}) = new {self.contract_name}({','.join(args)}) {options}"

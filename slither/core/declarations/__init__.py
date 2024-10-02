@@ -1,6 +1,8 @@
 from .contract import Contract
 from .enum import Enum
 from .event import Event
+from .event_contract import EventContract
+from .event_top_level import EventTopLevel
 from .function import Function
 from .import_directive import Import
 from .modifier import Modifier
@@ -17,3 +19,7 @@ from .structure_contract import StructureContract
 from .structure_top_level import StructureTopLevel
 from .function_contract import FunctionContract
 from .function_top_level import FunctionTopLevel
+from .custom_error_contract import CustomErrorContract
+from .custom_error_top_level import CustomErrorTopLevel
+from .custom_error import CustomError
+from .solidity_import_placeholder import SolidityImportPlaceHolder

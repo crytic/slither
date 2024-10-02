@@ -1,4 +1,5 @@
 import argparse
+import enum
 import json
 import os
 import re
@@ -27,6 +28,15 @@ JSON_OUTPUT_TYPES = [
     "list-printers",
 ]
 
+
+class FailOnLevel(enum.Enum):
+    PEDANTIC = "pedantic"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    NONE = "none"
+
+
 # Those are the flags shared by the command line and the config file
 defaults_flag_in_config = {
     "codex": False,
@@ -38,21 +48,20 @@ defaults_flag_in_config = {
     "detectors_to_run": "all",
     "printers_to_run": None,
     "detectors_to_exclude": None,
+    "detectors_to_include": None,
     "exclude_dependencies": False,
     "exclude_informational": False,
     "exclude_optimization": False,
     "exclude_low": False,
     "exclude_medium": False,
     "exclude_high": False,
-    "fail_pedantic": True,
-    "fail_low": False,
-    "fail_medium": False,
-    "fail_high": False,
+    "fail_on": FailOnLevel.PEDANTIC,
     "json": None,
     "sarif": None,
     "json-types": ",".join(DEFAULT_JSON_OUTPUT_TYPES),
     "disable_color": False,
     "filter_paths": None,
+    "include_paths": None,
     "generate_patches": False,
     # debug command
     "skip_assembly": False,
@@ -61,6 +70,9 @@ defaults_flag_in_config = {
     "zip_type": "lzma",
     "show_ignored_findings": False,
     "no_fail": False,
+    "sarif_input": "export.sarif",
+    "sarif_triage": "export.sarif.sarifexplorer",
+    "triage_database": "slither.db.json",
     **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
 
@@ -169,7 +181,9 @@ def convert_result_to_markdown(txt: str) -> str:
     return "".join(ret)
 
 
-def output_results_to_markdown(all_results: List[Dict], checklistlimit: str) -> None:
+def output_results_to_markdown(
+    all_results: List[Dict], checklistlimit: str, show_ignored_findings: bool
+) -> None:
     checks = defaultdict(list)
     info: Dict = defaultdict(dict)
     for results_ in all_results:
@@ -178,6 +192,11 @@ def output_results_to_markdown(all_results: List[Dict], checklistlimit: str) -> 
             "impact": results_["impact"],
             "confidence": results_["confidence"],
         }
+
+    if not show_ignored_findings:
+        print(
+            "**THIS CHECKLIST IS NOT COMPLETE**. Use `--show-ignored-findings` to show all the results."
+        )
 
     print("Summary")
     for check_ in checks:
@@ -341,8 +360,10 @@ def output_printers(printer_classes: List[Type[AbstractPrinter]]) -> None:
     printers_list = sorted(printers_list, key=lambda element: (element[0]))
     idx = 1
     for (argument, help_info) in printers_list:
-        table.add_row([str(idx), argument, help_info])
+        # Clean multi line HELP info
+        table.add_row([str(idx), argument, " ".join(x.strip() for x in help_info.splitlines())])
         idx = idx + 1
+
     print(table)
 
 

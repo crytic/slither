@@ -1,0 +1,9 @@
+tests/e2e/detectors/test_data/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 336:
+	- b'        /*ok \xe2\x80\xaeaaa\xe2\x80\xaebbb\xe2\x80\xaeccc\xe2\x80\xacddd\xe2\x80\xaceee\xe2\x80\xac*/'
+
+tests/e2e/detectors/test_data/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 348:
+	- b'\x80\xaebbb\xe2\x80\xaeccc\xe2\x80\xacddd\xe2\x80\xaceee\xe2\x80\xac*/'
+
+tests/e2e/detectors/test_data/rtlo/0.8.0/unicode_direction_override.sol contains a unicode right-to-left-override character at byte offset 342:
+	- b'\x80\xaeaaa\xe2\x80\xaebbb\xe2\x80\xaeccc\xe2\x80\xacddd\xe2\x80\xaceee\xe2\x80\xac*/'
+

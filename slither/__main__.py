@@ -10,9 +10,9 @@ import os
 import pstats
 import sys
 import traceback
-from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
+from importlib import metadata
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple, Type, Union
 
-from pkg_resources import iter_entry_points, require
 
 from crytic_compile import cryticparser, CryticCompile
 from crytic_compile.platform.standard import generate_standard_export
@@ -25,10 +25,17 @@ from slither.printers import all_printers
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.slither import Slither
 from slither.utils import codex
-from slither.utils.output import output_to_json, output_to_zip, output_to_sarif, ZIP_TYPES_ACCEPTED
+from slither.utils.output import (
+    output_to_json,
+    output_to_zip,
+    output_to_sarif,
+    ZIP_TYPES_ACCEPTED,
+    Output,
+)
 from slither.utils.output_capture import StandardOutputCapture
 from slither.utils.colors import red, set_colorization_enabled
 from slither.utils.command_line import (
+    FailOnLevel,
     output_detectors,
     output_results_to_markdown,
     output_detectors_json,
@@ -60,7 +67,7 @@ def process_single(
     args: argparse.Namespace,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Dict], int]:
+) -> Tuple[Slither, List[Dict], List[Output], int]:
     """
     The core high-level code for running Slither static analysis.
 
@@ -70,10 +77,12 @@ def process_single(
     ast = "--ast-compact-json"
     if args.legacy_ast:
         ast = "--ast-json"
-    if args.checklist:
-        args.show_ignored_findings = True
-
     slither = Slither(target, ast_format=ast, **vars(args))
+
+    if args.sarif_input:
+        slither.sarif_input = args.sarif_input
+    if args.sarif_triage:
+        slither.sarif_triage = args.sarif_triage
 
     return _process(slither, detector_classes, printer_classes)
 
@@ -83,7 +92,7 @@ def process_all(
     args: argparse.Namespace,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[List[Slither], List[Dict], List[Dict], int]:
+) -> Tuple[List[Slither], List[Dict], List[Output], int]:
     compilations = compile_all(target, **vars(args))
     slither_instances = []
     results_detectors = []
@@ -112,7 +121,7 @@ def _process(
     slither: Slither,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Dict], int]:
+) -> Tuple[Slither, List[Dict], List[Output], int]:
     for detector_cls in detector_classes:
         slither.register_detector(detector_cls)
 
@@ -125,9 +134,9 @@ def _process(
     results_printers = []
 
     if not printer_classes:
-        detector_results = slither.run_detectors()
-        detector_results = [x for x in detector_results if x]  # remove empty results
-        detector_results = [item for sublist in detector_results for item in sublist]  # flatten
+        detector_resultss = slither.run_detectors()
+        detector_resultss = [x for x in detector_resultss if x]  # remove empty results
+        detector_results = [item for sublist in detector_resultss for item in sublist]  # flatten
         results_detectors.extend(detector_results)
 
     else:
@@ -136,23 +145,6 @@ def _process(
         results_printers.extend(printer_results)
 
     return slither, results_detectors, results_printers, analyzed_contracts_count
-
-
-# TODO: delete me?
-def process_from_asts(
-    filenames: List[str],
-    args: argparse.Namespace,
-    detector_classes: List[Type[AbstractDetector]],
-    printer_classes: List[Type[AbstractPrinter]],
-) -> Tuple[Slither, List[Dict], List[Dict], int]:
-    all_contracts: List[str] = []
-
-    for filename in filenames:
-        with open(filename, encoding="utf8") as file_open:
-            contract_loaded = json.load(file_open)
-            all_contracts.append(contract_loaded["ast"])
-
-    return process_single(all_contracts, args, detector_classes, printer_classes)
 
 
 # endregion
@@ -174,19 +166,26 @@ def get_detectors_and_printers() -> Tuple[
     printers = [p for p in printers_ if inspect.isclass(p) and issubclass(p, AbstractPrinter)]
 
     # Handle plugins!
-    for entry_point in iter_entry_points(group="slither_analyzer.plugin", name=None):
+    if sys.version_info >= (3, 10):
+        entry_points = metadata.entry_points(group="slither_analyzer.plugin")
+    else:
+        from pkg_resources import iter_entry_points  # pylint: disable=import-outside-toplevel
+
+        entry_points = iter_entry_points(group="slither_analyzer.plugin", name=None)
+
+    for entry_point in entry_points:
         make_plugin = entry_point.load()
 
         plugin_detectors, plugin_printers = make_plugin()
 
         detector = None
         if not all(issubclass(detector, AbstractDetector) for detector in plugin_detectors):
-            raise Exception(
+            raise ValueError(
                 f"Error when loading plugin {entry_point}, {detector} is not a detector"
             )
         printer = None
         if not all(issubclass(printer, AbstractPrinter) for printer in plugin_printers):
-            raise Exception(f"Error when loading plugin {entry_point}, {printer} is not a printer")
+            raise ValueError(f"Error when loading plugin {entry_point}, {printer} is not a printer")
 
         # We convert those to lists in case someone returns a tuple
         detectors += list(plugin_detectors)
@@ -206,43 +205,50 @@ def choose_detectors(
 
     if args.detectors_to_run == "all":
         detectors_to_run = all_detector_classes
-        if args.detectors_to_exclude:
-            detectors_excluded = args.detectors_to_exclude.split(",")
-            for detector in detectors:
-                if detector in detectors_excluded:
-                    detectors_to_run.remove(detectors[detector])
     else:
-        for detector in args.detectors_to_run.split(","):
-            if detector in detectors:
-                detectors_to_run.append(detectors[detector])
-            else:
-                raise Exception(f"Error: {detector} is not a detector")
-        detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+        detectors_to_run = __include_detectors(
+            set(detectors_to_run), args.detectors_to_run, detectors
+        )
         return detectors_to_run
 
-    if args.exclude_optimization and not args.fail_pedantic:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.OPTIMIZATION
-        ]
+    classification_map = {
+        DetectorClassification.HIGH: args.exclude_high,
+        DetectorClassification.MEDIUM: args.exclude_medium,
+        DetectorClassification.LOW: args.exclude_low,
+        DetectorClassification.INFORMATIONAL: args.exclude_informational,
+        DetectorClassification.OPTIMIZATION: args.exclude_optimization,
+    }
+    excluded_classification = [
+        classification for classification, included in classification_map.items() if included
+    ]
+    detectors_to_run = [d for d in detectors_to_run if d.IMPACT not in excluded_classification]
 
-    if args.exclude_informational and not args.fail_pedantic:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.INFORMATIONAL
-        ]
-    if args.exclude_low and not args.fail_low:
-        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.LOW]
-    if args.exclude_medium and not args.fail_medium:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != DetectorClassification.MEDIUM
-        ]
-    if args.exclude_high and not args.fail_high:
-        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != DetectorClassification.HIGH]
     if args.detectors_to_exclude:
         detectors_to_run = [
             d for d in detectors_to_run if d.ARGUMENT not in args.detectors_to_exclude
         ]
 
+    if args.detectors_to_include:
+        detectors_to_run = __include_detectors(
+            set(detectors_to_run), args.detectors_to_include, detectors
+        )
+
     detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
+    return detectors_to_run
+
+
+def __include_detectors(
+    detectors_to_run: Set[Type[AbstractDetector]],
+    detectors_to_include: str,
+    detectors: Dict[str, Type[AbstractDetector]],
+) -> List[Type[AbstractDetector]]:
+    include_detectors = detectors_to_include.split(",")
+
+    for detector in include_detectors:
+        if detector in detectors:
+            detectors_to_run.add(detectors[detector])
+        else:
+            raise ValueError(f"Error: {detector} is not a detector")
 
     return detectors_to_run
 
@@ -264,7 +270,7 @@ def choose_printers(
         if printer in printers:
             printers_to_run.append(printers[printer])
         else:
-            raise Exception(f"Error: {printer} is not a printer")
+            raise ValueError(f"Error: {printer} is not a printer")
     return printers_to_run
 
 
@@ -276,9 +282,10 @@ def choose_printers(
 ###################################################################################
 
 
-def parse_filter_paths(args: argparse.Namespace) -> List[str]:
-    if args.filter_paths:
-        return args.filter_paths.split(",")
+def parse_filter_paths(args: argparse.Namespace, filter_path: bool) -> List[str]:
+    paths = args.filter_paths if filter_path else args.include_paths
+    if paths:
+        return paths.split(",")
     return []
 
 
@@ -305,7 +312,7 @@ def parse_args(
     parser.add_argument(
         "--version",
         help="displays the current version",
-        version=require("slither-analyzer")[0].version,
+        version=metadata.version("slither-analyzer"),
         action="version",
     )
 
@@ -315,6 +322,7 @@ def parse_args(
         "Checklist (consider using https://github.com/crytic/slither-action)"
     )
     group_misc = parser.add_argument_group("Additional options")
+    group_filters = parser.add_mutually_exclusive_group()
 
     group_detector.add_argument(
         "--detect",
@@ -332,6 +340,14 @@ def parse_args(
         action="store",
         dest="printers_to_run",
         default=defaults_flag_in_config["printers_to_run"],
+    )
+
+    group_printer.add_argument(
+        "--include-interfaces",
+        help="Include interfaces from inheritance-graph printer",
+        action="store_true",
+        dest="include_interfaces",
+        default=False,
     )
 
     group_detector.add_argument(
@@ -401,40 +417,51 @@ def parse_args(
     )
 
     group_detector.add_argument(
+        "--include-detectors",
+        help="Comma-separated list of detectors that should be included",
+        action="store",
+        dest="detectors_to_include",
+        default=defaults_flag_in_config["detectors_to_include"],
+    )
+
+    fail_on_group = group_detector.add_mutually_exclusive_group()
+    fail_on_group.add_argument(
         "--fail-pedantic",
-        help="Return the number of findings in the exit code",
-        action="store_true",
-        default=defaults_flag_in_config["fail_pedantic"],
+        help="Fail if any findings are detected",
+        action="store_const",
+        dest="fail_on",
+        const=FailOnLevel.PEDANTIC,
     )
-
-    group_detector.add_argument(
-        "--no-fail-pedantic",
-        help="Do not return the number of findings in the exit code. Opposite of --fail-pedantic",
-        dest="fail_pedantic",
-        action="store_false",
-        required=False,
-    )
-
-    group_detector.add_argument(
+    fail_on_group.add_argument(
         "--fail-low",
-        help="Fail if low or greater impact finding is detected",
-        action="store_true",
-        default=defaults_flag_in_config["fail_low"],
+        help="Fail if any low or greater impact findings are detected",
+        action="store_const",
+        dest="fail_on",
+        const=FailOnLevel.LOW,
     )
-
-    group_detector.add_argument(
+    fail_on_group.add_argument(
         "--fail-medium",
-        help="Fail if medium or greater impact finding is detected",
-        action="store_true",
-        default=defaults_flag_in_config["fail_medium"],
+        help="Fail if any medium or greater impact findings are detected",
+        action="store_const",
+        dest="fail_on",
+        const=FailOnLevel.MEDIUM,
     )
-
-    group_detector.add_argument(
+    fail_on_group.add_argument(
         "--fail-high",
-        help="Fail if high impact finding is detected",
-        action="store_true",
-        default=defaults_flag_in_config["fail_high"],
+        help="Fail if any high impact findings are detected",
+        action="store_const",
+        dest="fail_on",
+        const=FailOnLevel.HIGH,
     )
+    fail_on_group.add_argument(
+        "--fail-none",
+        "--no-fail-pedantic",
+        help="Do not return the number of findings in the exit code",
+        action="store_const",
+        dest="fail_on",
+        const=FailOnLevel.NONE,
+    )
+    fail_on_group.set_defaults(fail_on=FailOnLevel.PEDANTIC)
 
     group_detector.add_argument(
         "--show-ignored-findings",
@@ -452,7 +479,7 @@ def parse_args(
 
     group_checklist.add_argument(
         "--checklist-limit",
-        help="Limite the number of results per detector in the markdown file",
+        help="Limit the number of results per detector in the markdown file",
         action="store",
         default="",
     )
@@ -477,6 +504,20 @@ def parse_args(
         help='Export the results as a SARIF JSON file ("--sarif -" to export to stdout)',
         action="store",
         default=defaults_flag_in_config["sarif"],
+    )
+
+    group_misc.add_argument(
+        "--sarif-input",
+        help="Sarif input (beta)",
+        action="store",
+        default=defaults_flag_in_config["sarif_input"],
+    )
+
+    group_misc.add_argument(
+        "--sarif-triage",
+        help="Sarif triage (beta)",
+        action="store",
+        default=defaults_flag_in_config["sarif_triage"],
     )
 
     group_misc.add_argument(
@@ -510,19 +551,19 @@ def parse_args(
     )
 
     group_misc.add_argument(
-        "--filter-paths",
-        help="Comma-separated list of paths for which results will be excluded",
-        action="store",
-        dest="filter_paths",
-        default=defaults_flag_in_config["filter_paths"],
-    )
-
-    group_misc.add_argument(
         "--triage-mode",
-        help="Run triage mode (save results in slither.db.json)",
+        help="Run triage mode (save results in triage database)",
         action="store_true",
         dest="triage_mode",
         default=False,
+    )
+
+    group_misc.add_argument(
+        "--triage-database",
+        help="File path to the triage database (default: slither.db.json)",
+        action="store",
+        dest="triage_database",
+        default=defaults_flag_in_config["triage_database"],
     )
 
     group_misc.add_argument(
@@ -560,6 +601,22 @@ def parse_args(
         help="Do not fail in case of parsing (echidna mode only)",
         action="store_true",
         default=defaults_flag_in_config["no_fail"],
+    )
+
+    group_filters.add_argument(
+        "--filter-paths",
+        help="Regex filter to exclude detector results matching file path e.g. (mocks/|test/)",
+        action="store",
+        dest="filter_paths",
+        default=defaults_flag_in_config["filter_paths"],
+    )
+
+    group_filters.add_argument(
+        "--include-paths",
+        help="Regex filter to include detector results matching file path e.g. (src/|contracts/). Opposite of --filter-paths",
+        action="store",
+        dest="include_paths",
+        default=defaults_flag_in_config["include_paths"],
     )
 
     codex.init_parser(parser)
@@ -602,9 +659,6 @@ def parse_args(
         default=False,
     )
 
-    # if the json is splitted in different files
-    parser.add_argument("--splitted", help=argparse.SUPPRESS, action="store_true", default=False)
-
     # Disable the throw/catch on partial analyses
     parser.add_argument(
         "--disallow-partial", help=argparse.SUPPRESS, action="store_true", default=False
@@ -617,19 +671,22 @@ def parse_args(
     args = parser.parse_args()
     read_config_file(args)
 
-    args.filter_paths = parse_filter_paths(args)
+    args.filter_paths = parse_filter_paths(args, True)
+    args.include_paths = parse_filter_paths(args, False)
 
     # Verify our json-type output is valid
-    args.json_types = set(args.json_types.split(","))
+    args.json_types = set(args.json_types.split(","))  # type:ignore
     for json_type in args.json_types:
         if json_type not in JSON_OUTPUT_TYPES:
-            raise Exception(f'Error: "{json_type}" is not a valid JSON result output type.')
+            raise ValueError(f'Error: "{json_type}" is not a valid JSON result output type.')
 
     return args
 
 
 class ListDetectors(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
         detectors, _ = get_detectors_and_printers()
         output_detectors(detectors)
         parser.exit()
@@ -691,14 +748,14 @@ class OutputWiki(argparse.Action):  # pylint: disable=too-few-public-methods
 
 
 class FormatterCryticCompile(logging.Formatter):
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         # for i, msg in enumerate(record.msg):
         if record.msg.startswith("Compilation warnings/errors on "):
-            txt = record.args[1]
-            txt = txt.split("\n")
+            txt = record.args[1]  # type:ignore
+            txt = txt.split("\n")  # type:ignore
             txt = [red(x) if "Error" in x else x for x in txt]
             txt = "\n".join(txt)
-            record.args = (record.args[0], txt)
+            record.args = (record.args[0], txt)  # type:ignore
         return super().format(record)
 
 
@@ -741,7 +798,7 @@ def main_impl(
     set_colorization_enabled(False if args.disable_color else sys.stdout.isatty())
 
     # Define some variables for potential JSON output
-    json_results = {}
+    json_results: Dict[str, Any] = {}
     output_error = None
     outputting_json = args.json is not None
     outputting_json_stdout = args.json == "-"
@@ -754,7 +811,7 @@ def main_impl(
 
     # If we are outputting JSON, capture all standard output. If we are outputting to stdout, we block typical stdout
     # output.
-    if outputting_json or output_to_sarif:
+    if outputting_json or outputting_sarif:
         StandardOutputCapture.enable(outputting_json_stdout or outputting_sarif_stdout)
 
     printer_classes = choose_printers(args, all_printer_classes)
@@ -790,7 +847,7 @@ def main_impl(
     crytic_compile_error.setLevel(logging.INFO)
 
     results_detectors: List[Dict] = []
-    results_printers: List[Dict] = []
+    results_printers: List[Output] = []
     try:
         filename = args.filename
 
@@ -803,26 +860,17 @@ def main_impl(
             number_contracts = 0
 
             slither_instances = []
-            if args.splitted:
+            for filename in filenames:
                 (
                     slither_instance,
-                    results_detectors,
-                    results_printers,
-                    number_contracts,
-                ) = process_from_asts(filenames, args, detector_classes, printer_classes)
+                    results_detectors_tmp,
+                    results_printers_tmp,
+                    number_contracts_tmp,
+                ) = process_single(filename, args, detector_classes, printer_classes)
+                number_contracts += number_contracts_tmp
+                results_detectors += results_detectors_tmp
+                results_printers += results_printers_tmp
                 slither_instances.append(slither_instance)
-            else:
-                for filename in filenames:
-                    (
-                        slither_instance,
-                        results_detectors_tmp,
-                        results_printers_tmp,
-                        number_contracts_tmp,
-                    ) = process_single(filename, args, detector_classes, printer_classes)
-                    number_contracts += number_contracts_tmp
-                    results_detectors += results_detectors_tmp
-                    results_printers += results_printers_tmp
-                    slither_instances.append(slither_instance)
 
         # Rely on CryticCompile to discern the underlying type of compilations.
         else:
@@ -865,7 +913,9 @@ def main_impl(
 
         # Output our results to markdown if we wish to compile a checklist.
         if args.checklist:
-            output_results_to_markdown(results_detectors, args.checklist_limit)
+            output_results_to_markdown(
+                results_detectors, args.checklist_limit, args.show_ignored_findings
+            )
 
         # Don't print the number of result for printers
         if number_contracts == 0:
@@ -887,12 +937,6 @@ def main_impl(
         logging.error(red("Error:"))
         logging.error(red(output_error))
         logging.error("Please report an issue to https://github.com/crytic/slither/issues")
-
-    except Exception:  # pylint: disable=broad-except
-        output_error = traceback.format_exc()
-        traceback.print_exc()
-        logging.error(f"Error in {args.filename}")  # pylint: disable=logging-fstring-interpolation
-        logging.error(output_error)
 
     # If we are outputting JSON, capture the redirected output and disable the redirect to output the final JSON.
     if outputting_json:
@@ -918,17 +962,18 @@ def main_impl(
         stats = pstats.Stats(cp).sort_stats("cumtime")
         stats.print_stats()
 
-    if args.fail_high:
+    fail_on = FailOnLevel(args.fail_on)
+    if fail_on == FailOnLevel.HIGH:
         fail_on_detection = any(result["impact"] == "High" for result in results_detectors)
-    elif args.fail_medium:
+    elif fail_on == FailOnLevel.MEDIUM:
         fail_on_detection = any(
             result["impact"] in ["Medium", "High"] for result in results_detectors
         )
-    elif args.fail_low:
+    elif fail_on == FailOnLevel.LOW:
         fail_on_detection = any(
             result["impact"] in ["Low", "Medium", "High"] for result in results_detectors
         )
-    elif args.fail_pedantic:
+    elif fail_on == FailOnLevel.PEDANTIC:
         fail_on_detection = bool(results_detectors)
     else:
         fail_on_detection = False

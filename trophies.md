@@ -4,8 +4,8 @@ The following lists security vulnerabilities that were found by Slither.
 If you found a security vulnerability using Slither,
 please submit a PR with the relevant information.
 
-| Project | Vulnerability | Date |
-|--|--|--|
+Project | Vulnerability | Date
+--|--|--
 [Parity](https://github.com/trailofbits/publications/blob/master/reviews/parity.pdf) | Incorrect constructor name | July 2018
 [Parity](https://github.com/trailofbits/publications/blob/master/reviews/parity.pdf) | Deletion of a mapping with structure | July 2018
 [Parity](https://github.com/trailofbits/publications/blob/master/reviews/parity.pdf) | Uninitialized state variables | July 2018
@@ -53,8 +53,8 @@ please submit a PR with the relevant information.
 ## Slither Rekt
 The following lists security incidents that could have been prevented using Slither.
 
-| Project | Vulnerability | Value loss | Date
-|--|--|--| -- |
+Project | Vulnerability | Value loss | Date
+---|---|---|---
 Dforce | [Reentrancy](https://peckshield.medium.com/uniswap-lendf-me-hacks-root-cause-and-loss-analysis-50f3263dcc09) | $25m (recovered) | Apr 2020
 Lendf.me | [Incorrect self-transfer](https://bzx.network/blog/incident) ([slither-prop](https://github.com/crytic/slither/wiki/Property-generation)) | $8m | Sep 2020
 Akropolis | [Reentrancy](https://blog.peckshield.com/2020/11/13/akropolis/) | $2m | Nov 2020

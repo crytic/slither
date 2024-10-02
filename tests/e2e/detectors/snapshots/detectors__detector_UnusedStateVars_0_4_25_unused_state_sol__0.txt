@@ -1,0 +1,8 @@
+A.unused (tests/e2e/detectors/test_data/unused-state/0.4.25/unused_state.sol#4) is never used in B (tests/e2e/detectors/test_data/unused-state/0.4.25/unused_state.sol#11-16)
+
+A.unused4 (tests/e2e/detectors/test_data/unused-state/0.4.25/unused_state.sol#7) is never used in B (tests/e2e/detectors/test_data/unused-state/0.4.25/unused_state.sol#11-16)
+
+A.unused2 (tests/e2e/detectors/test_data/unused-state/0.4.25/unused_state.sol#5) is never used in B (tests/e2e/detectors/test_data/unused-state/0.4.25/unused_state.sol#11-16)
+
+A.unused3 (tests/e2e/detectors/test_data/unused-state/0.4.25/unused_state.sol#6) is never used in B (tests/e2e/detectors/test_data/unused-state/0.4.25/unused_state.sol#11-16)
+

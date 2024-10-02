@@ -23,7 +23,7 @@ class ModifierSolc(FunctionSolc):
         function_data: Dict,
         contract_parser: "ContractSolc",
         slither_parser: "SlitherCompilationUnitSolc",
-    ):
+    ) -> None:
         super().__init__(modifier, function_data, contract_parser, slither_parser)
         # _modifier is equal to _function, but keep it here to prevent
         # confusion for mypy in underlying_function
@@ -33,7 +33,7 @@ class ModifierSolc(FunctionSolc):
     def underlying_function(self) -> Modifier:
         return self._modifier
 
-    def analyze_params(self):
+    def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
             return
@@ -55,7 +55,7 @@ class ModifierSolc(FunctionSolc):
         if params:
             self._parse_params(params)
 
-    def analyze_content(self):
+    def analyze_content(self) -> None:
         if self._content_was_analyzed:
             return
 
@@ -87,9 +87,14 @@ class ModifierSolc(FunctionSolc):
         for node in self._node_to_nodesolc.values():
             node.analyze_expressions(self)
 
+        for yul_parser in self._node_to_yulobject.values():
+            yul_parser.analyze_expressions()
+
         self._rewrite_ternary_as_if_else()
         self._remove_alone_endif()
 
+        if self._function.entry_point:
+            self._update_reachability(self._function.entry_point)
         # self._analyze_read_write()
         # self._analyze_calls()
 
