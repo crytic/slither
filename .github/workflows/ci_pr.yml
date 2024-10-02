@@ -33,13 +33,6 @@ jobs:
                "printers",
                "slither_config",
                "upgradability"]
-        exclude:
-          # Requires nix
-          - os: windows-2022
-            type: dapp
-          # Requires nvm
-          - os: windows-2022
-            type: truffle
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python }}
