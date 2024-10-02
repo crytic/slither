@@ -46,12 +46,6 @@ from slither.slithir.variables import (
 if TYPE_CHECKING:
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
-    from slither.utils.type_helpers import (
-        InternalCallType,
-        HighLevelCallType,
-        LibraryCallType,
-        LowLevelCallType,
-    )
     from slither.core.cfg.scope import Scope
     from slither.core.scope.scope import FileScope
 
@@ -153,11 +147,11 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         self._ssa_vars_written: List["SlithIRVariable"] = []
         self._ssa_vars_read: List["SlithIRVariable"] = []
 
-        self._internal_calls: List[Union["Function", "SolidityFunction"]] = []
-        self._solidity_calls: List[SolidityFunction] = []
-        self._high_level_calls: List["HighLevelCallType"] = []  # contains library calls
-        self._library_calls: List["LibraryCallType"] = []
-        self._low_level_calls: List["LowLevelCallType"] = []
+        self._internal_calls: List[InternalCall] = []  # contains solidity calls
+        self._solidity_calls: List[SolidityCall] = []
+        self._high_level_calls: List[Tuple[Contract, HighLevelCall]] = []  # contains library calls
+        self._library_calls: List[LibraryCall] = []
+        self._low_level_calls: List[LowLevelCall] = []
         self._external_calls_as_expressions: List[Expression] = []
         self._internal_calls_as_expressions: List[Expression] = []
         self._irs: List[Operation] = []
@@ -226,8 +220,9 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     @property
     def will_return(self) -> bool:
         if not self.sons and self.type != NodeType.THROW:
-            if SolidityFunction("revert()") not in self.solidity_calls:
-                if SolidityFunction("revert(string)") not in self.solidity_calls:
+            solidity_calls = [ir.function for ir in self.solidity_calls]
+            if SolidityFunction("revert()") not in solidity_calls:
+                if SolidityFunction("revert(string)") not in solidity_calls:
                     return True
         return False
 
@@ -373,44 +368,38 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def internal_calls(self) -> List["InternalCallType"]:
+    def internal_calls(self) -> List[InternalCall]:
         """
-        list(Function or SolidityFunction): List of internal/soldiity function calls
+        list(InternalCall): List of IR operations with internal/solidity function calls
         """
         return list(self._internal_calls)
 
     @property
-    def solidity_calls(self) -> List[SolidityFunction]:
+    def solidity_calls(self) -> List[SolidityCall]:
         """
-        list(SolidityFunction): List of Soldity calls
+        list(SolidityCall): List of IR operations with solidity calls
         """
         return list(self._solidity_calls)
 
     @property
-    def high_level_calls(self) -> List["HighLevelCallType"]:
+    def high_level_calls(self) -> List[HighLevelCall]:
         """
-        list((Contract, Function|Variable)):
-        List of high level calls (external calls).
-        A variable is called in case of call to a public state variable
+        list(HighLevelCall): List of IR operations with high level calls (external calls).
         Include library calls
         """
         return list(self._high_level_calls)
 
     @property
-    def library_calls(self) -> List["LibraryCallType"]:
+    def library_calls(self) -> List[LibraryCall]:
         """
-        list((Contract, Function)):
-        Include library calls
+        list(LibraryCall): List of IR operations with library calls.
         """
         return list(self._library_calls)
 
     @property
-    def low_level_calls(self) -> List["LowLevelCallType"]:
+    def low_level_calls(self) -> List[LowLevelCall]:
         """
-        list((Variable|SolidityVariable, str)): List of low_level call
-        A low level call is defined by
-        - the variable called
-        - the name of the function (call/delegatecall/codecall)
+        list(LowLevelCall): List of IR operations with low_level call
         """
         return list(self._low_level_calls)
 
@@ -529,9 +518,9 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
             bool: True if the node has a require or assert call
         """
         return any(
-            c.name
+            ir.function.name
             in ["require(bool)", "require(bool,string)", "require(bool,error)", "assert(bool)"]
-            for c in self.internal_calls
+            for ir in self.internal_calls
         )
 
     def contains_if(self, include_loop: bool = True) -> bool:
@@ -895,11 +884,11 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
                     self._vars_written.append(var)
 
             if isinstance(ir, InternalCall):
-                self._internal_calls.append(ir.function)
+                self._internal_calls.append(ir)
             if isinstance(ir, SolidityCall):
                 # TODO: consider removing dependancy of solidity_call to internal_call
-                self._solidity_calls.append(ir.function)
-                self._internal_calls.append(ir.function)
+                self._solidity_calls.append(ir)
+                self._internal_calls.append(ir)
             if (
                 isinstance(ir, SolidityCall)
                 and ir.function == SolidityFunction("sstore(uint256,uint256)")
@@ -917,22 +906,22 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
                 self._vars_read.append(ir.arguments[0])
             if isinstance(ir, LowLevelCall):
                 assert isinstance(ir.destination, (Variable, SolidityVariable))
-                self._low_level_calls.append((ir.destination, str(ir.function_name.value)))
+                self._low_level_calls.append(ir)
             elif isinstance(ir, HighLevelCall) and not isinstance(ir, LibraryCall):
                 # Todo investigate this if condition
                 # It does seem right to compare against a contract
                 # This might need a refactoring
                 if isinstance(ir.destination.type, Contract):
-                    self._high_level_calls.append((ir.destination.type, ir.function))
+                    self._high_level_calls.append((ir.destination.type, ir))
                 elif ir.destination == SolidityVariable("this"):
                     func = self.function
                     # Can't use this in a top level function
                     assert isinstance(func, FunctionContract)
-                    self._high_level_calls.append((func.contract, ir.function))
+                    self._high_level_calls.append((func.contract, ir))
                 else:
                     try:
                         # Todo this part needs more tests and documentation
-                        self._high_level_calls.append((ir.destination.type.type, ir.function))
+                        self._high_level_calls.append((ir.destination.type.type, ir))
                     except AttributeError as error:
                         #  pylint: disable=raise-missing-from
                         raise SlitherException(
@@ -941,8 +930,8 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
             elif isinstance(ir, LibraryCall):
                 assert isinstance(ir.destination, Contract)
                 assert isinstance(ir.function, Function)
-                self._high_level_calls.append((ir.destination, ir.function))
-                self._library_calls.append((ir.destination, ir.function))
+                self._high_level_calls.append((ir.destination, ir))
+                self._library_calls.append(ir)
 
         self._vars_read = list(set(self._vars_read))
         self._state_vars_read = [v for v in self._vars_read if isinstance(v, StateVariable)]
