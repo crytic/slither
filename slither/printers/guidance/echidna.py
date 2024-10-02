@@ -138,17 +138,13 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
     """
     ret: Dict[str, Dict[str, List[Dict]]] = {}
     for contract in contracts:
-        functions_using_assert = []  # Dict[str, List[Dict]] = defaultdict(list)
+        functions_using_assert: Dict[str, List[Dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
-            for v in f.all_solidity_calls():
-                if v == SolidityFunction("assert(bool)"):
-                    functions_using_assert.append(_get_name(f))
+            for node in f.all_nodes():
+                if SolidityFunction("assert(bool)") in node.solidity_calls and node.source_mapping:
+                    func_name = _get_name(f)
+                    functions_using_assert[func_name].append(node.source_mapping.to_json())
                     break
-            # Revert https://github.com/crytic/slither/pull/2105 until format is supported by echidna.
-            # for node in f.all_nodes():
-            #     if SolidityFunction("assert(bool)") in node.solidity_calls and node.source_mapping:
-            #         func_name = _get_name(f)
-            #         functions_using_assert[func_name].append(node.source_mapping.to_json())
         if functions_using_assert:
             ret[contract.name] = functions_using_assert
     return ret
@@ -156,7 +152,7 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
 
 # Create a named tuple that is serialization in json
 def json_serializable(cls):
-    # pylint: disable=unnecessary-comprehension
+    # pylint: disable=unnecessary-comprehension,unnecessary-dunder-call
     # TODO: the next line is a quick workaround to prevent pylint from crashing
     # It can be removed once https://github.com/PyCQA/pylint/pull/3810 is merged
     my_super = super
