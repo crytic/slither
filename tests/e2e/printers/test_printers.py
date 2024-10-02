@@ -41,6 +41,17 @@ def test_inheritance_printer(solc_binary_path) -> None:
 
     assert counter["B -> A"] == 2
     assert counter["C -> A"] == 1
+    # Let also test the include/exclude interface behavior
+    # Check that the interface is not included
+    assert "MyInterfaceX" not in content
+
+    slither.include_interfaces = True
+    output = printer.output("test_printer.dot")
+    content = output.elements[0]["name"]["content"]
+    assert "MyInterfaceX" in content
+
+    # Remove test generated files
+    Path("test_printer.dot").unlink(missing_ok=True)
 
 
 @pytest.mark.skipif(
@@ -58,17 +69,6 @@ def test_printer_cheatcode():
         output.data["description"]
         == "CounterTest (test/Counter.t.sol)\n\tsetUp\n\t\tdeal - (test/Counter.t.sol#21 (9 - 32)\n\t\tvm.deal(alice,1000000000000000000)\n\n\t\tdeal - (test/Counter.t.sol#22 (9 - 30)\n\t\tvm.deal(bob,2000000000000000000)\n\n\ttestIncrement\n\t\tprank - (test/Counter.t.sol#28 (9 - 24)\n\t\tvm.prank(alice)\n\n\t\tassertEq - (test/Counter.t.sol#30 (9 - 38)\n\t\tassertEq(counter.number(),1)\n\n\t\tprank - (test/Counter.t.sol#32 (9 - 22)\n\t\tvm.prank(bob)\n\n\t\tassertEq - (test/Counter.t.sol#34 (9 - 38)\n\t\tassertEq(counter.number(),2)\n\n"
     )
-    # Let also test the include/exclude interface behavior
-    # Check that the interface is not included
-    assert "MyInterfaceX" not in content
-
-    slither.include_interfaces = True
-    output = printer.output("test_printer.dot")
-    content = output.elements[0]["name"]["content"]
-    assert "MyInterfaceX" in content
-
-    # Remove test generated files
-    Path("test_printer.dot").unlink(missing_ok=True)
 
 
 def test_slithir_printer(solc_binary_path) -> None:
