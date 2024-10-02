@@ -48,6 +48,7 @@ defaults_flag_in_config = {
     "detectors_to_run": "all",
     "printers_to_run": None,
     "detectors_to_exclude": None,
+    "detectors_to_include": None,
     "exclude_dependencies": False,
     "exclude_informational": False,
     "exclude_optimization": False,
@@ -359,8 +360,10 @@ def output_printers(printer_classes: List[Type[AbstractPrinter]]) -> None:
     printers_list = sorted(printers_list, key=lambda element: (element[0]))
     idx = 1
     for (argument, help_info) in printers_list:
-        table.add_row([str(idx), argument, help_info])
+        # Clean multi line HELP info
+        table.add_row([str(idx), argument, " ".join(x.strip() for x in help_info.splitlines())])
         idx = idx + 1
+
     print(table)
 
 

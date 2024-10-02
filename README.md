@@ -102,6 +102,13 @@ docker run -it -v /home/share:/share trailofbits/eth-security-toolbox
 ### Integration
 
 * For GitHub action integration, use [slither-action](https://github.com/marketplace/actions/slither-action).
+* For pre-commit integration, use (replace `$GIT_TAG` with real tag)
+  ```YAML
+  - repo: https://github.com/crytic/slither
+    rev: $GIT_TAG
+    hooks:
+      - id: slither
+  ```
 * To generate a Markdown report, use `slither [target] --checklist`.
 * To generate a Markdown with GitHub source code highlighting, use `slither [target] --checklist --markdown-root https://github.com/ORG/REPO/blob/COMMIT/` (replace `ORG`, `REPO`, `COMMIT`)
 
@@ -196,13 +203,12 @@ Num | Detector | What it Detects | Impact | Confidence
 85 | `costly-loop` | [Costly operations in a loop](https://github.com/crytic/slither/wiki/Detector-Documentation#costly-operations-inside-a-loop) | Informational | Medium
 86 | `dead-code` | [Functions that are not used](https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code) | Informational | Medium
 87 | `reentrancy-unlimited-gas` | [Reentrancy vulnerabilities through send and transfer](https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4) | Informational | Medium
-88 | `similar-names` | [Variable names are too similar](https://github.com/crytic/slither/wiki/Detector-Documentation#variable-names-too-similar) | Informational | Medium
-89 | `too-many-digits` | [Conformance to numeric notation best practices](https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits) | Informational | Medium
-90 | `cache-array-length` | [Detects `for` loops that use `length` member of some storage array in their loop condition and don't modify it.](https://github.com/crytic/slither/wiki/Detector-Documentation#cache-array-length) | Optimization | High
-91 | `constable-states` | [State variables that could be declared constant](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant) | Optimization | High
-92 | `external-function` | [Public function that could be declared external](https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external) | Optimization | High
-93 | `immutable-states` | [State variables that could be declared immutable](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-immutable) | Optimization | High
-94 | `var-read-using-this` | [Contract reads its own variable using `this`](https://github.com/crytic/slither/wiki/Detector-Documentation#public-variable-read-in-external-context) | Optimization | High
+88 | `too-many-digits` | [Conformance to numeric notation best practices](https://github.com/crytic/slither/wiki/Detector-Documentation#too-many-digits) | Informational | Medium
+89 | `cache-array-length` | [Detects `for` loops that use `length` member of some storage array in their loop condition and don't modify it.](https://github.com/crytic/slither/wiki/Detector-Documentation#cache-array-length) | Optimization | High
+90 | `constable-states` | [State variables that could be declared constant](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant) | Optimization | High
+91 | `external-function` | [Public function that could be declared external](https://github.com/crytic/slither/wiki/Detector-Documentation#public-function-that-could-be-declared-external) | Optimization | High
+92 | `immutable-states` | [State variables that could be declared immutable](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-immutable) | Optimization | High
+93 | `var-read-using-this` | [Contract reads its own variable using `this`](https://github.com/crytic/slither/wiki/Detector-Documentation#public-variable-read-in-external-context) | Optimization | High
 
 For more information, see
 
@@ -302,5 +308,12 @@ Title | Usage | Authors | Venue | Code
 [Do Not Rug on Me: Leveraging Machine Learning Techniques for Automated Scam Detection](https://www.mdpi.com/2227-7390/10/6/949) | Use Slither to extract tokens' features (mintable, pausable, ..) | Mazorra, Bruno, Victor Adan, and Vanesa Daza | Mathematics 10.6 (2022) | -
 [MANDO: Multi-Level Heterogeneous Graph Embeddings for Fine-Grained Detection of Smart Contract Vulnerabilities](https://arxiv.org/abs/2208.13252) | Use Slither to extract the CFG and call graph | Hoang Nguyen, Nhat-Minh Nguyen, Chunyao Xie, Zahra Ahmadi, Daniel Kudendo, Thanh-Nam Doan and Lingxiao Jiang| IEEE 9th International Conference on Data Science and Advanced Analytics (DSAA, 2022) | [ge-sc](https://github.com/MANDO-Project/ge-sc)
 [Automated Auditing of Price Gouging TOD Vulnerabilities in Smart Contracts](https://www.cs.toronto.edu/~fanl/papers/price-icbc22.pdf) | Use Slither to extract the CFG and data dependencies| Sidi Mohamed Beillahi, Eric Keilty, Keerthi Nelaturu, Andreas Veneris, and Fan Long | 2022 IEEE International Conference on Blockchain and Cryptocurrency (ICBC) | [Smart-Contract-Repair](https://github.com/Veneris-Group/TOD-Location-Rectification)
+[Modeling and Enforcing Access Control Policies for Smart Contracts](https://publikationen.bibliothek.kit.edu/1000152805/151859658) | Extend Slither's data dependencies | Jan-Philipp Toberg, Jonas Schiffl, Frederik Reiche, Bernhard Beckert, Robert Heinrich, Ralf Reussner | IEEE International Conference on Decentralized Applications and Infrastructures (DAPPS), 2022  | [SolidityAccessControlEnforcement](https://github.com/KASTEL-CSSDA/SolidityAccessControlEnforcement)
+[Smart Contract Vulnerability Detection Based on Deep Learning and Multimodal Decision Fusion](https://www.mdpi.com/1424-8220/23/16/7246) | Use Slither to extract the CFG | Weichu Deng, Huanchun Wei, Teng Huang, Cong Cao, Yun Peng, and Xuan Hu | Sensors 2023, 23, 7246 | -
+[Semantic-enriched Code Knowledge Graph to Reveal Unknowns in Smart Contract Code Reuse](https://www.researchgate.net/profile/Qing-Huang-26/publication/370638129_Semantic-enriched_Code_Knowledge_Graph_to_Reveal_Unknowns_in_Smart_Contract_Code_Reuse/links/645b7b8639c408339b3a54da/Semantic-Enriched-Code-Knowledge-Graph-to-Reveal-Unknowns-in-Smart-Contract-Code-Reuse.pdf) | Use Slither to extract the code features (CFG, function, parameters types, ..) | Qing Huang, Dianshu Liao, Zhenchang Xing, Zhengkang Zuo, Changjing Wang, Xin Xia | ACM Transactions on Software Engineering and Methodology, 2023 | -
+[Smart Contract Parallel Execution with Fine-Grained State Accesses](https://personal.ntu.edu.sg/yi_li/files/Qi2023SCP.pdf) | Use Slither to build state access graphs | Xiaodong Qi, Jiao Jiao, Yi Li | International Conference on Distributed Computing Systems (ICDCS), 2023 | -
+[Bad Apples: Understanding the Centralized Security Risks in Decentralized Ecosystems](https://diaowenrui.github.io/paper/www23-yan.pdf) | Implement an internal analysis on top of Slither | Kailun Yan , Jilian Zhang , Xiangyu Liu , Wenrui Diao , Shanqing Guo | ACM Web Conference April 2023 | -
+[Identifying Vulnerabilities in Smart Contracts using Interval Analysis](https://arxiv.org/pdf/2309.13805.pdf) | Create 4 detectors on top of Slither | Ştefan-Claudiu Susan, Andrei Arusoaie | FROM 2023 | -
+Storage State Analysis and Extraction of Ethereum Blockchain Smart Contracts (no PDF in open access) | Rely on Slither's CFG and AST | Maha Ayub , Tania Saleem , Muhammad Janjua , Talha Ahmad | TOSEM 2023 | [SmartMuv](https://github.com/WaizKhan7/SmartMuv)
 
 If you are using Slither on an academic work, consider applying to the [Crytic $10k Research Prize](https://blog.trailofbits.com/2019/11/13/announcing-the-crytic-10k-research-prize/).

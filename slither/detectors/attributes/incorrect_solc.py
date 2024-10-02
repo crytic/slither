@@ -71,7 +71,7 @@ Consider using the latest version of Solidity for testing."""
         if op and op not in [">", ">=", "^"]:
             return self.LESS_THAN_TXT
         version_number = ".".join(version[2:])
-        if version_number in bugs_by_version:
+        if version_number in bugs_by_version and len(bugs_by_version[version_number]):
             bugs = "\n".join([f"\t- {bug}" for bug in bugs_by_version[version_number]])
             return self.BUGGY_VERSION_TXT + f"\n{bugs}"
         return None
@@ -115,16 +115,18 @@ Consider using the latest version of Solidity for testing."""
                 continue
 
             if p.version in disallowed_pragmas and reason in disallowed_pragmas[p.version]:
-                disallowed_pragmas[p.version][reason] += f"\t- {str(p.source_mapping)}\n"
+                disallowed_pragmas[p.version][reason].append(p)
             else:
-                disallowed_pragmas[p.version] = {reason: f"\t- {str(p.source_mapping)}\n"}
+                disallowed_pragmas[p.version] = {reason: [p]}
 
         # If we found any disallowed pragmas, we output our findings.
         if len(disallowed_pragmas.keys()):
             for p, reasons in disallowed_pragmas.items():
                 info: DETECTOR_INFO = []
-                for r, v in reasons.items():
-                    info += [f"Version constraint {p} {r}.\n It is used by:\n{v}"]
+                for r, vers in reasons.items():
+                    info += [f"Version constraint {p} {r}.\nIt is used by:\n"]
+                    for ver in vers:
+                        info += ["\t- ", ver, "\n"]
 
                 json = self.generate_result(info)
 
