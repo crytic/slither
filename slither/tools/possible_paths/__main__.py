@@ -4,6 +4,7 @@ import logging
 from argparse import ArgumentParser, Namespace
 
 from crytic_compile import cryticparser
+import shtab
 from slither import Slither
 from slither.core.declarations import FunctionContract
 from slither.utils.colors import red
@@ -26,6 +27,8 @@ def parse_args() -> Namespace:
         description="PossiblePaths",
         usage="possible_paths.py filename [contract.function targets]",
     )
+
+    shtab.add_argument_to(parser)
 
     parser.add_argument(
         "filename", help="The filename of the contract or truffle directory to analyze."
