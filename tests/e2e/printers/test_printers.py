@@ -2,11 +2,12 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from crytic_compile import CryticCompile
+from crytic_compile import CryticCompile, compile_all
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
 
 from slither import Slither
 from slither.printers.inheritance.inheritance_graph import PrinterInheritanceGraph
+from slither.printers.summary.external_calls import ExternalCallPrinter
 
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
@@ -35,7 +36,7 @@ def test_inheritance_printer(solc_binary_path) -> None:
     assert counter["B -> A"] == 2
     assert counter["C -> A"] == 1
 
-    # Lets also test the include/exclude interface behavior
+    # Let also test the include/exclude interface behavior
     # Check that the interface is not included
     assert "MyInterfaceX" not in content
 
@@ -46,3 +47,17 @@ def test_inheritance_printer(solc_binary_path) -> None:
 
     # Remove test generated files
     Path("test_printer.dot").unlink(missing_ok=True)
+
+
+def test_external_call_printers(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.0")
+    compilation = compile_all(
+        (TEST_DATA_DIR / "test_external_calls" / "A.sol").as_posix(), solc=solc_path
+    ).pop()
+    slither = Slither(compilation)
+
+    printer = ExternalCallPrinter(slither, None)
+    output = printer.output("")
+
+    # The test is not great here, but they will soon be moved to a snapshot based system
+    assert output is not None
