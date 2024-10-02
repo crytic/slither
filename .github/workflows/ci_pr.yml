@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-2022"]
+        os: ["ubuntu-latest"] # Do not run on windows to save time. In practice not many users are on windows, and this is still run on the cron job
         python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
         type: ["data_dependency",
                "path_filtering",
