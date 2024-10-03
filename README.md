@@ -18,6 +18,7 @@
 * [Usage](#usage)
 * [How to install](#how-to-install)
   * [Using Pip](#using-pip)
+  * [Using Uv](#using-uv)
   * [Using Git](#using-git)
   * [Using Docker](#using-docker)
   * [Integration](#integration)
@@ -75,6 +76,13 @@ If you're **not** going to use one of the [supported compilation frameworks](htt
 ```console
 python3 -m pip install slither-analyzer
 ```
+
+### Using Uv
+
+```console 
+uv pip install slither-analyzer
+```
+Recommended to first [initialize a uv project](https://docs.astral.sh/uv/guides/projects/#managing-dependencies), and then run the install command, this allows for isolation in the [uv virtual environment](https://docs.astral.sh/uv/pip/compatibility/#virtual-environments-by-default) by default which leads to significantly [faster installation times](https://github.com/xyizko/xo-i-euvs/#installation-times).
 
 ### Using Git
 
