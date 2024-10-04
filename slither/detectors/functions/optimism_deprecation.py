@@ -6,6 +6,7 @@ from slither.detectors.abstract_detector import (
     DETECTOR_INFO,
 )
 from slither.core.cfg.node import Node
+from slither.core.variables.variable import Variable
 from slither.core.expressions import TypeConversion, Literal
 from slither.utils.output import Output
 
@@ -59,8 +60,10 @@ The call to the `scalar` function of the Optimism GasPriceOracle predeploy alway
             for _, ir in contract.all_high_level_calls:
                 # To avoid FPs we assume predeploy contracts are always assigned to a constant and typecasted to an interface
                 # and we check the target address of a high level call.
-                if isinstance(ir.destination.expression, TypeConversion) and isinstance(
-                    ir.destination.expression.expression, Literal
+                if (
+                    isinstance(ir.destination, Variable)
+                    and isinstance(ir.destination.expression, TypeConversion)
+                    and isinstance(ir.destination.expression.expression, Literal)
                 ):
                     if ir.destination.expression.expression.value in deprecated_predeploys:
                         use_deprecated.append(ir.node)
