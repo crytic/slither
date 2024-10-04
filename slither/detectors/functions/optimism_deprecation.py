@@ -73,7 +73,6 @@ The call to the `scalar` function of the Optimism GasPriceOracle predeploy alway
                         use_deprecated.append(ir.node)
             # Sort so output is deterministic
             use_deprecated.sort(key=lambda x: (x.node_id, x.function.full_name))
-            
             if len(use_deprecated) > 0:
                 info: DETECTOR_INFO = [
                     "A deprecated Optimism predeploy or function is used in the ",
