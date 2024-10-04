@@ -1714,6 +1714,11 @@ ALL_TESTS = [
         "out_of_order_retryable.sol",
         "0.8.20",
     ),
+    Test(
+        all_detectors.ChainlinkFeedRegistry,
+        "chainlink_feed_registry.sol",
+        "0.8.20",
+    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",

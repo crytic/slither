@@ -97,5 +97,6 @@ from .operations.incorrect_exp import IncorrectOperatorExponentiation
 from .statements.tautological_compare import TautologicalCompare
 from .statements.return_bomb import ReturnBomb
 from .functions.out_of_order_retryable import OutOfOrderRetryable
+from .functions.chainlink_feed_registry import ChainlinkFeedRegistry
 
 # from .statements.unused_import import UnusedImport
