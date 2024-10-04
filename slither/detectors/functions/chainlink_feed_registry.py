@@ -83,7 +83,6 @@ If the contract is deployed on a different chain than Ethereum Mainnet the `getP
                     and ir.function_name in registry_functions
                 ):
                     nodes.append(ir.node)
-            
             # Sort so output is deterministic
             nodes.sort(key=lambda x: (x.node_id, x.function.full_name))
 
