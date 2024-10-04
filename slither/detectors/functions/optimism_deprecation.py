@@ -42,7 +42,7 @@ The call to the `scalar` function of the Optimism GasPriceOracle predeploy alway
 """
     # endregion wiki_exploit_scenario
 
-    WIKI_RECOMMENDATION = "D."
+    WIKI_RECOMMENDATION = "Do not use the deprecated components."
 
     def _detect(self) -> List[Output]:
         results = []
