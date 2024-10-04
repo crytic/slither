@@ -71,7 +71,6 @@ The call to the `scalar` function of the Optimism GasPriceOracle predeploy alway
                         and ir.function_name in ("overhead", "scalar", "getL1GasUsed")
                     ):
                         use_deprecated.append(ir.node)
-            
             # Sort so output is deterministic
             use_deprecated.sort(key=lambda x: (x.node_id, x.function.full_name))
             
