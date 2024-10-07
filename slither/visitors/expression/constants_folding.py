@@ -369,11 +369,19 @@ class ConstantFolding(ExpressionVisitor):
                 return
 
             # If the variable is a Literal we convert its value to int
-            value = (
-                convert_string_to_int(variables[expression.member_name].expression.converted_value)
-                if isinstance(variables[expression.member_name].expression, Literal)
-                else variables[expression.member_name].expression
-            )
+            if isinstance(variables[expression.member_name].expression, Literal):
+                value = convert_string_to_int(
+                    variables[expression.member_name].expression.converted_value
+                )
+            # If the variable is a UnaryOperation we need convert its value to int
+            # and replacing possible spaces
+            elif isinstance(variables[expression.member_name].expression, UnaryOperation):
+                value = convert_string_to_int(
+                    str(variables[expression.member_name].expression).replace(" ", "")
+                )
+            else:
+                value = variables[expression.member_name].expression
+
             set_val(expression, value)
             return
 
