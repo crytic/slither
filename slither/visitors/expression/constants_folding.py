@@ -78,6 +78,8 @@ class ConstantFolding(ExpressionVisitor):
     def _post_identifier(self, expression: Identifier) -> None:
         from slither.core.declarations.solidity_variables import SolidityFunction
         from slither.core.declarations.enum import Enum
+        from slither.core.solidity_types.type_alias import TypeAlias
+        from slither.core.declarations.contract import Contract
 
         if isinstance(expression.value, Variable):
             if expression.value.is_constant:
@@ -104,9 +106,11 @@ class ConstantFolding(ExpressionVisitor):
         elif isinstance(expression.value, SolidityFunction):
             set_val(expression, expression.value)
         else:
-            # We don't want to raise an error for a direct access to an Enum as they can be converted to a constant value
+            # Enum: We don't want to raise an error for a direct access to an Enum as they can be converted to a constant value
             # We can't handle it here because we don't have the field accessed so we do it in _post_member_access
-            if not isinstance(expression.value, Enum):
+            # TypeAlias: Support when a .wrap() is done with a constant
+            # Contract: Support when a constatn is use from a different contract
+            if not isinstance(expression.value, (Enum, TypeAlias, Contract)):
                 raise NotConstant
 
     # pylint: disable=too-many-branches,too-many-statements
@@ -242,6 +246,7 @@ class ConstantFolding(ExpressionVisitor):
     def _post_call_expression(self, expression: expressions.CallExpression) -> None:
         from slither.core.declarations.solidity_variables import SolidityFunction
         from slither.core.declarations.enum import Enum
+        from slither.core.solidity_types import TypeAlias
 
         # pylint: disable=too-many-boolean-expressions
         if (
@@ -256,6 +261,17 @@ class ConstantFolding(ExpressionVisitor):
         ):
             # Returning early to support type(ElemType).max/min or type(MyEnum).max/min
             return
+        if (
+            isinstance(expression.called.expression, Identifier)
+            and isinstance(expression.called.expression.value, TypeAlias)
+            and isinstance(expression.called, MemberAccess)
+            and expression.called.member_name == "wrap"
+            and len(expression.arguments) == 1
+        ):
+            # Handle constants in .wrap of user defined type
+            set_val(expression, get_val(expression.arguments[0]))
+            return
+
         called = get_val(expression.called)
         args = [get_val(arg) for arg in expression.arguments]
         if called.name == "keccak256(bytes)":
@@ -277,6 +293,7 @@ class ConstantFolding(ExpressionVisitor):
     def _post_index_access(self, expression: expressions.IndexAccess) -> None:
         raise NotConstant
 
+    # pylint: disable=too-many-locals
     def _post_member_access(self, expression: expressions.MemberAccess) -> None:
         from slither.core.declarations import (
             SolidityFunction,
@@ -285,7 +302,7 @@ class ConstantFolding(ExpressionVisitor):
             EnumTopLevel,
             Enum,
         )
-        from slither.core.solidity_types import UserDefinedType
+        from slither.core.solidity_types import UserDefinedType, TypeAlias
 
         # pylint: disable=too-many-nested-blocks
         if isinstance(expression.expression, CallExpression) and expression.member_name in [
@@ -333,6 +350,31 @@ class ConstantFolding(ExpressionVisitor):
         ):
             # Handle direct access to enum field
             set_val(expression, expression.expression.value.values.index(expression.member_name))
+            return
+        elif isinstance(expression.expression, Identifier) and isinstance(
+            expression.expression.value, TypeAlias
+        ):
+            # User defined type .wrap call handled in _post_call_expression
+            return
+        elif (
+            isinstance(expression.expression.value, Contract)
+            and expression.member_name in expression.expression.value.variables_as_dict
+            and expression.expression.value.variables_as_dict[expression.member_name].is_constant
+        ):
+            # Handles when a constant is accessed on another contract
+            variables = expression.expression.value.variables_as_dict
+            if isinstance(variables[expression.member_name].expression, MemberAccess):
+                self._post_member_access(variables[expression.member_name].expression)
+                set_val(expression, get_val(variables[expression.member_name].expression))
+                return
+
+            # If the variable is a Literal we convert its value to int
+            value = (
+                convert_string_to_int(variables[expression.member_name].expression.converted_value)
+                if isinstance(variables[expression.member_name].expression, Literal)
+                else variables[expression.member_name].expression
+            )
+            set_val(expression, value)
             return
 
         raise NotConstant
