@@ -1714,6 +1714,16 @@ ALL_TESTS = [
         "out_of_order_retryable.sol",
         "0.8.20",
     ),
+    Test(
+        all_detectors.PythUncheckedConfidence,
+        "pyth_unchecked_confidence.sol",
+        "0.8.20",
+    ),
+    Test(
+        all_detectors.PythUncheckedPublishTime,
+        "pyth_unchecked_publishtime.sol",
+        "0.8.20",
+    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",
