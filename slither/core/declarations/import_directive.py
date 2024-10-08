@@ -16,6 +16,8 @@ class Import(SourceMapping):
         # Map local name -> original name
         self.renaming: Dict[str, str] = {}
 
+        self._pattern = "import"
+
     @property
     def filename(self) -> str:
         """

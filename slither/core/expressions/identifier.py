@@ -78,3 +78,6 @@ class Identifier(Expression):
 
     def __str__(self) -> str:
         return str(self._value)
+
+    def expression(self):
+        return self

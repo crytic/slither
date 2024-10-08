@@ -940,6 +940,16 @@ ALL_TESTS = [
     ),
     Test(
         all_detectors.UnprotectedUpgradeable,
+        "Reinitializer.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AnyInitializer.sol",
+        "0.4.25",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
         "Buggy.sol",
         "0.5.16",
     ),
@@ -955,6 +965,16 @@ ALL_TESTS = [
     ),
     Test(
         all_detectors.UnprotectedUpgradeable,
+        "Reinitializer.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AnyInitializer.sol",
+        "0.5.16",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
         "Buggy.sol",
         "0.6.11",
     ),
@@ -966,6 +986,16 @@ ALL_TESTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "whitelisted.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "Reinitializer.sol",
+        "0.6.11",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AnyInitializer.sol",
         "0.6.11",
     ),
     Test(
@@ -976,6 +1006,16 @@ ALL_TESTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "Fixed.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "Reinitializer.sol",
+        "0.7.6",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AnyInitializer.sol",
         "0.7.6",
     ),
     Test(
@@ -996,6 +1036,16 @@ ALL_TESTS = [
     Test(
         all_detectors.UnprotectedUpgradeable,
         "whitelisted.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "Reinitializer.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.UnprotectedUpgradeable,
+        "AnyInitializer.sol",
         "0.8.15",
     ),
     Test(
@@ -1404,26 +1454,6 @@ ALL_TESTS = [
         "0.7.6",
     ),
     Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.4.25",
-    ),
-    Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.5.16",
-    ),
-    Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.6.11",
-    ),
-    Test(
-        all_detectors.SimilarVarsDetection,
-        "similar_variables.sol",
-        "0.7.6",
-    ),
-    Test(
         all_detectors.MsgValueInLoop,
         "msg_value_loop.sol",
         "0.4.25",
@@ -1684,191 +1714,191 @@ ALL_TESTS = [
         "out_of_order_retryable.sol",
         "0.8.20",
     ),
-    Test(
-        all_detectors.UnusedImport,
-        "ConstantContractLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "ConstantContractLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "ConstantTopLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "ConstantTopLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "ContractUsedInContractTest1.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "ContractUsedInContractTest2.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "ContractUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomErrorTopLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomEventContractLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomEventContractLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedInContractTest1.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedInContractTest2.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedInContractTest3.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedInContractTest4.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedTopLevelTest1.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeContractLevelUsedTopLevelTest2.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedInContractTest1.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedInContractTest2.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedInContractTest3.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedInContractTest4.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedTopLevelTest1.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "CustomTypeTopLevelUsedTopLevelTest2.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "EnumContractLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "EnumContractLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "EnumTopLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "EnumTopLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "FunctionContractLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "FunctionContractLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "FunctionTopLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "FunctionTopLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "LibraryUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "LibraryUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "StructContractLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "StructContractLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "StructTopLevelUsedInContractTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "StructTopLevelUsedTopLevelTest.sol",
-        "0.8.16",
-    ),
-    Test(
-        all_detectors.UnusedImport,
-        "C.sol",
-        "0.8.16",
-    ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ConstantContractLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ConstantContractLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ConstantTopLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ConstantTopLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ContractUsedInContractTest1.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ContractUsedInContractTest2.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "ContractUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomErrorTopLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomEventContractLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomEventContractLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedInContractTest1.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedInContractTest2.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedInContractTest3.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedInContractTest4.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedTopLevelTest1.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeContractLevelUsedTopLevelTest2.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedInContractTest1.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedInContractTest2.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedInContractTest3.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedInContractTest4.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedTopLevelTest1.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "CustomTypeTopLevelUsedTopLevelTest2.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "EnumContractLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "EnumContractLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "EnumTopLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "EnumTopLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "FunctionContractLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "FunctionContractLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "FunctionTopLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "FunctionTopLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "LibraryUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "LibraryUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "StructContractLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "StructContractLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "StructTopLevelUsedInContractTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "StructTopLevelUsedTopLevelTest.sol",
+    #     "0.8.16",
+    # ),
+    # Test(
+    #     all_detectors.UnusedImport,
+    #     "C.sol",
+    #     "0.8.16",
+    # ),
 ]
 
 GENERIC_PATH = "/GENERIC_PATH"

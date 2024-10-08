@@ -1,0 +1,41 @@
+---
+name: Run black (auto)
+
+defaults:
+  run:
+    # To load bashrc
+    shell: bash -ieo pipefail {0}
+
+on:
+  pull_request:
+    branches: [master, dev]
+    paths:
+      - "**/*.py"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Black 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+
+      - name: Install Python dependencies
+        run: pip install .[dev]
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          auto_fix: true
+          black: true
+          black_auto_fix: true

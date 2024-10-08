@@ -50,8 +50,8 @@ class ReadVar(ExpressionVisitor):
             self._result = list(set(get(self.expression)))
         return self._result
 
-    # overide assignement
-    # dont explore if its direct assignement (we explore if its +=, -=, ...)
+    # override assignment
+    # dont explore if its direct assignment (we explore if its +=, -=, ...)
     def _visit_assignement_operation(self, expression: AssignmentOperation) -> None:
         if expression.type != AssignmentOperationType.ASSIGN:
             self._visit_expression(expression.expression_left)
