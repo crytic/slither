@@ -230,7 +230,7 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         self._function = function
 
     @property
-    def function(self) -> "Function":
+    def function(self) -> Optional["Function"]:
         return self._function
 
     @property

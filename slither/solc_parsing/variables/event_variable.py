@@ -4,7 +4,7 @@ from slither.solc_parsing.variables.variable_declaration import VariableDeclarat
 from slither.core.variables.event_variable import EventVariable
 
 
-class EventVariableSolc(VariableDeclarationSolc):
+class EventVariableSolc(VariableDeclarationSolc[EventVariable]):
     def __init__(self, variable: EventVariable, variable_data: Dict):
         super().__init__(variable, variable_data)
 
