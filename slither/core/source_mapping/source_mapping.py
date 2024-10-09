@@ -112,12 +112,8 @@ class Source:
         try:
             return (
                 self.start == other.start
-                and self.length == other.length
-                and self.filename == other.filename
+                and self.filename.relative == other.filename.relative
                 and self.is_dependency == other.is_dependency
-                and self.lines == other.lines
-                and self.starting_column == other.starting_column
-                and self.ending_column == other.ending_column
                 and self.end == other.end
             )
         except AttributeError:
