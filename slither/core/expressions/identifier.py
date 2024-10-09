@@ -79,5 +79,6 @@ class Identifier(Expression):
     def __str__(self) -> str:
         return str(self._value)
 
+    @property
     def expression(self):
         return self
