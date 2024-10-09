@@ -1714,6 +1714,11 @@ ALL_TESTS = [
         "out_of_order_retryable.sol",
         "0.8.20",
     ),
+    Test(
+        all_detectors.GelatoUnprotectedRandomness,
+        "gelato_unprotected_randomness.sol",
+        "0.8.20",
+    ),
     # Test(
     #     all_detectors.UnusedImport,
     #     "ConstantContractLevelUsedInContractTest.sol",
