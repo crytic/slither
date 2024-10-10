@@ -97,6 +97,13 @@ from .operations.incorrect_exp import IncorrectOperatorExponentiation
 from .statements.tautological_compare import TautologicalCompare
 from .statements.return_bomb import ReturnBomb
 from .functions.out_of_order_retryable import OutOfOrderRetryable
+from .functions.gelato_unprotected_randomness import GelatoUnprotectedRandomness
+from .statements.chronicle_unchecked_price import ChronicleUncheckedPrice
+from .statements.pyth_unchecked_confidence import PythUncheckedConfidence
+from .statements.pyth_unchecked_publishtime import PythUncheckedPublishTime
+from .functions.chainlink_feed_registry import ChainlinkFeedRegistry
+from .functions.pyth_deprecated_functions import PythDeprecatedFunctions
+from .functions.optimism_deprecation import OptimismDeprecation
 from .statements.unused_custom_errors import UnusedCustomErrors
 
 # from .statements.unused_import import UnusedImport
