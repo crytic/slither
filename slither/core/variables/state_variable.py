@@ -12,6 +12,7 @@ class StateVariable(ContractLevel, Variable):
     def __init__(self) -> None:
         super().__init__()
         self._node_initialization: Optional["Node"] = None
+        self._location: Optional[str] = None
 
     def is_declared_by(self, contract: "Contract") -> bool:
         """
@@ -20,6 +21,19 @@ class StateVariable(ContractLevel, Variable):
         :return:
         """
         return self.contract == contract
+
+    def set_location(self, loc: str) -> None:
+        self._location = loc
+
+    @property
+    def location(self) -> Optional[str]:
+        """
+            Variable Location
+            Can be default or transient
+        Returns:
+            (str)
+        """
+        return self._location
 
     # endregion
     ###################################################################################
