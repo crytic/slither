@@ -94,13 +94,6 @@ class Variable(SourceMapping):
         self._is_constant = is_cst
 
     @property
-    def is_stored(self) -> bool:
-        """
-        Checks if a variable is stored, based on it not being constant or immutable. Future updates may adjust for new non-storage keywords.
-        """
-        return not self._is_constant and not self._is_immutable
-
-    @property
     def is_reentrant(self) -> bool:
         return self._is_reentrant
 
