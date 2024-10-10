@@ -226,6 +226,17 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
             # Do not report struct_name in a.struct_name
             if isinstance(ir, Member):
                 continue
+            if isinstance(var_read, Variable) and var_read.is_constant:
+                # In case of type conversion we use the destination type
+                if isinstance(ir, TypeConversion):
+                    if isinstance(ir.type, TypeAlias):
+                        value_type = ir.type.type
+                    else:
+                        value_type = ir.type
+                else:
+                    value_type = var_read.type
+                value = ConstantFolding(var_read.expression, value_type).result()
+                all_cst_used.append(ConstantValue(str(value), str(value_type)))
             if isinstance(var_read, Constant):
                 all_cst_used.append(ConstantValue(str(var_read.value), str(var_read.type)))
             if isinstance(var_read, StateVariable):
