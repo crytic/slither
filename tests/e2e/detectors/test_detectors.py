@@ -1715,6 +1715,16 @@ ALL_TESTS = [
         "0.8.20",
     ),
     Test(
+        all_detectors.PythUncheckedConfidence,
+        "pyth_unchecked_confidence.sol",
+        "0.8.20",
+    ),
+    Test(
+        all_detectors.PythUncheckedPublishTime,
+        "pyth_unchecked_publishtime.sol",
+        "0.8.20",
+    ),
+    Test(
         all_detectors.ChainlinkFeedRegistry,
         "chainlink_feed_registry.sol",
         "0.8.20",
