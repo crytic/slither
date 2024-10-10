@@ -1715,6 +1715,11 @@ ALL_TESTS = [
         "0.8.20",
     ),
     Test(
+        all_detectors.GelatoUnprotectedRandomness,
+        "gelato_unprotected_randomness.sol",
+        "0.8.20",
+    ),
+    Test(
         all_detectors.ChronicleUncheckedPrice,
         "chronicle_unchecked_price.sol",
         "0.8.20",
