@@ -48,6 +48,7 @@ contract C is GelatoVRFConsumerBase {
         uint id = _requestRandomness(abi.encode(msg.sender));
     }
 
+    // This is currently a FP due to the limitation of function.is_protected
     function good2() public {
         require(authorized[msg.sender]);
         uint id = _requestRandomness(abi.encode(msg.sender));
