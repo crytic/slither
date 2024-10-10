@@ -98,5 +98,6 @@ from .statements.tautological_compare import TautologicalCompare
 from .statements.return_bomb import ReturnBomb
 from .functions.out_of_order_retryable import OutOfOrderRetryable
 from .functions.pyth_deprecated_functions import PythDeprecatedFunctions
+from .functions.optimism_deprecation import OptimismDeprecation
 
 # from .statements.unused_import import UnusedImport
