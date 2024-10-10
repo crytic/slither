@@ -97,6 +97,7 @@ from .operations.incorrect_exp import IncorrectOperatorExponentiation
 from .statements.tautological_compare import TautologicalCompare
 from .statements.return_bomb import ReturnBomb
 from .functions.out_of_order_retryable import OutOfOrderRetryable
+from .statements.chronicle_unchecked_price import ChronicleUncheckedPrice
 from .statements.pyth_unchecked_confidence import PythUncheckedConfidence
 from .statements.pyth_unchecked_publishtime import PythUncheckedPublishTime
 from .functions.chainlink_feed_registry import ChainlinkFeedRegistry
