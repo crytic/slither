@@ -65,8 +65,8 @@ class UnusedCustomErrors(AbstractDetector):
         for contract in self.compilation_unit.contracts:
             for function in contract.functions_and_modifiers:
                 for internal_call in function.internal_calls:
-                    if isinstance(internal_call, SolidityCustomRevert):
-                        custom_reverts.add(internal_call)
+                    if isinstance(internal_call.function, SolidityCustomRevert):
+                        custom_reverts.add(internal_call.function)
 
         # Find unused custom errors
         for declared_error in declared_custom_errors:
