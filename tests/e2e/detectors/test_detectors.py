@@ -1715,6 +1715,11 @@ ALL_TESTS = [
         "0.8.20",
     ),
     Test(
+        all_detectors.ChainlinkFeedRegistry,
+        "chainlink_feed_registry.sol",
+        "0.8.20",
+    ),
+    Test(
         all_detectors.PythDeprecatedFunctions,
         "pyth_deprecated_functions.sol",
         "0.8.20",
