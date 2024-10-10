@@ -470,7 +470,7 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
 
             assert var.name
             self._contract.variables_as_dict[var.name] = var
-            self._contract.add_variables_ordered([var])
+            self._contract.add_state_variables_ordered([var])
             # Interfaces can refer to constants
             self._contract.file_scope.variables[var.name] = var
 

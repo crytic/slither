@@ -43,7 +43,7 @@ Using initialize functions to write initial values in state variables.
 
     def _check(self) -> List[Output]:
         results = []
-        for s in self.contract.stored_state_variables_ordered:
+        for s in self.contract.storage_variables_ordered:
             if s.initialized:
                 info: CHECK_INFO = [s, " is a state variable with an initial value.\n"]
                 json = self.generate_result(info)
