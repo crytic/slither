@@ -76,6 +76,12 @@ If you're **not** going to use one of the [supported compilation frameworks](htt
 python3 -m pip install slither-analyzer
 ```
 
+#### How to upgrade
+
+```console
+python3 -m pip install --upgrade slither-analyzer
+```
+
 ### Using Git
 
 ```bash
