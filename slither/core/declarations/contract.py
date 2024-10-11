@@ -440,38 +440,12 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def state_variables(self) -> List["StateVariable"]:
         """
         Returns all the accessible variables (do not include private variable from inherited contract).
-        Use state_variables_ordered for all the variables following the storage order
+        Use stored_state_variables_ordered for all the storage variables following the storage order
+        Use transient_state_variables_ordered for all the transient variables following the storage order
 
         list(StateVariable): List of the state variables.
         """
         return list(self._variables.values())
-
-    @property
-    def stored_state_variables(self) -> List["StateVariable"]:
-        """
-        Returns state variables with storage locations, excluding private variables from inherited contracts.
-        Use stored_state_variables_ordered to access variables with storage locations in their declaration order.
-
-        This implementation filters out state variables if they are constant or immutable. It will be
-        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
-
-        Returns:
-            List[StateVariable]: A list of state variables with storage locations.
-        """
-        return [variable for variable in self.state_variables if variable.is_stored]
-
-    @property
-    def stored_state_variables_ordered(self) -> List["StateVariable"]:
-        """
-        list(StateVariable): List of the state variables with storage locations by order of declaration.
-
-        This implementation filters out state variables if they are constant or immutable. It will be
-        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
-
-        Returns:
-            List[StateVariable]: A list of state variables with storage locations ordered by declaration.
-        """
-        return [variable for variable in self.state_variables_ordered if variable.is_stored]
 
     @property
     def state_variables_entry_points(self) -> List["StateVariable"]:
@@ -485,10 +459,24 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         list(StateVariable): List of the state variables by order of declaration.
         """
-        return list(self._variables_ordered)
+        return self._variables_ordered
 
-    def add_variables_ordered(self, new_vars: List["StateVariable"]) -> None:
+    def add_state_variables_ordered(self, new_vars: List["StateVariable"]) -> None:
         self._variables_ordered += new_vars
+
+    @property
+    def storage_variables_ordered(self) -> List["StateVariable"]:
+        """
+        list(StateVariable): List of the state variables in storage location by order of declaration.
+        """
+        return [v for v in self._variables_ordered if v.is_stored]
+
+    @property
+    def transient_variables_ordered(self) -> List["StateVariable"]:
+        """
+        list(StateVariable): List of the state variables in transient location by order of declaration.
+        """
+        return [v for v in self._variables_ordered if v.is_transient]
 
     @property
     def state_variables_inherited(self) -> List["StateVariable"]:
