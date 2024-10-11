@@ -81,7 +81,7 @@ from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElement
 from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable
 from slither.slithir.variables import TupleVariable
-from slither.utils.function import get_function_id
+from slither.utils.function import get_function_id, get_event_id
 from slither.utils.type import export_nested_types_from_variable
 from slither.utils.using_for import USING_FOR
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
@@ -793,8 +793,18 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                     assignment.set_node(ir.node)
                     assignment.lvalue.set_type(ElementaryType("bytes4"))
                     return assignment
-                if ir.variable_right == "selector" and isinstance(
-                    ir.variable_left.type, (Function)
+                if ir.variable_right == "selector" and isinstance(ir.variable_left, (Event)):
+                    assignment = Assignment(
+                        ir.lvalue,
+                        Constant(str(get_event_id(ir.variable_left.full_name))),
+                        ElementaryType("bytes32"),
+                    )
+                    assignment.set_expression(ir.expression)
+                    assignment.set_node(ir.node)
+                    assignment.lvalue.set_type(ElementaryType("bytes32"))
+                    return assignment
+                if ir.variable_right == "selector" and (
+                    isinstance(ir.variable_left.type, (Function))
                 ):
                     assignment = Assignment(
                         ir.lvalue,
