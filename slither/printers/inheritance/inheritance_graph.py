@@ -98,12 +98,22 @@ class PrinterInheritanceGraph(AbstractPrinter):
         """
         ret = ""
 
+        # Remove contracts that have "mock" in the name and if --include-interfaces in False (default)
+        # removes inherited interfaces
+        inheritance = [
+            i
+            for i in contract.immediate_inheritance
+            if "mock" not in i.name.lower()
+            and (not i.is_interface or self.slither.include_interfaces)
+        ]
+
         # Add arrows (number them if there is more than one path so we know order of declaration for inheritance).
-        if len(contract.immediate_inheritance) == 1:
-            ret += f"{contract.name} -> {contract.immediate_inheritance[0]};\n"
+        if len(inheritance) == 1:
+            immediate_inheritance = contract.immediate_inheritance[0]
+            ret += f"c{contract.id}_{contract.name} -> c{immediate_inheritance.id}_{immediate_inheritance};\n"
         else:
-            for i, immediate_inheritance in enumerate(contract.immediate_inheritance):
-                ret += f'{contract.name} -> {immediate_inheritance} [ label="{i + 1}" ];\n'
+            for i, immediate_inheritance in enumerate(inheritance):
+                ret += f'c{contract.id}_{contract.name} -> c{immediate_inheritance.id}_{immediate_inheritance} [ label="{i + 1}" ];\n'
 
         # Functions
         visibilities = ["public", "external"]
@@ -112,6 +122,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
             for f in contract.functions
             if not f.is_constructor
             and not f.is_constructor_variables
+            and not f.is_virtual
             and f.contract_declarer == contract
             and f.visibility in visibilities
         ]
@@ -151,7 +162,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         indirect_shadowing_information = self._get_indirect_shadowing_information(contract)
 
         # Build the node label
-        ret += f'{contract.name}[shape="box"'
+        ret += f'c{contract.id}_{contract.name}[shape="box"'
         ret += 'label=< <TABLE border="0">'
         ret += f'<TR><TD align="center"><B>{contract.name}</B></TD></TR>'
         if public_functions:
@@ -194,7 +205,11 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
         content = 'digraph "" {\n'
         for c in self.contracts:
-            if c.is_top_level:
+            if (
+                "mock" in c.name.lower()
+                or c.is_library
+                or (c.is_interface and not self.slither.include_interfaces)
+            ):
                 continue
             content += self._summary(c) + "\n"
         content += "}"

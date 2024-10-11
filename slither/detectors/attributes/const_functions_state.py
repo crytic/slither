@@ -2,8 +2,17 @@
 Module detecting constant functions
 Recursively check the called functions
 """
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List, Dict
+
+from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    ALL_SOLC_VERSIONS_04,
+    DETECTOR_INFO,
+)
 from slither.formatters.attributes.const_functions import custom_format
+from slither.utils.output import Output
 
 
 class ConstantFunctionsState(AbstractDetector):
@@ -49,7 +58,9 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
         "Ensure that attributes of contracts compiled prior to Solidity 0.5.0 are correct."
     )
 
-    def _detect(self):
+    VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04
+
+    def _detect(self) -> List[Output]:
         """Detect the constant function changing the state
 
         Recursively visit the calls
@@ -57,8 +68,6 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
             list: {'vuln', 'filename,'contract','func','#varsWritten'}
         """
         results = []
-        if self.compilation_unit.solc_version and self.compilation_unit.solc_version >= "0.5.0":
-            return results
         for c in self.contracts:
             for f in c.functions:
                 if f.contract_declarer != c:
@@ -68,7 +77,7 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
                     if variables_written:
                         attr = "view" if f.view else "pure"
 
-                        info = [
+                        info: DETECTOR_INFO = [
                             f,
                             f" is declared {attr} but changes state variables:\n",
                         ]
@@ -83,5 +92,5 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
         return results
 
     @staticmethod
-    def _format(slither, result):
+    def _format(slither: SlitherCompilationUnit, result: Dict) -> None:
         custom_format(slither, result)

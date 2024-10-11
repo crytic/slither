@@ -1,0 +1,6 @@
+2 different versions of Solidity are used:
+	- Version constraint ^0.4.25 is used by:
+		-^0.4.25 (tests/e2e/detectors/test_data/pragma/0.4.25/pragma.0.4.25.sol#1)
+	- Version constraint ^0.4.24 is used by:
+		-^0.4.24 (tests/e2e/detectors/test_data/pragma/0.4.25/pragma.0.4.24.sol#1)
+

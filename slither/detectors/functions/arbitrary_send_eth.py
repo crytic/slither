@@ -9,15 +9,18 @@
 
     TODO: dont report if the value is tainted by msg.value
 """
-from typing import List
+from typing import Any, Tuple, Union, List
 
+from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
 from slither.core.cfg.node import Node
 from slither.core.declarations import Function, Contract
-from slither.analyses.data_dependency.data_dependency import is_tainted, is_dependent
+from slither.core.declarations.function_contract import FunctionContract
 from slither.core.declarations.solidity_variables import (
     SolidityFunction,
     SolidityVariableComposed,
+    SolidityVariable,
 )
+from slither.core.variables import Variable
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.slithir.operations import (
     HighLevelCall,
@@ -27,18 +30,22 @@ from slither.slithir.operations import (
     SolidityCall,
     Transfer,
 )
-
+from slither.core.variables.state_variable import StateVariable
 
 # pylint: disable=too-many-nested-blocks,too-many-branches
 from slither.utils.output import Output
 
 
-def arbitrary_send(func: Function):
+def arbitrary_send(func: Function) -> Union[bool, List[Node]]:
     if func.is_protected():
         return []
 
     ret: List[Node] = []
     for node in func.nodes:
+        func = node.function
+        deps_target: Union[Contract, Function] = (
+            func.contract if isinstance(func, FunctionContract) else func
+        )
         for ir in node.irs:
             if isinstance(ir, SolidityCall):
                 if ir.function == SolidityFunction("ecrecover(bytes32,uint8,bytes32,bytes32)"):
@@ -49,7 +56,7 @@ def arbitrary_send(func: Function):
                 if is_dependent(
                     ir.variable_right,
                     SolidityVariableComposed("msg.sender"),
-                    func.contract,
+                    deps_target,
                 ):
                     return False
             if isinstance(ir, (HighLevelCall, LowLevelCall, Transfer, Send)):
@@ -61,20 +68,25 @@ def arbitrary_send(func: Function):
                     continue
                 if ir.call_value == SolidityVariableComposed("msg.value"):
                     continue
+                if isinstance(ir.destination, StateVariable) and ir.destination.is_immutable:
+                    continue
                 if is_dependent(
                     ir.call_value,
                     SolidityVariableComposed("msg.value"),
-                    func.contract,
+                    node,
                 ):
                     continue
 
-                if is_tainted(ir.destination, func.contract):
-                    ret.append(node)
+                if isinstance(ir.destination, (Variable, SolidityVariable)):
+                    if is_tainted(ir.destination, node):
+                        ret.append(node)
 
     return ret
 
 
-def detect_arbitrary_send(contract: Contract):
+def detect_arbitrary_send(
+    contract: Contract,
+) -> List[Union[Tuple[FunctionContract, List[Node]], Any]]:
     """
         Detect arbitrary send
     Args:

@@ -1,0 +1,15 @@
+Reentrancy in Reentrancy.withdraw(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#22-29):
+	External calls:
+	- require(bool)(Token(token).transfer(msg.sender,token_deposed[token][msg.sender])) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#24)
+	External calls sending eth:
+	- msg.sender.transfer(eth_deposed[token][msg.sender]) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#23)
+	State variables written after the call(s):
+	- eth_deposed[token][msg.sender] = 0 (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#26)
+	Reentrancy.eth_deposed (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#10) can be used in cross function reentrancies:
+	- Reentrancy.deposit_eth(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#13-15)
+	- Reentrancy.withdraw(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#22-29)
+	- token_deposed[token][msg.sender] = 0 (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#27)
+	Reentrancy.token_deposed (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#11) can be used in cross function reentrancies:
+	- Reentrancy.deposit_token(address,uint256) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#17-20)
+	- Reentrancy.withdraw(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/reentrancy_indirect.sol#22-29)
+

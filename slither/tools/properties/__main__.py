@@ -1,6 +1,7 @@
 import argparse
 import logging
 import sys
+from typing import Any
 
 from crytic_compile import cryticparser
 
@@ -26,7 +27,7 @@ logger.handlers[0].setFormatter(formatter)
 logger.propagate = False
 
 
-def _all_scenarios():
+def _all_scenarios() -> str:
     txt = "\n"
     txt += "#################### ERC20 ####################\n"
     for k, value in ERC20_PROPERTIES.items():
@@ -35,41 +36,45 @@ def _all_scenarios():
     return txt
 
 
-def _all_properties():
+def _all_properties() -> MyPrettyTable:
     table = MyPrettyTable(["Num", "Description", "Scenario"])
     idx = 0
     for scenario, value in ERC20_PROPERTIES.items():
         for prop in value.properties:
-            table.add_row([idx, prop.description, scenario])
+            table.add_row([str(idx), prop.description, scenario])
             idx = idx + 1
     return table
 
 
 class ListScenarios(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
         logger.info(_all_scenarios())
         parser.exit()
 
 
 class ListProperties(argparse.Action):  # pylint: disable=too-few-public-methods
-    def __call__(self, parser, *args, **kwargs):  # pylint: disable=signature-differs
+    def __call__(
+        self, parser: Any, *args: Any, **kwargs: Any
+    ) -> None:  # pylint: disable=signature-differs
         logger.info(_all_properties())
         parser.exit()
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
     parser = argparse.ArgumentParser(
-        description="Demo",
-        usage="slither-demo filename",
+        description="Generates code properties (e.g., invariants) that can be tested with unit tests or Echidna, entirely automatically.",
+        usage="slither-prop filename",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
-        "filename", help="The filename of the contract or truffle directory to analyze."
+        "filename", help="The filename of the contract or project directory to analyze."
     )
 
     parser.add_argument("--contract", help="The targeted contract.")
@@ -120,7 +125,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     args = parse_args()
 
     # Perform slither analysis on the given filename

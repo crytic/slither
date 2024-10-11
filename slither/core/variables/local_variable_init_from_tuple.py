@@ -13,7 +13,7 @@ class LocalVariableInitFromTuple(LocalVariable):
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._tuple_index: Optional[int] = None
 

@@ -1,5 +1,5 @@
 ---
-name: Lint Code Base
+name: Run black
 
 defaults:
   run:
@@ -9,34 +9,40 @@ defaults:
 on:
   pull_request:
     branches: [master, dev]
+    paths:
+      - "**/*.py"
   schedule:
     # run CI every day even if no PRs/merges occur
     - cron: '0 12 * * *'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    name: Lint Code Base
+    name: Black 
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v3
+        uses: actions/checkout@v4
         with:
-          python-version: 3.6
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
 
       - name: Install dependencies
         run: |
-          pip install .
-          pip install deepdiff numpy
-
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
 
       - name: Black
-        uses: github/super-linter/slim@v4.9.2
+        uses: super-linter/super-linter/slim@v4.9.2
         if: always()
         env:
           # run linter on everything to catch preexisting problems

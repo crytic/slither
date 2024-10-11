@@ -1,15 +1,11 @@
-from typing import List, Tuple, TYPE_CHECKING
+from typing import List, Tuple
 
-from slither.core.children.child_contract import ChildContract
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.event_variable import EventVariable
 
-if TYPE_CHECKING:
-    from slither.core.declarations import Contract
 
-
-class Event(ChildContract, SourceMapping):
-    def __init__(self):
+class Event(SourceMapping):
+    def __init__(self) -> None:
         super().__init__()
         self._name = None
         self._elems: List[EventVariable] = []
@@ -40,24 +36,8 @@ class Event(ChildContract, SourceMapping):
         return name + "(" + ",".join(parameters) + ")"
 
     @property
-    def canonical_name(self) -> str:
-        """Return the function signature as a str
-        Returns:
-            str: contract.func_name(type1,type2)
-        """
-        return self.contract.name + self.full_name
-
-    @property
     def elems(self) -> List["EventVariable"]:
         return self._elems
 
-    def is_declared_by(self, contract: "Contract") -> bool:
-        """
-        Check if the element is declared by the contract
-        :param contract:
-        :return:
-        """
-        return self.contract == contract
-
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name

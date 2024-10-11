@@ -24,6 +24,7 @@ from slither.core.expressions import (
     UnaryOperation,
 )
 from slither.core.expressions.expression import Expression
+from slither.core.scope.scope import FileScope
 from slither.core.solidity_types import ElementaryType
 from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.local_variable import LocalVariable
@@ -35,13 +36,14 @@ from slither.solc_parsing.yul.evm_functions import (
     unary_ops,
     binary_ops,
 )
+from slither.solc_parsing.expressions.find_variable import find_top_level
 from slither.visitors.expression.find_calls import FindCalls
 from slither.visitors.expression.read_var import ReadVar
 from slither.visitors.expression.write_var import WriteVar
 
 
 class YulNode:
-    def __init__(self, node: Node, scope: "YulScope"):
+    def __init__(self, node: Node, scope: "YulScope") -> None:
         self._node = node
         self._scope = scope
         self._unparsed_expression: Optional[Dict] = None
@@ -50,30 +52,35 @@ class YulNode:
     def underlying_node(self) -> Node:
         return self._node
 
-    def add_unparsed_expression(self, expression: Dict):
+    def add_unparsed_expression(self, expression: Dict) -> None:
         assert self._unparsed_expression is None
         self._unparsed_expression = expression
 
-    def analyze_expressions(self):
+    def analyze_expressions(self) -> None:
         if self._node.type == NodeType.VARIABLE and not self._node.expression:
-            self._node.add_expression(self._node.variable_declaration.expression)
+            expression = self._node.variable_declaration.expression
+            if expression:
+                self._node.add_expression(expression)
         if self._unparsed_expression:
             expression = parse_yul(self._scope, self, self._unparsed_expression)
-            self._node.add_expression(expression)
+            if expression:
+                self._node.add_expression(expression)
 
         if self._node.expression:
             if self._node.type == NodeType.VARIABLE:
                 # Update the expression to be an assignement to the variable
-                _expression = AssignmentOperation(
-                    Identifier(self._node.variable_declaration),
-                    self._node.expression,
-                    AssignmentOperationType.ASSIGN,
-                    self._node.variable_declaration.type,
-                )
-                _expression.set_offset(
-                    self._node.expression.source_mapping, self._node.compilation_unit
-                )
-                self._node.add_expression(_expression, bypass_verif_empty=True)
+                variable_declaration = self._node.variable_declaration
+                if variable_declaration:
+                    _expression = AssignmentOperation(
+                        Identifier(self._node.variable_declaration),
+                        self._node.expression,
+                        AssignmentOperationType.ASSIGN,
+                        variable_declaration.type,
+                    )
+                    _expression.set_offset(
+                        self._node.expression.source_mapping, self._node.compilation_unit
+                    )
+                    self._node.add_expression(_expression, bypass_verif_empty=True)
 
             expression = self._node.expression
             read_var = ReadVar(expression)
@@ -92,7 +99,7 @@ class YulNode:
             ]
 
 
-def link_underlying_nodes(node1: YulNode, node2: YulNode):
+def link_underlying_nodes(node1: YulNode, node2: YulNode) -> None:
     link_nodes(node1.underlying_node, node2.underlying_node)
 
 
@@ -121,13 +128,13 @@ class YulScope(metaclass=abc.ABCMeta):
     ]
 
     def __init__(
-        self, contract: Optional[Contract], yul_id: List[str], parent_func: Function = None
-    ):
+        self, contract: Optional[Contract], yul_id: List[str], parent_func: Function
+    ) -> None:
         self._contract = contract
         self._id: List[str] = yul_id
         self._yul_local_variables: List[YulLocalVariable] = []
         self._yul_local_functions: List[YulFunction] = []
-        self._parent_func = parent_func
+        self._parent_func: Function = parent_func
 
     @property
     def id(self) -> List[str]:
@@ -154,10 +161,14 @@ class YulScope(metaclass=abc.ABCMeta):
     def new_node(self, node_type: NodeType, src: Union[str, Dict]) -> YulNode:
         pass
 
-    def add_yul_local_variable(self, var):
+    @property
+    def file_scope(self) -> FileScope:
+        return self._parent_func.file_scope
+
+    def add_yul_local_variable(self, var: "YulLocalVariable") -> None:
         self._yul_local_variables.append(var)
 
-    def get_yul_local_variable_from_name(self, variable_name):
+    def get_yul_local_variable_from_name(self, variable_name: str) -> Optional["YulLocalVariable"]:
         return next(
             (
                 v
@@ -167,10 +178,10 @@ class YulScope(metaclass=abc.ABCMeta):
             None,
         )
 
-    def add_yul_local_function(self, func):
+    def add_yul_local_function(self, func: "YulFunction") -> None:
         self._yul_local_functions.append(func)
 
-    def get_yul_local_function_from_name(self, func_name):
+    def get_yul_local_function_from_name(self, func_name: str) -> Optional["YulFunction"]:
         return next(
             (v for v in self._yul_local_functions if v.underlying.name == func_name),
             None,
@@ -180,7 +191,7 @@ class YulScope(metaclass=abc.ABCMeta):
 class YulLocalVariable:  # pylint: disable=too-few-public-methods
     __slots__ = ["_variable", "_root"]
 
-    def __init__(self, var: LocalVariable, root: YulScope, ast: Dict):
+    def __init__(self, var: LocalVariable, root: YulScope, ast: Dict) -> None:
         assert ast["nodeType"] == "YulTypedName"
 
         self._variable = var
@@ -204,7 +215,7 @@ class YulFunction(YulScope):
 
     def __init__(
         self, func: Function, root: YulScope, ast: Dict, node_scope: Union[Function, Scope]
-    ):
+    ) -> None:
         super().__init__(root.contract, root.id + [ast["name"]], parent_func=root.parent_func)
 
         assert ast["nodeType"] == "YulFunctionDefinition"
@@ -241,7 +252,11 @@ class YulFunction(YulScope):
     def function(self) -> Function:
         return self._function
 
-    def convert_body(self):
+    @property
+    def root(self) -> YulScope:
+        return self._root
+
+    def convert_body(self) -> None:
         node = self.new_node(NodeType.ENTRYPOINT, self._ast["src"])
         link_underlying_nodes(self._entrypoint, node)
 
@@ -257,11 +272,14 @@ class YulFunction(YulScope):
 
         convert_yul(self, node, self._ast["body"], self.node_scope)
 
-    def parse_body(self):
+    def parse_body(self) -> None:
         for node in self._nodes:
             node.analyze_expressions()
+        for f in self._yul_local_functions:
+            if f != self:
+                f.parse_body()
 
-    def new_node(self, node_type, src) -> YulNode:
+    def new_node(self, node_type: NodeType, src: str) -> YulNode:
         if self._function:
             node = self._function.new_node(node_type, src, self.node_scope)
         else:
@@ -288,9 +306,8 @@ class YulBlock(YulScope):
         entrypoint: Node,
         yul_id: List[str],
         node_scope: Union[Scope, Function],
-        **kwargs,
-    ):
-        super().__init__(contract, yul_id, **kwargs)
+    ) -> None:
+        super().__init__(contract, yul_id, entrypoint.function)
 
         self._entrypoint: YulNode = YulNode(entrypoint, self)
         self._nodes: List[YulNode] = []
@@ -304,6 +321,10 @@ class YulBlock(YulScope):
     def function(self) -> Function:
         return self._parent_func
 
+    @property
+    def nodes(self) -> List[YulNode]:
+        return self._nodes
+
     def new_node(self, node_type: NodeType, src: Union[str, Dict]) -> YulNode:
         if self._parent_func:
             node = self._parent_func.new_node(node_type, src, self.node_scope)
@@ -315,9 +336,12 @@ class YulBlock(YulScope):
         return yul_node
 
     def convert(self, ast: Dict) -> YulNode:
-        return convert_yul(self, self._entrypoint, ast, self.node_scope)
+        yul_node = convert_yul(self, self._entrypoint, ast, self.node_scope)
+        for f in self._yul_local_functions:
+            f.parse_body()
+        return yul_node
 
-    def analyze_expressions(self):
+    def analyze_expressions(self) -> None:
         for node in self._nodes:
             node.analyze_expressions()
 
@@ -360,23 +384,26 @@ def convert_yul_function_definition(
     while not isinstance(top_node_scope, Function):
         top_node_scope = top_node_scope.father
 
+    func: Union[FunctionTopLevel, FunctionContract]
     if isinstance(top_node_scope, FunctionTopLevel):
-        scope = root.contract.file_scope
+        scope = root.file_scope
         func = FunctionTopLevel(root.compilation_unit, scope)
         # Note: we do not add the function in the scope
         # While its a top level function, it is not accessible outside of the function definition
         # In practice we should probably have a specific function type for function defined within a function
     else:
         func = FunctionContract(root.compilation_unit)
+
     func.function_language = FunctionLanguage.Yul
     yul_function = YulFunction(func, root, ast, node_scope)
 
-    root.contract.add_function(func)
+    if root.contract:
+        root.contract.add_function(func)
+
     root.compilation_unit.add_function(func)
     root.add_yul_local_function(yul_function)
 
     yul_function.convert_body()
-    yul_function.parse_body()
 
     return parent
 
@@ -674,7 +701,7 @@ def parse_yul_variable_declaration(
     the assignment
     """
 
-    if not ast["value"]:
+    if "value" not in ast or not ast["value"]:
         return None
 
     return _parse_yul_assignment_common(root, node, ast, "variables")
@@ -725,7 +752,7 @@ def parse_yul_function_call(root: YulScope, node: YulNode, ast: Dict) -> Optiona
 def _check_for_state_variable_name(root: YulScope, potential_name: str) -> Optional[Identifier]:
     root_function = root.function
     if isinstance(root_function, FunctionContract):
-        var = root_function.contract.get_state_variable_from_name(potential_name)
+        var = root_function.contract_declarer.get_state_variable_from_name(potential_name)
         if var:
             return Identifier(var)
     return None
@@ -764,6 +791,7 @@ def _parse_yul_magic_suffixes(name: str, root: YulScope) -> Optional[Expression]
     return None
 
 
+# pylint: disable=too-many-branches
 def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     name = ast["name"]
 
@@ -773,14 +801,16 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     # check function-scoped variables
     parent_func = root.parent_func
     if parent_func:
-        variable = parent_func.get_local_variable_from_name(name)
-        if variable:
-            return Identifier(variable)
+        local_variable = parent_func.get_local_variable_from_name(name)
+        if local_variable:
+            return Identifier(local_variable)
 
         if isinstance(parent_func, FunctionContract):
-            variable = parent_func.contract.get_state_variable_from_name(name)
-            if variable:
-                return Identifier(variable)
+            # Variables must be looked from the contract declarer
+            assert parent_func.contract_declarer
+            state_variable = parent_func.contract_declarer.get_state_variable_from_name(name)
+            if state_variable:
+                return Identifier(state_variable)
 
     # check yul-scoped variable
     variable = root.get_yul_local_variable_from_name(name)
@@ -793,16 +823,46 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     if func:
         return Identifier(func.underlying)
 
+    # check yul-block scoped function
+    if isinstance(root, YulFunction):
+        yul_block = root.root
+
+        # Iterate until we searched in all the scopes until the YulBlock scope
+        while not isinstance(yul_block, YulBlock):
+            func = yul_block.get_yul_local_function_from_name(name)
+            if func:
+                return Identifier(func.underlying)
+
+            if isinstance(yul_block, YulFunction):
+                yul_block = yul_block.root
+
+        func = yul_block.get_yul_local_function_from_name(name)
+        if func:
+            return Identifier(func.underlying)
+
     magic_suffix = _parse_yul_magic_suffixes(name, root)
     if magic_suffix:
         return magic_suffix
+
+    ret, _ = find_top_level(name, root.file_scope)
+    if ret:
+        return Identifier(ret)
 
     raise SlitherException(f"unresolved reference to identifier {name}")
 
 
 def parse_yul_literal(_root: YulScope, _node: YulNode, ast: Dict) -> Optional[Expression]:
     kind = ast["kind"]
-    value = ast["value"]
+
+    if kind == "string":
+        # Solc 0.8.0 use value, 0.8.16 use hexValue - not sure when this changed was made
+        if "value" in ast:
+            value = ast["value"]
+        else:
+            value = ast["hexValue"]
+    else:
+        # number/bool
+        value = ast["value"]
 
     if not kind:
         kind = "bool" if value in ["true", "false"] else "uint256"
@@ -826,7 +886,7 @@ def parse_yul_unsupported(_root: YulScope, _node: YulNode, ast: Dict) -> Optiona
 
 
 def parse_yul(root: YulScope, node: YulNode, ast: Dict) -> Optional[Expression]:
-    op = parsers.get(ast["nodeType"], parse_yul_unsupported)(root, node, ast)
+    op: Expression = parsers.get(ast["nodeType"], parse_yul_unsupported)(root, node, ast)
     if op:
         op.set_offset(ast["src"], root.compilation_unit)
     return op
@@ -855,7 +915,9 @@ def vars_to_typestr(rets: List[Expression]) -> str:
     return f"tuple({','.join(str(ret.type) for ret in rets)})"
 
 
-def vars_to_val(vars_to_convert):
+def vars_to_val(
+    vars_to_convert: List[Identifier],
+) -> Identifier:
     if len(vars_to_convert) == 1:
         return vars_to_convert[0]
     return TupleExpression(vars_to_convert)

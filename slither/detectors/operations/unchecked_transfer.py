@@ -6,6 +6,7 @@ from slither.core.declarations import Function
 from slither.detectors.abstract_detector import DetectorClassification
 from slither.detectors.operations.unused_return_values import UnusedReturnValues
 from slither.slithir.operations import HighLevelCall
+from slither.slithir.operations.operation import Operation
 
 
 class UncheckedTransfer(UnusedReturnValues):
@@ -45,7 +46,7 @@ Several tokens do not revert in case of failure and return false. If one of thes
         "Use `SafeERC20`, or ensure that the transfer/transferFrom return value is checked."
     )
 
-    def _is_instance(self, ir):  # pylint: disable=no-self-use
+    def _is_instance(self, ir: Operation) -> bool:
         return (
             isinstance(ir, HighLevelCall)
             and isinstance(ir.function, Function)

@@ -6,33 +6,38 @@
     The output is a dot file named filename.dot
 """
 from collections import defaultdict
-from slither.printers.abstract_printer import AbstractPrinter
-from slither.core.declarations.solidity_variables import SolidityFunction
+from typing import Optional, Union, Dict, Set, Tuple, Sequence
+
+from slither.core.declarations import Contract, FunctionContract
 from slither.core.declarations.function import Function
+from slither.slithir.operations import HighLevelCall, InternalCall
+from slither.core.declarations.solidity_variables import SolidityFunction
 from slither.core.variables.variable import Variable
+from slither.printers.abstract_printer import AbstractPrinter
+from slither.utils.output import Output
 
 
-def _contract_subgraph(contract):
+def _contract_subgraph(contract: Contract) -> str:
     return f"cluster_{contract.id}_{contract.name}"
 
 
 # return unique id for contract function to use as node name
-def _function_node(contract, function):
+def _function_node(contract: Contract, function: Union[Function, Variable]) -> str:
     return f"{contract.id}_{function.name}"
 
 
 # return unique id for solidity function to use as node name
-def _solidity_function_node(solidity_function):
+def _solidity_function_node(solidity_function: SolidityFunction) -> str:
     return f"{solidity_function.name}"
 
 
 # return dot language string to add graph edge
-def _edge(from_node, to_node):
+def _edge(from_node: str, to_node: str) -> str:
     return f'"{from_node}" -> "{to_node}"'
 
 
 # return dot language string to add graph node (with optional label)
-def _node(node, label=None):
+def _node(node: str, label: Optional[str] = None) -> str:
     return " ".join(
         (
             f'"{node}"',
@@ -43,37 +48,41 @@ def _node(node, label=None):
 
 # pylint: disable=too-many-arguments
 def _process_internal_call(
-    contract,
-    function,
-    internal_call,
-    contract_calls,
-    solidity_functions,
-    solidity_calls,
-):
-    if isinstance(internal_call, (Function)):
+    contract: Contract,
+    function: Function,
+    internal_call: InternalCall,
+    contract_calls: Dict[Contract, Set[str]],
+    solidity_functions: Set[str],
+    solidity_calls: Set[str],
+) -> None:
+    if isinstance(internal_call.function, (Function)):
         contract_calls[contract].add(
             _edge(
                 _function_node(contract, function),
-                _function_node(contract, internal_call),
+                _function_node(contract, internal_call.function),
             )
         )
-    elif isinstance(internal_call, (SolidityFunction)):
+    elif isinstance(internal_call.function, (SolidityFunction)):
         solidity_functions.add(
-            _node(_solidity_function_node(internal_call)),
+            _node(_solidity_function_node(internal_call.function)),
         )
         solidity_calls.add(
             _edge(
                 _function_node(contract, function),
-                _solidity_function_node(internal_call),
+                _solidity_function_node(internal_call.function),
             )
         )
 
 
-def _render_external_calls(external_calls):
+def _render_external_calls(external_calls: Set[str]) -> str:
     return "\n".join(external_calls)
 
 
-def _render_internal_calls(contract, contract_functions, contract_calls):
+def _render_internal_calls(
+    contract: Contract,
+    contract_functions: Dict[Contract, Set[str]],
+    contract_calls: Dict[Contract, Set[str]],
+) -> str:
     lines = []
 
     lines.append(f"subgraph {_contract_subgraph(contract)} {{")
@@ -87,7 +96,7 @@ def _render_internal_calls(contract, contract_functions, contract_calls):
     return "\n".join(lines)
 
 
-def _render_solidity_calls(solidity_functions, solidity_calls):
+def _render_solidity_calls(solidity_functions: Set[str], solidity_calls: Set[str]) -> str:
     lines = []
 
     lines.append("subgraph cluster_solidity {")
@@ -102,46 +111,46 @@ def _render_solidity_calls(solidity_functions, solidity_calls):
 
 
 def _process_external_call(
-    contract,
-    function,
-    external_call,
-    contract_functions,
-    external_calls,
-    all_contracts,
-):
-    external_contract, external_function = external_call
+    contract: Contract,
+    function: Function,
+    external_call: Tuple[Contract, HighLevelCall],
+    contract_functions: Dict[Contract, Set[str]],
+    external_calls: Set[str],
+    all_contracts: Set[Contract],
+) -> None:
+    external_contract, ir = external_call
 
     if not external_contract in all_contracts:
         return
 
     # add variable as node to respective contract
-    if isinstance(external_function, (Variable)):
+    if isinstance(ir.function, (Variable)):
         contract_functions[external_contract].add(
             _node(
-                _function_node(external_contract, external_function),
-                external_function.name,
+                _function_node(external_contract, ir.function),
+                ir.function.name,
             )
         )
 
     external_calls.add(
         _edge(
             _function_node(contract, function),
-            _function_node(external_contract, external_function),
+            _function_node(external_contract, ir.function),
         )
     )
 
 
 # pylint: disable=too-many-arguments
 def _process_function(
-    contract,
-    function,
-    contract_functions,
-    contract_calls,
-    solidity_functions,
-    solidity_calls,
-    external_calls,
-    all_contracts,
-):
+    contract: Contract,
+    function: Function,
+    contract_functions: Dict[Contract, Set[str]],
+    contract_calls: Dict[Contract, Set[str]],
+    solidity_functions: Set[str],
+    solidity_calls: Set[str],
+    external_calls: Set[str],
+    all_contracts: Set[Contract],
+) -> None:
     contract_functions[contract].add(
         _node(_function_node(contract, function), function.name),
     )
@@ -166,29 +175,35 @@ def _process_function(
         )
 
 
-def _process_functions(functions):
-    contract_functions = defaultdict(set)  # contract -> contract functions nodes
-    contract_calls = defaultdict(set)  # contract -> contract calls edges
+def _process_functions(functions: Sequence[Function]) -> str:
+    # TODO  add support for top level function
 
-    solidity_functions = set()  # solidity function nodes
-    solidity_calls = set()  # solidity calls edges
-    external_calls = set()  # external calls edges
+    contract_functions: Dict[Contract, Set[str]] = defaultdict(
+        set
+    )  # contract -> contract functions nodes
+    contract_calls: Dict[Contract, Set[str]] = defaultdict(set)  # contract -> contract calls edges
+
+    solidity_functions: Set[str] = set()  # solidity function nodes
+    solidity_calls: Set[str] = set()  # solidity calls edges
+    external_calls: Set[str] = set()  # external calls edges
 
     all_contracts = set()
 
     for function in functions:
-        all_contracts.add(function.contract_declarer)
+        if isinstance(function, FunctionContract):
+            all_contracts.add(function.contract_declarer)
     for function in functions:
-        _process_function(
-            function.contract_declarer,
-            function,
-            contract_functions,
-            contract_calls,
-            solidity_functions,
-            solidity_calls,
-            external_calls,
-            all_contracts,
-        )
+        if isinstance(function, FunctionContract):
+            _process_function(
+                function.contract_declarer,
+                function,
+                contract_functions,
+                contract_calls,
+                solidity_functions,
+                solidity_calls,
+                external_calls,
+                all_contracts,
+            )
 
     render_internal_calls = ""
     for contract in all_contracts:
@@ -209,7 +224,7 @@ class PrinterCallGraph(AbstractPrinter):
 
     WIKI = "https://github.com/trailofbits/slither/wiki/Printer-documentation#call-graph"
 
-    def output(self, filename):
+    def output(self, filename: str) -> Output:
         """
         Output the graph in filename
         Args:
@@ -241,7 +256,9 @@ class PrinterCallGraph(AbstractPrinter):
                 function.canonical_name: function for function in all_functions
             }
             content = "\n".join(
-                ["strict digraph {"] + [_process_functions(all_functions_as_dict.values())] + ["}"]
+                ["strict digraph {"]
+                + [_process_functions(list(all_functions_as_dict.values()))]
+                + ["}"]
             )
             f.write(content)
             results.append((all_contracts_filename, content))

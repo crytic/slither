@@ -1,10 +1,19 @@
 from collections import defaultdict
+from typing import List
+
+from crytic_compile.platform import Type as PlatformType
 
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations import Contract
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.utils.output import Output
 
 
-def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit):
+def _find_missing_inheritance(compilation_unit: SlitherCompilationUnit) -> List[Contract]:
     """
     Filter contracts with missing inheritance to return only the "most base" contracts
     in the inheritance tree.
@@ -50,9 +59,12 @@ As a result, the second contract cannot be analyzed.
 
     WIKI_RECOMMENDATION = "Rename the contract."
 
-    def _detect(self):  # pylint: disable=too-many-locals,too-many-branches
+    # pylint: disable=too-many-locals,too-many-branches
+    def _detect(self) -> List[Output]:
         results = []
         compilation_unit = self.compilation_unit
+        if compilation_unit.core.crytic_compile.platform != PlatformType.TRUFFLE:
+            return []
 
         all_contracts = compilation_unit.contracts
         all_contracts_name = [c.name for c in all_contracts]
@@ -77,7 +89,7 @@ As a result, the second contract cannot be analyzed.
                 inheritance_corrupted[father.name].append(contract)
 
         for contract_name, files in names_reused.items():
-            info = [contract_name, " is re-used:\n"]
+            info: DETECTOR_INFO = [contract_name, " is re-used:\n"]
             for file in files:
                 if file is None:
                     info += ["\t- In an file not found, most likely in\n"]

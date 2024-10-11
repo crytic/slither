@@ -1,7 +1,10 @@
 import logging
+from typing import Dict, List, Optional, Set
 
+from slither.core.declarations import Contract
 from slither.slithir.operations import EventCall
 from slither.utils import output
+from slither.utils.erc import ERC, ERC_EVENT
 from slither.utils.type import (
     export_nested_types_from_variable,
     export_return_type_from_variable,
@@ -11,7 +14,7 @@ logger = logging.getLogger("Slither-conformance")
 
 
 # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-def _check_signature(erc_function, contract, ret):
+def _check_signature(erc_function: ERC, contract: Contract, ret: Dict) -> None:
     name = erc_function.name
     parameters = erc_function.parameters
     return_type = erc_function.return_type
@@ -51,7 +54,7 @@ def _check_signature(erc_function, contract, ret):
             ret["missing_function"].append(missing_func.data)
             return
 
-        function_return_type = [export_return_type_from_variable(state_variable_as_function)]
+        function_return_type = export_return_type_from_variable(state_variable_as_function)
         function = state_variable_as_function
 
         function_view = True
@@ -146,7 +149,7 @@ def _check_signature(erc_function, contract, ret):
                     ret["missing_event_emmited"].append(missing_event_emmited.data)
 
 
-def _check_events(erc_event, contract, ret):
+def _check_events(erc_event: ERC_EVENT, contract: Contract, ret: Dict[str, List]) -> None:
     name = erc_event.name
     parameters = erc_event.parameters
     indexes = erc_event.indexes
@@ -180,7 +183,13 @@ def _check_events(erc_event, contract, ret):
                 ret["missing_event_index"].append(missing_event_index.data)
 
 
-def generic_erc_checks(contract, erc_functions, erc_events, ret, explored=None):
+def generic_erc_checks(
+    contract: Contract,
+    erc_functions: List[ERC],
+    erc_events: List[ERC_EVENT],
+    ret: Dict[str, List],
+    explored: Optional[Set[Contract]] = None,
+) -> None:
 
     if explored is None:
         explored = set()
@@ -192,9 +201,10 @@ def generic_erc_checks(contract, erc_functions, erc_events, ret, explored=None):
     logger.info("## Check functions")
     for erc_function in erc_functions:
         _check_signature(erc_function, contract, ret)
-    logger.info("\n## Check events")
-    for erc_event in erc_events:
-        _check_events(erc_event, contract, ret)
+    if erc_events:
+        logger.info("\n## Check events")
+        for erc_event in erc_events:
+            _check_events(erc_event, contract, ret)
 
     logger.info("\n")
 

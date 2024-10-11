@@ -1,8 +1,14 @@
 """
     Check if ethers are locked in the contract
 """
+from typing import List
 
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.core.declarations import Contract, SolidityFunction
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import (
     HighLevelCall,
     LowLevelCall,
@@ -11,7 +17,10 @@ from slither.slithir.operations import (
     NewContract,
     LibraryCall,
     InternalCall,
+    SolidityCall,
 )
+from slither.slithir.variables import Constant
+from slither.utils.output import Output
 
 
 class LockedEther(AbstractDetector):  # pylint: disable=too-many-nested-blocks
@@ -41,7 +50,7 @@ Every Ether sent to `Locked` will be lost."""
     WIKI_RECOMMENDATION = "Remove the payable attribute or add a withdraw function."
 
     @staticmethod
-    def do_no_send_ether(contract):
+    def do_no_send_ether(contract: Contract) -> bool:
         functions = contract.all_functions_called
         to_explore = functions
         explored = []
@@ -50,7 +59,7 @@ Every Ether sent to `Locked` will be lost."""
             explored += to_explore
             to_explore = []
             for function in functions:
-                calls = [c.name for c in function.internal_calls]
+                calls = [ir.function.name for ir in function.internal_calls]
                 if "suicide(address)" in calls or "selfdestruct(address)" in calls:
                     return False
                 for node in function.nodes:
@@ -61,8 +70,28 @@ Every Ether sent to `Locked` will be lost."""
                         ):
                             if ir.call_value and ir.call_value != 0:
                                 return False
-                        if isinstance(ir, (LowLevelCall)):
-                            if ir.function_name in ["delegatecall", "callcode"]:
+                        if isinstance(ir, (LowLevelCall)) and ir.function_name in [
+                            "delegatecall",
+                            "callcode",
+                        ]:
+                            return False
+                        if isinstance(ir, SolidityCall):
+                            call_can_send_ether = ir.function in [
+                                SolidityFunction(
+                                    "delegatecall(uint256,uint256,uint256,uint256,uint256,uint256)"
+                                ),
+                                SolidityFunction(
+                                    "callcode(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
+                                ),
+                                SolidityFunction(
+                                    "call(uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
+                                ),
+                            ]
+                            nonzero_call_value = call_can_send_ether and (
+                                not isinstance(ir.arguments[2], Constant)
+                                or ir.arguments[2].value != 0
+                            )
+                            if nonzero_call_value:
                                 return False
                         # If a new internal call or librarycall
                         # Add it to the list to explore
@@ -73,7 +102,7 @@ Every Ether sent to `Locked` will be lost."""
 
         return True
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:
@@ -82,7 +111,7 @@ Every Ether sent to `Locked` will be lost."""
             funcs_payable = [function for function in contract.functions if function.payable]
             if funcs_payable:
                 if self.do_no_send_ether(contract):
-                    info = ["Contract locking ether found:\n"]
+                    info: DETECTOR_INFO = ["Contract locking ether found:\n"]
                     info += ["\tContract ", contract, " has payable functions:\n"]
                     for function in funcs_payable:
                         info += ["\t - ", function, "\n"]

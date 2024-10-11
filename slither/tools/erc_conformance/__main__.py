@@ -1,14 +1,17 @@
 import argparse
 import logging
 from collections import defaultdict
+from typing import Any, Dict, List, Callable
 
 from crytic_compile import cryticparser
+
 from slither import Slither
+from slither.core.declarations import Contract
 from slither.utils.erc import ERCS
 from slither.utils.output import output_to_json
-from .erc.ercs import generic_erc_checks
-from .erc.erc20 import check_erc20
 from .erc.erc1155 import check_erc1155
+from .erc.erc20 import check_erc20
+from .erc.ercs import generic_erc_checks
 
 logging.basicConfig()
 logging.getLogger("Slither").setLevel(logging.INFO)
@@ -23,10 +26,13 @@ logger.addHandler(ch)
 logger.handlers[0].setFormatter(formatter)
 logger.propagate = False
 
-ADDITIONAL_CHECKS = {"ERC20": check_erc20, "ERC1155": check_erc1155}
+ADDITIONAL_CHECKS: Dict[str, Callable[[Contract, Dict[str, List]], Dict[str, List]]] = {
+    "ERC20": check_erc20,
+    "ERC1155": check_erc1155,
+}
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
@@ -63,20 +69,20 @@ def parse_args():
     return parser.parse_args()
 
 
-def _log_error(err, args):
+def _log_error(err: Any, args: argparse.Namespace) -> None:
     if args.json:
         output_to_json(args.json, str(err), {"upgradeability-check": []})
 
     logger.error(err)
 
 
-def main():
+def main() -> None:
     args = parse_args()
 
     # Perform slither analysis on the given filename
     slither = Slither(args.project, **vars(args))
 
-    ret = defaultdict(list)
+    ret: Dict[str, List] = defaultdict(list)
 
     if args.erc.upper() in ERCS:
 

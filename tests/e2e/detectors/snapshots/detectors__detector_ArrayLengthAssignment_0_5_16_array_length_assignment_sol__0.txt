@@ -1,0 +1,9 @@
+ArrayLengthAssignment (tests/e2e/detectors/test_data/controlled-array-length/0.5.16/array_length_assignment.sol#1-46) contract sets array length with a user-controlled value:
+	- b.subStruct.x.length = param + 1 (tests/e2e/detectors/test_data/controlled-array-length/0.5.16/array_length_assignment.sol#41)
+
+ArrayLengthAssignment (tests/e2e/detectors/test_data/controlled-array-length/0.5.16/array_length_assignment.sol#1-46) contract sets array length with a user-controlled value:
+	- a.x.length = param (tests/e2e/detectors/test_data/controlled-array-length/0.5.16/array_length_assignment.sol#36)
+
+ArrayLengthAssignment (tests/e2e/detectors/test_data/controlled-array-length/0.5.16/array_length_assignment.sol#1-46) contract sets array length with a user-controlled value:
+	- arr.length = param (tests/e2e/detectors/test_data/controlled-array-length/0.5.16/array_length_assignment.sol#26)
+

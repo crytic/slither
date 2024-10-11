@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import Set, List, TYPE_CHECKING
 
 from slither.core.cfg.node import NodeType
 
@@ -6,16 +6,27 @@ if TYPE_CHECKING:
     from slither.core.cfg.node import Node
 
 
-def intersection_predecessor(node: "Node"):
+def intersection_predecessor(node: "Node") -> Set["Node"]:
     if not node.fathers:
         return set()
+
     ret = node.fathers[0].dominators
     for pred in node.fathers[1:]:
         ret = ret.intersection(pred.dominators)
+    if not any(father.is_reachable for father in node.fathers):
+        return set()
+
+    ret = set()
+    for pred in node.fathers:
+        ret = ret.union(pred.dominators)
+
+    for pred in node.fathers:
+        if pred.is_reachable:
+            ret = ret.intersection(pred.dominators)
     return ret
 
 
-def _compute_dominators(nodes: List["Node"]):
+def _compute_dominators(nodes: List["Node"]) -> None:
     changed = True
 
     while changed:
@@ -28,7 +39,7 @@ def _compute_dominators(nodes: List["Node"]):
                 changed = True
 
 
-def _compute_immediate_dominators(nodes: List["Node"]):
+def _compute_immediate_dominators(nodes: List["Node"]) -> None:
     for node in nodes:
         idom_candidates = set(node.dominators)
         idom_candidates.remove(node)
@@ -58,7 +69,7 @@ def _compute_immediate_dominators(nodes: List["Node"]):
             idom.dominator_successors.add(node)
 
 
-def compute_dominators(nodes: List["Node"]):
+def compute_dominators(nodes: List["Node"]) -> None:
     """
     Naive implementation of Cooper, Harvey, Kennedy algo
     See 'A Simple,Fast Dominance Algorithm'
@@ -74,7 +85,7 @@ def compute_dominators(nodes: List["Node"]):
     _compute_immediate_dominators(nodes)
 
 
-def compute_dominance_frontier(nodes: List["Node"]):
+def compute_dominance_frontier(nodes: List["Node"]) -> None:
     """
     Naive implementation of Cooper, Harvey, Kennedy algo
     See 'A Simple,Fast Dominance Algorithm'
@@ -84,6 +95,8 @@ def compute_dominance_frontier(nodes: List["Node"]):
     for node in nodes:
         if len(node.fathers) >= 2:
             for father in node.fathers:
+                if not father.is_reachable:
+                    continue
                 runner = father
                 # Corner case: if there is a if without else
                 # we need to add update the conditional node
@@ -95,4 +108,5 @@ def compute_dominance_frontier(nodes: List["Node"]):
                     runner.dominance_frontier = runner.dominance_frontier.union({node})
                 while runner != node.immediate_dominator:
                     runner.dominance_frontier = runner.dominance_frontier.union({node})
+                    assert runner.immediate_dominator
                     runner = runner.immediate_dominator

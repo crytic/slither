@@ -1,11 +1,13 @@
-import re
 import logging
-from typing import Set, Tuple
+import re
+from argparse import Namespace
+from typing import Set, Tuple, List, Dict, Union, Optional, Callable
 
-from slither.core.declarations import Function
-from slither.core.variables.variable import Variable
-from slither.utils.colors import yellow, green, red
+from slither.core.compilation_unit import SlitherCompilationUnit
+from slither.core.declarations import FunctionContract
+from slither.core.variables.state_variable import StateVariable
 from slither.utils import output
+from slither.utils.colors import yellow, green, red
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("Slither.kspec")
@@ -22,8 +24,8 @@ def _get_all_covered_kspec_functions(target: str) -> Set[Tuple[str, str]]:
     # Create a set of our discovered functions which are covered
     covered_functions: Set[Tuple[str, str]] = set()
 
-    BEHAVIOUR_PATTERN = re.compile("behaviour\s+(\S+)\s+of\s+(\S+)")
-    INTERFACE_PATTERN = re.compile("interface\s+([^\r\n]+)")
+    BEHAVIOUR_PATTERN = re.compile(r"behaviour\s+(\S+)\s+of\s+(\S+)")
+    INTERFACE_PATTERN = re.compile(r"interface\s+([^\r\n]+)")
 
     # Read the file contents
     with open(target, "r", encoding="utf8") as target_file:
@@ -54,13 +56,15 @@ def _get_all_covered_kspec_functions(target: str) -> Set[Tuple[str, str]]:
     return covered_functions
 
 
-def _get_slither_functions(slither):
-    # Use contract == contract_declarer to avoid dupplicate
-    all_functions_declared = [
+def _get_slither_functions(
+    slither: SlitherCompilationUnit,
+) -> Dict[Tuple[str, str], Union[FunctionContract, StateVariable]]:
+    # Use contract == contract_declarer to avoid duplicate
+    all_functions_declared: List[Union[FunctionContract, StateVariable]] = [
         f
         for f in slither.functions
         if (
-            f.contract == f.contract_declarer
+            (isinstance(f, FunctionContract) and f.contract == f.contract_declarer)
             and f.is_implemented
             and not f.is_constructor
             and not f.is_constructor_variables
@@ -79,7 +83,12 @@ def _get_slither_functions(slither):
     return slither_functions
 
 
-def _generate_output(kspec, message, color, generate_json):
+def _generate_output(
+    kspec: List[Union[FunctionContract, StateVariable]],
+    message: str,
+    color: Callable[[str], str],
+    generate_json: bool,
+) -> Optional[Dict]:
     info = ""
     for function in kspec:
         info += f"{message} {function.contract.name}.{function.full_name}\n"
@@ -94,7 +103,9 @@ def _generate_output(kspec, message, color, generate_json):
     return None
 
 
-def _generate_output_unresolved(kspec, message, color, generate_json):
+def _generate_output_unresolved(
+    kspec: Set[Tuple[str, str]], message: str, color: Callable[[str], str], generate_json: bool
+) -> Optional[Dict]:
     info = ""
     for contract, function in kspec:
         info += f"{message} {contract}.{function}\n"
@@ -107,17 +118,19 @@ def _generate_output_unresolved(kspec, message, color, generate_json):
     return None
 
 
-def _run_coverage_analysis(args, slither, kspec_functions):
+def _run_coverage_analysis(
+    args: Namespace, slither: SlitherCompilationUnit, kspec_functions: Set[Tuple[str, str]]
+) -> None:
     # Collect all slither functions
     slither_functions = _get_slither_functions(slither)
 
     # Determine which klab specs were not resolved.
     slither_functions_set = set(slither_functions)
     kspec_functions_resolved = kspec_functions & slither_functions_set
-    kspec_functions_unresolved = kspec_functions - kspec_functions_resolved
+    kspec_functions_unresolved: Set[Tuple[str, str]] = kspec_functions - kspec_functions_resolved
 
-    kspec_missing = []
-    kspec_present = []
+    kspec_missing: List[Union[FunctionContract, StateVariable]] = []
+    kspec_present: List[Union[FunctionContract, StateVariable]] = []
 
     for slither_func_desc in sorted(slither_functions_set):
         slither_func = slither_functions[slither_func_desc]
@@ -130,13 +143,13 @@ def _run_coverage_analysis(args, slither, kspec_functions):
     logger.info("## Check for functions coverage")
     json_kspec_present = _generate_output(kspec_present, "[✓]", green, args.json)
     json_kspec_missing_functions = _generate_output(
-        [f for f in kspec_missing if isinstance(f, Function)],
+        [f for f in kspec_missing if isinstance(f, FunctionContract)],
         "[ ] (Missing function)",
         red,
         args.json,
     )
     json_kspec_missing_variables = _generate_output(
-        [f for f in kspec_missing if isinstance(f, Variable)],
+        [f for f in kspec_missing if isinstance(f, StateVariable)],
         "[ ] (Missing variable)",
         yellow,
         args.json,
@@ -159,11 +172,11 @@ def _run_coverage_analysis(args, slither, kspec_functions):
         )
 
 
-def run_analysis(args, slither, kspec_arg):
+def run_analysis(args: Namespace, slither: SlitherCompilationUnit, kspec_arg: str) -> None:
     # Get all of our kspec'd functions (tuple(contract_name, function_name)).
     if "," in kspec_arg:
         kspecs = kspec_arg.split(",")
-        kspec_functions = set()
+        kspec_functions: Set[Tuple[str, str]] = set()
         for kspec in kspecs:
             kspec_functions |= _get_all_covered_kspec_functions(kspec)
     else:

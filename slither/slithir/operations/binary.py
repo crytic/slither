@@ -1,39 +1,41 @@
 import logging
 from enum import Enum
+from typing import List, Union
 
 from slither.core.declarations import Function
 from slither.core.solidity_types import ElementaryType
+from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations.lvalue import OperationWithLValue
-from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
+from slither.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue, LVALUE, RVALUE
 from slither.slithir.variables import ReferenceVariable
 
 logger = logging.getLogger("BinaryOperationIR")
 
 
 class BinaryType(Enum):
-    POWER = 0  # **
-    MULTIPLICATION = 1  # *
-    DIVISION = 2  # /
-    MODULO = 3  # %
-    ADDITION = 4  # +
-    SUBTRACTION = 5  # -
-    LEFT_SHIFT = 6  # <<
-    RIGHT_SHIFT = 7  # >>
-    AND = 8  # &
-    CARET = 9  # ^
-    OR = 10  # |
-    LESS = 11  # <
-    GREATER = 12  # >
-    LESS_EQUAL = 13  # <=
-    GREATER_EQUAL = 14  # >=
-    EQUAL = 15  # ==
-    NOT_EQUAL = 16  # !=
-    ANDAND = 17  # &&
-    OROR = 18  # ||
+    POWER = "**"
+    MULTIPLICATION = "*"
+    DIVISION = "/"
+    MODULO = "%"
+    ADDITION = "+"
+    SUBTRACTION = "-"
+    LEFT_SHIFT = "<<"
+    RIGHT_SHIFT = ">>"
+    AND = "&"
+    CARET = "^"
+    OR = "|"
+    LESS = "<"
+    GREATER = ">"
+    LESS_EQUAL = "<="
+    GREATER_EQUAL = ">="
+    EQUAL = "=="
+    NOT_EQUAL = "!="
+    ANDAND = "&&"
+    OROR = "||"
 
     @staticmethod
-    def return_bool(operation_type):
+    def return_bool(operation_type: "BinaryType") -> bool:
         return operation_type in [
             BinaryType.OROR,
             BinaryType.ANDAND,
@@ -46,7 +48,7 @@ class BinaryType(Enum):
         ]
 
     @staticmethod
-    def get_type(operation_type):  # pylint: disable=too-many-branches
+    def get_type(operation_type: str) -> "BinaryType":  # pylint: disable=too-many-branches
         if operation_type == "**":
             return BinaryType.POWER
         if operation_type == "*":
@@ -88,60 +90,24 @@ class BinaryType(Enum):
 
         raise SlithIRError(f"get_type: Unknown operation type {operation_type})")
 
-    def can_be_checked_for_overflow(self):
+    def can_be_checked_for_overflow(self) -> bool:
         return self in [
             BinaryType.POWER,
             BinaryType.MULTIPLICATION,
-            BinaryType.MODULO,
             BinaryType.ADDITION,
             BinaryType.SUBTRACTION,
             BinaryType.DIVISION,
         ]
 
-    def __str__(self):  # pylint: disable=too-many-branches
-        if self == BinaryType.POWER:
-            return "**"
-        if self == BinaryType.MULTIPLICATION:
-            return "*"
-        if self == BinaryType.DIVISION:
-            return "/"
-        if self == BinaryType.MODULO:
-            return "%"
-        if self == BinaryType.ADDITION:
-            return "+"
-        if self == BinaryType.SUBTRACTION:
-            return "-"
-        if self == BinaryType.LEFT_SHIFT:
-            return "<<"
-        if self == BinaryType.RIGHT_SHIFT:
-            return ">>"
-        if self == BinaryType.AND:
-            return "&"
-        if self == BinaryType.CARET:
-            return "^"
-        if self == BinaryType.OR:
-            return "|"
-        if self == BinaryType.LESS:
-            return "<"
-        if self == BinaryType.GREATER:
-            return ">"
-        if self == BinaryType.LESS_EQUAL:
-            return "<="
-        if self == BinaryType.GREATER_EQUAL:
-            return ">="
-        if self == BinaryType.EQUAL:
-            return "=="
-        if self == BinaryType.NOT_EQUAL:
-            return "!="
-        if self == BinaryType.ANDAND:
-            return "&&"
-        if self == BinaryType.OROR:
-            return "||"
-        raise SlithIRError(f"str: Unknown operation type {self} {type(self)})")
-
 
 class Binary(OperationWithLValue):
-    def __init__(self, result, left_variable, right_variable, operation_type: BinaryType):
+    def __init__(
+        self,
+        result: Variable,
+        left_variable: Union[RVALUE, Function],
+        right_variable: Union[RVALUE, Function],
+        operation_type: BinaryType,
+    ) -> None:
         assert is_valid_rvalue(left_variable) or isinstance(left_variable, Function)
         assert is_valid_rvalue(right_variable) or isinstance(right_variable, Function)
         assert is_valid_lvalue(result)
@@ -156,36 +122,38 @@ class Binary(OperationWithLValue):
             result.set_type(left_variable.type)
 
     @property
-    def read(self):
+    def read(self) -> List[Union[RVALUE, LVALUE, Function]]:
         return [self.variable_left, self.variable_right]
 
     @property
-    def get_variable(self):
+    def get_variable(self) -> List[Union[RVALUE, Function]]:
         return self._variables
 
     @property
-    def variable_left(self):
-        return self._variables[0]
+    def variable_left(self) -> Union[RVALUE, Function]:
+        return self._variables[0]  # type: ignore
 
     @property
-    def variable_right(self):
-        return self._variables[1]
+    def variable_right(self) -> Union[RVALUE, Function]:
+        return self._variables[1]  # type: ignore
 
     @property
-    def type(self):
+    def type(self) -> BinaryType:
         return self._type
 
     @property
-    def type_str(self):
+    def type_str(self) -> str:
         if self.node.scope.is_checked and self._type.can_be_checked_for_overflow():
-            return "(c)" + str(self._type)
-        return str(self._type)
+            return "(c)" + str(self._type.value)
+        return str(self._type.value)
 
-    def __str__(self):
-        if isinstance(self.lvalue, ReferenceVariable):
-            points = self.lvalue.points_to
+    def __str__(self) -> str:
+        lvalue = self.lvalue
+        assert lvalue
+        if isinstance(lvalue, ReferenceVariable):
+            points = lvalue.points_to
             while isinstance(points, ReferenceVariable):
                 points = points.points_to
-            return f"{str(self.lvalue)}(-> {points}) = {self.variable_left} {self.type_str} {self.variable_right}"
+            return f"{str(lvalue)}(-> {points}) = {self.variable_left} {self.type_str} {self.variable_right}"
 
-        return f"{str(self.lvalue)}({self.lvalue.type}) = {self.variable_left} {self.type_str} {self.variable_right}"
+        return f"{str(lvalue)}({lvalue.type}) = {self.variable_left} {self.type_str} {self.variable_right}"

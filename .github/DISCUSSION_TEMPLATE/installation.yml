@@ -1,0 +1,38 @@
+--- 
+body: 
+  - 
+    attributes: 
+      label: "What operating system are you using?"
+    id: os
+    type: textarea
+    validations: 
+      required: true
+  - 
+    attributes: 
+      label: "How did you install slither?"
+      description: |
+        For example, using git or python's pip.
+    id: install-method
+    type: textarea
+    validations: 
+      required: true
+  - type: dropdown
+    id: python
+    attributes:
+      label: Do you have python added to your $PATH?
+      multiple: true
+      options:
+        - "Yes"
+        - "No"
+        - "Not sure"
+  - 
+    attributes: 
+      description: |
+          Please copy and paste any relevant log output. This 
+          will be automatically formatted into code, so no need for backticks.
+      render: shell
+      label: "Output of running `slither-doctor .`:"
+    id: logs
+labels: 
+  - installation-help
+title: "[Installation-Help]: "

@@ -3,8 +3,7 @@ name: CI
 
 defaults:
   run:
-    # To load bashrc
-    shell: bash -ieo pipefail {0}
+    shell: bash
 
 on:
   push:
@@ -16,77 +15,52 @@ on:
     # run CI every day even if no PRs/merges occur
     - cron: '0 12 * * *'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-2022"]
-        type: ["cli",
-               "dapp",
-               "data_dependency",
-               # "embark",
-               "erc",
-               "etherlime",
-               # "etherscan"
-               "find_paths",
-               "flat",
-               "kspec",
-               "printers",
-               # "prop"
-               "simil",
-               "slither_config",
-               "truffle",
-               "upgradability"]
+        os: ${{ (github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]')) || fromJSON('["ubuntu-latest", "windows-2022"]') }}
+        python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
+        type: ${{ (github.event_name == 'pull_request' && fromJSON('["data_dependency", "path_filtering","erc","find_paths","flat","interface", "printers","slither_config","upgradability"]')) || fromJSON('["data_dependency", "path_filtering","erc","find_paths","flat","interface", "printers","slither_config","upgradability", "cli", "dapp", "etherscan", "kspec", "simil", "truffle"]') }}
         exclude:
           # Requires nix
           - os: windows-2022
             type: dapp
           # Requires nvm
           - os: windows-2022
-            type: etherlime
-          # Requires nvm
-          - os: windows-2022
             type: truffle
     steps:
-      - uses: actions/checkout@v1
-
-      - name: Set up shell
-        if: runner.os == 'Windows'
-        run: |
-          echo 'C:\msys64\mingw64\bin' >> "$GITHUB_PATH"
-          echo 'C:\msys64\usr\bin' >> "$GITHUB_PATH"
-
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v3
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.6
+          python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
-
-          python setup.py install
-          # Used by ci_test.sh
-          pip install deepdiff
-
-          pip install "solc-select>=v1.0.0b1"
-          solc-select install all
-          solc-select use 0.5.1
-          pip install typing_extensions==4.1.1
-          pip install importlib_metadata==4.8.3
+          pip install ".[test]"
+          solc-select use 0.4.25 --always-install
+          solc-select use 0.8.0 --always-install
+          solc-select use 0.5.1 --always-install
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@v16
+        uses: cachix/install-nix-action@v30
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
-        uses: cachix/cachix-action@v10
+        uses: cachix/cachix-action@v15
         with:
           name: dapp
 
       - name: Run Tests
         env:
+          PYTHONUTF8: 1
           TEST_TYPE: ${{ matrix.type }}
           GITHUB_ETHERSCAN: ${{ secrets.GITHUB_ETHERSCAN }}
         run: |

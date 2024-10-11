@@ -8,19 +8,29 @@ Slither-read-storage is a tool to retrieve the storage slots and values of entir
 
 ```shell
 positional arguments:
-  contract_source (DIR) ADDRESS     The deployed contract address if verified on etherscan. Prepend project directory for unverified contracts.
+  contract_source       The deployed contract address if verified on etherscan. Prepend project directory for unverified contracts.
 
 optional arguments:
-  --variable-name VARIABLE_NAME     The name of the variable whose value will be returned.
-  --rpc-url RPC_URL                 An endpoint for web3 requests.
-  --key KEY                         The key/ index whose value will be returned from a mapping or array.
-  --deep-key DEEP_KEY               The key/ index whose value will be returned from a deep mapping or multidimensional array.
-  --struct-var STRUCT_VAR           The name of the variable whose value will be returned from a struct.
-  --storage-address STORAGE_ADDRESS The address of the storage contract (if a proxy pattern is used).
-  --contract-name CONTRACT_NAME     The name of the logic contract.
-  --layout                          Toggle used to write a JSON file with the entire storage layout.
-  --value                           Toggle used to include values in output.
-  --max-depth MAX_DEPTH             Max depth to search in data structure.
+  -h, --help            show this help message and exit
+  --variable-name VARIABLE_NAME
+                        The name of the variable whose value will be returned.
+  --rpc-url RPC_URL     An endpoint for web3 requests.
+  --key KEY             The key/ index whose value will be returned from a mapping or array.
+  --deep-key DEEP_KEY   The key/ index whose value will be returned from a deep mapping or multidimensional array.
+  --struct-var STRUCT_VAR
+                        The name of the variable whose value will be returned from a struct.
+  --storage-address STORAGE_ADDRESS
+                        The address of the storage contract (if a proxy pattern is used).
+  --contract-name CONTRACT_NAME
+                        The name of the logic contract.
+  --json JSON           Save the result in a JSON file.
+  --value               Toggle used to include values in output.
+  --table               Print table view of storage layout
+  --silent              Silence log outputs
+  --max-depth MAX_DEPTH
+                        Max depth to search in data structure.
+  --block BLOCK         The block number to read storage from. Requires an archive node to be provided as the RPC url.
+  --unstructured        Include unstructured storage slots
 ```
 
 ### Examples
@@ -28,19 +38,19 @@ optional arguments:
 Retrieve the storage slots of a local contract:
 
 ```shell
-slither-read-storage file.sol 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --layout 
+slither-read-storage file.sol 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --json storage_layout.json
 ```
 
 Retrieve the storage slots of a contract verified on an Etherscan-like platform:
 
 ```shell
-slither-read-storage 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --layout
+slither-read-storage 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --json storage_layout.json
 ```
 
 To retrieve the values as well, pass `--value` and `--rpc-url $RPC_URL`:
 
 ```shell
-slither-read-storage 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --layout --rpc-url $RPC_URL --value
+slither-read-storage 0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8 --json storage_layout.json --rpc-url $RPC_URL --value
 ```
 
 To view only the slot of the `slot0` structure variable, pass `--variable-name slot0`:
@@ -79,7 +89,7 @@ slither-read-storage 0xa2327a938Febf5FEC13baCFb16Ae10EcBc4cbDCF --variable-name 
   Take Avalanche, for instance:
 
   ```shell
-  slither-read-storage avax:0x0000000000000000000000000000000000000000 --layout --value --rpc-url $AVAX_RPC_URL
+  slither-read-storage avax:0x0000000000000000000000000000000000000000 --json storage_layout.json --value --rpc-url $AVAX_RPC_URL
   ```
 
 ## Limitations

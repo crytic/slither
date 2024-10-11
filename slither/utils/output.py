@@ -1,16 +1,27 @@
 import hashlib
-import os
 import json
 import logging
+import os
 import zipfile
 from collections import OrderedDict
-from typing import Optional, Dict, List, Union, Any, TYPE_CHECKING
+from importlib import metadata
+from typing import Tuple, Optional, Dict, List, Union, Any, TYPE_CHECKING, Type
 from zipfile import ZipFile
-from pkg_resources import require
+
 
 from slither.core.cfg.node import Node
-from slither.core.declarations import Contract, Function, Enum, Event, Structure, Pragma
+from slither.core.declarations import (
+    Contract,
+    Function,
+    Enum,
+    Event,
+    Structure,
+    Pragma,
+    FunctionContract,
+    CustomError,
+)
 from slither.core.source_mapping.source_mapping import SourceMapping
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.variable import Variable
 from slither.exceptions import SlitherError
 from slither.utils.colors import yellow
@@ -21,7 +32,6 @@ if TYPE_CHECKING:
     from slither.detectors.abstract_detector import AbstractDetector
 
 logger = logging.getLogger("Slither")
-
 
 ###################################################################################
 ###################################################################################
@@ -130,7 +140,7 @@ def _output_result_to_sarif(
 
 
 def output_to_sarif(
-    filename: Optional[str], results: Dict, detectors_classes: List["AbstractDetector"]
+    filename: Optional[str], results: Dict, detectors_classes: List[Type["AbstractDetector"]]
 ) -> None:
     """
 
@@ -151,7 +161,7 @@ def output_to_sarif(
                     "driver": {
                         "name": "Slither",
                         "informationUri": "https://github.com/crytic/slither",
-                        "version": require("slither-analyzer")[0].version,
+                        "version": metadata.version("slither-analyzer"),
                         "rules": [],
                     }
                 },
@@ -219,7 +229,7 @@ def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: 
 ###################################################################################
 
 
-def _convert_to_description(d):
+def _convert_to_description(d: str) -> str:
     if isinstance(d, str):
         return d
 
@@ -228,19 +238,19 @@ def _convert_to_description(d):
 
     if isinstance(d, Node):
         if d.expression:
-            return f"{d.expression} ({d.source_mapping_str})"
-        return f"{str(d)} ({d.source_mapping_str})"
+            return f"{d.expression} ({d.source_mapping})"
+        return f"{str(d)} ({d.source_mapping})"
 
     if hasattr(d, "canonical_name"):
-        return f"{d.canonical_name} ({d.source_mapping_str})"
+        return f"{d.canonical_name} ({d.source_mapping})"
 
     if hasattr(d, "name"):
-        return f"{d.name} ({d.source_mapping_str})"
+        return f"{d.name} ({d.source_mapping})"
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
 
-def _convert_to_markdown(d, markdown_root):
+def _convert_to_markdown(d: str, markdown_root: str) -> str:
     if isinstance(d, str):
         return d
 
@@ -249,19 +259,19 @@ def _convert_to_markdown(d, markdown_root):
 
     if isinstance(d, Node):
         if d.expression:
-            return f"[{d.expression}]({d.source_mapping_to_markdown(markdown_root)})"
-        return f"[{str(d)}]({d.source_mapping_to_markdown(markdown_root)})"
+            return f"[{d.expression}]({d.source_mapping.to_markdown(markdown_root)})"
+        return f"[{str(d)}]({d.source_mapping.to_markdown(markdown_root)})"
 
     if hasattr(d, "canonical_name"):
-        return f"[{d.canonical_name}]({d.source_mapping_to_markdown(markdown_root)})"
+        return f"[{d.canonical_name}]({d.source_mapping.to_markdown(markdown_root)})"
 
     if hasattr(d, "name"):
-        return f"[{d.name}]({d.source_mapping_to_markdown(markdown_root)})"
+        return f"[{d.name}]({d.source_mapping.to_markdown(markdown_root)})"
 
     raise SlitherError(f"{type(d)} cannot be converted (no name, or canonical_name")
 
 
-def _convert_to_id(d):
+def _convert_to_id(d: str) -> str:
     """
     Id keeps the source mapping of the node, otherwise we risk to consider two different node as the same
     :param d:
@@ -275,11 +285,11 @@ def _convert_to_id(d):
 
     if isinstance(d, Node):
         if d.expression:
-            return f"{d.expression} ({d.source_mapping_str})"
-        return f"{str(d)} ({d.source_mapping_str})"
+            return f"{d.expression} ({d.source_mapping})"
+        return f"{str(d)} ({d.source_mapping})"
 
     if isinstance(d, Pragma):
-        return f"{d} ({d.source_mapping_str})"
+        return f"{d} ({d.source_mapping})"
 
     if hasattr(d, "canonical_name"):
         return f"{d.canonical_name}"
@@ -299,8 +309,35 @@ def _convert_to_id(d):
 
 
 def _create_base_element(
-    custom_type, name, source_mapping, type_specific_fields=None, additional_fields=None
-):
+    custom_type: str,
+    name: str,
+    source_mapping: Dict,
+    type_specific_fields: Optional[
+        Dict[
+            str,
+            Union[
+                Dict[
+                    str,
+                    Union[
+                        str,
+                        Dict[str, Union[int, str, bool, List[int]]],
+                        Dict[
+                            str,
+                            Union[
+                                Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]],
+                                str,
+                            ],
+                        ],
+                    ],
+                ],
+                Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]],
+                str,
+                List[str],
+            ],
+        ]
+    ] = None,
+    additional_fields: Optional[Dict[str, str]] = None,
+) -> Dict[str, Any]:
     if additional_fields is None:
         additional_fields = {}
     if type_specific_fields is None:
@@ -313,23 +350,30 @@ def _create_base_element(
     return element
 
 
-def _create_parent_element(element):
+def _create_parent_element(
+    element: SourceMapping,
+) -> Dict[
+    str,
+    Union[
+        str,
+        Dict[str, Union[int, str, bool, List[int]]],
+        Dict[str, Union[Dict[str, Union[str, Dict[str, Union[int, str, bool, List[int]]]]], str]],
+    ],
+]:
     # pylint: disable=import-outside-toplevel
-    from slither.core.children.child_contract import ChildContract
-    from slither.core.children.child_function import ChildFunction
-    from slither.core.children.child_inheritance import ChildInheritance
+    from slither.core.declarations.contract_level import ContractLevel
 
-    if isinstance(element, ChildInheritance):
+    if isinstance(element, FunctionContract):
         if element.contract_declarer:
             contract = Output("")
             contract.add_contract(element.contract_declarer)
             return contract.data["elements"][0]
-    elif isinstance(element, ChildContract):
+    elif isinstance(element, ContractLevel):
         if element.contract:
             contract = Output("")
             contract.add_contract(element.contract)
             return contract.data["elements"][0]
-    elif isinstance(element, ChildFunction):
+    elif isinstance(element, (LocalVariable, Node)):
         if element.function:
             function = Output("")
             function.add_function(element.function)
@@ -346,9 +390,9 @@ class Output:
         self,
         info_: Union[str, List[Union[str, SupportedOutput]]],
         additional_fields: Optional[Dict] = None,
-        markdown_root="",
-        standard_format=True,
-    ):
+        markdown_root: str = "",
+        standard_format: bool = True,
+    ) -> None:
         if additional_fields is None:
             additional_fields = {}
 
@@ -359,7 +403,7 @@ class Output:
         else:
             info = info_
 
-        self._data: Dict[str, Any] = OrderedDict()
+        self._data = OrderedDict()
         self._data["elements"] = []
         self._data["description"] = "".join(_convert_to_description(d) for d in info)
         self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
@@ -378,9 +422,9 @@ class Output:
         if additional_fields:
             self._data["additional_fields"] = additional_fields
 
-    def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None):
+    def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None) -> None:
         if not self._data["first_markdown_element"]:
-            self._data["first_markdown_element"] = add.source_mapping_to_markdown(
+            self._data["first_markdown_element"] = add.source_mapping.to_markdown(
                 self._markdown_root
             )
         if isinstance(add, Variable):
@@ -395,6 +439,8 @@ class Output:
             self.add_event(add, additional_fields=additional_fields)
         elif isinstance(add, Structure):
             self.add_struct(add, additional_fields=additional_fields)
+        elif isinstance(add, CustomError):
+            self.add_custom_error(add, additional_fields=additional_fields)
         elif isinstance(add, Pragma):
             self.add_pragma(add, additional_fields=additional_fields)
         elif isinstance(add, Node):
@@ -417,14 +463,14 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_variable(self, variable: Variable, additional_fields: Optional[Dict] = None):
+    def add_variable(self, variable: Variable, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(variable)}
         element = _create_base_element(
             "variable",
             variable.name,
-            variable.source_mapping,
+            variable.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -441,11 +487,11 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_contract(self, contract: Contract, additional_fields: Optional[Dict] = None):
+    def add_contract(self, contract: Contract, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         element = _create_base_element(
-            "contract", contract.name, contract.source_mapping, {}, additional_fields
+            "contract", contract.name, contract.source_mapping.to_json(), {}, additional_fields
         )
         self._data["elements"].append(element)
 
@@ -456,7 +502,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_function(self, function: Function, additional_fields: Optional[Dict] = None):
+    def add_function(self, function: Function, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -466,7 +512,7 @@ class Output:
         element = _create_base_element(
             "function",
             function.name,
-            function.source_mapping,
+            function.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -485,14 +531,14 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_enum(self, enum: Enum, additional_fields: Optional[Dict] = None):
+    def add_enum(self, enum: Enum, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(enum)}
         element = _create_base_element(
             "enum",
             enum.name,
-            enum.source_mapping,
+            enum.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -505,14 +551,14 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_struct(self, struct: Structure, additional_fields: Optional[Dict] = None):
+    def add_struct(self, struct: Structure, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"parent": _create_parent_element(struct)}
         element = _create_base_element(
             "struct",
             struct.name,
-            struct.source_mapping,
+            struct.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -525,7 +571,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_event(self, event: Event, additional_fields: Optional[Dict] = None):
+    def add_event(self, event: Event, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -535,7 +581,33 @@ class Output:
         element = _create_base_element(
             "event",
             event.name,
-            event.source_mapping,
+            event.source_mapping.to_json(),
+            type_specific_fields,
+            additional_fields,
+        )
+
+        self._data["elements"].append(element)
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+    # region CustomError
+    ###################################################################################
+    ###################################################################################
+
+    def add_custom_error(
+        self, custom_error: CustomError, additional_fields: Optional[Dict] = None
+    ) -> None:
+        if additional_fields is None:
+            additional_fields = {}
+        type_specific_fields = {
+            "parent": _create_parent_element(custom_error),
+            "signature": custom_error.full_name,
+        }
+        element = _create_base_element(
+            "custom_error",
+            custom_error.name,
+            custom_error.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -549,7 +621,7 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_node(self, node: Node, additional_fields: Optional[Dict] = None):
+    def add_node(self, node: Node, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {
@@ -559,7 +631,7 @@ class Output:
         element = _create_base_element(
             "node",
             node_name,
-            node.source_mapping,
+            node.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -576,14 +648,14 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_pragma(self, pragma: Pragma, additional_fields: Optional[Dict] = None):
+    def add_pragma(self, pragma: Pragma, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
         type_specific_fields = {"directive": pragma.directive}
         element = _create_base_element(
             "pragma",
             pragma.version,
-            pragma.source_mapping,
+            pragma.source_mapping.to_json(),
             type_specific_fields,
             additional_fields,
         )
@@ -634,10 +706,10 @@ class Output:
     def add_other(
         self,
         name: str,
-        source_mapping,
+        source_mapping: Tuple[str, int, int],
         compilation_unit: "SlitherCompilationUnit",
         additional_fields: Optional[Dict] = None,
-    ):
+    ) -> None:
         # If this a tuple with (filename, start, end), convert it to a source mapping.
         if additional_fields is None:
             additional_fields = {}
@@ -667,7 +739,7 @@ class Output:
 
         # If this is a source mapping object, get the underlying source mapping dictionary
         if isinstance(source_mapping, SourceMapping):
-            source_mapping = source_mapping.source_mapping
+            source_mapping = source_mapping.source_mapping.to_json()
 
         # Create the underlying element and add it to our resulting json
         element = _create_base_element("other", name, source_mapping, {}, additional_fields)

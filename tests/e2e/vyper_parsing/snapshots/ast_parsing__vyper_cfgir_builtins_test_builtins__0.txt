@@ -1,0 +1,126 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+a = block.coinbase
+
+IRs:
+a(address) := block.coinbase(address)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+b = block.difficulty
+
+IRs:
+b(uint256) := block.difficulty(uint256)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+c = block.prevrandao
+
+IRs:
+c(uint256) := block.prevrandao(uint256)"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+d = block.number
+
+IRs:
+d(uint256) := block.number(uint256)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+
+EXPRESSION:
+e = block.prevhash
+
+IRs:
+e(bytes32) := block.prevhash(bytes32)"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+
+EXPRESSION:
+f = block.timestamp
+
+IRs:
+f(uint256) := block.timestamp(uint256)"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+
+EXPRESSION:
+h = bytes32(chain.id)
+
+IRs:
+TMP_0 = CONVERT chain.id to bytes32
+h(bytes32) := TMP_0(bytes32)"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+
+EXPRESSION:
+i = slice()(msg.data,0,32)
+
+IRs:
+TMP_1(None) = SOLIDITY_CALL slice()(msg.data,0,32)
+i(bytes[32]) = ['TMP_1(None)']"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+
+EXPRESSION:
+j = msg.gas
+
+IRs:
+j(uint256) := msg.gas(uint256)"];
+9->10;
+10[label="Node Type: NEW VARIABLE 10
+
+EXPRESSION:
+k = msg.sender
+
+IRs:
+k(address) := msg.sender(address)"];
+10->11;
+11[label="Node Type: NEW VARIABLE 11
+
+EXPRESSION:
+l = msg.value
+
+IRs:
+l(uint256) := msg.value(uint256)"];
+11->12;
+12[label="Node Type: NEW VARIABLE 12
+
+EXPRESSION:
+m = tx.origin
+
+IRs:
+m(address) := tx.origin(address)"];
+12->13;
+13[label="Node Type: NEW VARIABLE 13
+
+EXPRESSION:
+n = tx.gasprice
+
+IRs:
+n(uint256) := tx.gasprice(uint256)"];
+13->14;
+14[label="Node Type: NEW VARIABLE 14
+
+EXPRESSION:
+x = self.balance
+
+IRs:
+x(uint256) := self.balance(uint256)"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+msg.sender.send(x)
+
+IRs:
+TMP_2 = SEND dest:msg.sender value:x"];
+}

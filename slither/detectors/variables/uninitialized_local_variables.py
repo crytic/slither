@@ -4,8 +4,12 @@
     Recursively explore the CFG to only report uninitialized local variables that are
     read before being written
 """
+from typing import List
 
+from slither.core.cfg.node import Node, NodeType
+from slither.core.declarations.function_contract import FunctionContract
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.utils.output import Output
 
 
 class UninitializedLocalVars(AbstractDetector):
@@ -37,7 +41,9 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
 
     key = "UNINITIALIZEDLOCAL"
 
-    def _detect_uninitialized(self, function, node, visited):
+    def _detect_uninitialized(
+        self, function: FunctionContract, node: Node, visited: List[Node]
+    ) -> None:
         if node in visited:
             return
 
@@ -58,6 +64,15 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
 
         self.visited_all_paths[node] = list(set(self.visited_all_paths[node] + fathers_context))
 
+        # Remove a local variable declared in a for loop header
+        if (
+            node.type == NodeType.VARIABLE
+            and len(node.sons) == 1  # Should always be true for a node that has a STARTLOOP son
+            and node.sons[0].type == NodeType.STARTLOOP
+        ):
+            if node.variable_declaration in fathers_context:
+                fathers_context.remove(node.variable_declaration)
+
         if self.key in node.context:
             fathers_context += node.context[self.key]
 
@@ -73,7 +88,7 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
         for son in node.sons:
             self._detect_uninitialized(function, son, visited)
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """Detect uninitialized local variables
 
         Recursively visit the calls
@@ -88,7 +103,11 @@ Bob calls `transfer`. As a result, all Ether is sent to the address `0x0` and is
 
         for contract in self.compilation_unit.contracts:
             for function in contract.functions:
-                if function.is_implemented and function.contract_declarer == contract:
+                if (
+                    function.is_implemented
+                    and function.contract_declarer == contract
+                    and function.entry_point
+                ):
                     if function.contains_assembly:
                         continue
                     # dont consider storage variable, as they are detected by another detector

@@ -1,6 +1,14 @@
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations import Binary, BinaryType
 from slither.slithir.variables import Constant
+from slither.core.declarations.function_contract import FunctionContract
+from slither.utils.output import Output
+from slither.core.cfg.node import NodeType
 
 
 class ShiftParameterMixup(AbstractDetector):
@@ -13,7 +21,9 @@ class ShiftParameterMixup(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#shift-parameter-mixup"
+    WIKI = (
+        "https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-shift-in-assembly"
+    )
 
     WIKI_TITLE = "Incorrect shift in assembly."
     WIKI_DESCRIPTION = "Detect if the values in a shift operation are reversed"
@@ -34,23 +44,40 @@ The shift statement will right-shift the constant 8 by `a` bits"""
 
     WIKI_RECOMMENDATION = "Swap the order of parameters."
 
-    def _check_function(self, f):
+    def _check_function(self, f: FunctionContract) -> List[Output]:
         results = []
+        in_assembly = False
 
         for node in f.nodes:
+            if node.type == NodeType.ASSEMBLY:
+                in_assembly = True
+                continue
+            if node.type == NodeType.ENDASSEMBLY:
+                in_assembly = False
+                continue
+            if not in_assembly:
+                continue
+
             for ir in node.irs:
                 if isinstance(ir, Binary) and ir.type in [
                     BinaryType.LEFT_SHIFT,
                     BinaryType.RIGHT_SHIFT,
                 ]:
-                    if isinstance(ir.variable_left, Constant):
-                        info = [f, " contains an incorrect shift operation: ", node, "\n"]
+                    if isinstance(ir.variable_left, Constant) and not isinstance(
+                        ir.variable_right, Constant
+                    ):
+                        info: DETECTOR_INFO = [
+                            f,
+                            " contains an incorrect shift operation: ",
+                            node,
+                            "\n",
+                        ]
                         json = self.generate_result(info)
 
                         results.append(json)
         return results
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
         for c in self.contracts:
             for f in c.functions:

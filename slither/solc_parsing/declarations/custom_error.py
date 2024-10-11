@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 from slither.core.declarations.custom_error import CustomError
 from slither.core.declarations.custom_error_contract import CustomErrorContract
@@ -10,6 +10,7 @@ from slither.solc_parsing.variables.local_variable import LocalVariableSolc
 if TYPE_CHECKING:
     from slither.solc_parsing.slither_compilation_unit_solc import SlitherCompilationUnitSolc
     from slither.core.compilation_unit import SlitherCompilationUnit
+    from slither.solc_parsing.declarations.contract import ContractSolc
 
 
 # Part of the code was copied from the function parsing
@@ -21,18 +22,20 @@ class CustomErrorSolc(CallerContextExpression):
         self,
         custom_error: CustomError,
         custom_error_data: dict,
+        contract_parser: Optional["ContractSolc"],
         slither_parser: "SlitherCompilationUnitSolc",
-    ):
+    ) -> None:
         self._slither_parser: "SlitherCompilationUnitSolc" = slither_parser
         self._custom_error = custom_error
         custom_error.name = custom_error_data["name"]
+        self._contract_parser = contract_parser
         self._params_was_analyzed = False
 
         if not self._slither_parser.is_compact_ast:
             custom_error_data = custom_error_data["attributes"]
         self._custom_error_data = custom_error_data
 
-    def analyze_params(self):
+    def analyze_params(self) -> None:
         # Can be re-analyzed due to inheritance
         if self._params_was_analyzed:
             return
@@ -57,6 +60,10 @@ class CustomErrorSolc(CallerContextExpression):
             self._parse_params(params)
 
     @property
+    def contract_parser(self) -> Optional["ContractSolc"]:
+        return self._contract_parser
+
+    @property
     def is_compact_ast(self) -> bool:
         return self._slither_parser.is_compact_ast
 
@@ -68,7 +75,7 @@ class CustomErrorSolc(CallerContextExpression):
             return key
         return "children"
 
-    def _parse_params(self, params: Dict):
+    def _parse_params(self, params: Dict) -> None:
         assert params[self.get_key()] == "ParameterList"
 
         if self._slither_parser.is_compact_ast:

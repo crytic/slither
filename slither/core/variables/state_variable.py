@@ -1,18 +1,18 @@
-from typing import Optional, TYPE_CHECKING, Tuple, List
+from typing import Optional, TYPE_CHECKING
 
+from slither.core.declarations.contract_level import ContractLevel
 from slither.core.variables.variable import Variable
-from slither.core.children.child_contract import ChildContract
-from slither.utils.type import export_nested_types_from_variable
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node
     from slither.core.declarations import Contract
 
 
-class StateVariable(ChildContract, Variable):
-    def __init__(self):
+class StateVariable(ContractLevel, Variable):
+    def __init__(self) -> None:
         super().__init__()
         self._node_initialization: Optional["Node"] = None
+        self._location: Optional[str] = None
 
     def is_declared_by(self, contract: "Contract") -> bool:
         """
@@ -22,32 +22,18 @@ class StateVariable(ChildContract, Variable):
         """
         return self.contract == contract
 
-    ###################################################################################
-    ###################################################################################
-    # region Signature
-    ###################################################################################
-    ###################################################################################
+    def set_location(self, loc: str) -> None:
+        self._location = loc
 
     @property
-    def signature(self) -> Tuple[str, List[str], str]:
+    def location(self) -> Optional[str]:
         """
-        Return the signature of the state variable as a function signature
-        :return: (str, list(str), list(str)), as (name, list parameters type, list return values type)
+            Variable Location
+            Can be default or transient
+        Returns:
+            (str)
         """
-        return (
-            self.name,
-            [str(x) for x in export_nested_types_from_variable(self)],
-            str(self.type),
-        )
-
-    @property
-    def signature_str(self) -> str:
-        """
-        Return the signature of the state variable as a function signature
-        :return: str: func_name(type1,type2) returns(type3)
-        """
-        name, parameters, returnVars = self.signature
-        return name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
+        return self._location
 
     # endregion
     ###################################################################################

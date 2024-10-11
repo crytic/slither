@@ -1,5 +1,9 @@
 from typing import List
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.utils.output import Output
 from .arbitrary_send_erc20 import ArbitrarySendErc20
 
@@ -14,7 +18,7 @@ class ArbitrarySendErc20NoPermit(AbstractDetector):
     IMPACT = DetectorClassification.HIGH
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/trailofbits/slither/wiki/Detector-Documentation#arbitrary-send-erc20"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#arbitrary-from-in-transferfrom"
 
     WIKI_TITLE = "Arbitrary `from` in transferFrom"
     WIKI_DESCRIPTION = "Detect when `msg.sender` is not used as `from` in transferFrom."
@@ -38,7 +42,7 @@ Use `msg.sender` as `from` in transferFrom.
         arbitrary_sends.detect()
         for node in arbitrary_sends.no_permit_results:
             func = node.function
-            info = [func, " uses arbitrary from in transferFrom: ", node, "\n"]
+            info: DETECTOR_INFO = [func, " uses arbitrary from in transferFrom: ", node, "\n"]
             res = self.generate_result(info)
             results.append(res)
 

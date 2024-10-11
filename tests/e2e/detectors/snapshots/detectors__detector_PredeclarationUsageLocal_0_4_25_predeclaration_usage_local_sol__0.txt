@@ -1,0 +1,10 @@
+Variable 'C.f(uint256).i (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#8)' in C.f(uint256) (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: i -- (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#14)
+
+Variable 'C.f(uint256).i (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#8)' in C.f(uint256) (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: x += i (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#15)
+
+Variable 'C.f(uint256).i (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#8)' in C.f(uint256) (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: i > 0 (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#14)
+
+Variable 'C.f(uint256).i (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#8)' in C.f(uint256) (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: i = 10 (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#14)
+
+Variable 'C.f(uint256).x (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#5)' in C.f(uint256) (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#2-17) potentially used before declaration: y = x + 9 + z (tests/e2e/detectors/test_data/variable-scope/0.4.25/predeclaration_usage_local.sol#4)
+

@@ -1,11 +1,23 @@
 """
 Module detecting state changes in assert calls
 """
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List, Tuple
+
+from slither.core.cfg.node import Node
+from slither.core.declarations.contract import Contract
+from slither.core.declarations.function_contract import FunctionContract
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.operations.internal_call import InternalCall
+from slither.utils.output import Output
 
 
-def detect_assert_state_change(contract):
+def detect_assert_state_change(
+    contract: Contract,
+) -> List[Tuple[FunctionContract, Node]]:
     """
     Detects and returns all nodes with assert calls that change contract state from within the invariant
     :param contract: Contract to detect
@@ -17,21 +29,23 @@ def detect_assert_state_change(contract):
     results = []
 
     # Loop for each function and modifier.
-    for function in contract.functions_declared + contract.modifiers_declared:
-        for node in function.nodes:
+    for function in contract.functions_declared + list(contract.modifiers_declared):
+        for ir_call in function.internal_calls:
             # Detect assert() calls
-            if any(c.name == "assert(bool)" for c in node.internal_calls) and (
+            if ir_call.function.name == "assert(bool)" and (
                 # Detect direct changes to state
-                node.state_variables_written
+                ir_call.node.state_variables_written
                 or
                 # Detect changes to state via function calls
                 any(
                     ir
-                    for ir in node.irs
-                    if isinstance(ir, InternalCall) and ir.function.state_variables_written
+                    for ir in ir_call.node.irs
+                    if isinstance(ir, InternalCall)
+                    and ir.function
+                    and ir.function.state_variables_written
                 )
             ):
-                results.append((function, node))
+                results.append((function, ir_call.node))
 
     # Return the resulting set of nodes
     return results
@@ -69,7 +83,7 @@ The assert in `bad()` increments the state variable `s_a` while checking for the
 
     WIKI_RECOMMENDATION = """Use `require` for invariants modifying the state."""
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         """
         Detect assert calls that change state from within the invariant
         """
@@ -77,7 +91,10 @@ The assert in `bad()` increments the state variable `s_a` while checking for the
         for contract in self.contracts:
             assert_state_change = detect_assert_state_change(contract)
             for (func, node) in assert_state_change:
-                info = [func, " has an assert() call which possibly changes state.\n"]
+                info: DETECTOR_INFO = [
+                    func,
+                    " has an assert() call which possibly changes state.\n",
+                ]
                 info += ["\t-", node, "\n"]
                 info += [
                     "Consider using require() or change the invariant to not modify the state.\n"

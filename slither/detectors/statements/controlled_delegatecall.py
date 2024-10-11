@@ -1,18 +1,25 @@
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.slithir.operations import LowLevelCall
+from typing import List
+
 from slither.analyses.data_dependency.data_dependency import is_tainted
+from slither.core.cfg.node import Node
+from slither.core.declarations.function_contract import FunctionContract
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
+from slither.utils.output import Output
 
 
-def controlled_delegatecall(function):
+def controlled_delegatecall(function: FunctionContract) -> List[Node]:
     ret = []
-    for node in function.nodes:
-        for ir in node.irs:
-            if isinstance(ir, LowLevelCall) and ir.function_name in [
-                "delegatecall",
-                "callcode",
-            ]:
-                if is_tainted(ir.destination, function.contract):
-                    ret.append(node)
+    for ir in function.low_level_calls:
+        if ir.function_name in [
+            "delegatecall",
+            "callcode",
+        ]:
+            if is_tainted(ir.destination, function.contract):
+                ret.append(ir.node)
     return ret
 
 
@@ -42,7 +49,7 @@ Bob calls `delegate` and delegates the execution to his malicious contract. As a
 
     WIKI_RECOMMENDATION = "Avoid using `delegatecall`. Use only trusted destinations."
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
 
         for contract in self.compilation_unit.contracts_derived:
@@ -53,13 +60,13 @@ Bob calls `delegate` and delegates the execution to his malicious contract. As a
                     continue
                 nodes = controlled_delegatecall(f)
                 if nodes:
-                    func_info = [
+                    func_info: DETECTOR_INFO = [
                         f,
                         " uses delegatecall to a input-controlled function id\n",
                     ]
 
                     for node in nodes:
-                        node_info = func_info + ["\t- ", node, "\n"]
+                        node_info: DETECTOR_INFO = func_info + ["\t- ", node, "\n"]
                         res = self.generate_result(node_info)
                         results.append(res)
 

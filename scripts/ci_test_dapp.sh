@@ -2,6 +2,11 @@
 
 ### Test Dapp integration
 
+# work around having two python versions loading libraries from each other in CI
+OLD_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+alias crytic-compile='LD_LIBRARY_PATH=$OLD_LD_LIBRARY_PATH crytic-compile'
+unset LD_LIBRARY_PATH
+
 mkdir test_dapp
 cd test_dapp || exit 255
 # The dapp init process makes a temporary local git repo and needs certain values to be set
@@ -15,13 +20,9 @@ nix-env -f "$HOME/.dapp/dapptools" -iA dapp seth solc hevm ethsign
 
 dapp init
 
-slither . --detect external-function
-
-# TODO: make more elaborate test
-if [ $? -eq 4 ]
-then
-    exit 0
+if ! slither . --detect external-function; then
+    echo "Dapp test failed"
+    exit 1
 fi
 
-echo "Dapp test failed"
-exit 255
+exit 0

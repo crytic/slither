@@ -1,0 +1,9 @@
+bad2(uint256[]) should be declared external:
+	- Test.bad2(uint256[]) (tests/e2e/detectors/test_data/external-function/0.4.25/external_function_3.sol#8)
+
+bad(bytes) should be declared external:
+	- Test.bad(bytes) (tests/e2e/detectors/test_data/external-function/0.4.25/external_function_3.sol#7)
+
+bad3(string) should be declared external:
+	- Test.bad3(string) (tests/e2e/detectors/test_data/external-function/0.4.25/external_function_3.sol#9)
+

@@ -3,13 +3,22 @@ Module detecting numbers with too many digits.
 """
 
 import re
-from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
+from typing import List
+
+from slither.core.cfg.node import Node
+from slither.core.declarations.function_contract import FunctionContract
+from slither.detectors.abstract_detector import (
+    AbstractDetector,
+    DetectorClassification,
+    DETECTOR_INFO,
+)
 from slither.slithir.variables import Constant
+from slither.utils.output import Output
 
 _HEX_ADDRESS_REGEXP = re.compile("(0[xX])?[0-9a-fA-F]{40}")
 
 
-def is_hex_address(value) -> bool:
+def is_hex_address(value: str) -> bool:
     """
     Checks if the given string of text type is an address in hexadecimal encoded form.
     """
@@ -31,7 +40,7 @@ class TooManyDigits(AbstractDetector):
 
     # region wiki_description
     WIKI_DESCRIPTION = """
-Literals with many digits are difficult to read and review.
+Literals with many digits are difficult to read and review. Use scientific notation or suffixes to make the code more readable.
 """
     # endregion wiki_description
 
@@ -57,7 +66,7 @@ Use:
     # endregion wiki_recommendation
 
     @staticmethod
-    def _detect_too_many_digits(f):
+    def _detect_too_many_digits(f: FunctionContract) -> List[Node]:
         ret = []
         for node in f.nodes:
             # each node contains a list of IR instruction
@@ -73,7 +82,7 @@ Use:
                             ret.append(node)
         return ret
 
-    def _detect(self):
+    def _detect(self) -> List[Output]:
         results = []
 
         # iterate over all contracts
@@ -83,9 +92,9 @@ Use:
                 # iterate over all the nodes
                 ret = self._detect_too_many_digits(f)
                 if ret:
-                    func_info = [f, " uses literals with too many digits:"]
+                    func_info: DETECTOR_INFO = [f, " uses literals with too many digits:"]
                     for node in ret:
-                        node_info = func_info + ["\n\t- ", node, "\n"]
+                        node_info: DETECTOR_INFO = func_info + ["\n\t- ", node, "\n"]
 
                         # Add the result in result
                         res = self.generate_result(node_info)

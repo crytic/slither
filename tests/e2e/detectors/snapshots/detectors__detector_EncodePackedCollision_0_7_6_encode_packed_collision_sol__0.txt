@@ -1,0 +1,15 @@
+EncodePackedCollision.bad4(bytes,bytes) (tests/e2e/detectors/test_data/encode-packed-collision/0.7.6/encode_packed_collision.sol#34-36) calls abi.encodePacked() with multiple dynamic arguments:
+	- packed = abi.encodePacked(a,a2,a3,a) (tests/e2e/detectors/test_data/encode-packed-collision/0.7.6/encode_packed_collision.sol#35)
+
+EncodePackedCollision.bad2(string,uint256[]) (tests/e2e/detectors/test_data/encode-packed-collision/0.7.6/encode_packed_collision.sol#24-26) calls abi.encodePacked() with multiple dynamic arguments:
+	- packed = abi.encodePacked(stra,arra) (tests/e2e/detectors/test_data/encode-packed-collision/0.7.6/encode_packed_collision.sol#25)
+
+EncodePackedCollision.bad3_get_hash_for_signature(string,string) (tests/e2e/detectors/test_data/encode-packed-collision/0.7.6/encode_packed_collision.sol#29-31) calls abi.encodePacked() with multiple dynamic arguments:
+	- keccak256(bytes)(abi.encodePacked(name,doc)) (tests/e2e/detectors/test_data/encode-packed-collision/0.7.6/encode_packed_collision.sol#30)
+
+EncodePackedCollision.bad0(string,string) (tests/e2e/detectors/test_data/encode-packed-collision/0.7.6/encode_packed_collision.sol#14-16) calls abi.encodePacked() with multiple dynamic arguments:
+	- packed = abi.encodePacked(stra,strb) (tests/e2e/detectors/test_data/encode-packed-collision/0.7.6/encode_packed_collision.sol#15)
+
+EncodePackedCollision.bad1(string,bytes) (tests/e2e/detectors/test_data/encode-packed-collision/0.7.6/encode_packed_collision.sol#19-21) calls abi.encodePacked() with multiple dynamic arguments:
+	- packed = abi.encodePacked(stra,bytesa) (tests/e2e/detectors/test_data/encode-packed-collision/0.7.6/encode_packed_collision.sol#20)
+

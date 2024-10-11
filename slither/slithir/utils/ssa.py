@@ -1,6 +1,8 @@
 import logging
+from typing import Any, Callable, Dict, List, Tuple, Union
 
-from slither.core.cfg.node import NodeType
+import slither.slithir.variables.tuple_ssa
+from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import (
     Contract,
     Enum,
@@ -9,11 +11,16 @@ from slither.core.declarations import (
     SolidityVariable,
     Structure,
 )
+from slither.core.declarations.function_contract import FunctionContract
+from slither.core.declarations.function_top_level import FunctionTopLevel
+from slither.core.declarations.modifier import Modifier
 from slither.core.declarations.solidity_import_placeholder import SolidityImportPlaceHolder
 from slither.core.solidity_types.type import Type
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.top_level_variable import TopLevelVariable
+from slither.core.variables.variable import Variable
+from slither.slithir.exceptions import SlithIRError
 from slither.slithir.operations import (
     Assignment,
     Binary,
@@ -36,7 +43,6 @@ from slither.slithir.operations import (
     OperationWithLValue,
     Phi,
     PhiCallback,
-    Push,
     Return,
     Send,
     SolidityCall,
@@ -46,7 +52,9 @@ from slither.slithir.operations import (
     Unpack,
     Nop,
 )
+from slither.slithir.operations.call import Call
 from slither.slithir.operations.codesize import CodeSize
+from slither.slithir.operations.operation import Operation
 from slither.slithir.variables import (
     Constant,
     LocalIRVariable,
@@ -58,7 +66,6 @@ from slither.slithir.variables import (
     TupleVariable,
     TupleVariableSSA,
 )
-from slither.slithir.exceptions import SlithIRError
 
 logger = logging.getLogger("SSA_Conversion")
 
@@ -69,7 +76,9 @@ logger = logging.getLogger("SSA_Conversion")
 ###################################################################################
 
 
-def transform_slithir_vars_to_ssa(function):
+def transform_slithir_vars_to_ssa(
+    function: Union[FunctionContract, Modifier, FunctionTopLevel]
+) -> None:
     """
     Transform slithIR vars to SSA (TemporaryVariable, ReferenceVariable, TupleVariable)
     """
@@ -81,13 +90,13 @@ def transform_slithir_vars_to_ssa(function):
 
     tmp_variables = [v for v in variables if isinstance(v, TemporaryVariable)]
     for idx, _ in enumerate(tmp_variables):
-        tmp_variables[idx].index = idx
+        tmp_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
     ref_variables = [v for v in variables if isinstance(v, ReferenceVariable)]
     for idx, _ in enumerate(ref_variables):
-        ref_variables[idx].index = idx
+        ref_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
     tuple_variables = [v for v in variables if isinstance(v, TupleVariable)]
     for idx, _ in enumerate(tuple_variables):
-        tuple_variables[idx].index = idx
+        tuple_variables[idx].index = idx  # pylint: disable=unnecessary-list-index-lookup
 
 
 ###################################################################################
@@ -99,7 +108,12 @@ def transform_slithir_vars_to_ssa(function):
 # pylint: disable=too-many-arguments,too-many-locals,too-many-nested-blocks,too-many-statements,too-many-branches
 
 
-def add_ssa_ir(function, all_state_variables_instances):
+def add_ssa_ir(
+    function: Union[FunctionContract, Modifier, FunctionTopLevel],
+    all_state_variables_instances: Dict[
+        str, slither.slithir.variables.state_variable.StateIRVariable
+    ],
+) -> None:
     """
         Add SSA version of the IR
     Args:
@@ -200,14 +214,14 @@ def add_ssa_ir(function, all_state_variables_instances):
 
 
 def generate_ssa_irs(
-    node,
-    local_variables_instances,
-    all_local_variables_instances,
-    state_variables_instances,
-    all_state_variables_instances,
-    init_local_variables_instances,
-    visited,
-):
+    node: Node,
+    local_variables_instances: Dict[str, LocalIRVariable],
+    all_local_variables_instances: Dict[str, LocalIRVariable],
+    state_variables_instances: Dict[str, StateIRVariable],
+    all_state_variables_instances: Dict[str, StateIRVariable],
+    init_local_variables_instances: Dict[str, LocalIRVariable],
+    visited: List[Node],
+) -> None:
 
     if node in visited:
         return
@@ -324,7 +338,14 @@ def generate_ssa_irs(
 ###################################################################################
 
 
-def last_name(n, var, init_vars):
+def last_name(
+    n: Node,
+    var: Union[
+        StateIRVariable,
+        LocalIRVariable,
+    ],
+    init_vars: Dict[str, LocalIRVariable],
+) -> Union[StateIRVariable, LocalIRVariable,]:
     candidates = []
     # Todo optimize by creating a variables_ssa_written attribute
     for ir_ssa in n.irs_ssa:
@@ -343,7 +364,10 @@ def last_name(n, var, init_vars):
     return max(candidates, key=lambda v: v.index)
 
 
-def is_used_later(initial_node, variable):
+def is_used_later(
+    initial_node: Node,
+    variable: Union[StateIRVariable, LocalVariable, TemporaryVariableSSA],
+) -> bool:
     # TODO: does not handle the case where its read and written in the declaration node
     # It can be problematic if this happens in a loop/if structure
     # Ex:
@@ -390,13 +414,13 @@ def is_used_later(initial_node, variable):
 
 
 def update_lvalue(
-    new_ir,
-    node,
-    local_variables_instances,
-    all_local_variables_instances,
-    state_variables_instances,
-    all_state_variables_instances,
-):
+    new_ir: Operation,
+    node: Node,
+    local_variables_instances: Dict[str, LocalIRVariable],
+    all_local_variables_instances: Dict[str, LocalIRVariable],
+    state_variables_instances: Dict[str, StateIRVariable],
+    all_state_variables_instances: Dict[str, StateIRVariable],
+) -> None:
     if isinstance(new_ir, OperationWithLValue):
         lvalue = new_ir.lvalue
         update_through_ref = False
@@ -438,8 +462,10 @@ def update_lvalue(
 
 
 def initiate_all_local_variables_instances(
-    nodes, local_variables_instances, all_local_variables_instances
-):
+    nodes: List[Node],
+    local_variables_instances: Dict[str, LocalIRVariable],
+    all_local_variables_instances: Dict[str, LocalIRVariable],
+) -> None:
     for node in nodes:
         if node.variable_declaration:
             new_var = LocalIRVariable(node.variable_declaration)
@@ -458,13 +484,13 @@ def initiate_all_local_variables_instances(
 
 
 def fix_phi_rvalues_and_storage_ref(
-    node,
-    local_variables_instances,
-    all_local_variables_instances,
-    state_variables_instances,
-    all_state_variables_instances,
-    init_local_variables_instances,
-):
+    node: Node,
+    local_variables_instances: Dict[str, LocalIRVariable],
+    all_local_variables_instances: Dict[str, LocalIRVariable],
+    state_variables_instances: Dict[str, StateIRVariable],
+    all_state_variables_instances: Dict[str, StateIRVariable],
+    init_local_variables_instances: Dict[str, LocalIRVariable],
+) -> None:
     for ir in node.irs_ssa:
         if isinstance(ir, (Phi)) and not ir.rvalues:
             variables = [
@@ -507,7 +533,11 @@ def fix_phi_rvalues_and_storage_ref(
         )
 
 
-def add_phi_origins(node, local_variables_definition, state_variables_definition):
+def add_phi_origins(
+    node: Node,
+    local_variables_definition: Dict[str, Tuple[LocalVariable, Node]],
+    state_variables_definition: Dict[str, Tuple[StateVariable, Node]],
+) -> None:
 
     # Add new key to local_variables_definition
     # The key is the variable_name
@@ -558,12 +588,12 @@ def add_phi_origins(node, local_variables_definition, state_variables_definition
 
 def get(
     variable,
-    local_variables_instances,
-    state_variables_instances,
-    temporary_variables_instances,
-    reference_variables_instances,
-    tuple_variables_instances,
-    all_local_variables_instances,
+    local_variables_instances: Dict[str, LocalIRVariable],
+    state_variables_instances: Dict[str, StateIRVariable],
+    temporary_variables_instances: Dict[int, TemporaryVariableSSA],
+    reference_variables_instances: Dict[int, ReferenceVariableSSA],
+    tuple_variables_instances: Dict[int, TupleVariableSSA],
+    all_local_variables_instances: Dict[str, LocalIRVariable],
 ):
     # variable can be None
     # for example, on LowLevelCall, ir.lvalue can be none
@@ -624,14 +654,14 @@ def get(
     return variable
 
 
-def get_variable(ir, f, *instances):
+def get_variable(ir: Operation, f: Callable, *instances):
     # pylint: disable=no-value-for-parameter
     variable = f(ir)
     variable = get(variable, *instances)
     return variable
 
 
-def _get_traversal(values, *instances):
+def _get_traversal(values: List[Any], *instances) -> List[Any]:
     ret = []
     # pylint: disable=no-value-for-parameter
     for v in values:
@@ -643,11 +673,19 @@ def _get_traversal(values, *instances):
     return ret
 
 
-def get_arguments(ir, *instances):
+def get_arguments(ir: Call, *instances) -> List[Any]:
     return _get_traversal(ir.arguments, *instances)
 
 
-def get_rec_values(ir, f, *instances):
+def get_rec_values(
+    ir: Union[
+        InitArray,
+        Return,
+        NewArray,
+    ],
+    f: Callable,
+    *instances,
+) -> List[Variable]:
     # Use by InitArray and NewArray
     # Potential recursive array(s)
     ori_init_values = f(ir)
@@ -655,7 +693,7 @@ def get_rec_values(ir, f, *instances):
     return _get_traversal(ori_init_values, *instances)
 
 
-def copy_ir(ir, *instances):
+def copy_ir(ir: Operation, *instances) -> Operation:
     """
     Args:
         ir (Operation)
@@ -690,17 +728,24 @@ def copy_ir(ir, *instances):
         return Delete(lvalue, variable)
     if isinstance(ir, EventCall):
         name = ir.name
-        return EventCall(name)
+        new_ir = EventCall(name)
+        new_ir.arguments = get_arguments(ir, *instances)
+        return new_ir
     if isinstance(ir, HighLevelCall):  # include LibraryCall
         destination = get_variable(ir, lambda x: x.destination, *instances)
         function_name = ir.function_name
         nbr_arguments = ir.nbr_arguments
+        names = ir.names
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
         if isinstance(ir, LibraryCall):
-            new_ir = LibraryCall(destination, function_name, nbr_arguments, lvalue, type_call)
+            new_ir = LibraryCall(
+                destination, function_name, nbr_arguments, lvalue, type_call, names=names
+            )
         else:
-            new_ir = HighLevelCall(destination, function_name, nbr_arguments, lvalue, type_call)
+            new_ir = HighLevelCall(
+                destination, function_name, nbr_arguments, lvalue, type_call, names=names
+            )
         new_ir.call_id = ir.call_id
         new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
         new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, *instances)
@@ -711,8 +756,7 @@ def copy_ir(ir, *instances):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         variable_left = get_variable(ir, lambda x: x.variable_left, *instances)
         variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
-        index_type = ir.index_type
-        return Index(lvalue, variable_left, variable_right, index_type)
+        return Index(lvalue, variable_left, variable_right)
     if isinstance(ir, InitArray):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         init_values = get_rec_values(ir, lambda x: x.init_values, *instances)
@@ -722,7 +766,8 @@ def copy_ir(ir, *instances):
         nbr_arguments = ir.nbr_arguments
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
-        new_ir = InternalCall(function, nbr_arguments, lvalue, type_call)
+        names = ir.names
+        new_ir = InternalCall(function, nbr_arguments, lvalue, type_call, names=names)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
     if isinstance(ir, InternalDynamicCall):
@@ -750,10 +795,9 @@ def copy_ir(ir, *instances):
         variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
         return Member(variable_left, variable_right, lvalue)
     if isinstance(ir, NewArray):
-        depth = ir.depth
         array_type = ir.array_type
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        new_ir = NewArray(depth, array_type, lvalue)
+        new_ir = NewArray(array_type, lvalue)
         new_ir.arguments = get_rec_values(ir, lambda x: x.arguments, *instances)
         return new_ir
     if isinstance(ir, NewElementaryType):
@@ -773,15 +817,12 @@ def copy_ir(ir, *instances):
     if isinstance(ir, NewStructure):
         structure = ir.structure
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        new_ir = NewStructure(structure, lvalue)
+        names = ir.names
+        new_ir = NewStructure(structure, lvalue, names=names)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
     if isinstance(ir, Nop):
         return Nop()
-    if isinstance(ir, Push):
-        array = get_variable(ir, lambda x: x.array, *instances)
-        lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        return Push(array, lvalue)
     if isinstance(ir, Return):
         values = get_rec_values(ir, lambda x: x.values, *instances)
         return Return(values)

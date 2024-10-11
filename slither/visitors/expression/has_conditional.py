@@ -1,12 +1,15 @@
+from slither.core.expressions.expression import Expression
 from slither.visitors.expression.expression import ExpressionVisitor
+from slither.core.expressions.conditional_expression import ConditionalExpression
 
 
 class HasConditional(ExpressionVisitor):
-    def result(self):
-        # == True, to convert None to false
-        return self._result is True
+    def __init__(self, expression: Expression) -> None:
+        self._result: bool = False
+        super().__init__(expression)
 
-    def _post_conditional_expression(self, expression):
-        #        if self._result is True:
-        #            raise('Slither does not support nested ternary operator')
+    def result(self) -> bool:
+        return self._result
+
+    def _post_conditional_expression(self, expression: ConditionalExpression) -> None:
         self._result = True

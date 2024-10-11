@@ -3,6 +3,7 @@ from .examples.backdoor import Backdoor
 from .variables.uninitialized_state_variables import UninitializedStateVarsDetection
 from .variables.uninitialized_storage_variables import UninitializedStorageVars
 from .variables.uninitialized_local_variables import UninitializedLocalVars
+from .variables.var_read_using_this import VarReadUsingThis
 from .attributes.constant_pragma import ConstantPragma
 from .attributes.incorrect_solc import IncorrectSolc
 from .attributes.locked_ether import LockedEther
@@ -18,7 +19,8 @@ from .reentrancy.reentrancy_eth import ReentrancyEth
 from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
 from .reentrancy.reentrancy_events import ReentrancyEvent
 from .variables.unused_state_variables import UnusedStateVars
-from .variables.possible_const_state_variables import ConstCandidateStateVars
+from .variables.could_be_constant import CouldBeConstant
+from .variables.could_be_immutable import CouldBeImmutable
 from .statements.tx_origin import TxOrigin
 from .statements.assembly import Assembly
 from .operations.low_level_calls import LowLevelCalls
@@ -55,7 +57,6 @@ from .slither.name_reused import NameReused
 from .functions.unimplemented import UnimplementedFunctionDetection
 from .statements.mapping_deletion import MappingDeletionDetection
 from .statements.array_length_assignment import ArrayLengthAssignment
-from .variables.similar_variables import SimilarVarsDetection
 from .variables.function_init_state_variables import FunctionInitializedState
 from .statements.redundant_statements import RedundantStatements
 from .operations.bad_prng import BadPRNG
@@ -84,3 +85,24 @@ from .statements.write_after_write import WriteAfterWrite
 from .statements.msg_value_in_loop import MsgValueInLoop
 from .statements.delegatecall_in_loop import DelegatecallInLoop
 from .functions.protected_variable import ProtectedVariables
+from .functions.permit_domain_signature_collision import DomainSeparatorCollision
+from .functions.codex import Codex
+from .functions.cyclomatic_complexity import CyclomaticComplexity
+from .operations.cache_array_length import CacheArrayLength
+from .statements.incorrect_using_for import IncorrectUsingFor
+from .operations.encode_packed import EncodePackedCollision
+from .assembly.incorrect_return import IncorrectReturn
+from .assembly.return_instead_of_leave import ReturnInsteadOfLeave
+from .operations.incorrect_exp import IncorrectOperatorExponentiation
+from .statements.tautological_compare import TautologicalCompare
+from .statements.return_bomb import ReturnBomb
+from .functions.out_of_order_retryable import OutOfOrderRetryable
+from .functions.gelato_unprotected_randomness import GelatoUnprotectedRandomness
+from .statements.chronicle_unchecked_price import ChronicleUncheckedPrice
+from .statements.pyth_unchecked_confidence import PythUncheckedConfidence
+from .statements.pyth_unchecked_publishtime import PythUncheckedPublishTime
+from .functions.chainlink_feed_registry import ChainlinkFeedRegistry
+from .functions.pyth_deprecated_functions import PythDeprecatedFunctions
+from .functions.optimism_deprecation import OptimismDeprecation
+
+# from .statements.unused_import import UnusedImport

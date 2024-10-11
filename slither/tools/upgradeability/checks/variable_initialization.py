@@ -1,7 +1,11 @@
+from typing import List
+
 from slither.tools.upgradeability.checks.abstract_checks import (
     CheckClassification,
     AbstractCheck,
+    CHECK_INFO,
 )
+from slither.utils.output import Output
 
 
 class VariableWithInit(AbstractCheck):
@@ -37,11 +41,11 @@ Using initialize functions to write initial values in state variables.
 
     REQUIRE_CONTRACT = True
 
-    def _check(self):
+    def _check(self) -> List[Output]:
         results = []
-        for s in self.contract.state_variables:
-            if s.initialized and not s.is_constant:
-                info = [s, " is a state variable with an initial value.\n"]
+        for s in self.contract.stored_state_variables_ordered:
+            if s.initialized:
+                info: CHECK_INFO = [s, " is a state variable with an initial value.\n"]
                 json = self.generate_result(info)
                 results.append(json)
         return results

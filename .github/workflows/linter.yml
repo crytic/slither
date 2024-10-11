@@ -9,34 +9,43 @@ defaults:
 on:
   pull_request:
     branches: [master, dev]
+    
   schedule:
     # run CI every day even if no PRs/merges occur
     - cron: '0 12 * * *'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    name: Lint Code Base
+    name: Superlinter
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v3
+        uses: actions/checkout@v4
         with:
-          python-version: 3.6
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
 
       - name: Install dependencies
         run: |
-          pip install .
-          pip install deepdiff numpy
-
           mkdir -p .github/linters
           cp pyproject.toml .github/linters
 
+      - name: Register yamllint problem matcher
+        run: |
+          echo "::add-matcher::.github/workflows/matchers/yamllint.json"
+
       - name: Lint everything else
-        uses: github/super-linter/slim@v4.9.2
+        uses: super-linter/super-linter/slim@v6.1.1
         if: always()
         env:
           # run linter on everything to catch preexisting problems
@@ -48,8 +57,8 @@ jobs:
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_ISORT: false
-          # Always false
           VALIDATE_JSON: false
+          VALIDATE_JAVASCRIPT_ES: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_PYTHON_FLAKE8: false
           VALIDATE_DOCKERFILE: false
@@ -57,5 +66,8 @@ jobs:
           VALIDATE_EDITORCONFIG: false
           VALIDATE_JSCPD: false
           VALIDATE_PYTHON_MYPY: false
+          VALIDATE_CHECKOV: false
+          # TODO: consider enabling
+          VALIDATE_SHELL_SHFMT: false
           SHELLCHECK_OPTS: "-e SC1090"
           FILTER_REGEX_EXCLUDE: .*tests/.*.(json|zip|sol)
