@@ -36,7 +36,6 @@ from slither.core.solidity_types.elementary_type import (
 )
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.type_alias import TypeAliasTopLevel, TypeAlias
-from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
