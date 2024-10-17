@@ -828,7 +828,6 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                     targeted_function = next(
                         (x for x in ir_func.contract.functions if x.name == str(ir.variable_right))
                     )
-                    #     t = _make_function_type(targeted_function)
                     ir.lvalue.set_type(targeted_function)
                 elif isinstance(left, (Variable, SolidityVariable)):
                     t = left.type
