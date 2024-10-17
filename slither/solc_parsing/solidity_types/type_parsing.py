@@ -293,7 +293,7 @@ def parse_type(
                 scope = custom_error.contract.file_scope
 
         sl = caller_context.compilation_unit
-        next_context = caller_context.slither_parser
+        next_context = caller_context
         structures_direct_access = list(scope.structures.values())
         all_structuress = [c.structures for c in scope.contracts.values()]
         all_structures = [item for sublist in all_structuress for item in sublist]
