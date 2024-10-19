@@ -57,7 +57,6 @@ from .slither.name_reused import NameReused
 from .functions.unimplemented import UnimplementedFunctionDetection
 from .statements.mapping_deletion import MappingDeletionDetection
 from .statements.array_length_assignment import ArrayLengthAssignment
-from .variables.similar_variables import SimilarVarsDetection
 from .variables.function_init_state_variables import FunctionInitializedState
 from .statements.redundant_statements import RedundantStatements
 from .operations.bad_prng import BadPRNG
@@ -98,4 +97,5 @@ from .operations.incorrect_exp import IncorrectOperatorExponentiation
 from .statements.tautological_compare import TautologicalCompare
 from .statements.return_bomb import ReturnBomb
 from .functions.out_of_order_retryable import OutOfOrderRetryable
-from .statements.unused_import import UnusedImport
+
+# from .statements.unused_import import UnusedImport

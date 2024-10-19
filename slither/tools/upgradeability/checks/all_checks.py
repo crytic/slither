@@ -7,6 +7,7 @@ from slither.tools.upgradeability.checks.initialization import (
     MissingCalls,
     MultipleCalls,
     InitializeTarget,
+    MultipleReinitializers,
 )
 
 from slither.tools.upgradeability.checks.functions_ids import IDCollision, FunctionShadowing
