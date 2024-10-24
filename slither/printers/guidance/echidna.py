@@ -141,10 +141,10 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
     for contract in contracts:
         functions_using_assert: Dict[str, List[Dict]] = defaultdict(list)
         for f in contract.functions_entry_points:
-            for node in f.all_nodes():
-                if SolidityFunction("assert(bool)") in node.solidity_calls and node.source_mapping:
+            for ir in f.all_solidity_calls():
+                if ir.function == SolidityFunction("assert(bool)") and ir.node.source_mapping:
                     func_name = _get_name(f)
-                    functions_using_assert[func_name].append(node.source_mapping.to_json())
+                    functions_using_assert[func_name].append(ir.node.source_mapping.to_json())
                     break
         if functions_using_assert:
             ret[contract.name] = functions_using_assert
