@@ -36,7 +36,6 @@ from slither.core.solidity_types.elementary_type import (
 )
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.type_alias import TypeAliasTopLevel, TypeAlias
-from slither.core.variables.function_type_variable import FunctionTypeVariable
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.slithir.exceptions import SlithIRError
@@ -81,7 +80,7 @@ from slither.slithir.tmp_operations.tmp_new_elementary_type import TmpNewElement
 from slither.slithir.tmp_operations.tmp_new_structure import TmpNewStructure
 from slither.slithir.variables import Constant, ReferenceVariable, TemporaryVariable
 from slither.slithir.variables import TupleVariable
-from slither.utils.function import get_function_id
+from slither.utils.function import get_function_id, get_event_id
 from slither.utils.type import export_nested_types_from_variable
 from slither.utils.using_for import USING_FOR
 from slither.visitors.slithir.expression_to_slithir import ExpressionToSlithIR
@@ -277,20 +276,6 @@ def is_temporary(ins: Operation) -> bool:
         ins,
         (Argument, TmpNewElementaryType, TmpNewContract, TmpNewArray, TmpNewStructure),
     )
-
-
-def _make_function_type(func: Function) -> FunctionType:
-    parameters = []
-    returns = []
-    for parameter in func.parameters:
-        v = FunctionTypeVariable()
-        v.name = parameter.name
-        parameters.append(v)
-    for return_var in func.returns:
-        v = FunctionTypeVariable()
-        v.name = return_var.name
-        returns.append(v)
-    return FunctionType(parameters, returns)
 
 
 # endregion
@@ -793,12 +778,29 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                     assignment.set_node(ir.node)
                     assignment.lvalue.set_type(ElementaryType("bytes4"))
                     return assignment
-                if ir.variable_right == "selector" and isinstance(
-                    ir.variable_left.type, (Function)
+                if ir.variable_right == "selector" and isinstance(ir.variable_left, (Event)):
+                    # the event selector returns a bytes32, which is different from the error/function selector
+                    # which returns a bytes4
+                    assignment = Assignment(
+                        ir.lvalue,
+                        Constant(
+                            str(get_event_id(ir.variable_left.full_name)), ElementaryType("bytes32")
+                        ),
+                        ElementaryType("bytes32"),
+                    )
+                    assignment.set_expression(ir.expression)
+                    assignment.set_node(ir.node)
+                    assignment.lvalue.set_type(ElementaryType("bytes32"))
+                    return assignment
+                if ir.variable_right == "selector" and (
+                    isinstance(ir.variable_left.type, (Function))
                 ):
                     assignment = Assignment(
                         ir.lvalue,
-                        Constant(str(get_function_id(ir.variable_left.type.full_name))),
+                        Constant(
+                            str(get_function_id(ir.variable_left.type.full_name)),
+                            ElementaryType("bytes4"),
+                        ),
                         ElementaryType("bytes4"),
                     )
                     assignment.set_expression(ir.expression)
@@ -826,10 +828,9 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                     targeted_function = next(
                         (x for x in ir_func.contract.functions if x.name == str(ir.variable_right))
                     )
-                    t = _make_function_type(targeted_function)
-                    ir.lvalue.set_type(t)
+                    ir.lvalue.set_type(targeted_function)
                 elif isinstance(left, (Variable, SolidityVariable)):
-                    t = ir.variable_left.type
+                    t = left.type
                 elif isinstance(left, (Contract, Enum, Structure)):
                     t = UserDefinedType(left)
                 # can be None due to temporary operation
@@ -846,10 +847,10 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                                     ir.lvalue.set_type(elems[elem].type)
                         else:
                             assert isinstance(type_t, Contract)
-                            # Allow type propagtion as a Function
+                            # Allow type propagation as a Function
                             # Only for reference variables
                             # This allows to track the selector keyword
-                            # We dont need to check for function collision, as solc prevents the use of selector
+                            # We don't need to check for function collision, as solc prevents the use of selector
                             # if there are multiple functions with the same name
                             f = next(
                                 (f for f in type_t.functions if f.name == ir.variable_right),
@@ -858,7 +859,7 @@ def propagate_types(ir: Operation, node: "Node"):  # pylint: disable=too-many-lo
                             if f:
                                 ir.lvalue.set_type(f)
                             else:
-                                # Allow propgation for variable access through contract's name
+                                # Allow propagation for variable access through contract's name
                                 # like Base_contract.my_variable
                                 v = next(
                                     (

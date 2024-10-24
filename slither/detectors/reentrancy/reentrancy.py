@@ -145,15 +145,16 @@ class AbstractState:
         )
         slithir_operations = []
         # Add the state variables written in internal calls
-        for internal_call in node.internal_calls:
+        for ir in node.internal_calls:
             # Filter to Function, as internal_call can be a solidity call
-            if isinstance(internal_call, Function):
-                for internal_node in internal_call.all_nodes():
+            function = ir.function
+            if isinstance(function, Function):
+                for internal_node in function.all_nodes():
                     for read in internal_node.state_variables_read:
                         state_vars_read[read].add(internal_node)
                     for write in internal_node.state_variables_written:
                         state_vars_written[write].add(internal_node)
-                slithir_operations += internal_call.all_slithir_operations()
+                slithir_operations += function.all_slithir_operations()
 
         contains_call = False
 

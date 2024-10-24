@@ -13,8 +13,6 @@ from slither.detectors.abstract_detector import (
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.local_variable import LocalVariable
-from slither.slithir.operations.high_level_call import HighLevelCall
-from slither.slithir.operations.internal_call import InternalCall
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
@@ -117,37 +115,26 @@ As a result, Bob's usage of the contract is incorrect."""
         # pylint: disable=too-many-nested-blocks
         for contract in contracts:
             for function in contract.functions_and_modifiers_declared:
-                for node in function.nodes:
+                for ir in [ir for _, ir in function.high_level_calls] + function.internal_calls:
 
-                    # If this node has no expression, skip it.
-                    if not node.expression:
+                    # Verify this references a function in our array modifying functions collection.
+                    if ir.function not in array_modifying_funcs:
                         continue
 
-                    for ir in node.irs:
-                        # Verify this is a high level call.
-                        if not isinstance(ir, (HighLevelCall, InternalCall)):
+                    # Verify one of these parameters is an array in storage.
+                    for (param, arg) in zip(ir.function.parameters, ir.arguments):
+                        # Verify this argument is a variable that is an array type.
+                        if not isinstance(arg, (StateVariable, LocalVariable)):
+                            continue
+                        if not isinstance(arg.type, ArrayType):
                             continue
 
-                        # Verify this references a function in our array modifying functions collection.
-                        if ir.function not in array_modifying_funcs:
-                            continue
-
-                        # Verify one of these parameters is an array in storage.
-                        for (param, arg) in zip(ir.function.parameters, ir.arguments):
-                            # Verify this argument is a variable that is an array type.
-                            if not isinstance(arg, (StateVariable, LocalVariable)):
-                                continue
-                            if not isinstance(arg.type, ArrayType):
-                                continue
-
-                            # If it is a state variable OR a local variable referencing storage, we add it to the list.
-                            if (
-                                isinstance(arg, StateVariable)
-                                or (isinstance(arg, LocalVariable) and arg.location == "storage")
-                            ) and (
-                                isinstance(param.type, ArrayType) and param.location != "storage"
-                            ):
-                                results.append((node, arg, ir.function))
+                        # If it is a state variable OR a local variable referencing storage, we add it to the list.
+                        if (
+                            isinstance(arg, StateVariable)
+                            or (isinstance(arg, LocalVariable) and arg.location == "storage")
+                        ) and (isinstance(param.type, ArrayType) and param.location != "storage"):
+                            results.append((ir.node, arg, ir.function))
         return results
 
     def _detect(self) -> List[Output]:

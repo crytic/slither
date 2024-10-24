@@ -3,14 +3,14 @@ Module detecting usage of more than one dynamic type in abi.encodePacked() argum
 """
 
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
-from slither.core.declarations.solidity_variables import SolidityFunction
-from slither.slithir.operations import SolidityCall
+from slither.core.declarations import Contract, SolidityFunction
+from slither.core.variables import Variable
 from slither.analyses.data_dependency.data_dependency import is_tainted
 from slither.core.solidity_types import ElementaryType
 from slither.core.solidity_types import ArrayType
 
 
-def _is_dynamic_type(arg):
+def _is_dynamic_type(arg: Variable):
     """
     Args:
         arg (function argument)
@@ -25,7 +25,7 @@ def _is_dynamic_type(arg):
     return False
 
 
-def _detect_abi_encodePacked_collision(contract):
+def _detect_abi_encodePacked_collision(contract: Contract):
     """
     Args:
         contract (Contract)
@@ -35,22 +35,19 @@ def _detect_abi_encodePacked_collision(contract):
     ret = []
     # pylint: disable=too-many-nested-blocks
     for f in contract.functions_and_modifiers_declared:
-        for n in f.nodes:
-            for ir in n.irs:
-                if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
-                    "abi.encodePacked()"
-                ):
-                    dynamic_type_count = 0
-                    for arg in ir.arguments:
-                        if is_tainted(arg, contract) and _is_dynamic_type(arg):
-                            dynamic_type_count += 1
-                        elif dynamic_type_count > 1:
-                            ret.append((f, n))
-                            dynamic_type_count = 0
-                        else:
-                            dynamic_type_count = 0
-                    if dynamic_type_count > 1:
-                        ret.append((f, n))
+        for ir in f.solidity_calls:
+            if ir.function == SolidityFunction("abi.encodePacked()"):
+                dynamic_type_count = 0
+                for arg in ir.arguments:
+                    if is_tainted(arg, contract) and _is_dynamic_type(arg):
+                        dynamic_type_count += 1
+                    elif dynamic_type_count > 1:
+                        ret.append((f, ir.node))
+                        dynamic_type_count = 0
+                    else:
+                        dynamic_type_count = 0
+                if dynamic_type_count > 1:
+                    ret.append((f, ir.node))
     return ret
 
 

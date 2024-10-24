@@ -1,0 +1,6 @@
+C.bad() (tests/e2e/detectors/test_data/gelato-unprotected-randomness/0.8.20/gelato_unprotected_randomness.sol#42-44) is unprotected and request randomness from Gelato VRF
+	- id = _requestRandomness(abi.encode(msg.sender)) (tests/e2e/detectors/test_data/gelato-unprotected-randomness/0.8.20/gelato_unprotected_randomness.sol#43)
+
+C.good2() (tests/e2e/detectors/test_data/gelato-unprotected-randomness/0.8.20/gelato_unprotected_randomness.sol#51-54) is unprotected and request randomness from Gelato VRF
+	- id = _requestRandomness(abi.encode(msg.sender)) (tests/e2e/detectors/test_data/gelato-unprotected-randomness/0.8.20/gelato_unprotected_randomness.sol#53)
+
