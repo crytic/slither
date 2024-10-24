@@ -777,14 +777,14 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def variables(self) -> List[LocalVariable]:
         """
         Return all local variables
-        Include paramters and return values
+        Include parameters and return values
         """
         return list(self._variables.values())
 
     @property
     def local_variables(self) -> List[LocalVariable]:
         """
-        Return all local variables (dont include paramters and return values)
+        Return all local variables (dont include parameters and return values)
         """
         return list(set(self.variables) - set(self.returns) - set(self.parameters))
 
