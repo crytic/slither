@@ -1,0 +1,10 @@
+Contract locking ether found:
+	Contract OnlyLocked has payable functions:
+	 - Locked.receive()
+	But does not have a function to withdraw the ether
+
+Contract locking ether found:
+	Contract UnlockedAssembly has payable functions:
+	 - Locked.receive()
+	But does not have a function to withdraw the ether
+

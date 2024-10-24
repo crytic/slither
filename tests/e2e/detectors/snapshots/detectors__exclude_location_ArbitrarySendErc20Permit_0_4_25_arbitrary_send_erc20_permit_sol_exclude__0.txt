@@ -1,0 +1,8 @@
+C.int_transferFrom(address,uint256,uint256,uint8,bytes32,bytes32,address) uses arbitrary from in transferFrom in combination with permit: erc20.transferFrom(from,to,value)
+
+C.bad3(address,uint256,uint256,uint8,bytes32,bytes32,address) uses arbitrary from in transferFrom in combination with permit: erc20.safeTransferFrom(from,to,value)
+
+C.bad4(address,uint256,uint256,uint8,bytes32,bytes32,address) uses arbitrary from in transferFrom in combination with permit: SafeERC20.safeTransferFrom(erc20,from,to,value)
+
+C.bad1(address,uint256,uint256,uint8,bytes32,bytes32,address) uses arbitrary from in transferFrom in combination with permit: erc20.transferFrom(from,to,value)
+

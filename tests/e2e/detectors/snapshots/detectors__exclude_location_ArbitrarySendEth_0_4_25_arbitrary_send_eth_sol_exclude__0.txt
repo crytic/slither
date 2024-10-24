@@ -1,0 +1,8 @@
+Test.indirect() sends eth to arbitrary user
+	Dangerous calls:
+	- destination.send(address(this).balance)
+
+Test.direct() sends eth to arbitrary user
+	Dangerous calls:
+	- msg.sender.send(address(this).balance)
+

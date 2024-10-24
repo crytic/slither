@@ -54,6 +54,7 @@ from slither.exceptions import SlitherException
 logging.basicConfig()
 logger = logging.getLogger("Slither")
 
+# pylint: disable=too-many-lines
 
 ###################################################################################
 ###################################################################################
@@ -414,6 +415,13 @@ def parse_args(
         help="Exclude high impact analyses",
         action="store_true",
         default=defaults_flag_in_config["exclude_high"],
+    )
+
+    group_detector.add_argument(
+        "--exclude-location",
+        help="Exclude location information from detector output",
+        action="store_true",
+        default=defaults_flag_in_config["exclude_location"],
     )
 
     group_detector.add_argument(

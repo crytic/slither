@@ -1,0 +1,5 @@
+Contract locking ether found:
+	Contract OnlyLocked has payable functions:
+	 - Locked.receive_eth()
+	But does not have a function to withdraw the ether
+
