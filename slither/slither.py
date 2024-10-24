@@ -1,11 +1,10 @@
 import logging
-from typing import Union, List, ValuesView, Type, Dict, Optional
+from typing import Union, List, Type, Dict, Optional
 
 from crytic_compile import CryticCompile, InvalidCompilation
 
 # pylint: disable= no-name-in-module
 from slither.core.compilation_unit import SlitherCompilationUnit
-from slither.core.scope.scope import FileScope
 from slither.core.slither_core import SlitherCore
 from slither.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither.exceptions import SlitherError
@@ -27,32 +26,71 @@ def _check_common_things(
 ) -> None:
 
     if not issubclass(cls, base_cls) or cls is base_cls:
-        raise Exception(
+        raise SlitherError(
             f"You can't register {cls!r} as a {thing_name}. You need to pass a class that inherits from {base_cls.__name__}"
         )
 
     if any(type(obj) == cls for obj in instances_list):  # pylint: disable=unidiomatic-typecheck
-        raise Exception(f"You can't register {cls!r} twice.")
+        raise SlitherError(f"You can't register {cls!r} twice.")
 
 
-def _update_file_scopes(candidates: ValuesView[FileScope]):
+def _update_file_scopes(
+    sol_parser: SlitherCompilationUnitSolc,
+):  # pylint: disable=too-many-branches
     """
-    Because solc's import allows cycle in the import
-    We iterate until we aren't adding new information to the scope
-
+    Since all definitions in a file are exported by default, including definitions from its (transitive) dependencies,
+    we can identify all top level items that could possibly be referenced within the file from its exportedSymbols.
+    It is not as straightforward for user defined types and functions as well as aliasing. See add_accessible_scopes for more details.
     """
+    candidates = sol_parser.compilation_unit.scopes.values()
     learned_something = False
+    # Because solc's import allows cycle in the import graph, iterate until we aren't adding new information to the scope.
     while True:
         for candidate in candidates:
-            learned_something |= candidate.add_accesible_scopes()
+            learned_something |= candidate.add_accessible_scopes()
         if not learned_something:
             break
         learned_something = False
 
+    for scope in candidates:
+        for refId in scope.exported_symbols:
+            if refId in sol_parser.contracts_by_id:
+                contract = sol_parser.contracts_by_id[refId]
+                scope.contracts[contract.name] = contract
+            elif refId in sol_parser.functions_by_id:
+                functions = sol_parser.functions_by_id[refId]
+                assert len(functions) == 1
+                scope.functions.add(functions[0])
+            elif refId in sol_parser.imports_by_id:
+                import_directive = sol_parser.imports_by_id[refId]
+                scope.imports.add(import_directive)
+            elif refId in sol_parser.top_level_variables_by_id:
+                top_level_variable = sol_parser.top_level_variables_by_id[refId]
+                scope.variables[top_level_variable.name] = top_level_variable
+            elif refId in sol_parser.top_level_events_by_id:
+                top_level_event = sol_parser.top_level_events_by_id[refId]
+                scope.events.add(top_level_event)
+            elif refId in sol_parser.top_level_structures_by_id:
+                top_level_struct = sol_parser.top_level_structures_by_id[refId]
+                scope.structures[top_level_struct.name] = top_level_struct
+            elif refId in sol_parser.top_level_type_aliases_by_id:
+                top_level_type_alias = sol_parser.top_level_type_aliases_by_id[refId]
+                scope.type_aliases[top_level_type_alias.name] = top_level_type_alias
+            elif refId in sol_parser.top_level_enums_by_id:
+                top_level_enum = sol_parser.top_level_enums_by_id[refId]
+                scope.enums[top_level_enum.name] = top_level_enum
+            elif refId in sol_parser.top_level_errors_by_id:
+                top_level_custom_error = sol_parser.top_level_errors_by_id[refId]
+                scope.custom_errors.add(top_level_custom_error)
+            else:
+                logger.error(
+                    f"Failed to resolved name for reference id {refId} in {scope.filename.absolute}."
+                )
+
 
 class Slither(
     SlitherCore
-):  # pylint: disable=too-many-instance-attributes,too-many-locals,too-many-statements
+):  # pylint: disable=too-many-instance-attributes,too-many-locals,too-many-statements,too-many-branches
     def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
         """
         Args:
@@ -118,7 +156,18 @@ class Slither(
                     sol_parser.parse_top_level_items(ast, path)
                     self.add_source_code(path)
 
-                _update_file_scopes(compilation_unit_slither.scopes.values())
+                for contract in sol_parser._underlying_contract_to_parser:
+                    if contract.name.startswith("SlitherInternalTopLevelContract"):
+                        raise SlitherError(
+                            # region multi-line-string
+                            """Your codebase has a contract named 'SlitherInternalTopLevelContract'.
+        Please rename it, this name is reserved for Slither's internals"""
+                            # endregion multi-line
+                        )
+                    sol_parser._contracts_by_id[contract.id] = contract
+                    sol_parser._compilation_unit.contracts.append(contract)
+
+                _update_file_scopes(sol_parser)
 
         if kwargs.get("generate_patches", False):
             self.generate_patches = True
@@ -132,19 +181,27 @@ class Slither(
         for p in filter_paths:
             self.add_path_to_filter(p)
 
+        include_paths = kwargs.get("include_paths", [])
+        for p in include_paths:
+            self.add_path_to_include(p)
+
         self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
 
         triage_mode = kwargs.get("triage_mode", False)
+        triage_database = kwargs.get("triage_database", "slither.db.json")
         self._triage_mode = triage_mode
+        self._previous_results_filename = triage_database
 
         printers_to_run = kwargs.get("printers_to_run", "")
         if printers_to_run == "echidna":
             self.skip_data_dependency = True
 
+        # Used in inheritance-graph printer
+        self.include_interfaces = kwargs.get("include_interfaces", False)
+
         self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
 
     def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:
-
         for parser in self._parsers:
             try:
                 parser.parse_contracts()

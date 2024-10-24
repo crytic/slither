@@ -56,7 +56,7 @@ def is_assert(node: Node) -> bool:
     # Old Solidity code where using an internal 'assert(bool)' function
     # While we dont check that this function is correct, we assume it is
     # To avoid too many FP
-    if "assert(bool)" in [c.full_name for c in node.internal_calls]:
+    if "assert(bool)" in [ir.function.full_name for ir in node.internal_calls]:
         return True
     return False
 
@@ -80,7 +80,7 @@ def _explore(
         for ir in node.irs:
             if isinstance(ir, Assignment):
                 if ir.rvalue in divisions:
-                    # Avoid dupplicate. We dont use set so we keep the order of the nodes
+                    # Avoid duplicate. We dont use set so we keep the order of the nodes
                     if node not in divisions[ir.rvalue]:  # type: ignore
                         divisions[ir.lvalue] = divisions[ir.rvalue] + [node]  # type: ignore
                     else:
@@ -94,7 +94,7 @@ def _explore(
                 nodes = []
                 for r in mul_arguments:
                     if not isinstance(r, Constant) and (r in divisions):
-                        # Dont add node already present to avoid dupplicate
+                        # Dont add node already present to avoid duplicate
                         # We dont use set to keep the order of the nodes
                         if node in divisions[r]:
                             nodes += [n for n in divisions[r] if n not in nodes]

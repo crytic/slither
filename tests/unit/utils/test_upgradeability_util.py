@@ -63,6 +63,8 @@ def test_upgrades_implementation_var(solc_binary_path) -> None:
 
     erc_1967_proxy = sl.get_contract_from_name("ERC1967Proxy")[0]
     storage_proxy = sl.get_contract_from_name("InheritedStorageProxy")[0]
+    upgradeable_proxy = sl.get_contract_from_name("UpgradeableProxy")[0]
+    transparent_proxy = sl.get_contract_from_name("TransparentUpgradeableProxy")[0]
 
     target = get_proxy_implementation_var(erc_1967_proxy)
     slot = get_proxy_implementation_slot(erc_1967_proxy)
@@ -72,6 +74,10 @@ def test_upgrades_implementation_var(solc_binary_path) -> None:
     slot = get_proxy_implementation_slot(storage_proxy)
     assert target == storage_proxy.get_state_variable_from_name("implementation")
     assert slot.slot == 1
+    target = get_proxy_implementation_var(transparent_proxy)
+    slot = get_proxy_implementation_slot(transparent_proxy)
+    assert target == upgradeable_proxy.get_state_variable_from_name("_IMPLEMENTATION_SLOT")
+    assert slot.slot == 0x360894A13BA1A3210667C828492DB98DCA3E2076CC3735A920A3CA505D382BBC
 
     solc_path = solc_binary_path("0.5.0")
     sl = Slither(os.path.join(TEST_DATA_DIR, "TestUpgrades-0.5.0.sol"), solc=solc_path)

@@ -17,7 +17,7 @@ from slither.utils.output import Output
 
 def is_revert(node: Node) -> bool:
     return node.type == NodeType.THROW or any(
-        c.name in ["revert()", "revert(string"] for c in node.internal_calls
+        ir.function.name in ["revert()", "revert(string"] for ir in node.internal_calls
     )
 
 
@@ -89,7 +89,7 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
                     info: DETECTOR_INFO = [
                         "Modifier ",
                         mod,
-                        " does not always execute _; or revert",
+                        " does not always execute _; or revert\n",
                     ]
 
                     res = self.generate_result(info)

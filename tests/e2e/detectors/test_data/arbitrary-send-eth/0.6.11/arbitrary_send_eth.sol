@@ -1,11 +1,16 @@
 contract Test{
 
     address payable destination;
-
+    address payable immutable destination_imm;
     mapping (address => uint) balances;
 
     constructor() public{
+        destination_imm = payable(msg.sender);
         balances[msg.sender] = 0;
+    }
+
+    function send_immutable() public{
+        destination_imm.send(address(this).balance);
     }
 
     function direct() public{

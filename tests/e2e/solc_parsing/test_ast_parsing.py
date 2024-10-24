@@ -21,12 +21,18 @@ TEST_ROOT = os.path.join(E2E_ROOT, "solc_parsing", "test_data")
 
 # pylint: disable=too-few-public-methods
 class Test:
-    def __init__(self, test_file: str, solc_versions: List[str], disable_legacy: bool = False):
+    def __init__(
+        self,
+        test_file: str,
+        solc_versions: List[str],
+        disable_legacy: bool = False,
+        solc_args: str = None,
+    ):
         self.solc_versions = solc_versions
         self.test_file = test_file
         self.disable_legacy = disable_legacy
 
-        versions_with_flavors: List[Tuple[str, str]] = []
+        versions_with_flavors: List[Tuple[str, str, str]] = []
         flavors = ["compact"]
         if not self.disable_legacy:
             flavors += ["legacy"]
@@ -42,7 +48,7 @@ class Test:
                 ) < parse_version("0.4.12")
                 if legacy_unavailable or compact_unavailable:
                     continue
-                versions_with_flavors.append((version, flavor))
+                versions_with_flavors.append((version, flavor, solc_args))
         self.versions_with_flavors = versions_with_flavors
 
 
@@ -461,9 +467,15 @@ ALL_TESTS = [
     ),
     Test("user_defined_operators-0.8.19.sol", ["0.8.19"]),
     Test("aliasing/main.sol", ["0.8.19"]),
+    Test("aliasing/alias-unit-NewContract.sol", ["0.8.19"]),
+    Test("aliasing/alias-symbol-NewContract.sol", ["0.8.19"]),
     Test("type-aliases.sol", ["0.8.19"]),
     Test("enum-max-min.sol", ["0.8.19"]),
     Test("event-top-level.sol", ["0.8.22"]),
+    Test("solidity-0.8.24.sol", ["0.8.24"], solc_args="--evm-version cancun"),
+    Test("scope/inherited_function_scope.sol", ["0.8.24"]),
+    Test("using_for_global_user_defined_operator_1.sol", ["0.8.24"]),
+    Test("require-error.sol", ["0.8.27"]),
 ]
 # create the output folder if needed
 try:
@@ -475,7 +487,7 @@ except OSError:
 def pytest_generate_tests(metafunc):
     test_cases = []
     for test_item in ALL_TESTS:
-        for version, flavor in test_item.versions_with_flavors:
+        for version, flavor, _ in test_item.versions_with_flavors:
             test_cases.append((test_item.test_file, version, flavor))
     metafunc.parametrize("test_file, version, flavor", test_cases)
 
@@ -539,7 +551,7 @@ def _generate_test(test_item: Test, skip_existing=False):
     flavors = ["compact"]
     if not test_item.disable_legacy:
         flavors += ["legacy"]
-    for version, flavor in test_item.versions_with_flavors:
+    for version, flavor, _ in test_item.versions_with_flavors:
         test_file = os.path.join(
             TEST_ROOT, "compile", f"{test_item.test_file}-{version}-{flavor}.zip"
         )
@@ -584,7 +596,7 @@ def set_solc(version: str):
 
 
 def _generate_compile(test_item: Test, skip_existing=False):
-    for version, flavor in test_item.versions_with_flavors:
+    for version, flavor, solc_args in test_item.versions_with_flavors:
         test_file = os.path.join(TEST_ROOT, test_item.test_file)
         expected_file = os.path.join(
             TEST_ROOT, "compile", f"{test_item.test_file}-{version}-{flavor}.zip"
@@ -596,7 +608,9 @@ def _generate_compile(test_item: Test, skip_existing=False):
 
         set_solc(version)
         print(f"Compiled to {expected_file}")
-        cc = CryticCompile(test_file, solc_force_legacy_json=flavor == "legacy")
+        cc = CryticCompile(
+            test_file, solc_force_legacy_json=flavor == "legacy", solc_args=solc_args
+        )
 
         # pylint: disable=no-member
         Path(expected_file).parents[0].mkdir(parents=True, exist_ok=True)
@@ -622,7 +636,7 @@ if __name__ == "__main__":
             "To re-generate all the json artifacts run\n\tpython tests/test_ast_parsing.py --overwrite"
         )
         print("To compile json artifacts run\n\tpython tests/test_ast_parsing.py --compile")
-        print("\tThis will overwrite the previous json files")
+        print("\tThis will overwrite the previous json files.")
     elif sys.argv[1] == "--generate":
         for next_test in ALL_TESTS:
             _generate_test(next_test, skip_existing=True)

@@ -74,7 +74,7 @@ class ArrayType(Type):
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, ArrayType):
             return False
-        return self._type == other.type and self.length == other.length
+        return self._type == other.type and self._length_value == other.length_value
 
     def __hash__(self) -> int:
         return hash(str(self))

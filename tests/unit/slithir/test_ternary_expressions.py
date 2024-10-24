@@ -33,7 +33,9 @@ def test_ternary_conversions(solc_binary_path) -> None:
                         var_expr = expression.expression_left
                         # Only tuples declare more than one var
                         if isinstance(var_expr, TupleExpression):
-                            vars_declared += len(var_expr.expressions)
+                            for expr in var_expr.expressions:
+                                if expr is not None:
+                                    vars_declared += 1
                         else:
                             vars_declared += 1
 

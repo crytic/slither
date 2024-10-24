@@ -15,6 +15,7 @@ class TypeAlias(Type):
         super().__init__()
         self.name = name
         self.underlying_type = underlying_type
+        self._pattern = "type"
 
     @property
     def type(self) -> ElementaryType:

@@ -27,11 +27,17 @@ class VariableOrder(AbstractPrinter):
 
         for contract in self.slither.contracts_derived:
             txt += f"\n{contract.name}:\n"
-            table = MyPrettyTable(["Name", "Type", "Slot", "Offset"])
-            for variable in contract.state_variables_ordered:
-                if not variable.is_constant and not variable.is_immutable:
-                    slot, offset = contract.compilation_unit.storage_layout_of(contract, variable)
-                    table.add_row([variable.canonical_name, str(variable.type), slot, offset])
+            table = MyPrettyTable(["Name", "Type", "Slot", "Offset", "State"])
+            for variable in contract.storage_variables_ordered:
+                slot, offset = contract.compilation_unit.storage_layout_of(contract, variable)
+                table.add_row(
+                    [variable.canonical_name, str(variable.type), slot, offset, "Storage"]
+                )
+            for variable in contract.transient_variables_ordered:
+                slot, offset = contract.compilation_unit.storage_layout_of(contract, variable)
+                table.add_row(
+                    [variable.canonical_name, str(variable.type), slot, offset, "Transient"]
+                )
 
             all_tables.append((contract.name, table))
             txt += str(table) + "\n"

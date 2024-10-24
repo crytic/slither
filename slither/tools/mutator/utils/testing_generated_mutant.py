@@ -1,12 +1,11 @@
-import subprocess
-import os
 import logging
-import time
-import signal
-from typing import Dict
+import sys
+import subprocess
+from pathlib import Path
+from typing import Dict, Union
 import crytic_compile
 from slither.tools.mutator.utils.file_handling import create_mutant_file, reset_file
-from slither.utils.colors import green, red
+from slither.utils.colors import green, red, yellow
 
 logger = logging.getLogger("Slither-Mutate")
 
@@ -23,13 +22,17 @@ def compile_generated_mutant(file_path: str, mappings: str) -> bool:
         return False
 
 
-def run_test_cmd(cmd: str, test_dir: str, timeout: int) -> bool:
+def run_test_cmd(
+    cmd: str,
+    timeout: Union[int, None] = None,
+    target_file: Union[str, None] = None,
+    verbose: bool = False,
+) -> bool:
     """
     function to run codebase tests
     returns: boolean whether the tests passed or not
     """
-    # future purpose
-    _ = test_dir
+
     # add --fail-fast for foundry tests, to exit after first failure
     if "forge test" in cmd and "--fail-fast" not in cmd:
         cmd += " --fail-fast"
@@ -37,41 +40,62 @@ def run_test_cmd(cmd: str, test_dir: str, timeout: int) -> bool:
     elif "hardhat test" in cmd or "truffle test" in cmd and "--bail" not in cmd:
         cmd += " --bail"
 
-    start = time.time()
+    if timeout is None and "hardhat" not in cmd:  # hardhat doesn't support --force flag on tests
+        # if no timeout, ensure all contracts are recompiled w/out using any cache
+        cmd += " --force"
 
-    # starting new process
-    with subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as P:
-        try:
-            # checking whether the process is completed or not within 30 seconds(default)
-            while P.poll() is None and (time.time() - start) < timeout:
-                time.sleep(0.05)
-        finally:
-            if P.poll() is None:
-                logger.error("HAD TO TERMINATE ANALYSIS (TIMEOUT OR EXCEPTION)")
-                # sends a SIGTERM signal to process group - bascially killing the process
-                os.killpg(os.getpgid(P.pid), signal.SIGTERM)
-                # Avoid any weird race conditions from grabbing the return code
-                time.sleep(0.05)
-            # indicates whether the command executed sucessfully or not
-            r = P.returncode
+    try:
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout,
+            check=False,  # True: Raises a CalledProcessError if the return code is non-zero
+        )
 
-    # if r is 0 then it is valid mutant because tests didn't fail
-    return r == 0
+    except subprocess.TimeoutExpired:
+        # Timeout, treat this as a test failure
+        logger.info("Tests took too long, consider increasing the timeout")
+        result = None  # or set result to a default value
+
+    except KeyboardInterrupt:
+        logger.info(yellow("Ctrl-C received"))
+        if target_file is not None:
+            logger.info("Restoring original files")
+            reset_file(target_file)
+        logger.info("Exiting")
+        sys.exit(1)
+
+    # if result is 0 then it is an uncaught mutant because tests didn't fail
+    if result:
+        code = result.returncode
+        if code == 0:
+            return True
+
+    # If tests fail in verbose-mode, print both stdout and stderr for easier debugging
+    if verbose:
+        logger.info(yellow(result.stdout.decode("utf-8")))
+        logger.info(red(result.stderr.decode("utf-8")))
+
+    return False
 
 
+# return 0 if uncaught, 1 if caught, and 2 if compilation fails
 def test_patch(  # pylint: disable=too-many-arguments
+    output_folder: Path,
     file: str,
     patch: Dict,
     command: str,
-    index: int,
     generator_name: str,
     timeout: int,
-    mappings: str | None,
+    mappings: Union[str, None],
     verbose: bool,
-) -> bool:
+    very_verbose: bool,
+) -> int:
     """
-    function to verify the validity of each patch
-    returns: valid or invalid patch
+    function to verify whether each patch is caught by tests
+    returns: 0 (uncaught), 1 (caught), or 2 (compilation failure)
     """
     with open(file, "r", encoding="utf-8") as filepath:
         content = filepath.read()
@@ -80,21 +104,36 @@ def test_patch(  # pylint: disable=too-many-arguments
     # Write the modified content back to the file
     with open(file, "w", encoding="utf-8") as filepath:
         filepath.write(replaced_content)
+
     if compile_generated_mutant(file, mappings):
-        if run_test_cmd(command, file, timeout):
-            create_mutant_file(file, index, generator_name)
-            print(
-                green(
-                    f"String '{patch['old_string']}' replaced with '{patch['new_string']}' at line no. '{patch['line_number']}' ---> VALID\n"
+        if run_test_cmd(command, timeout, file, False):
+
+            create_mutant_file(output_folder, file, generator_name)
+            logger.info(
+                red(
+                    f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> UNCAUGHT"
                 )
             )
-            return True
+            reset_file(file)
 
-    reset_file(file)
+            return 0  # uncaught
+    else:
+        if very_verbose:
+            logger.info(
+                yellow(
+                    f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> COMPILATION FAILURE"
+                )
+            )
+
+        reset_file(file)
+        return 2  # compile failure
+
     if verbose:
-        print(
-            red(
-                f"String '{patch['old_string']}' replaced with '{patch['new_string']}' at line no. '{patch['line_number']}' ---> INVALID\n"
+        logger.info(
+            green(
+                f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> CAUGHT"
             )
         )
-    return False
+
+    reset_file(file)
+    return 1  # caught

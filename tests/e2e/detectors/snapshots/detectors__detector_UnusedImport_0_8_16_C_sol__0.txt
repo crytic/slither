@@ -1,0 +1,6 @@
+The following unused import(s) in tests/e2e/detectors/test_data/unused-imports/0.8.16/C.sol should be removed:
+	-import "./B.sol"; (tests/e2e/detectors/test_data/unused-imports/0.8.16/C.sol#4)
+
+The following unused import(s) in tests/e2e/detectors/test_data/unused-imports/0.8.16/B.sol should be removed:
+	-import "./A.sol"; (tests/e2e/detectors/test_data/unused-imports/0.8.16/B.sol#4)
+

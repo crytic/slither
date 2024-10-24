@@ -60,7 +60,6 @@ def compare(
     List[Function],
     List[Function],
     List[Function],
-    List[TaintedExternalContract],
 ]:
     """
     Compares two versions of a contract. Most useful for upgradeable (logic) contracts,
@@ -81,12 +80,8 @@ def compare(
         tainted-contracts: list[TaintedExternalContract]
     """
 
-    order_vars1 = [
-        v for v in v1.state_variables_ordered if not v.is_constant and not v.is_immutable
-    ]
-    order_vars2 = [
-        v for v in v2.state_variables_ordered if not v.is_constant and not v.is_immutable
-    ]
+    order_vars1 = v1.storage_variables_ordered + v1.transient_variables_ordered
+    order_vars2 = v2.storage_variables_ordered + v2.transient_variables_ordered
     func_sigs1 = [function.solidity_signature for function in v1.functions]
     func_sigs2 = [function.solidity_signature for function in v2.functions]
 
@@ -128,7 +123,9 @@ def compare(
         ):
             continue
         modified_calls = [
-            func for func in new_modified_functions if func in function.internal_calls
+            func
+            for func in new_modified_functions
+            if func in [ir.function for ir in function.internal_calls]
         ]
         tainted_vars = [
             var
@@ -184,7 +181,8 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
     tainted_list: list[TaintedExternalContract] = []
 
     for func in funcs:
-        for contract, target in func.all_high_level_calls():
+        for contract, ir in func.all_high_level_calls():
+            target = ir.function
             if contract.is_library:
                 # Not interested in library calls
                 continue
@@ -206,7 +204,7 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
             elif (
                 isinstance(target, StateVariable)
                 and target not in (v for v in tainted_contracts[contract.name].tainted_variables)
-                and not (target.is_constant or target.is_immutable)
+                and target.is_stored
             ):
                 # Found a new high-level call to a public state variable getter
                 tainted_contracts[contract.name].add_tainted_variable(target)
@@ -259,7 +257,11 @@ def tainted_inheriting_contracts(
             new_taint = TaintedExternalContract(c)
             for f in c.functions_declared:
                 # Search for functions that call an inherited tainted function or access an inherited tainted variable
-                internal_calls = [c for c in f.all_internal_calls() if isinstance(c, Function)]
+                internal_calls = [
+                    ir.function
+                    for ir in f.all_internal_calls()
+                    if isinstance(ir.function, Function)
+                ]
                 if any(
                     call.canonical_name == t.canonical_name
                     for t in tainted.tainted_functions
@@ -304,12 +306,8 @@ def get_missing_vars(v1: Contract, v2: Contract) -> List[StateVariable]:
         List of StateVariables from v1 missing in v2
     """
     results = []
-    order_vars1 = [
-        v for v in v1.state_variables_ordered if not v.is_constant and not v.is_immutable
-    ]
-    order_vars2 = [
-        v for v in v2.state_variables_ordered if not v.is_constant and not v.is_immutable
-    ]
+    order_vars1 = v1.storage_variables_ordered + v1.transient_variables_ordered
+    order_vars2 = v2.storage_variables_ordered + v2.transient_variables_ordered
     if len(order_vars2) < len(order_vars1):
         for variable in order_vars1:
             if variable.name not in [v.name for v in order_vars2]:
@@ -366,7 +364,7 @@ def get_proxy_implementation_slot(proxy: Contract) -> Optional[SlotInfo]:
 
     delegate = get_proxy_implementation_var(proxy)
     if isinstance(delegate, StateVariable):
-        if not delegate.is_constant and not delegate.is_immutable:
+        if delegate.is_stored:
             srs = SlitherReadStorage([proxy], 20)
             return srs.get_storage_slot(delegate, proxy)
         if delegate.is_constant and delegate.type.name == "bytes32":
@@ -400,7 +398,7 @@ def get_proxy_implementation_var(proxy: Contract) -> Optional[Variable]:
         try:
             delegate = next(var for var in dependencies if isinstance(var, StateVariable))
         except StopIteration:
-            # TODO: Handle cases where get_dependencies doesn't return any state variables.
+            # TODO: Handle case where get_dependencies does not return any state variables.
             return delegate
     return delegate
 

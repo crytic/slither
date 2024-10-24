@@ -115,37 +115,43 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
     def _check(self) -> List[Output]:
         contract1 = self._contract1()
         contract2 = self._contract2()
-        order1 = [
-            variable
-            for variable in contract1.state_variables_ordered
-            if not (variable.is_constant or variable.is_immutable)
-        ]
-        order2 = [
-            variable
-            for variable in contract2.state_variables_ordered
-            if not (variable.is_constant or variable.is_immutable)
-        ]
 
         results: List[Output] = []
-        for idx, _ in enumerate(order1):
-            if len(order2) <= idx:
-                # Handle by MissingVariable
-                return results
 
-            variable1 = order1[idx]
-            variable2 = order2[idx]
-            if (variable1.name != variable2.name) or (variable1.type != variable2.type):
-                info: CHECK_INFO = [
-                    "Different variables between ",
-                    contract1,
-                    " and ",
-                    contract2,
-                    "\n",
-                ]
-                info += ["\t ", variable1, "\n"]
-                info += ["\t ", variable2, "\n"]
-                json = self.generate_result(info)
-                results.append(json)
+        def _check_internal(
+            contract1: Contract, contract2: Contract, results: List[Output], is_transient: bool
+        ):
+            if is_transient:
+                order1 = contract1.transient_variables_ordered
+                order2 = contract2.transient_variables_ordered
+            else:
+                order1 = contract1.storage_variables_ordered
+                order2 = contract2.storage_variables_ordered
+
+            for idx, _ in enumerate(order1):
+                if len(order2) <= idx:
+                    # Handle by MissingVariable
+                    return
+
+                variable1 = order1[idx]
+                variable2 = order2[idx]
+                if (variable1.name != variable2.name) or (variable1.type != variable2.type):
+                    info: CHECK_INFO = [
+                        "Different variables between ",
+                        contract1,
+                        " and ",
+                        contract2,
+                        "\n",
+                    ]
+                    info += ["\t ", variable1, "\n"]
+                    info += ["\t ", variable2, "\n"]
+                    json = self.generate_result(info)
+                    results.append(json)
+
+        # Checking state variables with storage location
+        _check_internal(contract1, contract2, results, False)
+        # Checking state variables with transient location
+        _check_internal(contract1, contract2, results, True)
 
         return results
 
@@ -244,30 +250,35 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
     def _check(self) -> List[Output]:
         contract1 = self._contract1()
         contract2 = self._contract2()
-        order1 = [
-            variable
-            for variable in contract1.state_variables_ordered
-            if not (variable.is_constant or variable.is_immutable)
-        ]
-        order2 = [
-            variable
-            for variable in contract2.state_variables_ordered
-            if not (variable.is_constant or variable.is_immutable)
-        ]
 
-        results = []
+        results: List[Output] = []
 
-        if len(order2) <= len(order1):
-            return []
+        def _check_internal(
+            contract1: Contract, contract2: Contract, results: List[Output], is_transient: bool
+        ):
+            if is_transient:
+                order1 = contract1.transient_variables_ordered
+                order2 = contract2.transient_variables_ordered
+            else:
+                order1 = contract1.storage_variables_ordered
+                order2 = contract2.storage_variables_ordered
 
-        idx = len(order1)
+            if len(order2) <= len(order1):
+                return
 
-        while idx < len(order2):
-            variable2 = order2[idx]
-            info: CHECK_INFO = ["Extra variables in ", contract2, ": ", variable2, "\n"]
-            json = self.generate_result(info)
-            results.append(json)
-            idx = idx + 1
+            idx = len(order1)
+
+            while idx < len(order2):
+                variable2 = order2[idx]
+                info: CHECK_INFO = ["Extra variables in ", contract2, ": ", variable2, "\n"]
+                json = self.generate_result(info)
+                results.append(json)
+                idx = idx + 1
+
+        # Checking state variables with storage location
+        _check_internal(contract1, contract2, results, False)
+        # Checking state variables with transient location
+        _check_internal(contract1, contract2, results, True)
 
         return results
 
