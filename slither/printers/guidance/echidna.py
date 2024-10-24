@@ -145,7 +145,6 @@ def _extract_assert(contracts: List[Contract]) -> Dict[str, Dict[str, List[Dict]
                 if ir.function == SolidityFunction("assert(bool)") and ir.node.source_mapping:
                     func_name = _get_name(f)
                     functions_using_assert[func_name].append(ir.node.source_mapping.to_json())
-                    break
         if functions_using_assert:
             ret[contract.name] = functions_using_assert
     return ret
