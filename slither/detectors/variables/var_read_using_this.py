@@ -7,7 +7,6 @@ from slither.detectors.abstract_detector import (
     DetectorClassification,
     DETECTOR_INFO,
 )
-from slither.slithir.operations.high_level_call import HighLevelCall
 from slither.utils.output import Output
 
 
@@ -54,13 +53,11 @@ contract C {
     @staticmethod
     def _detect_var_read_using_this(func: Function) -> List[Node]:
         results: List[Node] = []
-        for node in func.nodes:
-            for ir in node.irs:
-                if isinstance(ir, HighLevelCall):
-                    if (
-                        ir.destination == SolidityVariable("this")
-                        and ir.is_static_call()
-                        and ir.function.visibility == "public"
-                    ):
-                        results.append(node)
+        for _, ir in func.high_level_calls:
+            if (
+                ir.destination == SolidityVariable("this")
+                and ir.is_static_call()
+                and ir.function.visibility == "public"
+            ):
+                results.append(ir.node)
         return sorted(results, key=lambda x: x.node_id)

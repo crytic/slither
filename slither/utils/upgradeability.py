@@ -80,8 +80,8 @@ def compare(
         tainted-contracts: list[TaintedExternalContract]
     """
 
-    order_vars1 = v1.stored_state_variables_ordered
-    order_vars2 = v2.stored_state_variables_ordered
+    order_vars1 = v1.storage_variables_ordered + v1.transient_variables_ordered
+    order_vars2 = v2.storage_variables_ordered + v2.transient_variables_ordered
     func_sigs1 = [function.solidity_signature for function in v1.functions]
     func_sigs2 = [function.solidity_signature for function in v2.functions]
 
@@ -123,7 +123,9 @@ def compare(
         ):
             continue
         modified_calls = [
-            func for func in new_modified_functions if func in function.internal_calls
+            func
+            for func in new_modified_functions
+            if func in [ir.function for ir in function.internal_calls]
         ]
         tainted_vars = [
             var
@@ -179,7 +181,8 @@ def tainted_external_contracts(funcs: List[Function]) -> List[TaintedExternalCon
     tainted_list: list[TaintedExternalContract] = []
 
     for func in funcs:
-        for contract, target in func.all_high_level_calls():
+        for contract, ir in func.all_high_level_calls():
+            target = ir.function
             if contract.is_library:
                 # Not interested in library calls
                 continue
@@ -254,7 +257,11 @@ def tainted_inheriting_contracts(
             new_taint = TaintedExternalContract(c)
             for f in c.functions_declared:
                 # Search for functions that call an inherited tainted function or access an inherited tainted variable
-                internal_calls = [c for c in f.all_internal_calls() if isinstance(c, Function)]
+                internal_calls = [
+                    ir.function
+                    for ir in f.all_internal_calls()
+                    if isinstance(ir.function, Function)
+                ]
                 if any(
                     call.canonical_name == t.canonical_name
                     for t in tainted.tainted_functions
@@ -299,8 +306,8 @@ def get_missing_vars(v1: Contract, v2: Contract) -> List[StateVariable]:
         List of StateVariables from v1 missing in v2
     """
     results = []
-    order_vars1 = v1.stored_state_variables_ordered
-    order_vars2 = v2.stored_state_variables_ordered
+    order_vars1 = v1.storage_variables_ordered + v1.transient_variables_ordered
+    order_vars2 = v2.storage_variables_ordered + v2.transient_variables_ordered
     if len(order_vars2) < len(order_vars1):
         for variable in order_vars1:
             if variable.name not in [v.name for v in order_vars2]:

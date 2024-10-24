@@ -13,8 +13,7 @@ from slither.detectors.abstract_detector import (
     make_solc_versions,
 )
 from slither.formatters.functions.external_function import custom_format
-from slither.slithir.operations import InternalCall, InternalDynamicCall
-from slither.slithir.operations import SolidityCall
+from slither.slithir.operations import InternalDynamicCall
 from slither.utils.output import Output
 
 
@@ -55,11 +54,11 @@ class ExternalFunction(AbstractDetector):
         for func in contract.all_functions_called:
             if not isinstance(func, Function):
                 continue
-            # Loop through all nodes in the function, add all calls to a list.
-            for node in func.nodes:
-                for ir in node.irs:
-                    if isinstance(ir, (InternalCall, SolidityCall)):
-                        result.append(ir.function)
+
+            # Loop through all internal and solidity calls in the function, add them to a list.
+            for ir in func.internal_calls + func.solidity_calls:
+                result.append(ir.function)
+
         return result
 
     @staticmethod
@@ -101,6 +100,7 @@ class ExternalFunction(AbstractDetector):
 
         # Somehow we couldn't resolve it, which shouldn't happen, as the provided function should be found if we could
         # not find some any more basic.
+        # pylint: disable=broad-exception-raised
         raise Exception("Could not resolve the base-most function for the provided function.")
 
     @staticmethod

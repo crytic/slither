@@ -13,6 +13,7 @@ from slither.core.declarations.solidity_variables import (
 from slither.core.expressions import NewContract
 from slither.core.slither_core import SlitherCore
 from slither.core.solidity_types import TypeAlias
+from slither.core.source_mapping.source_mapping import SourceMapping
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.variable import Variable
 from slither.printers.abstract_printer import AbstractPrinter
@@ -175,7 +176,66 @@ class ConstantValue(NamedTuple):  # pylint: disable=inherit-non-class,too-few-pu
     type: str
 
 
-def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-nested-blocks
+def _extract_constant_from_read(
+    ir: Operation,
+    r: SourceMapping,
+    all_cst_used: List[ConstantValue],
+    all_cst_used_in_binary: Dict[str, List[ConstantValue]],
+    context_explored: Set[Node],
+) -> None:
+    var_read = r.points_to_origin if isinstance(r, ReferenceVariable) else r
+    # Do not report struct_name in a.struct_name
+    if isinstance(ir, Member):
+        return
+    if isinstance(var_read, Variable) and var_read.is_constant:
+        # In case of type conversion we use the destination type
+        if isinstance(ir, TypeConversion):
+            if isinstance(ir.type, TypeAlias):
+                value_type = ir.type.type
+            else:
+                value_type = ir.type
+        else:
+            value_type = var_read.type
+        try:
+            value = ConstantFolding(var_read.expression, value_type).result()
+            all_cst_used.append(ConstantValue(str(value), str(value_type)))
+        except NotConstant:
+            pass
+    if isinstance(var_read, Constant):
+        all_cst_used.append(ConstantValue(str(var_read.value), str(var_read.type)))
+    if isinstance(var_read, StateVariable):
+        if var_read.node_initialization:
+            if var_read.node_initialization.irs:
+                if var_read.node_initialization in context_explored:
+                    return
+                context_explored.add(var_read.node_initialization)
+                _extract_constants_from_irs(
+                    var_read.node_initialization.irs,
+                    all_cst_used,
+                    all_cst_used_in_binary,
+                    context_explored,
+                )
+
+
+def _extract_constant_from_binary(
+    ir: Binary,
+    all_cst_used: List[ConstantValue],
+    all_cst_used_in_binary: Dict[str, List[ConstantValue]],
+):
+    for r in ir.read:
+        if isinstance(r, Constant):
+            all_cst_used_in_binary[str(ir.type)].append(ConstantValue(str(r.value), str(r.type)))
+        if isinstance(ir.variable_left, Constant) or isinstance(ir.variable_right, Constant):
+            if ir.lvalue:
+                try:
+                    type_ = ir.lvalue.type
+                    cst = ConstantFolding(ir.expression, type_).result()
+                    all_cst_used.append(ConstantValue(str(cst.value), str(type_)))
+                except NotConstant:
+                    pass
+
+
+def _extract_constants_from_irs(
     irs: List[Operation],
     all_cst_used: List[ConstantValue],
     all_cst_used_in_binary: Dict[str, List[ConstantValue]],
@@ -183,21 +243,7 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
 ) -> None:
     for ir in irs:
         if isinstance(ir, Binary):
-            for r in ir.read:
-                if isinstance(r, Constant):
-                    all_cst_used_in_binary[str(ir.type)].append(
-                        ConstantValue(str(r.value), str(r.type))
-                    )
-                if isinstance(ir.variable_left, Constant) or isinstance(
-                    ir.variable_right, Constant
-                ):
-                    if ir.lvalue:
-                        try:
-                            type_ = ir.lvalue.type
-                            cst = ConstantFolding(ir.expression, type_).result()
-                            all_cst_used.append(ConstantValue(str(cst.value), str(type_)))
-                        except NotConstant:
-                            pass
+            _extract_constant_from_binary(ir, all_cst_used, all_cst_used_in_binary)
         if isinstance(ir, TypeConversion):
             if isinstance(ir.variable, Constant):
                 if isinstance(ir.type, TypeAlias):
@@ -218,24 +264,9 @@ def _extract_constants_from_irs(  # pylint: disable=too-many-branches,too-many-n
             except ValueError:  # index could fail; should never happen in working solidity code
                 pass
         for r in ir.read:
-            var_read = r.points_to_origin if isinstance(r, ReferenceVariable) else r
-            # Do not report struct_name in a.struct_name
-            if isinstance(ir, Member):
-                continue
-            if isinstance(var_read, Constant):
-                all_cst_used.append(ConstantValue(str(var_read.value), str(var_read.type)))
-            if isinstance(var_read, StateVariable):
-                if var_read.node_initialization:
-                    if var_read.node_initialization.irs:
-                        if var_read.node_initialization in context_explored:
-                            continue
-                        context_explored.add(var_read.node_initialization)
-                        _extract_constants_from_irs(
-                            var_read.node_initialization.irs,
-                            all_cst_used,
-                            all_cst_used_in_binary,
-                            context_explored,
-                        )
+            _extract_constant_from_read(
+                ir, r, all_cst_used, all_cst_used_in_binary, context_explored
+            )
 
 
 def _extract_constants(
