@@ -63,3 +63,35 @@ def test_internal_call_reorder(solc_binary_path) -> None:
         isinstance(internal_calls[0].arguments[2], Constant)
         and internal_calls[0].arguments[2].value == 5
     )
+
+def test_overridden_function_reorder(solc_binary_path) -> None:
+    solc_path = solc_binary_path("0.8.15")
+    slither = Slither(
+        Path(ARG_REORDER_TEST_ROOT, "test_overridden_function.sol").as_posix(), solc=solc_path
+    )
+
+    operations = slither.contracts[0].functions[1].slithir_operations
+    internal_calls = [x for x in operations if isinstance(x, InternalCall)]
+    assert len(internal_calls) == 1
+
+    assert (
+        isinstance(internal_calls[0].arguments[0], Constant)
+        and internal_calls[0].arguments[0].value == 34
+    )
+    assert (
+        isinstance(internal_calls[0].arguments[1], Constant)
+        and internal_calls[0].arguments[1].value == 23
+    )
+
+    operations = slither.contracts[1].functions[1].slithir_operations
+    internal_calls = [x for x in operations if isinstance(x, InternalCall)]
+    assert len(internal_calls) == 1
+
+    assert (
+        isinstance(internal_calls[0].arguments[0], Constant)
+        and internal_calls[0].arguments[0].value == 34
+    )
+    assert (
+        isinstance(internal_calls[0].arguments[1], Constant)
+        and internal_calls[0].arguments[1].value == 23
+    )
