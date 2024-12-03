@@ -64,6 +64,7 @@ def test_internal_call_reorder(solc_binary_path) -> None:
         and internal_calls[0].arguments[2].value == 5
     )
 
+
 def test_overridden_function_reorder(solc_binary_path) -> None:
     solc_path = solc_binary_path("0.8.15")
     slither = Slither(
