@@ -380,7 +380,7 @@ def get_declared_param_names(
         InternalDynamicCall,
         EventCall,
     ]
-) -> Optional[List[str]]:
+) -> Optional[List[List[str]]]:
     """
     Given a call operation, return the list of parameter names, in the order
     listed in the function declaration.
@@ -388,26 +388,31 @@ def get_declared_param_names(
     ins -
         The call instruction
     #### Possible Returns
-    List[str] -
-        A list of the parameters in declaration order
+    List[List[str]] -
+        A list of list of parameters in declaration order. Note only if it's a Function there can be multiple list
     None -
         Workaround: Unable to obtain list of parameters in declaration order
     """
     if isinstance(ins, NewStructure):
-        return [x.name for x in ins.structure.elems_ordered if not isinstance(x.type, MappingType)]
+        return [
+            [x.name for x in ins.structure.elems_ordered if not isinstance(x.type, MappingType)]
+        ]
     if isinstance(ins, (InternalCall, LibraryCall, HighLevelCall)):
         if isinstance(ins.function, Function):
-            return [p.name for p in ins.function.parameters]
+            res = [[p.name for p in ins.function.parameters]]
+            for f in ins.function.overrides:
+                res.append([p.name for p in f.parameters])
+            return res
         return None
     if isinstance(ins, InternalDynamicCall):
-        return [p.name for p in ins.function_type.params]
+        return [[p.name for p in ins.function_type.params]]
 
     assert isinstance(ins, (EventCall, NewContract))
     return None
 
 
 def reorder_arguments(
-    args: List[Variable], call_names: List[str], decl_names: List[str]
+    args: List[Variable], call_names: List[str], decl_names: List[List[str]]
 ) -> List[Variable]:
     """
     Reorder named struct constructor arguments so that they match struct declaration ordering rather
@@ -419,17 +424,30 @@ def reorder_arguments(
     names -
         Parameter names in call order
     decl_names -
-        Parameter names in declaration order
+        List of list of parameter names in declaration order
     #### Returns
     Reordered arguments to constructor call, now in declaration order
     """
     assert len(args) == len(call_names)
-    assert len(call_names) == len(decl_names)
+    for names in decl_names:
+        assert len(call_names) == len(names)
 
     args_ret = []
-    for n in decl_names:
-        ind = call_names.index(n)
-        args_ret.append(args[ind])
+    index_seen = []
+
+    for names in decl_names:
+        if len(index_seen) == len(args):
+            break
+
+        for n in names:
+            try:
+                ind = call_names.index(n)
+                if ind in index_seen:
+                    continue
+            except ValueError:
+                continue
+            index_seen.append(ind)
+            args_ret.append(args[ind])
 
     return args_ret
 
