@@ -77,11 +77,15 @@ def test_overridden_function_reorder(solc_binary_path) -> None:
 
     assert (
         isinstance(internal_calls[0].arguments[0], Constant)
-        and internal_calls[0].arguments[0].value == 34
+        and internal_calls[0].arguments[0].value == 23
     )
     assert (
         isinstance(internal_calls[0].arguments[1], Constant)
-        and internal_calls[0].arguments[1].value == 23
+        and internal_calls[0].arguments[1].value == 36
+    )
+    assert (
+        isinstance(internal_calls[0].arguments[2], Constant)
+        and internal_calls[0].arguments[2].value == 34
     )
 
     operations = slither.contracts[1].functions[1].slithir_operations
@@ -90,9 +94,13 @@ def test_overridden_function_reorder(solc_binary_path) -> None:
 
     assert (
         isinstance(internal_calls[0].arguments[0], Constant)
-        and internal_calls[0].arguments[0].value == 34
+        and internal_calls[0].arguments[0].value == 23
     )
     assert (
         isinstance(internal_calls[0].arguments[1], Constant)
-        and internal_calls[0].arguments[1].value == 23
+        and internal_calls[0].arguments[1].value == 36
+    )
+    assert (
+        isinstance(internal_calls[0].arguments[2], Constant)
+        and internal_calls[0].arguments[2].value == 34
     )
