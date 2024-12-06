@@ -257,7 +257,7 @@ class PrinterCallGraph(AbstractPrinter):
             }
             content = "\n".join(
                 ["strict digraph {"]
-                + ["rankdir=\"LR\""]
+                + ['rankdir="LR"']
                 + ["node [shape=box]"]
                 + [_process_functions(list(all_functions_as_dict.values()))]
                 + ["}"]
@@ -270,10 +270,10 @@ class PrinterCallGraph(AbstractPrinter):
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
-                    ["strict digraph {"] 
-                    + ["rankdir=\"LR\""]
+                    ["strict digraph {"]
+                    + ['rankdir="LR"']
                     + ["node [shape=box]"]
-                    + [_process_functions(derived_contract.functions)] 
+                    + [_process_functions(derived_contract.functions)]
                     + ["}"]
                 )
                 f.write(content)
