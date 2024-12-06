@@ -433,8 +433,11 @@ def reorder_arguments(
         assert len(call_names) == len(names)
 
     args_ret = []
-    index_seen = []
+    index_seen = []  # Will have the correct index order
 
+    # We search for declaration of parameters that is fully compatible with the call arguments
+    # that is why if a arg name is not present in the call name we break and clear index_seen
+    # Known issue if the overridden function reuse the same parameters' name but in different positions
     for names in decl_names:
         if len(index_seen) == len(args):
             break
@@ -445,9 +448,12 @@ def reorder_arguments(
                 if ind in index_seen:
                     continue
             except ValueError:
-                continue
+                index_seen.clear()
+                break
             index_seen.append(ind)
-            args_ret.append(args[ind])
+
+    for ind in index_seen:
+        args_ret.append(args[ind])
 
     return args_ret
 
