@@ -25,26 +25,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-2022"]
+        os: ${{ (github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]')) || fromJSON('["ubuntu-latest", "windows-2022"]') }}
         python: ${{ (github.event_name == 'pull_request' && fromJSON('["3.8", "3.12"]')) || fromJSON('["3.8", "3.9", "3.10", "3.11", "3.12"]') }}
-        type: ["cli",
-               "dapp",
-               "data_dependency",
-               "path_filtering",
-               # "embark",
-               "erc",
-               # "etherlime",
-               "etherscan",
-               "find_paths",
-               "flat",
-               "interface",
-               "kspec",
-               "printers",
-               # "prop"
-               "simil",
-               "slither_config",
-               "truffle",
-               "upgradability"]
+        type: ${{ (github.event_name == 'pull_request' && fromJSON('["data_dependency", "path_filtering","erc","find_paths","flat","interface", "printers","slither_config","upgradability"]')) || fromJSON('["data_dependency", "path_filtering","erc","find_paths","flat","interface", "printers","slither_config","upgradability", "cli", "dapp", "etherscan", "kspec", "simil", "truffle"]') }}
         exclude:
           # Requires nix
           - os: windows-2022
@@ -67,7 +50,7 @@ jobs:
 
       - name: Set up nix
         if: matrix.type == 'dapp'
-        uses: cachix/install-nix-action@V27
+        uses: cachix/install-nix-action@v30
 
       - name: Set up cachix
         if: matrix.type == 'dapp'

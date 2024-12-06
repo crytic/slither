@@ -350,7 +350,7 @@ class ContractSolc(CallerContextExpression):
                     if v.visibility != "private"
                 }
             )
-            self._contract.add_variables_ordered(
+            self._contract.add_state_variables_ordered(
                 [
                     var
                     for var in father.state_variables_ordered
@@ -370,7 +370,7 @@ class ContractSolc(CallerContextExpression):
             if var_parser.reference_id is not None:
                 self._contract.state_variables_by_ref_id[var_parser.reference_id] = var
             self._contract.variables_as_dict[var.name] = var
-            self._contract.add_variables_ordered([var])
+            self._contract.add_state_variables_ordered([var])
 
     def _parse_modifier(self, modifier_data: Dict) -> None:
         modif = Modifier(self._contract.compilation_unit)
