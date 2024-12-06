@@ -92,7 +92,7 @@ class UnchangedStateVariables:
             variables = []
             functions = []
 
-            variables.append(c.stored_state_variables)
+            variables.append(c.storage_variables_ordered)
             functions.append(c.all_functions_called)
 
             valid_candidates: Set[StateVariable] = {

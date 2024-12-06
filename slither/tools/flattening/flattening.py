@@ -294,10 +294,9 @@ class Flattening:
             self._export_list_used_contracts(inherited, exported, list_contract, list_top_level)
 
         # Find all the external contracts called
-        externals = contract.all_library_calls + contract.all_high_level_calls
-        # externals is a list of (contract, function)
+        # High level calls already includes library calls
         # We also filter call to itself to avoid infilite loop
-        externals = list({e[0] for e in externals if e[0] != contract})
+        externals = list({e[0] for e in contract.all_high_level_calls if e[0] != contract})
 
         for inherited in externals:
             self._export_list_used_contracts(inherited, exported, list_contract, list_top_level)

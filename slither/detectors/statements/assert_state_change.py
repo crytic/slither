@@ -30,22 +30,22 @@ def detect_assert_state_change(
 
     # Loop for each function and modifier.
     for function in contract.functions_declared + list(contract.modifiers_declared):
-        for node in function.nodes:
+        for ir_call in function.internal_calls:
             # Detect assert() calls
-            if any(c.name == "assert(bool)" for c in node.internal_calls) and (
+            if ir_call.function.name == "assert(bool)" and (
                 # Detect direct changes to state
-                node.state_variables_written
+                ir_call.node.state_variables_written
                 or
                 # Detect changes to state via function calls
                 any(
                     ir
-                    for ir in node.irs
+                    for ir in ir_call.node.irs
                     if isinstance(ir, InternalCall)
                     and ir.function
                     and ir.function.state_variables_written
                 )
             ):
-                results.append((function, node))
+                results.append((function, ir_call.node))
 
     # Return the resulting set of nodes
     return results

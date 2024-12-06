@@ -9,6 +9,7 @@ from slither.core.solidity_types.elementary_type import ElementaryType
 
 if TYPE_CHECKING:
     from slither.core.expressions.expression import Expression
+    from slither.core.declarations import Function
 
 # pylint: disable=too-many-instance-attributes
 class Variable(SourceMapping):
@@ -16,7 +17,7 @@ class Variable(SourceMapping):
         super().__init__()
         self._name: Optional[str] = None
         self._initial_expression: Optional["Expression"] = None
-        self._type: Optional[Type] = None
+        self._type: Optional[Union[List, Type, "Function", str]] = None
         self._initialized: Optional[bool] = None
         self._visibility: Optional[str] = None
         self._is_constant = False
@@ -77,7 +78,7 @@ class Variable(SourceMapping):
         self._name = name
 
     @property
-    def type(self) -> Optional[Type]:
+    def type(self) -> Optional[Union[List, Type, "Function", str]]:
         return self._type
 
     @type.setter
@@ -92,13 +93,6 @@ class Variable(SourceMapping):
     @is_constant.setter
     def is_constant(self, is_cst: bool) -> None:
         self._is_constant = is_cst
-
-    @property
-    def is_stored(self) -> bool:
-        """
-        Checks if a variable is stored, based on it not being constant or immutable. Future updates may adjust for new non-storage keywords.
-        """
-        return not self._is_constant and not self._is_immutable
 
     @property
     def is_reentrant(self) -> bool:
@@ -127,7 +121,7 @@ class Variable(SourceMapping):
     def visibility(self, v: str) -> None:
         self._visibility = v
 
-    def set_type(self, t: Optional[Union[List, Type, str]]) -> None:
+    def set_type(self, t: Optional[Union[List, Type, "Function", str]]) -> None:
         if isinstance(t, str):
             self._type = ElementaryType(t)
             return
