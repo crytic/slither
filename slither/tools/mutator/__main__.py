@@ -167,7 +167,6 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
 
     if paths_to_ignore:
         paths_to_ignore_list = paths_to_ignore.strip("][").split(",")
-        logger.info(blue(f"Ignored paths - {', '.join(paths_to_ignore_list)}"))
     else:
         paths_to_ignore_list = []
 
@@ -177,6 +176,8 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
 
     # get all the contracts as a list from given codebase
     sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
+
+    logger.info(blue("Preparing to mutate files:\n- " + '\n- '.join(sol_file_list)))
 
     # folder where backup files and uncaught mutants are saved
     if output_dir is None:
@@ -247,9 +248,11 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         # lines those need not be mutated (taken from RR and CR)
         dont_mutate_lines = []
 
-        # mutation
+        # perform mutations on {target_contract} in file {file_name}
+        # setup placeholder val to signal whether we need to skip if no target_contract is found
         target_contract = "SLITHER_SKIP_MUTATIONS" if contract_names else ""
         try:
+            # loop through all contracts in file_name
             for compilation_unit_of_main_file in sl.compilation_units:
                 for contract in compilation_unit_of_main_file.contracts:
                     if contract.name in contract_names and contract.name not in mutated_contracts:
