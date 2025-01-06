@@ -177,7 +177,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
     # get all the contracts as a list from given codebase
     sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
 
-    logger.info(blue("Preparing to mutate files:\n- " + '\n- '.join(sol_file_list)))
+    logger.info(blue("Preparing to mutate files:\n- " + "\n- ".join(sol_file_list)))
 
     # folder where backup files and uncaught mutants are saved
     if output_dir is None:
