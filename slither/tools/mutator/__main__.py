@@ -165,6 +165,9 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
 
     logger.info(blue(f"Starting mutation campaign in {args.codebase}"))
 
+    if very_verbose: # very_verbose should always be a superset of verbose logs
+        verbose = True
+
     if paths_to_ignore:
         paths_to_ignore_list = paths_to_ignore.strip("][").split(",")
     else:
