@@ -77,15 +77,6 @@ def parse_args() -> argparse.Namespace:
         default=False,
     )
 
-    # to print just all the mutants
-    parser.add_argument(
-        "-vv",
-        "--very-verbose",
-        help="log mutants that are caught, uncaught, and fail to compile. And more!",
-        action="store_true",
-        default=False,
-    )
-
     # select list of mutators to run
     parser.add_argument(
         "--mutators-to-run",
@@ -159,14 +150,10 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
     timeout: Optional[int] = args.timeout
     solc_remappings: Optional[str] = args.solc_remaps
     verbose: Optional[bool] = args.verbose
-    very_verbose: Optional[bool] = args.very_verbose
     mutators_to_run: Optional[List[str]] = args.mutators_to_run
     comprehensive_flag: Optional[bool] = args.comprehensive
 
     logger.info(blue(f"Starting mutation campaign in {args.codebase}"))
-
-    if very_verbose: # very_verbose should always be a superset of verbose logs
-        verbose = True
 
     if paths_to_ignore:
         paths_to_ignore_list = paths_to_ignore.strip("][").split(",")
@@ -293,7 +280,6 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                         target_contract,
                         solc_remappings,
                         verbose,
-                        very_verbose,
                         output_folder,
                         dont_mutate_lines,
                     )
@@ -378,8 +364,6 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
             logger.info(magenta("Zero Tweak mutants analyzed\n"))
 
         # Reset mutant counts before moving on to the next file
-        if very_verbose:
-            logger.info(blue("Reseting mutant counts to zero"))
         total_mutant_counts[0] = 0
         total_mutant_counts[1] = 0
         total_mutant_counts[2] = 0
