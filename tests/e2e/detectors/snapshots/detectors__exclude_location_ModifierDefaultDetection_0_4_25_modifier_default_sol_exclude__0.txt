@@ -1,0 +1,6 @@
+Modifier Test.loopsNoResult() does not always execute _; or revert
+
+Modifier Test.requireAssertNoResult() does not always execute _; or revert
+
+Modifier Test.noResult() does not always execute _; or revert
+

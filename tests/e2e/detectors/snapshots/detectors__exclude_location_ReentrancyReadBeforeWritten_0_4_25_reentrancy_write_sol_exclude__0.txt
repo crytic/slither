@@ -1,0 +1,25 @@
+Reentrancy in ReentrancyWrite.bad0():
+	External calls:
+	- ! (msg.sender.call())
+	State variables written after the call(s):
+	- notCalled = false
+	ReentrancyWrite.notCalled can be used in cross function reentrancies:
+	- ReentrancyWrite.bad0()
+	- ReentrancyWrite.bad1(address)
+	- ReentrancyWrite.constructor(address)
+	- ReentrancyWrite.good()
+
+Reentrancy in ReentrancyWrite.bad1(address):
+	External calls:
+	- success = msg.sender.call()
+	- bad0()
+		- ! (msg.sender.call())
+	State variables written after the call(s):
+	- bad0()
+		- notCalled = false
+	ReentrancyWrite.notCalled can be used in cross function reentrancies:
+	- ReentrancyWrite.bad0()
+	- ReentrancyWrite.bad1(address)
+	- ReentrancyWrite.constructor(address)
+	- ReentrancyWrite.good()
+

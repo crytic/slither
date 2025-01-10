@@ -1,0 +1,3 @@
+MyConc.bad1(bool) compares to a boolean constant:
+	-(b == true)
+

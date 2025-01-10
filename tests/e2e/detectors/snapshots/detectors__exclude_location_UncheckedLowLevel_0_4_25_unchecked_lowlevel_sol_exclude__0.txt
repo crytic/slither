@@ -1,0 +1,2 @@
+MyConc.bad(address) ignores return value by dst.call.value(msg.value)()
+

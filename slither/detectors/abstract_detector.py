@@ -277,6 +277,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             additional_fields,
             standard_format=self.STANDARD_JSON,
             markdown_root=self.slither.markdown_root,
+            exclude_location=self.slither.exclude_location,
         )
 
         output.data["check"] = self.ARGUMENT

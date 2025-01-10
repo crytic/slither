@@ -1,0 +1,12 @@
+A.bad0() has an assert() call which possibly changes state.
+	-assert(bool)((s_a += 1) > 10)
+Consider using require() or change the invariant to not modify the state.
+
+A.bad1(uint256) has an assert() call which possibly changes state.
+	-assert(bool)((s_a += a) > 10)
+Consider using require() or change the invariant to not modify the state.
+
+A.bad2() has an assert() call which possibly changes state.
+	-assert(bool)(bad2_callee())
+Consider using require() or change the invariant to not modify the state.
+

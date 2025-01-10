@@ -1,0 +1,6 @@
+Bug.bad1(int16) should emit an event for: 
+	- iprice16 = _price 
+
+Bug.bad0(uint8) should emit an event for: 
+	- uprice8 = _price 
+
