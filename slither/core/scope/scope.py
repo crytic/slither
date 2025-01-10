@@ -13,6 +13,7 @@ from slither.core.declarations.using_for_top_level import UsingForTopLevel
 from slither.core.declarations.structure_top_level import StructureTopLevel
 from slither.core.solidity_types import TypeAlias
 from slither.core.variables.top_level_variable import TopLevelVariable
+from slither.exceptions import SlitherError
 from slither.slithir.variables import Constant
 
 
@@ -92,6 +93,25 @@ class FileScope:
                 learn_something = True
 
         return learn_something
+
+    def get_all_files(self, seen: Set["FileScope"]) -> Set[Filename]:
+        """Recursively find all files considered in this FileScope.
+
+        The parameter seen here is to prevent circular import from generating an infinite loop.
+        """
+
+        if self in seen:
+            return set()
+
+        seen.add(self)
+        if len(seen) > 1_000_000:
+            raise SlitherError("Unable to analyze all files considered in this FileScope.")
+
+        files = {self.filename}
+        for file_scope in self.accessible_scopes:
+            files |= file_scope.get_all_files(seen)
+
+        return files
 
     def get_contract_from_name(self, name: Union[str, Constant]) -> Optional[Contract]:
         if isinstance(name, Constant):
