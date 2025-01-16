@@ -91,7 +91,6 @@ def test_patch(  # pylint: disable=too-many-arguments
     timeout: int,
     mappings: Union[str, None],
     verbose: bool,
-    very_verbose: bool,
 ) -> int:
     """
     function to verify whether each patch is caught by tests
@@ -118,7 +117,7 @@ def test_patch(  # pylint: disable=too-many-arguments
 
             return 0  # uncaught
     else:
-        if very_verbose:
+        if verbose:
             logger.info(
                 yellow(
                     f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> COMPILATION FAILURE"

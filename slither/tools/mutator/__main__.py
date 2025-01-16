@@ -77,15 +77,6 @@ def parse_args() -> argparse.Namespace:
         default=False,
     )
 
-    # to print just all the mutants
-    parser.add_argument(
-        "-vv",
-        "--very-verbose",
-        help="log mutants that are caught, uncaught, and fail to compile. And more!",
-        action="store_true",
-        default=False,
-    )
-
     # select list of mutators to run
     parser.add_argument(
         "--mutators-to-run",
@@ -159,7 +150,6 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
     timeout: Optional[int] = args.timeout
     solc_remappings: Optional[str] = args.solc_remaps
     verbose: Optional[bool] = args.verbose
-    very_verbose: Optional[bool] = args.very_verbose
     mutators_to_run: Optional[List[str]] = args.mutators_to_run
     comprehensive_flag: Optional[bool] = args.comprehensive
 
@@ -167,7 +157,6 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
 
     if paths_to_ignore:
         paths_to_ignore_list = paths_to_ignore.strip("][").split(",")
-        logger.info(blue(f"Ignored paths - {', '.join(paths_to_ignore_list)}"))
     else:
         paths_to_ignore_list = []
 
@@ -177,6 +166,8 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
 
     # get all the contracts as a list from given codebase
     sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
+
+    logger.info(blue("Preparing to mutate files:\n- " + "\n- ".join(sol_file_list)))
 
     # folder where backup files and uncaught mutants are saved
     if output_dir is None:
@@ -247,9 +238,11 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
         # lines those need not be mutated (taken from RR and CR)
         dont_mutate_lines = []
 
-        # mutation
+        # perform mutations on {target_contract} in file {file_name}
+        # setup placeholder val to signal whether we need to skip if no target_contract is found
         target_contract = "SLITHER_SKIP_MUTATIONS" if contract_names else ""
         try:
+            # loop through all contracts in file_name
             for compilation_unit_of_main_file in sl.compilation_units:
                 for contract in compilation_unit_of_main_file.contracts:
                     if contract.name in contract_names and contract.name not in mutated_contracts:
@@ -287,7 +280,6 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                         target_contract,
                         solc_remappings,
                         verbose,
-                        very_verbose,
                         output_folder,
                         dont_mutate_lines,
                     )
@@ -372,8 +364,6 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
             logger.info(magenta("Zero Tweak mutants analyzed\n"))
 
         # Reset mutant counts before moving on to the next file
-        if very_verbose:
-            logger.info(blue("Reseting mutant counts to zero"))
         total_mutant_counts[0] = 0
         total_mutant_counts[1] = 0
         total_mutant_counts[2] = 0
