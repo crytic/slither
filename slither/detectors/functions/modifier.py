@@ -17,7 +17,7 @@ from slither.utils.output import Output
 
 def is_revert(node: Node) -> bool:
     return node.type == NodeType.THROW or any(
-        c.name in ["revert()", "revert(string"] for c in node.internal_calls
+        ir.function.name in ["revert()", "revert(string"] for ir in node.internal_calls
     )
 
 
@@ -67,13 +67,16 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
 
     def _detect(self) -> List[Output]:
         results = []
+        # pylint: disable=too-many-nested-blocks
         for c in self.contracts:
             for mod in c.modifiers:
                 if mod.contract_declarer != c:
                     continue
                 # Walk down the tree, only looking at nodes in the outer scope
                 node = mod.entry_point
+                node_seen = []
                 while node is not None:
+                    node_seen.append(node)
                     # If any node in the outer scope executes _; or reverts,
                     # we will never return a default value
                     if node.type == NodeType.PLACEHOLDER or is_revert(node):
@@ -81,7 +84,13 @@ If the condition in `myModif` is false, the execution of `get()` will return 0."
 
                     # Move down, staying on the outer scope in branches
                     if len(node.sons) > 0:
-                        node = _get_false_son(node) if node.contains_if() else node.sons[0]
+                        if node.contains_if():
+                            node = _get_false_son(node)
+                        else:
+                            if node.sons[0] in node_seen:
+                                node = node.sons[1]
+                            else:
+                                node = node.sons[0]
                     else:
                         node = None
                 else:

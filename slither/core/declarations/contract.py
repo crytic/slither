@@ -29,7 +29,6 @@ from slither.utils.tests_pattern import is_test_contract
 
 # pylint: disable=too-many-lines,too-many-instance-attributes,import-outside-toplevel,too-many-nested-blocks
 if TYPE_CHECKING:
-    from slither.utils.type_helpers import LibraryCallType, HighLevelCallType, InternalCallType
     from slither.core.declarations import (
         Enum,
         EventContract,
@@ -39,6 +38,7 @@ if TYPE_CHECKING:
         FunctionContract,
         CustomErrorContract,
     )
+    from slither.slithir.operations import HighLevelCall, LibraryCall
     from slither.slithir.variables.variable import SlithIRVariable
     from slither.core.variables import Variable, StateVariable
     from slither.core.compilation_unit import SlitherCompilationUnit
@@ -106,7 +106,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         self._is_incorrectly_parsed: bool = False
 
         self._available_functions_as_dict: Optional[Dict[str, "Function"]] = None
-        self._all_functions_called: Optional[List["InternalCallType"]] = None
+        self._all_functions_called: Optional[List["Function"]] = None
 
         self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
         self.file_scope: "FileScope" = scope
@@ -440,38 +440,12 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     def state_variables(self) -> List["StateVariable"]:
         """
         Returns all the accessible variables (do not include private variable from inherited contract).
-        Use state_variables_ordered for all the variables following the storage order
+        Use stored_state_variables_ordered for all the storage variables following the storage order
+        Use transient_state_variables_ordered for all the transient variables following the storage order
 
         list(StateVariable): List of the state variables.
         """
         return list(self._variables.values())
-
-    @property
-    def stored_state_variables(self) -> List["StateVariable"]:
-        """
-        Returns state variables with storage locations, excluding private variables from inherited contracts.
-        Use stored_state_variables_ordered to access variables with storage locations in their declaration order.
-
-        This implementation filters out state variables if they are constant or immutable. It will be
-        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
-
-        Returns:
-            List[StateVariable]: A list of state variables with storage locations.
-        """
-        return [variable for variable in self.state_variables if variable.is_stored]
-
-    @property
-    def stored_state_variables_ordered(self) -> List["StateVariable"]:
-        """
-        list(StateVariable): List of the state variables with storage locations by order of declaration.
-
-        This implementation filters out state variables if they are constant or immutable. It will be
-        updated to accommodate any new non-storage keywords that might replace 'constant' and 'immutable' in the future.
-
-        Returns:
-            List[StateVariable]: A list of state variables with storage locations ordered by declaration.
-        """
-        return [variable for variable in self.state_variables_ordered if variable.is_stored]
 
     @property
     def state_variables_entry_points(self) -> List["StateVariable"]:
@@ -485,10 +459,24 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         """
         list(StateVariable): List of the state variables by order of declaration.
         """
-        return list(self._variables_ordered)
+        return self._variables_ordered
 
-    def add_variables_ordered(self, new_vars: List["StateVariable"]) -> None:
+    def add_state_variables_ordered(self, new_vars: List["StateVariable"]) -> None:
         self._variables_ordered += new_vars
+
+    @property
+    def storage_variables_ordered(self) -> List["StateVariable"]:
+        """
+        list(StateVariable): List of the state variables in storage location by order of declaration.
+        """
+        return [v for v in self._variables_ordered if v.is_stored]
+
+    @property
+    def transient_variables_ordered(self) -> List["StateVariable"]:
+        """
+        list(StateVariable): List of the state variables in transient location by order of declaration.
+        """
+        return [v for v in self._variables_ordered if v.is_transient]
 
     @property
     def state_variables_inherited(self) -> List["StateVariable"]:
@@ -1023,15 +1011,21 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def all_functions_called(self) -> List["InternalCallType"]:
+    def all_functions_called(self) -> List["Function"]:
         """
         list(Function): List of functions reachable from the contract
         Includes super, and private/internal functions not shadowed
         """
+        from slither.slithir.operations import Operation
+
         if self._all_functions_called is None:
             all_functions = [f for f in self.functions + self.modifiers if not f.is_shadowed]  # type: ignore
             all_callss = [f.all_internal_calls() for f in all_functions] + [list(all_functions)]
-            all_calls = [item for sublist in all_callss for item in sublist]
+            all_calls = [
+                item.function if isinstance(item, Operation) else item
+                for sublist in all_callss
+                for item in sublist
+            ]
             all_calls = list(set(all_calls))
 
             all_constructors = [c.constructor for c in self.inheritance if c.constructor]
@@ -1069,18 +1063,18 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         return list(set(all_state_variables_read))
 
     @property
-    def all_library_calls(self) -> List["LibraryCallType"]:
+    def all_library_calls(self) -> List["LibraryCall"]:
         """
-        list((Contract, Function): List all of the libraries func called
+        list(LibraryCall): List all of the libraries func called
         """
         all_high_level_callss = [f.all_library_calls() for f in self.functions + self.modifiers]  # type: ignore
         all_high_level_calls = [item for sublist in all_high_level_callss for item in sublist]
         return list(set(all_high_level_calls))
 
     @property
-    def all_high_level_calls(self) -> List["HighLevelCallType"]:
+    def all_high_level_calls(self) -> List[Tuple["Contract", "HighLevelCall"]]:
         """
-        list((Contract, Function|Variable)): List all of the external high level calls
+        list(Tuple("Contract", "HighLevelCall")): List all of the external high level calls
         """
         all_high_level_callss = [f.all_high_level_calls() for f in self.functions + self.modifiers]  # type: ignore
         all_high_level_calls = [item for sublist in all_high_level_callss for item in sublist]

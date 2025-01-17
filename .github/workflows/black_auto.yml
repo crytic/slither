@@ -30,12 +30,14 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install Python dependencies
-        run: pip install .[dev]
-
-      - name: Run linters
-        uses: wearerequired/lint-action@v2
+      - name: Run black
+        uses: psf/black@stable
         with:
-          auto_fix: true
-          black: true
-          black_auto_fix: true
+          options: ""
+          summary: false
+          version: "~= 22.3.0"
+
+      - name: Annotate diff changes using reviewdog
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: blackfmt
