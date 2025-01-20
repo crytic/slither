@@ -164,12 +164,23 @@ interface IPyth {
 contract C {
     IPyth pyth;
 
+    struct Data {
+        bytes32 id;
+        uint256 age;
+    }
+
     constructor(IPyth _pyth) {
         pyth = _pyth;
     }
 
     function bad(bytes32 id, uint256 age) public {
         PythStructs.Price memory price = pyth.getEmaPriceNoOlderThan(id, age);
+        require(price.publishTime > block.timestamp - 120);
+        // Use price
+    }
+
+    function bad2(Data calldata data) public {
+        PythStructs.Price memory price = pyth.getEmaPriceNoOlderThan(data.id, data.age);
         require(price.publishTime > block.timestamp - 120);
         // Use price
     }

@@ -1,3 +1,6 @@
-Pyth price conf field is not checked in C.bad(bytes32,uint256) (tests/e2e/detectors/test_data/pyth-unchecked-confidence/0.8.20/pyth_unchecked_confidence.sol#171-175)
-	- price = pyth.getEmaPriceNoOlderThan(id,age) (tests/e2e/detectors/test_data/pyth-unchecked-confidence/0.8.20/pyth_unchecked_confidence.sol#172)
+Pyth price conf field is not checked in C.bad2(C.Data) (tests/e2e/detectors/test_data/pyth-unchecked-confidence/0.8.20/pyth_unchecked_confidence.sol#182-186)
+	- price = pyth.getEmaPriceNoOlderThan(data.id,data.age) (tests/e2e/detectors/test_data/pyth-unchecked-confidence/0.8.20/pyth_unchecked_confidence.sol#183)
+
+Pyth price conf field is not checked in C.bad(bytes32,uint256) (tests/e2e/detectors/test_data/pyth-unchecked-confidence/0.8.20/pyth_unchecked_confidence.sol#176-180)
+	- price = pyth.getEmaPriceNoOlderThan(id,age) (tests/e2e/detectors/test_data/pyth-unchecked-confidence/0.8.20/pyth_unchecked_confidence.sol#177)
 

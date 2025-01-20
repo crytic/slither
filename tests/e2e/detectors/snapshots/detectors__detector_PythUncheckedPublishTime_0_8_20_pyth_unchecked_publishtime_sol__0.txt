@@ -1,3 +1,6 @@
-Pyth price publishTime field is not checked in C.bad(bytes32) (tests/e2e/detectors/test_data/pyth-unchecked-publishtime/0.8.20/pyth_unchecked_publishtime.sol#171-175)
-	- price = pyth.getEmaPriceUnsafe(id) (tests/e2e/detectors/test_data/pyth-unchecked-publishtime/0.8.20/pyth_unchecked_publishtime.sol#172)
+Pyth price publishTime field is not checked in C.bad(bytes32) (tests/e2e/detectors/test_data/pyth-unchecked-publishtime/0.8.20/pyth_unchecked_publishtime.sol#175-179)
+	- price = pyth.getEmaPriceUnsafe(id) (tests/e2e/detectors/test_data/pyth-unchecked-publishtime/0.8.20/pyth_unchecked_publishtime.sol#176)
+
+Pyth price publishTime field is not checked in C.bad2(C.Data) (tests/e2e/detectors/test_data/pyth-unchecked-publishtime/0.8.20/pyth_unchecked_publishtime.sol#181-185)
+	- price = pyth.getEmaPriceUnsafe(data.id) (tests/e2e/detectors/test_data/pyth-unchecked-publishtime/0.8.20/pyth_unchecked_publishtime.sol#182)
 
