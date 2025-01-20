@@ -12,7 +12,7 @@ class PythUncheckedConfidence(PythUnchecked):
     IMPACT = DetectorClassification.MEDIUM
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#pyth-unchecked-confidence"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#pyth-unchecked-confidence-level"
     WIKI_TITLE = "Pyth unchecked confidence level"
     WIKI_DESCRIPTION = "Detect when the confidence level of a Pyth price is not checked"
     WIKI_RECOMMENDATION = "Check the confidence level of a Pyth price. Visit https://docs.pyth.network/price-feeds/best-practices#confidence-intervals for more information."

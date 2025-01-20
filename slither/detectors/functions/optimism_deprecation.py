@@ -18,7 +18,7 @@ class OptimismDeprecation(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#optimism-deprecation"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#optimism-deprecated-predeploy-or-function"
 
     WIKI_TITLE = "Optimism deprecated predeploy or function"
     WIKI_DESCRIPTION = "Detect when deprecated Optimism predeploy or function is used."

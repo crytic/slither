@@ -15,7 +15,7 @@ class ChainlinkFeedRegistry(AbstractDetector):
     IMPACT = DetectorClassification.LOW
     CONFIDENCE = DetectorClassification.HIGH
 
-    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#chainlink-feed-registry"
+    WIKI = "https://github.com/crytic/slither/wiki/Detector-Documentation#chainlink-feed-registry-usage"
 
     WIKI_TITLE = "Chainlink Feed Registry usage"
     WIKI_DESCRIPTION = "Detect when Chainlink Feed Registry is used. At the moment is only available on Ethereum Mainnet."
