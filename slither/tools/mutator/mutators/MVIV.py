@@ -24,7 +24,7 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                     # Get the string
                     start = variable.source_mapping.start
                     stop = variable.expression.source_mapping.start
-                    old_str = self.in_file_str[start:stop]
+                    old_str = node.source_mapping.content
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.node_initialization.source_mapping.lines
                     if not line_no[0] in self.dont_mutate_line:
@@ -43,7 +43,7 @@ class MVIV(AbstractMutator):  # pylint: disable=too-few-public-methods
                 if variable.initialized and isinstance(variable.expression, Literal):
                     start = variable.source_mapping.start
                     stop = variable.expression.source_mapping.start
-                    old_str = self.in_file_str[start:stop]
+                    old_str = node.source_mapping.content
                     new_str = old_str[: old_str.find("=")]
                     line_no = variable.source_mapping.lines
                     if not line_no[0] in self.dont_mutate_line:
