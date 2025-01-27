@@ -3,7 +3,6 @@ from slither.core.cfg.node import NodeType
 from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 
-
 class RR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "RR"
     HELP = "Revert Replacement"
@@ -15,8 +14,10 @@ class RR(AbstractMutator):  # pylint: disable=too-few-public-methods
             for node in function.nodes:
                 if node.type not in (
                     NodeType.ENTRYPOINT,
+                    NodeType.IF,
                     NodeType.ENDIF,
                     NodeType.ENDLOOP,
+                    NodeType.PLACEHOLDER,
                 ):
                     # Get the string
                     start = node.source_mapping.start
