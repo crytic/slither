@@ -3,6 +3,7 @@ from slither.core.cfg.node import NodeType
 from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
 
+
 class RR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "RR"
     HELP = "Revert Replacement"
@@ -25,8 +26,10 @@ class RR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     old_str = node.source_mapping.content
                     line_no = node.source_mapping.lines[0]
                     if not line_no in self.dont_mutate_line:
-                        if node.type == NodeType.RETURN and not old_str.lstrip().startswith("return"):
-                            continue # skip the return declarations in fn signatures
+                        if node.type == NodeType.RETURN and not old_str.lstrip().startswith(
+                            "return"
+                        ):
+                            continue  # skip the return declarations in fn signatures
                         if not old_str.lstrip().startswith("revert"):
                             new_str = "revert()"
                             create_patch_with_line(

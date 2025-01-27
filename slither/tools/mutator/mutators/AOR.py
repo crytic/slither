@@ -79,7 +79,7 @@ class AOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                             if not line_no[0] in self.dont_mutate_line:
                                 halves = old_str.split(ir.type.value)
                                 if len(halves) != 2:
-                                    continue # skip if assembly
+                                    continue  # skip if assembly
                                 new_str = f"{halves[0]}{op.value}{halves[1]}"
                                 create_patch_with_line(
                                     result,

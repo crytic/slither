@@ -79,7 +79,11 @@ class Source:
         # If the compilation unit was not initialized, it means that the set_offset was never called
         # on the corresponding object, which should not happen
         assert self.compilation_unit
-        return self.compilation_unit.core.source_code[self.filename.absolute].encode("utf-8")[self.start : self.end].decode("utf-8")
+        return (
+            self.compilation_unit.core.source_code[self.filename.absolute]
+            .encode("utf-8")[self.start : self.end]
+            .decode("utf-8")
+        )
 
     @property
     def content_hash(self) -> str:
