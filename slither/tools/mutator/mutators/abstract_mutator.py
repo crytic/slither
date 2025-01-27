@@ -77,6 +77,7 @@ class AbstractMutator(
     # pylint: disable=too-many-branches
     def mutate(self) -> Tuple[List[int], List[int], List[int]]:
         all_patches: Dict = {}
+        # pylint: disable=broad-exception-caught
         try:
             # call _mutate function from different mutators
             (all_patches) = self._mutate()
