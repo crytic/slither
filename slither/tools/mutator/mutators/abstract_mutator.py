@@ -6,6 +6,7 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.tools.mutator.utils.testing_generated_mutant import test_patch
 from slither.core.declarations import Contract
+from slither.utils.colors import red
 
 logger = logging.getLogger("Slither-Mutate")
 
@@ -70,13 +71,17 @@ class AbstractMutator(
 
     @abc.abstractmethod
     def _mutate(self) -> Dict:
-        """TODO Documentation"""
+        """Abstract placeholder, will be overwritten by each mutator"""
         return {}
 
     # pylint: disable=too-many-branches
     def mutate(self) -> Tuple[List[int], List[int], List[int]]:
-        # call _mutate function from different mutators
-        (all_patches) = self._mutate()
+        all_patches: Dict = {}
+        try:
+            # call _mutate function from different mutators
+            (all_patches) = self._mutate()
+        except Exception as e:
+            logger.error(red("%s mutator failed in %s: %s"), self.NAME, self.contract.name, str(e))
         if "patches" not in all_patches:
             logger.debug("No patches found by %s", self.NAME)
             return [0, 0, 0], [0, 0, 0], self.dont_mutate_line
