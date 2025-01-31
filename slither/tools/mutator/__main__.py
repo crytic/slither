@@ -72,7 +72,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-v",
         "--verbose",
-        help="log mutants that are caught as well as those that are uncaught",
+        help="log mutants that are caught, uncaught, and fail to compile",
         action="store_true",
         default=False,
     )
