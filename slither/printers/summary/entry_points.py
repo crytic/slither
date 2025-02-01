@@ -69,7 +69,7 @@ class PrinterEntryPoints(AbstractPrinter):
             table = MyPrettyTable(["Function", "Modifiers", "Inherited From"])
             contract_info = [
                 f"\nContract {Colors.BOLD}{Colors.YELLOW}{contract.name}{Colors.END}"
-                f" ({contract.source_mapping.filename.absolute})"
+                f" ({contract.source_mapping.filename.relative})"
             ]
 
             for f in sorted(
