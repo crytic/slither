@@ -52,14 +52,7 @@ class PrinterEntryPoints(AbstractPrinter):
                     and not f.pure
                     and not f.contract_declarer.is_interface
                     and not f.contract_declarer.is_library
-                )
-                and (
-                    f.contract_declarer == contract
-                    or not any(
-                        fd
-                        for fd in contract.functions_declared
-                        if fd != f and fd.full_name == f.full_name
-                    )
+                    and not f.is_shadowed
                 )
             ]
 
