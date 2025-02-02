@@ -46,8 +46,6 @@ class PrinterEntryPoints(AbstractPrinter):
                     f.visibility in ["public", "external"]
                     and isinstance(f, FunctionContract)
                     and not f.is_constructor
-                    and not f.is_fallback
-                    and not f.is_receive
                     and not f.view
                     and not f.pure
                     and not f.contract_declarer.is_interface
@@ -62,17 +60,22 @@ class PrinterEntryPoints(AbstractPrinter):
             table = MyPrettyTable(["Function", "Modifiers", "Inherited From"])
             contract_info = [
                 f"\nContract {Colors.BOLD}{Colors.YELLOW}{contract.name}{Colors.END}"
-                f" ({contract.source_mapping.filename.relative})"
+                f" ({contract.source_mapping})"
             ]
 
             for f in sorted(
                 entry_points,
                 key=lambda x: (x.visibility != "external", x.visibility != "public", x.full_name),
             ):
-                modifiers = f"{', '.join(m.name for m in f.modifiers)}" if f.modifiers else ""
+                modifier_list = [m.name for m in f.modifiers]
+                if f.payable:
+                    modifier_list.append("payable")
+                modifiers = ", ".join(modifier_list) if modifier_list else ""
                 inherited = f"{f.contract_declarer.name}" if f.contract_declarer != contract else ""
+
+                name_parts = f.full_name.split("(", 1)
                 function_name = (
-                    f"{Colors.BOLD}{Colors.RED}{f.solidity_signature.split('(')[0]}{Colors.END}"
+                    f"{Colors.BOLD}{Colors.RED}{name_parts[0]}{Colors.END}" f"({name_parts[1]}"
                 )
 
                 table.add_row(
