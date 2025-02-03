@@ -164,12 +164,22 @@ interface IPyth {
 contract C {
     IPyth pyth;
 
+    struct Data {
+        bytes32 id;
+    }
+
     constructor(IPyth _pyth) {
         pyth = _pyth;
     }
 
     function bad(bytes32 id) public {
         PythStructs.Price memory price = pyth.getEmaPriceUnsafe(id);
+        require(price.conf < 10000);
+        // Use price
+    }
+
+    function bad2(Data calldata data) public {
+        PythStructs.Price memory price = pyth.getEmaPriceUnsafe(data.id);
         require(price.conf < 10000);
         // Use price
     }

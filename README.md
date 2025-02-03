@@ -82,6 +82,12 @@ python3 -m pip install slither-analyzer
 python3 -m pip install --upgrade slither-analyzer
 ```
 
+### Using Brew
+
+```console
+brew install slither-analyzer
+```
+
 ### Using Git
 
 ```bash
@@ -159,7 +165,7 @@ Num | Detector | What it Detects | Impact | Confidence
 35 | `locked-ether` | [Contracts that lock ether](https://github.com/crytic/slither/wiki/Detector-Documentation#contracts-that-lock-ether) | Medium | High
 36 | `mapping-deletion` | [Deletion on mapping containing a structure](https://github.com/crytic/slither/wiki/Detector-Documentation#deletion-on-mapping-containing-a-structure) | Medium | High
 37 | `pyth-deprecated-functions` | [Detect Pyth deprecated functions](https://github.com/crytic/slither/wiki/Detector-Documentation#pyth-deprecated-functions) | Medium | High
-38 | `pyth-unchecked-confidence` | [Detect when the confidence level of a Pyth price is not checked](https://github.com/crytic/slither/wiki/Detector-Documentation#pyth-unchecked-confidence) | Medium | High
+38 | `pyth-unchecked-confidence` | [Detect when the confidence level of a Pyth price is not checked](https://github.com/crytic/slither/wiki/Detector-Documentation#pyth-unchecked-confidence-level) | Medium | High
 39 | `pyth-unchecked-publishtime` | [Detect when the publishTime of a Pyth price is not checked](https://github.com/crytic/slither/wiki/Detector-Documentation#pyth-unchecked-publishtime) | Medium | High
 40 | `shadowing-abstract` | [State variables shadowing from abstract contracts](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing-from-abstract-contracts) | Medium | High
 41 | `tautological-compare` | [Comparing a variable to itself always returns true or false, depending on comparison](https://github.com/crytic/slither/wiki/Detector-Documentation#tautological-compare) | Medium | High
@@ -179,9 +185,9 @@ Num | Detector | What it Detects | Impact | Confidence
 55 | `unchecked-send` | [Unchecked send](https://github.com/crytic/slither/wiki/Detector-Documentation#unchecked-send) | Medium | Medium
 56 | `uninitialized-local` | [Uninitialized local variables](https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-local-variables) | Medium | Medium
 57 | `unused-return` | [Unused return values](https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return) | Medium | Medium
-58 | `chainlink-feed-registry` | [Detect when chainlink feed registry is used](https://github.com/crytic/slither/wiki/Detector-Documentation#chainlink-feed-registry) | Low | High
+58 | `chainlink-feed-registry` | [Detect when chainlink feed registry is used](https://github.com/crytic/slither/wiki/Detector-Documentation#chainlink-feed-registry-usage) | Low | High
 59 | `incorrect-modifier` | [Modifiers that can return the default value](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-modifier) | Low | High
-60 | `optimism-deprecation` | [Detect when deprecated Optimism predeploy or function is used.](https://github.com/crytic/slither/wiki/Detector-Documentation#optimism-deprecation) | Low | High
+60 | `optimism-deprecation` | [Detect when deprecated Optimism predeploy or function is used.](https://github.com/crytic/slither/wiki/Detector-Documentation#optimism-deprecated-predeploy-or-function) | Low | High
 61 | `shadowing-builtin` | [Built-in symbol shadowing](https://github.com/crytic/slither/wiki/Detector-Documentation#builtin-symbol-shadowing) | Low | High
 62 | `shadowing-local` | [Local variables shadowing](https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing) | Low | High
 63 | `uninitialized-fptr-cst` | [Uninitialized function pointer calls in constructors](https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-function-pointers-in-constructors) | Low | High
@@ -203,7 +209,7 @@ Num | Detector | What it Detects | Impact | Confidence
 79 | `deprecated-standards` | [Deprecated Solidity Standards](https://github.com/crytic/slither/wiki/Detector-Documentation#deprecated-standards) | Informational | High
 80 | `erc20-indexed` | [Un-indexed ERC20 event parameters](https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-erc20-event-parameters) | Informational | High
 81 | `function-init-state` | [Function initializing state variables](https://github.com/crytic/slither/wiki/Detector-Documentation#function-initializing-state) | Informational | High
-82 | `incorrect-using-for` | [Detects using-for statement usage when no function from a given library matches a given type](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-using-for-usage) | Informational | High
+82 | `incorrect-using-for` | [Detects using-for statement usage when no function from a given library matches a given type](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-usage-of-using-for-statement) | Informational | High
 83 | `low-level-calls` | [Low level calls](https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls) | Informational | High
 84 | `missing-inheritance` | [Missing inheritance](https://github.com/crytic/slither/wiki/Detector-Documentation#missing-inheritance) | Informational | High
 85 | `naming-convention` | [Conformity to Solidity naming conventions](https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions) | Informational | High
@@ -232,10 +238,11 @@ For more information, see
 
 ### Quick Review Printers
 
-* `human-summary`: [Print a human-readable summary of the contracts](https://github.com/crytic/slither/wiki/Printer-documentation#human-summary)
-* `inheritance-graph`: [Export the inheritance graph of each contract to a dot file](https://github.com/crytic/slither/wiki/Printer-documentation#inheritance-graph)
-* `contract-summary`: [Print a summary of the contracts](https://github.com/crytic/slither/wiki/Printer-documentation#contract-summary)
-* `loc`: [Count the total number lines of code (LOC), source lines of code (SLOC), and comment lines of code (CLOC) found in source files (SRC), dependencies (DEP), and test files (TEST).](https://github.com/crytic/slither/wiki/Printer-documentation#loc)
+* `human-summary`: [Print a human-readable summary of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#human-summary)
+* `inheritance-graph`: [Export the inheritance graph of each contract to a dot file](https://github.com/trailofbits/slither/wiki/Printer-documentation#inheritance-graph)
+* `contract-summary`: [Print a summary of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#contract-summary)
+* `loc`: [Count the total number lines of code (LOC), source lines of code (SLOC), and comment lines of code (CLOC) found in source files (SRC), dependencies (DEP), and test files (TEST).](https://github.com/trailofbits/slither/wiki/Printer-documentation#loc)
+* `entry-points`: [Print all the state-changing entry point functions of the contracts](https://github.com/trailofbits/slither/wiki/Printer-documentation#entry-points)
 
 ### In-Depth Review Printers
 
