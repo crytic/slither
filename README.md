@@ -82,6 +82,12 @@ python3 -m pip install slither-analyzer
 python3 -m pip install --upgrade slither-analyzer
 ```
 
+### Using Brew
+
+```console
+brew install slither-analyzer
+```
+
 ### Using Git
 
 ```bash
