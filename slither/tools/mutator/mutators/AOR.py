@@ -2,12 +2,9 @@ from typing import Dict
 from slither.slithir.operations import Binary, BinaryType
 from slither.tools.mutator.utils.patch import create_patch_with_line
 from slither.tools.mutator.mutators.abstract_mutator import AbstractMutator
-from slither.core.variables.variable import Variable
 from slither.core.expressions.unary_operation import UnaryOperation
 from slither.core.expressions.call_expression import CallExpression
 from slither.core.expressions.member_access import MemberAccess
-from slither.core.expressions.identifier import Identifier
-from slither.core.solidity_types.array_type import ArrayType
 
 arithmetic_operators = [
     BinaryType.ADDITION,
@@ -42,9 +39,6 @@ class AOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     isinstance(ir_expression, CallExpression)
                     and isinstance(ir_expression.called, MemberAccess)
                     and ir_expression.called.member_name == "pop"
-                    and isinstance(ir_expression.called.expression, Identifier)
-                    and isinstance(ir_expression.called.expression.value, Variable)
-                    and isinstance(ir_expression.called.expression.value.type, ArrayType)
                 ):
                     continue
 
@@ -58,9 +52,6 @@ class AOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     if isinstance(ir_expression, CallExpression)
                     and isinstance(ir_expression.called, MemberAccess)
                     and ir_expression.called.member_name == "push"
-                    and isinstance(ir_expression.called.expression, Identifier)
-                    and isinstance(ir_expression.called.expression.value, Variable)
-                    and isinstance(ir_expression.called.expression.value.type, ArrayType)
                     else node.irs
                 )
 

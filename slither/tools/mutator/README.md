@@ -33,8 +33,7 @@ options:
   --timeout TIMEOUT     Set timeout for test command (by default 30 seconds)
   --output-dir OUTPUT_DIR
                         Name of output directory (by default 'mutation_campaign')
-  -v, --verbose         log mutants that are caught as well as those that are uncaught
-  -vv, --very-verbose   log mutants that are caught, uncaught, and fail to compile. And more!
+  -v, --verbose         log mutants that are caught, uncaught, and fail to compile
   --mutators-to-run MUTATORS_TO_RUN
                         mutant generators to run
   --contract-names CONTRACT_NAMES
