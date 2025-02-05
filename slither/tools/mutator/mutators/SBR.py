@@ -64,7 +64,7 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     # Get the string
                     start = node.source_mapping.start
                     stop = start + node.source_mapping.length
-                    old_str = self.in_file_str[start:stop]
+                    old_str = node.source_mapping.content
                     line_no = node.source_mapping.lines
                     if not line_no[0] in self.dont_mutate_line:
                         for value in solidity_rules:
@@ -89,7 +89,7 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
             if node:
                 start = node.source_mapping.start
                 stop = start + node.source_mapping.length
-                old_str = self.in_file_str[start:stop]
+                old_str = node.source_mapping.content
                 line_no = node.source_mapping.lines
                 if not line_no[0] in self.dont_mutate_line:
                     for value in solidity_rules:

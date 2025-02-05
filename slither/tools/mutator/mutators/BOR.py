@@ -31,11 +31,14 @@ class BOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                             # Get the string
                             start = node.source_mapping.start
                             stop = start + node.source_mapping.length
-                            old_str = self.in_file_str[start:stop]
+                            old_str = node.source_mapping.content
                             line_no = node.source_mapping.lines
                             if not line_no[0] in self.dont_mutate_line:
                                 # Replace the expression with true
-                                new_str = f"{old_str.split(ir.type.value)[0]}{op.value}{old_str.split(ir.type.value)[1]}"
+                                halves = old_str.split(ir.type.value)
+                                if len(halves) != 2:
+                                    continue  # skip if assembly
+                                new_str = f"{halves[0]}{op.value}{halves[1]}"
                                 create_patch_with_line(
                                     result,
                                     self.in_file,

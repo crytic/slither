@@ -36,7 +36,7 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     # Get the string
                     start = variable.source_mapping.start
                     stop = start + variable.source_mapping.length
-                    old_str = self.in_file_str[start:stop]
+                    old_str = variable.source_mapping.content
                     line_no = variable.node_initialization.source_mapping.lines
                     if not line_no[0] in self.dont_mutate_line:
                         for value in literal_replacements:
@@ -67,7 +67,7 @@ class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
                             literal_replacements.append("-1")
                     start = variable.source_mapping.start
                     stop = start + variable.source_mapping.length
-                    old_str = self.in_file_str[start:stop]
+                    old_str = variable.source_mapping.content
                     line_no = variable.source_mapping.lines
                     if not line_no[0] in self.dont_mutate_line:
                         for new_value in literal_replacements:

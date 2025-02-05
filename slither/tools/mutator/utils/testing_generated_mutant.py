@@ -109,9 +109,7 @@ def test_patch(  # pylint: disable=too-many-arguments
 
             create_mutant_file(output_folder, file, generator_name)
             logger.info(
-                red(
-                    f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> UNCAUGHT"
-                )
+                f"[{generator_name}] Line {patch['line_number']}: '{patch['old_string']}' ==> '{patch['new_string']}' --> UNCAUGHT"
             )
             reset_file(file)
 
