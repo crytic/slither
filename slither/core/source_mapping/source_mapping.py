@@ -165,16 +165,19 @@ def _convert_source_mapping(
     if len(position) != 1:
         return Source(compilation_unit)
 
-    s, l, f = position[0]
-    s = int(s)
-    l = int(l)
+    s_bytes, l_bytes, f = position[0]
+    s_bytes = int(s_bytes)
+    l_bytes = int(l_bytes)
     f = int(f)
 
     if f not in sourceUnits:
+        # TODO: figure out the filename so we can get the source code
+        # to remap bytes to chars.. When is this branch even used?
         new_source = Source(compilation_unit)
-        new_source.start = s
-        new_source.length = l
+        new_source.start = s_bytes
+        new_source.length = l_bytes
         return new_source
+
     filename_used = sourceUnits[f]
 
     # If possible, convert the filename to its absolute/relative version
@@ -182,6 +185,12 @@ def _convert_source_mapping(
 
     filename: Filename = compilation_unit.core.crytic_compile.filename_lookup(filename_used)
     is_dependency = compilation_unit.core.crytic_compile.is_dependency(filename.absolute)
+
+    # convert byte-offset indicies to char-offset
+    source_code = compilation_unit.core.source_code[filename.absolute]
+    s = int(len(source_code.encode("utf-8")[:s_bytes].decode("utf-8")))
+    l = int(len(source_code.encode("utf-8")[s_bytes : s_bytes + l_bytes].decode("utf-8")))
+    f = int(f)
 
     (lines, starting_column, ending_column) = _compute_line(compilation_unit, filename, s, l)
 
