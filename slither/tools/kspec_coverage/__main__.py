@@ -2,6 +2,7 @@ import sys
 import logging
 import argparse
 from crytic_compile import cryticparser
+import shtab
 from slither.tools.kspec_coverage.kspec_coverage import kspec_coverage
 
 logging.basicConfig()
@@ -26,6 +27,8 @@ def parse_args() -> argparse.Namespace:
         usage="slither-kspec-coverage contract.sol kspec.md",
     )
 
+    shtab.add_argument_to(parser)
+
     parser.add_argument(
         "contract", help="The filename of the contract or truffle directory to analyze."
     )
@@ -45,7 +48,7 @@ def parse_args() -> argparse.Namespace:
         help='Export the results as a JSON file ("--json -" to export to stdout)',
         action="store",
         default=False,
-    )
+    ).complete = shtab.FILE
 
     cryticparser.init(parser)
 
