@@ -1,0 +1,8 @@
+User.test(Target) ignores return value by (e,None) = t.g()
+
+User.test(Target) ignores return value by t.g()
+
+User.test(Target) ignores return value by a.add(0)
+
+User.test(Target) ignores return value by t.f()
+

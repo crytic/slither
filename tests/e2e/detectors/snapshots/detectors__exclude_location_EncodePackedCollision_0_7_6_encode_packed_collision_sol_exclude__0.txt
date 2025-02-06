@@ -1,0 +1,15 @@
+EncodePackedCollision.bad4(bytes,bytes) calls abi.encodePacked() with multiple dynamic arguments:
+	- packed = abi.encodePacked(a,a2,a3,a)
+
+EncodePackedCollision.bad2(string,uint256[]) calls abi.encodePacked() with multiple dynamic arguments:
+	- packed = abi.encodePacked(stra,arra)
+
+EncodePackedCollision.bad3_get_hash_for_signature(string,string) calls abi.encodePacked() with multiple dynamic arguments:
+	- keccak256(bytes)(abi.encodePacked(name,doc))
+
+EncodePackedCollision.bad0(string,string) calls abi.encodePacked() with multiple dynamic arguments:
+	- packed = abi.encodePacked(stra,strb)
+
+EncodePackedCollision.bad1(string,bytes) calls abi.encodePacked() with multiple dynamic arguments:
+	- packed = abi.encodePacked(stra,bytesa)
+

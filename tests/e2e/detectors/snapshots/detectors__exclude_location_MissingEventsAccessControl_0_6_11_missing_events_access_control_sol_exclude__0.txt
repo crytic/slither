@@ -1,0 +1,9 @@
+Bug.bad2(address) should emit an event for: 
+	- owner = newOwner 
+
+Bug.bad1(address) should emit an event for: 
+	- owner = newOwner 
+
+Bug.bad0() should emit an event for: 
+	- owner = msg.sender 
+

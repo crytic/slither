@@ -1,0 +1,2 @@
+MyConc.bad(address) ignores return value by dst.send(msg.value)
+
