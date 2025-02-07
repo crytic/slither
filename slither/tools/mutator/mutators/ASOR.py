@@ -48,7 +48,7 @@ class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                             if op != ir.expression:
                                 start = node.source_mapping.start
                                 stop = start + node.source_mapping.length
-                                old_str = self.in_file_str[start:stop]
+                                old_str = node.source_mapping.content
                                 line_no = node.source_mapping.lines
                                 if not line_no[0] in self.dont_mutate_line:
                                     # Replace the expression with true
