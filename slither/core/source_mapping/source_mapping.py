@@ -84,8 +84,8 @@ class Source:
         assert self.compilation_unit
         return (
             self.compilation_unit.core.source_code[self.filename.absolute]
-                .encode("utf8")[self.start : self.end]
-                .decode("utf8")
+            .encode("utf8")[self.start : self.end]
+            .decode("utf8")
         )
 
     @property

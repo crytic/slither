@@ -156,7 +156,9 @@ def _handle_function(
     prompt = "Create a natpsec documentation for this solidity code with only notice and dev.\n"
     srcmap = function.source_mapping
     src = function.compilation_unit.core.source_code[srcmap.filename.absolute]
-    first_char_index = len(src.encode("utf8")[:srcmap.start].decode("utf8")) # convert byte offset to char offset
+    first_char_index = len(
+        src.encode("utf8")[: srcmap.start].decode("utf8")
+    )  # convert byte offset to char offset
     prev_char = src[first_char_index - 1]
     prompt += srcmap.content
 
@@ -201,7 +203,9 @@ def _handle_function(
     if not answer_processed:
         return overwrite
 
-    create_patch(all_patches, srcmap.filename.absolute, srcmap.start, srcmap.start, "", answer_processed)
+    create_patch(
+        all_patches, srcmap.filename.absolute, srcmap.start, srcmap.start, "", answer_processed
+    )
 
     return overwrite
 
