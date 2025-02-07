@@ -107,6 +107,7 @@ class Flattening:
         :return:
         """
         src_mapping = contract.source_mapping
+        # TODO: this needs to be encoded before it gets indexed!
         content = self._compilation_unit.core.source_code[src_mapping.filename.absolute]
         start = src_mapping.start
         end = src_mapping.start + src_mapping.length
@@ -210,6 +211,12 @@ class Flattening:
                             )
 
         to_patch.sort(key=lambda x: x.index, reverse=True)
+
+        # Note: foundry and solc and everything else return srcmap offsets per-byte
+        # and it seems the rest of slither operates on bytes also
+        # it might just be the mutator and flattener that are incorrectly applying offsets directly to strings
+        # I think I just need to do the following (and similar for mutations)
+        # content = content.encode("utf-8")[start:end].decode("utf-8")
 
         content = content[start:end]
         for patch in to_patch:
