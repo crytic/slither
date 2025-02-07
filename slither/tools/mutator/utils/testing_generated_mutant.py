@@ -75,8 +75,8 @@ def run_test_cmd(
 
     # If tests fail in verbose-mode, print both stdout and stderr for easier debugging
     if verbose:
-        logger.info(yellow(result.stdout.decode("utf-8")))
-        logger.info(red(result.stderr.decode("utf-8")))
+        logger.info(yellow(result.stdout.decode("utf8")))
+        logger.info(red(result.stderr.decode("utf8")))
 
     return False
 
@@ -96,12 +96,12 @@ def test_patch(  # pylint: disable=too-many-arguments
     function to verify whether each patch is caught by tests
     returns: 0 (uncaught), 1 (caught), or 2 (compilation failure)
     """
-    with open(file, "r", encoding="utf-8") as filepath:
+    with open(file, "r", encoding="utf8") as filepath:
         content = filepath.read()
     # Perform the replacement based on the index values
     replaced_content = content[: patch["start"]] + patch["new_string"] + content[patch["end"] :]
     # Write the modified content back to the file
-    with open(file, "w", encoding="utf-8") as filepath:
+    with open(file, "w", encoding="utf8") as filepath:
         filepath.write(replaced_content)
 
     if compile_generated_mutant(file, mappings):

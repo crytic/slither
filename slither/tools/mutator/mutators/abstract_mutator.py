@@ -47,7 +47,6 @@ class AbstractMutator(
         self.output_folder = output_folder
         self.contract = contract_instance
         self.in_file = self.contract.source_mapping.filename.absolute
-        self.in_file_str = self.contract.compilation_unit.core.source_code[self.in_file]
         self.dont_mutate_line = dont_mutate_line
         # total revert/comment/tweak mutants that were generated and compiled
         self.total_mutant_counts = [0, 0, 0]
