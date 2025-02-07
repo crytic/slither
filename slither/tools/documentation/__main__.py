@@ -155,14 +155,14 @@ def _handle_function(
         return overwrite
     prompt = "Create a natpsec documentation for this solidity code with only notice and dev.\n"
     srcmap = function.source_mapping
-    src = compilation_unit.core.source_code[srcmap.filename.absolute]
-    first_char_index = len(src.encode("utf-8")[:srcmap.start].decode("utf-8")) # convert byte offset to char offset
-    prev_char = src[prev_char_index - 1] 
+    src = function.compilation_unit.core.source_code[srcmap.filename.absolute]
+    first_char_index = len(src.encode("utf8")[:srcmap.start].decode("utf8")) # convert byte offset to char offset
+    prev_char = src[first_char_index - 1]
     prompt += srcmap.content
 
     use_tab = _use_tab(prev_char)
     if use_tab is None and srcmap.starting_column > 1:
-        logger.info(f"Non standard indentation found: '{first_char}'")
+        logger.info(f"Non standard indentation found: '{prev_char}'")
         if overwrite:
             logger.info("Disable overwrite to avoid mistakes")
             overwrite = False

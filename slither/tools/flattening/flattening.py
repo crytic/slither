@@ -108,9 +108,7 @@ class Flattening:
         """
         src_mapping = contract.source_mapping
         # TODO: this needs to be encoded before it gets indexed!
-        content = self._compilation_unit.core.source_code[src_mapping.filename.absolute]
-        start = src_mapping.start
-        end = src_mapping.start + src_mapping.length
+        src_bytes = self._compilation_unit.core.source_code[src_mapping.filename.absolute]
 
         to_patch = []
         # interface must use external
@@ -125,8 +123,8 @@ class Flattening:
                         + f.parameters_src().source_mapping.length
                     )
                     attributes_end = f.returns_src().source_mapping.start
-                    attributes = content[attributes_start:attributes_end]
-                    regex = re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
+                    attributes = src_bytes[attributes_start:attributes_end]
+                    regex = re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes.decode("utf8"))
                     if regex:
                         to_patch.append(
                             Patch(
@@ -135,13 +133,13 @@ class Flattening:
                             )
                         )
                     else:
-                        raise SlitherException(f"External keyword not found {f.name} {attributes}")
+                        raise SlitherException(f"External keyword not found {f.name} {attributes.decode("utf8")}")
 
                     for var in f.parameters:
                         if var.location == "calldata":
                             calldata_start = var.source_mapping.start
                             calldata_end = calldata_start + var.source_mapping.length
-                            calldata_idx = content[calldata_start:calldata_end].find(" calldata ")
+                            calldata_idx = src_bytes[calldata_start:calldata_end].find(" calldata ")
                             to_patch.append(
                                 Patch(
                                     calldata_start + calldata_idx + 1,
@@ -159,11 +157,11 @@ class Flattening:
                         + f.parameters_src().source_mapping["length"]
                     )
                     attributes_end = f.returns_src().source_mapping["start"]
-                    attributes = content[attributes_start:attributes_end]
+                    attributes = src_bytes[attributes_start:attributes_end]
                     regex = (
-                        re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
+                        re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes.decode("utf8"))
                         if visibility == "external"
-                        else re.search(r"((\spublic)\s+)|(\spublic)$|(\)public)$", attributes)
+                        else re.search(r"((\spublic)\s+)|(\spublic)$|(\)public)$", attributes.decode("utf8"))
                     )
                     if regex:
                         to_patch.append(
@@ -176,7 +174,7 @@ class Flattening:
                         )
                     else:
                         raise SlitherException(
-                            f"{visibility} keyword not found {f.name} {attributes}"
+                            f"{visibility} keyword not found {f.name} {attributes.decode("utf8")}"
                         )
 
         if self._private_to_internal:
@@ -184,8 +182,8 @@ class Flattening:
                 if variable.visibility == "private":
                     attributes_start = variable.source_mapping.start
                     attributes_end = attributes_start + variable.source_mapping.length
-                    attributes = content[attributes_start:attributes_end]
-                    regex = re.search(r" private ", attributes)
+                    attributes = src_bytes[attributes_start:attributes_end]
+                    regex = re.search(r" private ", attributes.decode("utf8"))
                     if regex:
                         to_patch.append(
                             Patch(
@@ -195,7 +193,7 @@ class Flattening:
                         )
                     else:
                         raise SlitherException(
-                            f"private keyword not found {variable.name} {attributes}"
+                            f"private keyword not found {variable.name} {attributes.decode("utf8")}"
                         )
 
         if self._remove_assert:
@@ -216,28 +214,29 @@ class Flattening:
         # and it seems the rest of slither operates on bytes also
         # it might just be the mutator and flattener that are incorrectly applying offsets directly to strings
         # I think I just need to do the following (and similar for mutations)
-        # content = content.encode("utf-8")[start:end].decode("utf-8")
+        # content = content.encode("utf8")[start:end].decode("utf8")
 
-        content = content[start:end]
+        content = src_mapping.content.encode("utf8")
+        start = src_mapping.start
         for patch in to_patch:
             patch_type = patch.patch_type
             index = patch.index
             index = index - start
             if patch_type == "public_to_external":
-                content = content[:index] + "public" + content[index + len("external") :]
+                content = content[:index].decode("utf8") + "public" + content[index + len("external") :].decode("utf8")
             elif patch_type == "external_to_internal":
-                content = content[:index] + "internal" + content[index + len("external") :]
+                content = content[:index].decode("utf8") + "internal" + content[index + len("external") :].decode("utf8")
             elif patch_type == "public_to_internal":
-                content = content[:index] + "internal" + content[index + len("public") :]
+                content = content[:index].decode("utf8") + "internal" + content[index + len("public") :].decode("utf8")
             elif patch_type == "private_to_internal":
-                content = content[:index] + "internal" + content[index + len("private") :]
+                content = content[:index].decode("utf8") + "internal" + content[index + len("private") :].decode("utf8")
             elif patch_type == "calldata_to_memory":
-                content = content[:index] + "memory" + content[index + len("calldata") :]
+                content = content[:index].decode("utf8") + "memory" + content[index + len("calldata") :].decode("utf8")
             else:
                 assert patch_type == "line_removal"
-                content = content[:index] + " // " + content[index:]
+                content = content[:index].decode("utf8") + " // " + content[index:].decode("utf8")
 
-        self._source_codes[contract] = content
+        self._source_codes[contract] = content.decode("utf8")
 
     def _pragmas(self) -> str:
         """
