@@ -33,9 +33,11 @@ class PrinterEntryPoints(AbstractPrinter):
                 and not c.is_abstract
                 and "lib/" not in c.source_mapping.filename.absolute
                 and "node_modules/" not in c.source_mapping.filename.absolute
-                and not any(
-                    mock in c.source_mapping.filename.absolute.lower() for mock in ["mock", "mocks"]
-                )
+                and "test/" not in c.source_mapping.filename.absolute
+                and "tests/" not in c.source_mapping.filename.absolute
+                and "mock/" not in c.source_mapping.filename.absolute
+                and "mocks/" not in c.source_mapping.filename.absolute
+                and "scripts/" not in c.source_mapping.filename.absolute
             ),
             key=lambda x: x.name,
         ):
