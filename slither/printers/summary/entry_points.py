@@ -22,20 +22,15 @@ class PrinterEntryPoints(AbstractPrinter):
         Args:
             _filename(string)
         """
+        excluded_paths = {"lib/", "node_modules/", "test/", "tests/", "mock/", "mocks/", "scripts/"}
         all_contracts = []
 
         for contract in sorted(
             (
                 c
                 for c in self.contracts
-                if not c.is_interface
-                and not c.is_library
-                and not c.is_abstract
-                and "lib/" not in c.source_mapping.filename.absolute
-                and "node_modules/" not in c.source_mapping.filename.absolute
-                and not any(
-                    mock in c.source_mapping.filename.absolute.lower() for mock in ["mock", "mocks"]
-                )
+                if not (c.is_interface or c.is_library or c.is_abstract)
+                and not any(path in c.source_mapping.filename.absolute for path in excluded_paths)
             ),
             key=lambda x: x.name,
         ):
@@ -65,29 +60,31 @@ class PrinterEntryPoints(AbstractPrinter):
 
             for f in sorted(
                 entry_points,
-                key=lambda x: (x.visibility != "external", x.visibility != "public", x.full_name),
+                key=lambda x: (
+                    x.contract_declarer != contract,  # Non-inherited first
+                    x.contract_declarer.name
+                    if x.contract_declarer != contract
+                    else "",  # Then by parent contract name
+                    x.visibility != "external",  # Keep existing sorting criteria
+                    x.visibility != "public",
+                    x.full_name,
+                ),
             ):
-                modifier_list = [m.name for m in f.modifiers]
-                if f.payable:
-                    modifier_list.append("payable")
-                modifiers = ", ".join(modifier_list) if modifier_list else ""
-                inherited = f"{f.contract_declarer.name}" if f.contract_declarer != contract else ""
-
                 name_parts = f.full_name.split("(", 1)
-                function_name = (
-                    f"{Colors.BOLD}{Colors.RED}{name_parts[0]}{Colors.END}" f"({name_parts[1]}"
+                inherited = f.contract_declarer.name if f.contract_declarer != contract else ""
+                modifiers = ", ".join(
+                    [m.name for m in f.modifiers] + (["payable"] if f.payable else [])
                 )
 
                 table.add_row(
                     [
-                        function_name,
+                        f"{Colors.BOLD}{Colors.RED}{name_parts[0]}{Colors.END}({name_parts[1]}",
                         f"{Colors.GREEN}{modifiers}{Colors.END}" if modifiers else "",
                         f"{Colors.MAGENTA}{inherited}{Colors.END}" if inherited else "",
                     ]
                 )
 
-            contract_info.append(str(table))
-            all_contracts.append("\n".join(contract_info))
+            all_contracts.append("\n".join(contract_info + [str(table)]))
 
         info = "\n".join(all_contracts) if all_contracts else ""
         self.info(info)
