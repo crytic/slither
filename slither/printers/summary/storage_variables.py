@@ -48,7 +48,9 @@ class PrinterStorageVariables(AbstractPrinter):
 
             storage_vars = sorted(
                 storage_vars,
-                key=lambda x: contract.compilation_unit.storage_layout_of(contract, x)[0],
+                key=lambda x, contract=contract: contract.compilation_unit.storage_layout_of(
+                    contract, x
+                )[0],
             )
 
             for v in storage_vars:
