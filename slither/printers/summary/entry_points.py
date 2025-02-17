@@ -60,7 +60,7 @@ class PrinterEntryPoints(AbstractPrinter):
 
             for f in sorted(
                 entry_points,
-                key=lambda x: (
+                key=lambda x, contract=contract: (
                     x.contract_declarer != contract,
                     x.contract_declarer.name if x.contract_declarer != contract else "",
                     x.visibility != "external",
