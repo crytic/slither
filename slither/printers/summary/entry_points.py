@@ -61,11 +61,9 @@ class PrinterEntryPoints(AbstractPrinter):
             for f in sorted(
                 entry_points,
                 key=lambda x: (
-                    x.contract_declarer != contract,  # Non-inherited first
-                    x.contract_declarer.name
-                    if x.contract_declarer != contract
-                    else "",  # Then by parent contract name
-                    x.visibility != "external",  # Keep existing sorting criteria
+                    x.contract_declarer != contract,
+                    x.contract_declarer.name if x.contract_declarer != contract else "",
+                    x.visibility != "external",
                     x.visibility != "public",
                     x.full_name,
                 ),
