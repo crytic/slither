@@ -21,15 +21,13 @@ class PrinterStorageVariables(AbstractPrinter):
         Args:
             _filename(string)
         """
-        excluded_paths = {"lib/", "node_modules/", "test/", "tests/", "mock/", "mocks/", "scripts/"}
         all_contracts = []
 
         for contract in sorted(
             (
                 c
-                for c in self.contracts
-                if not (c.is_interface or c.is_library or c.is_abstract)
-                and not any(path in c.source_mapping.filename.absolute for path in excluded_paths)
+                for c in self.slither.contracts_derived
+                if not c.is_test and not c.is_from_dependency()
             ),
             key=lambda x: x.name,
         ):
