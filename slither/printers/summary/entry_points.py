@@ -41,8 +41,6 @@ class PrinterEntryPoints(AbstractPrinter):
                     and not f.is_constructor
                     and not f.view
                     and not f.pure
-                    and not f.contract_declarer.is_interface
-                    and not f.contract_declarer.is_library
                     and not f.is_shadowed
                 )
             ]
