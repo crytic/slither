@@ -26,3 +26,4 @@ from .functions.dominator import Dominator
 from .summary.martin import Martin
 from .summary.cheatcodes import CheatcodePrinter
 from .summary.entry_points import PrinterEntryPoints
+from .summary.storage_variables import PrinterStorageVariables
