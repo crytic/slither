@@ -345,7 +345,6 @@ def last_name(
         LocalIRVariable,
     ],
     init_vars: Dict[str, LocalIRVariable],
-    new_variables: List[Union[StateIRVariable, LocalIRVariable]],
 ) -> Union[StateIRVariable, LocalIRVariable,]:
     candidates = []
     # Todo optimize by creating a variables_ssa_written attribute
@@ -360,9 +359,6 @@ def last_name(
         candidates.append(LocalIRVariable(n.variable_declaration))
     if var.name in init_vars:
         candidates.append(init_vars[var.name])
-    for v in new_variables:
-        if v.name == var.name:
-            candidates.append(v)
     assert candidates
     return max(candidates, key=lambda v: v.index)
 
@@ -496,25 +492,9 @@ def fix_phi_rvalues_and_storage_ref(
 ) -> None:
     for ir in node.irs_ssa:
         if isinstance(ir, (Phi)) and not ir.rvalues:
-            # We need to order nodes so that a node with an Assignment operation is first
-            # as the other node may use the variable assigned
-            nodes = []
-            for n in ir.nodes:
-                assignment = False
-                for irr in n.irs:
-                    if isinstance(irr, Assignment):
-                        nodes.insert(0, n)
-                        assignment = True
-                        break
-                if not assignment:
-                    nodes.append(n)
-            # Keep track of the new variables in this set of nodes. We need to pass it to last_name
-            # in case a node has an Assignment operation and the following one uses the variable assigned
-            variables = []
-            for dst in nodes:
-                variables.append(
-                    last_name(dst, ir.lvalue, init_local_variables_instances, variables)
-                )
+            variables = [
+                last_name(dst, ir.lvalue, init_local_variables_instances) for dst in ir.nodes
+            ]
             ir.rvalues = variables
         if isinstance(ir, (Phi, PhiCallback)):
             if isinstance(ir.lvalue, LocalIRVariable):
