@@ -39,6 +39,7 @@ def test_yul_parser_assembly_slot(solc_binary_path) -> None:
         elif value.value.name == "bucketId":
             assert isinstance(value.value, LocalVariable)
 
+
 def test_yul_parser_assembly_slot(solc_binary_path) -> None:
     # mstore(0x0, bucketId)
     # mstore(0x20, _counters.slot)
