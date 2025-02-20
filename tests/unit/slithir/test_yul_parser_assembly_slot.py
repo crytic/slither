@@ -40,10 +40,7 @@ def test_yul_parser_assembly_slot(solc_binary_path) -> None:
             assert isinstance(value.value, LocalVariable)
 
 
-def test_yul_parser_assembly_slot(solc_binary_path) -> None:
-    # mstore(0x0, bucketId)
-    # mstore(0x20, _counters.slot)
-    data = {"0x0": "bucketId", "0x20": "_counters"}
+def test_yul_parser_sstore_sload(solc_binary_path) -> None:
 
     solc_path = solc_binary_path("0.8.18")
     slither = Slither(Path(TEST_DATA_DIR, "assembly_sstore_sload.sol").as_posix(), solc=solc_path)

@@ -406,8 +406,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(var)
             set_val(expression, val)
 
-        elif (called.name == "sload(uint256)" or called.name == "sstore(uint256,uint256)") and (
-            len(args) > 0 and isinstance(args[0], StateVariable)
+        elif (
+            called.name in ["sload(uint256)", "sstore(uint256,uint256)"]
+            and len(args) > 0
+            and isinstance(args[0], StateVariable)
         ):
             # parse_yul._parse_yul_magic_suffixes does a best effort tentative to retrieve
             # the right state variable on .slot access
