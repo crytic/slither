@@ -406,6 +406,25 @@ class ExpressionToSlithIR(ExpressionVisitor):
             self._result.append(var)
             set_val(expression, val)
 
+        elif (called.name == "sload(uint256)" or called.name == "sstore(uint256,uint256)") and (len(args)>0 and isinstance(args[0], StateVariable)):
+            # parse_yul._parse_yul_magic_suffixes does a best effort tentative to retrieve
+            # the right state variable on .slot access
+            #
+            # Solidity does not allow state variable to be directly used through sstore/sload
+            # As you need to specify the slot number (ex you can't do " sload(some_state_variable)")
+            #
+            # So we can make the assumption that if a state variable appear on the first argument
+            # of sstore/sload, we can convert the call to sstore to a normal assignment / read
+
+            if called.name == "sload(uint256)":
+                val = TemporaryVariable(self._node)
+                var = Assignment(val, args[0], ElementaryType("uint256"))
+                self._result.append(var)
+                set_val(expression, val)
+            else:
+                var = Assignment(args[0], args[1], ElementaryType("uint256"))
+                self._result.append(var)
+                set_val(expression, args[0])
         else:
             # If tuple
             if expression.type_call.startswith("tuple(") and expression.type_call != "tuple()":
