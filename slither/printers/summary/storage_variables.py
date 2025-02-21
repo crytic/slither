@@ -31,36 +31,33 @@ class PrinterStorageVariables(AbstractPrinter):
             ),
             key=lambda x: x.name,
         ):
-            storage_vars = [
-                v for v in contract.state_variables if not (v.is_constant or v.is_immutable)
-            ]
+            storage_vars = contract.storage_variables_ordered
 
             if not storage_vars:
                 continue
 
-            table = MyPrettyTable(["Variable", "Type", "Visibility", "Slot", "Inherited From"])
+            table = MyPrettyTable(
+                ["Variable", "Type", "Visibility", "Slot", "Offset", "Inherited From"]
+            )
+            for field in table._field_names:
+                table._options["set_alignment"] += [(field, "l")]
+
             contract_info = [
                 f"\nContract {Colors.BOLD}{Colors.YELLOW}{contract.name}{Colors.END}"
                 f" ({contract.source_mapping})"
             ]
 
-            storage_vars = sorted(
-                storage_vars,
-                key=lambda x, contract=contract: contract.compilation_unit.storage_layout_of(
-                    contract, x
-                )[0],
-            )
-
             for v in storage_vars:
-                slot = contract.compilation_unit.storage_layout_of(contract, v)[0]
+                slot, offset = contract.compilation_unit.storage_layout_of(contract, v)
                 inherited = v.contract.name if v.contract != contract else ""
                 table.add_row(
                     [
                         f"{Colors.BOLD}{Colors.RED}{v.name}{Colors.END}",
-                        f"{Colors.GREEN}{str(v.type)}{Colors.END}",
+                        f"{Colors.GREEN}{v.type}{Colors.END}",
                         f"{Colors.BLUE}{v.visibility}{Colors.END}",
-                        str(slot),
-                        f"{Colors.MAGENTA}{inherited}{Colors.END}" if inherited else "",
+                        slot,
+                        offset,
+                        f"{Colors.MAGENTA}{inherited}{Colors.END}",
                     ]
                 )
 
