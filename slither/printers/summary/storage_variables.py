@@ -39,8 +39,6 @@ class PrinterStorageVariables(AbstractPrinter):
             table = MyPrettyTable(
                 ["Variable", "Type", "Visibility", "Slot", "Offset", "Inherited From"]
             )
-            for field in table._field_names:
-                table._options["set_alignment"] += [(field, "l")]
 
             contract_info = [
                 f"\nContract {Colors.BOLD}{Colors.YELLOW}{contract.name}{Colors.END}"
