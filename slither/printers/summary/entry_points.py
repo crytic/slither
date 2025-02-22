@@ -28,7 +28,15 @@ class PrinterEntryPoints(AbstractPrinter):
             (
                 c
                 for c in self.slither.contracts_derived
-                if not c.is_test and not c.is_from_dependency()
+                if not c.is_test
+                and not c.is_from_dependency()
+                and "node_modules/" not in c.source_mapping.filename.absolute
+                and "lib/" not in c.source_mapping.filename.absolute
+                and "mock/" not in c.source_mapping.filename.absolute
+                and "mocks/" not in c.source_mapping.filename.absolute
+                and not c.is_interface
+                and not c.is_library
+                and not c.is_abstract
             ),
             key=lambda x: x.name,
         ):
@@ -59,9 +67,7 @@ class PrinterEntryPoints(AbstractPrinter):
                 key=lambda x, contract=contract: (
                     x.contract_declarer != contract,
                     x.contract_declarer.name if x.contract_declarer != contract else "",
-                    x.visibility != "external",
-                    x.visibility != "public",
-                    x.full_name,
+                    x.source_mapping.start,
                 ),
             ):
                 name_parts = f.full_name.split("(", 1)
