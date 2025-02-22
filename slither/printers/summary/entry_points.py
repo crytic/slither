@@ -30,8 +30,6 @@ class PrinterEntryPoints(AbstractPrinter):
                 for c in self.slither.contracts_derived
                 if not c.is_test
                 and not c.is_from_dependency()
-                and "node_modules/" not in c.source_mapping.filename.absolute
-                and "lib/" not in c.source_mapping.filename.absolute
                 and "mock/" not in c.source_mapping.filename.absolute
                 and "mocks/" not in c.source_mapping.filename.absolute
                 and not c.is_interface
