@@ -70,6 +70,26 @@ slither tests/uninitialized.sol
 > Slither requires Python 3.8+.
 If you're **not** going to use one of the [supported compilation frameworks](https://github.com/crytic/crytic-compile), you need [solc](https://github.com/ethereum/solidity/), the Solidity compiler; we recommend using [solc-select](https://github.com/crytic/solc-select) to conveniently switch between solc versions.
 
+### Using [`uv`](https://github.com/astral-sh/uv)
+
+#### Install uv (if you don't have it already)
+
+```console
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+#### Install the latest version of Slither for the current user and add it to PATH
+
+```console
+uv tool install slither-analyzer
+```
+
+#### How to upgrade
+
+```console
+uv tool upgrade slither-analyzer
+```
+
 ### Using Pip
 
 ```console
