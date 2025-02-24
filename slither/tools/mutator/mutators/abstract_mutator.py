@@ -70,8 +70,8 @@ class AbstractMutator(
 
     def should_mutate_node(self, node) -> bool:
         return (
-                not node.source_mapping.lines[0] in self.dont_mutate_line
-                and node.source_mapping.filename.absolute == self.in_file
+            not node.source_mapping.lines[0] in self.dont_mutate_line
+            and node.source_mapping.filename.absolute == self.in_file
         )
 
     @abc.abstractmethod

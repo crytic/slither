@@ -27,9 +27,7 @@ class RR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     stop = start + node.source_mapping.length
                     old_str = node.source_mapping.content
                     line_no = node.source_mapping.lines[0]
-                    if node.type == NodeType.RETURN and not old_str.lstrip().startswith(
-                        "return"
-                    ):
+                    if node.type == NodeType.RETURN and not old_str.lstrip().startswith("return"):
                         continue  # skip the return declarations in fn signatures
                     if not old_str.lstrip().startswith("revert"):
                         new_str = "revert()"
