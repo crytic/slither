@@ -23,6 +23,8 @@ class BOR(AbstractMutator):  # pylint: disable=too-few-public-methods
             function
         ) in self.contract.functions_and_modifiers_declared:
             for node in function.nodes:
+                if not self.should_mutate_node(node):
+                    continue
                 for ir in node.irs:
                     if isinstance(ir, Binary) and ir.type in bitwise_operators:
                         alternative_ops = bitwise_operators[:]
@@ -33,19 +35,18 @@ class BOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                             stop = start + node.source_mapping.length
                             old_str = node.source_mapping.content
                             line_no = node.source_mapping.lines
-                            if not line_no[0] in self.dont_mutate_line:
-                                # Replace the expression with true
-                                halves = old_str.split(ir.type.value)
-                                if len(halves) != 2:
-                                    continue  # skip if assembly
-                                new_str = f"{halves[0]}{op.value}{halves[1]}"
-                                create_patch_with_line(
-                                    result,
-                                    self.in_file,
-                                    start,
-                                    stop,
-                                    old_str,
-                                    new_str,
-                                    line_no[0],
-                                )
+                            # Replace the expression with true
+                            halves = old_str.split(ir.type.value)
+                            if len(halves) != 2:
+                                continue  # skip if assembly
+                            new_str = f"{halves[0]}{op.value}{halves[1]}"
+                            create_patch_with_line(
+                                result,
+                                self.in_file,
+                                start,
+                                stop,
+                                old_str,
+                                new_str,
+                                line_no[0],
+                            )
         return result

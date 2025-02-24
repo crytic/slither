@@ -68,6 +68,12 @@ class AbstractMutator(
                 f"rate must be between 0 and 100 {self.__class__.__name__}"
             )
 
+    def should_mutate_node(self, node) -> bool:
+        return (
+                not node.source_mapping.lines[0] in self.dont_mutate_line
+                and node.source_mapping.filename.absolute == self.in_file
+        )
+
     @abc.abstractmethod
     def _mutate(self) -> Dict:
         """Abstract placeholder, will be overwritten by each mutator"""
