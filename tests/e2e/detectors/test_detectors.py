@@ -511,6 +511,11 @@ ALL_TESTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.CouldBeConstant,
+        "unused_yul.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.CouldBeImmutable,
         "immut_state_variables.sol",
         "0.4.25",
