@@ -1,8 +1,7 @@
 ## Usage
 
 - [How to run Slither](#how-to-run-slither)
-  - [Truffle/Dapp/Etherlime](#truffledappetherlime) 
-  - [Embark](#embark) 
+  - [Foundry/Hardhat](#foundryhardhat)
   - [solc](#solc)
   - [Etherscan](#etherscan)
   - [AST input](#ast-file)

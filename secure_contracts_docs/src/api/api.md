@@ -205,4 +205,4 @@ External call found HIGH_LEVEL_CALL, […]   (...TetherToken.sol#339)
 
 ### Example: Print Basic Information
 
-[print_basic_information.py](https://github.com/crytic/building-secure-contracts/tree/master/program-analysis/slither/examples/print_basic_information.py) demonstrates how to print basic information about a project.
+[print_basic_information.py](./examples/print_basic_information.py) demonstrates how to print basic information about a project.

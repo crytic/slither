@@ -7,23 +7,23 @@
 
 Num |  Check |   What it Detects  |   Impact  | Proxy | Contract V2 
 --- | ---    | ---                | ---        | ---   | --- 
-1 | `became-constant` | [Variables that should not be constant](https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-not-be-constant) | High |  | X
-2 | `function-id-collision` | [Functions ids collision](https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-ids-collisions) | High | X | 
-3 | `function-shadowing` | [Functions shadowing](https://github.com/crytic/slither/wiki/Upgradeability-Checks#functions-shadowing) | High | X | 
-4 | `missing-calls` | [Missing calls to init functions](https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-functions-are-not-called) | High |  | 
-5 | `missing-init-modifier` | [initializer() is not called](https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializer-is-not-called) | High |  | 
-6 | `multiple-calls` | [Init functions called multiple times](https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-functions-are-called-multiple-times) | High |  | 
-7 | `order-vars-contracts` | [Incorrect vars order with the v2](https://github.com/crytic/slither/wiki/Upgradeability-Checks#incorrect-variables-with-the-v2) | High |  | X
-8 | `order-vars-proxy` | [Incorrect vars order with the proxy](https://github.com/crytic/slither/wiki/Upgradeability-Checks#incorrect-variables-with-the-proxy) | High | X | 
-9 | `variables-initialized` | [State variables with an initial value](https://github.com/crytic/slither/wiki/Upgradeability-Checks#state-variable-initialized) | High |  | 
-10 | `were-constant` | [Variables that should be constant](https://github.com/crytic/slither/wiki/Upgradeability-Checks#variables-that-should-be-constant) | High |  | X
-11 | `extra-vars-proxy` | [Extra vars in the proxy](https://github.com/crytic/slither/wiki/Upgradeability-Checks#extra-variables-in-the-proxy) | Medium | X | 
-12 | `missing-variables` | [Variable missing in the v2](https://github.com/crytic/slither/wiki/Upgradeability-Checks#missing-variables) | Medium |  | X
-13 | `extra-vars-v2` | [Extra vars in the v2](https://github.com/crytic/slither/wiki/Upgradeability-Checks#extra-variables-in-the-v2) | Informational |  | X
-14 | `init-inherited` | [Initializable is not inherited](https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-not-inherited) | Informational |  | 
-15 | `init-missing` | [Initializable is missing](https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializable-is-missing) | Informational |  | 
-16 | `initialize-target` | [Initialize function that must be called](https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function) | Informational |  | 
-17 | `initializer-missing` | [initializer() is missing](https://github.com/crytic/slither/wiki/Upgradeability-Checks#initializer-is-missing) | Informational |  | 
+1 | `became-constant` | [Variables that should not be constant](#variables-that-should-not-be-constant) | High |  | X
+2 | `function-id-collision` | [Functions ids collision](#functions-ids-collisions) | High | X | 
+3 | `function-shadowing` | [Functions shadowing](#functions-shadowing) | High | X | 
+4 | `missing-calls` | [Missing calls to init functions](#initialize-functions-are-not-called) | High |  | 
+5 | `missing-init-modifier` | [initializer() is not called](#initializer-is-not-called) | High |  | 
+6 | `multiple-calls` | [Init functions called multiple times](#initialize-functions-are-called-multiple-times) | High |  | 
+7 | `order-vars-contracts` | [Incorrect vars order with the v2](#incorrect-variables-with-the-v2) | High |  | X
+8 | `order-vars-proxy` | [Incorrect vars order with the proxy](#incorrect-variables-with-the-proxy) | High | X | 
+9 | `variables-initialized` | [State variables with an initial value](#state-variable-initialized) | High |  | 
+10 | `were-constant` | [Variables that should be constant](#variables-that-should-be-constant) | High |  | X
+11 | `extra-vars-proxy` | [Extra vars in the proxy](#extra-variables-in-the-proxy) | Medium | X | 
+12 | `missing-variables` | [Variable missing in the v2](#missing-variables) | Medium |  | X
+13 | `extra-vars-v2` | [Extra vars in the v2](#extra-variables-in-the-v2) | Informational |  | X
+14 | `init-inherited` | [Initializable is not inherited](#initializable-is-not-inherited) | Informational |  | 
+15 | `init-missing` | [Initializable is missing](#initializable-is-missing) | Informational |  | 
+16 | `initialize-target` | [Initialize function that must be called](#initialize-function) | Informational |  | 
+17 | `initializer-missing` | [initializer() is missing](#initializer-is-missing) | Informational |  | 
 
 ## Usage
 

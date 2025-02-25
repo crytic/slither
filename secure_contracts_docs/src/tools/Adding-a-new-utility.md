@@ -1,8 +1,6 @@
 Slither can be used as a library to create new utilities.
 Official utils are present in [tools](https://github.com/crytic/slither/tree/master/slither/tools)
 
-We recommend following the [developper installation](https://github.com/crytic/slither/wiki/Developer-installation).
-
 ## Skeleton
 The skeleton util is present in [tools/demo](https://github.com/crytic/slither/tree/master/slither/tools/demo)
 

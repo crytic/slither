@@ -13,7 +13,6 @@ If you are looking to leverage Slither inbuilt features:
 - [Tools](./tools): Custom tools
 
 If you are looking to learn how to extend Slither's capabilities:
-- [Developper-installation](./Developer-installation.md): How to install slither in a dev mode
 - [API](./api): Introduction to static analysis & Slither's API
 - [Tutorial](./tutorials/): Hands-on exercises 
 

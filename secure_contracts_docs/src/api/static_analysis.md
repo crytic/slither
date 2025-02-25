@@ -76,9 +76,9 @@ Slither can navigate through the different components of the code and their repr
 
 For example, the following detectors look for syntax-related issues:
 
-- [State variable shadowing](https://github.com/crytic/slither/wiki/Detector-Documentation#state-variable-shadowing): iterates over all state variables and checks if any shadow a variable from an inherited contract ([state.py#L51-L62](https://github.com/crytic/slither/blob/0441338e055ab7151b30ca69258561a5a793f8ba/slither/detectors/shadowing/state.py#L51-L62))
+- [State variable shadowing](../detectors/Detector-Documentation.md#state-variable-shadowing): iterates over all state variables and checks if any shadow a variable from an inherited contract ([state.py#L51-L62](https://github.com/crytic/slither/blob/0441338e055ab7151b30ca69258561a5a793f8ba/slither/detectors/shadowing/state.py#L51-L62))
 
-- [Incorrect ERC20 interface](https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-erc20-interface): searches for incorrect ERC20 function signatures ([incorrect_erc20_interface.py#L34-L55](https://github.com/crytic/slither/blob/0441338e055ab7151b30ca69258561a5a793f8ba/slither/detectors/erc/incorrect_erc20_interface.py#L34-L55))
+- [Incorrect ERC20 interface](./detectors/Detector-Documentation.md#incorrect-erc20-interface): searches for incorrect ERC20 function signatures ([incorrect_erc20_interface.py#L34-L55](https://github.com/crytic/slither/blob/0441338e055ab7151b30ca69258561a5a793f8ba/slither/detectors/erc/incorrect_erc20_interface.py#L34-L55))
 
 ### Semantic analysis
 
@@ -97,9 +97,9 @@ In the following code, `variable_a` is dependent on `variable_b`:
 variable_a = variable_b + 1;
 ```
 
-Slither comes with built-in [data dependency](https://github.com/crytic/slither/wiki/data-dependency) capabilities, thanks to its intermediate representation (discussed later).
+Slither comes with built-in [data dependency](./Data-dependency.md) capabilities, thanks to its intermediate representation (discussed later).
 
-An example of data dependency usage can be found in the [dangerous strict equality detector](https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-strict-equalities). Slither looks for strict equality comparisons to dangerous values ([incorrect_strict_equality.py#L86-L87](https://github.com/crytic/slither/blob/6d86220a53603476f9567c3358524ea4db07fb25/slither/detectors/statements/incorrect_strict_equality.py#L86-L87)) and informs the user that they should use `>=` or `<=` instead of `==` to prevent attackers from trapping the contract. Among other things, the detector considers the return value of a call to `balanceOf(address)` to be dangerous ([incorrect_strict_equality.py#L63-L64](https://github.com/crytic/slither/blob/6d86220a53603476f9567c3358524ea4db07fb25/slither/detectors/statements/incorrect_strict_equality.py#L63-L64)) and uses the data dependency engine to track its usage.
+An example of data dependency usage can be found in the [dangerous strict equality detector](./detectors/Detector-Documentation.md#dangerous-strict-equalities). Slither looks for strict equality comparisons to dangerous values ([incorrect_strict_equality.py#L86-L87](https://github.com/crytic/slither/blob/6d86220a53603476f9567c3358524ea4db07fb25/slither/detectors/statements/incorrect_strict_equality.py#L86-L87)) and informs the user that they should use `>=` or `<=` instead of `==` to prevent attackers from trapping the contract. Among other things, the detector considers the return value of a call to `balanceOf(address)` to be dangerous ([incorrect_strict_equality.py#L63-L64](https://github.com/crytic/slither/blob/6d86220a53603476f9567c3358524ea4db07fb25/slither/detectors/statements/incorrect_strict_equality.py#L63-L64)) and uses the data dependency engine to track its usage.
 
 #### Fixed-point computation
 
@@ -119,6 +119,6 @@ Writing analyses using efficient fixed-point computation requires a good underst
 
 ### Intermediate representation
 
-An intermediate representation (IR) is a language designed to be more amenable to static analysis than the original one. Slither translates Solidity to its own IR: [SlithIR](https://github.com/crytic/slither/wiki/SlithIR).
+An intermediate representation (IR) is a language designed to be more amenable to static analysis than the original one. Slither translates Solidity to its own IR: [SlithIR](./SlithIR.md).
 
-Understanding SlithIR is not necessary if you only want to write basic checks. However, it becomes essential if you plan to write advanced semantic analyses. The [SlithIR](https://github.com/crytic/slither/wiki/Printer-documentation#slithir) and [SSA](https://github.com/crytic/slither/wiki/Printer-documentation#slithir-ssa) printers can help you understand how the code is translated.
+Understanding SlithIR is not necessary if you only want to write basic checks. However, it becomes essential if you plan to write advanced semantic analyses. The [SlithIR](../printers/Printer-documentation.md#slithir) and [SSA](../printers/Printer-documentation.md#slithir-ssa) printers can help you understand how the code is translated.
