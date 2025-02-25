@@ -276,7 +276,7 @@ class ConstantFolding(ExpressionVisitor):
         args = [get_val(arg) for arg in expression.arguments]
         if called.name == "keccak256(bytes)":
             digest = keccak.new(digest_bits=256)
-            digest.update(str(args[0]).encode("utf-8"))
+            digest.update(str(args[0]).encode("utf8"))
             set_val(expression, digest.digest())
         else:
             raise NotConstant

@@ -41,7 +41,7 @@ def _patch(  # pylint: disable=too-many-arguments
     old_str_of_interest = in_file_str[modify_loc_start:modify_loc_end]
     # Add keyword `constant` before the variable name
     (new_str_of_interest, num_repl) = re.subn(
-        match_text, replace_text, old_str_of_interest.decode("utf-8"), 1
+        match_text, replace_text, old_str_of_interest.decode("utf8"), 1
     )
     if num_repl != 0:
         create_patch(

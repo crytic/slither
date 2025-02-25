@@ -56,6 +56,8 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
             function
         ) in self.contract.functions_and_modifiers_declared:
             for node in function.nodes:
+                if not self.should_mutate_node(node):
+                    continue
                 if node.type not in (
                     NodeType.ENTRYPOINT,
                     NodeType.ENDIF,
@@ -64,34 +66,8 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     # Get the string
                     start = node.source_mapping.start
                     stop = start + node.source_mapping.length
-                    old_str = self.in_file_str[start:stop]
+                    old_str = node.source_mapping.content
                     line_no = node.source_mapping.lines
-                    if not line_no[0] in self.dont_mutate_line:
-                        for value in solidity_rules:
-                            left_value = value.split(" ==> ", maxsplit=1)[0]
-                            right_value = value.split(" ==> ")[1]
-                            if re.search(re.compile(left_value), old_str) is not None:
-                                new_str = re.sub(re.compile(left_value), right_value, old_str)
-                                create_patch_with_line(
-                                    result,
-                                    self.in_file,
-                                    start,
-                                    stop,
-                                    old_str,
-                                    new_str,
-                                    line_no[0],
-                                )
-
-        for (  # pylint: disable=too-many-nested-blocks
-            variable
-        ) in self.contract.state_variables_declared:
-            node = variable.node_initialization
-            if node:
-                start = node.source_mapping.start
-                stop = start + node.source_mapping.length
-                old_str = self.in_file_str[start:stop]
-                line_no = node.source_mapping.lines
-                if not line_no[0] in self.dont_mutate_line:
                     for value in solidity_rules:
                         left_value = value.split(" ==> ", maxsplit=1)[0]
                         right_value = value.split(" ==> ")[1]
@@ -106,4 +82,28 @@ class SBR(AbstractMutator):  # pylint: disable=too-few-public-methods
                                 new_str,
                                 line_no[0],
                             )
+
+        for (  # pylint: disable=too-many-nested-blocks
+            variable
+        ) in self.contract.state_variables_declared:
+            node = variable.node_initialization
+            if node:
+                start = node.source_mapping.start
+                stop = start + node.source_mapping.length
+                old_str = node.source_mapping.content
+                line_no = node.source_mapping.lines
+                for value in solidity_rules:
+                    left_value = value.split(" ==> ", maxsplit=1)[0]
+                    right_value = value.split(" ==> ")[1]
+                    if re.search(re.compile(left_value), old_str) is not None:
+                        new_str = re.sub(re.compile(left_value), right_value, old_str)
+                        create_patch_with_line(
+                            result,
+                            self.in_file,
+                            start,
+                            stop,
+                            old_str,
+                            new_str,
+                            line_no[0],
+                        )
         return result

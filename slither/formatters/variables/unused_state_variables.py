@@ -22,8 +22,8 @@ def _patch(
     in_file_str = compilation_unit.core.source_code[in_file].encode("utf8")
     old_str_of_interest = in_file_str[modify_loc_start:]
     old_str = (
-        old_str_of_interest.decode("utf-8").partition(";")[0]
-        + old_str_of_interest.decode("utf-8").partition(";")[1]
+        old_str_of_interest.decode("utf8").partition(";")[0]
+        + old_str_of_interest.decode("utf8").partition(";")[1]
     )
 
     create_patch(
@@ -31,7 +31,7 @@ def _patch(
         in_file,
         int(modify_loc_start),
         # Remove the entire declaration until the semicolon
-        int(modify_loc_start + len(old_str_of_interest.decode("utf-8").partition(";")[0]) + 1),
+        int(modify_loc_start + len(old_str_of_interest.decode("utf8").partition(";")[0]) + 1),
         old_str,
         "",
     )

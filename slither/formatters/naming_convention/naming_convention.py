@@ -339,7 +339,10 @@ def _is_var_declaration(slither: SlitherCompilationUnit, filename: str, start: i
     :return:
     """
     v = "var "
-    return slither.core.source_code[filename][start : start + len(v)] == v
+    return (
+        slither.core.source_code[filename].encode("utf8")[start : start + len(v)].decode("utf8")
+        == v
+    )
 
 
 def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches

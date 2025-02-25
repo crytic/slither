@@ -15,6 +15,8 @@ class CR(AbstractMutator):  # pylint: disable=too-few-public-methods
             function
         ) in self.contract.functions_and_modifiers_declared:
             for node in function.nodes:
+                if not self.should_mutate_node(node):
+                    continue
                 if node.type not in (
                     NodeType.ENTRYPOINT,
                     NodeType.ENDIF,
@@ -23,17 +25,16 @@ class CR(AbstractMutator):  # pylint: disable=too-few-public-methods
                     # Get the string
                     start = node.source_mapping.start
                     stop = start + node.source_mapping.length
-                    old_str = self.in_file_str[start:stop]
+                    old_str = node.source_mapping.content
                     line_no = node.source_mapping.lines
-                    if not line_no[0] in self.dont_mutate_line:
-                        new_str = "//" + old_str
-                        create_patch_with_line(
-                            result,
-                            self.in_file,
-                            start,
-                            stop,
-                            old_str,
-                            new_str,
-                            line_no[0],
-                        )
+                    new_str = "//" + old_str
+                    create_patch_with_line(
+                        result,
+                        self.in_file,
+                        start,
+                        stop,
+                        old_str,
+                        new_str,
+                        line_no[0],
+                    )
         return result

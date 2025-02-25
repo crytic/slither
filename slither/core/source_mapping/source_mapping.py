@@ -73,13 +73,20 @@ class Source:
         """
         Return the txt content of the Source
 
-        Returns:
+        Use this property instead of eg source_code[start:end]
+        Above will return incorrect content if source_code contains any unicode
+        because self.start and self.end are byte offsets, not char offsets
 
+        Returns: str
         """
         # If the compilation unit was not initialized, it means that the set_offset was never called
         # on the corresponding object, which should not happen
         assert self.compilation_unit
-        return self.compilation_unit.core.source_code[self.filename.absolute][self.start : self.end]
+        return (
+            self.compilation_unit.core.source_code[self.filename.absolute]
+            .encode("utf8")[self.start : self.end]
+            .decode("utf8")
+        )
 
     @property
     def content_hash(self) -> str:
