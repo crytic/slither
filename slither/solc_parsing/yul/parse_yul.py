@@ -321,6 +321,10 @@ class YulBlock(YulScope):
     def function(self) -> Function:
         return self._parent_func
 
+    @property
+    def nodes(self) -> List[YulNode]:
+        return self._nodes
+
     def new_node(self, node_type: NodeType, src: Union[str, Dict]) -> YulNode:
         if self._parent_func:
             node = self._parent_func.new_node(node_type, src, self.node_scope)
@@ -794,27 +798,12 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
     if name in builtins:
         return Identifier(YulBuiltin(name))
 
-    # check function-scoped variables
-    parent_func = root.parent_func
-    if parent_func:
-        local_variable = parent_func.get_local_variable_from_name(name)
-        if local_variable:
-            return Identifier(local_variable)
-
-        if isinstance(parent_func, FunctionContract):
-            # Variables must be looked from the contract declarer
-            assert parent_func.contract_declarer
-            state_variable = parent_func.contract_declarer.get_state_variable_from_name(name)
-            if state_variable:
-                return Identifier(state_variable)
-
     # check yul-scoped variable
     variable = root.get_yul_local_variable_from_name(name)
     if variable:
         return Identifier(variable.underlying)
 
     # check yul-scoped function
-
     func = root.get_yul_local_function_from_name(name)
     if func:
         return Identifier(func.underlying)
@@ -835,6 +824,20 @@ def parse_yul_identifier(root: YulScope, _node: YulNode, ast: Dict) -> Optional[
         func = yul_block.get_yul_local_function_from_name(name)
         if func:
             return Identifier(func.underlying)
+
+    # check function-scoped variables
+    parent_func = root.parent_func
+    if parent_func:
+        local_variable = parent_func.get_local_variable_from_name(name)
+        if local_variable:
+            return Identifier(local_variable)
+
+        if isinstance(parent_func, FunctionContract):
+            # Variables must be looked from the contract declarer
+            assert parent_func.contract_declarer
+            state_variable = parent_func.contract_declarer.get_state_variable_from_name(name)
+            if state_variable:
+                return Identifier(state_variable)
 
     magic_suffix = _parse_yul_magic_suffixes(name, root)
     if magic_suffix:

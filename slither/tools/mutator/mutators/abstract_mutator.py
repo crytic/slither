@@ -1,10 +1,10 @@
 import abc
 import logging
-from typing import Optional, Dict, Tuple, List
+from pathlib import Path
+from typing import Optional, Dict, Tuple, List, Union
 from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.tools.mutator.utils.testing_generated_mutant import test_patch
-from slither.utils.colors import yellow
 from slither.core.declarations import Contract
 
 logger = logging.getLogger("Slither-Mutate")
@@ -19,8 +19,6 @@ class AbstractMutator(
 ):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     NAME = ""
     HELP = ""
-    VALID_MUTANTS_COUNT = 0
-    INVALID_MUTANTS_COUNT = 0
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
@@ -29,9 +27,9 @@ class AbstractMutator(
         testing_command: str,
         testing_directory: str,
         contract_instance: Contract,
-        solc_remappings: str | None,
+        solc_remappings: Union[str, None],
         verbose: bool,
-        output_folder: str,
+        output_folder: Path,
         dont_mutate_line: List[int],
         rate: int = 10,
         seed: Optional[int] = None,
@@ -50,6 +48,10 @@ class AbstractMutator(
         self.in_file = self.contract.source_mapping.filename.absolute
         self.in_file_str = self.contract.compilation_unit.core.source_code[self.in_file]
         self.dont_mutate_line = dont_mutate_line
+        # total revert/comment/tweak mutants that were generated and compiled
+        self.total_mutant_counts = [0, 0, 0]
+        # total uncaught revert/comment/tweak mutants
+        self.uncaught_mutant_counts = [0, 0, 0]
 
         if not self.NAME:
             raise IncorrectMutatorInitialization(
@@ -71,50 +73,60 @@ class AbstractMutator(
         """TODO Documentation"""
         return {}
 
-    def mutate(self) -> Tuple[int, int, List[int]]:
+    # pylint: disable=too-many-branches
+    def mutate(self) -> Tuple[List[int], List[int], List[int]]:
         # call _mutate function from different mutators
         (all_patches) = self._mutate()
         if "patches" not in all_patches:
             logger.debug("No patches found by %s", self.NAME)
-            return (0, 0, self.dont_mutate_line)
+            return [0, 0, 0], [0, 0, 0], self.dont_mutate_line
 
-        for file in all_patches["patches"]:
+        for file in all_patches["patches"]:  # Note: This should only loop over a single file
             original_txt = self.slither.source_code[file].encode("utf8")
             patches = all_patches["patches"][file]
             patches.sort(key=lambda x: x["start"])
-            logger.info(yellow(f"Mutating {file} with {self.NAME} \n"))
             for patch in patches:
                 # test the patch
-                flag = test_patch(
+                patchWasCaught = test_patch(
+                    self.output_folder,
                     file,
                     patch,
                     self.test_command,
-                    self.VALID_MUTANTS_COUNT,
                     self.NAME,
                     self.timeout,
                     self.solc_remappings,
                     self.verbose,
                 )
-                # if RR or CR and valid mutant, add line no.
-                if self.NAME in ("RR", "CR") and flag:
-                    self.dont_mutate_line.append(patch["line_number"])
-                # count the valid and invalid mutants
-                if not flag:
-                    self.INVALID_MUTANTS_COUNT += 1
-                    continue
-                self.VALID_MUTANTS_COUNT += 1
-                patched_txt, _ = apply_patch(original_txt, patch, 0)
-                diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
-                if not diff:
-                    logger.info(f"Impossible to generate patch; empty {patches}")
 
-                # add valid mutant patches to a output file
-                with open(
-                    self.output_folder + "/patches_file.txt", "a", encoding="utf8"
-                ) as patches_file:
-                    patches_file.write(diff + "\n")
-        return (
-            self.VALID_MUTANTS_COUNT,
-            self.INVALID_MUTANTS_COUNT,
-            self.dont_mutate_line,
-        )
+                # count the uncaught mutants, flag RR/CR mutants to skip further mutations
+                if patchWasCaught == 0:
+                    if self.NAME == "RR":
+                        self.uncaught_mutant_counts[0] += 1
+                        self.dont_mutate_line.append(patch["line_number"])
+                    elif self.NAME == "CR":
+                        self.uncaught_mutant_counts[1] += 1
+                        self.dont_mutate_line.append(patch["line_number"])
+                    else:
+                        self.uncaught_mutant_counts[2] += 1
+
+                    patched_txt, _ = apply_patch(original_txt, patch, 0)
+                    diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
+                    if not diff:
+                        logger.info(f"Impossible to generate patch; empty {patches}")
+
+                    # add uncaught mutant patches to a output file
+                    with (self.output_folder / "patches_files.txt").open(
+                        "a", encoding="utf8"
+                    ) as patches_file:
+                        patches_file.write(diff + "\n")
+
+                # count the total number of mutants that we were able to compile
+                if patchWasCaught != 2:
+                    if self.NAME == "RR":
+                        self.total_mutant_counts[0] += 1
+                    elif self.NAME == "CR":
+                        self.total_mutant_counts[1] += 1
+                    else:
+                        self.total_mutant_counts[2] += 1
+
+        return self.total_mutant_counts, self.uncaught_mutant_counts, self.dont_mutate_line

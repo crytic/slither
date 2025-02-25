@@ -1,14 +1,17 @@
 import argparse
 import inspect
 import logging
-import sys
 import os
 import shutil
-from typing import Type, List, Any, Optional
+import sys
+import time
+from pathlib import Path
+from typing import Type, List, Any, Optional, Union
 from crytic_compile import cryticparser
 from slither import Slither
+from slither.tools.mutator.utils.testing_generated_mutant import run_test_cmd
 from slither.tools.mutator.mutators import all_mutators
-from slither.utils.colors import yellow, magenta
+from slither.utils.colors import blue, green, magenta, red
 from .mutators.abstract_mutator import AbstractMutator
 from .utils.command_line import output_mutators
 from .utils.file_handling import (
@@ -67,8 +70,9 @@ def parse_args() -> argparse.Namespace:
 
     # to print just all the mutants
     parser.add_argument(
+        "-v",
         "--verbose",
-        help="output all mutants generated",
+        help="log mutants that are caught, uncaught, and fail to compile",
         action="store_true",
         default=False,
     )
@@ -87,8 +91,8 @@ def parse_args() -> argparse.Namespace:
 
     # flag to run full mutation based revert mutator output
     parser.add_argument(
-        "--quick",
-        help="to stop full mutation if revert mutator passes",
+        "--comprehensive",
+        help="continue testing minor mutations if severe mutants are uncaught",
         action="store_true",
         default=False,
     )
@@ -103,7 +107,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _get_mutators(mutators_list: List[str] | None) -> List[Type[AbstractMutator]]:
+def _get_mutators(mutators_list: Union[List[str], None]) -> List[Type[AbstractMutator]]:
     detectors_ = [getattr(all_mutators, name) for name in dir(all_mutators)]
     if mutators_list is not None:
         detectors = [
@@ -135,7 +139,7 @@ class ListMutators(argparse.Action):  # pylint: disable=too-few-public-methods
 ###################################################################################
 
 
-def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
+def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too-many-locals
     args = parse_args()
 
     # arguments
@@ -147,30 +151,31 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
     solc_remappings: Optional[str] = args.solc_remaps
     verbose: Optional[bool] = args.verbose
     mutators_to_run: Optional[List[str]] = args.mutators_to_run
-    contract_names: Optional[List[str]] = args.contract_names
-    quick_flag: Optional[bool] = args.quick
+    comprehensive_flag: Optional[bool] = args.comprehensive
 
-    logger.info(magenta(f"Starting Mutation Campaign in '{args.codebase} \n"))
+    logger.info(blue(f"Starting mutation campaign in {args.codebase}"))
 
     if paths_to_ignore:
         paths_to_ignore_list = paths_to_ignore.strip("][").split(",")
-        logger.info(magenta(f"Ignored paths - {', '.join(paths_to_ignore_list)} \n"))
     else:
         paths_to_ignore_list = []
 
+    contract_names: List[str] = []
+    if args.contract_names:
+        contract_names = args.contract_names.split(",")
+
     # get all the contracts as a list from given codebase
-    sol_file_list: List[str] = get_sol_file_list(args.codebase, paths_to_ignore_list)
+    sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
 
-    # folder where backup files and valid mutants created
+    logger.info(blue("Preparing to mutate files:\n- " + "\n- ".join(sol_file_list)))
+
+    # folder where backup files and uncaught mutants are saved
     if output_dir is None:
-        output_dir = "/mutation_campaign"
-    output_folder = os.getcwd() + output_dir
-    if os.path.exists(output_folder):
-        shutil.rmtree(output_folder)
+        output_dir = "./mutation_campaign"
 
-    # set default timeout
-    if timeout is None:
-        timeout = 30
+    output_folder = Path(output_dir).resolve()
+    if output_folder.is_dir():
+        shutil.rmtree(output_folder)
 
     # setting RR mutator as first mutator
     mutators_list = _get_mutators(mutators_to_run)
@@ -187,51 +192,139 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
             CR_RR_list.insert(1, M)
     mutators_list = CR_RR_list + mutators_list
 
+    logger.info(blue("Timing tests.."))
+
+    # run and time tests, abort if they're broken
+    start_time = time.time()
+    # no timeout or target_file during the first run, but be verbose on failure
+    if not run_test_cmd(test_command, None, None, True):
+        logger.error(red("Test suite fails with mutations, aborting"))
+        return
+    elapsed_time = round(time.time() - start_time)
+
+    # set default timeout
+    # default to twice as long as it usually takes to run the test suite
+    if timeout is None:
+        timeout = int(elapsed_time * 2)
+    else:
+        timeout = int(timeout)
+        if timeout < elapsed_time:
+            logger.info(
+                red(
+                    f"Provided timeout {timeout} is too short for tests that run in {elapsed_time} seconds"
+                )
+            )
+            return
+
+    logger.info(
+        green(
+            f"Test suite passes in {elapsed_time} seconds, commencing mutation campaign with a timeout of {timeout} seconds\n"
+        )
+    )
+
+    # Keep a list of all already mutated contracts so we don't mutate them twice
+    mutated_contracts: List[str] = []
+
     for filename in sol_file_list:  # pylint: disable=too-many-nested-blocks
-        contract_name = os.path.split(filename)[1].split(".sol")[0]
+        file_name = os.path.split(filename)[1].split(".sol")[0]
         # slither object
         sl = Slither(filename, **vars(args))
         # create a backup files
         files_dict = backup_source_file(sl.source_code, output_folder)
-        # total count of mutants
-        total_count = 0
-        # count of valid mutants
-        v_count = 0
+        # total revert/comment/tweak mutants that were generated and compiled
+        total_mutant_counts = [0, 0, 0]
+        # total uncaught revert/comment/tweak mutants
+        uncaught_mutant_counts = [0, 0, 0]
         # lines those need not be mutated (taken from RR and CR)
         dont_mutate_lines = []
 
-        # mutation
+        # perform mutations on {target_contract} in file {file_name}
+        # setup placeholder val to signal whether we need to skip if no target_contract is found
+        target_contract = "SLITHER_SKIP_MUTATIONS" if contract_names else ""
         try:
+            # loop through all contracts in file_name
             for compilation_unit_of_main_file in sl.compilation_units:
-                contract_instance = ""
                 for contract in compilation_unit_of_main_file.contracts:
-                    if contract_names is not None and contract.name in contract_names:
-                        contract_instance = contract
-                    elif str(contract.name).lower() == contract_name.lower():
-                        contract_instance = contract
-                if contract_instance == "":
-                    logger.error("Can't find the contract")
-                else:
-                    for M in mutators_list:
-                        m = M(
-                            compilation_unit_of_main_file,
-                            int(timeout),
-                            test_command,
-                            test_directory,
-                            contract_instance,
-                            solc_remappings,
-                            verbose,
-                            output_folder,
-                            dont_mutate_lines,
-                        )
-                        (count_valid, count_invalid, lines_list) = m.mutate()
-                        v_count += count_valid
-                        total_count += count_valid + count_invalid
-                        dont_mutate_lines = lines_list
-                        if not quick_flag:
-                            dont_mutate_lines = []
+                    if contract.name in contract_names and contract.name not in mutated_contracts:
+                        target_contract = contract
+                        break
+                    if not contract_names and contract.name.lower() == file_name.lower():
+                        target_contract = contract
+                        break
+
+                if target_contract == "":
+                    logger.info(
+                        f"Cannot find contracts in file {filename}, try specifying them with --contract-names"
+                    )
+                    continue
+
+                if target_contract == "SLITHER_SKIP_MUTATIONS":
+                    logger.debug(f"Skipping mutations in {filename}")
+                    continue
+
+                # TODO: find a more specific way to omit interfaces
+                # Ideally, we wouldn't depend on naming conventions
+                if target_contract.name.startswith("I"):
+                    logger.debug(f"Skipping mutations on interface {filename}")
+                    continue
+
+                # Add our target to the mutation list
+                mutated_contracts.append(target_contract.name)
+                logger.info(blue(f"Mutating contract {target_contract}"))
+                for M in mutators_list:
+                    m = M(
+                        compilation_unit_of_main_file,
+                        int(timeout),
+                        test_command,
+                        test_directory,
+                        target_contract,
+                        solc_remappings,
+                        verbose,
+                        output_folder,
+                        dont_mutate_lines,
+                    )
+                    (total_counts, uncaught_counts, lines_list) = m.mutate()
+
+                    if m.NAME == "RR":
+                        total_mutant_counts[0] += total_counts[0]
+                        uncaught_mutant_counts[0] += uncaught_counts[0]
+                        if verbose:
+                            logger.info(
+                                magenta(
+                                    f"Mutator {m.NAME} found {uncaught_counts[0]} uncaught revert mutants (out of {total_counts[0]} that compile)"
+                                )
+                            )
+                    elif m.NAME == "CR":
+                        total_mutant_counts[1] += total_counts[1]
+                        uncaught_mutant_counts[1] += uncaught_counts[1]
+                        if verbose:
+                            logger.info(
+                                magenta(
+                                    f"Mutator {m.NAME} found {uncaught_counts[1]} uncaught comment mutants (out of {total_counts[1]} that compile)"
+                                )
+                            )
+                    else:
+                        total_mutant_counts[2] += total_counts[2]
+                        uncaught_mutant_counts[2] += uncaught_counts[2]
+                        if verbose:
+                            logger.info(
+                                magenta(
+                                    f"Mutator {m.NAME} found {uncaught_counts[2]} uncaught tweak mutants (out of {total_counts[2]} that compile)"
+                                )
+                            )
+                            logger.info(
+                                magenta(
+                                    f"Running total: found {uncaught_mutant_counts[2]} uncaught tweak mutants (out of {total_mutant_counts[2]} that compile)"
+                                )
+                            )
+
+                    dont_mutate_lines = lines_list
+                    if comprehensive_flag:
+                        dont_mutate_lines = []
+
         except Exception as e:  # pylint: disable=broad-except
             logger.error(e)
+            transfer_and_delete(files_dict)
 
         except KeyboardInterrupt:
             # transfer and delete the backup files if interrupted
@@ -241,14 +334,57 @@ def main() -> (None):  # pylint: disable=too-many-statements,too-many-branches,t
         # transfer and delete the backup files
         transfer_and_delete(files_dict)
 
-        # output
-        logger.info(
-            yellow(
-                f"Done mutating, '{filename}'. Valid mutant count: '{v_count}' and Total mutant count '{total_count}'.\n"
+        # log results for this file
+        logger.info(blue(f"Done mutating {target_contract}."))
+        if total_mutant_counts[0] > 0:
+            logger.info(
+                magenta(
+                    f"Revert mutants: {uncaught_mutant_counts[0]} uncaught of {total_mutant_counts[0]} ({100 * uncaught_mutant_counts[0]/total_mutant_counts[0]}%)"
+                )
             )
-        )
+        else:
+            logger.info(magenta("Zero Revert mutants analyzed"))
 
-    logger.info(magenta(f"Finished Mutation Campaign in '{args.codebase}' \n"))
+        if total_mutant_counts[1] > 0:
+            logger.info(
+                magenta(
+                    f"Comment mutants: {uncaught_mutant_counts[1]} uncaught of {total_mutant_counts[1]} ({100 * uncaught_mutant_counts[1]/total_mutant_counts[1]}%)"
+                )
+            )
+        else:
+            logger.info(magenta("Zero Comment mutants analyzed"))
+
+        if total_mutant_counts[2] > 0:
+            logger.info(
+                magenta(
+                    f"Tweak mutants: {uncaught_mutant_counts[2]} uncaught of {total_mutant_counts[2]} ({100 * uncaught_mutant_counts[2]/total_mutant_counts[2]}%)\n"
+                )
+            )
+        else:
+            logger.info(magenta("Zero Tweak mutants analyzed\n"))
+
+        # Reset mutant counts before moving on to the next file
+        total_mutant_counts[0] = 0
+        total_mutant_counts[1] = 0
+        total_mutant_counts[2] = 0
+        uncaught_mutant_counts[0] = 0
+        uncaught_mutant_counts[1] = 0
+        uncaught_mutant_counts[2] = 0
+
+    # Print the total time elapsed in a human-readable time format
+    elapsed_time = round(time.time() - start_time)
+    hours, remainder = divmod(elapsed_time, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if hours > 0:
+        elapsed_string = f"{hours} {'hour' if hours == 1 else 'hours'}"
+    elif minutes > 0:
+        elapsed_string = f"{minutes} {'minute' if minutes == 1 else 'minutes'}"
+    else:
+        elapsed_string = f"{seconds} {'second' if seconds == 1 else 'seconds'}"
+
+    logger.info(
+        blue(f"Finished mutation testing assessment of '{args.codebase}' in {elapsed_string}\n")
+    )
 
 
 # endregion

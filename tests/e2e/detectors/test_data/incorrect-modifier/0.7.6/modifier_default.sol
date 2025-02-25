@@ -49,4 +49,9 @@ contract Test {
             _;
         } while (i < 1);
     }
+
+    modifier issue2619(bool b) {
+        while (b ? false : b) {}
+        _;
+    }
 }

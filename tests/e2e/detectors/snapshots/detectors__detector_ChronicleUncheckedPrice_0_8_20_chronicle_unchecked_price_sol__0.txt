@@ -1,0 +1,18 @@
+Chronicle price is not checked to be valid in C.bad2() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#74-76)
+	- (price,None) = chronicle.readWithAge() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#75)
+
+Chronicle price is not checked to be valid in C.bad() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#65-67)
+	- price = chronicle.read() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#66)
+
+Chronicle price is not checked to be valid in C.bad5() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#101-103)
+	- price = scribe.latestAnswer() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#102)
+
+Chronicle price is not checked to be valid in C.bad4() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#92-94)
+	- (isValid,price,None) = chronicle.tryReadWithAge() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#93)
+
+Chronicle price is not checked to be valid in C.bad3() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#83-85)
+	- (isValid,price) = chronicle.tryRead() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#84)
+
+Chronicle price is not checked to be valid in C.bad6() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#110-112)
+	- (None,price,None,None,None) = scribe.latestRoundData() (tests/e2e/detectors/test_data/chronicle-unchecked-price/0.8.20/chronicle_unchecked_price.sol#111)
+

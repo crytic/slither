@@ -467,10 +467,16 @@ ALL_TESTS = [
     ),
     Test("user_defined_operators-0.8.19.sol", ["0.8.19"]),
     Test("aliasing/main.sol", ["0.8.19"]),
+    Test("aliasing/alias-unit-NewContract.sol", ["0.8.19"]),
+    Test("aliasing/alias-symbol-NewContract.sol", ["0.8.19"]),
     Test("type-aliases.sol", ["0.8.19"]),
     Test("enum-max-min.sol", ["0.8.19"]),
     Test("event-top-level.sol", ["0.8.22"]),
     Test("solidity-0.8.24.sol", ["0.8.24"], solc_args="--evm-version cancun"),
+    Test("scope/inherited_function_scope.sol", ["0.8.24"]),
+    Test("using_for_global_user_defined_operator_1.sol", ["0.8.24"]),
+    Test("require-error.sol", ["0.8.27"]),
+    Test("yul-solady.sol", ["0.8.27"]),
 ]
 # create the output folder if needed
 try:
@@ -631,7 +637,7 @@ if __name__ == "__main__":
             "To re-generate all the json artifacts run\n\tpython tests/test_ast_parsing.py --overwrite"
         )
         print("To compile json artifacts run\n\tpython tests/test_ast_parsing.py --compile")
-        print("\tThis will overwrite the previous json files")
+        print("\tThis will overwrite the previous json files.")
     elif sys.argv[1] == "--generate":
         for next_test in ALL_TESTS:
             _generate_test(next_test, skip_existing=True)

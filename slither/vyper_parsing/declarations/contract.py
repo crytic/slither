@@ -84,7 +84,7 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
                 self._structuresNotParsed.append(node)
             elif isinstance(node, ImportFrom):
                 # TOOD aliases
-                # We create an `InterfaceDef` sense the compilatuion unit does not contain the actual interface
+                # We create an `InterfaceDef` sense the compilation unit does not contain the actual interface
                 # https://github.com/vyperlang/vyper/tree/master/vyper/builtins/interfaces
                 if node.module == "vyper.interfaces":
                     interfaces = {
@@ -470,7 +470,7 @@ class ContractVyper:  # pylint: disable=too-many-instance-attributes
 
             assert var.name
             self._contract.variables_as_dict[var.name] = var
-            self._contract.add_variables_ordered([var])
+            self._contract.add_state_variables_ordered([var])
             # Interfaces can refer to constants
             self._contract.file_scope.variables[var.name] = var
 

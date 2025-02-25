@@ -50,6 +50,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "assert(bool)": [],
     "require(bool)": [],
     "require(bool,string)": [],
+    "require(bool,error)": [],  # Solidity 0.8.26 via-ir and Solidity >= 0.8.27
     "revert()": [],
     "revert(string)": [],
     "revert ": [],
@@ -82,7 +83,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "abi.encodeCall()": ["bytes"],
     "bytes.concat()": ["bytes"],
     "string.concat()": ["string"],
-    # abi.decode returns an a list arbitrary types
+    # abi.decode returns a list arbitrary types
     "abi.decode()": [],
     "type(address)": [],
     "type()": [],  # 0.6.8 changed type(address) to type()
@@ -116,6 +117,7 @@ SOLIDITY_FUNCTIONS: Dict[str, List[str]] = {
     "_abi_encode()": [],
     "slice()": [],
     "uint2str()": ["string"],
+    "send()": [],
 }
 
 
@@ -139,7 +141,7 @@ class SolidityVariable(SourceMapping):
         self._name = name
 
     # dev function, will be removed once the code is stable
-    def _check_name(self, name: str) -> None:  # pylint: disable=no-self-use
+    def _check_name(self, name: str) -> None:
         assert name in SOLIDITY_VARIABLES or name.endswith(("_slot", "_offset"))
 
     @property

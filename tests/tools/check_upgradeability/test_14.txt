@@ -1,0 +1,4 @@
+INFO:Slither:
+Contract_no_bug_reinitializer (tests/tools/check_upgradeability/contract_initialization.sol#23-29) needs to be initialized by Contract_no_bug_reinitializer.initialize() (tests/tools/check_upgradeability/contract_initialization.sol#25-27).
+Reference: https://github.com/crytic/slither/wiki/Upgradeability-Checks#initialize-function
+INFO:Slither:1 findings, 12 detectors run

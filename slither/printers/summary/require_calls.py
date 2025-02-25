@@ -11,6 +11,7 @@ require_or_assert = [
     SolidityFunction("assert(bool)"),
     SolidityFunction("require(bool)"),
     SolidityFunction("require(bool,string)"),
+    SolidityFunction("require(bool,error)"),
 ]
 
 
