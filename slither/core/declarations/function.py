@@ -1793,30 +1793,52 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             return True
         return ir.rvalues[0] == ir.lvalue
 
+    def _fix_phi_entry(
+        self,
+        node: "Node",
+        last_state_variables_instances: Dict[str, List["StateVariable"]],
+        initial_state_variables_instances: Dict[str, "StateVariable"],
+    ) -> None:
+        from slither.slithir.variables import Constant, StateIRVariable, LocalIRVariable
+
+        for ir in node.irs_ssa:
+            if isinstance(ir.lvalue, StateIRVariable):
+                additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
+                additional += last_state_variables_instances[ir.lvalue.canonical_name]
+                ir.rvalues = list(set(additional + ir.rvalues))
+            # function parameter that are storage pointer
+            else:
+                # find index of the parameter
+                idx = self.parameters.index(ir.lvalue.non_ssa_version)
+                # find non ssa version of that index
+                additional = [n.ir.arguments[idx] for n in self.reachable_from_nodes]
+                additional = unroll(additional)
+                additional = [a for a in additional if not isinstance(a, Constant)]
+                ir.rvalues = list(set(additional + ir.rvalues))
+
+                if isinstance(ir.lvalue, LocalIRVariable) and ir.lvalue.is_storage:
+                    # Update the refers_to to point to the phi rvalues
+                    # This basically means that the local variable is a storage that point to any
+                    # state variable that the storage pointer alias analysis found
+                    ir.lvalue.refers_to = [
+                        rvalue for rvalue in ir.rvalues if isinstance(rvalue, StateIRVariable)
+                    ]
+
     def fix_phi(
         self,
         last_state_variables_instances: Dict[str, List["StateVariable"]],
         initial_state_variables_instances: Dict[str, "StateVariable"],
     ) -> None:
-        from slither.slithir.operations import InternalCall, PhiCallback
-        from slither.slithir.variables import Constant, StateIRVariable
+        from slither.slithir.operations import InternalCall, PhiCallback, Phi
+        from slither.slithir.variables import StateIRVariable, LocalIRVariable
 
         for node in self.nodes:
+            if node == self.entry_point:
+                self._fix_phi_entry(
+                    node, last_state_variables_instances, initial_state_variables_instances
+                )
             for ir in node.irs_ssa:
-                if node == self.entry_point:
-                    if isinstance(ir.lvalue, StateIRVariable):
-                        additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
-                        additional += last_state_variables_instances[ir.lvalue.canonical_name]
-                        ir.rvalues = list(set(additional + ir.rvalues))
-                    # function parameter
-                    else:
-                        # find index of the parameter
-                        idx = self.parameters.index(ir.lvalue.non_ssa_version)
-                        # find non ssa version of that index
-                        additional = [n.ir.arguments[idx] for n in self.reachable_from_nodes]
-                        additional = unroll(additional)
-                        additional = [a for a in additional if not isinstance(a, Constant)]
-                        ir.rvalues = list(set(additional + ir.rvalues))
+
                 if isinstance(ir, PhiCallback):
                     callee_ir = ir.callee_ir
                     if isinstance(callee_ir, InternalCall):
@@ -1828,6 +1850,25 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                     else:
                         additional = last_state_variables_instances[ir.lvalue.canonical_name]
                         ir.rvalues = list(set(additional + ir.rvalues))
+
+                # Propage storage ref information if it does not exist
+                # This can happen if the refers_to variable was discovered through the phi operator on function parameter
+                # aka you have storage pointer as function parameter
+                # instead of having a storage pointer for which the aliases belong to the function body
+                if (
+                    isinstance(ir, Phi)
+                    and isinstance(ir.lvalue, LocalIRVariable)
+                    and ir.lvalue.is_storage
+                    and not ir.lvalue.refers_to
+                ):
+                    refers_to = []
+                    for candidate in ir.rvalues:
+                        if isinstance(candidate, StateIRVariable):
+                            refers_to.append(candidate)
+                        if isinstance(candidate, LocalIRVariable) and candidate.is_storage:
+                            refers_to += candidate.refers_to
+
+                    ir.lvalue.refers_to = refers_to
 
             node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
 

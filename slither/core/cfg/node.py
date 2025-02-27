@@ -946,42 +946,90 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         non_ssa_var = function.get_local_variable_from_name(v.name)
         return non_ssa_var
 
-    def update_read_write_using_ssa(self) -> None:
-        if not self.expression:
-            return
-        for ir in self.irs_ssa:
-            if isinstance(ir, PhiCallback):
-                continue
-            if not isinstance(ir, (Phi, Index, Member)):
-                self._ssa_vars_read += [
-                    v for v in ir.read if isinstance(v, (StateIRVariable, LocalIRVariable))
-                ]
-                for var in ir.read:
-                    if isinstance(var, ReferenceVariable):
-                        origin = var.points_to_origin
-                        if isinstance(origin, (StateIRVariable, LocalIRVariable)):
-                            self._ssa_vars_read.append(origin)
+    def _update_read_using_ssa(self, ir: Operation) -> None:
+        """
+        Update self._ssa_vars_read
+        This look for all operations that read a IRvariable
+        It uses the result of the storage pointer
+        - For "normal" operation, the read are mostly everything in ir.read
+        - For "index", the read is the left part (the right part being a reference variable)
+        - For Phi, nothing is considered read
 
-            elif isinstance(ir, (Member, Index)):
-                variable_right: RVALUE = ir.variable_right
-                if isinstance(variable_right, (StateIRVariable, LocalIRVariable)):
-                    self._ssa_vars_read.append(variable_right)
-                if isinstance(variable_right, ReferenceVariable):
-                    origin = variable_right.points_to_origin
+        """
+
+        # For variable read, phi and index have special treatments
+        # Phi don't lead to values read
+        # Index leads to read the variable right (the left variable is a ref variable, not the actual object)
+        # Not that Member is a normal operation here, given we filter out constant by checking for the IRvaraible
+        if not isinstance(ir, (Phi, Index)):
+            self._ssa_vars_read += [
+                v for v in ir.read if isinstance(v, (StateIRVariable, LocalIRVariable))
+            ]
+            for var in ir.read:
+                if isinstance(var, ReferenceVariable):
+                    origin = var.points_to_origin
                     if isinstance(origin, (StateIRVariable, LocalIRVariable)):
                         self._ssa_vars_read.append(origin)
 
-            if isinstance(ir, OperationWithLValue):
-                if isinstance(ir, (Index, Member, Length)):
-                    continue  # Don't consider Member and Index operations -> ReferenceVariable
-                var = ir.lvalue
-                if isinstance(var, ReferenceVariable):
-                    var = var.points_to_origin
+                # If we read from a storage variable (outside of phi operator)
+                if isinstance(var, LocalIRVariable) and var.is_storage:
+                    for refer_to in var.refers_to:
+                        # the following should always be true
+                        if isinstance(refer_to, (StateIRVariable, LocalIRVariable)):
+                            self._ssa_vars_read.append(refer_to)
+
+        elif isinstance(ir, Index):
+            variable_right: RVALUE = ir.variable_right
+            if isinstance(variable_right, (StateIRVariable, LocalIRVariable)):
+                self._ssa_vars_read.append(variable_right)
+
+            if isinstance(variable_right, ReferenceVariable):
+                origin = variable_right.points_to_origin
+                if isinstance(origin, (StateIRVariable, LocalIRVariable)):
+                    self._ssa_vars_read.append(origin)
+
+    def _update_write_using_ssa(self, ir: Operation) -> None:
+        """
+        Update self._ssa_vars_written
+        This look for all operations that write a IRvariable
+        It uses the result of the storage pointer
+
+        Index/member/Length are not considering writing to anything
+        For index/member it is implictely handled when their associated RefernceVarible are written
+
+        """
+
+        if isinstance(ir, OperationWithLValue) and not isinstance(ir, Phi):
+            if isinstance(ir, (Index, Member, Length)):
+                return  # Don't consider Member and Index operations -> ReferenceVariable
+
+            var = ir.lvalue
+
+            if isinstance(var, ReferenceVariable):
+                var = var.points_to_origin
+
+            candidates = [var]
+
+            # If we write to a storage pointer, add everything it points to as target
+            if isinstance(var, LocalIRVariable) and var.is_storage:
+                candidates += var.refers_to
+
+            for var in candidates:
                 # Only store non-slithIR variables
                 if var and isinstance(var, (StateIRVariable, LocalIRVariable)):
                     if isinstance(ir, PhiCallback):
                         continue
                     self._ssa_vars_written.append(var)
+
+    def update_read_write_using_ssa(self) -> None:
+
+        for ir in self.irs_ssa:
+            if isinstance(ir, PhiCallback):
+                continue
+
+            self._update_read_using_ssa(ir)
+            self._update_write_using_ssa(ir)
+
         self._ssa_vars_read = list(set(self._ssa_vars_read))
         self._ssa_state_vars_read = [v for v in self._ssa_vars_read if isinstance(v, StateVariable)]
         self._ssa_local_vars_read = [v for v in self._ssa_vars_read if isinstance(v, LocalVariable)]
