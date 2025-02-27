@@ -1008,13 +1008,13 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
             if isinstance(var, ReferenceVariable):
                 var = var.points_to_origin
 
-            vars = [var]
+            candidates = [var]
 
             # If we write to a storage pointer, add everything it points to as target
             if isinstance(var, LocalIRVariable) and var.is_storage:
-                vars += var.refers_to
+                candidates += var.refers_to
 
-            for var in vars:
+            for var in candidates:
                 # Only store non-slithIR variables
                 if var and isinstance(var, (StateIRVariable, LocalIRVariable)):
                     if isinstance(ir, PhiCallback):
