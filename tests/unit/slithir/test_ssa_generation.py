@@ -12,7 +12,7 @@ from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Function, Contract
 from slither.core.solidity_types import ArrayType, ElementaryType
-from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.local_variable import LocalVariable, VariableLocation
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
     OperationWithLValue,
@@ -134,7 +134,7 @@ def ssa_basic_properties(function: Function) -> None:
             assert var.is_storage == ssa_var.is_storage
             if ssa_var.is_storage:
                 assert len(ssa_var.refers_to) == 1
-                assert ssa_var.refers_to[0].location == "reference_to_storage"
+                assert ssa_var.refers_to[0].location == VariableLocation.REFERENCE_TO_STORAGE
 
     # 5
     check_property_5_and_6(function.parameters, function.parameters_ssa)
