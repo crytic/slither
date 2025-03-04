@@ -1,6 +1,7 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations.contract_level import ContractLevel
+from slither.core.variables.local_variable import VariableLocation
 from slither.core.variables.variable import Variable
 
 if TYPE_CHECKING:
@@ -12,7 +13,7 @@ class StateVariable(ContractLevel, Variable):
     def __init__(self) -> None:
         super().__init__()
         self._node_initialization: Optional["Node"] = None
-        self._location: Optional[str] = None
+        self._location: Optional[VariableLocation] = None
 
     def is_declared_by(self, contract: "Contract") -> bool:
         """
@@ -22,16 +23,16 @@ class StateVariable(ContractLevel, Variable):
         """
         return self.contract == contract
 
-    def set_location(self, loc: str) -> None:
+    def set_location(self, loc: VariableLocation) -> None:
         self._location = loc
 
     @property
-    def location(self) -> Optional[str]:
+    def location(self) -> Optional[VariableLocation]:
         """
             Variable Location
             Can be default or transient
         Returns:
-            (str)
+            (VariableLocation)
         """
         return self._location
 
@@ -41,7 +42,9 @@ class StateVariable(ContractLevel, Variable):
         Checks if the state variable is stored, based on it not being constant or immutable or transient.
         """
         return (
-            not self._is_constant and not self._is_immutable and not self._location == "transient"
+            not self._is_constant
+            and not self._is_immutable
+            and not self._location == VariableLocation.TRANSIENT
         )
 
     @property
@@ -49,7 +52,7 @@ class StateVariable(ContractLevel, Variable):
         """
         Checks if the state variable is transient. A transient variable can not be constant or immutable.
         """
-        return self._location == "transient"
+        return self._location == VariableLocation.TRANSIENT
 
     # endregion
     ###################################################################################
