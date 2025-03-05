@@ -3,36 +3,36 @@ import pathlib
 from argparse import ArgumentTypeError
 from collections import defaultdict
 from inspect import getsourcefile
-from typing import Union, List, Dict, Callable
+from typing import Callable, Dict, List, Union
 
 import pytest
 from solc_select.solc_select import valid_version as solc_valid_version
 
 from slither import Slither
 from slither.core.cfg.node import Node, NodeType
-from slither.core.declarations import Function, Contract
+from slither.core.declarations import Contract, Function
 from slither.core.solidity_types import ArrayType, ElementaryType
 from slither.core.variables.local_variable import LocalVariable, VariableLocation
 from slither.core.variables.state_variable import StateVariable
 from slither.slithir.operations import (
-    OperationWithLValue,
-    Phi,
     Assignment,
-    HighLevelCall,
-    Return,
-    Operation,
     Binary,
     BinaryType,
-    InternalCall,
+    HighLevelCall,
     Index,
     InitArray,
+    InternalCall,
     NewArray,
+    Operation,
+    OperationWithLValue,
+    Phi,
+    Return,
 )
 from slither.slithir.utils.ssa import is_used_later
 from slither.slithir.variables import (
     Constant,
-    ReferenceVariable,
     LocalIRVariable,
+    ReferenceVariable,
     StateIRVariable,
     TemporaryVariableSSA,
 )
@@ -120,7 +120,7 @@ def ssa_basic_properties(function: Function) -> None:
         if v and v.name:
             ssa_defs[v.name] += 1
 
-    for (k, count) in lvalue_assignments.items():
+    for k, count in lvalue_assignments.items():
         assert ssa_defs[k] >= count
 
     # Helper 5/6
@@ -134,7 +134,7 @@ def ssa_basic_properties(function: Function) -> None:
             assert var.is_storage == ssa_var.is_storage
             if ssa_var.is_storage:
                 assert len(ssa_var.refers_to) == 1
-                assert ssa_var.refers_to[0].location == VariableLocation.REFERENCE_TO_STORAGE
+                assert ssa_var.refers_to[0].location == VariableLocation.REFERENCE_TO_STORAGE.value
 
     # 5
     check_property_5_and_6(function.parameters, function.parameters_ssa)
