@@ -61,14 +61,14 @@ class LocalVariable(Variable):
         # pylint: disable=import-outside-toplevel
         from slither.core.solidity_types.array_type import ArrayType
 
-        if self.location == VariableLocation.MEMORY:
+        if self.location == VariableLocation.MEMORY.value:
             return False
-        if self.location == VariableLocation.CALLDATA:
+        if self.location == VariableLocation.CALLDATA.value:
             return False
         # Use by slithIR SSA
-        if self.location == VariableLocation.REFERENCE_TO_STORAGE:
+        if self.location == VariableLocation.REFERENCE_TO_STORAGE.value:
             return False
-        if self.location == VariableLocation.STORAGE:
+        if self.location == VariableLocation.STORAGE.value:
             return True
 
         if isinstance(self.type, (ArrayType, MappingType)):

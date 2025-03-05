@@ -44,7 +44,7 @@ class StateVariable(ContractLevel, Variable):
         return (
             not self._is_constant
             and not self._is_immutable
-            and not self._location == VariableLocation.TRANSIENT
+            and not self._location == VariableLocation.TRANSIENT.value
         )
 
     @property
@@ -52,7 +52,7 @@ class StateVariable(ContractLevel, Variable):
         """
         Checks if the state variable is transient. A transient variable can not be constant or immutable.
         """
-        return self._location == VariableLocation.TRANSIENT
+        return self._location == VariableLocation.TRANSIENT.value
 
     # endregion
     ###################################################################################
