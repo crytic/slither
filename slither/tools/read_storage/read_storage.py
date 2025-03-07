@@ -578,11 +578,12 @@ class SlitherReadStorage:
         slot = int.from_bytes(slot_as_bytes, "big")
         offset = 0
         type_to = ""
+        size = 0
         for var in elems:
             var_type = var.type
             if isinstance(var_type, ElementaryType):
                 size = var_type.size
-                if offset >= 256:
+                if size > (256 - offset):
                     slot += 1
                     offset = 0
                 if struct_var == var.name:
