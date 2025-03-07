@@ -1,6 +1,6 @@
 from slither import Slither
 
-slither = Slither('coin.sol')
+slither = Slither("coin.sol")
 
 whitelist = ['balanceOf(address)']
 
