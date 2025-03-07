@@ -1,7 +1,7 @@
 from slither.slither import Slither
 
-slither = Slither('find.sol')
-find = slither.get_contract_from_name('Find')[0]
+slither = Slither("find.sol")
+find = slither.get_contract_from_name("Find")[0]
 
 assert find
 
