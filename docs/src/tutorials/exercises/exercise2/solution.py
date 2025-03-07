@@ -2,7 +2,7 @@ from slither import Slither
 
 slither = Slither("coin.sol")
 
-whitelist = ['balanceOf(address)']
+whitelist = ["balanceOf(address)"]
 
 for contract in slither.contracts:
     for function in contract.functions:
