@@ -2,7 +2,7 @@ import sys
 from slither import Slither
 
 # Init slither
-slither = Slither('coin.sol')
+slither = Slither("coin.sol")
 
 for contract in slither.contracts:
     # Print the contract's name
