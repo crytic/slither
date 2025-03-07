@@ -13,7 +13,8 @@ assert my_variable
 function_using_a_as_condition = [
     f
     for f in find.functions
-    if f.is_reading_in_conditional_node(my_variable) or f.is_reading_in_require_or_assert(my_variable)
+    if f.is_reading_in_conditional_node(my_variable)
+    or f.is_reading_in_require_or_assert(my_variable)
 ]
 
 # Print the result
