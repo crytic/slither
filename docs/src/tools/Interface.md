@@ -7,6 +7,7 @@ Generates code for a Solidity interface from contract
 Run `slither-interface <ContractName> <source file or deployment address>`.
 
 ## CLI Interface
+
 ```shell
 positional arguments:
   contract_source       The name of the contract (case sensitive) followed by the deployed contract address if verified on etherscan or project directory/filename for local contracts.

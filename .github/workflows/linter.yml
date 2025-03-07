@@ -44,6 +44,10 @@ jobs:
         run: |
           echo "::add-matcher::.github/workflows/matchers/yamllint.json"
 
+      - name: Remove part of the doc
+        run: |
+          rm -rf docs/src/
+
       - name: Lint everything else
         uses: super-linter/super-linter/slim@v6.1.1
         if: always()
