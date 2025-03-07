@@ -11,8 +11,8 @@ for contract in slither.contracts:
     print(f"\tInherit from{[c.name for c in contract.inheritance]}")
     for function in contract.functions:
         # For each function, print basic information
-        print(f'\t{function.full_name}:')
-        print(f'\t\tVisibility: {function.visibility}')
-        print(f'\t\tContract: {function.contract}')
-        print(f'\t\tModifier: {[m.name for m in function.modifiers]}')
-        print(f'\t\tIs constructor? {function.is_constructor}')
+        print(f"\t{function.full_name}:")
+        print(f"\t\tVisibility: {function.visibility}")
+        print(f"\t\tContract: {function.contract}")
+        print(f"\t\tModifier: {[m.name for m in function.modifiers]}")
+        print(f"\t\tIs constructor? {function.is_constructor}")
