@@ -1,7 +1,7 @@
 from slither.slither import Slither
 
-slither = Slither('coin.sol')
-coin = slither.get_contract_from_name('Coin')[0]
+slither = Slither("coin.sol")
+coin = slither.get_contract_from_name("Coin")[0]
 
 # Iterate over all the contracts
 for contract in slither.contracts:
