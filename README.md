@@ -258,15 +258,14 @@ See the [Printer documentation](https://github.com/crytic/slither/wiki/Printer-d
 
 ## Tools
 
-* `slither-check-upgradeability`: [Review `delegatecall`-based upgradeability](https://github.com/crytic/slither/wiki/Upgradeability-Checks)
-* `slither-prop`: [Automatic unit test and property generation](https://github.com/crytic/slither/wiki/Property-generation)
-* `slither-flat`: [Flatten a codebase](https://github.com/crytic/slither/wiki/Contract-Flattening)
-* `slither-check-erc`: [Check the ERC's conformance](https://github.com/crytic/slither/wiki/ERC-Conformance)
-* `slither-format`: [Automatic patch generation](https://github.com/crytic/slither/wiki/Slither-format)
-* `slither-read-storage`: [Read storage values from contracts](./slither/tools/read_storage/README.md)
-* `slither-interface`: [Generate an interface for a contract](./slither/tools/interface/README.md)
+* `slither-check-upgradeability`: [Review `delegatecall`-based upgradeability](./docs/src/tools/Upgradeability-Checks.md)
+* `slither-prop`: [Automatic unit test and property generation](./docs/src/tools/Property-generation.md)
+* `slither-flat`: [Flatten a codebase](./docs/src/tools/Contract-Flattening.md)
+* `slither-check-erc`: [Check the ERC's conformance](./docs/src/tools/ERC-Conformance.md)
+* `slither-read-storage`: [Read storage values from contracts](./docs/src/tools/ReadStorage.md)
+* `slither-interface`: [Generate an interface for a contract](./docs/src/tools/Interface.md)
 
-See the [Tool documentation](https://github.com/crytic/slither/wiki/Tool-Documentation) for additional tools.
+See the [Tool documentation](./docs/src/tools/README.md) for additional tools.
 
 [Contact us](https://www.trailofbits.com/contact/) to get help on building custom tools.
 
