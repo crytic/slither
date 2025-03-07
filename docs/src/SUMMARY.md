@@ -11,7 +11,7 @@
     - [Detectors](./detectors/Detector-Documentation.md)
     - [Adding a detector](./detectors/Adding-a-new-detector.md)
   - [Printers](./printers/Printer-documentation.md)
-  - [Tools](./tools/Adding-a-new-utility.md)
+  - [Tools](./tools/README.md)
     - [Addning a new tool](./tools/Adding-a-new-utility.md)
     - [Code Similarity](./tools/Code-Similarity-detector.md)
     - [Contract Flattening](./tools/Contract-Flattening.md)
