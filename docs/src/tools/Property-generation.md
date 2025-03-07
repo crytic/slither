@@ -25,6 +25,7 @@ slither-prop . --contract ContractName
 - Two Truffle unit-test files
 
 For example on [examples/slither-prop](https://github.com/crytic/slither/tree/9623a2781faa4e7759f06d2e8c4adcd45078af69/examples/slither-prop).
+
 ```
 Write contracts/crytic/interfaces.sol
 Write contracts/crytic/PropertiesERC20BuggyTransferable.sol
@@ -58,8 +59,8 @@ On [examples/slither-prop/contracts](https://github.com/crytic/slither/tree/9623
 		_balanceOf[crytic_attacker] = 1 ether;
 		_totalSupply = 3 ether;
 
-		// 
-		// 
+		//
+		//
 		// Update the following if totalSupply and balanceOf are external functions or state variables:
 
 		initialTotalSupply = totalSupply();
@@ -87,6 +88,7 @@ $ truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
 ```
 
 If all the unit tests passed, run the property tests:
+
 ```
 $ truffle test test/crytic/InitializationTestERC20BuggyTransferable.js
   Contract: TestERC20BuggyTransferable
@@ -120,6 +122,7 @@ $ echidna-test . --contract TestERC20BuggyTransferable --config echidna_config.y
 `slither-prop` contains different scenarios that can be specified with the `--scenario NAME` flag.
 
 Here are the available scenarios:
+
 ```
 #################### ERC20 ####################
 Transferable - Test the correct tokens transfer
@@ -128,9 +131,10 @@ NotMintable - Test that no one can mint tokens
 NotMintableNotBurnable - Test that no one can mint or burn tokens
 NotBurnable - Test that no one can burn tokens
 Burnable - Test the burn of tokens. Require the "burn(address) returns()" function
-``` 
+```
 
 ## All properties
+
 ```
 +-----+-------------------------------------------------------------------------+------------------------+
 | Num |                               Description                               |        Scenario        |

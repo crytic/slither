@@ -1,4 +1,4 @@
-Slither's plugin architecture lets you integrate new detectors that run from the command line.
+Slither's plugin architecture lets you integrate new detectors that run from the command-line.
 
 ## Detector Skeleton
 
@@ -32,8 +32,8 @@ class Skeleton(AbstractDetector):
         return [res]
 ```
 
-- `ARGUMENT` lets you run the detector from the command line
-- `HELP` is the information printed from the command line
+- `ARGUMENT` lets you run the detector from the command-line
+- `HELP` is the information printed from the command-line
 - `IMPACT` indicates the impact of the issue. Allowed values are:
   - `DetectorClassification.OPTIMIZATION`: printed in green
   - `DetectorClassification.INFORMATIONAL`: printed in green
@@ -46,18 +46,21 @@ class Skeleton(AbstractDetector):
   - `DetectorClassification.HIGH`
 - `WIKI` constants are used to generate automatically the documentation.
 
-`_detect()` needs to return a list of findings. A finding is an element generated with `self.generate_result(info)`, where `info`  is a list of text or contract's object (contract, function, node, ...)
+`_detect()` needs to return a list of findings. A finding is an element generated with `self.generate_result(info)`, where `info` is a list of text or contract's object (contract, function, node, ...)
 
 An `AbstractDetector` object has the `slither` attribute, which returns the current `Slither` object.
 
 ## Integration
 
 You can integrate your detector into Slither by:
+
 - Adding it in [slither/detectors/all_detectors.py](https://github.com/trailofbits/slither/blob/ae7c410938b616d993e6c27678f6e48d9a4d7dd6/slither/detectors/all_detectors.py)
 - or, by creating a plugin package (see the [skeleton example](https://github.com/trailofbits/slither/tree/ae7c410938b616d993e6c27678f6e48d9a4d7dd6/plugin_example)).
 
 ### Test the detector
+
 See [CONTRIBUTING.md#development-environment](https://github.com/crytic/slither/blob/master/CONTRIBUTING.md#development-environment)
 
 ## Example
+
 [backdoor.py](https://github.com/crytic/slither/blob/ae7c410938b616d993e6c27678f6e48d9a4d7dd6/slither/detectors/examples/backdoor.py) will detect any function with `backdoor` in its name.

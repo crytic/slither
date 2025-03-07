@@ -3,7 +3,7 @@
 The objective of this tutorial is to demonstrate how to use Slither to automatically find bugs in smart contracts.
 
 - [Installation](#installation)
-- [Command line usage](#command-line)
+- [Command-line usage](#command-line)
 - [Introduction to static analysis](./static_analysis.md): A concise introduction to static analysis
 - [API](../api/api.md): Python API description
 
@@ -45,7 +45,7 @@ cd /home/trufflecon/
 
 ## Command Line
 
-**Command line vs. user-defined scripts.** Slither comes with a set of pre-defined detectors that can identify many common bugs. Running Slither from the command line will execute all the detectors without requiring detailed knowledge of static analysis:
+**Command-line vs. user-defined scripts.** Slither comes with a set of predefined detectors that can identify many common bugs. Running Slither from the command line will execute all the detectors without requiring detailed knowledge of static analysis:
 
 ```bash
 slither project_paths

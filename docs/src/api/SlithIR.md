@@ -1,4 +1,5 @@
 # SlithIR
+
 Slither translates Solidity an intermediate representation, SlithIR, to enable high-precision analysis via a simple API. It supports taint and value tracking to enable detection of complex patterns.
 
 SlithIR is a work in progress, although it is usable today. New developments in SlithIR are driven by needs identified by new detector modules. Please help us bugtest and enhance SlithIR!
@@ -16,6 +17,7 @@ Solidity is a quirky language with a number of edge cases, both in terms of synt
 Additionally, Slither can include non-trivial variable tracking by default by translating to an IR. This can build richer representations of contracts and allow for deeper analysis of potential vulnerabilities. For example, answering the question “can a user control a variable” is central to uncovering more complex vulnerabilities from a static position. Slither will propagate information from function parameters to program state in an iterative fashion, which captures the control flow of information across potentially multiple transactions. In this way, Slither can enrich information and statically provide a large amount of assurance to contracts that standard vulnerabilities exist and are reachable under certain conditions.
 
 ## Example
+
 `$ slither file.sol --print slithir` will output the IR for every function.
 
 ```
@@ -37,19 +39,20 @@ Contract MyContract
 		IRs:
 			REF_3(uint256) -> balances[msg.sender]
 			REF_1(uint256) -> balances[msg.sender]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val'] 
+			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val']
 			REF_3 := TMP_1
 		Expression: balances[to] = balances[to].add(val)
 		IRs:
 			REF_3(uint256) -> balances[to]
 			REF_1(uint256) -> balances[to]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val'] 
+			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val']
 			REF_3 := TMP_1
 ```
 
-# SlithIR Specification 
+# SlithIR Specification
 
 ## Variables
+
 - `StateVariable`
 - `LocalVariable`
 - `Constant` (`string` or `int`)
@@ -59,8 +62,9 @@ Contract MyContract
 - `ReferenceVariable` (variables added by SlithIR, for mapping/index accesses)
 
 In the following we use:
+
 - `LVALUE` can be: `StateVariable`, `LocalVariable`, `TemporaryVariable`, `ReferenceVariable` or `TupleVariable`
-- `RVALUE` can be: `StateVariable`, `LocalVariable`, `Constant`, `SolidityVariable`, `TemporaryVariable` or `ReferenceVariable` 
+- `RVALUE` can be: `StateVariable`, `LocalVariable`, `Constant`, `SolidityVariable`, `TemporaryVariable` or `ReferenceVariable`
 
 ## Operators
 
@@ -96,15 +100,18 @@ In the following we use:
 - `LVALUE = RVALUE -- RVALUE`
 
 ### Unary Operation
+
 - `LVALUE = ! RVALUE`
 - `LVALUE = ~ RVALUE`
 
 ### Index
+
 - `REFERENCE -> LVALUE [ RVALUE ]`
 
 Note: The reference points to the memory location
 
 ### Member
+
 - `REFERENCE -> LVALUE . RVALUE`
 - `REFERENCE -> CONTRACT . RVALUE`
 - `REFERENCE -> ENUM . RVALUE`
@@ -112,6 +119,7 @@ Note: The reference points to the memory location
 Note: The reference points to the memory location
 
 ### New Operators
+
 - `LVALUE = NEW_ARRAY ARRAY_TYPE DEPTH(:int)`
 
 `ARRAY_TYPE` is a [solidity_types](https://github.com/crytic/slither/tree/master/slither/core/solidity_types)
@@ -125,21 +133,26 @@ Note: The reference points to the memory location
 `ELEMENTARY_TYPE` is defined in [slither/core/solidity_types/elementary_type.py](https://github.com/crytic/slither/blob/master/slither/core/solidity_types/elementary_type.py)
 
 ### Push Operator
+
 - `PUSH LVALUE RVALUE`
 - `PUSH LVALUE Function` (for dynamic function)
 
 ### Delete Operator
+
 - `DELETE LVALUE`
 
 ### Conversion
+
 - `CONVERT LVALUE RVALUE TYPE`
 
 TYPE is a [solidity_types](https://github.com/crytic/slither/tree/master/slither/core/solidity_types)
 
 ### Unpack
+
 - `LVALUE = UNPACK TUPLEVARIABLE INDEX(:int)`
 
 ### Array Initialization
+
 - `LVALUE = INIT_VALUES`
 
 `INIT_VALUES` is a list of `RVALUE`, or a list of lists in case of a multidimensional array.
@@ -153,12 +166,12 @@ In the following, `ARG` is a variable as defined in [SlithIR#variables](https://
 
 `FUNCTION_NAME` can only be `call`/`delegatecall`/`codecall`
 
-- `LVALUE = SOLIDITY_CALL SOLIDITY_FUNCTION [ARG, ..]` 
+- `LVALUE = SOLIDITY_CALL SOLIDITY_FUNCTION [ARG, ..]`
 
 `SOLIDITY_FUNCTION` is defined in [slither/core/declarations/solidity_variables.py](https://github.com/crytic/slither/blob/master/slither/core/declarations/solidity_variables.py)
 
-- `LVALUE = INTERNAL_CALL FUNCTION [ARG, ..]` 
-- `LVALUE = INTERNAL_DYNAMIC_CALL FUNCTION_TYPE [ARG, ..]` 
+- `LVALUE = INTERNAL_CALL FUNCTION [ARG, ..]`
+- `LVALUE = INTERNAL_DYNAMIC_CALL FUNCTION_TYPE [ARG, ..]`
 
 `INTERNAL_DYNAMIC_CALL` represents the pointer of function.
 
@@ -169,10 +182,12 @@ In the following, `ARG` is a variable as defined in [SlithIR#variables](https://
 - `LVALUE = SEND DESTINATION VALUE`
 - `TRANSFER DESTINATION VALUE`
 
-Optional arguments: 
-- `GAS` and `VALUE` for `HIGH_LEVEL_CALL` / `LOW_LEVEL_CALL`. 
+Optional arguments:
+
+- `GAS` and `VALUE` for `HIGH_LEVEL_CALL` / `LOW_LEVEL_CALL`.
 
 ### Return
+
 - `RETURN RVALUE`
 - `RETURN TUPLE`
 - `RETURN None`
@@ -180,7 +195,7 @@ Optional arguments:
 `Return None` represents an empty return statement.
 
 ### Condition
+
 - `CONDITION RVALUE`
 
 `CONDITION` holds the condition in a conditional node.
-

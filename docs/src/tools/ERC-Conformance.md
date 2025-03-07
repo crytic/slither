@@ -31,6 +31,7 @@
 ```
 slither-check-erc contract.sol ContractName
 ```
+
 For example, on
 
 ```Solidity
@@ -52,14 +53,14 @@ The tool will report:
 # Check ERC20
 
 ## Check functions
-[ ] totalSupply() is missing 
-[ ] balanceOf(address) is missing 
+[ ] totalSupply() is missing
+[ ] balanceOf(address) is missing
 [✓] transfer(address,uint256) is present
 	[ ] transfer(address,uint256) -> () should return bool
 	[✓] Transfer(address,address,uint256) is emitted
-[ ] transferFrom(address,address,uint256) is missing 
-[ ] approve(address,uint256) is missing 
-[ ] allowance(address,address) is missing 
+[ ] transferFrom(address,address,uint256) is missing
+[ ] approve(address,uint256) is missing
+[ ] allowance(address,address) is missing
 [ ] name() is missing (optional)
 [ ] symbol() is missing (optional)
 [ ] decimals() is missing (optional)

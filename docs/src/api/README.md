@@ -1,4 +1,5 @@
 Slither is fully customizable:
+
 - [Static Analysis](./static_analysis.md): learn about the basics of static analysis
 - [API](./api.md)
 - [SlithIR](./SlithIR.md)

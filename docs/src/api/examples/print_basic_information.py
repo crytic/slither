@@ -1,4 +1,3 @@
-import sys
 from slither import Slither
 
 # Init slither

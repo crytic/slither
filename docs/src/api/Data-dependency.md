@@ -3,6 +3,7 @@
 Data dependency allows knowing if the value of a given variable is influenced by another variable's value.
 
 Because smart contracts have a state machine based architecture, the results of the data dependency depend on the context (function/contract) of the analysis. Consider the following example:
+
 ```solidity
 contract MyContract{
     uint a = 0;
@@ -20,18 +21,22 @@ contract MyContract{
 ```
 
 In this example, if we consider only `setA`, we have the following dependency:
-- `a` is dependent on `input_a` 
+
+- `a` is dependent on `input_a`
 
 If we consider only `setB`, we have:
+
 - `b` is dependent on `a`
 
 If we consider the contract entirely (with all the functions), we have:
-- `a` is dependent on `input_a` 
+
+- `a` is dependent on `input_a`
 - `b` is dependent on `a` and `input_a` (by transitivity)
 
 `slither.analyses.is_dependent(variable, variable_source, context)` allows to know if `variable` is dependent on `variable_source` on the given context.
 
 As a result, in our previous example, `is_dependent(b, a, funcA)` will return `False`, while `is_dependent(b, a, myContract)` will return `True`:
+
 ```
 from slither import Slither
 from slither.analyses import is_dependent
@@ -48,4 +53,3 @@ b = myContract.get_state_variable_from_name('b')
 print(f'{b.name} is dependant from {input_a.name}?: {is_dependent(b, a, funcA)}')
 print(f'{b.name} is dependant from {input_a.name}?: {is_dependent(b, a, myContract)}')
 ```
-

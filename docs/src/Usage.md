@@ -20,6 +20,7 @@ All the [`crytic-compile`](https://github.com/crytic/crytic-compile/wiki/Configu
 ### Foundry/hardhat
 
 To run Slither on a Foundry/hardhat directory:
+
 ```
 slither .
 ```
@@ -42,17 +43,18 @@ slither 0x7F37f78cBD74481E593F9C737776F7113d76B315
 
 We recommend installing [solc-select](https://github.com/crytic/solc-select/) so Slither can switch to the expected solc version automatically.
 
-
 ### Detector selection
 
 Slither runs all its detectors by default.
 
 To run only selected detectors, use `--detect detector1,detector2`. For example:
+
 ```
 slither file.sol --detect arbitrary-send,pragma
 ```
 
 To exclude detectors, use `--exclude detector1,detector2`. For example:
+
 ```
 slither file.sol --exclude naming-convention,unused-state,suicidal
 ```
@@ -66,6 +68,7 @@ To exclude detectors with an informational or low severity, use `--exclude-infor
 By default, no printers are run.
 
 To run selected printers, use `--print printer1,printer2`. For example:
+
 ```
 slither file.sol --print inheritance-graph
 ```
@@ -77,19 +80,23 @@ slither file.sol --print inheritance-graph
 `--filter-paths path1` will exclude all the results that are only related to `path1`. The path specified can be a path directory or a filename. Direct string comparison and [Python regular expression](https://docs.python.org/3/library/re.html) are used.
 
 Examples:
+
 ```
 slither . --filter-paths "openzepellin"
 ```
+
 Filter all the results only related to openzepellin.
+
 ```
 slither . --filter-paths "Migrations.sol|ConvertLib.sol"
 ```
-Filter all the results only related to the file `SafeMath.sol` or `ConvertLib.sol`.
 
+Filter all the results only related to the file `SafeMath.sol` or `ConvertLib.sol`.
 
 ### Triage mode
 
 Slither offers two ways to remove results:
+
 - By adding `//slither-disable-next-line DETECTOR_NAME` before the issue
 - By adding `// slither-disable-start [detector] ... // slither-disable-end [detector]` around the code to disable the detector on a large section
 - By adding `@custom:security non-reentrant` before the variable declaration will indicate to Slither that the external calls from this variable are non-reentrant
@@ -100,6 +107,7 @@ Slither offers two ways to remove results:
 `--triage-mode` runs Slither in its triage mode. For every finding, Slither will ask if the result should be shown for the next run. Results are saved in `slither.db.json`.
 
 Examples:
+
 ```
 slither . --triage-mode
 [...]
@@ -116,7 +124,7 @@ To show the hidden results again, delete `slither.db.json`.
 
 ### Configuration File
 
-Some options can be set through a json configuration file. By default,  `slither.config.json` is used if present (it can be changed through `--config-file file.config.json`).
+Some options can be set through a json configuration file. By default, `slither.config.json` is used if present (it can be changed through `--config-file file.config.json`).
 
 Options passed via the CLI have priority over options set in the configuration file.
 

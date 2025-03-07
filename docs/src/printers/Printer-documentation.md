@@ -1,64 +1,70 @@
 Slither allows printing contracts information through its printers.
 
-Num | Printer | Description
---- | --- | ---
-1 | `call-graph` | [Export the call-graph of the contracts to a dot file](#call-graph)
-2 | `cfg` | [Export the CFG of each functions](#cfg)
-3 | `cheatcode` | Print the usage of (Foundry) cheatcodes in the code.
-4 | `ck` | Chidamber and Kemerer (CK) complexity metrics and related function attributes
-5 | `constructor-calls` | [Print the constructors executed](#constructor-calls)
-6 | `contract-summary` | [Print a summary of the contracts](#contract-summary)
-7 | `data-dependency` | [Print the data dependencies of the variables](#data-dependencies)
-8 | `declaration` | Prototype showing the source code declaration, implementation and references of the contracts objects
-9 | `dominator` | Export the dominator tree of each functions
-10 | `echidna` | Export Echidna guiding information
-11 | `entry-points` | Print all the state-changing entry point functions of the contracts
-12 | `evm` | [Print the evm instructions of nodes in functions](#evm)
-13 | `function-id` | [Print the keccak256 signature of the functions](#function-id)
-14 | `function-summary` | [Print a summary of the functions](#function-summary)
-15 | `halstead` | Computes the Halstead complexity metrics for each contract
-16 | `human-summary` | [Print a human-readable summary of the contracts](#human-summary)
-17 | `inheritance` | [Print the inheritance relations between contracts](#inheritance)
-18 | `inheritance-graph` | [Export the inheritance graph of each contract to a dot file](#inheritance-graph)
-19 | `loc` | Count the total number lines of code (LOC), source lines of code (SLOC)
-20 | `martin` | Martin agile software metrics (Ca, Ce, I, A, D)
-21 | `modifiers` | Print the modifiers called by each function
-22 | `not-pausable` | Print functions that do not use whenNotPaused
-23 | `require` | [Print the require and assert calls of each function](#require)
-24 | `slithir` | [Print the slithIR representation of the functions](#slithir)
-25 | `slithir-ssa` | [Print the slithIR representation of the functions](#slithir-ssa)
-26 | `variable-order` | [Print the storage order of the state variables](#variable-order)
-27 | `vars-and-auth` | [Print the state variables written and the authorization of the functions](#variables-written-and-authorization)
-
-
+| Num | Printer             | Description                                                                                                      |
+| --- | ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1   | `call-graph`        | [Export the call-graph of the contracts to a dot file](#call-graph)                                              |
+| 2   | `cfg`               | [Export the CFG of each functions](#cfg)                                                                         |
+| 3   | `cheatcode`         | Print the usage of (Foundry) cheatcodes in the code.                                                             |
+| 4   | `ck`                | Chidamber and Kemerer (CK) complexity metrics and related function attributes                                    |
+| 5   | `constructor-calls` | [Print the constructors executed](#constructor-calls)                                                            |
+| 6   | `contract-summary`  | [Print a summary of the contracts](#contract-summary)                                                            |
+| 7   | `data-dependency`   | [Print the data dependencies of the variables](#data-dependencies)                                               |
+| 8   | `declaration`       | Prototype showing the source code declaration, implementation and references of the contracts objects            |
+| 9   | `dominator`         | Export the dominator tree of each functions                                                                      |
+| 10  | `echidna`           | Export Echidna guiding information                                                                               |
+| 11  | `entry-points`      | Print all the state-changing entry point functions of the contracts                                              |
+| 12  | `evm`               | [Print the evm instructions of nodes in functions](#evm)                                                         |
+| 13  | `function-id`       | [Print the keccak256 signature of the functions](#function-id)                                                   |
+| 14  | `function-summary`  | [Print a summary of the functions](#function-summary)                                                            |
+| 15  | `halstead`          | Computes the Halstead complexity metrics for each contract                                                       |
+| 16  | `human-summary`     | [Print a human-readable summary of the contracts](#human-summary)                                                |
+| 17  | `inheritance`       | [Print the inheritance relations between contracts](#inheritance)                                                |
+| 18  | `inheritance-graph` | [Export the inheritance graph of each contract to a dot file](#inheritance-graph)                                |
+| 19  | `loc`               | Count the total number lines of code (LOC), source lines of code (SLOC)                                          |
+| 20  | `martin`            | Martin agile software metrics (Ca, Ce, I, A, D)                                                                  |
+| 21  | `modifiers`         | Print the modifiers called by each function                                                                      |
+| 22  | `not-pausable`      | Print functions that do not use whenNotPaused                                                                    |
+| 23  | `require`           | [Print the require and assert calls of each function](#require)                                                  |
+| 24  | `slithir`           | [Print the slithIR representation of the functions](#slithir)                                                    |
+| 25  | `slithir-ssa`       | [Print the slithIR representation of the functions](#slithir-ssa)                                                |
+| 26  | `variable-order`    | [Print the storage order of the state variables](#variable-order)                                                |
+| 27  | `vars-and-auth`     | [Print the state variables written and the authorization of the functions](#variables-written-and-authorization) |
 
 Several printers require xdot installed for visualization:
+
 ```
 sudo apt install xdot
 ```
 
 ## Call Graph
+
 `slither file.sol --print call-graph`
 
 Export the call-graph of the contracts to a dot file
+
 ### Example
+
 ```
 $ slither examples/printers/call_graph.sol --print call-graph
 ```
+
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/call_graph.sol.dot.png">
 
 The output format is [dot](https://www.graphviz.org/).
 To vizualize the graph:
+
 ```
 $ xdot examples/printers/call_graph.sol.dot
 ```
+
 To convert the file to svg:
+
 ```
 $ dot examples/printers/call_graph.sol.dot -Tpng -o examples/printers/call_graph.sol.png
 ```
 
-
 ## CFG
+
 Export the control flow graph of each function
 
 `slither file.sol --print cfg`
@@ -67,14 +73,16 @@ Export the control flow graph of each function
 
 The output format is [dot](https://www.graphviz.org/).
 To vizualize the graph:
+
 ```
 $ xdot function.sol.dot
 ```
+
 To convert the file to svg:
+
 ```
 $ dot function.dot -Tsvg -o function.sol.png
 ```
-
 
 ## Contract Summary
 
@@ -83,12 +91,12 @@ Output a quick summary of the contract.
 `slither file.sol --print contract-summary`
 
 ### Example
+
 ```
 $ slither examples/printers/quick_summary.sol --print contract-summary
 ```
 
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/quick_summary.sol.png">
-
 
 ## Data Dependencies
 
@@ -96,9 +104,11 @@ Print the data dependencies of the variables
 `slither file.sol --print data-dependency`
 
 ### Example
+
 ```
 $ slither examples/printers/data_dependencies.sol --print data-dependency
 ```
+
 ```
 Contract MyContract
 +----------+----------------------+
@@ -131,11 +141,13 @@ Function setB(uint256)
 ```
 
 ## Constructor Calls
+
 `slither file.sol --print constructor-calls`
 
 Print the calling sequence of constructors based on C3 linearization.
 
 ### Example
+
 ```
 ...
 $ slither examples/printers/constructors.sol --print constructor-calls
@@ -178,17 +190,18 @@ Contact Name: test3
     }
 ```
 
-
 ## Echidna
 
 This printer is meant to improve [Echidna](https://github.com/crytic/echidna) code coverage. The printer is a WIP and is not yet used by Echidna.
 
 ## EVM
+
 `slither file.sol --print evm`
 
 Print the EVM representation of the functions
 
 ### Example
+
 ```
 $ slither examples/printers/evm.sol --print evm
 
@@ -247,10 +260,12 @@ INFO:Printers:Contract Test
 ```
 
 ## Function id
+
 `slither file.sol --print function-id`
 Print the keccack256 signature of the functions
 
 ### Examples
+
 ```
 $ slither examples/printers/authorization.sol --print function-id
 INFO:Printers:
@@ -264,24 +279,28 @@ MyContract:
 ```
 
 ## Function Summary
+
 `slither file.sol --print function-summary`
 
 Output a summary of the contract showing for each function:
-- What are the visibility and the modifiers 
+
+- What are the visibility and the modifiers
 - What are the state variables read or written
 - What are the calls
 
 ### Example
+
 ```
 $ slither tests/backdoor.sol --print function-summary
 ```
+
 ```
 [...]
 
 Contract C
 Contract vars: []
 Inheritances:: []
- 
+
 +-----------------+------------+-----------+----------------+-------+---------------------------+----------------+
 |     Function    | Visibility | Modifiers |      Read      | Write |       Internal Calls      | External Calls |
 +-----------------+------------+-----------+----------------+-------+---------------------------+----------------+
@@ -295,11 +314,13 @@ Inheritances:: []
 ```
 
 ## Human Summary
+
 `slither file.sol --print human-summary`
 
 Print a human-readable summary of the contracts
 
 ### Example
+
 ```
 $ slither examples/printers/human_printer.sol --print human-summary
 ```
@@ -307,10 +328,12 @@ $ slither examples/printers/human_printer.sol --print human-summary
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/human_printer.sol.png">
 
 ## Inheritance
+
 `slither file.sol --print inheritance`
 Print the inheritance relations between contracts
 
 ### Example
+
 ```
 $ slither examples/printers/inheritances.sol --print inheritance
 ```
@@ -318,13 +341,13 @@ $ slither examples/printers/inheritances.sol --print inheritance
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances.sol.png">
 
 ## Inheritance Graph
+
 `slither file.sol --print inheritance-graph`
 
 Output a graph showing the inheritance interaction between the contracts.
 
-
-
 ### Example
+
 ```
 $ slither examples/printers/inheritances.sol --print inheritance-graph
 [...]
@@ -333,29 +356,35 @@ INFO:PrinterInheritance:Inheritance Graph: examples/DAO.sol.dot
 
 The output format is [dot](https://www.graphviz.org/).
 To vizualize the graph:
+
 ```
 $ xdot examples/printers/inheritances.sol.dot
 ```
+
 To convert the file to svg:
+
 ```
 $ dot examples/printers/inheritances.sol.dot -Tsvg -o examples/printers/inheritances.sol.png
 ```
+
 <img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances_graph.sol.png">
 
 Indicators:
+
 - If a contract has multiple inheritance, the connecting edges will be labelled in order of declaration.
 - Functions highlighted orange override a parent's function.
 - Functions which do not override each other directly (but collide due to multiple inheritance) will be emphasized at the bottom of the affected contract node in grey font.
 - Variables highlighted red overshadow a parent's variable declaration.
 - Variables of type `contract` specify the contract name in parentheses in a blue font.
 
-
 ## Modifiers
+
 `slither file.sol --print modifiers`
 
 Print the modifiers called by each function.
 
 ### Example
+
 ```
 $ slither examples/printers/modifier.sol --print modifiers
 INFO:Printers:
@@ -369,11 +398,13 @@ Contract C
 ```
 
 ## Require
+
 `slither file.sol --print require`
 
 Print the require and assert calls of each function.
 
 ### Example
+
 ```
 $ slither examples/printers/require.sol --print require
 INFO:Printers:
@@ -393,14 +424,14 @@ Contract C
 +-------------+--------------------------------------+
 ```
 
-
-
 ## SlithIR
+
 `slither file.sol --print slithir`
 
 Print the slithIR representation of the functions
 
 ### Example
+
 ```
 $ slither examples/printers/slihtir.sol --print slithir
 Contract UnsafeMath
@@ -420,27 +451,30 @@ Contract MyContract
 		IRs:
 			REF_3(uint256) -> balances[msg.sender]
 			REF_1(uint256) -> balances[msg.sender]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val'] 
+			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:min, arguments:['REF_1', 'val']
 			REF_3 := TMP_1
 		Expression: balances[to] = balances[to].add(val)
 		IRs:
 			REF_3(uint256) -> balances[to]
 			REF_1(uint256) -> balances[to]
-			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val'] 
+			TMP_1(uint256) = LIBRARY_CALL, dest:UnsafeMath, function:add, arguments:['REF_1', 'val']
 			REF_3 := TMP_1
 ```
 
 ## SlithIR-SSA
+
 `slither file.sol --print slithir-ssa`
 
 Print the slithIR representation of the functions (SSA version)
 
 ## Variable order
+
 `slither file.sol --print variable-order`
 
 Print the storage order of the state variables
 
 ### Example
+
 ```
 $ slither tests/check-upgradability/contractV2_bug.sol --print variable-order
 INFO:Printers:
@@ -454,12 +488,14 @@ ContractV2:
 
 ```
 
-
 ## Variables written and authorization
+
 `slither file.sol --print vars-and-auth`
 
 Print the variables written and the check on `msg.sender` of each function.
+
 ### Example
+
 ```
 ...
 $ slither examples/printers/authorization.sol --print vars-and-auth
