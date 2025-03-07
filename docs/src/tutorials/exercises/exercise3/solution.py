@@ -1,7 +1,7 @@
 from slither.slither import Slither
 
-slither = Slither('find.sol')
-find = slither.get_contract_from_name('Find')[0]
+slither = Slither("find.sol")
+find = slither.get_contract_from_name("Find")[0]
 
 assert find
 
@@ -11,9 +11,10 @@ assert my_variable
 
 
 function_using_a_as_condition = [
-    f 
+    f
     for f in find.functions
-    if f.is_reading_in_conditional_node(my_variable) or f.is_reading_in_require_or_assert(my_variable)
+    if f.is_reading_in_conditional_node(my_variable)
+    or f.is_reading_in_require_or_assert(my_variable)
 ]
 
 # Print the result
