@@ -10,6 +10,6 @@ for contract in slither.contracts:
             continue
         if function.is_constructor:
             continue
-        if function.visibility in ['public', 'external']:
-            if not 'onlyOwner()' in [m.full_name for m in function.modifiers]:
-                print(f'{function.full_name} is unprotected!')
+        if function.visibility in ["public", "external"]:
+            if not "onlyOwner()" in [m.full_name for m in function.modifiers]:
+                print(f"{function.full_name} is unprotected!")
