@@ -2,7 +2,7 @@ Slither comes with inbuilt tools
 
 | Name | Command Line | What it Does |
 |------|-------------|--------------|
-| [Code Similarity](./Code-Similarity-detector.md) | `slither-simil` | Detects similar Solidity functions/contracts using code similarity analysis. Useful for finding duplicated code, similar vulnerabilities, or analyzing large codebases. |
+| [Code Similarity](./Code-Similarity-Detector.md) | `slither-simil` | Detects similar Solidity functions/contracts using code similarity analysis. Useful for finding duplicated code, similar vulnerabilities, or analyzing large codebases. |
 | [Contract Flattening](./Contract-Flattening.md) | `slither-flat` | Flattens a Solidity codebase by inlining all imports into a single file. Useful for contract verification on Etherscan or debugging. |
 | [Documentation](./Documentation.md) | `slither-doc` | Automatically generates documentation for Solidity contracts, including inheritance information, functions, modifiers, and more. |
 | [Doctor](./Doctor.md) | `slither-doctor` | Helps diagnose and fix common issues in your environment that might prevent Slither from working correctly. |
