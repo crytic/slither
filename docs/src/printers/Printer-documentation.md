@@ -259,7 +259,7 @@ INFO:Printers:Contract Test
                         0xa1: POP
 ```
 
-## Function id
+## Function ID
 
 `slither file.sol --print function-id`
 Print the keccack256 signature of the functions

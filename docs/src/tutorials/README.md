@@ -45,7 +45,7 @@ cd /home/trufflecon/
 
 ## Command Line
 
-**Command-line vs. user-defined scripts.** Slither comes with a set of predefined detectors that can identify many common bugs. Running Slither from the command line will execute all the detectors without requiring detailed knowledge of static analysis:
+**Command-line vs. user-defined scripts.** Slither comes with a set of predefined detectors that can identify many common bugs. Running Slither from the command-line will execute all the detectors without requiring detailed knowledge of static analysis:
 
 ```bash
 slither project_paths

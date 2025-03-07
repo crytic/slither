@@ -7,7 +7,7 @@ The skeleton util is present in [tools/demo](https://github.com/crytic/slither/t
 
 ## Integration
 
-To enable an util from the command line, update `entry_points` in [setup.py](https://github.com/crytic/slither/blob/master/setup.py).
+To enable an util from the command-line, update `entry_points` in [setup.py](https://github.com/crytic/slither/blob/master/setup.py).
 Installing Slither will then install the util.
 
 ## Guidelines
