@@ -80,7 +80,7 @@ defaults_flag_in_config = {
 def read_config_file(args: argparse.Namespace) -> None:
     # No config file was provided as an argument
     if args.config_file is None:
-        # Check wether the default config file is present
+        # Check whether the default config file is present
         if os.path.exists("slither.config.json"):
             # The default file exists, use it
             args.config_file = "slither.config.json"
