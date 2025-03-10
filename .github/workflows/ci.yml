@@ -54,7 +54,7 @@ jobs:
 
       - name: Set up cachix
         if: matrix.type == 'dapp'
-        uses: cachix/cachix-action@v15
+        uses: cachix/cachix-action@v16
         with:
           name: dapp
 
