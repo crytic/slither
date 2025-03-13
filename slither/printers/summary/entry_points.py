@@ -2,12 +2,13 @@
 Module printing all the state-changing entry point functions of the contracts
 """
 
+from pathlib import Path
 from slither.printers.abstract_printer import AbstractPrinter
 from slither.core.declarations.function_contract import FunctionContract
 from slither.utils.colors import Colors
 from slither.utils.output import Output
 from slither.utils.myprettytable import MyPrettyTable
-
+from slither.utils.tests_pattern import is_test_file
 
 class PrinterEntryPoints(AbstractPrinter):
 
@@ -30,8 +31,7 @@ class PrinterEntryPoints(AbstractPrinter):
                 for c in self.slither.contracts_derived
                 if not c.is_test
                 and not c.is_from_dependency()
-                and "mock/" not in c.source_mapping.filename.absolute
-                and "mocks/" not in c.source_mapping.filename.absolute
+                and not is_test_file(Path(c.source_mapping.filename.absolute))
                 and not c.is_interface
                 and not c.is_library
                 and not c.is_abstract
