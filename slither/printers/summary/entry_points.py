@@ -10,6 +10,7 @@ from slither.utils.output import Output
 from slither.utils.myprettytable import MyPrettyTable
 from slither.utils.tests_pattern import is_test_file
 
+
 class PrinterEntryPoints(AbstractPrinter):
 
     ARGUMENT = "entry-points"
