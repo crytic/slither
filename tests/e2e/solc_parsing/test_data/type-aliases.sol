@@ -21,3 +21,16 @@ contract OtherTest {
 contract DeleteTest {
    type Z is int;
 }
+
+contract A {
+    type MyU is uint256;
+    function q() public returns(MyU) {
+        MyU.wrap(1);
+    }
+}
+
+contract B is A {  
+    function y() public returns(MyU) {
+        return MyU.wrap(343);
+    }
+}

@@ -284,6 +284,13 @@ class ContractSolc(CallerContextExpression):
                 raise ParsingError("Unknown contract item: " + item[self.get_key()])
         return
 
+    def parse_type_alias(self) -> None:
+        # We keep parse_ in the name just to keep the naming convention even if we already parsed them initially.
+        # Here we only update the current contract type_aliases_as_dict with the fathers' values
+        # It's useful to keep using the same pattern anyway as we know all the fathers have been analyzed
+        for father in self._contract.inheritance_reverse:
+            self._contract.type_aliases_as_dict.update(father.type_aliases_as_dict)
+
     def _parse_type_alias(self, item: Dict) -> None:
         assert "name" in item
         assert "underlyingType" in item
