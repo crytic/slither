@@ -53,7 +53,7 @@ class ContractSolc(CallerContextExpression):
         self._enumsNotParsed: List[Dict] = []
         self._structuresNotParsed: List[Dict] = []
         self._usingForNotParsed: List[Dict] = []
-        self._customErrorParsed: List[Dict] = []
+        self._customErrorsNotParsed: List[Dict] = []
 
         self._functions_parser: List[FunctionSolc] = []
         self._modifiers_parser: List[ModifierSolc] = []
@@ -277,7 +277,7 @@ class ContractSolc(CallerContextExpression):
             elif item[self.get_key()] == "UsingForDirective":
                 self._usingForNotParsed.append(item)
             elif item[self.get_key()] == "ErrorDefinition":
-                self._customErrorParsed.append(item)
+                self._customErrorsNotParsed.append(item)
             elif item[self.get_key()] == "UserDefinedValueTypeDefinition":
                 self._parse_type_alias(item)
             else:
@@ -344,9 +344,9 @@ class ContractSolc(CallerContextExpression):
         for father in self._contract.inheritance_reverse:
             self._contract.custom_errors_as_dict.update(father.custom_errors_as_dict)
 
-        for custom_error in self._customErrorParsed:
+        for custom_error in self._customErrorsNotParsed:
             self._parse_custom_error(custom_error)
-        self._customErrorParsed = []
+        self._customErrorsNotParsed = []
 
     def parse_state_variables(self) -> None:
         for father in self._contract.inheritance_reverse:
@@ -800,7 +800,7 @@ class ContractSolc(CallerContextExpression):
         self._enumsNotParsed = []
         self._structuresNotParsed = []
         self._usingForNotParsed = []
-        self._customErrorParsed = []
+        self._customErrorsNotParsed = []
 
     def _handle_comment(self, attributes: Dict) -> None:
         """
