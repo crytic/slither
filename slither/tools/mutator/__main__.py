@@ -265,9 +265,7 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                 if target_contract == skip_flag:
                     continue
 
-                # TODO: find a more specific way to omit interfaces
-                # Ideally, we wouldn't depend on naming conventions
-                if target_contract.name.startswith("I"):
+                if target_contract.is_interface:
                     logger.debug(f"Skipping mutations on interface {filename}")
                     continue
 
