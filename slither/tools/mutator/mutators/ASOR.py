@@ -32,6 +32,8 @@ class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
             function
         ) in self.contract.functions_and_modifiers_declared:
             for node in function.nodes:
+                if not self.should_mutate_node(node):
+                    continue
                 for ir in node.irs:
                     if (
                         isinstance(ir.expression, AssignmentOperation)
@@ -48,18 +50,17 @@ class ASOR(AbstractMutator):  # pylint: disable=too-few-public-methods
                             if op != ir.expression:
                                 start = node.source_mapping.start
                                 stop = start + node.source_mapping.length
-                                old_str = self.in_file_str[start:stop]
+                                old_str = node.source_mapping.content
                                 line_no = node.source_mapping.lines
-                                if not line_no[0] in self.dont_mutate_line:
-                                    # Replace the expression with true
-                                    new_str = f"{old_str.split(str(ir.expression.type))[0]}{op}{old_str.split(str(ir.expression.type))[1]}"
-                                    create_patch_with_line(
-                                        result,
-                                        self.in_file,
-                                        start,
-                                        stop,
-                                        old_str,
-                                        new_str,
-                                        line_no[0],
-                                    )
+                                # Replace the expression with true
+                                new_str = f"{old_str.split(str(ir.expression.type))[0]}{op}{old_str.split(str(ir.expression.type))[1]}"
+                                create_patch_with_line(
+                                    result,
+                                    self.in_file,
+                                    start,
+                                    stop,
+                                    old_str,
+                                    new_str,
+                                    line_no[0],
+                                )
         return result
