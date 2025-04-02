@@ -10,7 +10,7 @@ literal_replacements = []
 
 class LIR(AbstractMutator):  # pylint: disable=too-few-public-methods
     NAME = "LIR"
-    HELP = "Literal Interger Replacement"
+    HELP = "Literal Integer Replacement"
 
     def _mutate(self) -> Dict:  # pylint: disable=too-many-branches
         result: Dict = {}
