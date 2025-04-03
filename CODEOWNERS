@@ -1,5 +1,4 @@
-*                            @montyly @smonicas
+*                            @smonicas
 /slither/tools/doctor/       @elopez
-/slither/slithir/            @montyly
-/slither/analyses/           @montyly
+/slither/tools/mutator/      @bohendo
 /.github/workflows/          @elopez
