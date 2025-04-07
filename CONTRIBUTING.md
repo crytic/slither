@@ -14,7 +14,7 @@ Questions can be submitted to the "Discussions" page, and you may also join our 
 
 ## Code
 
-Slither uses the pull request contribution model. Please make an account on GitHub, fork this repository, and submit code contributions via pull request. For more documentation, look [here](https://guides.github.com/activities/forking/).
+Slither uses the pull request contribution model. Please make an account on GitHub, fork this repository, and submit code contributions via pull request. For more documentation, look [here](https://docs.github.com/get-started/quickstart/contributing-to-projects).
 
 Some pull request guidelines:
 
