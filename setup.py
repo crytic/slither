@@ -64,6 +64,7 @@ setup(
             "slither-doctor = slither.tools.doctor.__main__:main",
             "slither-documentation = slither.tools.documentation.__main__:main",
             "slither-interface = slither.tools.interface.__main__:main",
+            "slither-function-filter = slither.tools.function_filter.__main__:main",
         ]
     },
 )
