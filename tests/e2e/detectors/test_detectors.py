@@ -1569,6 +1569,16 @@ ALL_TESTS = [
         "0.8.0",
     ),
     Test(
+        all_detectors.WrongEncodeWithSelector,
+        "wrong-encode-selector.sol",
+        "0.8.15",
+    ),
+    Test(
+        all_detectors.WrongEncodeWithSelector,
+        "wrong-encode-selector.sol",
+        "0.8.0",
+    ),
+    Test(
         all_detectors.DomainSeparatorCollision,
         "permit_domain_collision.sol",
         "0.4.25",
@@ -1944,6 +1954,7 @@ ALL_TESTS = [
 GENERIC_PATH = "/GENERIC_PATH"
 
 TEST_DATA_DIR = Path(__file__).resolve().parent / "test_data"
+
 
 # pylint: disable=too-many-locals
 @pytest.mark.parametrize("test_item", ALL_TESTS, ids=id_test)
