@@ -32,6 +32,7 @@ setup(
             "pytest-cov",
             "pytest-xdist",
             "deepdiff",
+            "orderly-set==5.3.2", # Temporary fix for https://github.com/seperman/deepdiff/issues/539
             "numpy",
             "coverage[toml]",
             "filelock",
