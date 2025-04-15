@@ -50,6 +50,9 @@ class LocalIRVariable(
 
     @property
     def refers_to(self):
+        """
+        Return the alias for local variable that are storage pointers
+        """
         if self.is_storage:
             return self._refers_to
         return set()

@@ -730,6 +730,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         contract.parse_modifiers()
         contract.parse_functions()
         contract.parse_custom_errors()
+        contract.parse_type_alias()
         contract.set_is_analyzed(True)
 
     def _analyze_struct_events(self, contract: ContractSolc) -> None:

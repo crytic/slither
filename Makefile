@@ -4,7 +4,7 @@ PY_MODULE := slither
 TEST_MODULE := tests
 
 ALL_PY_SRCS := $(shell find $(PY_MODULE) -name '*.py') \
-	$(shell find test -name '*.py')
+	$(shell find tests -name '*.py')
 
 # Optionally overridden by the user, if they're using a virtual environment manager.
 VENV ?= env

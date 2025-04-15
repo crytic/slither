@@ -196,7 +196,7 @@ def _fits_under_byte(val: Union[int, str]) -> List[str]:
         size = len(hex_val) // 2
         return [f"bytes{size}"]
     # val is a str
-    length = len(val.encode("utf-8"))
+    length = len(val.encode("utf8"))
     return [f"bytes{f}" for f in range(length, 33)] + ["bytes"]
 
 

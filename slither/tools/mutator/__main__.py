@@ -167,7 +167,10 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
     # get all the contracts as a list from given codebase
     sol_file_list: List[str] = get_sol_file_list(Path(args.codebase), paths_to_ignore_list)
 
-    logger.info(blue("Preparing to mutate files:\n- " + "\n- ".join(sol_file_list)))
+    if not contract_names:
+        logger.info(blue("Preparing to mutate files:\n- " + "\n- ".join(sol_file_list)))
+    else:
+        logger.info(blue("Preparing to mutate contracts:\n- " + "\n- ".join(contract_names)))
 
     # folder where backup files and uncaught mutants are saved
     if output_dir is None:
@@ -240,7 +243,8 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
 
         # perform mutations on {target_contract} in file {file_name}
         # setup placeholder val to signal whether we need to skip if no target_contract is found
-        target_contract = "SLITHER_SKIP_MUTATIONS" if contract_names else ""
+        skip_flag = "SLITHER_SKIP_MUTATIONS"
+        target_contract = skip_flag if contract_names else ""
         try:
             # loop through all contracts in file_name
             for compilation_unit_of_main_file in sl.compilation_units:
@@ -258,13 +262,10 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
                     )
                     continue
 
-                if target_contract == "SLITHER_SKIP_MUTATIONS":
-                    logger.debug(f"Skipping mutations in {filename}")
+                if target_contract == skip_flag:
                     continue
 
-                # TODO: find a more specific way to omit interfaces
-                # Ideally, we wouldn't depend on naming conventions
-                if target_contract.name.startswith("I"):
+                if target_contract.is_interface:
                     logger.debug(f"Skipping mutations on interface {filename}")
                     continue
 
@@ -333,6 +334,10 @@ def main() -> None:  # pylint: disable=too-many-statements,too-many-branches,too
 
         # transfer and delete the backup files
         transfer_and_delete(files_dict)
+
+        if target_contract == skip_flag:
+            logger.debug(f"No target contracts found in {filename}, skipping")
+            continue
 
         # log results for this file
         logger.info(blue(f"Done mutating {target_contract}."))
