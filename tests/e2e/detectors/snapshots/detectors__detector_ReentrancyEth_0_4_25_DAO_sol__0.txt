@@ -1,3 +1,16 @@
+Reentrancy in TokenCreation.refund() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#318-332):
+	External calls:
+	- extraBalance.balance >= extraBalance.accumulatedInput() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#321)
+	- extraBalance.payOut(address(this),extraBalance.accumulatedInput()) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#322)
+	- msg.sender.call.value(weiGiven[msg.sender])() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#325)
+	External calls sending eth:
+	- msg.sender.call.value(weiGiven[msg.sender])() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#325)
+	State variables written after the call(s):
+	- weiGiven[msg.sender] = 0 (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#329)
+	TokenCreationInterface.weiGiven (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#251) can be used in cross function reentrancies:
+	- TokenCreation.createTokenProxy(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#299-316)
+	- TokenCreation.refund() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#318-332)
+
 Reentrancy in DAO.executeProposal(uint256,bytes) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#853-937):
 	External calls:
 	- ! isRecipientAllowed(p.recipient) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#881)
@@ -21,7 +34,6 @@ Reentrancy in DAO.executeProposal(uint256,bytes) (tests/e2e/detectors/test_data/
 	- DAO.splitDAO(uint256,address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#947-1020)
 	- DAO.vote(uint256,bool) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#820-850)
 	- closeProposal(_proposalID) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#933)
-		- p = proposals[_proposalID] (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#941)
 		- p.open = false (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#944)
 	DAOInterface.proposals (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#394) can be used in cross function reentrancies:
 	- DAO.DAO(address,DAO_Creator,uint256,uint256,uint256,address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#702-726)
@@ -57,17 +69,4 @@ Reentrancy in DAO.executeProposal(uint256,bytes) (tests/e2e/detectors/test_data/
 	- DAO.isRecipientAllowed(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1158-1167)
 	- DAO.retrieveDAOReward(bool) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#1037-1057)
 	- DAOInterface.totalRewardToken (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#412)
-
-Reentrancy in TokenCreation.refund() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#318-332):
-	External calls:
-	- extraBalance.balance >= extraBalance.accumulatedInput() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#321)
-	- extraBalance.payOut(address(this),extraBalance.accumulatedInput()) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#322)
-	- msg.sender.call.value(weiGiven[msg.sender])() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#325)
-	External calls sending eth:
-	- msg.sender.call.value(weiGiven[msg.sender])() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#325)
-	State variables written after the call(s):
-	- weiGiven[msg.sender] = 0 (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#329)
-	TokenCreationInterface.weiGiven (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#251) can be used in cross function reentrancies:
-	- TokenCreation.createTokenProxy(address) (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#299-316)
-	- TokenCreation.refund() (tests/e2e/detectors/test_data/reentrancy-eth/0.4.25/DAO.sol#318-332)
 
