@@ -1011,7 +1011,13 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
             candidates = [var]
 
             # If we write to a storage pointer, add everything it points to as target
-            if isinstance(var, LocalIRVariable) and var.is_storage:
+            # if it's a variable declaration we do not want to consider the right variable written in that case
+            # string storage ss = s; // s is a storage variable but should not be considered written at that point
+            if (
+                isinstance(var, LocalIRVariable)
+                and var.is_storage
+                and ir.node.type is not NodeType.VARIABLE
+            ):
                 candidates += var.refers_to
 
             for var in candidates:
