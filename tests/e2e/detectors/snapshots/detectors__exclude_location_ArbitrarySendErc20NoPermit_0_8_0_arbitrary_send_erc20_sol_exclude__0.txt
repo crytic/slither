@@ -1,0 +1,6 @@
+C.bad1(address,uint256) uses arbitrary from in transferFrom: erc20.transferFrom(notsend,to,am)
+
+C.bad3(address,address,uint256) uses arbitrary from in transferFrom: erc20.safeTransferFrom(from,to,amount)
+
+C.bad4(address,address,uint256) uses arbitrary from in transferFrom: SafeERC20.safeTransferFrom(erc20,from,to,amount)
+

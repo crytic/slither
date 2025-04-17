@@ -1,0 +1,3 @@
+tests/e2e/detectors/test_data/rtlo/0.5.16/right_to_left_override.sol contains a unicode right-to-left-override character at byte offset 96:
+	- b'        test1(/*A\xe2\x80\xae/*B*/2 , 1/*\xe2\x80\xad'
+

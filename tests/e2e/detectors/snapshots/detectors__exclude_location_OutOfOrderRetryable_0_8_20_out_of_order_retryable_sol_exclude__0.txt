@@ -1,0 +1,16 @@
+Multiple retryable tickets created in the same function:
+	 -Y(msg.sender).createRetryableTicket(address(1),0,0,address(0),address(0),0,0,)
+	 -Y(msg.sender).createRetryableTicket(address(2),0,0,address(0),address(0),0,0,)
+
+Multiple retryable tickets created in the same function:
+	 -good2()
+	 -good2()
+
+Multiple retryable tickets created in the same function:
+	 -Y(msg.sender).createRetryableTicket(address(1),0,0,address(0),address(0),0,0,)
+	 -Y(msg.sender).createRetryableTicket(address(2),0,0,address(0),address(0),0,0,)
+
+Multiple retryable tickets created in the same function:
+	 -Y(msg.sender).createRetryableTicket(address(1),0,0,address(0),address(0),0,0,)
+	 -good2()
+

@@ -1,0 +1,2 @@
+Uninitialized.func().st_bug is a storage variable never initialized
+

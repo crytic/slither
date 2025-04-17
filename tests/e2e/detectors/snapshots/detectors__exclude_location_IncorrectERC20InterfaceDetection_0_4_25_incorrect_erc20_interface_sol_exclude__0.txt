@@ -1,0 +1,12 @@
+Token has incorrect ERC20 function interface:Token.approve(address,uint256)
+
+Token has incorrect ERC20 function interface:Token.allowance(address,address)
+
+Token has incorrect ERC20 function interface:Token.balanceOf(address)
+
+Token has incorrect ERC20 function interface:Token.transferFrom(address,address,uint256)
+
+Token has incorrect ERC20 function interface:Token.totalSupply()
+
+Token has incorrect ERC20 function interface:Token.transfer(address,uint256)
+

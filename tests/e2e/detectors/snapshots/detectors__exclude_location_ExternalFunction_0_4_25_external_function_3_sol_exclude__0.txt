@@ -1,0 +1,9 @@
+bad2(uint256[]) should be declared external:
+	- Test.bad2(uint256[])
+
+bad(bytes) should be declared external:
+	- Test.bad(bytes)
+
+bad3(string) should be declared external:
+	- Test.bad3(string)
+

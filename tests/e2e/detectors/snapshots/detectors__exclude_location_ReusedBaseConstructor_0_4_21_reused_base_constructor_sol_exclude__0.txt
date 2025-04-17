@@ -1,0 +1,24 @@
+E gives base constructor C.C(uint256) arguments more than once in inheritance hierarchy:
+	- From E constructor definition
+	- From D constructor definition
+
+E gives base constructor A.A(uint256) arguments more than once in inheritance hierarchy:
+	- From C constructor definition
+	- From B constructor definition
+
+F gives base constructor A.A(uint256) arguments more than once in inheritance hierarchy:
+	- From F constructor definition
+	- From B constructor definition
+
+D gives base constructor A.A(uint256) arguments more than once in inheritance hierarchy:
+	- From C constructor definition
+	- From B constructor definition
+
+C gives base constructor A.A(uint256) arguments more than once in inheritance hierarchy:
+	- From C constructor definition
+	- From B constructor definition
+
+E gives base constructor B.B(uint256) arguments more than once in inheritance hierarchy:
+	- From E constructor definition
+	- From D constructor definition
+
