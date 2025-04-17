@@ -6,6 +6,7 @@ from slither.core.compilation_unit import SlitherCompilationUnit
 from slither.formatters.utils.patches import apply_patch, create_diff
 from slither.tools.mutator.utils.testing_generated_mutant import test_patch
 from slither.core.declarations import Contract
+from slither.utils.colors import red
 
 logger = logging.getLogger("Slither-Mutate")
 
@@ -46,7 +47,6 @@ class AbstractMutator(
         self.output_folder = output_folder
         self.contract = contract_instance
         self.in_file = self.contract.source_mapping.filename.absolute
-        self.in_file_str = self.contract.compilation_unit.core.source_code[self.in_file]
         self.dont_mutate_line = dont_mutate_line
         # total revert/comment/tweak mutants that were generated and compiled
         self.total_mutant_counts = [0, 0, 0]
@@ -68,15 +68,26 @@ class AbstractMutator(
                 f"rate must be between 0 and 100 {self.__class__.__name__}"
             )
 
+    def should_mutate_node(self, node) -> bool:
+        return (
+            not node.source_mapping.lines[0] in self.dont_mutate_line
+            and node.source_mapping.filename.absolute == self.in_file
+        )
+
     @abc.abstractmethod
     def _mutate(self) -> Dict:
-        """TODO Documentation"""
+        """Abstract placeholder, will be overwritten by each mutator"""
         return {}
 
     # pylint: disable=too-many-branches
     def mutate(self) -> Tuple[List[int], List[int], List[int]]:
-        # call _mutate function from different mutators
-        (all_patches) = self._mutate()
+        all_patches: Dict = {}
+        # pylint: disable=broad-exception-caught
+        try:
+            # call _mutate function from different mutators
+            (all_patches) = self._mutate()
+        except Exception as e:
+            logger.error(red("%s mutator failed in %s: %s"), self.NAME, self.contract.name, str(e))
         if "patches" not in all_patches:
             logger.debug("No patches found by %s", self.NAME)
             return [0, 0, 0], [0, 0, 0], self.dont_mutate_line

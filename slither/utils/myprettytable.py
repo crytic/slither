@@ -19,9 +19,8 @@ class MyPrettyTable:
         self._options: Dict = {}
         if pretty_align:
             self._options["set_alignment"] = []
-            self._options["set_alignment"] += [(field_names[0], "l")]
-            for field_name in field_names[1:]:
-                self._options["set_alignment"] += [(field_name, "r")]
+            for field_name in field_names:
+                self._options["set_alignment"] += [(field_name, "l")]
         else:
             self._options["set_alignment"] = []
 
