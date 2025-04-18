@@ -8,7 +8,7 @@ setup(
     description="Slither is a Solidity and Vyper static analysis framework written in Python 3.",
     url="https://github.com/crytic/slither",
     author="Trail of Bits",
-    version="0.11.2",
+    version="0.11.3",
     packages=find_packages(),
     python_requires=">=3.8",
     install_requires=[
@@ -17,10 +17,10 @@ setup(
         "pycryptodome>=3.4.6",
         "crytic-compile>=0.3.9,<0.4.0",
         # "crytic-compile@git+https://github.com/crytic/crytic-compile.git@master#egg=crytic-compile",
-        "web3>=6.20.2, <7",
-        "eth-abi>=4.0.0",
-        "eth-typing>=3.0.0",
-        "eth-utils>=2.1.0",
+        "web3>=7.10,<8",
+        "eth-abi>=5.0.1",
+        "eth-typing>=5.0.0",
+        "eth-utils>=5.0.0",
     ],
     extras_require={
         "lint": [
