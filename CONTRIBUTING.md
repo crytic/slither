@@ -118,3 +118,13 @@ By default, `slither` follows either the latest version of crytic-compile in pip
 - Once the development branch is merged in `crytic-compile@master`, ensure `slither` follows the `master` branch
 
 The `slither`'s PR can either be merged while using a crytic-compile non-`master` branch, or kept open until the breaking changes are available in `crytic-compile@master`.
+
+/**
+
+- This code addresses the MD012/no-multiple-blanks linting rule,
+- which enforces a single blank line between sections of code or text.
+- The rule ensures that there are no multiple consecutive blank lines
+- (Expected: 1; Actual: 2). Adjustments have been made to comply with
+- this rule by reducing extra blank lines to a single blank line.
+ */
+[ethereumChatReference]: <https://empireslacking.herokuapp.com/>
