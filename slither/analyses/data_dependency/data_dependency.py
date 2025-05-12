@@ -460,7 +460,7 @@ def compute_dependency_function(function: Function) -> None:
                 unset_local_ir_vars[ir.lvalue] = False
                 add_dependency(ir.lvalue, function, ir, is_protected)
 
-    # If an SSA locl IR variable is read but never written to,, 
+    # If an SSA locl IR variable is read but never written to,,
     # and it is from a parameter, we should add a dependency edge from the variable to the parameter
     for node in function.nodes:
         for ir in node.irs_ssa:
