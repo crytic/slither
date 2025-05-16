@@ -1,22 +1,13 @@
-import enum
 from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations.structure import Structure
 from slither.core.solidity_types.elementary_type import ElementaryType
 from slither.core.solidity_types.mapping_type import MappingType
 from slither.core.solidity_types.user_defined_type import UserDefinedType
-from slither.core.variables.variable import Variable
+from slither.core.variables.variable import Variable, VariableLocation
 
 if TYPE_CHECKING:  # type: ignore
     from slither.core.declarations import Function
-
-
-class VariableLocation(enum.Enum):
-    MEMORY = "memory"
-    CALLDATA = "calldata"
-    STORAGE = "storage"
-    REFERENCE_TO_STORAGE = "reference_to_storage"
-    TRANSIENT = "transient"
 
 
 class LocalVariable(Variable):

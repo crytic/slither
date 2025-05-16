@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 from slither.core.declarations.contract_level import ContractLevel
-from slither.core.variables.local_variable import VariableLocation
-from slither.core.variables.variable import Variable
+from slither.core.variables.variable import Variable, VariableLocation
 
 if TYPE_CHECKING:
     from slither.core.cfg.node import Node

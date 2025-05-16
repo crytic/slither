@@ -12,8 +12,9 @@ from slither import Slither
 from slither.core.cfg.node import Node, NodeType
 from slither.core.declarations import Contract, Function
 from slither.core.solidity_types import ArrayType, ElementaryType
-from slither.core.variables.local_variable import LocalVariable, VariableLocation
+from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.state_variable import StateVariable
+from slither.core.variables.variable import VariableLocation
 from slither.slithir.operations import (
     Assignment,
     Binary,
