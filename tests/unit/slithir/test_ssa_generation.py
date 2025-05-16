@@ -135,7 +135,7 @@ def ssa_basic_properties(function: Function) -> None:
             assert var.is_storage == ssa_var.is_storage
             if ssa_var.is_storage:
                 assert len(ssa_var.refers_to) == 1
-                assert ssa_var.refers_to[0].location == VariableLocation.REFERENCE_TO_STORAGE.value
+                assert ssa_var.refers_to[0].location == VariableLocation.REFERENCE_TO_STORAGE
 
     # 5
     check_property_5_and_6(function.parameters, function.parameters_ssa)

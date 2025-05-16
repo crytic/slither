@@ -14,6 +14,7 @@ from slither.core.expressions import AssignmentOperation
 from slither.core.source_mapping.source_mapping import Source
 from slither.core.variables.local_variable import LocalVariable
 from slither.core.variables.local_variable_init_from_tuple import LocalVariableInitFromTuple
+from slither.core.variables.variable import VariableLocation
 from slither.solc_parsing.cfg.node import NodeSolc
 from slither.solc_parsing.declarations.caller_context import CallerContextExpression
 from slither.solc_parsing.exceptions import ParsingError
@@ -1313,8 +1314,8 @@ class FunctionSolc(CallerContextExpression):
             local_var.initialized = True
 
         # see https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
-        if local_var.location == "default":
-            local_var.set_location("memory")
+        if local_var.location == VariableLocation.DEFAULT:
+            local_var.set_location(VariableLocation.MEMORY)
 
         self._add_local_variable(local_var_parser)
         return local_var_parser
