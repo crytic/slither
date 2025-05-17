@@ -21,7 +21,7 @@ class LocalVariableSolc(VariableDeclarationSolc):
         Can be storage/memory or default
         """
         if "storageLocation" in attributes:
-            location = attributes["storageLocation"]
+            location = VariableLocation(attributes["storageLocation"])
             self.underlying_variable.set_location(location)
         else:
             if "memory" in attributes["type"]:

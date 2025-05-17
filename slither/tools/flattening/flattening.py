@@ -15,6 +15,7 @@ from slither.core.declarations.solidity_variables import SolidityCustomRevert
 from slither.core.solidity_types import MappingType, ArrayType
 from slither.core.solidity_types.type import Type
 from slither.core.solidity_types.user_defined_type import UserDefinedType
+from slither.core.variables.variable import VariableLocation
 from slither.exceptions import SlitherException
 from slither.slithir.operations import NewContract, TypeConversion, SolidityCall, InternalCall
 from slither.tools.flattening.export.export import (
@@ -137,7 +138,7 @@ class Flattening:
                         raise SlitherException(f"External keyword not found {f.name} {attributes}")
 
                     for var in f.parameters:
-                        if var.location == "calldata":
+                        if var.location == VariableLocation.CALLDATA:
                             calldata_start = var.source_mapping.start
                             calldata_end = calldata_start + var.source_mapping.length
                             calldata_idx = src_bytes[calldata_start:calldata_end].find(" calldata ")

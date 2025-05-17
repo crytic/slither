@@ -13,6 +13,7 @@ from slither.detectors.abstract_detector import (
 from slither.core.solidity_types.array_type import ArrayType
 from slither.core.variables.state_variable import StateVariable
 from slither.core.variables.local_variable import LocalVariable
+from slither.core.variables.variable import VariableLocation
 from slither.core.cfg.node import Node
 from slither.core.declarations.contract import Contract
 from slither.core.declarations.function_contract import FunctionContract
@@ -84,7 +85,7 @@ As a result, Bob's usage of the contract is incorrect."""
                 # Determine if this function takes an array as a parameter and the location isn't storage.
                 # If it has been written to, we know this sets an non-storage-ref array.
                 for param in function.parameters:
-                    if isinstance(param.type, ArrayType) and param.location != "storage":
+                    if isinstance(param.type, ArrayType) and param.location != VariableLocation.STORAGE:
                         if param in function.variables_written:
                             results.add(function)
                             break
@@ -132,8 +133,8 @@ As a result, Bob's usage of the contract is incorrect."""
                         # If it is a state variable OR a local variable referencing storage, we add it to the list.
                         if (
                             isinstance(arg, StateVariable)
-                            or (isinstance(arg, LocalVariable) and arg.location == "storage")
-                        ) and (isinstance(param.type, ArrayType) and param.location != "storage"):
+                            or (isinstance(arg, LocalVariable) and arg.location == VariableLocation.STORAGE)
+                        ) and (isinstance(param.type, ArrayType) and param.location != VariableLocation.STORAGE):
                             results.append((ir.node, arg, ir.function))
         return results
 
