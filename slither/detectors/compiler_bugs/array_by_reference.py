@@ -85,7 +85,10 @@ As a result, Bob's usage of the contract is incorrect."""
                 # Determine if this function takes an array as a parameter and the location isn't storage.
                 # If it has been written to, we know this sets an non-storage-ref array.
                 for param in function.parameters:
-                    if isinstance(param.type, ArrayType) and param.location != VariableLocation.STORAGE:
+                    if (
+                        isinstance(param.type, ArrayType)
+                        and param.location != VariableLocation.STORAGE
+                    ):
                         if param in function.variables_written:
                             results.add(function)
                             break
@@ -133,8 +136,14 @@ As a result, Bob's usage of the contract is incorrect."""
                         # If it is a state variable OR a local variable referencing storage, we add it to the list.
                         if (
                             isinstance(arg, StateVariable)
-                            or (isinstance(arg, LocalVariable) and arg.location == VariableLocation.STORAGE)
-                        ) and (isinstance(param.type, ArrayType) and param.location != VariableLocation.STORAGE):
+                            or (
+                                isinstance(arg, LocalVariable)
+                                and arg.location == VariableLocation.STORAGE
+                            )
+                        ) and (
+                            isinstance(param.type, ArrayType)
+                            and param.location != VariableLocation.STORAGE
+                        ):
                             results.append((ir.node, arg, ir.function))
         return results
 
