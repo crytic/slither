@@ -9,3 +9,6 @@ MD024:
   siblings_only: true
   allow_different_nesting: true
 
+MD033:
+  allowed_elements:
+    - img
