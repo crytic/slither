@@ -7,26 +7,26 @@
 | Num | Check                   | What it Detects                                                                         | Impact        | Proxy | Contract V2 |
 | --- | ----------------------- | --------------------------------------------------------------------------------------- | ------------- | ----- | ----------- |
 | 1   | `became-constant`       | [Variables that should not be constant](#variables-that-should-not-be-constant)         | High          |       | X           |
-| 2   | `function-id-collision` | [Functions IDs collision](#functions-ids-collisions)                                    | High          | X     |
-| 3   | `function-shadowing`    | [Functions shadowing](#functions-shadowing)                                             | High          | X     |
-| 4   | `missing-calls`         | [Missing calls to init functions](#initialize-functions-are-not-called)                 | High          |       |
-| 5   | `missing-init-modifier` | [initializer() is not called](#initializer-is-not-called)                               | High          |       |
-| 6   | `multiple-calls`        | [Init functions called multiple times](#initialize-functions-are-called-multiple-times) | High          |       |
+| 2   | `function-id-collision` | [Functions IDs collision](#functions-ids-collisions)                                    | High          | X     |             |
+| 3   | `function-shadowing`    | [Functions shadowing](#functions-shadowing)                                             | High          | X     |             |
+| 4   | `missing-calls`         | [Missing calls to init functions](#initialize-functions-are-not-called)                 | High          |       |             |
+| 5   | `missing-init-modifier` | [initializer() is not called](#initializer-is-not-called)                               | High          |       |             |
+| 6   | `multiple-calls`        | [Init functions called multiple times](#initialize-functions-are-called-multiple-times) | High          |       |             |
 | 7   | `order-vars-contracts`  | [Incorrect vars order with the v2](#incorrect-variables-with-the-v2)                    | High          |       | X           |
-| 8   | `order-vars-proxy`      | [Incorrect vars order with the proxy](#incorrect-variables-with-the-proxy)              | High          | X     |
-| 9   | `variables-initialized` | [State variables with an initial value](#state-variable-initialized)                    | High          |       |
+| 8   | `order-vars-proxy`      | [Incorrect vars order with the proxy](#incorrect-variables-with-the-proxy)              | High          | X     |             |
+| 9   | `variables-initialized` | [State variables with an initial value](#state-variable-initialized)                    | High          |       |             |
 | 10  | `were-constant`         | [Variables that should be constant](#variables-that-should-be-constant)                 | High          |       | X           |
-| 11  | `extra-vars-proxy`      | [Extra vars in the proxy](#extra-variables-in-the-proxy)                                | Medium        | X     |
+| 11  | `extra-vars-proxy`      | [Extra vars in the proxy](#extra-variables-in-the-proxy)                                | Medium        | X     |             |
 | 12  | `missing-variables`     | [Variable missing in the v2](#missing-variables)                                        | Medium        |       | X           |
 | 13  | `extra-vars-v2`         | [Extra vars in the v2](#extra-variables-in-the-v2)                                      | Informational |       | X           |
-| 14  | `init-inherited`        | [Initializable is not inherited](#initializable-is-not-inherited)                       | Informational |       |
-| 15  | `init-missing`          | [Initializable is missing](#initializable-is-missing)                                   | Informational |       |
-| 16  | `initialize-target`     | [Initialize function that must be called](#initialize-function)                         | Informational |       |
-| 17  | `initializer-missing`   | [initializer() is missing](#initializer-is-missing)                                     | Informational |       |
+| 14  | `init-inherited`        | [Initializable is not inherited](#initializable-is-not-inherited)                       | Informational |       |             |
+| 15  | `init-missing`          | [Initializable is missing](#initializable-is-missing)                                   | Informational |       |             |
+| 16  | `initialize-target`     | [Initialize function that must be called](#initialize-function)                         | Informational |       |             |
+| 17  | `initializer-missing`   | [initializer() is missing](#initializer-is-missing)                                     | Informational |       |             |
 
 ## Usage
 
-```
+```sh
 slither-check-upgradeability project ContractName
 ```
 
@@ -54,9 +54,9 @@ If you want to check also the proxy, use:
 
 If you use zos, you will have the proxy and the contract in different directories.
 
-Likely, you will use one of the proxy from https://github.com/zeppelinos/zos. Clone the `zos`, and install the dependencies:
+Likely, you will use one of the proxy from [zos](https://github.com/zeppelinos/zos). Clone the `zos`, and install the dependencies:
 
-```
+```sh
 git clone https://github.com/zeppelinos/zos
 cd zos/packages/lib
 npm install
@@ -67,7 +67,7 @@ Note: `contracts/mocks/WithConstructorImplementation.sol` must be removed as it 
 
 Then from your project directory:
 
-```
+```sh
 slither-check-upgradeability . ContractName --proxy-filename /path/to/zos/packages/lib/ --proxy-name UpgradeabilityProxy
 ```
 
@@ -86,7 +86,7 @@ According to your setup, you might choose another proxy name than `Upgradeabilit
 
 Detect state variables that should not be `constant̀`.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -120,7 +120,7 @@ Do not make an existing state variable `constant`.
 
 Detect function ID collision between the contract and the proxy.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -154,7 +154,7 @@ Rename the function. Avoid public functions in the proxy.
 
 Detect function shadowing between the contract and the proxy.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -187,7 +187,7 @@ Rename the function. Avoid public functions in the proxy.
 
 Detect missing calls to initialize functions.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Base{
@@ -220,7 +220,7 @@ Ensure all the initialize functions are reached by the most derived initialize f
 
 Detect if `Initializable.initializer()` is called.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -248,7 +248,7 @@ Use `Initializable.initializer()`.
 
 Detect multiple calls to a initialize function.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Base{
@@ -288,7 +288,7 @@ Call only one time every initialize function.
 
 Detect variables that are different between the original contract and the updated one.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -317,7 +317,7 @@ Respect the variable order of the original contract in the updated contract.
 
 Detect variables that are different between the contract and the proxy.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -346,7 +346,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
 
 Detect state variables that are initialized.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -371,7 +371,7 @@ Using initialize functions to write initial values in state variables.
 
 Detect state variables that should be `constant̀`.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -405,7 +405,7 @@ Do not remove `constant` from a state variables during an update.
 
 Detect variables that are in the proxy and not in the contract.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
@@ -435,7 +435,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
 
 Detect variables that were present in the original contracts but are not in the updated one.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract V1{
@@ -469,7 +469,7 @@ Show new variables in the updated contract.
 
 This finding does not have an immediate security impact and is informative.
 
-### Exploit Scenario:
+### Exploit Scenario
 
 ```solidity
 contract Contract{
