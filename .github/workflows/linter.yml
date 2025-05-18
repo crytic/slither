@@ -71,3 +71,4 @@ jobs:
           VALIDATE_SHELL_SHFMT: false
           SHELLCHECK_OPTS: "-e SC1090"
           FILTER_REGEX_EXCLUDE: .*tests/.*.(json|zip|sol)
+          MARKDOWN_CONFIG_FILE: .markdownlint.yaml
