@@ -1,8 +1,10 @@
+# slither-find-paths
+
 `slither-find-paths` finds all the paths that reach a given target.
 
 ## Usage
 
-```
+```sh
 slither-find-paths file.sol [contract.function targets]
 ```
 
@@ -12,7 +14,7 @@ slither-find-paths file.sol [contract.function targets]
 
 Tested on [tests/possible_paths/paths.sol](https://github.com/trailofbits/slither/blob/master/tests/possible_paths/paths.sol)
 
-```
+```sh
 $ slither-find-paths paths.sol A.destination
 Target functions:
 - A.destination()
