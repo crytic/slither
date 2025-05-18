@@ -1,3 +1,5 @@
+# Printing contracts
+
 Slither allows printing contracts information through its printers.
 
 | Num | Printer             | Description                                                                                                      |
@@ -32,7 +34,7 @@ Slither allows printing contracts information through its printers.
 
 Several printers require xdot installed for visualization:
 
-```
+```sh
 sudo apt install xdot
 ```
 
@@ -44,23 +46,23 @@ Export the call-graph of the contracts to a dot file
 
 ### Example
 
-```
-$ slither examples/printers/call_graph.sol --print call-graph
+```sh
+slither examples/printers/call_graph.sol --print call-graph
 ```
 
-<img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/call_graph.sol.dot.png">
+![call_graph](https://raw.githubusercontent.com/crytic/slither/master/examples/printers/call_graph.sol.dot.png)
 
 The output format is [dot](https://www.graphviz.org/).
 To vizualize the graph:
 
-```
-$ xdot examples/printers/call_graph.sol.dot
+```sh
+xdot examples/printers/call_graph.sol.dot
 ```
 
 To convert the file to svg:
 
-```
-$ dot examples/printers/call_graph.sol.dot -Tpng -o examples/printers/call_graph.sol.png
+```sh
+dot examples/printers/call_graph.sol.dot -Tpng -o examples/printers/call_graph.sol.png
 ```
 
 ## CFG
@@ -74,14 +76,14 @@ Export the control flow graph of each function
 The output format is [dot](https://www.graphviz.org/).
 To vizualize the graph:
 
-```
-$ xdot function.sol.dot
+```sh
+xdot function.sol.dot
 ```
 
 To convert the file to svg:
 
-```
-$ dot function.dot -Tsvg -o function.sol.png
+```sh
+dot function.dot -Tsvg -o function.sol.png
 ```
 
 ## Contract Summary
@@ -92,11 +94,11 @@ Output a quick summary of the contract.
 
 ### Example
 
-```
-$ slither examples/printers/quick_summary.sol --print contract-summary
+```sh
+slither examples/printers/quick_summary.sol --print contract-summary
 ```
 
-<img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/quick_summary.sol.png">
+![quick_summary](https://raw.githubusercontent.com/crytic/slither/master/examples/printers/quick_summary.sol.png)
 
 ## Data Dependencies
 
@@ -105,11 +107,11 @@ Print the data dependencies of the variables
 
 ### Example
 
-```
-$ slither examples/printers/data_dependencies.sol --print data-dependency
+```sh
+slither examples/printers/data_dependencies.sol --print data-dependency
 ```
 
-```
+```text
 Contract MyContract
 +----------+----------------------+
 | Variable |     Dependencies     |
@@ -148,7 +150,7 @@ Print the calling sequence of constructors based on C3 linearization.
 
 ### Example
 
-```
+```sh
 ...
 $ slither examples/printers/constructors.sol --print constructor-calls
 [..]
@@ -202,7 +204,7 @@ Print the EVM representation of the functions
 
 ### Example
 
-```
+```sh
 $ slither examples/printers/evm.sol --print evm
 
 INFO:Printers:Contract Test
@@ -266,7 +268,7 @@ Print the keccack256 signature of the functions
 
 ### Examples
 
-```
+```sh
 $ slither examples/printers/authorization.sol --print function-id
 INFO:Printers:
 MyContract:
@@ -290,11 +292,11 @@ Output a summary of the contract showing for each function:
 
 ### Example
 
-```
-$ slither tests/backdoor.sol --print function-summary
+```sh
+slither tests/backdoor.sol --print function-summary
 ```
 
-```
+```text
 [...]
 
 Contract C
@@ -321,11 +323,11 @@ Print a human-readable summary of the contracts
 
 ### Example
 
-```
-$ slither examples/printers/human_printer.sol --print human-summary
+```sh
+slither examples/printers/human_printer.sol --print human-summary
 ```
 
-<img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/human_printer.sol.png">
+![human_printer](https://raw.githubusercontent.com/crytic/slither/master/examples/printers/human_printer.sol.png)
 
 ## Inheritance
 
@@ -334,11 +336,11 @@ Print the inheritance relations between contracts
 
 ### Example
 
-```
-$ slither examples/printers/inheritances.sol --print inheritance
+```sh
+slither examples/printers/inheritances.sol --print inheritance
 ```
 
-<img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances.sol.png">
+![inheritances](https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances.sol.png)
 
 ## Inheritance Graph
 
@@ -348,7 +350,7 @@ Output a graph showing the inheritance interaction between the contracts.
 
 ### Example
 
-```
+```sh
 $ slither examples/printers/inheritances.sol --print inheritance-graph
 [...]
 INFO:PrinterInheritance:Inheritance Graph: examples/DAO.sol.dot
@@ -357,17 +359,17 @@ INFO:PrinterInheritance:Inheritance Graph: examples/DAO.sol.dot
 The output format is [dot](https://www.graphviz.org/).
 To vizualize the graph:
 
-```
-$ xdot examples/printers/inheritances.sol.dot
+```sh
+xdot examples/printers/inheritances.sol.dot
 ```
 
 To convert the file to svg:
 
-```
-$ dot examples/printers/inheritances.sol.dot -Tsvg -o examples/printers/inheritances.sol.png
+```sh
+dot examples/printers/inheritances.sol.dot -Tsvg -o examples/printers/inheritances.sol.png
 ```
 
-<img src="https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances_graph.sol.png">
+![inheritances_graph](https://raw.githubusercontent.com/crytic/slither/master/examples/printers/inheritances_graph.sol.png)
 
 Indicators:
 
@@ -385,7 +387,7 @@ Print the modifiers called by each function.
 
 ### Example
 
-```
+```sh
 $ slither examples/printers/modifier.sol --print modifiers
 INFO:Printers:
 Contract C
@@ -405,7 +407,7 @@ Print the require and assert calls of each function.
 
 ### Example
 
-```
+```sh
 $ slither examples/printers/require.sol --print require
 INFO:Printers:
 Contract Lib
@@ -432,7 +434,7 @@ Print the slithIR representation of the functions
 
 ### Example
 
-```
+```sh
 $ slither examples/printers/slihtir.sol --print slithir
 Contract UnsafeMath
 	Function add(uint256,uint256)
@@ -475,7 +477,7 @@ Print the storage order of the state variables
 
 ### Example
 
-```
+```sh
 $ slither tests/check-upgradability/contractV2_bug.sol --print variable-order
 INFO:Printers:
 ContractV2:
@@ -496,7 +498,7 @@ Print the variables written and the check on `msg.sender` of each function.
 
 ### Example
 
-```
+```sh
 ...
 $ slither examples/printers/authorization.sol --print vars-and-auth
 [..]
