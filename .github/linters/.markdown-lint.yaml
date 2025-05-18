@@ -1,4 +1,5 @@
-default: true
+---
+extends: "markdownlint/style/prettier"
 
 MD010:
   code_blocks: false
