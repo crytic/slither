@@ -13,7 +13,7 @@ class PythUnchecked(AbstractDetector):
     Documentation: This detector finds deprecated Pyth function calls
     """
 
-    # To be overriden in the derived class
+    # To be overridden in the derived class
     PYTH_FUNCTIONS = []
     PYTH_FIELD = ""
 

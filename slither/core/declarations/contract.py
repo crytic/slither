@@ -843,7 +843,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
 
     def get_functions_writing_to_variable(self, variable: "Variable") -> List["Function"]:
         """
-        Return the functions writting the variable
+        Return the functions writing the variable
         """
         return [f for f in self.functions if f.is_writing(variable)]
 
