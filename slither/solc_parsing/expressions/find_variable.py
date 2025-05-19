@@ -253,7 +253,7 @@ def _find_in_contract(
         # TODO refactor find_variable to prevent this from happening
         pass
 
-    # If the enum is refered as its name rather than its canonicalName
+    # If the enum is referred as its name rather than its canonicalName
     enums = {e.name: e for e in contract.enums}
     if var_name in enums:
         return enums[var_name]
