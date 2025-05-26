@@ -215,10 +215,10 @@ class ExpressionToSlithIR(ExpressionVisitor):
                         and expression.type
                         and expression.expression_return_type
                     ):
-                        right = self._convert_right_assignment(left[idx], right[idx], expression)
+                        right_converted = self._convert_right_assignment(left[idx], right[idx], expression)
                         operation = convert_assignment(
                             left[idx],
-                            right,
+                            right_converted,
                             expression.type,
                             expression.expression_return_type,
                         )
@@ -230,8 +230,8 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 for idx, _ in enumerate(left):
                     if not left[idx] is None:
                         index = idx
-                        right = self._convert_right_assignment(left[idx], right, expression)
-                        operation = Unpack(left[idx], right, index)
+                        right_converted = self._convert_right_assignment(left[idx], right, expression)
+                        operation = Unpack(left[idx], right_converted, index)
                         operation.set_expression(expression)
                         self._result.append(operation)
                 set_val(expression, None)
