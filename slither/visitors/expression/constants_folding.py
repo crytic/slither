@@ -450,6 +450,8 @@ class ConstantFolding(ExpressionVisitor):
             value = int.from_bytes(expr.value, "big")
         elif str(expression.type).startswith("byte") and isinstance(expr.value, int):
             value = int.to_bytes(expr.value, 32, "big")
+        elif str(expression.type).startswith("byte") and isinstance(expr.value, str):
+            value = expr.value
         else:
             value = convert_string_to_fraction(expr.converted_value)
         set_val(expression, value)
