@@ -215,7 +215,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
                         and expression.type
                         and expression.expression_return_type
                     ):
-                        right_converted = self._convert_right_assignment(left[idx], right[idx], expression)
+                        right_converted = self._convert_right_assignment(
+                            left[idx], right[idx], expression
+                        )
                         operation = convert_assignment(
                             left[idx],
                             right_converted,
