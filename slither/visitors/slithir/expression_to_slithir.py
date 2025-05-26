@@ -230,7 +230,9 @@ class ExpressionToSlithIR(ExpressionVisitor):
                 for idx, _ in enumerate(left):
                     if not left[idx] is None:
                         index = idx
-                        right_converted = self._convert_right_assignment(left[idx], right, expression)
+                        right_converted = self._convert_right_assignment(
+                            left[idx], right, expression
+                        )
                         operation = Unpack(left[idx], right_converted, index)
                         operation.set_expression(expression)
                         self._result.append(operation)
