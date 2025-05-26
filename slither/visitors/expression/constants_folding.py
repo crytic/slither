@@ -357,6 +357,14 @@ class ConstantFolding(ExpressionVisitor):
             # User defined type .wrap call handled in _post_call_expression
             return
         elif (
+            isinstance(expression.expression, TypeConversion)
+            and expression.expression.type == ElementaryType("address")
+            and expression.member_name in ["balance", "code", "codehash"]
+        ):
+            # We need to raise NotConstant for these case here otherwise expression.expression.value would crash in the following condition
+            # because TypeConversion does not have a value. See https://github.com/crytic/slither/issues/2717
+            raise NotConstant
+        elif (
             isinstance(expression.expression.value, Contract)
             and expression.member_name in expression.expression.value.variables_as_dict
             and expression.expression.value.variables_as_dict[expression.member_name].is_constant
